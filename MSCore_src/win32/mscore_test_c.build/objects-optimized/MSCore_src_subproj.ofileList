@@ -1,7 +1,0 @@
-win32/mscore_test_c.build/objects-optimized/MSCore_src/MSCArray.o
-win32/mscore_test_c.build/objects-optimized/MSCore_src/MSCObject.o
-win32/mscore_test_c.build/objects-optimized/MSCore_src/MSCoreSES.o
-win32/mscore_test_c.build/objects-optimized/MSCore_src/MSCoreSystem.o
-win32/mscore_test_c.build/objects-optimized/MSCore_src/MSCoreTools.o
-win32/mscore_test_c.build/objects-optimized/MSCore_src/MSCoreUnichar.o
-win32/mscore_test_c.build/objects-optimized/MSCore_src/MSCUnicodeBuffer.o
