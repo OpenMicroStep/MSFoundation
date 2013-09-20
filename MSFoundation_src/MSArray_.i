@@ -160,6 +160,12 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
 - (NSUInteger)hash:(unsigned)depth {return CArrayHash(self, depth);}
 - (NSUInteger)hash                 {return CArrayHash(self, 0    );}
 
+- (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
+  {
+  return CArrayCopy(self);
+  z= NULL;
+  }
+
 - (BOOL)isTrue
   {
   if (_count) {

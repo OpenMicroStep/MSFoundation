@@ -50,13 +50,10 @@
 
 #ifndef NSINTEGER_DEFINED
 #define NSINTEGER_DEFINED
-#if     defined(__LP64__) || defined(NS_BUILD_32_LIKE_64)
+
+// Si un jour TARGET_OS_IPHONE, éventuellement à revoir
 typedef long           NSInteger;
 typedef unsigned long  NSUInteger;
-#else
-typedef int            NSInteger;
-typedef unsigned int   NSUInteger;
-#endif // defined(__LP64__) || defined(NS_BUILD_32_LIKE_64)
 
 #define NSIntegerMax    LONG_MAX
 #define NSIntegerMin    LONG_MIN

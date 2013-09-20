@@ -7,9 +7,9 @@ static inline int test()
   int err= 0;
   printf("********** Test of the Microstep MSCore Library **********\n");
   #ifdef MSCORE_STANDALONE
-  printf("********** MSCORE_STANDALONE\n");
+  printf("********** MSCORE_STANDALONE\n\n");
   #else
-  printf("********** MSCORE\n");
+  printf("********** MSCORE\n\n");
   #endif
   if (!(err= mscore_carray_validate()))
     printf("\n********** ALL THE TESTS ARE SUCCESSFUL !!!     **********\n");

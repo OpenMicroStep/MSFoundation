@@ -137,8 +137,6 @@ int mscore_carray_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
-  fprintf(stdout, "\n");
-
   err+= carray_create();
   err+= carray_ptr();
   err+= carray_subarray();

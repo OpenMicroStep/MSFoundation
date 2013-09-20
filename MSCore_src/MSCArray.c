@@ -85,7 +85,13 @@ BOOL noRR,copyItems,nilVerif; id *p,*po; NSUInteger idxStart,idxCount; char*fct;
                     "%s(): try to insert *nil* object at index %lu.",
                     fct,(unsigned long)idxStart);
       return;}
-    if (copyItems) o= COPY(o);
+    if (copyItems) {
+      o= COPY(o);
+      if (!o) {
+        MSReportError(MSMallocError, MSFatalError, MSTryToInsertNilError,
+                      "%s(): copy failed at index %lu.",
+                      fct,(unsigned long)idxStart);
+        return;}}
     else if (!noRR) RETAIN(o);
     *p++= o;}
 }
@@ -148,7 +154,7 @@ id CArrayCopy(id self)
 {
   CArray *a;
   if (!self) return nil;
-  a= (CArray *)MSCreateObjectWithClassIndex(CArrayClassIndex);
+  a= (CArray*)MSCreateObjectWithClassIndex(CArrayClassIndex);
   if (a) {
     a->flag.noRR= ((CArray*)self)->flag.noRR;
     CArrayAddArray(a, (CArray*)self, NO);}

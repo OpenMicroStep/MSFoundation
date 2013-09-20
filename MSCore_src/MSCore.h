@@ -68,6 +68,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
+#include <time.h>
 #include <winsock.h>
 #include <process.h>
 #include <fcntl.h>
