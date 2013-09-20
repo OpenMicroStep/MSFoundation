@@ -41,10 +41,9 @@
  */
 
 #import "MSFoundation.h"
+#import "MSArray_.h"
+#import <objc/objc-runtime.h>
 
-@interface NSArray (Private)
-- (BOOL)_isMS;
-@end
 @interface MSMutableArray (Private)
 - (BOOL)_isMS;
 @end
@@ -54,122 +53,6 @@
 
 @implementation MSMutableArray
 
-#pragma mark alloc / init
-
-+ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
-+ (id)alloc                       {return (id)CCreateArray(0) ;}
-+ (id)new                         {return (id)CCreateArray(0) ;}
-+ (id)array           {return AUTORELEASE((id)CCreateArray(0));}
-+ (id)arrayWithObject:(id)anObject
-  {
-  return AUTORELEASE((id)CCreateArrayWithObject(anObject));
-  }
-+ (id)arrayWithObjects:(id*)objs count:(NSUInteger)n
-  {
-  return AUTORELEASE([(id)CCreateArray(n) initWithObjects:objs count:n copyItems:NO]);
-  }
-+ (id)arrayWithFirstObject:(id)firstObject arguments:(va_list)ap
-  {
-  return AUTORELEASE([(id)CCreateArray(1) initWithFirstObject:firstObject arguments:ap]);
-  }
-+ (id)arrayWithObjects:(id)firstObject, ...
-  {
-  id ret;
-  va_list ap;
-  va_start(ap, firstObject);
-  ret= [self arrayWithFirstObject:firstObject arguments:ap];
-  va_end(ap);
-  return AUTORELEASE(ret);
-  }
-+ (id)arrayWithArray:(NSArray*)array
-  {
-  return AUTORELEASE([(id)CCreateArray([array count]) initWithArray:array copyItems:NO]);
-  }
-
-- (id)init
-  {
-  return self;
-  }
-- (id)initWithObject:(id)o
-  {
-  CArrayAddObject((CArray*)self,o);
-  return self;
-  }
-- (id)initWithObjects:(id*)objects count:(NSUInteger)n
-  {
-  return [self initWithObjects:objects count:n copyItems:NO];
-  }
-
-- (id)initWithObjects:(id*)objects count:(NSUInteger)n copyItems:(BOOL)copy
-  {
-  CArrayAddObjects((CArray*)self, objects, n, copy);
-  return self;
-  }
-
-- (id)initWithObjects:(id)firstObject, ...
-  {
-  va_list ap;
-  va_start(ap, firstObject);
-  self= [self initWithFirstObject:firstObject arguments:ap];
-  va_end(ap);
-  return self;
-  }
-- (id)initWithFirstObject:(id)o arguments:(va_list)ap
-  {
-  CArrayAddObject((CArray*)self,o);
-  while ((o= va_arg (ap, id))) CArrayAddObject((CArray*)self,o);
-  return self;
-  }
-
-- (id)initWithArray:(NSArray*)array
-  {
-  return [self initWithArray:array copyItems:NO];
-  }
-
-static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
-  {
-  if ([a _isMS]) CArrayAddArray(self, (CArray*)a, copyItems);
-  else {
-    id e,o;
-    CArrayGrow(self, [a count]);
-    for (e= [a objectEnumerator]; (o= [e nextObject]);) {
-      CArrayAddObjects(self,&o,1,copyItems);}}
-  }
-- (id)initWithArray:(NSArray*)array copyItems:(BOOL)copy
-  {
-  _addArray((CArray*)self, array, copy);
-  return self;
-  }
-
-- (id)initWithCapacity:(NSUInteger)capacity
-  {
-  return [self initWithCapacity:capacity  noRetainRelease:NO nilItems:NO];
-  }
-- (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems
-  {
-  CArrayGrow((CArray*)self, capacity);
-  self->_flags.noRR=     noRR    ?1:0;
-  self->_flags.nilItems= nilItems?1:0;
-  return self ;
-  }
-- (NSUInteger)capacity {return _size;}
-
-- (void)dealloc
-  {
-  CArrayFreeInside(self);
-  [super dealloc];
-  }
-
-#pragma mark Primitives
-
-- (NSUInteger)count {return _count;}
-
-- (id)objectAtIndex:(NSUInteger)i
-  {
-  return CArrayObjectAtIndex((CArray*)self,i);
-  }
-
-#pragma mark Global methods
-
+#include "MSArray_.i"
 
 @end

@@ -86,8 +86,16 @@ BOOL noRR,copyItems,nilVerif; id *p,*po; NSUInteger idxStart,idxCount; char*fct;
                     fct,(unsigned long)idxStart);
       return;}
     if (copyItems) o= COPY(o);
-    if (!noRR) RETAIN(o);
+    else if (!noRR) RETAIN(o);
     *p++= o;}
+}
+
+static inline void _insert(a, po,idxStart,idxCount, copyItems,nilVerif, fct)
+CArray *a; id *po; NSUInteger idxStart,idxCount; BOOL copyItems,nilVerif; char*fct;
+{
+  if (!a || !po || !idxCount) return;
+  _expand(a, idxStart, idxCount);
+  _fill(a->flag.noRR, a->pointers, po,idxStart,idxCount, copyItems,nilVerif, fct);
 }
 
 #pragma mark c-like class methods
@@ -185,8 +193,22 @@ CArray *CCreateArrayWithObjects(id *objects, NSUInteger count, BOOL copyItems)
       (unsigned long)count);
     return nil;}
   a= CCreateArray(count);
-  CArrayAddObjects(a, objects, count, copyItems);
+  _insert(a, objects, 0, count, copyItems, !a->flag.nilItems, "CCreateArrayWithObjects");
   return a;
+}
+
+CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg)
+{
+  CArray *sub; BOOL nilVerif;
+  if (rg.location + rg.length > a->count) {
+    MSReportError(MSInvalidArgumentError, MSFatalError, MSIndexOutOfRangeError,
+      "CCreateSubArrayWithRange: range [%lu %lu] %s out of range [0 %lu]",
+      WLU(rg.location), WLU(rg.location+rg.length-1), WLU(a->count));
+    return nil;}
+  sub= CCreateArray(rg.length);
+  nilVerif= (!sub->flag.nilItems && a->flag.nilItems);
+  _insert(sub, a->pointers+rg.location, 0, rg.length, NO, nilVerif, "CCreateArrayWithObjects");
+  return sub;
 }
 
 #pragma mark Management
@@ -302,15 +324,6 @@ BOOL CArrayIdenticals(const CArray *self, const CArray *anotherArray)
 }
 
 #pragma mark Add
-
-
-static inline void _insert(a, po,idxStart,idxCount, copyItems,nilVerif, fct)
-CArray *a; id *po; NSUInteger idxStart,idxCount; BOOL copyItems,nilVerif; char*fct;
-{
-  if (!a || !po || !idxCount) return;
-  _expand(a, idxStart, idxCount);
-  _fill(a->flag.noRR, a->pointers, po,idxStart,idxCount, copyItems,nilVerif, fct);
-}
 
 void CArrayAddObject(CArray *self, id object)
 {

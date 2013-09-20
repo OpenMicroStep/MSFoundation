@@ -95,15 +95,21 @@
 
 #endif // WIN32
 
-#ifndef MSCORE_STANDALONE
-// On ne peut pas inclure le Foundation quand on compili un .c
+// On ne peut pas inclure le Foundation quand on compile un .c
 // Donc pour compiler le MSCore lui-même pour une utilisation avec le Foundation
 // on a besoin de redéfinir Class, id, etc.
 // Lorsque l'on compile un .m avec le Foundation, ce dernier doit être inclus
 // avant MSCore.h (comme dans MSFoundation.h)
-#ifndef _OBJC_OBJC_H_
+// Il y a donc 3 états:
+//    MSCORE_STANDALONE: On implémente une c-like dynamique de classes
+//      (MSCObject.c)
+//    MSCORE_FORFOUNDATION: Pour la compilation de MSCore lui-même mais faisant
+//      appel au Foundation via MSCObject.m
+//    FOUNDATION: On est dans MSFoundation avec un comportement de classes
+//      normal mais les classes qui dérivent du MSCore (comme MSArray qui dérive
+//      de MSCArray) utilisent directement les fonctions du MSCore.
+#if !defined(MSCORE_STANDALONE) && !defined(_OBJC_OBJC_H_)
 #define MSCORE_FORFOUNDATION 1
-#endif
 #endif
 
 #include "MSCoreTypes.h"

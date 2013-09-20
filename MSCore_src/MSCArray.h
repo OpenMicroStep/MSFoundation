@@ -88,6 +88,7 @@ MSExport CArray *CCreateArrayWithOptions(NSUInteger capacity, BOOL retainRelease
 MSExport CArray *CCreateArray(NSUInteger capacity);
 MSExport CArray *CCreateArrayWithObject(id o);
 MSExport CArray *CCreateArrayWithObjects(id *os, NSUInteger count, BOOL copyItems);
+MSExport CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg);
 
 MSExport void CArrayGrow(CArray *self, NSUInteger n);
 MSExport void CArrayAdjustSize(CArray *self);

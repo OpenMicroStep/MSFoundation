@@ -1,6 +1,6 @@
 /*
  
- MSArray.m
+ MSArray_.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -40,32 +40,18 @@
  
  */
 
-#import "MSFoundation.h"
-#import "MSArray_.h"
-#import <objc/objc-runtime.h>
-
-#pragma mark Private
-
-@interface MSArray (Private)
+@interface NSArray (Private)
 - (BOOL)_isMS;
 @end
 
-@implementation NSArray (Private)
-- (BOOL)_isMS {return NO;}
-@end
-@implementation MSArray (Private)
-- (BOOL)_isMS {return YES;}
-@end
-@implementation _MSArrayEnumerator
-- (id)nextObject {return _next < _array->count ? _array->pointers[_next++] : nil;}
-- (void)dealloc  {RELEASE((id)_array) ; [super dealloc];}
-@end
-@implementation _MSArrayReverseEnumerator
-- (id)nextObject {return _next > 0 ? _array->pointers[--_next] : nil;}
+@interface _MSArrayEnumerator : NSEnumerator
+{
+@public
+  CArray*    _array;
+  NSUInteger _next;
+}
 @end
 
-@implementation MSArray
-
-#include "MSArray_.i"
-
+@interface _MSArrayReverseEnumerator : _MSArrayEnumerator
 @end
+

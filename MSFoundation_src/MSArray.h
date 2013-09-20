@@ -52,16 +52,16 @@
 - (id)initWithObjects:(id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
 - (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
 
-- (NSUInteger)capacity ;
+- (NSUInteger)capacity;
 
-- (BOOL)containsIdenticalObject:(id)anObject ;
-- (id)firstIdenticalObjectCommonWithArray:(NSArray*)otherArray ;
+- (BOOL)containsIdenticalObject:(id)anObject;
+- (id)firstIdenticalObjectCommonWithArray:(NSArray*)otherArray;
 
-- (MSArray*)sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator context:(void*)context ;
-- (MSArray*)sortedArrayUsingSelector:(SEL)comparator ;
+- (NSArray*)sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator context:(void*)context;
+- (NSArray*)sortedArrayUsingSelector:(SEL)comparator;
 
-- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2 ;
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2;
 
-- (MSArray*)microstepArray ; // returns self
+- (MSArray*)microstepArray; // returns self
 
 @end

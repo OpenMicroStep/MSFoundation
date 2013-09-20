@@ -25,6 +25,7 @@ static inline int carray_create(void)
   RELEASE(x);
   return err;
   }
+
 static inline int carray_ptr(void)
   {
   int err= 0;
@@ -89,16 +90,61 @@ static inline int carray_ptr(void)
   return err;
   }
 
-int mscore_carray_validate(void)
+static inline int carray_subarray(void)
   {
   int err= 0;
+  NSUInteger i,j, n= 2*3*256;
+  CArray *a,*b,*c; id o;
+  a= CCreateArray(n);
+  o= (id)CCreateArrayWithOptions(0,YES,YES);
+  CArrayAddObject((CArray*)o, nil);
+  if (((CArray*)o)->count!=1) {
+    fprintf(stdout, "Bad count(30): %lu\n",WLU(((CArray*)o)->count));
+    err++;}
+  for (i=0; i<n; i++) {
+    b= CCreateArray(i+1);
+    for (j=0; j<i+1; j++) CArrayAddObject(b, o);
+    CArrayAddObject(a, (id)b);
+    RELEASE(b);}
+  RELEASE(o);
+  if (RETAINCOUNT(o)!=n*(n+1)/2) {
+    fprintf(stdout, "Bad retain count(31): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  b= CCreateSubArrayWithRange(a, NSMakeRange(n/2, n/3));
+  if (b->count!=n/3) {
+    fprintf(stdout, "Bad count(32): %lu\n",WLU(b->count));
+    err++;}
+  if (RETAINCOUNT(o)!=n*(n+1)/2) {
+    fprintf(stdout, "Bad retain count(33): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  c= CCreateArray(n/3);
+  CArrayAddArray(c, b, YES);
+  if (RETAINCOUNT(o)!=n*(n+1)/2+(4*n+3)*n/18) {
+    fprintf(stdout, "Bad retain count(34): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  RETAIN(o);
+  RELEASE(a);
+  RELEASE(b);
+  RELEASE(c);
+  if (RETAINCOUNT(o)!=1) {
+    fprintf(stdout, "Bad retain count(35): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  RELEASE(o);
+  return err;
+  }
+
+int mscore_carray_validate(void)
+  {
+  int err= 0; clock_t t0= clock(), t1; double seconds;
 
   fprintf(stdout, "\n");
 
   err+= carray_create();
   err+= carray_ptr();
+  err+= carray_subarray();
 
-  fprintf(stdout, "=> CArray validate: %s\n",(err?"FAIL":"PASS"));
+  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
+  fprintf(stdout, "=> CArray validate: %s (%.3f s)\n",(err?"FAIL":"PASS"),seconds);
   return err;
   }
 

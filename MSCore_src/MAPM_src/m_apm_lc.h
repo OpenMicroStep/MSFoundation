@@ -187,7 +187,7 @@
 #ifndef M__APM_LOCAL_INC
 #define M__APM_LOCAL_INC
 
-#include "../../MSCore.h"
+#include "MSCore.h"
 #include "m_apm.h"
 
 /* 

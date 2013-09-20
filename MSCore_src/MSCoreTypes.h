@@ -62,11 +62,11 @@ typedef unsigned int   NSUInteger;
 #define NSIntegerMin    LONG_MIN
 #define NSUIntegerMax   ULONG_MAX
 
-// No warning on ILP32 printf
+#endif // NSINTEGER_DEFINED
+
+// No warning on ILP32 printf("%ld",WLI((NSInteger)i))
 static inline          long WLI(NSInteger  i) {return (         long)i;}
 static inline unsigned long WLU(NSUInteger u) {return (unsigned long)u;}
-
-#endif // NSINTEGER_DEFINED
 
 #if defined(WIN32) || defined(MSCORE_STANDALONE) // ------------- defining types
 
