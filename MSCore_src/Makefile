@@ -3,12 +3,13 @@ NAME = MSCore_src
 PROJECT_TYPE = Component
 MAKEFILE = subproj.make
 
-HFILES = MSCArray.h MSCObject.h MSCore.h MSCoreSES.h MSCoreSystem.h\
-         MSCoreTools.h MSCoreTypes.h MSCoreUnichar.h MSCUnicodeBuffer.h\
-         _MSCoreUnicharPrivate.h
+HFILES = MSCorePrivate_.h MSCoreTypes.h MSCoreSystem.h MSCoreTools.h\
+         MSCObject.h MSCArray.h MSCBuffer.h\
+         MSCoreUnicharPrivate_.h MSCoreUnichar.h MSCoreSES.h MSCUnicodeBuffer.h
 
-CFILES = MSCArray.c MSCObject.c MSCoreSES.c MSCoreSystem.c\
-         MSCoreTools.c MSCoreUnichar.c MSCUnicodeBuffer.c
+CFILES = MSCoreSystem.c MSCoreTools.c MSCoreToolsCompress.c\
+         MSCObject.c MSCArray.c MSCBuffer.c\
+         MSCoreUnichar.c MSCoreSES.c MSCUnicodeBuffer.c
 
 include $(MAKEFILEDIR)/platform.make
 include $(MAKEFILEDIR)/$(MAKEFILE)
