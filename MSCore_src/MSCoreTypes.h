@@ -1,6 +1,4 @@
-/*
- 
- MSCoreTypes.h
+/*   MSCoreTypes.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -124,7 +122,7 @@ typedef uint64_t MSULong;
 
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 
-typedef unsigned char BOOL ;
+typedef unsigned char BOOL;
 #if !defined(YES)
 #define YES  (BOOL)1
 #endif
@@ -158,8 +156,8 @@ static inline NSRange NSMakeRange(NSUInteger pos, NSUInteger len) {
 enum _NSComparisonResult {
   NSOrderedAscending= -1L,
   NSOrderedSame,
-  NSOrderedDescending} ;
-typedef NSInteger NSComparisonResult ;
+  NSOrderedDescending};
+typedef NSInteger NSComparisonResult;
 
 enum {NSNotFound= NSIntegerMax};
 
@@ -212,7 +210,7 @@ MSByteOrder;
 
 enum {
   NSDOSStringEncoding= 0x20000 // we add a string encoding for DOS
-} ;
+};
 
 #pragma mark export
 

@@ -1,6 +1,4 @@
-/*
- 
- MSCoreSES.h
+/*   MSCoreSES.h
  
  This file is is a part of the MicroStep Framework.
  

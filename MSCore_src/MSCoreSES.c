@@ -1,6 +1,4 @@
-/*
- 
- MSCoreSES.c
+/*   MSCoreSES.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -40,7 +38,7 @@
  
  */
 
-#include "MSCore.h"
+#include "MSCorePrivate_.h"
 #include "MSCoreUnicharPrivate_.h"
 
 const SES MSInvalidSES = {InvalidCHAI,NSNotFound,0} ;

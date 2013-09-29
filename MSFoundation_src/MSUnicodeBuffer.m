@@ -1,6 +1,4 @@
-/*
- 
- MSUnicodeBuffer.m
+/*   MSUnicodeBuffer.m
  
  This file is is a part of the MicroStep Framework.
  
@@ -40,7 +38,7 @@
  
  */
 
-#import "MSFoundation.h"
+#import "MSFoundationPrivate_.h"
 
 @implementation MSUnicodeBuffer
 @end

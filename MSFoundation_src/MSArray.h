@@ -1,6 +1,4 @@
-/*
- 
- MSArray.h
+/*   MSArray.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -49,7 +47,7 @@
   CArrayFlags _flags;
 }
 
-- (id)initWithObjects:(id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
+- (id)initWithObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
 - (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
 
 - (NSUInteger)capacity;
@@ -57,7 +55,7 @@
 - (BOOL)containsIdenticalObject:(id)anObject;
 - (id)firstIdenticalObjectCommonWithArray:(NSArray*)otherArray;
 
-- (NSArray*)sortedArrayUsingFunction:(NSComparisonResult (*)(id, id, void *))comparator context:(void*)context;
+- (NSArray*)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator context:(void*)context;
 - (NSArray*)sortedArrayUsingSelector:(SEL)comparator;
 
 - (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2;
@@ -65,3 +63,5 @@
 - (MSArray*)microstepArray; // returns self
 
 @end
+
+#define MSCreateArray(C) (MSArray*)CCreateArray(C)

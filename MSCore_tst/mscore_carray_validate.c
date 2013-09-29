@@ -1,7 +1,7 @@
 // mscore_carray_validate.c, ecb, 11/09/13
 
-#import "MSCore.h"
-#import "mscore_validate.h"
+#include "MSCorePrivate_.h"
+#include "mscore_validate.h"
 
 static inline int carray_create(void)
   {
@@ -142,7 +142,7 @@ int mscore_carray_validate(void)
   err+= carray_subarray();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> CArray validate: %s (%.3f s)\n",(err?"FAIL":"PASS"),seconds);
+  fprintf(stdout, "=> CArray  validate: %s (%.3f s)\n",(err?"FAIL":"PASS"),seconds);
   return err;
   }
 

@@ -1,6 +1,4 @@
-/*
- 
- MSCoreTools.h
+/*   MSCoreTools.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -49,7 +47,29 @@
 #ifndef MS_CORE_TOOLS_H
 #define MS_CORE_TOOLS_H
 
-#pragma mark ***** System
+#pragma mark ***** Checksum
+
+MSExport MSUShort MSBytesShortCRC    (const void *sbytes, NSUInteger slen);
+MSExport MSUInt   MSBytesLongCRC     (const void *sbytes, NSUInteger slen);
+MSExport MSUInt   MSBytesELF         (const void *sbytes, NSUInteger slen);
+MSExport MSUInt   MSBytesUppercaseELF(const void *sbytes, NSUInteger slen);
+MSExport MSUInt   MSBytesAdlerHash(MSULong adler, const void *sbytes, NSUInteger slen);
+
+MSExport NSUInteger  MSPointerHash(void *pointer);
+
+#pragma mark ***** Compress
+
+typedef enum {
+  MSCompressError= -1,
+  MSCompressOK=     0,
+  MSBufferOverflow= 1}
+MSCompressResult;
+
+MSExport NSUInteger        MSCompressBound(NSUInteger sourceLen);
+MSExport MSCompressResult  MSCompress  (void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
+MSExport MSCompressResult  MSUncompress(void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
+
+#pragma mark ***** Sort
 
 MSExport void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compareFunction)(void*, void*, void*), void *context);
 

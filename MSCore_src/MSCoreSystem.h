@@ -1,6 +1,4 @@
-/*
- 
- MSCoreSystem.h
+/*   MSCoreSystem.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -72,12 +70,7 @@ MSExport NSUInteger MSCapacityForCount(NSUInteger count) ;
 #define MSMalloc( X   , C) malloc(X)
 #define MSRealloc(X, Y, C) realloc(X, Y)
 #define MSCalloc( X, Y, C) calloc(X, Y)
-#define MSFree(   X   , C) free(X)
-
-#ifdef FREE
-#undef FREE
-#endif
-#define FREE(X, C) ({ if (X) MSFree(X, C) ; })
+#define MSFree(   X   , C) free(X) // free is ok with NULL
 
 #pragma mark ***** Language
 

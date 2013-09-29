@@ -1,6 +1,4 @@
-/*
- 
- MSCObject.h
+/*   MSCObject.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -61,9 +59,9 @@ typedef struct {
 
 ///// c-like object
 typedef struct {
-  Class isa ;
+  Class isa;
 #ifdef MSCORE_STANDALONE
-  NSUInteger refCount ;
+  NSUInteger refCount;
 #endif
   }
 *id;
@@ -83,7 +81,7 @@ typedef enum {
   CDictionaryClassIndex,
   CMUtexClassIndex,
   CUnicodeBufferClassIndex}
-CClassIndex ;
+CClassIndex;
 #define CClassIndexMax ((NSUInteger)CUnicodeBufferClassIndex)
 
 
@@ -124,11 +122,12 @@ typedef NSComparisonResult (*MSObjectComparator)(id, id, void*);
 #endif
 
 #ifdef MSCORE_STANDALONE // ---------------------------------- MSCORE_STANDALONE
+// No autorelease in Core. Not needed, not a priority.
 
 MSExport NSUInteger _CRetainCount    (id obj);
 MSExport id         _CRetain         (id obj);
 MSExport void       _CRelease        (id obj);
-MSExport id         _CAutorelease    (id obj);
+//MSExport id         _CAutorelease    (id obj);
 MSExport BOOL       _CObjectIsEqual  (id obj1, id obj2);
 MSExport NSUInteger _CObjectHash     (id obj);
 MSExport NSUInteger _CObjectHashDepth(id obj, unsigned depth);
@@ -144,7 +143,7 @@ MSExport id         _CObjectCopy     (id obj);
 #define RETAINCOUNT(X) _CRetainCount((id)(X))
 #define RETAIN(X)      _CRetain     ((id)(X))
 #define RELEASE(X)     _CRelease    ((id)(X))
-#define AUTORELEASE(X) _CAutorelease((id)(X))
+//#define AUTORELEASE(X) _CAutorelease((id)(X))
 
 #define ISEQUAL(X, Y)  _CObjectIsEqual  ((id)(X), (id)(Y))
 #define HASH(X)        _CObjectHash     ((id)(X))
@@ -152,17 +151,6 @@ MSExport id         _CObjectCopy     (id obj);
 #define COPY(X)        _CObjectCopy     ((id)(X))
 
 #else // ---------------------------------------------------- !MSCORE_STANDALONE
-
-#if defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
-  #define ISA(X)       ((Class)(((Class)(X))->isa))
-// NAMEOF already defined by Apple runtime
-#else
-  #define ISA(X)       object_get_class(X)
-  #ifdef NAMEOF
-  #undef NAMEOF
-  #endif
-  #define NAMEOF(X)    object_get_class_name(X)
-#endif
 
 MSExport NSUInteger _MRetainCount    (id obj);
 MSExport id         _MRetain         (id obj);
@@ -174,6 +162,13 @@ MSExport NSUInteger _MObjectHashDepth(id obj, unsigned depth);
 MSExport id         _MObjectCopy     (id obj);
 
 #ifdef MSCORE_FORFOUNDATION                              // MSCORE_FORFOUNDATION
+
+#define ISA(X)         ((X)->isa)
+
+#ifdef NAMEOF
+#undef NAMEOF
+#endif
+#define NAMEOF(X)      (ISA(X)->className)
 
 #define RETAINCOUNT(X) _MRetainCount((id)(X))
 #define RETAIN(X)      _MRetain     ((id)(X))
@@ -187,6 +182,19 @@ MSExport id         _MObjectCopy     (id obj);
 
 #else                                                              // FOUNDATION
 
+#if defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
+//#define ISA(X)       ((Class)(((Class)(X))->isa))
+  #include <objc/objc-runtime.h>
+  #define ISA(X)       object_getClass(X)
+// NAMEOF already defined by Apple runtime
+#else
+  #define ISA(X)       object_get_class(X)
+  #ifdef NAMEOF
+  #undef NAMEOF
+  #endif
+  #define NAMEOF(X)    object_get_class_name(X)
+#endif
+
 #define RETAINCOUNT(X) [(X) retainCount]
 #define RETAIN(X)      [(X) retain]
 #define RELEASE(X)     [(X) release]
@@ -194,7 +202,7 @@ MSExport id         _MObjectCopy     (id obj);
 
 #define ISEQUAL(X,Y) ({ \
   id __x__= (id)(X), __y__= (id)(Y); \
-  return (__x__ == __y__) ? YES : [__x__ isEqual:__y__];})
+  (__x__ == __y__) ? YES : [__x__ isEqual:__y__];})
 #define HASH(X)        [(X) hash]
 #define HASHDEPTH(X,D) [(X) hash:(D)]
 #define COPY(X)        [(X) copyWithZone:NULL]
@@ -219,44 +227,76 @@ MSExport id         _MObjectCopy     (id obj);
 #endif
 #define DESTROY(X) ({ id __x__= (id)X; X= NULL; RELEASE(__x__); })
 
-MSExport void       CArrayFree(id self) ;
-MSExport BOOL       CArrayIsEqual(id self, id other) ;
-MSExport NSUInteger CArrayHash(id self, unsigned depth) ;
-MSExport id         CArrayCopy(id self) ;
+MSExport void       CArrayFree(id self);
+MSExport BOOL       CArrayIsEqual(id self, id other);
+MSExport NSUInteger CArrayHash(id self, unsigned depth);
+MSExport id         CArrayCopy(id self);
 
-MSExport void       CBufferFree(id self) ;
-MSExport BOOL       CBufferIsEqual(id self, id other) ;
-MSExport NSUInteger CBufferHash(id self, unsigned depth) ;
-MSExport id         CBufferCopy(id self) ;
+MSExport void       CBufferFree(id self);
+MSExport BOOL       CBufferIsEqual(id self, id other);
+MSExport NSUInteger CBufferHash(id self, unsigned depth);
+MSExport id         CBufferCopy(id self);
 
-MSExport BOOL       CColorIsEqual(id self, id other) ;
-MSExport NSUInteger CColorHash(id self, unsigned depth) ;
-MSExport id         CColorCopy(id self) ;
+MSExport BOOL       CColorIsEqual(id self, id other);
+MSExport NSUInteger CColorHash(id self, unsigned depth);
+MSExport id         CColorCopy(id self);
 
-MSExport void       CCoupleFree(id self) ;
-MSExport BOOL       CCoupleIsEqual(id self, id other) ;
-MSExport NSUInteger CCoupleHash(id self, unsigned depth) ;
-MSExport id         CCoupleCopy(id self) ;
+MSExport void       CCoupleFree(id self);
+MSExport BOOL       CCoupleIsEqual(id self, id other);
+MSExport NSUInteger CCoupleHash(id self, unsigned depth);
+MSExport id         CCoupleCopy(id self);
 
-MSExport BOOL       CDateIsEqual(id self, id other) ;
-MSExport NSUInteger CDateHash(id self, unsigned depth) ;
-MSExport id         CDateCopy(id self) ;
+MSExport BOOL       CDateIsEqual(id self, id other);
+MSExport NSUInteger CDateHash(id self, unsigned depth);
+MSExport id         CDateCopy(id self);
 
-MSExport void       CDecimalFree(id self) ;
-MSExport BOOL       CDecimalIsEqual(id self, id other) ;
-MSExport id         CDecimalCopy(id self) ;
-MSExport NSUInteger CDecimalHash(id self, unsigned depth) ;
+MSExport void       CDecimalFree(id self);
+MSExport BOOL       CDecimalIsEqual(id self, id other);
+MSExport id         CDecimalCopy(id self);
+MSExport NSUInteger CDecimalHash(id self, unsigned depth);
 
-MSExport void       CDictionaryFree(id self) ;
-MSExport BOOL       CDictionaryIsEqual(id self, id other) ;
-MSExport NSUInteger CDictionaryHash(id self, unsigned depth) ;
-MSExport id         CDictionaryCopy(id self) ;
+MSExport void       CDictionaryFree(id self);
+MSExport BOOL       CDictionaryIsEqual(id self, id other);
+MSExport NSUInteger CDictionaryHash(id self, unsigned depth);
+MSExport id         CDictionaryCopy(id self);
 
-MSExport void       CMutexFree(id self) ;
+MSExport void       CMutexFree(id self);
 
-MSExport void       CUnicodeBufferFree(id self) ;
-MSExport BOOL       CUnicodeBufferIsEqual(id self, id other) ;
-MSExport NSUInteger CUnicodeBufferHash(id self, unsigned depth) ;
-MSExport id         CUnicodeBufferCopy(id self) ;
+MSExport void       CUnicodeBufferFree(id self);
+MSExport BOOL       CUnicodeBufferIsEqual(id self, id other);
+MSExport NSUInteger CUnicodeBufferHash(id self, unsigned depth);
+MSExport id         CUnicodeBufferCopy(id self);
+
+// Private for CArrayIsEqual, CBufferIsEqual...
+typedef BOOL (*CObjectEq)(id, id);
+static inline BOOL _CClassIsEqual(id a, id b, CObjectEq classEqualFct)
+  {
+  return (a == b) ? YES : !classEqualFct ? NO :
+    (a && b  && ISA(a) == ISA(b)) ? classEqualFct(a, b) : NO;
+  }
+static inline void _CClassGrow(id self, NSUInteger n, NSUInteger count, NSUInteger unitSize, NSUInteger *size, void **ptr)
+  {
+  NSUInteger newSize;
+  if (self && n && (newSize= MSCapacityForCount(count + n)) > *size) {
+    if (!*ptr) {
+      if (!(*ptr= MSMalloc(newSize * unitSize, "CGrow()"))) {
+        MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode, "CGrow() allocation error");
+        return;}}
+    else if (!(*ptr= MSRealloc(*ptr, newSize * unitSize, "CGrow()"))) {
+      MSReportError(MSMallocError, MSFatalError, MSReallocErrorCode, "CGrow() reallocation error");
+      return;}
+    *size= newSize;}
+  }
+
+static inline void _CClassAdjustSize(id self, NSUInteger count, NSUInteger unitSize, NSUInteger *size, void **ptr)
+{
+  if (self && count < *size) {
+    if (count) {
+      if (!(*ptr= MSRealloc(*ptr, count * unitSize, "CAdjustSize()"))) {
+        MSReportError(MSMallocError, MSFatalError, MSReallocErrorCode, "CAdjustSize() reallocation error");
+        return;}
+      else *size= count;}
+    else {MSFree(ptr, "CAdjustSize()"); *ptr= NULL; *size= 0;}}
+}
 
 #endif // MSCORE_OBJECT_H

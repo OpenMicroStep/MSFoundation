@@ -1,6 +1,4 @@
-/*
- 
- MSMutableArray.h
+/*   MSMutableArray.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -49,6 +47,12 @@
   CArrayFlags _flags;
 }
 
-- (id)initWithObjects:(id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
+- (id)initWithObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
 - (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
+
+- (void)addObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
+- (void)replaceObjectsInRange:(NSRange)rg withObjects:(const id*)objects copyItems:(BOOL)copy;
+
 @end
+
+MSExport MSMutableArray *MSCreateMutableArray(NSUInteger capacity);

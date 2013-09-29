@@ -1,6 +1,4 @@
-/*
- 
- MSCBuffer.h
+/*   MSCBuffer.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -42,212 +40,92 @@
  WARNING : outside the MSFoundation framework or the MSCore library,
  this header file cannot be included alone, please direclty include
  MSCore.h or MSFoundation.h
- 
  */
+
 #ifndef MSCORE_BUFFER_H
 #define MSCORE_BUFFER_H
 
+typedef struct CBufferFlagsStruct {
+#ifdef __BIG_ENDIAN__
+  MSUInt noFree:1; // 'buf' not freed at end. Append fcts forbidden.
+  MSUInt _pad:31;
+#else
+  MSUInt _pad:31;
+  MSUInt noFree:1;
+#endif
+  }
+CBufferFlags;
+
 typedef struct CBufferStruct {
-	Class isa ;
+  Class isa;
 #ifdef MSCORE_STANDALONE
-	NSUInteger refCount ;
+  NSUInteger refCount;
 #endif
-    MSByte *buf ;
-    NSUInteger length ;
-    NSUInteger size ;
-} CBuffer ;
+  MSByte *buf;
+  NSUInteger   length;
+  NSUInteger   size;
+  CBufferFlags flags;}
+CBuffer;
 
+  MSExport void       CBufferFreeInside(id self); // for MSBuffer dealloc
+//Already defined in MSCObject.h
+//MSExport void       CBufferFree(id self);
+//MSExport BOOL       CBufferIsEqual(id self, id other);
+//MSExport NSUInteger CBufferHash(id self, unsigned depth);
+//MSExport id         CBufferCopy(id self);
 
-static inline BOOL CBufferGrow(CBuffer *self, NSUInteger n)
-{
-    if (self && n) {
-        NSUInteger newSize = MSCapacityForCount(self->size + n) ;
-		
-        if (self->buf) {
-			if (!(self->buf = (MSByte *)MSRealloc(self->buf, newSize, "CBufferGrow()"))) return NO ;
-			else self->size = newSize ;
-		}
-        else {
-			if (!(self->buf = (MSByte *)MSMalloc(newSize, "CBufferGrow()"))) return NO ;
-			else self->size = newSize ;
-        }
-    }
-    return YES ;
-}
+MSExport BOOL CBufferEquals(const CBuffer *self, const CBuffer *anotherBuffer);
 
+MSExport CBuffer *CCreateBuffer(NSUInteger capacity);
+MSExport CBuffer *CCreateBufferWithBytes(const void *bytes, NSUInteger length);
+MSExport CBuffer *CCreateBufferWithBytesNoCopy(void *bytes, NSUInteger length);
+  // 'bytes' is supposed 'length' sized. The buffer takes the ownership of
+  // 'bytes' and frees it at end. It also can be reallocated on append.
+MSExport CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUInteger length);
+  // The returned buffer is immutable.
+  // 'bytes' is supposed 'length' sized. The buffer doesn't take the ownership
+  // of 'bytes' and doesn't free it at end. It can NOT be reallocated so
+  // appending is forbidden and an exception is raised.
 
-static inline BOOL CBufferAdjustSize(CBuffer *self)
-{
-	if (self && self->length < self->size) {
-		if (self->length) {
-			if (!(self->buf = (MSByte *)MSRealloc(self->buf, self->length, "CBufferShrink()"))) return NO ;
-			else self->size = self->length ;
-		}
-		else {
-			MSFree(self->buf, "CBufferAdjustSize()") ; self->buf = NULL ;
-			self->size = 0 ;
-		}
-		
-	}
-	return YES ;
-}
+MSExport void CBufferGrow(CBuffer *self, NSUInteger n);
+MSExport void CBufferAdjustSize(CBuffer *self);
 
-static inline BOOL CBufferExpand(CBuffer *self, NSUInteger lengthAddition)
-{
-    if (self && lengthAddition) {
-        if (self->length + lengthAddition > self->size && !CBufferGrow(self, lengthAddition)) return NO ;
-    }
-    return YES ;
-}
+MSExport NSUInteger CBufferLength(const CBuffer *self);
+MSExport MSByte CBufferByteAtIndex(const CBuffer *self, NSUInteger i);
+MSExport MSByte *CBufferCString(CBuffer *self);
 
-static inline BOOL CBufferEquals(const CBuffer *self, const CBuffer *anotherBuffer)
-{
-	if (self == anotherBuffer) return YES ;
-	if (self && anotherBuffer) {
-		NSUInteger len = self->length * sizeof(char) ;
-		return len == anotherBuffer->length && !memcmp(self->buf, anotherBuffer->buf, len) ? YES : NO ;
-	}
-	return NO ;
-}
+MSExport NSUInteger CBufferIndexOfByte          (const CBuffer *self, MSByte c);
+MSExport NSUInteger CBufferIndexOfBytes         (const CBuffer *self, void *sbytes, NSUInteger slen);
+MSExport NSUInteger CBufferIndexOfBytesInRange  (const CBuffer *self, void *sbytes, NSUInteger slen, NSRange searchRange);
+MSExport NSUInteger CBufferIndexOfCString       (const CBuffer *self, char *cString);
+MSExport NSUInteger CBufferIndexOfCStringInRange(const CBuffer *self, char *cString                , NSRange searchRange);
 
+MSExport void CBufferAppendBuffer (CBuffer *self, const CBuffer *s);
+MSExport void CBufferAppendCString(CBuffer *self, const char *myStr);
+MSExport void CBufferAppendBytes  (CBuffer *self, const void *bytes, NSUInteger length);
+MSExport void CBufferAppendByte   (CBuffer *self, MSByte c);
+MSExport void CBufferFillWithByte (CBuffer *self, MSByte c, NSUInteger nb);
 
-static inline NSUInteger CBufferLength(const CBuffer *self) { return (self ? self->length : 0) ; }
-static inline MSByte CBufferByteAtIndex(const CBuffer *self, NSUInteger i)
-{
-    if (!self || i >= self->length) return (MSByte)0 ;
-    return self->buf[i] ;
-}
+MSExport BOOL CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSExport BOOL CBufferBase64DecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
-static inline BOOL CBufferAppendBuffer(CBuffer *self, const CBuffer *s)
-{
-    if (self && s && s->length) {
-        if (self->length + s->length > self->size && !CBufferGrow(self, s->length)) return NO ;
-        memmove(self->buf+self->length, s->buf, s->length) ;
-        self->length += s->length ;
-    }
-    return YES ;
-}
+MSExport BOOL CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSExport BOOL CBufferBase64URLDecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
-static inline BOOL CBufferAppendCString(CBuffer *self, const char *myStr)
-{
-    NSUInteger length ;
-    if (self && myStr && (length = (NSUInteger)strlen(myStr))) {
-        if (self->length + length > self->size && !CBufferGrow(self, length)) return NO ;
-        memmove(self->buf+self->length, myStr, length) ;
-        self->length += length ;
-    }
-    return YES ;
-}
+MSExport BOOL CBufferCompressAndAppendBytes  (CBuffer *self, const void *bytes, NSUInteger len);
+MSExport BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
-static inline BOOL CBufferAppendBytes(CBuffer *self, const void *bytes, NSUInteger length)
-{
-    if (self && bytes && length) {
-        if (self->length + length > self->size && !CBufferGrow(self, length)) return NO ;
-        memmove(self->buf+self->length, bytes, length) ;
-        self->length += length ;
-    }
-    return YES ;
-}
-
-#ifndef MSCORE_STANDALONE
-static inline BOOL CBufferAppendData(CBuffer *self, NSData *d)
-{
-    if (self) {
-        NSUInteger length = [d length] ;
-        if (length) {
-            if (self->length + length > self->size && !CBufferGrow(self, length)) return NO ;
-            [d getBytes:(void *)(self->buf+self->length) range:NSMakeRange(0, length)] ;
-            self->length += length ;
-        }
-    }
-    return YES ;
-}
-#endif
-
-static inline BOOL CBufferAppendBytesSuite(CBuffer *self, MSByte c, NSUInteger nb)
-{
-    if (self && nb) {
-        register NSUInteger i ;
-        if (self->length + nb > self->size && !CBufferGrow(self, nb)) return NO ;
-        for (i = 0 ; i < nb ; i++) self->buf[self->length++] = c ;
-    }
-    return YES ;
-}
-
-static inline BOOL CBufferAppendByte(CBuffer *self, MSByte c)
-{
-    if (self) {
-        if (self->length >= self->size && !CBufferGrow(self, 1)) return NO ;
-        self->buf[self->length++] = c ;
-    }
-    return YES ;
-}
-
-static inline NSUInteger CBufferIndexOfByte(CBuffer *self, MSByte c)
-{
-    if (self) {
-        register NSUInteger i, l = self->length ;
-        for (i = 0 ; i < l ; i++) { if (self->buf[i] == c) return i ; }
-    }
-    return NSNotFound ;
-}
-
-static inline NSUInteger CBufferIndexOfBytesInRange(const CBuffer *self, NSRange searchRange, void *sbytes, NSUInteger slen)
-{
-	NSUInteger len ;
-	if (self && sbytes && slen > 0 && slen <= (len = self->length)) {
-		NSUInteger found = 0 ;
-		
-		if ((searchRange.location + searchRange.length) > len) {
-			if (searchRange.length > len) { searchRange.location = 0 ; searchRange.length = len ; }
-			else { searchRange.location = len - searchRange.length ; }
-		}
-		if (slen <= searchRange.length) {
-			MSByte *s ;
-			MSByte *start = self->buf + searchRange.location ;
-			MSByte *end = start + searchRange.length - 1;
-			for (s = start ; s <= end ; s ++) {
-				if (*s == ((MSByte *)sbytes)[found]) {
-					found ++ ;
-					if (found == slen) {
-						return s - start - found + 1 ;
-					}
-				}
-				else found = 0 ;
-			}
-		}
-		
-	}
-	return NSNotFound ;
-}
-static inline NSUInteger CBufferIndexOfBytes(const CBuffer *self, void *sbytes, NSUInteger slen)
-{ return self ? CBufferIndexOfBytesInRange(self, NSMakeRange(0, self->length), sbytes, slen) : NSNotFound ; }
-
-static inline NSUInteger CBufferIndexOfCStringInRange(const CBuffer *self, NSRange searchRange, char *cString)
-{ return self && cString ? CBufferIndexOfBytesInRange(self, searchRange, (void *)cString, strlen(cString)) : NSNotFound ; }
-
-static inline NSUInteger CBufferIndexOfCString(const CBuffer *self, char *cString)
-{ return self && cString ? CBufferIndexOfBytesInRange(self, NSMakeRange(0, self->length), (void *)cString, strlen(cString)) : NSNotFound ; }
-
-MSExport BOOL CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len) ;
-MSExport BOOL CBufferBase64DecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len) ;
-
-MSExport BOOL CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len) ;
-MSExport BOOL CBufferBase64URLDecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len) ;
-
-MSExport BOOL CBufferCompressAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len) ;
-MSExport BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len) ;
-
-// @function MSExport BOOL CBufferAppendUniqueID(MSUInt domainID, MSUInt dealerID, MSUInt clientID) ;
+// @function MSExport BOOL CBufferAppendUniqueID(MSUInt domainID, MSUInt dealerID, MSUInt clientID);
 // suggestion : use MSCurrentProcessID(), MSCurrentThreadID(), MSCurrentHostID(), MSUnsignedRandom(), nowGMT() + the parameters, salt it and mix all in at least a 32 bytes string
 
-// @function MSExport BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict) ;
+// @function MSExport BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict);
 // not so simple to do...
 
-#define MSBAddBuffer(X, Y)		CBufferAppendBuffer((CBuffer *)(X), (const CBuffer *)(Y))
-#define MSBAddData(X, Y)		CBufferAppendData((CBuffer *)(X), (NSData *)(Y))
-#define MSBAddByte(X, Y)		CBufferAppendByte((CBuffer *)(X), (MSByte)(Y))
-#define MSBLength(X)			CBufferLength((const CBuffer *)(X))
-#define MSBIndex(X,Y)			((CBuffer *)(X))->_buf[(Y)]
+#define MSBAddBuffer(X, Y) CBufferAppendBuffer((CBuffer*)(X), (const CBuffer*)(Y))
+#define MSBAddByte(X, Y)   CBufferAppendByte  ((CBuffer*)(X), (MSByte)(Y))
+#define MSBLength(X)       CBufferLength((const CBuffer*)(X))
+#define MSBIndex(X,Y)                         ((CBuffer*)(X))->_buf[(Y)]
+
+//#define MSBAddData(X, Y)   CBufferAppendData  ((CBuffer*)(X), (NSData*)(Y))
 
 #endif

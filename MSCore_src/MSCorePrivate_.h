@@ -1,6 +1,4 @@
-/*
- 
- MSCore.h
+/*   MSCorePrivate_.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -130,7 +128,7 @@
 #include "MSCUnicodeBuffer.h"
 
 #include "MSCArray.h"
-//#include "MSCBuffer.h"
+#include "MSCBuffer.h"
 //#include "MSCColor.h"
 //#include "MSCCouple.h"
 //#include "MSCDate.h"

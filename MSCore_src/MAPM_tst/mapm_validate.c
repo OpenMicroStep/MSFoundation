@@ -61,7 +61,7 @@
  *      Revision 2.0  2003/07/24 21:00:49  mike
  *      initial version
  */
-#include "../../MSCore.h"
+#include "MSCorePrivate_.h"
 
 extern void   factorial_local(M_APM, M_APM);
 extern double cbrt_local(double);

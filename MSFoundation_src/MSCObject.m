@@ -1,6 +1,4 @@
-/*
- 
- MSCObject.m
+/*   MSCObject.m
  
  This file is is a part of the MicroStep Framework.
  
@@ -43,7 +41,7 @@
  
  */
 
-#import "MSFoundation.h"
+#import "MSFoundationPrivate_.h"
 
 #pragma mark NSObject hash:
 
@@ -104,7 +102,7 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 {
   static NSString *__allCLikeClasses[CClassIndexMax+1]= {
     @"MSArray",
-    0,//MSBuffer,
+    @"MSBuffer",
     0,//MSColor,
     0,//MSCouple,
     0,//MSDate,

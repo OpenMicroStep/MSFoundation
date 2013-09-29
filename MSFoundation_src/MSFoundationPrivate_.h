@@ -1,6 +1,4 @@
-/*
- 
- MSFoundation.h
+/*   MSFoundationPrivate_.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -40,10 +38,14 @@
  
  */
 
-#include <Foundation/Foundation.h>
-#import "MSCore.h"
+#import <Foundation/Foundation.h>
+#import "MSCorePrivate_.h"
+
+#import "MSFoundationDefines.h"
+#import "MSCoderAdditions.h"
+#import "MSExceptionAdditions.h"
+
 #import "MSArray.h"
 #import "MSMutableArray.h"
+#import "MSBuffer.h"
 #import "MSUnicodeBuffer.h"
-
-#define MSAllocateObject(X, Y, Z) NSAllocateObject(X, Y, Z)

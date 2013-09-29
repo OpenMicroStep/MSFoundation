@@ -1,6 +1,4 @@
-/*
- 
- MSCoreUnichar.h
+/*   MSCoreUnichar.h
  
  This file is is a part of the MicroStep Framework.
  

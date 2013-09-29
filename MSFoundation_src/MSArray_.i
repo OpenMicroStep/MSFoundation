@@ -1,6 +1,4 @@
-/*
- 
- MSArray_.i
+/*   MSArray_.i
  
  This file is is a part of the MicroStep Framework.
  
@@ -43,20 +41,25 @@
 #pragma mark alloc / init
 
 + (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
-+ (id)alloc                       {return (id)CCreateArray(0) ;}
-+ (id)new                         {return (id)CCreateArray(0) ;}
-+ (id)array           {return AUTORELEASE((id)CCreateArray(0));}
++ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
++ (id)new                         {return MSAllocateObject(self, 0, NULL);}
++ (id)array           {return AUTORELEASE(MSAllocateObject(self, 0, NULL));}
 + (id)arrayWithObject:(id)anObject
   {
-  return AUTORELEASE((id)CCreateArrayWithObject(anObject));
+  id a= MSAllocateObject(self, 0, NULL); // MSArray or MSMutableArray
+  CArrayAddObject((CArray*)a, anObject);
+  return AUTORELEASE(a);
   }
-+ (id)arrayWithObjects:(id*)objs count:(NSUInteger)n
++ (id)arrayWithObjects:(const id*)objs count:(NSUInteger)n
   {
-  return AUTORELEASE([(id)CCreateArray(n) initWithObjects:objs count:n copyItems:NO]);
+  id a= MSAllocateObject(self, 0, NULL);
+  CArrayAddObjects((CArray*)a, objs, n, NO);
+  return AUTORELEASE(a);
   }
 + (id)arrayWithFirstObject:(id)firstObject arguments:(va_list)ap
   {
-  return AUTORELEASE([(id)CCreateArray(1) initWithFirstObject:firstObject arguments:ap]);
+  id a= MSAllocateObject(self, 0, NULL);
+  return AUTORELEASE([a initWithFirstObject:firstObject arguments:ap]);
   }
 + (id)arrayWithObjects:(id)firstObject, ...
   {
@@ -65,11 +68,12 @@
   va_start(ap, firstObject);
   ret= [self arrayWithFirstObject:firstObject arguments:ap];
   va_end(ap);
-  return AUTORELEASE(ret);
+  return ret;
   }
 + (id)arrayWithArray:(NSArray*)array
   {
-  return AUTORELEASE([(id)CCreateArray([array count]) initWithArray:array copyItems:NO]);
+  id a= MSAllocateObject(self, 0, NULL);
+  return AUTORELEASE([a initWithArray:array copyItems:NO]);
   }
 
 - (id)init
@@ -81,12 +85,12 @@
   CArrayAddObject((CArray*)self,o);
   return self;
   }
-- (id)initWithObjects:(id*)objects count:(NSUInteger)n
+- (id)initWithObjects:(const id*)objects count:(NSUInteger)n
   {
   return [self initWithObjects:objects count:n copyItems:NO];
   }
 
-- (id)initWithObjects:(id*)objects count:(NSUInteger)n copyItems:(BOOL)copy
+- (id)initWithObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy
   {
   CArrayAddObjects((CArray*)self, objects, n, copy);
   return self;
@@ -134,9 +138,9 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
 - (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems
   {
   CArrayGrow((CArray*)self, capacity);
-  self->_flags.noRR=     noRR    ?1:0;
-  self->_flags.nilItems= nilItems?1:0;
-  return self ;
+  self->_flags.noRetainRelease= noRR    ?1:0;
+  self->_flags.nilItems=        nilItems?1:0;
+  return self;
   }
 - (NSUInteger)capacity {return _size;}
 
@@ -162,17 +166,22 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
 
 - (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
   {
-  return CArrayCopy(self);
-  z= NULL;
+  CArray *a= (CArray*)MSAllocateObject([MSArray class], 0, z);
+  return CArrayInitCopy(a, (CArray*)self);
+  }
+- (id)mutableCopyWithZone:(NSZone*)z
+  {
+  CArray *a= (CArray*)MSAllocateObject([MSMutableArray class], 0, z);
+  return CArrayInitCopy(a, (CArray*)self);
   }
 
 - (BOOL)isTrue
   {
   if (_count) {
-    register NSUInteger i ;
-    for (i = 0 ; i < _count ; i++) { if (![_pointers[i] isTrue]) return NO ; }
-    return YES ;}
-  return NO ;
+    register NSUInteger i;
+    for (i = 0; i < _count; i++) { if (![_pointers[i] isTrue]) return NO; }
+    return YES;}
+  return NO;
   }
 
 - (BOOL)isEqualToArray:(NSArray*)otherArray
@@ -195,19 +204,19 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
 - (void)makeObjectsPerformSelector:(SEL)aSelector
   {
   register NSUInteger i;
-  for (i= 0; i < _count ; i++) (*((void (*)(id, SEL))objc_msgSend))(_pointers[i], aSelector);
+  for (i= 0; i < _count; i++) (*((void (*)(id, SEL))objc_msgSend))(_pointers[i], aSelector);
   }
 
 - (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object
   {
   register NSUInteger i;
-  for (i= 0 ; i < _count; i++) (*((void (*)(id, SEL, id))objc_msgSend))(_pointers[i], aSelector, object);
+  for (i= 0; i < _count; i++) (*((void (*)(id, SEL, id))objc_msgSend))(_pointers[i], aSelector, object);
   }
 
 - (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2
   {
   register NSUInteger i;
-  for (i= 0 ; i < _count; i++) (*((void (*)(id, SEL, id, id))objc_msgSend))(_pointers[i], aSelector, object1, object2);
+  for (i= 0; i < _count; i++) (*((void (*)(id, SEL, id, id))objc_msgSend))(_pointers[i], aSelector, object1, object2);
   }
 
 - (NSArray*)arrayByAddingObject:(id)anObject
@@ -224,7 +233,7 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
   return AUTORELEASE(copy);
   }
 
-- (NSArray*)sortedArrayUsingFunction:(MSObjectComparator)comparator context:(void*)context
+- (NSArray*)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator context:(void*)context
   {
   NSArray *copy= COPY(self);
   if (_count > 1 ) {
@@ -279,7 +288,7 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
   }
 - (BOOL)containsIdenticalObject:(id)o
   {
-  return CArrayIndexOfIdenticalObject((CArray*)self, o, 0, _count) == NSNotFound ? NO : YES ;
+  return CArrayIndexOfIdenticalObject((CArray*)self, o, 0, _count) == NSNotFound ? NO : YES;
   }
 
 - (NSUInteger)indexOfObject:(id)o
@@ -303,30 +312,30 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 {
   if (_count > 0) {
     if (_count > 1) {
-      MSUnicodeString *s = MSCreateUnicodeString(128) ;
-      NSUInteger i, slen = [separator length] ;
+      MSUnicodeString *s = MSCreateUnicodeString(128);
+      NSUInteger i, slen = [separator length];
       if (!slen) {
-        for (i = 0 ; i < _count ; i++) { MSUAddString(s, [_pointers[i] toString]) ; }
-        if (MSULength(s)) { return AUTORELEASE(s) ; }
-        RELEASE(s) ;
+        for (i = 0; i < _count; i++) { MSUAddString(s, [_pointers[i] toString]); }
+        if (MSULength(s)) { return AUTORELEASE(s); }
+        RELEASE(s);
       }
       else {
-        MSUAddString(s, [_pointers[0] toString]) ;
-        for (i = 1 ; i < _count ; i++) {
-          MSUAddString(s, separator) ;
-          MSUAddString(s, [_pointers[i] toString]) ;
+        MSUAddString(s, [_pointers[0] toString]);
+        for (i = 1; i < _count; i++) {
+          MSUAddString(s, separator);
+          MSUAddString(s, [_pointers[i] toString]);
         }
-        return AUTORELEASE(s) ; // can never be empty here
+        return AUTORELEASE(s); // can never be empty here
       }
     }
     else {
-      NSString *ret = [_pointers[0] toString] ;
-      if ([ret length]) return ret ;
+      NSString *ret = [_pointers[0] toString];
+      if ([ret length]) return ret;
     }
   }
-  return @"" ;
+  return @"";
 }
-- (NSString *)jsonRepresentation { return CArrayJsonRepresentation((CArray *)self) ; }
+- (NSString *)jsonRepresentation { return CArrayJsonRepresentation((CArray *)self); }
 */
 - (NSString*)toString {return (NSString*)CArrayToString((CArray*)self);}
 
@@ -343,7 +352,7 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
     register NSUInteger count= MIN(_count, [a count]);
     if (count) {
       register NSUInteger i;
-      for (i= 0 ; i < count ; i++) {
+      for (i= 0; i < count; i++) {
         if ([_pointers[i] isEqual:[a objectAtIndex:i]]) return _pointers[i];}}}
   return nil;
   }
@@ -352,10 +361,10 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
   {
   if ([a _isMS]) return CArrayFirstCommonIdenticalObject((CArray*)self, (CArray*)a);
   else {
-    register NSUInteger count= MIN(_count, [a count]) ;
+    register NSUInteger count= MIN(_count, [a count]);
     if (count) {
       register NSUInteger i;
-      for (i= 0 ; i < count ; i++) {
+      for (i= 0; i < count; i++) {
         if (_pointers[i] == [a objectAtIndex:i]) return _pointers[i];}}}
   return nil;
   }
@@ -382,7 +391,7 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
       "%s: range %s out of range (0, %lu)",
       sel_getName(_cmd), [NSStringFromRange(rg) UTF8String], WLU(_count));
     return nil;}
-  return AUTORELEASE((id)CCreateSubArrayWithRange((CArray*)self, NSMakeRange(0,self->_count)));
+  return AUTORELEASE((id)CCreateSubArrayWithRange((CArray*)self, rg));
   }
 
 #pragma mark NSCoding protocol
@@ -403,38 +412,38 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
   {
   if ([aCoder allowsKeyedCoding]) {
     [aCoder  encodeUnsignedInteger:_size forKey:@"capacity"];
-    if (_flags.noRR)     [aCoder encodeBool:YES forKey:@"noRR"];
-    if (_flags.nilItems) [aCoder encodeBool:YES forKey:@"nilItems"];
+    if (_flags.noRetainRelease) [aCoder encodeBool:YES forKey:@"noRetainRelease"];
+    if (_flags.nilItems)        [aCoder encodeBool:YES forKey:@"nilItems"];
     if (_pointers) {
       [aCoder encodeCArray:(CArray*)self forKey:@"ms-array"];}}
   else {
-    BOOL noRR= _flags.noRR, nilItems= _flags.nilItems;
-    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&noRR] ;
-    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&nilItems] ;
-    [aCoder encodeValueOfObjCType:@encode(NSUInteger) at:&_count] ;
+    BOOL noRR= _flags.noRetainRelease, nilItems= _flags.nilItems;
+    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&noRR];
+    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&nilItems];
+    [aCoder encodeValueOfObjCType:@encode(NSUInteger) at:&_count];
     if (_count) {
       register NSUInteger i;
-      for (i= 0 ; i < _count ; i++) [aCoder encodeObject:_pointers[i]];}}
+      for (i= 0; i < _count; i++) [aCoder encodeObject:_pointers[i]];}}
   }
 
 - (id)initWithCoder:(NSCoder*)aCoder
   {
   if ([aCoder allowsKeyedCoding]) {
-    _flags.noRR=     (unsigned int)[aCoder decodeBoolForKey:@"noRR"];
-    _flags.nilItems= (unsigned int)[aCoder decodeBoolForKey:@"nilItems"];
-    [aCoder decodeInCArray:(CArray*)self retainObjects:!_flags.noRR forKey:@"ms-array"];}
+    _flags.noRetainRelease= (unsigned int)[aCoder decodeBoolForKey:@"noRetainRelease"];
+    _flags.nilItems=        (unsigned int)[aCoder decodeBoolForKey:@"nilItems"];
+    [aCoder decodeInCArray:(CArray*)self retainObjects:!_flags.noRetainRelease forKey:@"ms-array"];}
   else {
     NSUInteger n;
     BOOL noRR= NO,  nilItems= NO;
     [aCoder decodeValueOfObjCType:@encode(BOOL) at:&noRR];
     [aCoder decodeValueOfObjCType:@encode(BOOL) at:&nilItems];
     [aCoder decodeValueOfObjCType:@encode(NSUInteger) at:&n];
-    _flags.noRR=     noRR    ?1:0;
-    _flags.nilItems= nilItems?1:0;
+    _flags.noRetainRelease= noRR    ?1:0;
+    _flags.nilItems=        nilItems?1:0;
     if (n) {
       NSUInteger i;
       CArrayGrow((CArray*)self, n);
-      for (i= 0 ; i < n ; i++) {
+      for (i= 0; i < n; i++) {
         CArrayAddObject((CArray*)self, [aCoder decodeObject]);}}}
   return self;
   }

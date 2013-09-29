@@ -1,6 +1,4 @@
-/*
- 
- MSCoreUnichar.c
+/*   MSCoreUnichar.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -40,7 +38,7 @@
  
  */
 
-#include "MSCore.h"
+#include "MSCorePrivate_.h"
 #include "MSCoreUnicharPrivate_.h"
 
 unichar CUnicharToUpper(unichar ch)

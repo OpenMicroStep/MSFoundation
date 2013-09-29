@@ -1,6 +1,8 @@
 // mscore_validate.h, ecb, 11/09/13
 
+int mscore_c_validate(void);
 int mscore_carray_validate(void);
+int mscore_cbuffer_validate(void);
 
 static inline int test()
   {
@@ -11,7 +13,10 @@ static inline int test()
   #else
   printf("********** MSCORE\n\n");
   #endif
-  if (!(err= mscore_carray_validate()))
+  if (!(err= mscore_c_validate      ()) &&
+      !(err= mscore_carray_validate ()) &&
+      !(err= mscore_cbuffer_validate())
+      )
     printf("\n********** ALL THE TESTS ARE SUCCESSFUL !!!     **********\n");
   return err;
   }

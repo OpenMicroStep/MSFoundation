@@ -1,6 +1,4 @@
-/*
- 
- MSCObject.c
+/*   MSCObject.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -43,7 +41,7 @@
  
  */
 
-#include "MSCore.h"
+#include "MSCorePrivate_.h"
 
 NSUInteger MSPointerHash(void *pointer)
 {
@@ -73,15 +71,15 @@ CClass;
 
 static CClass __allClasses[CClassIndexMax+1]=
 { // className         deallocator         isEqual                hashier             copier              instancesSize
-  {  "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)        },
-  //{"CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)       },
-  //{"CColor"        , NULL              , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
-  //{"CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
-  //{"CDate"         , NULL              , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
-  //{"CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
-  //{"CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
-  //{"CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)        },
-  {  "CUnicodeBuffer", CUnicodeBufferFree, CUnicodeBufferIsEqual, CUnicodeBufferHash, CUnicodeBufferCopy, sizeof(CUnicodeBuffer)}
+  {"CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)        },
+  {"CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)       },
+//{"CColor"        , NULL              , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
+//{"CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
+//{"CDate"         , NULL              , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
+//{"CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
+//{"CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
+//{"CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)        },
+  {"CUnicodeBuffer", CUnicodeBufferFree, CUnicodeBufferIsEqual, CUnicodeBufferHash, CUnicodeBufferCopy, sizeof(CUnicodeBuffer)}
 };
 
 #define CISA(obj) ((CClass*)((obj)->isa))
@@ -103,14 +101,14 @@ void _CRelease(id object)
     else { MSFree(object, "CRelease() [object]") ; }
   }
 }
-
+/*
 id _CAutorelease(id object)
 {
   if (object && CISA(object)) {
   }
   return object ;
 }
-
+*/
 NSUInteger _CRetainCount(id object)
 {
   return !object ? 0 : object->refCount+1;
@@ -118,12 +116,7 @@ NSUInteger _CRetainCount(id object)
 
 BOOL _CObjectIsEqual(id obj1, id obj2)
 {
-  if (obj1 == obj2) { return YES ; }
-  if (obj1 && obj1->isa && obj2 && obj1->isa == obj2->isa && CISA(obj1)->isEqual) {
-    // we only compare objects of the same class since class are a very poor concept in this C library
-    return CISA(obj1)->isEqual(obj1, obj2) ;
-  }
-  return NO ;
+  return obj1 ? _CClassIsEqual(obj1,obj2,CISA(obj1)->isEqual) : !obj2 ? YES : NO;
 }
 
 NSUInteger _CObjectHashDepth(id obj, unsigned depth)
