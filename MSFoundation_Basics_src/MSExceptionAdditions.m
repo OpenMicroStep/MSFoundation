@@ -79,7 +79,8 @@ void MSRaiseFromV(NSString *name, id object, SEL selector, NSString *format, va_
 {
     Class cls = [object class] ;
     format = [NSString stringWithFormat:@"%c [%@ (0x%p) %@] : %@",
-        (ISMETA(cls) ? '+' : '-'),
+        //(ISMETA(cls) ? '+' : '-'), TODO: CLS_META undefined on Win32
+        '-',
         NSStringFromClass(cls),
         object,
         NSStringFromSelector(selector),

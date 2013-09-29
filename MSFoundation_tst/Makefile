@@ -1,15 +1,13 @@
-NAME = MSFoundation_src
+NAME = MSFoundation_tst
 
 PROJECT_TYPE = Component
 MAKEFILE = subproj.make
 
-HFILES = MSFoundationPrivate_.h MSArray_.h MSArray.h MSMutableArray.h\
-         MSBuffer.h MSUnicodeBuffer.h
+HFILES = msfoundation_validate.h
 
-MFILES = MSCObject.m MSArray.m MSMutableArray.m\
-         MSBuffer.m MSUnicodeBuffer.m
+MFILES = msfoundation_test.m msfoundation_array_validate.m
 
-HEADER_PATHS = -I../MSCore_src -I../MSFoundation_Basics_src
+HEADER_PATHS = -I../MSCore_src -I../MSFoundation_Basics_src -I../MSFoundation_src
 
 include $(MAKEFILEDIR)/platform.make
 include $(MAKEFILEDIR)/$(MAKEFILE)

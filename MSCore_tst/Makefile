@@ -5,7 +5,7 @@ MAKEFILE = subproj.make
 
 HFILES = mscore_validate.h
 
-CFILES = mscore_carray_validate.c
+CFILES = mscore_c_validate.c mscore_carray_validate.c mscore_cbuffer_validate.c
 
 HEADER_PATHS = -I../MSCore_src
 

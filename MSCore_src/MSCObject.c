@@ -43,16 +43,6 @@
 
 #include "MSCorePrivate_.h"
 
-NSUInteger MSPointerHash(void *pointer)
-{
-  // Thank's to Nat! remark
-  // (http://www.mulle-kybernetik.com/artikel/Optimization/opti-7.html)
-  // about address alignment and adding salt in a hash.
-  // Even if we return a NSUInteger I decided to go with 32 bits number since
-  // a 8 bits hashing is useless.
-  return (NSUInteger)((((MSUInt)pointer >> 4) | (MSUInt)pointer << 28)) ;
-}
-
 #ifdef MSCORE_STANDALONE
 
 typedef void       (*CObjectAction  )(id) ;

@@ -45,8 +45,6 @@
 #ifndef MSCORE_OBJECT_H
 #define MSCORE_OBJECT_H
 
-MSExport NSUInteger MSPointerHash(void *pointer);
-
 #pragma mark c-like Class and Objects
 
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
