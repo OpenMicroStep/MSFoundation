@@ -49,7 +49,7 @@
  standardized OBJC fast access functions
  */
 
-#if defined(WO451)
+#if defined(WIN32)
 /************************ APPLE WO 451 ON WIN32 **********************/
 struct WOFakeClass { long isa ; } ;
 MSImport          IMP class_lookupMethod(Class, SEL) ;

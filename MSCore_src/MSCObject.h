@@ -50,7 +50,9 @@
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 
 ///// Class for c-like objects
-typedef struct {
+typedef struct ClassStruct;
+typedef struct ClassStruct {
+  struct ClassStruct *isa;
   const char* className;}
 *Class;
 #define Nil ((Class)0)
@@ -122,21 +124,17 @@ typedef NSComparisonResult (*MSObjectComparator)(id, id, void*);
 #ifdef MSCORE_STANDALONE // ---------------------------------- MSCORE_STANDALONE
 // No autorelease in Core. Not needed, not a priority.
 
-MSExport NSUInteger _CRetainCount    (id obj);
-MSExport id         _CRetain         (id obj);
-MSExport void       _CRelease        (id obj);
-//MSExport id         _CAutorelease    (id obj);
-MSExport BOOL       _CObjectIsEqual  (id obj1, id obj2);
-MSExport NSUInteger _CObjectHash     (id obj);
-MSExport NSUInteger _CObjectHashDepth(id obj, unsigned depth);
-MSExport id         _CObjectCopy     (id obj);
+MSExport NSUInteger  _CRetainCount    (id obj);
+MSExport id          _CRetain         (id obj);
+MSExport void        _CRelease        (id obj);
+//MSExport id        _CAutorelease    (id obj);
+MSExport BOOL        _CObjectIsEqual  (id obj1, id obj2);
+MSExport NSUInteger  _CObjectHash     (id obj);
+MSExport NSUInteger  _CObjectHashDepth(id obj, unsigned depth);
+MSExport id          _CObjectCopy     (id obj);
 
 #define ISA(X)         ((X)->isa)
-
-#ifdef NAMEOF
-#undef NAMEOF
-#endif
-#define NAMEOF(X)      (ISA(X)->className)
+#define NAMEOFCLASS(X) (ISA(X)->className)
 
 #define RETAINCOUNT(X) _CRetainCount((id)(X))
 #define RETAIN(X)      _CRetain     ((id)(X))
@@ -150,23 +148,21 @@ MSExport id         _CObjectCopy     (id obj);
 
 #else // ---------------------------------------------------- !MSCORE_STANDALONE
 
-MSExport NSUInteger _MRetainCount    (id obj);
-MSExport id         _MRetain         (id obj);
-MSExport void       _MRelease        (id obj);
-MSExport id         _MAutorelease    (id obj);
-MSExport BOOL       _MObjectIsEqual  (id obj1, id obj2);
-MSExport NSUInteger _MObjectHash     (id obj);
-MSExport NSUInteger _MObjectHashDepth(id obj, unsigned depth);
-MSExport id         _MObjectCopy     (id obj);
+MSExport Class       _MIsa            (id obj);
+MSExport const char *_MNameOfClass    (id obj);
+MSExport NSUInteger  _MRetainCount    (id obj);
+MSExport id          _MRetain         (id obj);
+MSExport void        _MRelease        (id obj);
+MSExport id          _MAutorelease    (id obj);
+MSExport BOOL        _MObjectIsEqual  (id obj1, id obj2);
+MSExport NSUInteger  _MObjectHash     (id obj);
+MSExport NSUInteger  _MObjectHashDepth(id obj, unsigned depth);
+MSExport id          _MObjectCopy     (id obj);
 
 #ifdef MSCORE_FORFOUNDATION                              // MSCORE_FORFOUNDATION
 
-#define ISA(X)         ((X)->isa)
-
-#ifdef NAMEOF
-#undef NAMEOF
-#endif
-#define NAMEOF(X)      (ISA(X)->className)
+#define ISA(X)         _MIsa        ((id)(X))
+#define NAMEOFCLASS(X) _MNameOfClass((id)(X))
 
 #define RETAINCOUNT(X) _MRetainCount((id)(X))
 #define RETAIN(X)      _MRetain     ((id)(X))
@@ -180,17 +176,19 @@ MSExport id         _MObjectCopy     (id obj);
 
 #else                                                              // FOUNDATION
 
-#if defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
-//#define ISA(X)       ((Class)(((Class)(X))->isa))
-  #include <objc/objc-runtime.h>
-  #define ISA(X)       object_getClass(X)
-// NAMEOF already defined by Apple runtime
+#include <objc/objc-runtime.h>
+#if defined(WIN32)
+  #warning WIN - WIN - WIN - WIN - WIN - WIN - WIN - WIN - WIN - WIN - WIN
+  #define ISA(X)         (((id)(X))->isa)
+  #define NAMEOFCLASS(X) object_getClassName((id)(X))
+#elif defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
+  #warning MACOSX - MACOSX - MACOSX - MACOSX - MACOSX - MACOSX - MACOSX
+  #define ISA(X)         object_getClass(X)
+  #define NAMEOFCLASS(X) object_getClassName(X)
 #else
-  #define ISA(X)       object_get_class(X)
-  #ifdef NAMEOF
-  #undef NAMEOF
-  #endif
-  #define NAMEOF(X)    object_get_class_name(X)
+  #warning NOT MAC OS - NOT MAC OS - NOT MAC OS - NOT MAC OS - NOT MAC OS
+  #define ISA(X)         object_get_class(X)
+  #define NAMEOFCLASS(X) object_get_class_name(X)
 #endif
 
 #define RETAINCOUNT(X) [(X) retainCount]

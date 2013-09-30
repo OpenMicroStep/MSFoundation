@@ -4,20 +4,24 @@ int mscore_c_validate(void);
 int mscore_carray_validate(void);
 int mscore_cbuffer_validate(void);
 
-static inline int test()
+static inline int testCore(BOOL alone)
   {
   int err= 0;
-  printf("********** Test of the Microstep MSCore Library **********\n");
-  #ifdef MSCORE_STANDALONE
-  printf("********** MSCORE_STANDALONE\n\n");
-  #else
-  printf("********** MSCORE\n\n");
-  #endif
-  if (
-    //!(err= mscore_c_validate      ()) && A revoir sous win STANDALONE
-      !(err= mscore_carray_validate ()) &&
-      !(err= mscore_cbuffer_validate())
-      )
-    printf("\n********** ALL THE TESTS ARE SUCCESSFUL !!!     **********\n");
+  if (alone) {
+    printf("********** Test of the Microstep MSCore Library **********\n");
+    #ifdef MSCORE_STANDALONE
+    printf("********** MSCORE_STANDALONE\n\n");
+    #else
+    printf("********** MSCORE\n\n");
+    #endif
+    }
+  err= mscore_c_validate      () +
+       mscore_carray_validate () +
+       mscore_cbuffer_validate();
+  if (alone) {
+    if (!err)
+      printf("\n********** ALL THE TESTS ARE SUCCESSFUL !!!     **********\n\n");
+    else
+      printf("\n**** FAIL *** FAIL *** FAIL *** FAIL *** FAIL *** FAIL ***\n\n");}
   return err;
   }

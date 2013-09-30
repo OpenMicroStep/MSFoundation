@@ -102,6 +102,15 @@ Herve Malaingre : herve@malaingre.com
 - (BOOL)isEqualToBuffer:(MSBuffer *)other;
 - (MSBuffer *)bufferWithRange:(NSRange)range;
 
+- (MSBuffer *)encodedToBase64;
+- (MSBuffer *)decodedFromBase64;
+  // return nil if not decodable.
+
+- (MSBuffer *)compressed;
+  // return nil if not decodable.
+- (MSBuffer *)decompressed;
+  // return nil if not decodable.
+
 @end
 
 #define MSCreateBuffer(C) (MSBuffer*)CCreateBuffer(C)
@@ -114,6 +123,7 @@ Herve Malaingre : herve@malaingre.com
 //Obsolete Use: CBufferBase64[En|De]codeAndAppendBytes(b, bytes, length)
 //MSExport MSBuffer *MSBase64FromBytes(const void *bytes, NSUInteger length, BOOL encodeWithNewLines);
 //MSExport MSBuffer *MSBufferFromBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);
+MSExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);
 
 // TODO: A mettre dans CBuffer
 MSExport MSBuffer *MSURLComponentFromBytes(void *bytes, NSUInteger length); // also converts special characters $-_.+!*'(),

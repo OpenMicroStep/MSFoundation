@@ -7,5 +7,5 @@ int main(int argc, const char *argv[])
   {
   argc= 0;
   argv= NULL;
-  return test();
+  return testCore(YES);
   }

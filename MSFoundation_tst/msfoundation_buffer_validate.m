@@ -1,152 +1,150 @@
-// msfoundation_array_validate.m, ecb, 11/09/13
+// msfoundation_buffer_validate.m, ecb, 11/09/13
 
 #include "MSFoundationPrivate_.h"
 #include "msfoundation_validate.h"
 
-static inline int array_create(void)
+static inline int buffer_create(void)
   {
   int err= 0;
-  NSUInteger i,j;
-  MSArray *x;
-  MSMutableArray *a,*b;
-  a= MSCreateMutableArray(10);
-  x= [[MSArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:NO];
-  for (i=0; i<10; i++) {
-    b= MSCreateMutableArray(i+1);
-    for (j=0; j<i+1; j++) [b addObject:x];
-    [a addObject:b];
-    RELEASE(b);}
-  if (RETAINCOUNT(x)!=56) {
-    fprintf(stdout, "Bad retain count(1): %lu\n",WLU(RETAINCOUNT(x)));
+  MSBuffer *b;
+  b= MSCreateBuffer(0);
+  if (RETAINCOUNT(b)!=1) {
+    fprintf(stdout, "A1-Bad retain count: %lu\n",WLU(RETAINCOUNT(b)));
     err++;}
-  RELEASE(a);
-  if (RETAINCOUNT(x)!=1) {
-    fprintf(stdout, "Bad retain count(2): %lu\n",WLU(RETAINCOUNT(x)));
+  CBufferAppendBytes  ((CBuffer*)b,"123456789 123456789 123456789 123456789 123456789 123456789 ",60);
+  CBufferAppendCString((CBuffer*)b,"-********** Test of the Microstep MSCore Library **********-");
+  if ([b length]!=120) {
+    fprintf(stdout, "A2-Bad length: %lu\n",WLU([b length]));
     err++;}
-  RELEASE(x);
+  if (CBufferByteAtIndex((CBuffer*)b,72)!='T') {
+    fprintf(stdout, "A3-Bad byte: %c\n",CBufferByteAtIndex((CBuffer*)b,72));
+    err++;}
+  if (CBufferIndexOfByte((CBuffer*)b,'M')!=84) {
+    fprintf(stdout, "A4-Bad index: %lu\n",WLU(CBufferIndexOfByte((CBuffer*)b,'M')));
+    err++;}
+  if (CBufferIndexOfBytes((CBuffer*)b,"MS-",2)!=94) {
+    fprintf(stdout, "A5-Bad index: %lu\n",WLU(CBufferIndexOfBytes((CBuffer*)b,"MS-",2)));
+    err++;}
+  if (CBufferIndexOfCStringInRange((CBuffer*)b,"Lib",NSMakeRange(60, 1000))!=101) {
+    fprintf(stdout, "A6-Bad index: %lu\n",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"Lib",NSMakeRange(60, 1000))));
+    err++;}
+  if (CBufferIndexOfCString((CBuffer*)b,"**********")!=61) {
+    fprintf(stdout, "A7-Bad index: %lu\n",WLU(CBufferIndexOfCString((CBuffer*)b,"**********")));
+    err++;}
+  if (CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(61, 1000))!=61) {
+    fprintf(stdout, "A8-Bad index: %lu\n",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(61, 1000))));
+    err++;}
+  if (CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(62, 1000))!=109) {
+    fprintf(stdout, "A9-Bad index: %lu\n",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(62, 1000))));
+    err++;}
+  if (!ISA(b)) {
+    fprintf(stdout, "A10-Bad isa\n");
+    err++;}
+  if (!NAMEOFCLASS(b)) {
+    fprintf(stdout, "A11-Bad nameof\n");
+    err++;}
+  RELEASE(b);
   return err;
   }
 
-static inline int carray_ptr(void)
+static inline int cbuffer_b64_(int no, char *str, NSUInteger lstr, char *enc)
   {
   int err= 0;
-  NSUInteger i, p[200], *q[100], *x;
-  MSMutableArray *a;
-  a= [[MSMutableArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:YES];
-  for (i=0; i<100; i++) p[i]= 2*i;
-  // Array of int
-  [a addObjects:(id*)p count:100 copyItems:NO];
-  i= [a indexOfObjectIdenticalTo:(id)(p[77]) inRange:NSMakeRange(0, 100)];
-  if (i!=77 || p[i]!=154) {
-    fprintf(stdout, "Bad index(3): %lu\n",WLU(i));
+  MSBuffer *a,*b,*c; NSUInteger lb,lc,lenc;
+  lenc= strlen(enc);
+  a= MSCreateBufferWithBytesNoCopyNoFree(str, lstr);
+  b= [a encodedToBase64];
+  if ((lb= [b length])!=lenc || memcmp(((CBuffer*)b)->buf, enc, lenc)) {
+    fprintf(stdout, "B%d-%d-Bad encode: %s %s\n",no,2,enc,CBufferCString((CBuffer*)b));
     err++;}
-  [a removeAllObjects];
-  // Array of int*
-  for (i=0; i<100; i++) q[i]= p+i;
-  [a addObjects:(id*)q count:100 copyItems:NO];
-  i= [a indexOfObjectIdenticalTo:(id)(p+13) inRange:NSMakeRange(0, 100)];
-  if (i!=13 || p[i]!=26 || q[i]!=p+i) {
-    fprintf(stdout, "Bad index(4): %lu\n",WLU(i));
+  c= nil;
+  if (!(c= [b decodedFromBase64])) {
+    fprintf(stdout, "B%d-%d-Bad decode: %s %s\n",no,3,enc,CBufferCString((CBuffer*)c));
     err++;}
-  // insert
-  // p: 0 2 .. 198 1 3 .. 199
-  // a: 0 1 .. .. .. 198 199
-  for (i=0; i<100; i++) {p[100+i]= 2*i+1; q[i]= p+100+i;}
-  for (i=0; i<100; i++) [a insertObject:(id)q[i] atIndex:2*i+1];
-//for (i=0; i<200; i++) fprintf(stdout, " %ld",*((NSInteger*)a->pointers[i]));
-//fprintf(stdout, "\n");
-  i= [a indexOfObjectIdenticalTo:(id)q[97] inRange:NSMakeRange(0, 200)];
-  if (i!=195 || *((NSInteger*)[a objectAtIndex:i])!=195 || q[97]!=p+197) {
-    fprintf(stdout, "Bad index(5): %lu\n",WLU(i));
-    err++;}
-  // remove
-  [a removeObjectsInRange:NSMakeRange(10, 20)];
-  if ([a count]!=180) {
-    fprintf(stdout, "Bad count(6): %lu\n",WLU(i));
-    err++;}
-  x= (NSUInteger*)[a objectAtIndex:10];
-  if (*x!=30) {
-    fprintf(stdout, "Bad int (7): %lu\n",WLU(*x));
-    err++;}
-  i= [a indexOfObjectIdenticalTo:(id)x inRange:NSMakeRange(0, [a count])];
-  if (i!=10) {
-    fprintf(stdout, "Bad index(8): %lu\n",WLU(i));
-    err++;}
-  // replace
-  // 0 .. 9 30 .. 199 => 0 1 .. 8 9 1 3 .. 17 19 40 .. 199
-  [a replaceObjectsInRange:NSMakeRange(10,10) withObjects:(id*)q copyItems:NO];
-  i= CArrayRemoveIdenticalObject((CArray*)a, (id)q[3]); // 7
-  if (i!=2) {
-    fprintf(stdout, "Bad remove identical(9): %lu\n",WLU(i));
-    err++;}
-  i= [a indexOfObjectIdenticalTo:(id)q[4] inRange:NSMakeRange(0, [a count])];
-  if (i!=8) {
-    fprintf(stdout, "Bad index(10): %lu\n",WLU(i));
-    err++;}
-  i= [a indexOfObjectIdenticalTo:(id)q[50] inRange:NSMakeRange(0, [a count])];
-  if (i!=101-20-2) {
-    fprintf(stdout, "Bad index(11): %lu\n",WLU(i));
+  if ((lc= [c length])!=lstr || (c && memcmp(((CBuffer*)c)->buf, str, lstr))) {
+    fprintf(stdout, "B%d-%d-Bad decode: %s %s\n",no,4,str,CBufferCString((CBuffer*)c));
     err++;}
   RELEASE(a);
   return err;
   }
-
-static inline int carray_subarray(void)
+static inline int buffer_b64(void)
   {
   int err= 0;
-  NSUInteger i,j, n= 2*3*256;
-  MSMutableArray *a,*b,*d;
-  NSArray *c;
-  id o;
-  a= MSCreateMutableArray(n);
-  o= [[MSMutableArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:YES];
-  [o addObject:nil];
-  if ([o count]!=1) {
-    fprintf(stdout, "Bad count(30): %lu\n",WLU(((CArray*)o)->count));
-    err++;}
-  for (i=0; i<n; i++) {
-    b= MSCreateMutableArray(i+1);
-    for (j=0; j<i+1; j++) [b addObject:o];
-    [a addObject:b];
-    RELEASE(b);}
-  RELEASE(o);
-  if (RETAINCOUNT(o)!=n*(n+1)/2) {
-    fprintf(stdout, "Bad retain count(31): %lu\n",WLU(RETAINCOUNT(o)));
-    err++;}
-  c= [a subarrayWithRange:NSMakeRange(n/2, n/3)];
-  if ([c count]!=n/3) {
-    fprintf(stdout, "Bad count(32): %lu %lu\n",[c count],n/3);
-    err++;}
-  if (RETAINCOUNT(o)!=n*(n+1)/2) {
-    fprintf(stdout, "Bad retain count(33): %lu %lu\n",WLU(RETAINCOUNT(o)),n*(n+1)/2);
-    err++;}
-  d= MSCreateMutableArray(n/3);
-  CArrayAddArray((CArray*)d, (CArray*)c, YES);
-  if (RETAINCOUNT(o)!=n*(n+1)/2+(4*n+3)*n/18) {
-    fprintf(stdout, "Bad retain count(34): %lu %lu\n",WLU(RETAINCOUNT(o)),n*(n+1)/2+(4*n+3)*n/18);
-    err++;}
-  RETAIN(o);
-  RELEASE(a);
-  //RELEASE(c); // Autorelease so NOT clean
-  CArrayFreeInside(c);
-  RELEASE(d);
-  if (RETAINCOUNT(o)!=1) {
-    fprintf(stdout, "Bad retain count(35): %lu\n",WLU(RETAINCOUNT(o)));
-    err++;}
-  RELEASE(o);
+  int i; char str[257], *enc1,*enc2;
+  enc1= "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU"
+  "1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fSAhIiMkJSYnKCkqKywt"
+  "Li8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl9gYWJjZGV"
+  "mZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH0gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0"
+  "BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiYw==";
+  enc2= "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIj"
+  "JCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZH"
+  "SElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWpr"
+  "bG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6P"
+  "kJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKz"
+  "tLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX"
+  "2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7"
+  "/P3+/w==";
+  err+= cbuffer_b64_(0, ""    , 0, "");
+  err+= cbuffer_b64_(1, "A"   , 1, "QQ==");
+  err+= cbuffer_b64_(2, "AB"  , 2, "QUI=");
+  err+= cbuffer_b64_(3, "ABC" , 3, "QUJD");
+  err+= cbuffer_b64_(4, "ABCD", 4, "QUJDRA==");
+  for (i=0; i<256; i++) str[i]= ' '+i%('~'-' ');
+  str[256]= 0x00;
+  err+= cbuffer_b64_(5, str, 256, enc1);
+  for (i=0; i<256; i++) str[i]= (char)i;
+  err+= cbuffer_b64_(6, str, 256, enc2);
   return err;
   }
 
-int msfoundation_array_validate(void)
+static inline int buffer_compress_(int no, char *str, NSUInteger lstr, NSUInteger cstr)
+  {
+  int err= 0;
+  MSBuffer *a,*b,*c;
+  a= MSCreateBufferWithBytesNoCopyNoFree(str, lstr);
+  if (!(b= [a compressed])) {
+    fprintf(stdout, "B%d-%d-Bad compress: %s\n",no,1,str);
+    err++;}
+  if ([b length]!=cstr) {
+    fprintf(stdout, "B%d-%d-Bad compress: %s %s\n",no,2,str,CBufferCString((CBuffer*)b));
+    err++;}
+//fprintf(stdout, "B%d-%d-Compress: %lu %lu\n",no,1,lstr,b->length);
+  if (!(c= [b decompressed])) {
+    fprintf(stdout, "B%d-%d-Bad decompress: %s\n",no,3,CBufferCString((CBuffer*)c));
+    err++;}
+  if ([c length]!=lstr || memcmp(((CBuffer*)c)->buf, str, lstr)) {
+    fprintf(stdout, "B%d-%d-Bad decompress: %s %s\n",no,4,str,CBufferCString((CBuffer*)c));
+    err++;}
+  RELEASE(a);
+  return err;
+  }
+static inline int buffer_compress(void)
+  {
+  int err= 0;
+  int i; char str[257];
+  err+= buffer_compress_(0, ""    , 0, 0);
+  err+= buffer_compress_(1, "A"   , 1, 12);
+  err+= buffer_compress_(2, "AB"  , 2, 13);
+  err+= buffer_compress_(3, "ABC" , 3, 14);
+  err+= buffer_compress_(4, "ABCD", 4, 15);
+  for (i=0; i<256; i++) str[i]= ' '+i%('~'-' ');
+  str[256]= 0x00;
+  err+= buffer_compress_(5, str, 256, 110);
+  for (i=0; i<256; i++) str[i]= (char)i;
+  err+= buffer_compress_(6, str, 256, 267);
+  return err;
+  }
+
+int msfoundation_buffer_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
-  err+= array_create();
-  err+= carray_ptr();
-  err+= carray_subarray();
+  err+= buffer_create();
+  err+= buffer_b64();
+  err+= buffer_compress();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> MSArray  validate: %s (%.3f s)\n",(err?"FAIL":"PASS"),seconds);
+  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSBuffer",(err?"FAIL":"PASS"),seconds);
   return err;
   }
 

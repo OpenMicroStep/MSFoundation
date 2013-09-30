@@ -142,7 +142,7 @@ int mscore_carray_validate(void)
   err+= carray_subarray();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> CArray  validate: %s (%.3f s)\n",(err?"FAIL":"PASS"),seconds);
+  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CArray",(err?"FAIL":"PASS"),seconds);
   return err;
   }
 

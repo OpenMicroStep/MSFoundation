@@ -106,10 +106,10 @@ MSExport void CBufferAppendBytes  (CBuffer *self, const void *bytes, NSUInteger 
 MSExport void CBufferAppendByte   (CBuffer *self, MSByte c);
 MSExport void CBufferFillWithByte (CBuffer *self, MSByte c, NSUInteger nb);
 
-MSExport BOOL CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSExport void CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 MSExport BOOL CBufferBase64DecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
-MSExport BOOL CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSExport void CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 MSExport BOOL CBufferBase64URLDecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
 MSExport BOOL CBufferCompressAndAppendBytes  (CBuffer *self, const void *bytes, NSUInteger len);

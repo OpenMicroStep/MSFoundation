@@ -10,7 +10,7 @@ int main(int argc, const char *argv[])
   int err;
   argc= 0;
   argv= NULL;
-  err= test();
+  err= testCore(YES);
   [pool release];
   return err;
   }

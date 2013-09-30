@@ -47,9 +47,7 @@ static inline int cbuffer_b64_(int no, char *str, NSUInteger lstr, char *enc)
   CBuffer *b,*c; NSUInteger lb,lc,lenc;
   lenc= strlen(enc);
   b= CCreateBuffer(0);
-  if (!CBufferBase64EncodeAndAppendBytes(b, str, lstr)) {
-    fprintf(stdout, "B%d-%d-Bad encode: %s %s\n",no,1,str,CBufferCString(b));
-    err++;}
+  CBufferBase64EncodeAndAppendBytes(b, str, lstr);
   if ((lb= CBufferLength(b))!=lenc || memcmp(b->buf, enc, lenc)) {
     fprintf(stdout, "B%d-%d-Bad encode: %s %s\n",no,2,enc,CBufferCString(b));
     err++;}
@@ -143,7 +141,7 @@ int mscore_cbuffer_validate(void)
   err+= cbuffer_compress();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> CBuffer validate: %s (%.3f s)\n",(err?"FAIL":"PASS"),seconds);
+  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CBuffer",(err?"FAIL":"PASS"),seconds);
   return err;
   }
 

@@ -115,7 +115,7 @@ static inline int carray_subarray(void)
     err++;}
   c= [a subarrayWithRange:NSMakeRange(n/2, n/3)];
   if ([c count]!=n/3) {
-    fprintf(stdout, "Bad count(32): %lu %lu\n",[c count],n/3);
+    fprintf(stdout, "Bad count(32): %lu %lu\n",WLU([c count]),n/3);
     err++;}
   if (RETAINCOUNT(o)!=n*(n+1)/2) {
     fprintf(stdout, "Bad retain count(33): %lu %lu\n",WLU(RETAINCOUNT(o)),n*(n+1)/2);
@@ -146,7 +146,7 @@ int msfoundation_array_validate(void)
   err+= carray_subarray();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> MSArray  validate: %s (%.3f s)\n",(err?"FAIL":"PASS"),seconds);
+  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSArray",(err?"FAIL":"PASS"),seconds);
   return err;
   }
 

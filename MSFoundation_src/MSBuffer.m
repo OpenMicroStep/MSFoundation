@@ -300,6 +300,39 @@ static Class __MSBufferClass= Nil;
 - (MSUInt  )ELFHash          { return MSBytesELF         ((void *)_buf, _length); }
 - (MSUInt  )elfUppercaseHash { return MSBytesUppercaseELF((void *)_buf, _length); }
 
+#pragma mark Base 64
+
+- (MSBuffer *)encodedToBase64
+  {
+  CBuffer *b= CCreateBuffer(0);
+  CBufferBase64EncodeAndAppendBytes(b, _buf, _length);
+  return AUTORELEASE((id)b);
+  }
+- (MSBuffer *)decodedFromBase64
+  {
+  CBuffer *b= CCreateBuffer(0);
+  if (_buf && !CBufferBase64DecodeAndAppendBytes(b, _buf, _length)) {
+    CBufferFree((id)b); b= nil;}
+  return AUTORELEASE((id)b);
+  }
+
+#pragma mark Compression
+
+- (MSBuffer *)compressed
+  {
+  CBuffer *b= CCreateBuffer(0);
+  if (_buf && !CBufferCompressAndAppendBytes(b, _buf, _length)) {
+    CBufferFree((id)b); b= nil;}
+  return AUTORELEASE((id)b);
+  }
+- (MSBuffer *)decompressed
+  {
+  CBuffer *b= CCreateBuffer(0);
+  if (_buf && !CBufferDecompressAndAppendBytes(b, _buf, _length)) {
+    CBufferFree((id)b); b= nil;}
+  return AUTORELEASE((id)b);
+  }
+
 #pragma mark NSCoding
 
 - (id)replacementObjectForPortCoder:(NSPortCoder *)encoder

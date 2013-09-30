@@ -240,9 +240,9 @@ void CBufferFillWithByte(CBuffer *self, MSByte c, NSUInteger nb)
 static const MSByte  __cb64[64]=    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const MSByte  __cb64URL[64]= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-static inline BOOL _CBase64Encode(CBuffer *self, const MSByte *base64, MSByte paddingChar, const void *bytes, NSUInteger len)
+static inline void _CBase64Encode(CBuffer *self, const MSByte *base64, MSByte paddingChar, const void *bytes, NSUInteger len)
 {
-  if (self && bytes) {
+  if (self && bytes && len) {
     MSByte *buffer = (MSByte *)bytes;
     while (len > 2) {
       CBufferAppendByte(self, base64[(buffer[0] & 0xfc) >> 2]);
@@ -268,9 +268,7 @@ static inline BOOL _CBase64Encode(CBuffer *self, const MSByte *base64, MSByte pa
       default:
         break;
     }
-    return YES;
   }
-  return NO;
 }
 
 static const short __cd64[256]= {
@@ -359,10 +357,10 @@ static inline BOOL _CBase64Decode(CBuffer *self, const short *base64, MSByte pad
   return NO;
 }
 
-BOOL CBufferBase64EncodeAndAppendBytes   (CBuffer *self, const void *bytes, NSUInteger len)
-{ return _CBase64Encode(self, __cb64,    (MSByte)'=', bytes, len); }
-BOOL CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len)
-{ return _CBase64Encode(self, __cb64URL, (MSByte)'=', bytes, len); }
+void CBufferBase64EncodeAndAppendBytes   (CBuffer *self, const void *bytes, NSUInteger len)
+{ _CBase64Encode(self, __cb64,    (MSByte)'=', bytes, len); }
+void CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len)
+{ _CBase64Encode(self, __cb64URL, (MSByte)'=', bytes, len); }
 BOOL CBufferBase64DecodeAndAppendBytes   (CBuffer *self, const void *bytes, NSUInteger len)
 { return _CBase64Decode(self, __cd64,    (MSByte)'=', bytes, len); }
 BOOL CBufferBase64URLDecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len)

@@ -54,6 +54,16 @@
 
 #pragma mark MSCore compatibility
 
+Class _MIsa(id obj)
+{
+  return ISA(obj);
+}
+
+const char *_MNameOfClass(id obj)
+{
+  return NAMEOFCLASS(obj);
+}
+
 id _MRetain(id obj)
 {
   return [obj retain];
@@ -76,7 +86,7 @@ NSUInteger _MRetainCount(id obj)
 
 BOOL _MObjectIsEqual(id obj1, id obj2)
 {
-  return (obj1 == obj2) ? YES : [obj1 isEqual:obj2];
+  return (obj1 == obj2) || [obj1 isEqual:obj2];
 }
 
 NSUInteger _MObjectHashDepth(id obj, unsigned depth)
