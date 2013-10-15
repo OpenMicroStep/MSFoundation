@@ -50,7 +50,6 @@ typedef BOOL       (*CObjectTest    )(id, id) ;
 typedef NSUInteger (*CObjectHashier )(id, unsigned) ;
 typedef id         (*CObjectAccessor)(id) ;
 
-typedef struct CClassStruct;
 typedef struct CClassStruct {
   struct CClassStruct *isa;
   const char*          className;
@@ -67,7 +66,7 @@ static CClass __allClasses[CClassIndexMax+1]=
 { // className         deallocator         isEqual                hashier             copier              instancesSize
   {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)        },
   {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)       },
-//{&metaclass, "CColor"        , NULL              , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
+  {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
 //{&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
 //{&metaclass, "CDate"         , NULL              , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
 //{&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },

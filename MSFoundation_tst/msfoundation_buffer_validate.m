@@ -1,4 +1,4 @@
-// msfoundation_buffer_validate.m, ecb, 11/09/13
+// msfoundation_buffer_validate.m, ecb, 130911
 
 #include "MSFoundationPrivate_.h"
 #include "msfoundation_validate.h"

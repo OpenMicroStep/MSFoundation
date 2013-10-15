@@ -114,13 +114,13 @@ Herve Malaingre : herve@malaingre.com
 @end
 
 #define MSCreateBuffer(C) (MSBuffer*)CCreateBuffer(C)
-// Obsolete. Use: CCreateBufferWithBytes[NoCopy[NoFree]]
+//The following method is obsolete. Use: CCreateBufferWithBytes[NoCopy[NoFree]]
 //MSExport MSBuffer *MSCreateBufferWithBytes(void *bytes, NSUInteger length, BOOL takesACopy, BOOL freeWhenDone); // returns a retained object
 #define MSCreateBufferWithBytes(            C,L) (MSBuffer*)CCreateBufferWithBytes            ((C),(L))
 #define MSCreateBufferWithBytesNoCopy(      C,L) (MSBuffer*)CCreateBufferWithBytesNoCopy      ((C),(L))
 #define MSCreateBufferWithBytesNoCopyNoFree(C,L) (MSBuffer*)CCreateBufferWithBytesNoCopyNoFree((C),(L))
 
-//Obsolete Use: CBufferBase64[En|De]codeAndAppendBytes(b, bytes, length)
+//The following methods are obsolete Use: CBufferBase64[En|De]codeAndAppendBytes(b, bytes, length)
 //MSExport MSBuffer *MSBase64FromBytes(const void *bytes, NSUInteger length, BOOL encodeWithNewLines);
 //MSExport MSBuffer *MSBufferFromBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);
 MSExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);

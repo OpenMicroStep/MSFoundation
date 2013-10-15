@@ -663,7 +663,7 @@ static _CUBNumberAppender __numberAppenders[37] =
   _snd, // -- 2
   _snd, // MSPortuguese
   _snd, // -- 4
-  _snd, // MSItalian =*=*=*=*=*=*=*=*=*=*=                  DEFINED
+  _snd, // MSItalian =*=*=*=*=*=*=*=*=*=*=                               DEFINED
   _snd, // MSGreek
   _snd, // MSDanish
   _snd, // -- 8
@@ -678,16 +678,16 @@ static _CUBNumberAppender __numberAppenders[37] =
   CUnicodeBufferAppendFrenchNumber, // MSFrench =*=*=*=*=*=*=*=*=*=*=    DEFINED
   _snd, // -- 18
   _snd, // -- 19
-  _snd, // MSSpanish =*=*=*=*=*=*=*=*=*=*=                  DEFINED
+  _snd, // MSSpanish =*=*=*=*=*=*=*=*=*=*=                               DEFINED
   _snd, // MSArmenian
   _snd, // -- 22
   _snd, // MSArabic
   _snd, // -- 24
   _snd, // -- 25
-  _snd, // MSGerman =*=*=*=*=*=*=*=*=*=*=                  DEFINED
+  _snd, // MSGerman =*=*=*=*=*=*=*=*=*=*=                                DEFINED
   _snd, // MSBulgarian
   _snd, // -- 28
-  CUnicodeBufferAppendEnglishNumber, // MSEnglish =*=*=*=*=*=*=*=*=*=*=    DEFINED
+  CUnicodeBufferAppendEnglishNumber, // MSEnglish =*=*=*=*=*=*=*=*=*=*=  DEFINED
   _snd, // MSSerbian
   _snd, // -- 31
   _snd, // MSCzech

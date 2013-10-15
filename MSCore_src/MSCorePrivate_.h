@@ -129,7 +129,7 @@
 
 #include "MSCArray.h"
 #include "MSCBuffer.h"
-//#include "MSCColor.h"
+#include "MSCColor.h"
 //#include "MSCCouple.h"
 //#include "MSCDate.h"
 /* included MAPM library rewritten to match our need */

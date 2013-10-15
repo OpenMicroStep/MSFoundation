@@ -142,7 +142,7 @@ typedef unsigned char BOOL;
 #define ABS(A)  ({ __typeof__(A) __a= (A); __a < 0 ? -__a : __a; })
 #endif
 
-typedef struct _NSRange {
+typedef struct NSRangeStruct {
   NSUInteger location;
   NSUInteger length;}
 NSRange;

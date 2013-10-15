@@ -1,4 +1,4 @@
-// mscore_carray_validate.c, ecb, 11/09/13
+// mscore_carray_validate.c, ecb, 130911
 
 #include "MSCorePrivate_.h"
 #include "mscore_validate.h"

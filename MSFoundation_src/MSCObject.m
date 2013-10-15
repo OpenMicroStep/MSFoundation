@@ -113,7 +113,7 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
   static NSString *__allCLikeClasses[CClassIndexMax+1]= {
     @"MSArray",
     @"MSBuffer",
-    0,//MSColor,
+    @"_MSRGBAColor",
     0,//MSCouple,
     0,//MSDate,
     0,//MSDecimal,

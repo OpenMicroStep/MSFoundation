@@ -1,4 +1,4 @@
-/*   MSFoundationPrivate_.h
+/* MSCColor.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -6,6 +6,7 @@
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
  Herve Malaingre : herve@malaingre.com
+ Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -36,17 +37,56 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : outside the MSFoundation framework or the MSCore library,
+ this header file cannot be included alone, please direclty include
+ MSCore.h or MSFoundation.h
  */
 
-#import <Foundation/Foundation.h>
-#import "MSCorePrivate_.h"
+#ifndef MSCORE_COLOR_H
+#define MSCORE_COLOR_H
 
-#import "MSFoundationDefines.h"
-#import "MSCoderAdditions.h"
-#import "MSExceptionAdditions.h"
+typedef struct CColorStruct {
+  Class isa;
+#ifdef MSCORE_STANDALONE
+  NSUInteger refCount;
+#endif
+#ifdef __BIG_ENDIAN__
+  MSUInt r:8;
+  MSUInt g:8;
+  MSUInt b:8;
+  MSUInt a:8;
+#else
+  MSUInt a:8;
+  MSUInt b:8;
+  MSUInt g:8;
+  MSUInt r:8;
+#endif
+  }
+CColor;
 
-#import "MSArray.h"
-#import "MSMutableArray.h"
-#import "MSBuffer.h"
-#import "MSColor.h"
-#import "MSUnicodeBuffer.h"
+//Already defined in MSCObject.h
+//MSExport void       CColorFree(id self);
+//MSExport BOOL       CColorIsEqual(id self, id other);
+//MSExport NSUInteger CColorHash(id self, unsigned depth);
+//MSExport id         CColorCopy(id self);
+
+MSExport BOOL CColorEquals(const CColor *self, const CColor *other);
+MSExport NSComparisonResult CColorsCompare(CColor *self, CColor *other);
+
+MSExport CColor *CCreateColor(MSByte r, MSByte g, MSByte b, MSByte a);
+
+MSExport BOOL  CColorIsPale(CColor *self);
+MSExport float CColorLuminance(CColor *self);
+
+MSExport MSByte CColorRedValue         (CColor *self);
+MSExport MSByte CColorGreenValue       (CColor *self);
+MSExport MSByte CColorBlueValue        (CColor *self);
+MSExport MSByte CColorOpacityValue     (CColor *self);
+MSExport MSByte CColorTransparencyValue(CColor *self);
+
+MSExport MSUInt CColorRGBAValue(CColor *self);
+MSExport MSUInt CColorCSSValue (CColor *self);
+
+MSExport void CColorGetCMYKValues(CColor *self, float *Cptr, float *Mptr, float *Yptr, float *Kptr);
+
+#endif /* MSCORE_COLOR_H */

@@ -1,4 +1,4 @@
-// msfoundation_validate.h, ecb, 11/09/13
+// msfoundation_validate.h, ecb, 130911
 
 #import "mscore_validate.h"
 

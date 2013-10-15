@@ -304,33 +304,34 @@ static Class __MSBufferClass= Nil;
 
 - (MSBuffer *)encodedToBase64
   {
-  CBuffer *b= CCreateBuffer(0);
-  CBufferBase64EncodeAndAppendBytes(b, _buf, _length);
+  MSBuffer *b= MSCreateBuffer(0);
+  CBufferBase64EncodeAndAppendBytes((CBuffer*)b, _buf, _length);
   return AUTORELEASE((id)b);
   }
 - (MSBuffer *)decodedFromBase64
   {
-  CBuffer *b= CCreateBuffer(0);
-  if (_buf && !CBufferBase64DecodeAndAppendBytes(b, _buf, _length)) {
-    CBufferFree((id)b); b= nil;}
-  return AUTORELEASE((id)b);
+  MSBuffer *b= MSCreateBuffer(0);
+  if (_buf && !CBufferBase64DecodeAndAppendBytes((CBuffer*)b, _buf, _length)) {
+    ASSIGN(b, nil);}
+  return AUTORELEASE(b);
   }
 
 #pragma mark Compression
 
 - (MSBuffer *)compressed
   {
-  CBuffer *b= CCreateBuffer(0);
-  if (_buf && !CBufferCompressAndAppendBytes(b, _buf, _length)) {
-    CBufferFree((id)b); b= nil;}
-  return AUTORELEASE((id)b);
+  // TODO: réécrire partout avec des MSBuffer
+  MSBuffer *b= MSCreateBuffer(0);
+  if (_buf && !CBufferCompressAndAppendBytes((CBuffer*)b, _buf, _length)) {
+    ASSIGN(b, nil);}
+  return AUTORELEASE(b);
   }
 - (MSBuffer *)decompressed
   {
-  CBuffer *b= CCreateBuffer(0);
-  if (_buf && !CBufferDecompressAndAppendBytes(b, _buf, _length)) {
-    CBufferFree((id)b); b= nil;}
-  return AUTORELEASE((id)b);
+  MSBuffer *b= MSCreateBuffer(0);
+  if (_buf && !CBufferDecompressAndAppendBytes((CBuffer*)b, _buf, _length)) {
+    ASSIGN(b, nil);}
+  return AUTORELEASE(b);
   }
 
 #pragma mark NSCoding

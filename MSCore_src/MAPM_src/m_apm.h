@@ -191,7 +191,7 @@ typedef void *Class ;
 #endif /* MSCORE_STANDALONE */
 
 // we add object structure to M_APM_struct and we rename it CDecimal
-typedef struct {
+typedef struct CDecimalStruct {
   Class isa ;
 #ifdef MSCORE_STANDALONE
   NSUInteger refCount ;

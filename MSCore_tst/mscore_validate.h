@@ -1,8 +1,9 @@
-// mscore_validate.h, ecb, 11/09/13
+// mscore_validate.h, ecb, 130911
 
 int mscore_c_validate(void);
 int mscore_carray_validate(void);
 int mscore_cbuffer_validate(void);
+int mscore_ccolor_validate(void);
 
 static inline int testCore(BOOL alone)
   {
@@ -17,7 +18,8 @@ static inline int testCore(BOOL alone)
     }
   err= mscore_c_validate      () +
        mscore_carray_validate () +
-       mscore_cbuffer_validate();
+       mscore_cbuffer_validate() +
+       mscore_ccolor_validate ();
   if (alone) {
     if (!err)
       printf("\n********** ALL THE TESTS ARE SUCCESSFUL !!!     **********\n\n");

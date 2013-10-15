@@ -1,4 +1,4 @@
-// msfoundation_test.m, ecb, 04/09/13
+// msfoundation_test.m, ecb, 130904
 
 #import "MSFoundationPrivate_.h"
 #import "msfoundation_validate.h"

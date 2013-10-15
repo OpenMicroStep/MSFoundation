@@ -50,7 +50,6 @@
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 
 ///// Class for c-like objects
-typedef struct ClassStruct;
 typedef struct ClassStruct {
   struct ClassStruct *isa;
   const char* className;}
@@ -215,7 +214,7 @@ MSExport id          _MObjectCopy     (id obj);
 #define ASSIGN(X,Y) ({ \
   id __x__= (id)X, __y__= (id)(Y); \
   if (__x__ != __y__) { \
-    X=  (__y__ ? RETAIN(__y__) : NULL); \
+    X=  (__y__ ? RETAIN(__y__) : nil); \
     if (__x__) RELEASE(__x__); }})
 
 #ifdef DESTROY
@@ -233,6 +232,7 @@ MSExport BOOL       CBufferIsEqual(id self, id other);
 MSExport NSUInteger CBufferHash(id self, unsigned depth);
 MSExport id         CBufferCopy(id self);
 
+MSExport void       CColorFree(id self);
 MSExport BOOL       CColorIsEqual(id self, id other);
 MSExport NSUInteger CColorHash(id self, unsigned depth);
 MSExport id         CColorCopy(id self);

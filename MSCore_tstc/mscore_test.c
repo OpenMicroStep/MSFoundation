@@ -1,4 +1,4 @@
-// mscore_test.c, ecb, 04/09/13
+// mscore_test.c, ecb, 130904
 
 #include "MSCorePrivate_.h"
 #include "mscore_validate.h"
