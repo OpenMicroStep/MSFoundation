@@ -198,6 +198,10 @@ MSExport id          _MObjectCopy     (id obj);
 #define ISEQUAL(X,Y) ({ \
   id __x__= (id)(X), __y__= (id)(Y); \
   (__x__ == __y__) ? YES : [__x__ isEqual:__y__];})
+/*
+static inline BOOL ISEQUAL(id x, id y) {
+  return (x == y) ? YES : [x isEqual:y];}
+*/
 #define HASH(X)        [(X) hash]
 #define HASHDEPTH(X,D) [(X) hash:(D)]
 #define COPY(X)        [(X) copyWithZone:NULL]
@@ -242,6 +246,7 @@ MSExport BOOL       CCoupleIsEqual(id self, id other);
 MSExport NSUInteger CCoupleHash(id self, unsigned depth);
 MSExport id         CCoupleCopy(id self);
 
+MSExport void       CDateFree(id self);
 MSExport BOOL       CDateIsEqual(id self, id other);
 MSExport NSUInteger CDateHash(id self, unsigned depth);
 MSExport id         CDateCopy(id self);

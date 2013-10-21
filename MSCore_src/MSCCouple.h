@@ -1,10 +1,11 @@
-/*   MSCObject.m
+/* MSCCouple.h
  
  This file is is a part of the MicroStep Framework.
  
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
+ Eric Baradat :  k18rt@free.fr
  Herve Malaingre : herve@malaingre.com
  
  This software is a computer program whose purpose is to [describe
@@ -36,98 +37,39 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
- WARNING : the CObject mechanism is NOT Thread Safe. Each object
- must be allocated, retained, autoreleased, released in the same thread.
- 
+ WARNING : outside the MSFoundation framework or the MSCore library,
+ this header file cannot be included alone, please direclty include
+ MSCore.h or MSFoundation.h
  */
 
-#import "MSFoundationPrivate_.h"
+#ifndef MSCORE_COUPLE_H
+#define MSCORE_COUPLE_H
 
-#pragma mark NSObject hash:
+typedef struct CCoupleStruct {
+  Class isa;
+#ifdef MSCORE_STANDALONE
+  NSUInteger refCount;
+#endif
+  id members[2];}
+CCouple;
 
-@interface NSObject (Private)
-- (NSUInteger)hash:(unsigned)depth;
-@end
-@implementation NSObject (Private)
-- (NSUInteger)hash:(unsigned)depth {return [self hash]; depth=0;}
-@end
+  MSExport void CCoupleFreeInside(id self);
+//Already defined in MSCObject.h
+//MSExport void       CCoupleFree(id self);
+//MSExport BOOL       CCoupleIsEqual(id self, id other);
+//MSExport NSUInteger CCoupleHash(id self, unsigned depth);
+//MSExport id         CCoupleCopy(id self);
 
-#pragma mark MSCore compatibility
+MSExport BOOL CCoupleEquals(const CCouple *self, const CCouple *other);
 
-Class _MIsa(id obj)
-{
-  return ISA(obj);
-}
+MSExport CCouple *CCreateCouple(id firstMember, id secondMember);
 
-const char *_MNameOfClass(id obj)
-{
-  return NAMEOFCLASS(obj);
-}
+MSExport id   CCoupleFirstMember    (CCouple *self);
+MSExport id   CCoupleSecondMember   (CCouple *self);
+MSExport void CCoupleSetFirstMember (CCouple *self, id member);
+MSExport void CCoupleSetSecondMember(CCouple *self, id member);
 
-id _MRetain(id obj)
-{
-  return [obj retain];
-}
+#define MSC1(XX) CCoupleFirstMember ((CCouple*)(XX))
+#define MSC2(XX) CCoupleSecondMember((CCouple*)(XX))
 
-void _MRelease(id obj)
-{
-  [obj release];
-}
-
-id _MAutorelease(id obj)
-{
-  return [obj autorelease];
-}
-
-NSUInteger _MRetainCount(id obj)
-{
-  return [obj retainCount];
-}
-
-BOOL _MObjectIsEqual(id obj1, id obj2)
-{
-  return (obj1 == obj2) || [obj1 isEqual:obj2];
-}
-
-NSUInteger _MObjectHashDepth(id obj, unsigned depth)
-{
-  return [obj hash:depth];
-}
-
-NSUInteger _MObjectHash(id obj)
-{
-  return [obj hash];
-}
-
-id _MObjectCopy(id obj)
-{
-  return [obj copyWithZone:NULL];
-}
-
-void _MSFoundationCoreSystemInitialize()
-{
-}
-
-id MSCreateObjectWithClassIndex(CClassIndex classIndex)
-{
-  static NSString *__allCLikeClasses[CClassIndexMax+1]= {
-    @"MSArray",
-    @"MSBuffer",
-    @"_MSRGBAColor",
-    @"MSCouple",
-    0,//MSDate,
-    0,//MSDecimal,
-    0,//MSDictionary,
-    0,//MSMutex,
-    @"MSUnicodeBuffer"};
-  
-  Class aClass= NSClassFromString(__allCLikeClasses[classIndex]);
-  id obj= nil;
-  if (!aClass) {
-    MSReportError(MSInvalidArgumentError, MSFatalError, MSNULLPointerError,
-                  "%s(): try to allocate object with classIndex %lu.",
-                  "MSCreateObjectWithClassIndex",(unsigned long)classIndex);}
-  else {obj= [MSAllocateObject(aClass, 0, NULL) init];}
-  return obj;
-}
-
+#endif /* MSCORE_COUPLE_H */

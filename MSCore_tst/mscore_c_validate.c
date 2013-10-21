@@ -61,4 +61,3 @@ int mscore_c_validate(void)
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","C",(err?"FAIL":"PASS"),seconds);
   return err;
   }
-

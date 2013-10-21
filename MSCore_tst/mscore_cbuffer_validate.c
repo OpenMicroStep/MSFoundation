@@ -144,4 +144,3 @@ int mscore_cbuffer_validate(void)
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CBuffer",(err?"FAIL":"PASS"),seconds);
   return err;
   }
-

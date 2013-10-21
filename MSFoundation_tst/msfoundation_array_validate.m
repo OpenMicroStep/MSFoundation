@@ -149,4 +149,3 @@ int msfoundation_array_validate(void)
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSArray",(err?"FAIL":"PASS"),seconds);
   return err;
   }
-

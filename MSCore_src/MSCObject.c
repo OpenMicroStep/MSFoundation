@@ -45,10 +45,10 @@
 
 #ifdef MSCORE_STANDALONE
 
-typedef void       (*CObjectAction  )(id) ;
-typedef BOOL       (*CObjectTest    )(id, id) ;
-typedef NSUInteger (*CObjectHashier )(id, unsigned) ;
-typedef id         (*CObjectAccessor)(id) ;
+typedef void       (*CObjectAction  )(id);
+typedef BOOL       (*CObjectTest    )(id, id);
+typedef NSUInteger (*CObjectHashier )(id, unsigned);
+typedef id         (*CObjectAccessor)(id);
 
 typedef struct CClassStruct {
   struct CClassStruct *isa;
@@ -67,7 +67,7 @@ static CClass __allClasses[CClassIndexMax+1]=
   {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)        },
   {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)       },
   {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
-//{&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
+  {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
 //{&metaclass, "CDate"         , NULL              , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
 //{&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
 //{&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
@@ -80,18 +80,18 @@ static CClass __allClasses[CClassIndexMax+1]=
 id _CRetain(id object)
 {
   if (object && object->isa) {
-    object->refCount ++ ;
+    object->refCount ++;
   }
-  return object ;
+  return object;
 }
 
 void _CRelease(id object)
 {
   if (object && object->isa) {
-    // a 0 refCount means the object is retained once, so we can deallocate it after the release ;
-    if (object->refCount) { object->refCount -- ; }
-    else if (CISA(object)->deallocator) { CISA(object)->deallocator((void *)object) ; }
-    else { MSFree(object, "CRelease() [object]") ; }
+    // a 0 refCount means the object is retained once, so we can deallocate it after the release;
+    if (object->refCount) { object->refCount --; }
+    else if (CISA(object)->deallocator) { CISA(object)->deallocator((void *)object); }
+    else { MSFree(object, "CRelease() [object]"); }
   }
 }
 /*
@@ -99,7 +99,7 @@ id _CAutorelease(id object)
 {
   if (object && CISA(object)) {
   }
-  return object ;
+  return object;
 }
 */
 NSUInteger _CRetainCount(id object)
@@ -126,26 +126,26 @@ id _CObjectCopy(id obj)
 {
   if (obj) {
     if (CISA(obj)->copier) {
-      return CISA(obj)->copier(obj) ;
+      return CISA(obj)->copier(obj);
     }
     else {
-      MSReportError(MSGenericError, MSFatalError, MSUnimplementedMethod, "Objects of class %s don't implement the 'copier' function", obj->isa->className) ;
+      MSReportError(MSGenericError, MSFatalError, MSUnimplementedMethod, "Objects of class %s don't implement the 'copier' function", obj->isa->className);
     }
   }
-  return nil ;
+  return nil;
 }
 
 id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 {
-  CClass *aClass= __allClasses+classIndex ;
+  CClass *aClass= __allClasses+classIndex;
   if (aClass) {
     if (aClass->instancesSize) {
-      id newObject= (id)calloc(1, aClass->instancesSize) ; // allocated and filled with zeros ;
-      newObject->isa= (Class)aClass ;
-      return (id)newObject ;
+      id newObject= (id)calloc(1, aClass->instancesSize); // allocated and filled with zeros;
+      newObject->isa= (Class)aClass;
+      return (id)newObject;
     }
   }
-  return nil ;
+  return nil;
 }
 
 #endif

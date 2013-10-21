@@ -48,7 +48,7 @@ BOOL CColorEquals(const CColor *self, const CColor *other)
 {
   if (self == other) return YES;
   if (self && other) {
-    CColor *a= (CColor*)self, *b= (CColor*)other;
+    const CColor *a= self, *b= other;
     return  a->r == b->r && a->g == b->g && a->b == b->b && a->a == b->a;}
   return NO;
 }
@@ -76,10 +76,6 @@ CColor *CCreateColor(MSByte r, MSByte g, MSByte b, MSByte a)
 }
 
 #pragma mark Management
-
-#define LIGHTER(X)   2.0*(X)*(X)/3.0+(X)/2.0+0.25
-#define DARKER(X)    -(X)*(X)/3+5.0*(X)/6.0
-#define OPAQUE_COLOR ((MSUInt)0xff)
 
 static inline float CLuminance(MSByte r, MSByte g, MSByte b, MSByte a)
 {

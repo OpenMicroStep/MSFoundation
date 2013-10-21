@@ -148,7 +148,6 @@ MSImport          IMP class_lookupMethod(Class, SEL) ;
  standardized macro for memory management
  */
 
-
 #define MSAllocateObject(X, Y, Z) NSAllocateObject(X, Y, Z)
 #define MSCreateObject(ACLASS)    MSAllocateObject(ACLASS, 0, NSDefaultMallocZone())
 
@@ -162,7 +161,6 @@ MSImport          IMP class_lookupMethod(Class, SEL) ;
 #endif
 #define NEW(X)    [ALLOC(X) init]
 
-
 #ifdef ASSIGNCOPY
 #undef ASSIGNCOPY
 #endif
@@ -175,9 +173,9 @@ if (__x__ != __y__) { X =  (__y__ ? COPY(__y__) : nil); if (__x__) RELEASE(__x__
 #define KILL_POOL      RELEASE(_localPool_)
 
 #define DICT   [NSDictionary dictionaryWithObjectsAndKeys:
-#define ARRAY  [NSArray arrayWithObjects:
+#define ARRAY  [MSArray arrayWithObjects:
 #define MDICT  [NSMutableDictionary dictionaryWithObjectsAndKeys:
-#define MARRAY [NSMutableArray arrayWithObjects:
+#define MARRAY [MSMutableArray arrayWithObjects:
 
 #define END    , nil]
 #define CLOSE    nil]

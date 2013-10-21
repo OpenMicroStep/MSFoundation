@@ -44,9 +44,11 @@
 #import "MSFoundationDefines.h"
 #import "MSCoderAdditions.h"
 #import "MSExceptionAdditions.h"
+#import "MSObjectAdditions.h"
 
 #import "MSArray.h"
 #import "MSMutableArray.h"
 #import "MSBuffer.h"
 #import "MSColor.h"
+#import "MSCouple.h"
 #import "MSUnicodeBuffer.h"

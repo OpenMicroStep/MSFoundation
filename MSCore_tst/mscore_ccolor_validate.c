@@ -1,4 +1,4 @@
-// mscore_cbuffer_validate.c, ecb, 130911
+// mscore_ccolor_validate.c, ecb, 130911
 
 #include "MSCorePrivate_.h"
 #include "mscore_validate.h"
@@ -65,4 +65,3 @@ int mscore_ccolor_validate(void)
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CColor",(err?"FAIL":"PASS"),seconds);
   return err;
   }
-

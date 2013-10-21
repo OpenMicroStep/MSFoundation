@@ -147,4 +147,3 @@ int msfoundation_buffer_validate(void)
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSBuffer",(err?"FAIL":"PASS"),seconds);
   return err;
   }
-
