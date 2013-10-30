@@ -181,7 +181,6 @@ MSCouple *MSCreateCouple(id first, id second)
 
 - (BOOL)isTrue { return [_members[0] isTrue] && [_members[1] isTrue]; }
 
-
 #pragma mark NSCoding
 
 - (id)initWithCoder:(NSCoder *)aDecoder

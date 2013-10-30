@@ -115,7 +115,7 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
     @"MSBuffer",
     @"_MSRGBAColor",
     @"MSCouple",
-    0,//MSDate,
+    @"MSDate",
     0,//MSDecimal,
     0,//MSDictionary,
     0,//MSMutex,

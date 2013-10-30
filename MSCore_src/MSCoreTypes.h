@@ -120,6 +120,8 @@ typedef int64_t  MSLong;
 typedef uint64_t MSULong;
 #endif // --------------------------------------------------- end defining types
 
+typedef MSLong MSTimeInterval; // Time in seconds T0=01/01/2001
+
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 
 typedef unsigned char BOOL;

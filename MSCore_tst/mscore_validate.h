@@ -5,6 +5,7 @@ int mscore_carray_validate (void);
 int mscore_cbuffer_validate(void);
 int mscore_ccolor_validate (void);
 int mscore_ccouple_validate(void);
+int mscore_cdate_validate  (void);
 
 static inline int testCore(BOOL alone)
   {
@@ -22,6 +23,7 @@ static inline int testCore(BOOL alone)
        mscore_cbuffer_validate() +
        mscore_ccolor_validate () +
        mscore_ccouple_validate() +
+       mscore_cdate_validate  () +
        0;
   if (alone) {
     if (!err)

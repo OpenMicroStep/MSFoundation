@@ -181,7 +181,6 @@ MSExport BOOL CUnicodeBufferAppendInternetBytes(CUnicodeBuffer *self, const void
 // same remark. this function decodes URL encoding scheme in the supposed encoding
 MSExport BOOL CUnicodeBufferAppendURLBytes(CUnicodeBuffer *self, const void *bytes, NSUInteger len, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer) ;
 
-typedef MSLong MSTimeInterval ; // a 64 bits representation of time in seconds T0=01/01/2001
 MSExport BOOL CUnicodeBufferAppendTimeInterval(CUnicodeBuffer *self, MSTimeInterval interval, const char *utf8StringFormat, MSLanguage language) ;
 
 MSExport BOOL CUnicodeBufferAppendTextNumber(CUnicodeBuffer *self, MSLong n, MSLanguage language) ;

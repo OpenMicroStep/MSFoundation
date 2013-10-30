@@ -51,4 +51,5 @@
 #import "MSBuffer.h"
 #import "MSColor.h"
 #import "MSCouple.h"
+#import "MSDate.h"
 #import "MSUnicodeBuffer.h"

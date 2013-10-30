@@ -69,8 +69,8 @@ MSExport NSUInteger MSCapacityForCount(NSUInteger count) ;
 
 #define MSMalloc( X   , C) malloc(X)
 #define MSRealloc(X, Y, C) realloc(X, Y)
-#define MSCalloc( X, Y, C) calloc(X, Y)
-#define MSFree(   X   , C) free(X) // free is ok with NULL
+#define MSCalloc( X, Y, C) calloc(X, Y) // allocated and filled with zeros
+#define MSFree(   X   , C) free(X)      // free is ok with NULL
 
 #pragma mark ***** Language
 

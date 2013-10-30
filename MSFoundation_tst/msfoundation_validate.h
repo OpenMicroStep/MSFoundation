@@ -6,6 +6,7 @@ int msfoundation_array_validate(void);
 int msfoundation_buffer_validate(void);
 int msfoundation_color_validate(void);
 int msfoundation_couple_validate(void);
+int msfoundation_date_validate(void);
 
 static inline int testFoundation(BOOL alone)
   {
@@ -17,6 +18,7 @@ static inline int testFoundation(BOOL alone)
        msfoundation_buffer_validate() +
        msfoundation_color_validate () +
        msfoundation_couple_validate() +
+       msfoundation_date_validate()   +
        0;
   if (alone) {
     if (!err)

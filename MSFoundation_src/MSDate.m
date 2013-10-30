@@ -1,0 +1,356 @@
+/* MSDate.m
+ 
+ This implementation file is is a part of the MicroStep Framework.
+ 
+ Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
+ Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
+ 
+ Herve Malaingre : herve@malaingre.com
+ Eric Baradat :  k18rt@free.fr
+ 
+ 
+ This software is a computer program whose purpose is to [describe
+ functionalities and technical features of your software].
+ 
+ This software is governed by the CeCILL-C license under French law and
+ abiding by the rules of distribution of free software.  You can  use,
+ modify and/ or redistribute the software under the terms of the CeCILL-C
+ license as circulated by CEA, CNRS and INRIA at the following URL
+ "http://www.cecill.info".
+ 
+ As a counterpart to the access to the source code and  rights to copy,
+ modify and redistribute granted by the license, users are provided only
+ with a limited warranty  and the software's author,  the holder of the
+ economic rights,  and the successive licensors  have only  limited
+ liability.
+ 
+ In this respect, the user's attention is drawn to the risks associated
+ with loading,  using,  modifying and/or developing or reproducing the
+ software by the user in light of its specific status of free software,
+ that may mean  that it is complicated to manipulate,  and  that  also
+ therefore means  that it is reserved for developers  and  experienced
+ professionals having in-depth computer knowledge. Users are therefore
+ encouraged to load and test the software's suitability as regards their
+ requirements in conditions enabling the security of their systems and/or
+ data to be ensured and,  more generally, to use and operate it in the
+ same conditions as regards security.
+ 
+ The fact that you are presently reading this means that you have had
+ knowledge of the CeCILL-C license and that you accept its terms.
+ 
+ */
+
+#import "MSFoundationPrivate_.h"
+
+#define MS_DATE_LAST_VERSION 301
+
+static Class __MSDateClass= Nil;
+
+#pragma mark Create functions
+
+MSDate *MSCreateYMD(unsigned year,  unsigned month,   unsigned day)
+{
+  return (MSDate*)CCreateDateFromDate(year, month, day);
+}
+MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
+                       unsigned h,     unsigned mn,      unsigned sec)
+{
+  return (MSDate*)CCreateDateFromDateAndTime(year, month, day, h, mn, sec);
+}
+
+@implementation MSDate
+
++ (void)load { if (!__MSDateClass) __MSDateClass= [self class]; }
+
++ (void)initialize
+{
+  if ([self class] == [MSDate class]) {
+    [MSDate setVersion:MS_DATE_LAST_VERSION];}
+}
+
+#pragma mark Initialisation
+
++ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
++ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
++ (id)new                         {return MSAllocateObject(self, 0, NULL);}
+
++ (BOOL)verifyYear:(unsigned)year month:(unsigned)month day:(unsigned)day
+{
+  return CVerifyDate(year, month, day);
+}
++ (BOOL)verifyYear:(unsigned)year month: (unsigned)month day:   (unsigned)day
+            hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec
+{
+  return CVerifyDate(year, month, day) && CVerifyTime(h, mn, sec);
+}
+
++ (id)dateWithYear:(unsigned)year month:(unsigned)month day:(unsigned)day
+{
+  return YMD(year, month, day);
+}
++ (id)dateWithYear:(unsigned)year month: (unsigned)month day:   (unsigned)day
+              hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec
+{
+  return YMDHMS(year, month, day, h, mn, sec);
+}
+
++ (id)now
+{
+  return AUTORELEASE((id)CCreateDateNow());
+}
++ (id)today
+{
+  return AUTORELEASE((id)CCreateDateToday());
+}
+
+- (id)initWithYear:(unsigned)year month:(unsigned)month day:(unsigned)day
+{
+  [self initWithYear:year month:month day:day hour:0 minute:0 second:0];
+  return self;
+}
+- (id)initWithYear:(unsigned)year month: (unsigned)month day:   (unsigned)day
+              hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec
+{
+  CDateSetYMDHMS((CDate*)self, year, month, day, h, mn, sec);
+  return self;
+}
+
+- (id)initWithSecondsSinceNow:(int)secsToBeAddedToNow
+{
+  CDate *d;
+  [self release];
+  d= CCreateDateNow();
+  CDateAddYMDHMS(d, 0, 0, 0, 0, 0, secsToBeAddedToNow);
+  return (id)d;
+}
+- (id)initWithSeconds:(int)secs sinceDate:(NSDate*)d
+{
+  self->_interval= [d secondsSinceReferenceDate]+(MSTimeInterval)secs;
+  return self;
+}
+
+- (void)dealloc { CDateFreeInside(self); [super dealloc]; }
+
+#pragma mark Copying
+
+- (id)copyWithZone:(NSZone*)zone
+{
+  return !zone || zone == [self zone] ? RETAIN(self) : CDateCopy(self);
+}
+
+#pragma mark Standard methods
+
+- (BOOL)isEqual:(id)o
+{
+  if (o == self) return YES;
+  return [o isKindOfClass:[NSDate class]] ?
+      _interval==[o secondsSinceReferenceDate]:
+      NO;
+}
+
+- (BOOL)isEqualToDate:(NSDate*)o
+{
+  if (o == self) return YES;
+  if (!o) return NO;
+  return _interval==[o secondsSinceReferenceDate];
+}
+
+// TODO: Voir avec MSString
+- (NSString *)toString
+{
+  return [NSString string];
+}
+
+- (NSString *)description { return [self toString]; }
+- (NSString *)displayString
+{
+  return nil;
+}
+
+#pragma mark Super methods
+
+- (NSTimeInterval)timeIntervalSinceReferenceDate
+{
+  return (NSTimeInterval)_interval;
+}
+
+#pragma mark Informations
+
+- (double)doubleValue      {return (double)_interval;}
+- (long long)longLongValue {return _interval;}
+
+- (unsigned)dayOfWeek       {return CDateDayOfWeek      ((CDate*)self);}
+- (unsigned)dayOfMonth      {return CDateDayOfMonth     ((CDate*)self);}
+- (unsigned)lastDayOfMonth  {return CDateLastDayOfMonth ((CDate*)self);}
+- (unsigned)dayOfYear       {return CDateDayOfYear      ((CDate*)self);}
+- (unsigned)dayOfCommonEra  {return CDateDayOfCommonEra ((CDate*)self);}
+- (unsigned)weekOfYear      {return CDateWeekOfYear     ((CDate*)self);}
+- (unsigned)monthOfYear     {return CDateMonthOfYear    ((CDate*)self);}
+- (unsigned)yearOfCommonEra {return CDateYearOfCommonEra((CDate*)self);}
+- (BOOL)    isLeapYear      {return CDateIsLeapYear     ((CDate*)self);}
+- (unsigned)hourOfDay       {return CDateHourOfDay      ((CDate*)self);}
+- (unsigned)minuteOfHour    {return CDateMinuteOfHour   ((CDate*)self);}
+- (unsigned)secondOfMinute  {return CDateSecondOfMinute ((CDate*)self);}
+- (unsigned)secondOfDay     {return CDateSecondOfDay    ((CDate*)self);}
+
+#pragma mark Calculation
+
+- (int)yearsSinceDate:(MSDate*)d usesTime:(BOOL)usesTime
+{
+  return CDateYearsBetweenDates((CDate*)d, (CDate*)self, usesTime);
+}
+- (int)monthsSinceDate:(MSDate*)d usesTime:(BOOL)usesTime
+{
+  return CDateMonthsBetweenDates((CDate*)d, (CDate*)self, usesTime);
+}
+- (int)daysSinceDate:(MSDate*)d usesTime:(BOOL)usesTime
+{
+  return CDateDaysBetweenDates((CDate*)d, (CDate*)self, usesTime);
+}
+
+- (MSTimeInterval)secondsSinceNow
+{
+  CDate *now= CCreateDateNow();
+  MSTimeInterval r= CDateSecondsBetweenDates(now, (CDate*)self);
+  CDateFree((id)now);
+  return r;
+}
+
+- (MSTimeInterval)secondsSinceReferenceDate
+{
+  return _interval;
+}
+
+- (MSTimeInterval)secondsSinceDate:(MSDate*)d
+{
+  return CDateSecondsBetweenDates((CDate*)d, (CDate*)self);
+}
+
+#pragma mark Obtaining other dates
+
+- (id)dateByAddingYears:(int)years  months:(int)months days:(int)days
+{
+  MSDate *d;
+  d= CDateCopy(self);
+  CDateAddYMD((CDate*)d, years, months, days);
+  return AUTORELEASE(d);
+}
+- (id)dateByAddingWeeks:(int)weeks
+{
+  MSDate *d;
+  d= CDateCopy(self);
+  CDateAddYMD((CDate*)d, 0, 0, 7*weeks);
+  return AUTORELEASE(d);
+}
+- (id)dateByAddingHours:(int)hours minutes:(int)minutes seconds:(int)seconds
+{
+  MSDate *d;
+  d= CDateCopy(self);
+  CDateAddYMDHMS((CDate*)d, 0, 0, 0, hours, minutes, seconds);
+  return AUTORELEASE(d);
+}
+
+// Set 0 for no change
+- (id)dateByReplacingYear:(unsigned)y month:(unsigned)m day:(unsigned)a
+{
+  MSDate *d;
+  d= CDateCopy(self);
+  if (y) CDateSetYear ((CDate*)d, y);
+  if (m) CDateSetMonth((CDate*)d, m);
+  if (a) CDateSetDay  ((CDate*)d, a);
+  return AUTORELEASE(d);
+}
+- (id)dateByReplacingWeek:(unsigned)w
+{
+  MSDate *d;
+  d= CDateCopy(self);
+  if (w) CDateSetWeek((CDate*)self, w);
+  return AUTORELEASE(d);
+}
+- (id)dateByReplacingHour:(unsigned)h minutes:(unsigned)m seconds:(unsigned)s
+{
+  MSDate *d; int dh,dm,ds;
+  d= CDateCopy(self);
+  dh= !h ? 0 : ((int)h - (int)CDateHourOfDay   ((CDate*)self));
+  dm= !m ? 0 : ((int)m - (int)CDateMinuteOfHour((CDate*)self));
+  ds= !s ? 0 : ((int)s - (int)CDateSecondOfDay ((CDate*)self));
+  CDateAddYMDHMS((CDate*)d, 0, 0, 0, dh, dm, ds);
+  return AUTORELEASE(d);
+}
+
+- (id)dateOfFirstDayOfYear
+{
+  return [[self class] dateWithYear:[self yearOfCommonEra] month:1 day:1];
+}
+- (id)dateOfLastDayOfYear
+{
+  return [[self class] dateWithYear:[self yearOfCommonEra] month:12 day:31];
+}
+- (id)dateOfFirstDayOfMonth
+{
+  unsigned y= [self yearOfCommonEra];
+  unsigned m= [self monthOfYear];
+  return [[self class] dateWithYear:y month:m day:1];
+}
+- (id)dateOfLastDayOfMonth
+{
+  unsigned y= [self yearOfCommonEra];
+  unsigned m= [self monthOfYear];
+  unsigned d= [self lastDayOfMonth];
+  return [[self class] dateWithYear:y month:m day:d];
+}
+- (id)dateOfFirstDayOfWeek
+{
+  MSDate *d; int dw;
+  d= [self dateWithoutTime];
+  dw= (int)[d dayOfWeek];
+  if (dw) CDateAddYMD((CDate*)d, 0, 0, -dw);
+  return d;
+}
+- (id)dateOfLastDayOfWeek
+{
+  MSDate *d; int dw;
+  d= [self dateWithoutTime];
+  dw= (int)[d dayOfWeek];
+  if (dw!=6) CDateAddYMD((CDate*)d, 0, 0, 6-dw);
+  return d;
+}
+- (id)dateWithoutTime
+{
+  return AUTORELEASE((id)CCreateDayDate((CDate*)self));
+}
+
+#pragma mark NSCoding
+
+- (id)initWithCoder:(NSCoder *)aCoder
+{
+  if ([aCoder allowsKeyedCoding]) {
+    _interval= (MSTimeInterval)[aCoder decodeInt64ForKey:@"seconds"];}
+  else {
+    [aCoder decodeValueOfObjCType:@encode(MSTimeInterval) at:&_interval];}
+  return self;
+}
+
+- (id)replacementObjectForPortCoder:(NSPortCoder *)encoder
+{
+  if ([encoder isBycopy]) return self;
+  return [super replacementObjectForPortCoder:encoder];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+  if ([aCoder allowsKeyedCoding]) {
+    [aCoder encodeInt64:_interval forKey:@"seconds"];}
+  else {
+    [aCoder encodeValueOfObjCType:@encode(MSTimeInterval) at:&_interval];}
+}
+
+@end
+
+@implementation NSDate (MSDateAddendum)
+- (MSTimeInterval)secondsSinceReferenceDate
+{
+  NSTimeInterval t= [self timeIntervalSinceReferenceDate];
+  return (MSTimeInterval)(t>=0. ? t+.5 : t-.5);
+}
+@end

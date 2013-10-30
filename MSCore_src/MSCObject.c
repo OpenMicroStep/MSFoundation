@@ -61,14 +61,14 @@ typedef struct CClassStruct {
 CClass;
 
 static struct CClassStruct metaclass=
-  {NULL     , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)        };
+  {NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)        };
 static CClass __allClasses[CClassIndexMax+1]=
 { // className         deallocator         isEqual                hashier             copier              instancesSize
   {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)        },
   {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)       },
   {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
   {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
-//{&metaclass, "CDate"         , NULL              , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
+  {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
 //{&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
 //{&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
 //{&metaclass, "CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)        },
@@ -140,7 +140,7 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
   CClass *aClass= __allClasses+classIndex;
   if (aClass) {
     if (aClass->instancesSize) {
-      id newObject= (id)calloc(1, aClass->instancesSize); // allocated and filled with zeros;
+      id newObject= (id)MSCalloc(1, aClass->instancesSize);
       newObject->isa= (Class)aClass;
       return (id)newObject;
     }

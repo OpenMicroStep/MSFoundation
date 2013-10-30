@@ -122,7 +122,8 @@
 //#include "MSCoreTimeInterval.h"
 //#include "MSCoreTLS.h"
 
-
+// ..ToString functions use MSCUnicodeBuffer
+// so we include it first
 #include "MSCoreUnichar.h"
 #include "MSCoreSES.h"
 #include "MSCUnicodeBuffer.h"
@@ -131,7 +132,7 @@
 #include "MSCBuffer.h"
 #include "MSCColor.h"
 #include "MSCCouple.h"
-//#include "MSCDate.h"
+#include "MSCDate.h"
 /* included MAPM library rewritten to match our need */
 //#include "../MAPM.subproj/m_apm.h" // MSCDecimal
 //#include "MSCDictionary.h"
