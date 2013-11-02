@@ -89,9 +89,9 @@ void m_apm_integer_pow(M_APM rr, int places, const M_APM aa, int mexp)
     return;
   }
   
-  tmp0 = m_apm_init();
-  tmpy = m_apm_init();
-  tmpz = m_apm_init();
+  tmp0 = m_apm_new();
+  tmpy = m_apm_new();
+  tmpz = m_apm_new();
   
   local_precision = places + 8;
   

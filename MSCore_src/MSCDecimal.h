@@ -1,4 +1,4 @@
-/*   MSCObject.m
+/* MSCDecimal.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -6,6 +6,7 @@
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
  Herve Malaingre : herve@malaingre.com
+ 
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -36,98 +37,58 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
- WARNING : the CObject mechanism is NOT Thread Safe. Each object
- must be allocated, retained, autoreleased, released in the same thread.
+ WARNING : outside the MSFoundation framework or the MSCore library,
+ this header file cannot be included alone, please direclty include
+ MSCore.h or MSFoundation.h
  
  */
 
-#import "MSFoundationPrivate_.h"
+// First valid date is 1/1/1
 
-#pragma mark NSObject hash:
+#ifndef MSCORE_DECIMAL_H
+#define MSCORE_DECIMAL_H
 
-@interface NSObject (Private)
-- (NSUInteger)hash:(unsigned)depth;
-@end
-@implementation NSObject (Private)
-- (NSUInteger)hash:(unsigned)depth {return [self hash]; depth=0;}
-@end
+typedef struct CDecimalStruct {
+  Class isa;
+#ifdef MSCORE_STANDALONE
+  NSUInteger refCount;
+#endif
+  unsigned char *m_apm_data;
+  long m_apm_id;
+  int  m_apm_malloclength;
+  int  m_apm_datalength;
+  int  m_apm_exponent;
+  int  m_apm_sign;}
+CDecimal;
 
-#pragma mark MSCore compatibility
 
-Class _MIsa(id obj)
-{
-  return ISA(obj);
-}
+  MSExport void CDecimalFreeInside(id self);
+//Already defined in MSCObject.h
+//MSExport void       CDecimalFree(id self);
+//MSExport BOOL       CDecimalIsEqual(id self, id other);
+//MSExport NSUInteger CDecimalHash(id self, unsigned depth);
+//MSExport id         CDecimalCopy(id self);
 
-const char *_MNameOfClass(id obj)
-{
-  return NAMEOFCLASS(obj);
-}
+MSExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
 
-id _MRetain(id obj)
-{
-  return [obj retain];
-}
+#pragma mark Creation
 
-void _MRelease(id obj)
-{
-  [obj release];
-}
+//TODO: MSExport CDecimal *CCreateDecimalFromString(MSString *x);
+MSExport CDecimal *CCreateDecimalFromUTF8String(const char *x);
+MSExport CDecimal *CCreateDecimalFromDouble(double x);
+MSExport CDecimal *CCreateDecimalFromLong  (long   x);
+MSExport CDecimal *CCreateDecimalFromMantissaExponentSign(
+  unsigned long long mm, int exponent, int sign);
 
-id _MAutorelease(id obj)
-{
-  return [obj autorelease];
-}
+#pragma mark Calculation
 
-NSUInteger _MRetainCount(id obj)
-{
-  return [obj retainCount];
-}
+MSExport CDecimal *CDecimalFloor   (CDecimal *a);
+MSExport CDecimal *CDecimalCeil    (CDecimal *a);
+MSExport CDecimal *CDecimalAdd     (CDecimal *a, CDecimal *b);
+MSExport CDecimal *CDecimalSubtract(CDecimal *a, CDecimal *b);
+MSExport CDecimal *CDecimalMultiply(CDecimal *a, CDecimal *b);
+MSExport CDecimal *CDecimalDivide  (CDecimal *a, CDecimal *b,int decimalPlaces);
 
-BOOL _MObjectIsEqual(id obj1, id obj2)
-{
-  return (obj1 == obj2) || [obj1 isEqual:obj2];
-}
+// TODO: description functions
 
-NSUInteger _MObjectHashDepth(id obj, unsigned depth)
-{
-  return [obj hash:depth];
-}
-
-NSUInteger _MObjectHash(id obj)
-{
-  return [obj hash];
-}
-
-id _MObjectCopy(id obj)
-{
-  return [obj copyWithZone:NULL];
-}
-
-void _MSFoundationCoreSystemInitialize()
-{
-}
-
-id MSCreateObjectWithClassIndex(CClassIndex classIndex)
-{
-  static NSString *__allCLikeClasses[CClassIndexMax+1]= {
-    @"MSArray",
-    @"MSBuffer",
-    @"_MSRGBAColor",
-    @"MSCouple",
-    @"MSDate",
-    @"MSDecimal",
-    0,//MSDictionary,
-    0,//MSMutex,
-    @"MSUnicodeBuffer"};
-  
-  Class aClass= NSClassFromString(__allCLikeClasses[classIndex]);
-  id obj= nil;
-  if (!aClass) {
-    MSReportError(MSInvalidArgumentError, MSFatalError, MSNULLPointerError,
-                  "%s(): try to allocate object with classIndex %lu.",
-                  "MSCreateObjectWithClassIndex",(unsigned long)classIndex);}
-  else {obj= [MSAllocateObject(aClass, 0, NULL) init];}
-  return obj;
-}
-
+#endif

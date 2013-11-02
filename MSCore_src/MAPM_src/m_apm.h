@@ -185,25 +185,6 @@
 
 typedef unsigned char UCHAR;
 
-#ifndef MSCORE_OBJECT_H
-typedef void *Class ;
-#define MSExport extern
-#endif /* MSCORE_STANDALONE */
-
-// we add object structure to M_APM_struct and we rename it CDecimal
-typedef struct CDecimalStruct {
-  Class isa ;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount ;
-#endif
-  UCHAR *m_apm_data;
-  long   m_apm_id;
-  int    m_apm_malloclength;
-  int    m_apm_datalength;
-  int    m_apm_exponent;
-  int    m_apm_sign;
-} CDecimal ;
-
 typedef CDecimal *M_APM;
 // can be uses as M_APM or CDecimal *
 
@@ -268,9 +249,10 @@ MSExport void M_init_mapm_constants(void); // You should  call this function onl
 
 // with this new "objec oriented" function, you can use RETAIN() AUTORELEASE() and RELEASE() on a M_APM
 MSExport M_APM m_apm_allocate(void);
-MSExport M_APM m_apm_init(void); // uses m_apm_allocate()
-MSExport BOOL  m_apm_deallocate(M_APM) ; // clear the M_APM number content
-MSExport void  m_apm_free(void *) ; // uses the m_apm_deallocate() function
+MSExport M_APM m_apm_new(void);         // m_apm_allocate() m_apm_init()
+MSExport M_APM m_apm_init(M_APM atmp);  // init alone
+MSExport BOOL  m_apm_deallocate(M_APM); // clear the M_APM number content
+MSExport void  m_apm_free(void *);      // uses the m_apm_deallocate() function
 
 MSExport char *m_apm_lib_version(char *);
 MSExport char *m_apm_lib_short_version(char *);
@@ -349,5 +331,3 @@ MSExport void m_apm_arctanh(M_APM, int, const M_APM);
 #define m_apm_acosh m_apm_arccosh
 #define m_apm_atanh m_apm_arctanh
 #endif
-
-

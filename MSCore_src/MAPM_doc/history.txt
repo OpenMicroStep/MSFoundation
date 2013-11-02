@@ -276,7 +276,7 @@ V 4.4   -  Jun 14, 2002    Added a build batch file for the MINGW-32 compiler.
         numbers into a dynamically malloc'ed array.
 
         Updated m_apm_cpp_precision so it can be called
-        prior to a call to m_apm_init.
+        prior to a call to m_apm_new.
 
         Updated the documentation to indicate that the
         default library is *NOT* thread-safe and problems

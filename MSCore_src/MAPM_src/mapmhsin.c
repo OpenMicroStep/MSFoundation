@@ -61,9 +61,9 @@ void m_apm_sinh(M_APM rr, int places, const M_APM aa)
   M_APM tmp1, tmp2, tmp3;
   int     local_precision;
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
-  tmp3 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
+  tmp3 = m_apm_new();
   
   local_precision = places + 4;
   
@@ -84,9 +84,9 @@ void m_apm_cosh(M_APM rr, int places, const M_APM aa)
   M_APM tmp1, tmp2, tmp3;
   int     local_precision;
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
-  tmp3 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
+  tmp3 = m_apm_new();
   
   local_precision = places + 4;
   
@@ -107,10 +107,10 @@ void m_apm_tanh(M_APM rr, int places, const M_APM aa)
   M_APM tmp1, tmp2, tmp3, tmp4;
   int     local_precision;
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
-  tmp3 = m_apm_init();
-  tmp4 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
+  tmp3 = m_apm_new();
+  tmp4 = m_apm_new();
   
   local_precision = places + 4;
   

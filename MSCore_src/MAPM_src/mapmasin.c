@@ -173,9 +173,9 @@ void m_apm_arctan2(M_APM rr, int places, const M_APM yy, const M_APM xx)
    *    the special cases have been handled, now do the real work
    */
   
-  tmp5 = m_apm_init();
-  tmp6 = m_apm_init();
-  tmp7 = m_apm_init();
+  tmp5 = m_apm_new();
+  tmp6 = m_apm_new();
+  tmp7 = m_apm_new();
   
   m_apm_divide(tmp6, (places + 6), yy, xx);
   m_apm_arctan(tmp5, (places + 6), tmp6);
@@ -233,8 +233,8 @@ void m_apm_arctan(M_APM rr, int places, const M_APM xx)
     return;
   }
   
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   m_apm_multiply(tmp9, xx, xx);
   m_apm_add(tmp8, tmp9, MM_One);
@@ -258,8 +258,8 @@ void M_arctan_large_input(M_APM rr, int places, const M_APM xx)
 {
   M_APM tmp1, tmp2;
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
   
   M_check_PI_places(places);
   
@@ -279,7 +279,7 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
   M_APM   tmp0, tmp1, tmp2, tmp3, current_x;
   int ii, maxiter, maxp, tolerance, local_precision;
   
-  tmp0 = m_apm_init();
+  tmp0 = m_apm_new();
   m_apm_absolute_value(tmp0, x);
   
   ii = m_apm_compare(tmp0, MM_One);
@@ -299,7 +299,7 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
     return;
   }
   
-  tmp2 = m_apm_init();
+  tmp2 = m_apm_new();
   
   if (m_apm_compare(tmp0, MM_0_85) == 1) {        /* check if > 0.85 */
     M_cos_to_sin(tmp2, (places + 4), x);
@@ -325,9 +325,9 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
     return;
   }
   
-  current_x = m_apm_init();
-  tmp1 = m_apm_init();
-  tmp3 = m_apm_init();
+  current_x = m_apm_new();
+  tmp1 = m_apm_new();
+  tmp3 = m_apm_new();
   
   tolerance       = -(places + 4);
   maxp            = places + 8 - x->m_apm_exponent;
@@ -395,7 +395,7 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
   M_APM   tmp0, tmp1, tmp2, tmp3, current_x;
   int ii, maxiter, maxp, tolerance, local_precision;
   
-  tmp0 = m_apm_init();
+  tmp0 = m_apm_new();
   
   m_apm_absolute_value(tmp0, x);
   
@@ -419,9 +419,9 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
     return;
   }
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
-  tmp3 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
+  tmp3 = m_apm_new();
   
   if (m_apm_compare(tmp0, MM_0_85) == 1) {       /* check if > 0.85 */
     M_cos_to_sin(tmp2, (places + 4), x);
@@ -468,7 +468,7 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
   if (maxiter < 5)
     maxiter = 5;
   
-  current_x = m_apm_init();
+  current_x = m_apm_new();
   M_get_acos_guess(current_x, x);
   
   /*    Use the following iteration to solve for arc-cos :

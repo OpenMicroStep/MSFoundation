@@ -103,10 +103,10 @@ void M_check_log_places(int places)
   {
     MM_lc_log_digits = dplaces + 4;
     
-    tmp6 = m_apm_init();
-    tmp7 = m_apm_init();
-    tmp8 = m_apm_init();
-    tmp9 = m_apm_init();
+    tmp6 = m_apm_new();
+    tmp7 = m_apm_new();
+    tmp8 = m_apm_new();
+    tmp9 = m_apm_new();
     
     dplaces += 6 + (int)log10((double)places);
     
@@ -177,15 +177,15 @@ void M_log_AGM_R_func(M_APM rr, int places, const M_APM aa, const M_APM bb)
   M_APM   tmp1, tmp2, tmp3, tmp4, tmpC2, sum, pow_2, tmpA0, tmpB0;
   int tolerance, dplaces;
   
-  tmpA0 = m_apm_init();
-  tmpB0 = m_apm_init();
-  tmpC2 = m_apm_init();
-  tmp1  = m_apm_init();
-  tmp2  = m_apm_init();
-  tmp3  = m_apm_init();
-  tmp4  = m_apm_init();
-  sum   = m_apm_init();
-  pow_2 = m_apm_init();
+  tmpA0 = m_apm_new();
+  tmpB0 = m_apm_new();
+  tmpC2 = m_apm_new();
+  tmp1  = m_apm_new();
+  tmp2  = m_apm_new();
+  tmp3  = m_apm_new();
+  tmp4  = m_apm_new();
+  sum   = m_apm_new();
+  pow_2 = m_apm_new();
   
   tolerance = places + 8;
   dplaces   = places + 16;

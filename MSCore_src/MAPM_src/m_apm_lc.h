@@ -188,7 +188,6 @@
 #define M__APM_LOCAL_INC
 
 #include "MSCorePrivate_.h"
-#include "m_apm.h"
 
 /* 
  *   this supports older (and maybe newer?) Borland compilers.

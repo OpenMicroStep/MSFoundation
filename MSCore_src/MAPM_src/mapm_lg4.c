@@ -68,11 +68,11 @@ void M_log_near_1(M_APM rr, int places, const M_APM xx)
   int tolerance, dplaces, local_precision;
   long    m1;
   
-  tmp0  = m_apm_init();
-  tmp1  = m_apm_init();
-  tmp2  = m_apm_init();
-  tmpS  = m_apm_init();
-  term  = m_apm_init();
+  tmp0  = m_apm_new();
+  tmp1  = m_apm_new();
+  tmp2  = m_apm_new();
+  tmpS  = m_apm_new();
+  term  = m_apm_new();
   
   tolerance = xx->m_apm_exponent - (places + 6);
   dplaces   = (places + 12) - xx->m_apm_exponent;

@@ -97,11 +97,11 @@ void m_apm_gcd(M_APM r, const M_APM u, const M_APM v)
     return;
   }
   
-  tmpM = m_apm_init();
-  tmpN = m_apm_init();
-  tmpT = m_apm_init();
-  tmpU = m_apm_init();
-  tmpV = m_apm_init();
+  tmpM = m_apm_new();
+  tmpN = m_apm_new();
+  tmpT = m_apm_new();
+  tmpU = m_apm_new();
+  tmpV = m_apm_new();
   
   m_apm_absolute_value(tmpU, u);
   m_apm_absolute_value(tmpV, v);
@@ -233,8 +233,8 @@ void m_apm_lcm(M_APM r, const M_APM u, const M_APM v)
 {
   M_APM   tmpN, tmpG;
   
-  tmpN = m_apm_init();
-  tmpG = m_apm_init();
+  tmpN = m_apm_new();
+  tmpG = m_apm_new();
   
   m_apm_multiply(tmpN, u, v);
   m_apm_gcd(tmpG, u, v);
@@ -268,10 +268,10 @@ void m_apm_gcd_traditional(M_APM r, M_APM u, M_APM v)
 {
   M_APM   tmpD, tmpN, tmpU, tmpV;
   
-  tmpD = m_apm_init();
-  tmpN = m_apm_init();
-  tmpU = m_apm_init();
-  tmpV = m_apm_init();
+  tmpD = m_apm_new();
+  tmpN = m_apm_new();
+  tmpU = m_apm_new();
+  tmpV = m_apm_new();
   
   m_apm_absolute_value(tmpU, u);
   m_apm_absolute_value(tmpV, v);

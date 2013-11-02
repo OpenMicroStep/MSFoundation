@@ -78,11 +78,11 @@ void M_raw_sin(M_APM rr, int places, const M_APM xx)
   int     tolerance, flag, local_precision, dplaces;
   long m1, m2;
   
-  sum  = m_apm_init();
-  term = m_apm_init();
-  tmp2 = m_apm_init();
-  tmp7 = m_apm_init();
-  tmp8 = m_apm_init();
+  sum  = m_apm_new();
+  term = m_apm_new();
+  tmp2 = m_apm_new();
+  tmp7 = m_apm_new();
+  tmp8 = m_apm_new();
   
   m_apm_copy(sum, xx);
   m_apm_copy(term, xx);
@@ -141,11 +141,11 @@ void M_raw_cos(M_APM rr, int places, const M_APM xx)
   int     tolerance, flag, local_precision, prev_exp;
   long m1, m2;
   
-  sum  = m_apm_init();
-  term = m_apm_init();
-  tmp7 = m_apm_init();
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init();
+  sum  = m_apm_new();
+  term = m_apm_new();
+  tmp7 = m_apm_new();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   m_apm_copy(sum, MM_One);
   m_apm_copy(term, MM_One);

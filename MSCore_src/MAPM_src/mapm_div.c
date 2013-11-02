@@ -80,7 +80,7 @@
 /****************************************************************************/
 void m_apm_integer_div_rem(M_APM qq, M_APM rr, const M_APM aa, const M_APM bb)
 {
-  M_APM tmp = m_apm_init() ;
+  M_APM tmp = m_apm_new() ;
   m_apm_integer_divide(qq, aa, bb);
   m_apm_multiply(tmp, qq, bb);
   m_apm_subtract(rr, aa, tmp);
@@ -135,11 +135,11 @@ void M_apm_sdivide(M_APM r, int places, const M_APM a, const M_APM b)
    *  (also make the working copies positive)
    */
   
-  M_div_worka = m_apm_init() ;
-  M_div_workb = m_apm_init() ;
-  M_div_tmp7 = m_apm_init() ;
-  M_div_tmp8 = m_apm_init() ;
-  M_div_tmp9 = m_apm_init() ;
+  M_div_worka = m_apm_new() ;
+  M_div_workb = m_apm_new() ;
+  M_div_tmp7 = m_apm_new() ;
+  M_div_tmp8 = m_apm_new() ;
+  M_div_tmp9 = m_apm_new() ;
   
   if (b->m_apm_data[0] >= 50)
   {

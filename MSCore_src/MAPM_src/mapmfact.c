@@ -163,11 +163,11 @@ void m_apm_factorial(M_APM moutput, const M_APM minput)
   mm       = NDIM - 2;
   ndigits  = 256;
   nd       = ndigits - 20;
-  tmp1     = m_apm_init();
-  tmp2     = m_apm_init();
-  iprod1   = m_apm_init();
-  iprod2   = m_apm_init();
-  array[0] = m_apm_init();
+  tmp1     = m_apm_new();
+  tmp2     = m_apm_new();
+  iprod1   = m_apm_new();
+  iprod2   = m_apm_new();
+  array[0] = m_apm_new();
   
   m_apm_copy(tmp2, minput);
   
@@ -231,7 +231,7 @@ void m_apm_factorial(M_APM moutput, const M_APM minput)
        */
       
       m_apm_copy(array[ct], iprod1);
-      array[++ct] = m_apm_init();
+      array[++ct] = m_apm_new();
     }
   }
   

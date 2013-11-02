@@ -129,8 +129,8 @@ void m_apm_pow(M_APM rr, int places, const M_APM xx, const M_APM yy)
     }
   }
   
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   
   

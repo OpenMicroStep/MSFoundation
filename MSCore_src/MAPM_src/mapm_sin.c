@@ -96,7 +96,7 @@
 /****************************************************************************/
 void m_apm_sin(M_APM r, int places, const M_APM a)
 {
-  M_APM tmp3 = m_apm_init();
+  M_APM tmp3 = m_apm_new();
   M_limit_angle_to_pi(tmp3, (places + 6), a);
   M_5x_sin(r, places, tmp3);
   m_apm_free(tmp3);
@@ -104,7 +104,7 @@ void m_apm_sin(M_APM r, int places, const M_APM a)
 /****************************************************************************/
 void m_apm_cos(M_APM r, int places, const M_APM a)
 {
-  M_APM tmp3 = m_apm_init();
+  M_APM tmp3 = m_apm_new();
   M_limit_angle_to_pi(tmp3, (places + 6), a);
   M_4x_cos(r, places, tmp3);
   m_apm_free(tmp3);
@@ -114,9 +114,9 @@ void m_apm_sin_cos(M_APM sinv, M_APM cosv, int places, const M_APM aa)
 {
   M_APM tmp5, tmp6, tmp7;
   
-  tmp5 = m_apm_init();
-  tmp6 = m_apm_init();
-  tmp7 = m_apm_init();
+  tmp5 = m_apm_new();
+  tmp6 = m_apm_new();
+  tmp7 = m_apm_new();
   
   M_limit_angle_to_pi(tmp5, (places + 6), aa);
   M_4x_cos(tmp7, (places + 6), tmp5);
@@ -142,9 +142,9 @@ void m_apm_tan(M_APM r, int places, const M_APM a)
 {
   M_APM tmps, tmpc, tmp0;
   
-  tmps = m_apm_init();
-  tmpc = m_apm_init();
-  tmp0 = m_apm_init();
+  tmps = m_apm_new();
+  tmpc = m_apm_new();
+  tmp0 = m_apm_new();
   
   m_apm_sin_cos(tmps, tmpc, (places + 4), a);
   
@@ -161,12 +161,12 @@ void M_limit_angle_to_pi(M_APM rr, int places, const M_APM aa)
   
   M_check_PI_places(places);
   
-  tmp9 = m_apm_init();
+  tmp9 = m_apm_new();
   m_apm_copy(tmp9, MM_lc_PI);
   
   if (m_apm_compare(aa, tmp9) == 1) {      /*  > PI  */
-    tmp7 = m_apm_init();
-    tmp8 = m_apm_init();
+    tmp7 = m_apm_new();
+    tmp8 = m_apm_new();
     
     m_apm_add(tmp7, aa, tmp9);
     m_apm_integer_divide(tmp9, tmp7, MM_lc_2_PI);
@@ -180,8 +180,8 @@ void M_limit_angle_to_pi(M_APM rr, int places, const M_APM aa)
   
   tmp9->m_apm_sign = -1;
   if (m_apm_compare(aa, tmp9) == -1) {      /*  < -PI  */
-    tmp7 = m_apm_init();
-    tmp8 = m_apm_init();
+    tmp7 = m_apm_new();
+    tmp8 = m_apm_new();
     
     m_apm_add(tmp7, aa, tmp9);
     m_apm_integer_divide(tmp9, tmp7, MM_lc_2_PI);

@@ -97,8 +97,8 @@ void m_apm_divide(M_APM rr, int places, const M_APM aa, const M_APM bb)
   else
     dplaces = places;
   
-  tmp0  = m_apm_init();
-  tmp1  = m_apm_init();
+  tmp0  = m_apm_new();
+  tmp1  = m_apm_new();
   
   m_apm_reciprocal(tmp0, (dplaces + 8), bb);
   m_apm_multiply(tmp1, tmp0, aa);
@@ -120,11 +120,11 @@ void m_apm_reciprocal(M_APM rr, int places, const M_APM aa)
     return;
   }
   
-  last_x = m_apm_init();
-  guess  = m_apm_init();
-  tmpN   = m_apm_init();
-  tmp1  = m_apm_init();
-  tmp2  = m_apm_init();
+  last_x = m_apm_new();
+  guess  = m_apm_new();
+  tmpN   = m_apm_new();
+  tmp1  = m_apm_new();
+  tmp2  = m_apm_new();
   
   m_apm_absolute_value(tmpN, aa);
   

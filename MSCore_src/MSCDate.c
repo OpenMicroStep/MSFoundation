@@ -276,6 +276,7 @@ CDate *CCreateDayDate(CDate *self)
   if (d) d->interval= _tmWithoutTime(d->interval);
   return d;
 }
+
 #pragma mark Informations
 
 static inline unsigned _tmDayOfWeek(MSTimeInterval t, unsigned offset)

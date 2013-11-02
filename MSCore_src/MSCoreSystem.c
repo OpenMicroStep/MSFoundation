@@ -246,29 +246,29 @@ MSExport int snprintf(char *str, size_t size, const char *format, ...)
 #endif
 
 
-#ifdef MSCORE_STANDALONE
-/*
 static void _MS_APM_Log_callback(int m_apm_error, const char *m_apm_log)
-{ MSReportError(MSMAPMError, (m_apm_error > 0 ? MSFatalError : MSLightError), m_apm_error, m_apm_log) ; }
+{
+  MSReportError(MSMAPMError, (m_apm_error > 0 ? MSFatalError : MSLightError),
+    m_apm_error, m_apm_log);
+}
 
 static M_APM _MS_APM_Allocate(void)
 {
-  //printf("HERE3\n") ; fflush(stdout) ;
-  return (M_APM)MSCreateObjectWithClassIndex(CDecimalClassIndex) ;
+  return (M_APM)MSCreateObjectWithClassIndex(CDecimalClassIndex);
 }
-*/
-#endif
 
-// HM: 27/08/13 now uses the class index to declare new class (we transfered the __allClasses array in MSCObject.c)
 void MSSystemInitialize(int argc, const char **argv)
 {
-  argc= 0; argv= NULL; // Unused
+  M_apm_free_fn freeFct;
+  argc= 0; argv= NULL; // Unused parameters
 #ifdef MSCORE_STANDALONE
-/*
-  m_apm_set_callbacks(_MS_APM_Allocate, CRelease, _MS_APM_Log_callback, NULL) ;
-  M_init_mapm_constants() ;
-*/
-#else
+  freeFct= (M_apm_free_fn)_CRelease;
+#elif MSCORE_FORFOUNDATION
+  freeFct= (M_apm_free_fn)_MRelease;
+#endif
+  m_apm_set_callbacks(_MS_APM_Allocate, freeFct, _MS_APM_Log_callback, NULL);
+  M_init_mapm_constants();
+#ifndef MSCORE_STANDALONE
   _MSFoundationCoreSystemInitialize() ; // this function is in an ObjC context
 #endif
   

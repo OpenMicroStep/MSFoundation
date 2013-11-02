@@ -290,7 +290,7 @@ void m_apm_to_string(char *s, int places, const M_APM mtmp)
   int i, index, first, max_i, num_digits, dec_places;
   UCHAR numdiv, numrem;
   
-  ctmp = m_apm_init();
+  ctmp = m_apm_new();
   dec_places = places;
   
   if (dec_places < 0)

@@ -334,8 +334,8 @@ void M_fast_multiply(M_APM rr, const M_APM aa, const M_APM bb)
   exp_stack_ptr   = -1;
   M_mul_stack_ptr = -1;
   
-  M_ain = m_apm_init() ;
-  M_bin = m_apm_init() ;
+  M_ain = m_apm_new() ;
+  M_bin = m_apm_new() ;
   m_apm_copy(M_ain, aa);
   m_apm_copy(M_bin, bb);
   

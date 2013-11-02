@@ -366,15 +366,15 @@ M_APM    tmp_mapm;
 M_APM    array_mapm[10];           /* can use normal array notation */
 M_APM    array2d_mapm[10][10];
 
-area_mapm = m_apm_init()           /* init your variables */
-tmp_mapm  = m_apm_init();
+area_mapm = m_apm_new()            /* init your variables */
+tmp_mapm  = m_apm_new();
 
 for (i=0; i < M; i++)              /* must init every element of the array */
-  array_mapm[i] = m_apm_init();
+  array_mapm[i] = m_apm_new();
 
 for (i=0; i < M; i++)
    for (j=0; j < N; j++)
-     array2d_mapm[i][j] = m_apm_init();
+     array2d_mapm[i][j] = m_apm_new();
 
 /*
  *   there are 3 ways to convert your number into an M_APM number

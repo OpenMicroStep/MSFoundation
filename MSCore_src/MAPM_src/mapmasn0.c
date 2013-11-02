@@ -78,8 +78,8 @@ void M_arcsin_near_0(M_APM rr, int places, const M_APM aa)
 {
   M_APM   tmp5, tmp6;
   
-  tmp5 = m_apm_init();
-  tmp6 = m_apm_init();
+  tmp5 = m_apm_new();
+  tmp6 = m_apm_new();
   
   M_cos_to_sin(tmp5, (places + 8), aa);
   m_apm_divide(tmp6, (places + 8), aa, tmp5);
@@ -98,8 +98,8 @@ void M_arccos_near_0(M_APM rr, int places, const M_APM aa)
 {
   M_APM   tmp1, tmp2;
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
   
   M_check_PI_places(places);
   M_arcsin_near_0(tmp1, (places + 4), aa);
@@ -123,12 +123,12 @@ void M_arctan_near_0(M_APM rr, int places, const M_APM aa)
   int tolerance, dplaces, local_precision;
   long    m1;
   
-  tmp0 = m_apm_init();
-  tmp2 = m_apm_init();
-  tmpR = m_apm_init();
-  tmpS = m_apm_init();
-  term = m_apm_init();
-  digit = m_apm_init();
+  tmp0 = m_apm_new();
+  tmp2 = m_apm_new();
+  tmpR = m_apm_new();
+  tmpS = m_apm_new();
+  term = m_apm_new();
+  digit = m_apm_new();
   
   tolerance = aa->m_apm_exponent - (places + 4);
   dplaces   = (places + 8) - aa->m_apm_exponent;

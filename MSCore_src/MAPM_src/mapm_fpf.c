@@ -120,7 +120,7 @@ void m_apm_to_fixpt_stringex(char *s, int dplaces, M_APM atmp,
   char    ch, *cpd, *cps;
   int ii, jj, kk, ct, dl, xp, no_sep_flg, places;
   
-  btmp       = m_apm_init();
+  btmp       = m_apm_new();
   places     = dplaces;
   cpd        = s;
   no_sep_flg = FALSE;
@@ -264,7 +264,7 @@ void m_apm_to_fixpt_string(char *ss, int dplaces, const M_APM mtmp)
   UCHAR   *ucp, numdiv, numrem;
   char *cpw, *cpd, sbuf[128];
   
-  ctmp   = m_apm_init();
+  ctmp   = m_apm_new();
   vp     = NULL;
   cpd    = ss;
   places = dplaces;

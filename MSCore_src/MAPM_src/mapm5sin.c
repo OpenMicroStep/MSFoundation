@@ -75,8 +75,8 @@ void M_5x_sin(M_APM r, int places, const M_APM x)
 {
   M_APM   tmp8, tmp9;
   
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   m_apm_multiply(tmp9, x, MM_5x_125R);        /* 1 / (5*5*5) */
   M_raw_sin(tmp8, (places + 6), tmp9);
@@ -91,8 +91,8 @@ void M_4x_cos(M_APM r, int places, const M_APM x)
 {
   M_APM   tmp8, tmp9;
   
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   /*
    *  if  |x| >= 1.0   use multiple angle identity 4 times
@@ -129,11 +129,11 @@ void M_5x_do_it(M_APM rr, int places, const M_APM xx)
 {
   M_APM   tmp0, tmp1, t2, t3, t5;
   
-  tmp0 = m_apm_init();
-  tmp1 = m_apm_init();
-  t2   = m_apm_init();
-  t3   = m_apm_init();
-  t5   = m_apm_init();
+  tmp0 = m_apm_new();
+  tmp1 = m_apm_new();
+  t2   = m_apm_new();
+  t3   = m_apm_new();
+  t5   = m_apm_new();
   
   m_apm_multiply(tmp1, xx, xx);
   m_apm_round(t2, (places + 4), tmp1);     /* x ^ 2 */
@@ -164,10 +164,10 @@ void M_4x_do_it(M_APM rr, int places, const M_APM xx)
 {
   M_APM tmp0, tmp1, t2, t4;
   
-  tmp0 = m_apm_init();
-  tmp1 = m_apm_init();
-  t2   = m_apm_init();
-  t4   = m_apm_init();
+  tmp0 = m_apm_new();
+  tmp1 = m_apm_new();
+  t2   = m_apm_new();
+  t4   = m_apm_new();
   
   m_apm_multiply(tmp1, xx, xx);
   m_apm_round(t2, (places + 4), tmp1);     /* x ^ 2 */
@@ -189,8 +189,8 @@ void M_cos_to_sin(M_APM r, int places, const M_APM a)
 {
   M_APM tmp1, tmp2;
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
   
   m_apm_multiply(tmp1, a, a);
   m_apm_subtract(tmp2, MM_One, tmp1);

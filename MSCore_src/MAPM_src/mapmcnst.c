@@ -56,7 +56,7 @@
  *      Updated function parameters to use the modern style
  *
  *      Revision 1.20  2002/05/17 22:40:25  mike
- *      call m_apm_init from cpp_precision to init the library
+ *      call m_apm_new from cpp_precision to init the library
  *      if it hasn't been done yet.
  *
  *      Revision 1.19  2001/07/16 19:40:12  mike
@@ -303,39 +303,39 @@ void M_init_mapm_constants(void)
   MM_lc_log_digits = VALID_DECIMAL_PLACES;
   
   
-  MM_Zero          = m_apm_init();
-  MM_One           = m_apm_init();
-  MM_Two           = m_apm_init();
-  MM_Three         = m_apm_init();
-  MM_Four          = m_apm_init();
-  MM_Five          = m_apm_init();
-  MM_Ten           = m_apm_init();
-  MM_0_5           = m_apm_init();
-  MM_LOG_2_BASE_E  = m_apm_init();
-  MM_LOG_3_BASE_E  = m_apm_init();
-  MM_E             = m_apm_init();
-  MM_PI            = m_apm_init();
-  MM_HALF_PI       = m_apm_init();
-  MM_2_PI          = m_apm_init();
-  MM_lc_PI         = m_apm_init();
-  MM_lc_HALF_PI    = m_apm_init();
-  MM_lc_2_PI       = m_apm_init();
-  MM_lc_log2       = m_apm_init();
-  MM_lc_log10      = m_apm_init();
-  MM_lc_log10R     = m_apm_init();
-  MM_0_85          = m_apm_init();
-  MM_5x_125R       = m_apm_init();
-  MM_5x_64R        = m_apm_init();
-  MM_5x_256R       = m_apm_init();
-  MM_5x_Eight      = m_apm_init();
-  MM_5x_Sixteen    = m_apm_init();
-  MM_5x_Twenty     = m_apm_init();
-  MM_LOG_E_BASE_10 = m_apm_init();
-  MM_LOG_10_BASE_E = m_apm_init();
-  MM_RND_AA        = m_apm_init();
-  MM_RND_MM        = m_apm_init();
-  MM_EXP_LOG2R     = m_apm_init();
-  MM_EXP_512R      = m_apm_init();
+  MM_Zero          = m_apm_new();
+  MM_One           = m_apm_new();
+  MM_Two           = m_apm_new();
+  MM_Three         = m_apm_new();
+  MM_Four          = m_apm_new();
+  MM_Five          = m_apm_new();
+  MM_Ten           = m_apm_new();
+  MM_0_5           = m_apm_new();
+  MM_LOG_2_BASE_E  = m_apm_new();
+  MM_LOG_3_BASE_E  = m_apm_new();
+  MM_E             = m_apm_new();
+  MM_PI            = m_apm_new();
+  MM_HALF_PI       = m_apm_new();
+  MM_2_PI          = m_apm_new();
+  MM_lc_PI         = m_apm_new();
+  MM_lc_HALF_PI    = m_apm_new();
+  MM_lc_2_PI       = m_apm_new();
+  MM_lc_log2       = m_apm_new();
+  MM_lc_log10      = m_apm_new();
+  MM_lc_log10R     = m_apm_new();
+  MM_0_85          = m_apm_new();
+  MM_5x_125R       = m_apm_new();
+  MM_5x_64R        = m_apm_new();
+  MM_5x_256R       = m_apm_new();
+  MM_5x_Eight      = m_apm_new();
+  MM_5x_Sixteen    = m_apm_new();
+  MM_5x_Twenty     = m_apm_new();
+  MM_LOG_E_BASE_10 = m_apm_new();
+  MM_LOG_10_BASE_E = m_apm_new();
+  MM_RND_AA        = m_apm_new();
+  MM_RND_MM        = m_apm_new();
+  MM_EXP_LOG2R     = m_apm_new();
+  MM_EXP_512R      = m_apm_new();
   
   m_apm_set_string(MM_One  ,  "1");
   m_apm_set_string(MM_Two  ,  "2");

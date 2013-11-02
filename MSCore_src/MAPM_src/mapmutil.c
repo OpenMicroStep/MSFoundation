@@ -10,7 +10,7 @@
  *   1) all statics used for calculation are transformed in context defines
  *   2) all functions have now a context parameter
  *   3) new function m_apm_init_context() where lies all the static initialization which were in files static definitions before
- *   4) removed util initialization from m_apm_init() function and we did put them in m_apm_init_context() function
+ *   4) removed util initialization from m_apm_new() function and we did put them in m_apm_init_context() function
  *   5) m_apm_refcount usage from the M_APM structure
  *   6) removed M_init_util_data() since all context initialization should be in m_apm_init_context()
  *   7) extern definition of M_get_rnd_seed is copied from mapm_rnd .c
@@ -55,7 +55,7 @@
  *      call generic error handling function
  *
  *      Revision 1.23  2002/11/04 20:47:02  mike
- *      change m_apm_init so it compiles clean with a real C++ compiler
+ *      change m_apm_new so it compiles clean with a real C++ compiler
  *
  *      Revision 1.22  2002/11/03 22:50:58  mike
  *      Updated function parameters to use the modern style
@@ -131,11 +131,9 @@
 #define M_init_error_msg   "\'m_apm_init\', Out of memory"
 
 /****************************************************************************/
-M_APM m_apm_init()
+M_APM m_apm_init(M_APM atmp)
 {
-  M_APM atmp;
-  
-  if ((atmp = m_apm_allocate()) == NULL) {
+  if (atmp == NULL) {
     /* fatal, this does not return */
     M_apm_log_error_msg(M_APM_INIT_ERROR, M_init_error_msg);
   }
@@ -156,6 +154,16 @@ M_APM m_apm_init()
   }
   
   return(atmp);
+}
+/****************************************************************************/
+M_APM m_apm_new()
+{
+  M_APM atmp;
+  if ((atmp = m_apm_allocate()) == NULL) {
+    /* fatal, this does not return */
+    M_apm_log_error_msg(M_APM_INIT_ERROR, M_init_error_msg);
+    return NULL;}
+  else return m_apm_init(atmp);
 }
 /****************************************************************************/
 
@@ -186,7 +194,7 @@ void M_get_div_rem_10(int tbl_lookup, UCHAR *ndiv, UCHAR *nrem)
 void m_apm_round(M_APM btmp, int places, M_APM atmp)
 {
   int ii;
-  M_APM M_work_0_5 = m_apm_init() ;
+  M_APM M_work_0_5 = m_apm_new() ;
   
   m_apm_copy(M_work_0_5, MM_Five) ;
   ii = places + 1;

@@ -41,7 +41,7 @@ data. See the examples below.
    number of digits, the least significant nibble in the 
    last byte of data will be 0.
 
-'m_apm_id'            : Set during m_apm_init to M_APM_IDENT. Used to
+'m_apm_id'            : Set during m_apm_new to M_APM_IDENT. Used to
    validate the structure before the call to 'free'.
 
 'm_apm_refcount'      : NOT used by the basic M_APM. It was added to support 

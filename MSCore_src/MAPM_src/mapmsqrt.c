@@ -113,12 +113,12 @@ void m_apm_sqrt(M_APM rr, int places, const M_APM aa)
     return;
   }
   
-  last_x = m_apm_init();
-  guess  = m_apm_init();
-  tmpN   = m_apm_init();
-  tmp7   = m_apm_init();
-  tmp8   = m_apm_init();
-  tmp9   = m_apm_init();
+  last_x = m_apm_new();
+  guess  = m_apm_new();
+  tmpN   = m_apm_new();
+  tmp7   = m_apm_new();
+  tmp8   = m_apm_new();
+  tmp9   = m_apm_new();
   
   m_apm_copy(tmpN, aa);
   

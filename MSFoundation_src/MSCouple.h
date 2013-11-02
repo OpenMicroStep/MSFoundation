@@ -56,6 +56,8 @@ Eric Baradat :  k18rt@free.fr
 - (id)initWithCouple:(MSCouple*)aCouple;
 - (id)initWithMembers:(id*)members;
 
+- (BOOL)isEqualToCouple:(MSCouple*)couple;
+
 - (id)firstMember;
 - (id)secondMember;
 

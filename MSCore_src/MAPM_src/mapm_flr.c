@@ -80,7 +80,7 @@ void m_apm_floor(M_APM bb, const M_APM aa)
   }
   
   if (bb->m_apm_sign < 0) {
-    M_APM mtmp = m_apm_init();
+    M_APM mtmp = m_apm_new();
     m_apm_negate(mtmp, bb);
     
     mtmp->m_apm_datalength = mtmp->m_apm_exponent;
@@ -120,7 +120,7 @@ void m_apm_ceil(M_APM bb, const M_APM aa)
     M_apm_normalize(bb);
   }
   else {
-    M_APM mtmp = m_apm_init();
+    M_APM mtmp = m_apm_new();
     m_apm_copy(mtmp, bb);
     
     mtmp->m_apm_datalength = mtmp->m_apm_exponent;

@@ -123,10 +123,10 @@ void M_calculate_PI_AGM(M_APM outv, int places)
   M_APM   tmp1, tmp2, a0, b0, c0, a1, b1, sum, pow_2;
   int     dplaces, nn;
   
-  tmp1  = m_apm_init(); tmp2  = m_apm_init();
-  a0    = m_apm_init(); b0    = m_apm_init(); c0    = m_apm_init();
-  a1    = m_apm_init(); b1    = m_apm_init();
-  sum   = m_apm_init(); pow_2 = m_apm_init();
+  tmp1  = m_apm_new(); tmp2  = m_apm_new();
+  a0    = m_apm_new(); b0    = m_apm_new(); c0    = m_apm_new();
+  a1    = m_apm_new(); b1    = m_apm_new();
+  sum   = m_apm_new(); pow_2 = m_apm_new();
   
   
   dplaces = places + 16;

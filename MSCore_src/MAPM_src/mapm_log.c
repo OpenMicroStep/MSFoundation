@@ -143,8 +143,8 @@ void m_apm_log10(M_APM rr, int places, const M_APM aa)
   int     dplaces;
   M_APM   tmp8, tmp9;
   
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init() ;
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new() ;
   
   dplaces = places + 4;
   M_check_log_places(dplaces + 45);
@@ -168,9 +168,9 @@ void m_apm_log(M_APM r, int places, const M_APM a)
     return;
   }
   
-  tmp0 = m_apm_init();
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
+  tmp0 = m_apm_new();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
   
   dplaces = places + 8;
   

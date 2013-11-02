@@ -95,8 +95,8 @@ void m_apm_add(M_APM r, const M_APM a, const M_APM b)
   aexp = a->m_apm_exponent;
   bexp = b->m_apm_exponent;
   
-  M_work1 = m_apm_init() ;
-  M_work2 = m_apm_init() ;
+  M_work1 = m_apm_new() ;
+  M_work2 = m_apm_new() ;
   
   m_apm_copy(M_work1, a);
   m_apm_copy(M_work2, b);
@@ -218,8 +218,8 @@ void m_apm_subtract(M_APM r, const M_APM a, const M_APM b)
   /* now, the signs are the same  */
   /* make a positive working copy */
   
-  M_work1 = m_apm_init() ;
-  M_work2 = m_apm_init() ;
+  M_work1 = m_apm_new() ;
+  M_work2 = m_apm_new() ;
   m_apm_absolute_value(M_work1, a);
   m_apm_absolute_value(M_work2, b);
   

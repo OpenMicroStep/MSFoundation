@@ -161,9 +161,9 @@ void m_apm_exp(M_APM r, int places, const M_APM x)
   M_APM   tmp7, tmp8, tmp9;
   int dplaces, nn, ii;
   
-  tmp7 = m_apm_init();
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init();
+  tmp7 = m_apm_new();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   if (x->m_apm_sign == 0)  /* if input == 0, return '1' */
   {
@@ -290,8 +290,8 @@ int M_exp_compute_nn(int *n, const M_APM b, const M_APM a)
   *n   = 0;
   vp   = NULL;
   cp   = sbuf;
-  tmp0 = m_apm_init();
-  tmp1 = m_apm_init();
+  tmp0 = m_apm_new();
+  tmp1 = m_apm_new();
   
   /* find 'n' and convert it to a normal C int            */
   /* we just need an approx 1/log(2) for this calculation */
@@ -351,9 +351,9 @@ void M_raw_exp(M_APM rr, int places, const M_APM xx)
   int tolerance,  local_precision, prev_exp;
   long    m1;
   
-  tmp0  = m_apm_init() ;
-  term  = m_apm_init() ;
-  digit = m_apm_init() ;
+  tmp0  = m_apm_new() ;
+  term  = m_apm_new() ;
+  digit = m_apm_new() ;
   
   local_precision = places + 8;
   tolerance       = -(places + 4);

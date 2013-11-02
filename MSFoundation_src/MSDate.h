@@ -71,6 +71,8 @@ Eric Baradat :  k18rt@free.fr
 - (id)initWithSecondsSinceNow:(int)secsToBeAddedToNow;
 - (id)initWithSeconds:(int)secs sinceDate:(NSDate*)d;
 
+- (BOOL)isEqualToDate:(NSDate*)o;
+
 - (double)doubleValue;
 - (long long)longLongValue;
 

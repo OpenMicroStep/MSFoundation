@@ -79,9 +79,9 @@ void m_apm_arcsinh(M_APM rr, int places, const M_APM aa)
     return;
   }
   
-  tmp0 = m_apm_init();
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
+  tmp0 = m_apm_new();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
   
   m_apm_absolute_value(tmp0, aa);
   m_apm_multiply(tmp1, tmp0, tmp0);
@@ -114,8 +114,8 @@ void m_apm_arccosh(M_APM rr, int places, const M_APM aa)
     return;
   }
   
-  tmp1 = m_apm_init();
-  tmp2 = m_apm_init();
+  tmp1 = m_apm_new();
+  tmp2 = m_apm_new();
   
   m_apm_multiply(tmp1, aa, aa);
   m_apm_subtract(tmp2, tmp1, MM_One);
@@ -136,7 +136,7 @@ void m_apm_arctanh(M_APM rr, int places, const M_APM aa)
   M_APM tmp1, tmp2, tmp3;
   int     ii, local_precision;
   
-  tmp1 = m_apm_init();
+  tmp1 = m_apm_new();
   
   m_apm_absolute_value(tmp1, aa);
   
@@ -150,8 +150,8 @@ void m_apm_arctanh(M_APM rr, int places, const M_APM aa)
     return;
   }
   
-  tmp2 = m_apm_init();
-  tmp3 = m_apm_init();
+  tmp2 = m_apm_new();
+  tmp3 = m_apm_new();
   
   local_precision = places + 8;
   

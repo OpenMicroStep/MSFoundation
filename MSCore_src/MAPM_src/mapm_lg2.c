@@ -84,11 +84,11 @@ void M_log_solve_cubic(M_APM rr, int places, const M_APM nn)
   M_APM   tmp0, tmp1, tmp2, tmp3, guess;
   int ii, maxp, tolerance, local_precision;
   
-  guess = m_apm_init();
-  tmp0  = m_apm_init();
-  tmp1  = m_apm_init();
-  tmp2  = m_apm_init();
-  tmp3  = m_apm_init();
+  guess = m_apm_new();
+  tmp0  = m_apm_new();
+  tmp1  = m_apm_new();
+  tmp2  = m_apm_new();
+  tmp3  = m_apm_new();
   
   M_get_log_guess(guess, nn);
   
@@ -169,10 +169,10 @@ void M_log_basic_iteration(M_APM rr, int places, const M_APM nn)
   else {
     M_APM   tmp0, tmp1, tmp2, tmpX;
     
-    tmpX = m_apm_init();
-    tmp0  = m_apm_init();
-    tmp1  = m_apm_init();
-    tmp2  = m_apm_init();
+    tmpX = m_apm_new();
+    tmp0  = m_apm_new();
+    tmp1  = m_apm_new();
+    tmp2  = m_apm_new();
     
     M_log_solve_cubic(tmpX, 110, nn);
     

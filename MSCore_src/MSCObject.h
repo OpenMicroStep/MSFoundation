@@ -253,8 +253,8 @@ MSExport id         CDateCopy(id self);
 
 MSExport void       CDecimalFree(id self);
 MSExport BOOL       CDecimalIsEqual(id self, id other);
-MSExport id         CDecimalCopy(id self);
 MSExport NSUInteger CDecimalHash(id self, unsigned depth);
+MSExport id         CDecimalCopy(id self);
 
 MSExport void       CDictionaryFree(id self);
 MSExport BOOL       CDictionaryIsEqual(id self, id other);

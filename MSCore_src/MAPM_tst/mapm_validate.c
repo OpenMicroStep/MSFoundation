@@ -61,7 +61,10 @@
  *      Revision 2.0  2003/07/24 21:00:49  mike
  *      initial version
  */
-#include "MSCorePrivate_.h"
+#include "m_apm_lc.h"
+#include "mscore_validate.h"
+
+static int __verbose= 0;
 
 extern void   factorial_local(M_APM, M_APM);
 extern double cbrt_local(double);
@@ -82,7 +85,7 @@ static inline void library_version_check(void)
   m_apm_lib_short_version(version_info);
   m_apm_lib_version(version_info);
   
-  fprintf(stdout,"\n%s\n\n",version_info);
+  if (__verbose) fprintf(stdout,"\n%s\n\n",version_info);
   
   /*
    *  check MAPM version info from m_apm.h to what was compiled into
@@ -169,9 +172,9 @@ void factorial_local(M_APM result, M_APM ainput)
     return;
   }
   
-  ftmp1 = m_apm_init();
-  ftmp2 = m_apm_init();
-  ftmp3 = m_apm_init();
+  ftmp1 = m_apm_new();
+  ftmp2 = m_apm_new();
+  ftmp3 = m_apm_new();
   
   m_apm_copy(result, ainput);
   m_apm_copy(ftmp1, ainput);
@@ -219,10 +222,10 @@ static inline void gcd_local(M_APM r, M_APM u, M_APM v)
 {
   M_APM   tmpD, tmpN, tmpU, tmpV;
   
-  tmpD = m_apm_init();
-  tmpN = m_apm_init();
-  tmpU = m_apm_init();
-  tmpV = m_apm_init();
+  tmpD = m_apm_new();
+  tmpN = m_apm_new();
+  tmpU = m_apm_new();
+  tmpV = m_apm_new();
   
   m_apm_absolute_value(tmpU, u);
   m_apm_absolute_value(tmpV, v);
@@ -258,10 +261,10 @@ static inline void log_local(M_APM outval, int places, M_APM inval)
   
   dplaces = places + 8;
   
-  tmp6 = m_apm_init() ;
-  tmp7 = m_apm_init();
-  tmp8 = m_apm_init();
-  tmp9 = m_apm_init();
+  tmp6 = m_apm_new() ;
+  tmp7 = m_apm_new();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   m_apm_copy(tmp7, MM_One);
   tmp7->m_apm_exponent = -places;
@@ -291,10 +294,10 @@ static inline int mapm_test_sqrt()
   char    buffer[32], cbuf[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout,"Validating the SQRT function ... \n");
+  if (__verbose) fprintf(stdout,"Validating the SQRT function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = 3.184E-7;
   xdelta    = 2.83576;
@@ -332,7 +335,7 @@ static inline int mapm_test_sqrt()
   }
   
   if (pass == 0)
-    fprintf(stdout,"... SQRT function passes\n");
+    if (__verbose) fprintf(stdout,"... SQRT function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -349,10 +352,10 @@ static inline int mapm_test_cbrt(void)
   char    buffer[32], cbuf[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout,"Validating the CBRT function ... \n");
+  if (__verbose) fprintf(stdout,"Validating the CBRT function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = 3.9521E-8;
   xdelta    = 2.71329;
@@ -392,7 +395,7 @@ static inline int mapm_test_cbrt(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... CBRT function passes\n");
+    if (__verbose) fprintf(stdout,"... CBRT function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -409,10 +412,10 @@ static inline int mapm_test_sin(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the SIN function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the SIN function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -7.214;
   xdelta    = 0.817;
@@ -442,7 +445,7 @@ static inline int mapm_test_sin(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... SIN function passes\n");
+    if (__verbose) fprintf(stdout,"... SIN function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -459,10 +462,10 @@ static inline int mapm_test_cos(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the COS function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the COS function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -7.315;
   xdelta    = 0.813;
@@ -493,7 +496,7 @@ static inline int mapm_test_cos(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... COS function passes\n");
+    if (__verbose) fprintf(stdout,"... COS function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -510,11 +513,11 @@ static inline int mapm_test_sin_cos(void)
   char    buffer[32];
   M_APM   mapm1, sinval, cosval;
   
-  fprintf(stdout, "Validating the SIN_COS function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the SIN_COS function ... \n");
   
-  mapm1  = m_apm_init();
-  sinval = m_apm_init();
-  cosval = m_apm_init();
+  mapm1  = m_apm_new();
+  sinval = m_apm_new();
+  cosval = m_apm_new();
   
   xx        = -7.715;
   xdelta    = 0.737;
@@ -559,7 +562,7 @@ static inline int mapm_test_sin_cos(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... SIN_COS function passes\n");
+    if (__verbose) fprintf(stdout,"... SIN_COS function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(sinval);
@@ -577,10 +580,10 @@ static inline int mapm_test_tan(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the TAN function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the TAN function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -7.315;
   xdelta    = 0.673;
@@ -614,7 +617,7 @@ static inline int mapm_test_tan(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... TAN function passes\n");
+    if (__verbose) fprintf(stdout,"... TAN function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -631,10 +634,10 @@ static inline int mapm_test_asin(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the ASIN function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the ASIN function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -0.997;
   xdelta    = 0.1073;
@@ -665,7 +668,7 @@ static inline int mapm_test_asin(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... ASIN function passes\n");
+    if (__verbose) fprintf(stdout,"... ASIN function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -682,10 +685,10 @@ static inline int mapm_test_acos(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the ACOS function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the ACOS function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -0.998;
   xdelta    = 0.09373;
@@ -716,7 +719,7 @@ static inline int mapm_test_acos(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... ACOS function passes\n");
+    if (__verbose) fprintf(stdout,"... ACOS function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -733,10 +736,10 @@ static inline int mapm_test_atan(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the ATAN function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the ATAN function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -6.8215;
   xdelta    = 0.3967;
@@ -768,7 +771,7 @@ static inline int mapm_test_atan(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... ATAN function passes\n");
+    if (__verbose) fprintf(stdout,"... ATAN function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -786,11 +789,11 @@ static inline int mapm_test_atan2(void)
   char    buffer[32];
   M_APM   mapmX, mapmY, mapm0;
   
-  fprintf(stdout, "Validating the ATAN2 function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the ATAN2 function ... \n");
   
-  mapm0 = m_apm_init();
-  mapmX = m_apm_init();
-  mapmY = m_apm_init();
+  mapm0 = m_apm_new();
+  mapmX = m_apm_new();
+  mapmY = m_apm_new();
   
   pass      = 0;
   tolerance = 1.0E-13;
@@ -848,7 +851,7 @@ static inline int mapm_test_atan2(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... ATAN2 function passes\n");
+    if (__verbose) fprintf(stdout,"... ATAN2 function passes\n");
   
   m_apm_free(mapm0);
   m_apm_free(mapmX);
@@ -866,10 +869,10 @@ static inline int mapm_test_sinh(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the SINH function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the SINH function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -4.2215;
   xdelta    = 0.3967;
@@ -904,7 +907,7 @@ static inline int mapm_test_sinh(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... SINH function passes\n");
+    if (__verbose) fprintf(stdout,"... SINH function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -921,10 +924,10 @@ static inline int mapm_test_cosh(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the COSH function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the COSH function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -4.2215;
   xdelta    = 0.3816;
@@ -959,7 +962,7 @@ static inline int mapm_test_cosh(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... COSH function passes\n");
+    if (__verbose) fprintf(stdout,"... COSH function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -976,10 +979,10 @@ static inline int mapm_test_tanh(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the TANH function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the TANH function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -2.1083;
   xdelta    = 0.10769;
@@ -1011,7 +1014,7 @@ static inline int mapm_test_tanh(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... TANH function passes\n");
+    if (__verbose) fprintf(stdout,"... TANH function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1028,10 +1031,10 @@ static inline int mapm_test_asinh(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the ASINH function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the ASINH function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -27.2215;
   xdelta    = 3.1817;
@@ -1066,7 +1069,7 @@ static inline int mapm_test_asinh(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... ASINH function passes\n");
+    if (__verbose) fprintf(stdout,"... ASINH function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1083,10 +1086,10 @@ static inline int mapm_test_acosh(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the ACOSH function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the ACOSH function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = 1.02;
   xdelta    = 0.7816;
@@ -1121,7 +1124,7 @@ static inline int mapm_test_acosh(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... acosh function passes\n");
+    if (__verbose) fprintf(stdout,"... acosh function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1138,10 +1141,10 @@ static inline int mapm_test_atanh(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the ATANH function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the ATANH function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -0.998;
   xdelta    = 0.1167;
@@ -1176,7 +1179,7 @@ static inline int mapm_test_atanh(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... ATANH function passes\n");
+    if (__verbose) fprintf(stdout,"... ATANH function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1193,10 +1196,10 @@ static inline int mapm_test_exp(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the EXP function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the EXP function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = -42.215;
   xdelta    = 3.387;
@@ -1228,7 +1231,7 @@ static inline int mapm_test_exp(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... EXP function passes\n");
+    if (__verbose) fprintf(stdout,"... EXP function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1246,13 +1249,13 @@ static inline int mapm_test_exp_2(void)
   static  char *str1[4] = { "5.2107E-4", "-7.138927E-5", "8.21735E-6", "0.0" };
   static  char *str2[4] = { "128.00047", "511.99874", ".03125012", ".01562483" };
   
-  fprintf(stdout,
+  if (__verbose) fprintf(stdout,
           "Validating calculations involving EXP & LOG ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapm3 = m_apm_init();
-  mapm4 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapm3 = m_apm_new();
+  mapm4 = m_apm_new();
   pass  = 0;
   
   dplaces = 250;
@@ -1263,7 +1266,7 @@ static inline int mapm_test_exp_2(void)
     
     m_apm_set_string(mapm4, cp);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate log(exp(%s)) to %d decimal places ... \n", cp, dplaces);
     
     m_apm_exp(mapm3, (dplaces + 8), mapm4);
@@ -1273,7 +1276,7 @@ static inline int mapm_test_exp_2(void)
     
     if (m_apm_compare(mapm1, mapm4) == 0)
     {
-      fprintf(stdout, "Verified %s == log(exp(%s)) \n", cp, cp);
+      if (__verbose) fprintf(stdout, "Verified %s == log(exp(%s)) \n", cp, cp);
     }
     else
     {
@@ -1290,7 +1293,7 @@ static inline int mapm_test_exp_2(void)
     
     m_apm_set_string(mapm1, cp);    /* close to exact power of 2 */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate exp(log(%s)) to %d decimal places ... \n", cp, dplaces);
     
     m_apm_log(mapm2, (dplaces + 8), mapm1);
@@ -1298,7 +1301,7 @@ static inline int mapm_test_exp_2(void)
     
     if (m_apm_compare(mapm1, mapm3) == 0)
     {
-      fprintf(stdout, "Verified %s == exp(log(%s)) \n", cp, cp);
+      if (__verbose) fprintf(stdout, "Verified %s == exp(log(%s)) \n", cp, cp);
     }
     else
     {
@@ -1310,7 +1313,7 @@ static inline int mapm_test_exp_2(void)
   
   
   if (pass == 0)
-    fprintf(stdout,"... EXP & LOG Calculations pass\n");
+    if (__verbose) fprintf(stdout,"... EXP & LOG Calculations pass\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1329,10 +1332,10 @@ static inline int mapm_test_log(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the LOG function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the LOG function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = 1.7235E-20;
   xdelta    = 8.3816;
@@ -1367,7 +1370,7 @@ static inline int mapm_test_log(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... LOG function passes\n");
+    if (__verbose) fprintf(stdout,"... LOG function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1384,10 +1387,10 @@ static inline int mapm_test_log10(void)
   char    buffer[32];
   M_APM   mapm1, mapm2;
   
-  fprintf(stdout, "Validating the LOG10 function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the LOG10 function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   xx        = 3.4235E-22;
   xdelta    = 12.7816;
@@ -1422,7 +1425,7 @@ static inline int mapm_test_log10(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... LOG10 function passes\n");
+    if (__verbose) fprintf(stdout,"... LOG10 function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1440,11 +1443,11 @@ static inline int mapm_test_pow(void)
   char    buffer[32];
   M_APM   mapm0, mapmX, mapmY;
   
-  fprintf(stdout, "Validating the POW function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the POW function ... \n");
   
-  mapm0 = m_apm_init();
-  mapmX = m_apm_init();
-  mapmY = m_apm_init();
+  mapm0 = m_apm_new();
+  mapmX = m_apm_new();
+  mapmY = m_apm_new();
   
   pass      = 0;
   tolerance = 1.0E-13;
@@ -1498,7 +1501,7 @@ static inline int mapm_test_pow(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... POW function passes\n");
+    if (__verbose) fprintf(stdout,"... POW function passes\n");
   
   m_apm_free(mapm0);
   m_apm_free(mapmX);
@@ -1514,13 +1517,13 @@ static inline int mapm_test_factorial(void)
   int     i, pass;
   M_APM   mapm1, mapm2, mapmi;
   
-  fprintf(stdout, "Validating the FACTORIAL function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the FACTORIAL function ... \n");
   
   pass = 0;
   
-  mapmi = m_apm_init();
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
+  mapmi = m_apm_new();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
   
   for (i=0; i <= 15; i++)
   {
@@ -1574,7 +1577,7 @@ static inline int mapm_test_factorial(void)
   
   
   if (pass == 0)
-    fprintf(stdout,"... FACTORIAL function passes\n");
+    if (__verbose) fprintf(stdout,"... FACTORIAL function passes\n");
   
   m_apm_free(mapmi);
   m_apm_free(mapm1);
@@ -1610,13 +1613,13 @@ static inline int mapm_test_gcd(void)
     "783487423789",
     "1135823614", "2759" };
   
-  fprintf(stdout, "Validating the GCD/LCM functions ... \n");
+  if (__verbose) fprintf(stdout, "Validating the GCD/LCM functions ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapmt = m_apm_init();
-  mapmu = m_apm_init();
-  mapmv = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapmt = m_apm_new();
+  mapmu = m_apm_new();
+  mapmv = m_apm_new();
   
   pass = 0;
   
@@ -1651,7 +1654,7 @@ static inline int mapm_test_gcd(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... GCD/LCM functions pass\n");
+    if (__verbose) fprintf(stdout,"... GCD/LCM functions pass\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1669,13 +1672,13 @@ static inline int mapm_test_PI(void)
   int     i, dplaces, pass;
   M_APM   mapmt, mapm1, mapm2, mapm3, mapm_pi;
   
-  fprintf(stdout, "Validating calculations involving PI ... \n");
+  if (__verbose) fprintf(stdout, "Validating calculations involving PI ... \n");
   
-  mapm1   = m_apm_init();
-  mapm2   = m_apm_init();
-  mapm3   = m_apm_init();
-  mapmt   = m_apm_init();
-  mapm_pi = m_apm_init();
+  mapm1   = m_apm_new();
+  mapm2   = m_apm_new();
+  mapm3   = m_apm_new();
+  mapmt   = m_apm_new();
+  mapm_pi = m_apm_new();
   
   pass = 0;
   
@@ -1683,7 +1686,7 @@ static inline int mapm_test_PI(void)
   
   for (i=0; i < 2; i++)
   {
-    fprintf(stdout, "Calculate PI to %d decimal places ... \n", dplaces);
+    if (__verbose) fprintf(stdout, "Calculate PI to %d decimal places ... \n", dplaces);
     
     /*  PI = acos(-1)  */
     
@@ -1694,7 +1697,7 @@ static inline int mapm_test_PI(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate 3 * acos(0.5) to %d decimal places ... \n", dplaces);
     
     /* PI = 3 * acos(0.5) */
@@ -1707,7 +1710,7 @@ static inline int mapm_test_PI(void)
     
     if (m_apm_compare(mapm1, mapm_pi) == 0)
     {
-      fprintf(stdout, "Verified PI == 3 * acos(0.5) \n");
+      if (__verbose) fprintf(stdout, "Verified PI == 3 * acos(0.5) \n");
     }
     else
     {
@@ -1719,7 +1722,7 @@ static inline int mapm_test_PI(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate 4 * atan(1) to %d decimal places ... \n", dplaces);
     
     /* PI = 4 * atan(1) */
@@ -1731,7 +1734,7 @@ static inline int mapm_test_PI(void)
     
     if (m_apm_compare(mapm1, mapm_pi) == 0)
     {
-      fprintf(stdout, "Verified PI == 4 * atan(1) \n");
+      if (__verbose) fprintf(stdout, "Verified PI == 4 * atan(1) \n");
     }
     else
     {
@@ -1743,7 +1746,7 @@ static inline int mapm_test_PI(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate 1.2 * acos(-sqrt(3) / 2) to %d decimal places ... \n", dplaces);
     
     /* PI = 1.2 * acos(-sqrt(3) / 2) */
@@ -1759,7 +1762,7 @@ static inline int mapm_test_PI(void)
     
     if (m_apm_compare(mapm1, mapm_pi) == 0)
     {
-      fprintf(stdout, "Verified PI == 1.2 * acos(-sqrt(3) / 2) \n");
+      if (__verbose) fprintf(stdout, "Verified PI == 1.2 * acos(-sqrt(3) / 2) \n");
     }
     else
     {
@@ -1773,7 +1776,7 @@ static inline int mapm_test_PI(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate 12 * atan(2 - sqrt(3)) to %d decimal places ... \n", dplaces);
     
     /* PI = 12 * atan(2 - sqrt(3))   */
@@ -1793,7 +1796,7 @@ static inline int mapm_test_PI(void)
     
     if (m_apm_compare(mapm1, mapm_pi) == 0)
     {
-      fprintf(stdout, "Verified PI == 12 * atan(2 - sqrt(3)) \n");
+      if (__verbose) fprintf(stdout, "Verified PI == 12 * atan(2 - sqrt(3)) \n");
     }
     else
     {
@@ -1806,14 +1809,14 @@ static inline int mapm_test_PI(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate cos(PI / 6) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm1, "6");
     m_apm_divide(mapmt, dplaces, mapm_pi, mapm1);
     m_apm_cos(mapm2, (dplaces - 8), mapmt);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate sqrt(0.75) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapmt, "0.75");
@@ -1821,7 +1824,7 @@ static inline int mapm_test_PI(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified cos(PI / 6) == sqrt(0.75) \n");
+      if (__verbose) fprintf(stdout, "Verified cos(PI / 6) == sqrt(0.75) \n");
     }
     else
     {
@@ -1833,7 +1836,7 @@ static inline int mapm_test_PI(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate tan(5 * PI / 12) to %d decimal places ... \n", dplaces);
     
     m_apm_multiply(mapm1, MM_Five, mapm_pi);
@@ -1841,7 +1844,7 @@ static inline int mapm_test_PI(void)
     m_apm_divide(mapm2, dplaces, mapm1, mapmt);
     m_apm_tan(mapm1, (dplaces - 8), mapm2);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate 2 + sqrt(3) to %d decimal places ... \n", dplaces);
     
     m_apm_sqrt(mapmt, (dplaces - 8), MM_Three);
@@ -1849,7 +1852,7 @@ static inline int mapm_test_PI(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified tan(5 * PI / 12) == 2 + sqrt(3) \n");
+      if (__verbose) fprintf(stdout, "Verified tan(5 * PI / 12) == 2 + sqrt(3) \n");
     }
     else
     {
@@ -1862,7 +1865,7 @@ static inline int mapm_test_PI(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate 2 * (asin(x) + acos(x)) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm2, "12.730348");
@@ -1878,7 +1881,7 @@ static inline int mapm_test_PI(void)
     
     if (m_apm_compare(mapm3, mapm_pi) == 0)
     {
-      fprintf(stdout, "Verified PI = 2 * (asin(x) + acos(x)) \n");
+      if (__verbose) fprintf(stdout, "Verified PI = 2 * (asin(x) + acos(x)) \n");
     }
     else
     {
@@ -1891,7 +1894,7 @@ static inline int mapm_test_PI(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... PI Calculations pass\n");
+    if (__verbose) fprintf(stdout,"... PI Calculations pass\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -1909,21 +1912,21 @@ static inline int mapm_test_exp_pwr2(void)
   int     i, dplaces, pass;
   M_APM   mapm_E, mapm1, mapm2, mapm3, mapm4;
   
-  fprintf(stdout,
+  if (__verbose) fprintf(stdout,
           "Validating calculations involving E & Integer POW_NR ... \n");
   
-  mapm_E = m_apm_init();
-  mapm1  = m_apm_init();
-  mapm2  = m_apm_init();
-  mapm3  = m_apm_init();
-  mapm4  = m_apm_init();
+  mapm_E = m_apm_new();
+  mapm1  = m_apm_new();
+  mapm2  = m_apm_new();
+  mapm3  = m_apm_new();
+  mapm4  = m_apm_new();
   pass   = 0;
   
   dplaces = 250;
   
   for (i=0; i < 2; i++)
   {
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate E (2.71828...) to %d decimal places ... \n", dplaces);
     
     /*  E = exp(1)  */
@@ -1934,17 +1937,17 @@ static inline int mapm_test_exp_pwr2(void)
      *
      */
     
-    fprintf(stdout, "Calculate exp(0.5) to %d decimal places ... \n", dplaces);
+    if (__verbose) fprintf(stdout, "Calculate exp(0.5) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm3, "0.5");
     m_apm_exp(mapm1, dplaces, mapm3);
     
-    fprintf(stdout, "Calculate sqrt(E) to %d decimal places ... \n", dplaces);
+    if (__verbose) fprintf(stdout, "Calculate sqrt(E) to %d decimal places ... \n", dplaces);
     m_apm_sqrt(mapm2, dplaces, mapm_E);
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified exp(0.5) == sqrt(E) \n");
+      if (__verbose) fprintf(stdout, "Verified exp(0.5) == sqrt(E) \n");
     }
     else
     {
@@ -1956,7 +1959,7 @@ static inline int mapm_test_exp_pwr2(void)
      *
      */
     
-    fprintf(stdout, "Calculate exp(15) to %d decimal places ... \n", dplaces);
+    if (__verbose) fprintf(stdout, "Calculate exp(15) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm3, "15");
     m_apm_exp(mapm1, dplaces, mapm3);
@@ -1966,7 +1969,7 @@ static inline int mapm_test_exp_pwr2(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified exp(15) == E ^ 15 \n");
+      if (__verbose) fprintf(stdout, "Verified exp(15) == E ^ 15 \n");
     }
     else
     {
@@ -1978,7 +1981,7 @@ static inline int mapm_test_exp_pwr2(void)
      *
      */
     
-    fprintf(stdout, "Calculate exp(2) to %d decimal places ... \n", dplaces);
+    if (__verbose) fprintf(stdout, "Calculate exp(2) to %d decimal places ... \n", dplaces);
     
     m_apm_exp(mapm1, dplaces, MM_Two);
     
@@ -1987,7 +1990,7 @@ static inline int mapm_test_exp_pwr2(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified exp(2) == E ^ 2 \n");
+      if (__verbose) fprintf(stdout, "Verified exp(2) == E ^ 2 \n");
     }
     else
     {
@@ -1999,7 +2002,7 @@ static inline int mapm_test_exp_pwr2(void)
      *
      */
     
-    fprintf(stdout, "Calculate exp(-6.5) to %d decimal places ... \n", dplaces);
+    if (__verbose) fprintf(stdout, "Calculate exp(-6.5) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm3, "-6.5");
     m_apm_exp(mapm1, dplaces, mapm3);
@@ -2010,7 +2013,7 @@ static inline int mapm_test_exp_pwr2(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified exp(-6.5) == 1 / sqrt(E ^ 13) \n");
+      if (__verbose) fprintf(stdout, "Verified exp(-6.5) == 1 / sqrt(E ^ 13) \n");
     }
     else
     {
@@ -2023,7 +2026,7 @@ static inline int mapm_test_exp_pwr2(void)
      *
      */
     
-    fprintf(stdout, "Calculate exp(8) to %d decimal places ... \n", dplaces);
+    if (__verbose) fprintf(stdout, "Calculate exp(8) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm3, "8");
     m_apm_exp(mapm1, dplaces, mapm3);
@@ -2033,7 +2036,7 @@ static inline int mapm_test_exp_pwr2(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified exp(8) == cbrt(E ^ 24) \n");
+      if (__verbose) fprintf(stdout, "Verified exp(8) == cbrt(E ^ 24) \n");
     }
     else
     {
@@ -2049,7 +2052,7 @@ static inline int mapm_test_exp_pwr2(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... E & Integer POW_NR Calculations pass\n");
+    if (__verbose) fprintf(stdout,"... E & Integer POW_NR Calculations pass\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2067,13 +2070,13 @@ static inline int mapm_test_log_2(void)
   int     i, dplaces, pass;
   M_APM   mapm1, mapm2, mapm3, mapm4;
   
-  fprintf(stdout,
+  if (__verbose) fprintf(stdout,
           "Validating log calculations with more digits ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapm3 = m_apm_init();
-  mapm4 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapm3 = m_apm_new();
+  mapm4 = m_apm_new();
   
   pass = 0;
   
@@ -2081,13 +2084,13 @@ static inline int mapm_test_log_2(void)
   
   for (i=0; i < 2; i++)
   {
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate log(3.6107) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm4, "3.6107");
     m_apm_log(mapm1, dplaces, mapm4);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate log(3.6107) with an AGM algorithm to %d decimal places ... \n",
             dplaces);
     
@@ -2095,7 +2098,7 @@ static inline int mapm_test_log_2(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified log(3.6107) with an AGM algorithm \n");
+      if (__verbose) fprintf(stdout, "Verified log(3.6107) with an AGM algorithm \n");
     }
     else
     {
@@ -2108,13 +2111,13 @@ static inline int mapm_test_log_2(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate log(63.1874) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm4, "63.1874");
     m_apm_log(mapm1, dplaces, mapm4);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate log(63.1874) with an AGM algorithm to %d decimal places ... \n",
             dplaces);
     
@@ -2122,7 +2125,7 @@ static inline int mapm_test_log_2(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified log(63.1874) with an AGM algorithm \n");
+      if (__verbose) fprintf(stdout, "Verified log(63.1874) with an AGM algorithm \n");
     }
     else
     {
@@ -2135,13 +2138,13 @@ static inline int mapm_test_log_2(void)
      *
      */
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate log(184.9536) to %d decimal places ... \n", dplaces);
     
     m_apm_set_string(mapm3, "184.9536");
     m_apm_log(mapm1, dplaces, mapm3);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate log(184.9536) with an AGM algorithm to %d decimal places ... \n",
             dplaces);
     
@@ -2149,7 +2152,7 @@ static inline int mapm_test_log_2(void)
     
     if (m_apm_compare(mapm1, mapm2) == 0)
     {
-      fprintf(stdout, "Verified log(184.9536) with an AGM algorithm \n");
+      if (__verbose) fprintf(stdout, "Verified log(184.9536) with an AGM algorithm \n");
     }
     else
     {
@@ -2162,7 +2165,7 @@ static inline int mapm_test_log_2(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... log calculations pass\n");
+    if (__verbose) fprintf(stdout,"... log calculations pass\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2179,12 +2182,12 @@ static inline int mapm_test_floor_ceil(void)
   int     ict, pass;
   M_APM   mapm0, mapm1, mapm2, mapmr;
   
-  fprintf(stdout, "Validating the FLOOR/CEIL functions ... \n");
+  if (__verbose) fprintf(stdout, "Validating the FLOOR/CEIL functions ... \n");
   
-  mapm0 = m_apm_init();
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapmr = m_apm_init();
+  mapm0 = m_apm_new();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapmr = m_apm_new();
   pass  = 0;
   
   m_apm_set_string(mapm0, "26.90253936868423");
@@ -2270,7 +2273,7 @@ static inline int mapm_test_floor_ceil(void)
   
   
   if (pass == 0)
-    fprintf(stdout,"... FLOOR/CEIL functions pass\n");
+    if (__verbose) fprintf(stdout,"... FLOOR/CEIL functions pass\n");
   
   m_apm_free(mapm0);
   m_apm_free(mapm1);
@@ -2288,11 +2291,11 @@ static inline int  mapm_test_log_near_1(void)
   char    cbuf[32];
   M_APM mapm1, mapm2, mapmr;
   
-  fprintf(stdout, "Validating the LOG_NEAR_1 function ... \n");
+  if (__verbose) fprintf(stdout, "Validating the LOG_NEAR_1 function ... \n");
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapmr = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapmr = m_apm_new();
   pass  = 0;
   
   strcpy(cbuf, "1.000086347");
@@ -2327,7 +2330,7 @@ static inline int  mapm_test_log_near_1(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... LOG_NEAR_1 function passes\n");
+    if (__verbose) fprintf(stdout,"... LOG_NEAR_1 function passes\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2344,13 +2347,13 @@ static inline int mapm_test_asin_near_0(void)
   char    cbuf[32];
   M_APM mapm1, mapm2, mapm3, mapm4, mapm_pi2;
   
-  fprintf(stdout, "Validating the INV TRIG NEAR 0 functions ... \n");
+  if (__verbose) fprintf(stdout, "Validating the INV TRIG NEAR 0 functions ... \n");
   
-  mapm1    = m_apm_init();
-  mapm2    = m_apm_init();
-  mapm3    = m_apm_init();
-  mapm4    = m_apm_init();
-  mapm_pi2 = m_apm_init();
+  mapm1    = m_apm_new();
+  mapm2    = m_apm_new();
+  mapm3    = m_apm_new();
+  mapm4    = m_apm_new();
+  mapm_pi2 = m_apm_new();
   pass     = 0;
   dplaces  = 320;
   
@@ -2362,7 +2365,7 @@ static inline int mapm_test_asin_near_0(void)
    *  acos at +1, -1, 0, ~0
    */
   
-  fprintf(stdout, "Calculate PI/2 to %d decimal places ... \n", dplaces);
+  if (__verbose) fprintf(stdout, "Calculate PI/2 to %d decimal places ... \n", dplaces);
   
   /*  PI/2 = acos(-1) / 2  */
   
@@ -2497,7 +2500,7 @@ static inline int mapm_test_asin_near_0(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... INV TRIG NEAR 0 functions pass\n");
+    if (__verbose) fprintf(stdout,"... INV TRIG NEAR 0 functions pass\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2519,13 +2522,13 @@ static inline int mapm_test_sin2_cos2(void)
   int dplaces, pass;
   M_APM mapm1, mapm2, mapm3, mapm4, mapm5;
   
-  fprintf(stdout, "Validating SIN^2 + COS^2 = 1 ... \n");
+  if (__verbose) fprintf(stdout, "Validating SIN^2 + COS^2 = 1 ... \n");
   
-  mapm1   = m_apm_init();
-  mapm2   = m_apm_init();
-  mapm3   = m_apm_init();
-  mapm4   = m_apm_init();
-  mapm5   = m_apm_init();
+  mapm1   = m_apm_new();
+  mapm2   = m_apm_new();
+  mapm3   = m_apm_new();
+  mapm4   = m_apm_new();
+  mapm5   = m_apm_new();
   
   pass    = 0;
   dplaces = 150;
@@ -2534,12 +2537,12 @@ static inline int mapm_test_sin2_cos2(void)
   {
     m_apm_set_string(mapm3, "0.6216566124128346");
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate sin(0.6216566124128346) to %d decimal places ... \n", dplaces);
     
     m_apm_sin(mapm1, (dplaces + 6), mapm3);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate cos(0.6216566124128346) to %d decimal places ... \n", dplaces);
     
     m_apm_cos(mapm2, (dplaces + 6), mapm3);
@@ -2558,11 +2561,11 @@ static inline int mapm_test_sin2_cos2(void)
     
     m_apm_set_string(mapm3, "2.1073765187265308");
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate sin(2.1073765187265308) to %d decimal places ... \n", dplaces);
     m_apm_sin(mapm1, (dplaces + 6), mapm3);
     
-    fprintf(stdout,
+    if (__verbose) fprintf(stdout,
             "Calculate cos(2.1073765187265308) to %d decimal places ... \n", dplaces);
     m_apm_cos(mapm2, (dplaces + 6), mapm3);
     
@@ -2585,7 +2588,7 @@ static inline int mapm_test_sin2_cos2(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... SIN^2 + COS^2 = 1 pass\n");
+    if (__verbose) fprintf(stdout,"... SIN^2 + COS^2 = 1 pass\n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2613,12 +2616,12 @@ static inline int mapm_test_fft_digits(void)
   else
     digits = 900;
   
-  fprintf(stdout, "Validating FFT multiply with %d digits ... \n", digits);
+  if (__verbose) fprintf(stdout, "Validating FFT multiply with %d digits ... \n", digits);
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapm3 = m_apm_init();
-  mapm4 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapm3 = m_apm_new();
+  mapm4 = m_apm_new();
   pass  = 0;
   
   /*
@@ -2631,11 +2634,11 @@ static inline int mapm_test_fft_digits(void)
   m_apm_set_string(mapm1, "27.3");
   m_apm_set_string(mapm2, "-19.6");
   
-  fprintf(stdout, "Calculate sqrt(27.3) to %d decimal places ... \n", digits);
+  if (__verbose) fprintf(stdout, "Calculate sqrt(27.3) to %d decimal places ... \n", digits);
   
   m_apm_sqrt(mapm3, (digits + 6), mapm1);
   
-  fprintf(stdout, "Calculate cbrt(-19.6) to %d decimal places ... \n", digits);
+  if (__verbose) fprintf(stdout, "Calculate cbrt(-19.6) to %d decimal places ... \n", digits);
   
   m_apm_cbrt(mapm4, (digits + 6), mapm2);
   
@@ -2654,7 +2657,7 @@ static inline int mapm_test_fft_digits(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... %d digit FFT multiply passes \n", digits);
+    if (__verbose) fprintf(stdout,"... %d digit FFT multiply passes \n", digits);
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2675,7 +2678,7 @@ static inline int mapm_test_add_init(void)
 {
   M_APM mapm0;
   
-  mapm0 = m_apm_init();
+  mapm0 = m_apm_new();
   
   m_apm_add(mapm0, MM_Ten, MM_Three);
   
@@ -2698,15 +2701,15 @@ static inline int mapm_test_special_div(void)
   
   digits = 170;
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapm3 = m_apm_init();
-  mapm4 = m_apm_init();
-  mapm5 = m_apm_init();
-  mapm6 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapm3 = m_apm_new();
+  mapm4 = m_apm_new();
+  mapm5 = m_apm_new();
+  mapm6 = m_apm_new();
   pass  = 0;
   
-  fprintf(stdout, "Calculate sqrt(3) to %d decimal places ... \n", digits);
+  if (__verbose) fprintf(stdout, "Calculate sqrt(3) to %d decimal places ... \n", digits);
   
   m_apm_sqrt(mapm4, (digits + 6), MM_Three);
   
@@ -2754,7 +2757,7 @@ static inline int mapm_test_special_div(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... %d digit Special Division Check passes \n", digits);
+    if (__verbose) fprintf(stdout,"... %d digit Special Division Check passes \n", digits);
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2776,13 +2779,13 @@ static inline int mapm_test_special_fpf(void)
   
   digits = 156;
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapm3 = m_apm_init();
-  mapm4 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapm3 = m_apm_new();
+  mapm4 = m_apm_new();
   pass  = 0;
   
-  fprintf(stdout, "Validating Fixed Point Formatting ... \n");
+  if (__verbose) fprintf(stdout, "Validating Fixed Point Formatting ... \n");
   
   strcpy(buf, "                +12.57564854193421");
   buf[2] = '\t';             /* put some tabs in the string */
@@ -2798,7 +2801,7 @@ static inline int mapm_test_special_fpf(void)
     
     if (out_string == NULL)
     {
-      fprintf(stderr, "VALIDATE: Out of Memory \n");
+      if (__verbose) fprintf(stderr, "VALIDATE: Out of Memory \n");
       exit(100);
     }
     
@@ -2809,7 +2812,7 @@ static inline int mapm_test_special_fpf(void)
     kk = m_apm_exponent(mapm1);
     
     if (digits <= 50)
-      fprintf(stdout, "[%s] \n", out_string);
+      if (__verbose) fprintf(stdout, "[%s] \n", out_string);
     
     if ((-kk) <= digits)
     {
@@ -2851,7 +2854,7 @@ static inline int mapm_test_special_fpf(void)
   free(out_string);
   
   if (pass == 0)
-    fprintf(stdout,"... Fixed Point Formatting passes \n");
+    if (__verbose) fprintf(stdout,"... Fixed Point Formatting passes \n");
   
   m_apm_free(mapm1);
   m_apm_free(mapm2);
@@ -2872,12 +2875,12 @@ static inline int mapm_test_special_set(void)
   digits = 350;
   alldigits = -1;
   
-  mapm1 = m_apm_init();
-  mapm2 = m_apm_init();
-  mapm3 = m_apm_init();
+  mapm1 = m_apm_new();
+  mapm2 = m_apm_new();
+  mapm3 = m_apm_new();
   pass  = 0;
   
-  fprintf(stdout, "Validating Set String & Fixed Point Formatting ... \n");
+  if (__verbose) fprintf(stdout, "Validating Set String & Fixed Point Formatting ... \n");
   
   strcpy(buf, "  -7.52164854093421E+12");
   m_apm_set_string(mapm1, buf);
@@ -2893,7 +2896,7 @@ static inline int mapm_test_special_set(void)
     
     if (out_string == NULL)
     {
-      fprintf(stderr, "VALIDATE: Out of Memory \n");
+      if (__verbose) fprintf(stderr, "VALIDATE: Out of Memory \n");
       exit(100);
     }
     
@@ -2914,19 +2917,15 @@ static inline int mapm_test_special_set(void)
   }
   
   if (pass == 0)
-    fprintf(stdout,"... Set String & Fixed Point Formatting passes.\n");
+    if (__verbose) fprintf(stdout,"... Set String & Fixed Point Formatting passes.\n");
   
-#ifdef MSCORE_STANDALONE
-  printf("M_APM class is ... %s\n", NAMEOF(mapm1)) ;
-#else
-  // should have an objc equivalent for the char * classname
-#endif
-  printf("Trying release on M_APM ...") ;
+  if (__verbose) fprintf(stdout,"M_APM class is ... %s\n", NAMEOFCLASS(mapm1)) ;
+  if (__verbose) fprintf(stdout,"Trying release on M_APM ...") ;
   RELEASE(mapm1);
   RELEASE(mapm2);
   RELEASE(mapm3);
   
-  printf("OK\n"); // if RELEASE() does not work, we should have a realy bad
+  if (__verbose) fprintf(stdout,"OK\n"); // if RELEASE() does not work, we should have a realy bad
   
   return(pass);
 }
@@ -2939,11 +2938,11 @@ static inline int mapm_test_special_set(void)
  *
  */
 
-int mapm_validate(int argc, const char *argv[])
+int mapm_validate()
 {
+  clock_t t0= clock(), t1; double seconds;
   int    total_pass;
   
-  MSSystemInitialize(argc, argv) ;
   total_pass = 0;
   
   library_version_check();
@@ -2993,10 +2992,8 @@ int mapm_validate(int argc, const char *argv[])
   total_pass += mapm_test_special_fpf();
   total_pass += mapm_test_special_set();
   
-  if (total_pass == 0)
-    fprintf(stdout, "\n=========> MAPM validate : PASS \n");
-  else
-    fprintf(stdout, "\n=========> MAPM validate : FAIL \n");
+  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
+  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CDecimal MAPM",(total_pass?"FAIL":"PASS"),seconds);
   
   return total_pass;
 }

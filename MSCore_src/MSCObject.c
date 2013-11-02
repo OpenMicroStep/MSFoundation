@@ -69,7 +69,7 @@ static CClass __allClasses[CClassIndexMax+1]=
   {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
   {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
   {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
-//{&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
+  {&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
 //{&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
 //{&metaclass, "CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)        },
   {&metaclass, "CUnicodeBuffer", CUnicodeBufferFree, CUnicodeBufferIsEqual, CUnicodeBufferHash, CUnicodeBufferCopy, sizeof(CUnicodeBuffer)}
@@ -140,7 +140,8 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
   CClass *aClass= __allClasses+classIndex;
   if (aClass) {
     if (aClass->instancesSize) {
-      id newObject= (id)MSCalloc(1, aClass->instancesSize);
+      id newObject= (id)MSCalloc(1, aClass->instancesSize,
+        "MSCreateObjectWithClassIndex() allocation");
       newObject->isa= (Class)aClass;
       return (id)newObject;
     }

@@ -479,7 +479,7 @@ static BOOL _snd(CUnicodeBuffer *self, MSLong n)
 /*
   // a very slow method, I know, but I don't wand to use sprintf() or snprintf() with "%lld" since the result in quite uncertain
   char buf[128] ;
-  M_APM bignum = m_apm_init();
+  M_APM bignum = m_apm_new();
   m_apm_to_integer_string(buf, bignum) ;
   ret = CUnicodeBufferAppendISOLatin1CString(self, buf) ;
   m_apm_free(bignum) ;

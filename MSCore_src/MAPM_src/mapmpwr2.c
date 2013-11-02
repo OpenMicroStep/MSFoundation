@@ -98,9 +98,9 @@ void m_apm_integer_pow_nr(M_APM rr, const M_APM aa, int mexp)
     return;
   }
   
-  tmp0 = m_apm_init();
-  tmpy = m_apm_init();
-  tmpz = m_apm_init();
+  tmp0 = m_apm_new();
+  tmpy = m_apm_new();
+  tmpz = m_apm_new();
   
   m_apm_copy(tmpy, MM_One);
   m_apm_copy(tmpz, aa);

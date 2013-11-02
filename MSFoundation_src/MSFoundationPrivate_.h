@@ -52,4 +52,5 @@
 #import "MSColor.h"
 #import "MSCouple.h"
 #import "MSDate.h"
+#import "MSDecimal.h"
 #import "MSUnicodeBuffer.h"

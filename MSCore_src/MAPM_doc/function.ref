@@ -43,10 +43,10 @@ Example:    char   lib_version[80];
 
 -----------------------------------------------------------------------------
 
-Prototype:  M_APM  m_apm_init(void);
+Prototype:  M_APM  m_apm_new(void);
 
 Example:    M_APM  apmvalue;
-            apmvalue = m_apm_init();
+            apmvalue = m_apm_new();
 
             This function initializes a new MAPM value. The value 0 is
      assigned to the variable. This function must be called before
@@ -70,7 +70,7 @@ Example:    M_APM  apmvalue;
             m_apm_free(apmvalue);
 
             This function will free the memory previously allocated by
-     'm_apm_init'.
+     'm_apm_new'.
 
 -----------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@ Example:    m_apm_free_all_mem();
 
      This function will free ALL the memory that MAPM has allocated
      internally.  It will NOT free variables that the user has
-     initialized from m_apm_init(). The user is responsible for
+     initialized from m_apm_new(). The user is responsible for
      free'ing their own variables. The variables that the user has
      initialized are still valid MAPM numbers, but you won't be able
      to do anything useful with them. A call to a MAPM library
