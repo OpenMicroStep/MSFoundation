@@ -1,4 +1,4 @@
-/*   MSCObject.m
+/*   MSDictionary.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -36,98 +36,57 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
- WARNING : the CObject mechanism is NOT Thread Safe. Each object
- must be allocated, retained, autoreleased, released in the same thread.
- 
  */
 
-#import "MSFoundationPrivate_.h"
-
-#pragma mark NSObject hash:
-
-@interface NSObject (Private)
-- (NSUInteger)hash:(unsigned)depth;
+@class MSDictionary;
+@interface MSDictionaryEnumerator : NSEnumerator
+{
+@private
+  CDictionaryEnumerator *_dictionaryEnumerator;
+}
+- (id)initWithDictionary:(MSDictionary*)d;
+- (id)nextObject;
+- (id)nextKey;
+- (id)currentObject;
+- (id)currentKey;
 @end
-@implementation NSObject (Private)
-- (NSUInteger)hash:(unsigned)depth {return [self hash]; depth=0;}
+
+@interface MSDictionary : NSObject
+{
+@private
+  NSUInteger _count;
+  NSUInteger _nBuckets;
+  void **_buckets;
+}
++ (id)dictionary;
+- (id)init;
++ (id)dictionaryWithObject:(id)object forKey:(id <NSCopying>)key;
+- (id)     initWithObject:(id)object forKeys:(id <NSCopying>)key;
+#if WIN32
++ (id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys count:(NSUInteger)cnt;
+- (id)      initWithObjects:(const id [])objects forKeys:(const id [])keys count:(NSUInteger)cnt;
+#else
++ (id)dictionaryWithObjects:(const id [])os forKeys:(const id <NSCopying> [])ks count:(NSUInteger)n;
+- (id)      initWithObjects:(const id [])os forKeys:(const id <NSCopying> [])ks count:(NSUInteger)n;
+#endif
++ (id)dictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)      initWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+
+- (NSUInteger)count;
+- (id)objectForKey:(id)aKey;
+
+//- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict; // ???
+
+- (MSDictionaryEnumerator*)dictionaryEnumerator;
 @end
 
-#pragma mark MSCore compatibility
-
-Class _MIsa(id obj)
+@interface MSMutableDictionary : MSDictionary
 {
-  return ISA(obj);
+@private
 }
++ (id)dictionaryWithCapacity:(NSUInteger)numItems;
+- (id)initWithCapacity:(NSUInteger)numItems;
 
-const char *_MNameOfClass(id obj)
-{
-  return NAMEOFCLASS(obj);
-}
-
-id _MRetain(id obj)
-{
-  return [obj retain];
-}
-
-void _MRelease(id obj)
-{
-  [obj release];
-}
-
-id _MAutorelease(id obj)
-{
-  return [obj autorelease];
-}
-
-NSUInteger _MRetainCount(id obj)
-{
-  return [obj retainCount];
-}
-
-BOOL _MObjectIsEqual(id obj1, id obj2)
-{
-  return (obj1 == obj2) || [obj1 isEqual:obj2];
-}
-
-NSUInteger _MObjectHashDepth(id obj, unsigned depth)
-{
-  return [obj hash:depth];
-}
-
-NSUInteger _MObjectHash(id obj)
-{
-  return [obj hash:0];
-}
-
-id _MObjectCopy(id obj)
-{
-  return [obj copyWithZone:NULL];
-}
-
-void _MSFoundationCoreSystemInitialize()
-{
-}
-
-id MSCreateObjectWithClassIndex(CClassIndex classIndex)
-{
-  static NSString *__allCLikeClasses[CClassIndexMax+1]= {
-    @"MSArray",
-    @"MSBuffer",
-    @"_MSRGBAColor",
-    @"MSCouple",
-    @"MSDate",
-    @"MSDecimal",
-    @"MSDictionary",
-    0,//MSMutex,
-    @"MSUnicodeBuffer"};
-  
-  Class aClass= NSClassFromString(__allCLikeClasses[classIndex]);
-  id obj= nil;
-  if (!aClass) {
-    MSReportError(MSInvalidArgumentError, MSFatalError, MSNULLPointerError,
-                  "%s(): try to allocate object with classIndex %lu.",
-                  "MSCreateObjectWithClassIndex",(unsigned long)classIndex);}
-  else {obj= [MSAllocateObject(aClass, 0, NULL) init];}
-  return obj;
-}
-
+- (void)removeObjectForKey:(id)aKey;
+- (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
+@end

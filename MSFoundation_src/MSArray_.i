@@ -162,7 +162,6 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
 #pragma mark Global methods
 
 - (NSUInteger)hash:(unsigned)depth {return CArrayHash(self, depth);}
-- (NSUInteger)hash                 {return CArrayHash(self, 0    );}
 
 - (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
   {

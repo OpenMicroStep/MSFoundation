@@ -261,6 +261,39 @@ static inline int date_firstLast(void)
 
   return err;
   }
+
+static inline int date_replacing(void)
+  {
+  int err= 0;
+  MSDate *d,*e,*f; unsigned j;
+
+  d= YMDHMS(777, 7, 7, 7, 7, 7);
+  e= [d dateByReplacingYear:0 month:0 day:1];
+  f= [d dateByAddingYears:0 months:0 days:-6];
+  if (![e isEqualToDate:f]) {
+    fprintf(stdout, "E1-bad replacing\n");
+    date_print(e); date_print(f); err++;}
+  e= [d dateByReplacingYear:1 month:1 day:1];
+  f= YMD(1, 1, 1);
+  if (![[e dateWithoutTime] isEqualToDate:f]) {
+    fprintf(stdout, "E2-bad replacing\n");
+    date_print(e); date_print(f); err++;}
+  e= [d dateByReplacingWeek:2];
+  j= [d dayOfWeek];
+  f= YMDHMS(777, 1, 1, 7, 7, 7);
+  while ([f dayOfWeek]!=j || [f weekOfYear]!=2) {
+    f= [f dateByAddingYears:0 months:0 days:1];}
+  if (![e isEqualToDate:f]) {
+    fprintf(stdout, "E3-bad replacing\n");
+    date_print(e); date_print(f); err++;}
+  e= [d dateByReplacingHour:2 minute:1 second:0];
+  f= [d dateByAddingHours:-5 minutes:-6 seconds:-7];
+  if (![e isEqualToDate:f]) {
+    fprintf(stdout, "E4-bad replacing\n");
+    date_print(e); date_print(f); err++;}
+  return err;
+  }
+
 int msfoundation_date_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -269,6 +302,7 @@ int msfoundation_date_validate(void)
   err+= date_create2();
   err+= date_week();
   err+= date_firstLast();
+  err+= date_replacing();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSDate",(err?"FAIL":"PASS"),seconds);

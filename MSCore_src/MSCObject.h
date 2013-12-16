@@ -202,7 +202,7 @@ MSExport id          _MObjectCopy     (id obj);
 static inline BOOL ISEQUAL(id x, id y) {
   return (x == y) ? YES : [x isEqual:y];}
 */
-#define HASH(X)        [(X) hash]
+#define HASH(X)        [(X) hash:0]
 #define HASHDEPTH(X,D) [(X) hash:(D)]
 #define COPY(X)        [(X) copyWithZone:NULL]
 
@@ -277,8 +277,8 @@ static inline BOOL _CClassIsEqual(id a, id b, CObjectEq classEqualFct)
   }
 static inline void _CClassGrow(id self, NSUInteger n, NSUInteger count, NSUInteger unitSize, NSUInteger *size, void **ptr)
   {
-  NSUInteger newSize;
-  if (self && n && (newSize= MSCapacityForCount(count + n)) > *size) {
+  if (self && n && count + n > *size) {
+    NSUInteger newSize= MSCapacityForCount(count + n);
     if (!*ptr) {
       if (!(*ptr= MSMalloc(newSize * unitSize, "CGrow()"))) {
         MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode, "CGrow() allocation error");

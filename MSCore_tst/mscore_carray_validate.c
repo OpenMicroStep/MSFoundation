@@ -133,6 +133,62 @@ static inline int carray_subarray(void)
   return err;
   }
 
+static inline int carray_retainrelease(void)
+  {
+  int err= 0;
+  CArray *a; id o,oo;
+  a= CCreateArrayWithOptions(0,YES,NO);
+  // o is a retained object.
+  o= (id)CCreateArrayWithOptions(0,YES,YES);
+  if (RETAINCOUNT(o)!=1) {
+    fprintf(stdout, "Bad retain count(41): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  CArrayAddObject(a, o);
+  if (RETAINCOUNT(o)!=1) {
+    fprintf(stdout, "Bad retain count(42): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  CArraySetRetainReleaseOptionAndRetainAllObjects(a, NO);
+  if (RETAINCOUNT(o)!=1) {
+    fprintf(stdout, "Bad retain count(43): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  oo= (id)CCreateArrayWithOptions(0,YES,YES); // 1
+  CArrayAddObject(a, oo);                     // 2
+  CArraySetRetainReleaseOptionAndRetainAllObjects(a, YES);
+  if (RETAINCOUNT(o)!=2) {
+    fprintf(stdout, "Bad retain count(44): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  if (RETAINCOUNT(oo)!=3) {
+    fprintf(stdout, "Bad retain count(45): %lu\n",WLU(RETAINCOUNT(oo)));
+    err++;}
+  CArrayUnsetRetainReleaseOptionAndReleaseAllObjects(a, YES);
+  if (RETAINCOUNT(o)!=1) {
+    fprintf(stdout, "Bad retain count(46): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  if (RETAINCOUNT(oo)!=2) {
+    fprintf(stdout, "Bad retain count(47): %lu\n",WLU(RETAINCOUNT(oo)));
+    err++;}
+  CArrayRemoveObjectAtIndex(a, 0);
+  if (RETAINCOUNT(o)!=1) {
+    fprintf(stdout, "Bad retain count(48): %lu\n",WLU(RETAINCOUNT(o)));
+    err++;}
+  RELEASE(o);
+  CArrayUnsetRetainReleaseOptionAndReleaseAllObjects(a, YES);
+  if (RETAINCOUNT(oo)!=1) {
+    fprintf(stdout, "Bad retain count(49): %lu\n",WLU(RETAINCOUNT(oo)));
+    err++;}
+  CArraySetRetainReleaseOptionAndRetainAllObjects(a, NO);
+  if (RETAINCOUNT(oo)!=1) {
+    fprintf(stdout, "Bad retain count(50): %lu\n",WLU(RETAINCOUNT(oo)));
+    err++;}
+  RETAIN(oo);
+  RELEASE(a);
+  if (RETAINCOUNT(oo)!=1) {
+    fprintf(stdout, "Bad retain count(51): %lu\n",WLU(RETAINCOUNT(oo)));
+    err++;}
+  RELEASE(oo);
+  return err;
+  }
+
 int mscore_carray_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -140,6 +196,7 @@ int mscore_carray_validate(void)
   err+= carray_create();
   err+= carray_ptr();
   err+= carray_subarray();
+  err+= carray_retainrelease();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CArray",(err?"FAIL":"PASS"),seconds);

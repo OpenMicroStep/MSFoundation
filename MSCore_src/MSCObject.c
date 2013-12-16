@@ -63,14 +63,14 @@ CClass;
 static struct CClassStruct metaclass=
   {NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)        };
 static CClass __allClasses[CClassIndexMax+1]=
-{ // className         deallocator         isEqual                hashier             copier              instancesSize
+{ //           className         deallocator         isEqual                hashier             copier              instancesSize
   {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)        },
   {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)       },
   {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
   {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
   {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
   {&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
-//{&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
+  {&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
 //{&metaclass, "CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)        },
   {&metaclass, "CUnicodeBuffer", CUnicodeBufferFree, CUnicodeBufferIsEqual, CUnicodeBufferHash, CUnicodeBufferCopy, sizeof(CUnicodeBuffer)}
 };
@@ -88,6 +88,7 @@ id _CRetain(id object)
 void _CRelease(id object)
 {
   if (object && object->isa) {
+if (object->isa==__allClasses+CDictionaryClassIndex)printf("_CRelease %p %lu\n",object,object->refCount);
     // a 0 refCount means the object is retained once, so we can deallocate it after the release;
     if (object->refCount) { object->refCount --; }
     else if (CISA(object)->deallocator) { CISA(object)->deallocator((void *)object); }

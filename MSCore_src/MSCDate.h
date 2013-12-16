@@ -68,11 +68,11 @@ MSExport BOOL CDateEquals(const CDate *self, const CDate *other);
 
 #pragma mark Creation
 
-MSExport BOOL CVerifyDate(unsigned year, unsigned month , unsigned day   );
-MSExport BOOL CVerifyTime(unsigned hour, unsigned minute, unsigned second);
-MSExport CDate *CCreateDateFromDate(
+MSExport BOOL CVerifyYMD(unsigned year, unsigned month , unsigned day   );
+MSExport BOOL CVerifyHMS(unsigned hour, unsigned minute, unsigned second);
+MSExport CDate *CCreateDateFromYMD(
   unsigned year, unsigned month,  unsigned day);
-MSExport CDate *CCreateDateFromDateAndTime(
+MSExport CDate *CCreateDateFromYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second);
 

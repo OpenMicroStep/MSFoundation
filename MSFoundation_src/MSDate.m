@@ -50,12 +50,12 @@ static Class __MSDateClass= Nil;
 
 MSDate *MSCreateYMD(unsigned year,  unsigned month,   unsigned day)
 {
-  return (MSDate*)CCreateDateFromDate(year, month, day);
+  return (MSDate*)CCreateDateFromYMD(year, month, day);
 }
 MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
                        unsigned h,     unsigned mn,      unsigned sec)
 {
-  return (MSDate*)CCreateDateFromDateAndTime(year, month, day, h, mn, sec);
+  return (MSDate*)CCreateDateFromYMDHMS(year, month, day, h, mn, sec);
 }
 
 @implementation MSDate
@@ -76,12 +76,12 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 
 + (BOOL)verifyYear:(unsigned)year month:(unsigned)month day:(unsigned)day
 {
-  return CVerifyDate(year, month, day);
+  return CVerifyYMD(year, month, day);
 }
 + (BOOL)verifyYear:(unsigned)year month: (unsigned)month day:   (unsigned)day
             hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec
 {
-  return CVerifyDate(year, month, day) && CVerifyTime(h, mn, sec);
+  return CVerifyYMD(year, month, day) && CVerifyHMS(h, mn, sec);
 }
 
 + (id)dateWithYear:(unsigned)year month:(unsigned)month day:(unsigned)day
@@ -264,16 +264,16 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 {
   MSDate *d;
   d= CDateCopy(self);
-  if (w) CDateSetWeek((CDate*)self, w);
+  if (w) CDateSetWeek((CDate*)d, w);
   return AUTORELEASE(d);
 }
-- (id)dateByReplacingHour:(unsigned)h minutes:(unsigned)m seconds:(unsigned)s
+- (id)dateByReplacingHour:(unsigned)h minute:(unsigned)m second:(unsigned)s
 {
   MSDate *d; int dh,dm,ds;
   d= CDateCopy(self);
-  dh= !h ? 0 : ((int)h - (int)CDateHourOfDay   ((CDate*)self));
-  dm= !m ? 0 : ((int)m - (int)CDateMinuteOfHour((CDate*)self));
-  ds= !s ? 0 : ((int)s - (int)CDateSecondOfDay ((CDate*)self));
+  dh= ((int)h - (int)CDateHourOfDay     ((CDate*)self));
+  dm= ((int)m - (int)CDateMinuteOfHour  ((CDate*)self));
+  ds= ((int)s - (int)CDateSecondOfMinute((CDate*)self));
   CDateAddYMDHMS((CDate*)d, 0, 0, 0, dh, dm, ds);
   return AUTORELEASE(d);
 }

@@ -85,9 +85,9 @@ CArray;
 MSExport BOOL CArrayEquals(const CArray *self, const CArray *anotherArray);
 MSExport BOOL CArrayIdenticals(const CArray *self, const CArray *anotherArray);
 
-// Returned objects are retained.
-// By default, objects are retained unless you use CCreateArrayNoRetain()
-MSExport CArray *CCreateArrayWithOptions(NSUInteger capacity, BOOL retainRelease, BOOL nilItems);
+// Returned arrays are retained.
+// By default, objects are retained unless you use CCreateArrayWithOptions()
+MSExport CArray *CCreateArrayWithOptions(NSUInteger capacity, BOOL noRetainRelease, BOOL nilItems);
 MSExport CArray *CCreateArray(NSUInteger capacity);
 MSExport CArray *CCreateArrayWithObject(id o);
 MSExport CArray *CCreateArrayWithObjects(const id *os, NSUInteger count, BOOL copyItems);
@@ -95,6 +95,19 @@ MSExport CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg);
 
 MSExport void CArrayGrow(CArray *self, NSUInteger n);
 MSExport void CArrayAdjustSize(CArray *self);
+
+// Changing retain/release option. Use theses methods very carefully ! You are
+// supposed knowing what you're doing !
+MSExport void CArraySetRetainReleaseOptionAndRetainAllObjects(CArray *self, BOOL retain);
+// Set the retain/release option to ON and if 'retain' is YES retain all the
+// objects in the array.
+// You may use this function if for example you have created a no retain/release
+// array and need to make a real one from now.
+// Or you have created a no retain/release array with objects already retained
+// and want a normal behavior from now. In this case, 'retain' is NO.
+MSExport void CArrayUnsetRetainReleaseOptionAndReleaseAllObjects(CArray *self, BOOL release);
+// Set the retain/release option to OFF and if 'release' is YES, send a release
+// on all the objects in the array.
 
 MSExport NSUInteger CArrayCount(const CArray *self);
 MSExport id CArrayObjectAtIndex(const CArray *self, NSUInteger i);

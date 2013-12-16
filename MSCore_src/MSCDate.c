@@ -43,9 +43,9 @@
 
 #pragma mark date function declarations
 
-static BOOL _verifyDate(unsigned year, unsigned month, unsigned day,
+static BOOL _verifyYMD(unsigned year, unsigned month, unsigned day,
   BOOL canRaise);
-static BOOL _verifyTime(unsigned hour, unsigned minute, unsigned second,
+static BOOL _verifyHMS(unsigned hour, unsigned minute, unsigned second,
   BOOL canRaise);
 
 #define DaysFrom00000229To20010101 730792LL
@@ -98,7 +98,7 @@ static _dtm _dtmCast(MSTimeInterval ref);
 
 // Algorithm used is a modification of Rata Die algorithm described by Peter
 // Baum on is web site. More information at http://vsg.cape.com/~pbaum
-static inline MSTimeInterval _tmFromDate(
+static inline MSTimeInterval _tmFromYMD(
   unsigned year, unsigned month, unsigned day)
 {
   int y; MSTimeInterval leaps; double x;
@@ -115,18 +115,18 @@ static inline MSTimeInterval _tmFromDate(
          * ((MSTimeInterval)86400);
 }
 
-static inline MSTimeInterval _tmFromDateAndTime(
+static inline MSTimeInterval _tmFromYMDHMS(
   unsigned year, unsigned month , unsigned day,
   unsigned hour, unsigned minute, unsigned seconds)
 {
-  return _tmFromDate(year, month, day)
+  return _tmFromYMD(year, month, day)
     + ((MSTimeInterval)3600) * ((MSTimeInterval)hour  )
     + ((MSTimeInterval)60  ) * ((MSTimeInterval)minute)
     +                           (MSTimeInterval)seconds;
 }
 
 static inline MSTimeInterval _tmFromDtm(_dtm d)
-{ return _tmFromDateAndTime(d.year,d.month,d.day, d.hour,d.minute,d.second); }
+{ return _tmFromYMDHMS(d.year,d.month,d.day, d.hour,d.minute,d.second); }
 
 static inline unsigned _tmSecond(MSTimeInterval t)
 { return (unsigned)( (t+SecsFrom00010101To20010101) %    60LL); }
@@ -194,31 +194,31 @@ BOOL CDateEquals(const CDate *self, const CDate *other)
 
 #pragma mark Creation
 
-BOOL CVerifyDate(unsigned year, unsigned month, unsigned day)
+BOOL CVerifyYMD(unsigned year, unsigned month, unsigned day)
 {
-  return _verifyDate(year, month, day, NO);
+  return _verifyYMD(year, month, day, NO);
 }
-BOOL CVerifyTime(unsigned hour, unsigned minute, unsigned second)
+BOOL CVerifyHMS(unsigned hour, unsigned minute, unsigned second)
 {
-  return _verifyTime(hour, minute, second, NO);
+  return _verifyHMS(hour, minute, second, NO);
 }
 
-CDate *CCreateDateFromDate(unsigned year, unsigned month, unsigned day)
+CDate *CCreateDateFromYMD(unsigned year, unsigned month, unsigned day)
 {
   CDate *d;
-  (void)_verifyDate(year, month, day, YES);
+  (void)_verifyYMD(year, month, day, YES);
   d= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
-  d->interval= _tmFromDate(year, month, day);
+  d->interval= _tmFromYMD(year, month, day);
   return d;
 }
-CDate *CCreateDateFromDateAndTime(unsigned year, unsigned month, unsigned day,
+CDate *CCreateDateFromYMDHMS(unsigned year, unsigned month, unsigned day,
   unsigned hour, unsigned minute, unsigned second)
 {
   CDate *d;
-  (void)_verifyDate(year, month, day, YES);
-  (void)_verifyTime(hour, minute, second, YES);
+  (void)_verifyYMD(year, month, day, YES);
+  (void)_verifyHMS(hour, minute, second, YES);
   d= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
-  d->interval= _tmFromDateAndTime(year, month, day, hour, minute, second);
+  d->interval= _tmFromYMDHMS(year, month, day, hour, minute, second);
   return d;
 }
 
@@ -289,7 +289,7 @@ static inline unsigned _tmDayOfWeek(MSTimeInterval t, unsigned offset)
 static inline MSTimeInterval _yearRef(unsigned y, unsigned offset)
 {
   MSTimeInterval firstDayOfYear,d;
-  firstDayOfYear= _tmFromDate(y, 1, 1);
+  firstDayOfYear= _tmFromYMD(y, 1, 1);
   d= (MSTimeInterval)_tmDayOfWeek(firstDayOfYear, offset);
   d= (d<=3?-d:7-d); // Day of the first week
   return firstDayOfYear + d*86400LL;
@@ -338,7 +338,7 @@ unsigned CDateDayOfYear(CDate *self)
   MSTimeInterval firstDayOfYearReference;
   if (!self) return 0;
   dt= _dtmCast(self->interval);
-  firstDayOfYearReference=  _tmFromDate(dt.year, 1, 1);
+  firstDayOfYearReference=  _tmFromYMD(dt.year, 1, 1);
   return (unsigned)((self->interval - firstDayOfYearReference)/86400LL) + 1;
 }
 
@@ -405,7 +405,7 @@ MSTimeInterval CDateSecondsBetweenDates(CDate *first, CDate *last)
 
 #pragma mark Setters
 
-static MSTimeInterval _tmFromDateAddingYearsAndMonths(CDate *date, int years, int months)
+static MSTimeInterval _tmFromYMDAddingYearsAndMonths(CDate *date, int years, int months)
 {
   _dtm dt; int newYear, newMonth; unsigned lastDayOfMonth;
 
@@ -437,7 +437,7 @@ static MSTimeInterval _tmFromDateAddingYearsAndMonths(CDate *date, int years, in
 void CDateAddYMD(CDate *self, int years, int months, int days)
 {
   if (self) self->interval=
-    _tmFromDateAddingYearsAndMonths(self, years, months) +
+    _tmFromYMDAddingYearsAndMonths(self, years, months) +
     ((MSTimeInterval)days)*86400LL;
 }
 
@@ -445,7 +445,7 @@ void CDateAddYMDHMS(CDate *self, int years, int months , int days,
                                  int hours, int minutes, int seconds)
 {
   if (self) self->interval=
-    _tmFromDateAddingYearsAndMonths(self, years, months) +
+    _tmFromYMDAddingYearsAndMonths(self, years, months) +
     ((MSTimeInterval)days   )*86400LL +
     ((MSTimeInterval)hours  )* 3600LL +
     ((MSTimeInterval)minutes)*   60LL +
@@ -455,9 +455,9 @@ void CDateAddYMDHMS(CDate *self, int years, int months , int days,
 void CDateSetYMDHMS(CDate *self, unsigned year, unsigned month , unsigned day,
                                  unsigned hour, unsigned minute, unsigned sec)
 {
-  (void)_verifyDate(year, month, day, YES);
-  (void)_verifyTime(hour, minute, sec, YES);
-  self->interval= _tmFromDateAndTime(year, month, day, hour, minute, sec);
+  (void)_verifyYMD(year, month, day, YES);
+  (void)_verifyHMS(hour, minute, sec, YES);
+  self->interval= _tmFromYMDHMS(year, month, day, hour, minute, sec);
 }
 
 void CDateSetYear(CDate *self, unsigned year)
@@ -465,7 +465,7 @@ void CDateSetYear(CDate *self, unsigned year)
   if (self) {
     int y= (int)CDateYearOfCommonEra(self);
     if ((int)year != y) {
-      self->interval= _tmFromDateAddingYearsAndMonths(self, (int)year-y, 0);}}
+      self->interval= _tmFromYMDAddingYearsAndMonths(self, (int)year-y, 0);}}
 }
 
 void CDateSetMonth(CDate *self, unsigned month)
@@ -474,7 +474,7 @@ void CDateSetMonth(CDate *self, unsigned month)
     if (month > 0 && month < 13) {
       int m= (int)CDateMonthOfYear(self);
       if ((int)month != m) {
-        self->interval= _tmFromDateAddingYearsAndMonths(self,0,(int)month-m);}}
+        self->interval= _tmFromYMDAddingYearsAndMonths(self,0,(int)month-m);}}
     else MSReportError(MSRangeError, MSFatalError, MSInvalidMonthError,
       "Impossible to set month to %u", month);}
 }
@@ -483,11 +483,11 @@ void CDateSetWeek(CDate *self, unsigned week)
 {
   BOOL err= YES;
   if (self) {
-    if (week > 0 && week < 54) {
+    if (0 < week && week < 54) {
       int w= (int)CDateWeekOfYear(self);
       if ((int)week == w) err= NO;
       else {
-        self->interval+= ((int)week-w)*7LL;
+        self->interval+= ((int)week-w)*7LL*86400LL;
         // An eror may occur on week 53 if this year it not exists.
         if (week == CDateWeekOfYear(self)) err= NO;}}}
   if (err) MSReportError(MSRangeError, MSFatalError, MSInvalidWeekError,
@@ -498,11 +498,12 @@ void CDateSetDay(CDate *self, unsigned day)
 {
   if (self) {
     _dtm dt= _dtmCast(self->interval);
-    if (day > 0 && day < (day <= _lastDayOfMonth(dt.year, dt.month))) {
+    if (0 < day && day <= _lastDayOfMonth(dt.year, dt.month)) {
       dt.day= day;
       self->interval= _tmFromDtm(dt);}
     else MSReportError(MSRangeError, MSFatalError, MSInvalidDayError,
-      "Impossible to set day of month to %u", day);}
+      "Impossible to set day of month to %u (last: %u)",
+      day, _lastDayOfMonth(dt.year, dt.month));}
 }
 
 void CDateSetDayOfYear(CDate *self, unsigned doy)
@@ -510,7 +511,7 @@ void CDateSetDayOfYear(CDate *self, unsigned doy)
   if (self) {
     unsigned y= CDateYearOfCommonEra(self);
     if (doy > 0 && (doy < 366 || (doy == 367 && _isLeap(y)))) {
-      self->interval= _tmFromDate(y,1,1) +
+      self->interval= _tmFromYMD(y,1,1) +
                       ((MSTimeInterval)(doy-1))*86400LL +
                       _tmTime(self->interval);}
     else MSReportError(MSRangeError, MSFatalError, MSInvalidDayError,
@@ -519,7 +520,7 @@ void CDateSetDayOfYear(CDate *self, unsigned doy)
 
 #pragma mark date functions
 
-static BOOL _verifyDate(unsigned year, unsigned month, unsigned day, BOOL canRaise)
+static BOOL _verifyYMD(unsigned year, unsigned month, unsigned day, BOOL canRaise)
 {
   if (year == 0) {
     if (canRaise) MSReportError(MSRangeError, MSFatalError, MSInvalidMonthError,
@@ -536,7 +537,7 @@ static BOOL _verifyDate(unsigned year, unsigned month, unsigned day, BOOL canRai
   return YES;
 }
 
-static inline BOOL _verifyTime(unsigned hour, unsigned minute, unsigned second, BOOL canRaise)
+static inline BOOL _verifyHMS(unsigned hour, unsigned minute, unsigned second, BOOL canRaise)
 {
   if (hour > 23 || minute > 59 || second > 59) {
     if (canRaise) MSReportError(MSRangeError, MSFatalError, MSInvalidTimeError,
@@ -586,7 +587,7 @@ MSTimeInterval timeIntervalForFirstDayOfMonth(MSTimeInterval timeInterval)
 {
   _dtm dt= _dtmCast(timeInterval);
   if (dt.day == 1) return _tmWithoutTime(timeInterval);
-  return _tmFromDate(dt.year, dt.month, 1);
+  return _tmFromYMD(dt.year, dt.month, 1);
 }
 
 MSTimeInterval timeIntervalForLastDayOfMonth(MSTimeInterval timeInterval)
@@ -596,21 +597,21 @@ MSTimeInterval timeIntervalForLastDayOfMonth(MSTimeInterval timeInterval)
   dt= _dtmCast(timeInterval);
   day= _lastDayOfMonth(dt.year, dt.month);
   if (dt.day == day) return _tmWithoutTime(timeInterval);
-  return _tmFromDate(dt.year, dt.month, day);
+  return _tmFromYMD(dt.year, dt.month, day);
 }
 
 MSTimeInterval timeIntervalForFirstDayOfYear(MSTimeInterval timeInterval)
 {
   _dtm dt= _dtmCast(timeInterval);
   if (dt.day == 1 && dt.month == 1) return _tmWithoutTime(timeInterval);
-  return _tmFromDate(dt.year, 1, 1);
+  return _tmFromYMD(dt.year, 1, 1);
 }
 
 MSTimeInterval timeIntervalForLastDayOfYear(MSTimeInterval timeInterval)
 {
   _dtm dt= _dtmCast(timeInterval);
   if (dt.day == 31 && dt.month == 12) return _tmWithoutTime(timeInterval);
-  return _tmFromDate(dt.year, 12, 31);
+  return _tmFromYMD(dt.year, 12, 31);
 }
 */
 #pragma mark Description

@@ -261,6 +261,23 @@ void CArrayAdjustSize(CArray *self)
   _CClassAdjustSize((id)self, self->count, sizeof(id), &self->size, (void**)&self->pointers);
 }
 
+void CArraySetRetainReleaseOptionAndRetainAllObjects(CArray *self, BOOL retain)
+{
+  self->flag.noRetainRelease= NO;
+  if (retain) {
+    NSUInteger n= self->count;
+    id *p= self->pointers;
+    for (; n; n--) RETAIN(*p++);}
+}
+void CArrayUnsetRetainReleaseOptionAndReleaseAllObjects(CArray *self, BOOL release)
+{
+  self->flag.noRetainRelease= YES;
+  if (release) {
+    NSUInteger n= self->count;
+    id *p= self->pointers;
+    for (; n; n--) RELEASE(*p++);}
+}
+
 NSUInteger CArrayCount(const CArray *self)
 {
   return (self ? self->count : 0);

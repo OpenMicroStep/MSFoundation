@@ -101,10 +101,11 @@ Eric Baradat :  k18rt@free.fr
 - (id)dateByAddingWeeks:(int)weeks;
 - (id)dateByAddingHours:(int)hours minutes:(int)minutes seconds:(int)seconds;
 
-// Set 0 for no change
 - (id)dateByReplacingYear:(unsigned)y month:(unsigned)m day:(unsigned)d;
+  // 0 means no change.
 - (id)dateByReplacingWeek:(unsigned)w;
-- (id)dateByReplacingHour:(unsigned)h minutes:(unsigned)m seconds:(unsigned)s;
+  // 0 means no change.
+- (id)dateByReplacingHour:(unsigned)h minute:(unsigned)m second:(unsigned)s;
 
 - (id)dateOfFirstDayOfYear;
 - (id)dateOfLastDayOfYear;

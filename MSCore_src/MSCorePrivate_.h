@@ -135,9 +135,7 @@
 #include "MSCDate.h"
 #include "MSCDecimal.h"
 #include "m_apm.h"
-/* included MAPM library rewritten to match our need */
-//#include "../MAPM.subproj/m_apm.h" // MSCDecimal
-//#include "MSCDictionary.h"
+#include "MSCDictionary.h"
 //#include "MSCMutex.h"
 //#include "MSCNaturalArray.h"
 

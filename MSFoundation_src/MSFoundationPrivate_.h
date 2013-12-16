@@ -53,4 +53,5 @@
 #import "MSCouple.h"
 #import "MSDate.h"
 #import "MSDecimal.h"
+#import "MSDictionary.h"
 #import "MSUnicodeBuffer.h"
