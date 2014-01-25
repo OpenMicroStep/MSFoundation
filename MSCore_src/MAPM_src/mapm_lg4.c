@@ -109,7 +109,7 @@ void M_log_near_1(M_APM rr, int places, const M_APM xx)
   m_apm_multiply(tmp0, MM_Two, tmpS);
   m_apm_round(rr, places, tmp0);
   
-  m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmpS) ;
-  m_apm_free(term) ;
+  m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmpS);
+  m_apm_free(term);
 }
 /****************************************************************************/

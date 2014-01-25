@@ -49,45 +49,46 @@
 typedef unsigned short unichar;
 #endif // defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 
-MSExport BOOL CUnicharIsAlnum(unichar c) ;
-MSExport BOOL CUnicharIsAlpha(unichar c) ;
-MSExport BOOL CUnicharIsControl(unichar c) ;
-MSExport BOOL CUnicharIsUpper(unichar c) ;
-MSExport BOOL CUnicharIsLower(unichar c) ;
-MSExport BOOL CUnicharIsSpace(unichar c) ; // warning : character 0x00a0 (&nbsp;) is also a white space : should I keep it that way ?
-MSExport BOOL CUnicharIsSolid(unichar c) ; // not a space and not and end of line
-MSExport BOOL CUnicharIsDigit(unichar c) ;
-MSExport BOOL CUnicharIsPunct(unichar c) ;
-MSExport BOOL CUnicharIsWordChar(unichar c) ;
-MSExport BOOL CUnicharIsPrintable(unichar c) ;
-MSExport BOOL CUnicharIsLetter(unichar c) ;
-MSExport BOOL CUnicharIsHexa(unichar c) ;
-MSExport BOOL CUnicharIsEOL(unichar c) ;
-MSExport BOOL CUnicharIsSeparator(unichar c) ;
-MSExport BOOL CUnicharIsIsoDigit(unichar c) ;
-MSExport BOOL CUnicharIsSpaceOrEOL(unichar c) ;
+MSExport BOOL CUnicharIsAlnum     (unichar c);
+MSExport BOOL CUnicharIsAlpha     (unichar c);
+MSExport BOOL CUnicharIsControl   (unichar c);
+MSExport BOOL CUnicharIsUpper     (unichar c);
+MSExport BOOL CUnicharIsLower     (unichar c);
+MSExport BOOL CUnicharIsSpace     (unichar c); // warning : character 0x00a0 (&nbsp;) is also a
+                                               // white space : should I keep it that way ?
+MSExport BOOL CUnicharIsSolid     (unichar c); // not a space and not and end of line
+MSExport BOOL CUnicharIsDigit     (unichar c);
+MSExport BOOL CUnicharIsPunct     (unichar c);
+MSExport BOOL CUnicharIsWordChar  (unichar c);
+MSExport BOOL CUnicharIsPrintable (unichar c);
+MSExport BOOL CUnicharIsLetter    (unichar c);
+MSExport BOOL CUnicharIsHexa      (unichar c);
+MSExport BOOL CUnicharIsEOL       (unichar c);
+MSExport BOOL CUnicharIsSeparator (unichar c);
+MSExport BOOL CUnicharIsIsoDigit  (unichar c);
+MSExport BOOL CUnicharIsSpaceOrEOL(unichar c);
 
-MSExport unichar CUnicharToUpper(unichar c) ;
-MSExport unichar CUnicharToLower(unichar c) ;
+MSExport unichar CUnicharToUpper(unichar c);
+MSExport unichar CUnicharToLower(unichar c);
 
-MSExport unichar CAnsiToUnicode(MSByte c) ;
-MSExport unichar CMacRomanToUnicode(MSByte c) ;
-MSExport unichar CNextstepToUnicode(MSByte c) ;
-MSExport unichar CIsoLatin2ToUnicode(MSByte c) ;
-MSExport unichar CDOSToUnicode(MSByte c) ;
-MSExport unichar CWindows1250ToUnicode(MSByte c) ;
-MSExport unichar CWindows1251ToUnicode(MSByte c) ;
-MSExport unichar CWindows1253ToUnicode(MSByte c) ;
-MSExport unichar CWindows1254ToUnicode(MSByte c) ;
-MSExport unichar CAdobeSymbolToUnicode(MSByte c) ;
+MSExport unichar CAnsiToUnicode       (MSByte c);
+MSExport unichar CMacRomanToUnicode   (MSByte c);
+MSExport unichar CNextstepToUnicode   (MSByte c);
+MSExport unichar CIsoLatin2ToUnicode  (MSByte c);
+MSExport unichar CDOSToUnicode        (MSByte c);
+MSExport unichar CWindows1250ToUnicode(MSByte c);
+MSExport unichar CWindows1251ToUnicode(MSByte c);
+MSExport unichar CWindows1253ToUnicode(MSByte c);
+MSExport unichar CWindows1254ToUnicode(MSByte c);
+MSExport unichar CAdobeSymbolToUnicode(MSByte c);
 
-MSExport BOOL CUnicharInsensitiveEquals(unichar ca, unichar cb) ;
-MSExport NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb) ;
+MSExport BOOL CUnicharInsensitiveEquals(unichar ca, unichar cb);
+MSExport NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb);
 
-MSExport BOOL CUnicharsInsensitiveEquals(const unichar *ba, const unichar *bb, NSUInteger length) ;
-MSExport NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, const unichar *bb, NSUInteger length) ;
+MSExport BOOL CUnicharsInsensitiveEquals(const unichar *ba, const unichar *bb, NSUInteger length);
+MSExport NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, const unichar *bb, NSUInteger length);
 
-MSExport NSUInteger CUnicharsInsensitiveFind(const unichar *b, NSUInteger l, const unichar *bf, NSUInteger lf) ;
+MSExport NSUInteger CUnicharsInsensitiveFind(const unichar *b, NSUInteger l, const unichar *bf, NSUInteger lf);
 
 typedef BOOL (*CUnicharChecker)(unichar);
 

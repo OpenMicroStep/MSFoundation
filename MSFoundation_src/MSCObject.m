@@ -41,7 +41,7 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 #pragma mark NSObject hash:
 

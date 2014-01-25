@@ -104,7 +104,7 @@
 #define M_set_string_error_msg "\'M_restore_stack(3, context)\', Out of memory"
 
 /****************************************************************************/
-void m_apm_set_long(M_APM atmp, long mm) { set_mantissa_exponent_sign(atmp, (unsigned long long)(mm < 0 ? -mm : mm), 0, (mm < 0 ? -1 : 1)) ; }
+void m_apm_set_long(M_APM atmp, long mm) { set_mantissa_exponent_sign(atmp, (unsigned long long)(mm < 0 ? -mm : mm), 0, (mm < 0 ? -1 : 1)); }
 
 /****************************************************************************/
 void    set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign)
@@ -123,10 +123,10 @@ void    set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int expone
   M_ulong_2_ascii(buf2, mm, 1);     /* convert long -> ascii in base 10 */
   buf = buf2;
   
-  atmp->m_apm_sign = sign ;
+  atmp->m_apm_sign = sign;
   
   len = (int)strlen(buf);
-  atmp->m_apm_exponent = len + exponent ;
+  atmp->m_apm_exponent = len + exponent;
   
   /* least significant nibble of ODD data-length must be 0 */
   
@@ -160,11 +160,11 @@ void m_apm_set_string(M_APM ctmp, const char *s_in)
   char ch, *cp, *s, *p;
   void *vp;
   int i, j, zflag, exponent, sign;
-  size_t len = strlen(s_in) + 32 ;
+  size_t len = strlen(s_in) + 32;
   
   if (!(s = (char *)MAPM_MALLOC(len))) {
     M_apm_log_error_msg(M_APM_MALLOC_ERROR, M_set_string_error_msg);
-    return ;
+    return;
   }
   strcpy(s,s_in);
   
@@ -234,9 +234,9 @@ void m_apm_set_string(M_APM ctmp, const char *s_in)
   {
     if ((vp = MAPM_REALLOC(ctmp->m_apm_data, (size_t)(j + 32))) == NULL)
     {
-      MAPM_FREE(s) ;
+      MAPM_FREE(s);
       M_apm_log_error_msg(M_APM_MALLOC_ERROR, M_set_string_error_msg);
-      return ;
+      return;
     }
     
     ctmp->m_apm_malloclength = j + 28;
@@ -254,7 +254,7 @@ void m_apm_set_string(M_APM ctmp, const char *s_in)
     if (((int)ch & 0xFF) >= 100)
     {
       M_set_to_zero(ctmp);
-      MAPM_FREE(s) ;
+      MAPM_FREE(s);
       M_apm_log_error_msg(M_APM_RETURN, "\'m_apm_set_string()\', Non-digit char found in parse");
       
       //   M_apm_log_error_msg(M_APM_RETURN, "Text =");
@@ -280,7 +280,7 @@ void m_apm_set_string(M_APM ctmp, const char *s_in)
     M_apm_normalize(ctmp);
   }
   
-  MAPM_FREE(s) ;
+  MAPM_FREE(s);
 }
 /****************************************************************************/
 void m_apm_to_string(char *s, int places, const M_APM mtmp)

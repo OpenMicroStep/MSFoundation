@@ -128,7 +128,7 @@ void M_check_log_places(int places)
     m_apm_subtract(MM_lc_log10, tmp9, tmp8);              /* log(10) */
     m_apm_reciprocal(MM_lc_log10R, dplaces, MM_lc_log10); /* 1 / log(10) */
     
-    m_apm_free(tmp6) ; m_apm_free(tmp7) ; m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+    m_apm_free(tmp6); m_apm_free(tmp7); m_apm_free(tmp8); m_apm_free(tmp9);
   }
 }
 /****************************************************************************/
@@ -233,8 +233,8 @@ void M_log_AGM_R_func(M_APM rr, int places, const M_APM aa, const M_APM bb)
   m_apm_subtract(tmp4, MM_One, tmp3);
   m_apm_reciprocal(rr, places, tmp4);
   
-  m_apm_free(tmpA0) ; m_apm_free(tmpB0) ; m_apm_free(tmpC2) ;
-  m_apm_free(tmp4) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmp3) ;
-  m_apm_free(sum) ; m_apm_free(pow_2) ;
+  m_apm_free(tmpA0); m_apm_free(tmpB0); m_apm_free(tmpC2);
+  m_apm_free(tmp4); m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmp3);
+  m_apm_free(sum); m_apm_free(pow_2);
 }
 /****************************************************************************/

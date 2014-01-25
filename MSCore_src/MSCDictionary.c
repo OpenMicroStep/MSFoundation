@@ -39,7 +39,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 typedef struct _nodeStruct {
    id key;
@@ -255,8 +255,8 @@ void CDictionarySetObjectForKey(CDictionary *self, id o, id k)
 
 CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self)
 {
-  if (!self) return NULL;
   CDictionaryEnumerator *de;
+  if (!self) return NULL;
   if (!(de= MSMalloc(sizeof(CDictionaryEnumerator),"CDictionaryEnumerator"))) {
     MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode,
       "CDictionaryEnumerator allocation error");

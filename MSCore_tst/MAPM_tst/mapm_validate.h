@@ -1,27 +1,28 @@
-/* MSExceptionAdditions.h
- 
- This file is is a part of the MicroStep Framework.
- 
- Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
- Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
-Herve Malaingre : herve@malaingre.com
 
-
+/*
+ 
+ mapm_validate.h
+ 
+ This file is is a part of the MicroStep Application Server over Http Framework.
+ 
+ Initial copyright LOGITUD Solutions (logitud@logitud.fr) since 2012
+ 
+ Herve Malaingre : herve@malaingre.com
+  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
  
  This software is governed by the CeCILL-C license under French law and
- abiding by the rules of distribution of free software.  You can  use, 
+ abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
- "http://www.cecill.info". 
+ "http://www.cecill.info".
  
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
- liability. 
+ liability.
  
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
@@ -30,23 +31,23 @@ Herve Malaingre : herve@malaingre.com
  therefore means  that it is reserved for developers  and  experienced
  professionals having in-depth computer knowledge. Users are therefore
  encouraged to load and test the software's suitability as regards their
- requirements in conditions enabling the security of their systems and/or 
- data to be ensured and,  more generally, to use and operate it in the 
- same conditions as regards security. 
+ requirements in conditions enabling the security of their systems and/or
+ data to be ensured and,  more generally, to use and operate it in the
+ same conditions as regards security.
  
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
- WARNING : this header file cannot be included alone, please direclty
- include <MSFoundation/MSFoundation.h>
+ 
+ This file is the header file to be used in order to test the included 
+ MAPM Library - Copyright (C) 1999 - 2007   Michael C. Ring
+
  */
 
-@interface NSException (MSAdditions)
-+ (void)raise:(NSString *)name from:(id)object in:(SEL)selector format:(NSString *)format arguments:(va_list)argList;
-+ (void)raise:(NSString *)name from:(id)object in:(SEL)selector format:(NSString *)format, ...;
-@end
 
-MSExport void MSRaise(NSString *name, NSString *format, ...);
-MSExport void MSRaiseV(NSString *name, NSString *format, va_list argList);
-MSExport void MSRaiseFrom(NSString *name, id object, SEL selector, NSString *format, ...);
-MSExport void MSRaiseFromV(NSString *name, id object, SEL selector, NSString *format, va_list argList);
+#ifndef MSCODE_MAPM_VALIDATE_H
+#define MSCODE_MAPM_VALIDATE_H
+
+extern int mapm_validate(int argc, const char *argv[]);
+
+#endif /* MSCODE_MAPM_VALIDATE_H */

@@ -123,8 +123,8 @@ void m_apm_integer_pow(M_APM rr, int places, const M_APM aa, int mexp)
     m_apm_round(rr, places, tmpy);
   }
   
-  m_apm_free(tmp0) ;
-  m_apm_free(tmpy) ;
-  m_apm_free(tmpz) ;
+  m_apm_free(tmp0);
+  m_apm_free(tmpy);
+  m_apm_free(tmpz);
 }
 /****************************************************************************/

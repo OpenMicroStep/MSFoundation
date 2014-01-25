@@ -39,7 +39,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #pragma mark c-like class methods
 
@@ -85,7 +85,7 @@ BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other)
 {
   if (self == other) return YES;
   if (self && other) {
-    return m_apm_compare((M_APM)self, (M_APM)other) == 0 ? YES : NO ;}
+    return m_apm_compare((M_APM)self, (M_APM)other) == 0 ? YES : NO;}
   return NO;
 }
 

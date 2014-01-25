@@ -41,7 +41,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #ifdef MSCORE_STANDALONE
 
@@ -88,7 +88,7 @@ id _CRetain(id object)
 void _CRelease(id object)
 {
   if (object && object->isa) {
-if (object->isa==__allClasses+CDictionaryClassIndex)printf("_CRelease %p %lu\n",object,object->refCount);
+//if ((CClass*)object->isa==__allClasses+CDictionaryClassIndex)printf("_CRelease %p %lu\n",object,object->refCount);
     // a 0 refCount means the object is retained once, so we can deallocate it after the release;
     if (object->refCount) { object->refCount --; }
     else if (CISA(object)->deallocator) { CISA(object)->deallocator((void *)object); }

@@ -80,11 +80,11 @@
 /****************************************************************************/
 void m_apm_integer_div_rem(M_APM qq, M_APM rr, const M_APM aa, const M_APM bb)
 {
-  M_APM tmp = m_apm_new() ;
+  M_APM tmp = m_apm_new();
   m_apm_integer_divide(qq, aa, bb);
   m_apm_multiply(tmp, qq, bb);
   m_apm_subtract(rr, aa, tmp);
-  m_apm_free(tmp) ;
+  m_apm_free(tmp);
 }
 
 /****************************************************************************/
@@ -116,7 +116,7 @@ void m_apm_integer_divide(M_APM rr, const M_APM aa, const M_APM bb)
 /****************************************************************************/
 void M_apm_sdivide(M_APM r, int places, const M_APM a, const M_APM b)
 {
-  M_APM M_div_worka, M_div_workb, M_div_tmp7, M_div_tmp8, M_div_tmp9 ;
+  M_APM M_div_worka, M_div_workb, M_div_tmp7, M_div_tmp8, M_div_tmp9;
   int j, k, m, b0, sign, nexp, indexr, icompare, iterations;
   long    trial_numer;
   void *vp;
@@ -135,11 +135,11 @@ void M_apm_sdivide(M_APM r, int places, const M_APM a, const M_APM b)
    *  (also make the working copies positive)
    */
   
-  M_div_worka = m_apm_new() ;
-  M_div_workb = m_apm_new() ;
-  M_div_tmp7 = m_apm_new() ;
-  M_div_tmp8 = m_apm_new() ;
-  M_div_tmp9 = m_apm_new() ;
+  M_div_worka = m_apm_new();
+  M_div_workb = m_apm_new();
+  M_div_tmp7 = m_apm_new();
+  M_div_tmp8 = m_apm_new();
+  M_div_tmp9 = m_apm_new();
   
   if (b->m_apm_data[0] >= 50)
   {
@@ -178,10 +178,10 @@ void M_apm_sdivide(M_APM r, int places, const M_APM a, const M_APM b)
   {
     if ((vp = MAPM_REALLOC(r->m_apm_data, (size_t)(k + 32))) == NULL)
     {
-      m_apm_free(M_div_worka) ; m_apm_free(M_div_workb) ;
-      m_apm_free(M_div_tmp7) ; m_apm_free(M_div_tmp8) ; m_apm_free(M_div_tmp9) ;
+      m_apm_free(M_div_worka); m_apm_free(M_div_workb);
+      m_apm_free(M_div_tmp7); m_apm_free(M_div_tmp8); m_apm_free(M_div_tmp9);
       M_apm_log_error_msg(M_APM_MALLOC_ERROR, "\'M_apm_sdivide\', Out of memory");
-      return ;
+      return;
     }
     
     r->m_apm_malloclength = k + 28;
@@ -320,7 +320,7 @@ void M_apm_sdivide(M_APM r, int places, const M_APM a, const M_APM b)
   r->m_apm_datalength = iterations;
   
   M_apm_normalize(r);
-  m_apm_free(M_div_worka) ; m_apm_free(M_div_workb) ;
-  m_apm_free(M_div_tmp7) ; m_apm_free(M_div_tmp8) ; m_apm_free(M_div_tmp9) ;
+  m_apm_free(M_div_worka); m_apm_free(M_div_workb);
+  m_apm_free(M_div_tmp7); m_apm_free(M_div_tmp8); m_apm_free(M_div_tmp9);
 }
 /****************************************************************************/

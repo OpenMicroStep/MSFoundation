@@ -1,6 +1,6 @@
 // mscore_ccouple_validate.c, ecb, 130911
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 #include "mscore_validate.h"
 
 static inline int ccouple_create(void)

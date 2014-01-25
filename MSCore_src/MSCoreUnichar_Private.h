@@ -1,6 +1,6 @@
 // ********************************* FILE FROM UNICODE
 
-/*   MSCoreUnicharPrivate_.h
+/*   MSCoreUnichar_Private.h
  
  This file is is a part of the MicroStep Framework.
  

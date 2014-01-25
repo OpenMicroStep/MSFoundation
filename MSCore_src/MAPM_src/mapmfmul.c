@@ -272,38 +272,38 @@ extern void M_fast_mul_fft(UCHAR *, UCHAR *, UCHAR *, int);
 /****************************************************************************/
 M_APM_FMC M_init_fmul_context(void)
 {
-  M_APM_FMC context ;
-  int i ;
+  M_APM_FMC context;
+  int i;
   
   if (!(context = (M_APM_FMC)MAPM_MALLOC(sizeof(M_APM_FMC_struct)))) {
     /* fatal, this does not return */
     M_apm_log_error_msg(M_APM_MALLOC_ERROR, "\'M_init_fmul_context\', Out of memory");
-    return NULL ;
+    return NULL;
   }
   
   
   // fmul
-  for (i = 0 ; i < M_STACK_SIZE ; i++) {
-    context->_mul_stack_data[i] = NULL ;
-    context->_mul_stack_data_size[i] = 0 ;
+  for (i = 0; i < M_STACK_SIZE; i++) {
+    context->_mul_stack_data[i] = NULL;
+    context->_mul_stack_data_size[i] = 0;
   }
   
-  return (context) ;
+  return (context);
 }
 
 /****************************************************************************/
 void M_free_fmul_context(M_APM_FMC context)
 {
   if (context) {
-    int i ;
-    for (i = 0 ; i < M_STACK_SIZE ; i++) {
+    int i;
+    for (i = 0; i < M_STACK_SIZE; i++) {
       if (context->_mul_stack_data_size[i] > 0) {
-        MAPM_FREE(context->_mul_stack_data[i]) ;
+        MAPM_FREE(context->_mul_stack_data[i]);
       }
     }
     
   }
-  MAPM_FREE(context) ;
+  MAPM_FREE(context);
 }
 /****************************************************************************/
 void M_push_mul_int(int val, M_APM_FMC context)
@@ -326,16 +326,16 @@ void M_fast_multiply(M_APM rr, const M_APM aa, const M_APM bb)
 {
   void *vp;
   int ii, k, nexp, sign;
-  M_APM_FMC context ;
-  M_APM M_ain, M_bin ;
+  M_APM_FMC context;
+  M_APM M_ain, M_bin;
   
-  context = M_init_fmul_context() ;
+  context = M_init_fmul_context();
   
   exp_stack_ptr   = -1;
   M_mul_stack_ptr = -1;
   
-  M_ain = m_apm_new() ;
-  M_bin = m_apm_new() ;
+  M_ain = m_apm_new();
+  M_bin = m_apm_new();
   m_apm_copy(M_ain, aa);
   m_apm_copy(M_bin, bb);
   
@@ -364,7 +364,7 @@ void M_fast_multiply(M_APM rr, const M_APM aa, const M_APM bb)
     if ((vp = MAPM_REALLOC(rr->m_apm_data, (size_t)(k + 32))) == NULL) {
       /* fatal, this does not return */
       M_apm_log_error_msg(M_APM_MALLOC_ERROR, "\'M_fast_multiply\', Out of memory");
-      return ;
+      return;
     }
     
     rr->m_apm_malloclength = k + 28;
@@ -403,9 +403,9 @@ void M_fast_multiply(M_APM rr, const M_APM aa, const M_APM bb)
   rr->m_apm_datalength = 4 * ii;
   
   M_apm_normalize(rr);
-  m_apm_free(M_ain) ;
-  m_apm_free(M_bin) ;
-  M_free_fmul_context(context) ;
+  m_apm_free(M_ain);
+  m_apm_free(M_bin);
+  M_free_fmul_context(context);
 }
 /****************************************************************************/
 /*
@@ -418,7 +418,7 @@ void M_fast_multiply(M_APM rr, const M_APM aa, const M_APM bb)
  */
 void M_fmul_div_conq(UCHAR *rr, UCHAR *aa, UCHAR *bb, int sz, M_APM_FMC context)
 {
-  int stmp, itmp, mii ;
+  int stmp, itmp, mii;
   UCHAR *fmul_a1, *fmul_a0, *fmul_a9, *fmul_b1, *fmul_b0, *fmul_b9, *fmul_t0;
   
 #ifdef NO_FFT_MULTIPLY
@@ -669,7 +669,7 @@ int M_next_power_of_2(int n)
     if (++ct == MM_BIT_LIMIT) {
       /* fatal, this does not return */
       M_apm_log_error_msg(M_APM_FATAL, "\'M_next_power_of_2\', ERROR :sizeof(int) too small ??");
-      return 0 ;
+      return 0;
     }
   }
   

@@ -56,11 +56,11 @@
 
 @interface NSCoder (MSObjectAdditions)
 
-- (void)encodeCArray:(CArray *)objects forKey:(NSString *)key ;
-- (NSUInteger)decodeInCArray:(CArray *)objects retainObjects:(BOOL)flag forKey:(NSString *)key ;
+- (void)encodeCArray:(CArray *)objects forKey:(NSString *)key;
+- (NSUInteger)decodeInCArray:(CArray *)objects retainObjects:(BOOL)flag forKey:(NSString *)key;
 
-- (void)encodeUnsignedInteger:(NSUInteger)intv forKey:(NSString *)key ;
-- (NSUInteger)decodeUnsignedIntegerForKey:(NSString *)key ;
+- (void)encodeUnsignedInteger:(NSUInteger)intv forKey:(NSString *)key;
+- (NSUInteger)decodeUnsignedIntegerForKey:(NSString *)key;
 
 #ifdef MUST_DEFINE_KEY_CODING
 /*

@@ -183,7 +183,9 @@
 #ifndef M__APM__INCLUDED
 #define M__APM__INCLUDED
 
+#ifndef WIN32 // Already defined in windef.h
 typedef unsigned char UCHAR;
+#endif
 
 typedef CDecimal *M_APM;
 // can be uses as M_APM or CDecimal *
@@ -205,10 +207,10 @@ typedef CDecimal *M_APM;
 #define M_APM_MALLOC_ERROR    2
 #define M_APM_INIT_ERROR      3 // memory erro in a specific M_APM iniside initialization
 
-typedef void  (*M_apm_log_fn)(int, const char *) ;
-typedef M_APM  (*M_apm_alloc_fn)(void) ;
-typedef void  (*M_apm_free_fn)(void *) ;
-typedef void  (*M_apm_string_components_fn)(int, const char *) ;
+typedef void  (*M_apm_log_fn)(int, const char *);
+typedef M_APM  (*M_apm_alloc_fn)(void);
+typedef void  (*M_apm_free_fn)(void *);
+typedef void  (*M_apm_string_components_fn)(int, const char *);
 
 // === end of addition ===
 
@@ -256,12 +258,12 @@ MSExport void  m_apm_free(void *);      // uses the m_apm_deallocate() function
 
 MSExport char *m_apm_lib_version(char *);
 MSExport char *m_apm_lib_short_version(char *);
-MSExport void  m_apm_set_callbacks(M_apm_alloc_fn fn1, M_apm_free_fn fn2, M_apm_log_fn fn3, M_apm_string_components_fn fn4) ; // if null uses the standards functions
+MSExport void  m_apm_set_callbacks(M_apm_alloc_fn fn1, M_apm_free_fn fn2, M_apm_log_fn fn3, M_apm_string_components_fn fn4); // if null uses the standards functions
 
 MSExport void m_apm_set_string(M_APM, const char *);
 MSExport void m_apm_set_double(M_APM, double);
 MSExport void m_apm_set_long(M_APM, long);
-MSExport void set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign) ;
+MSExport void set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign);
 
 MSExport void  m_apm_to_string(char *, int, const M_APM);
 MSExport void  m_apm_to_fixpt_string(char *, int, M_APM);

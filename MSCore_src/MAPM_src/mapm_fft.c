@@ -131,12 +131,12 @@ void M_fast_mul_fft(UCHAR *ww, UCHAR *uu, UCHAR *vv, int nbytes)
   
   if (!(a = (double *)MAPM_MALLOC((size_t)(nn + 8) * sizeof(double)))) {
     M_apm_log_error_msg(M_APM_MALLOC_ERROR, M_fft_error_msg);
-    return ;
+    return;
   }
   if (!(b = (double *)MAPM_MALLOC((size_t)(nn + 8) * sizeof(double)))) {
-    MAPM_FREE(a) ; a = NULL ;
+    MAPM_FREE(a); a = NULL;
     M_apm_log_error_msg(M_APM_MALLOC_ERROR, M_fft_error_msg);
-    return ;
+    return;
   }
   
   /*

@@ -62,7 +62,7 @@
  *      initial version
  */
 #include "m_apm_lc.h"
-#include "mscore_validate.h"
+//#include "mscore_validate.h"
 
 static int __verbose= 0;
 
@@ -242,10 +242,10 @@ static inline void gcd_local(M_APM r, M_APM u, M_APM v)
   
   m_apm_copy(r, tmpU);
   
-  m_apm_free(tmpD) ;
-  m_apm_free(tmpN) ;
-  m_apm_free(tmpU) ;
-  m_apm_free(tmpV) ;
+  m_apm_free(tmpD);
+  m_apm_free(tmpN);
+  m_apm_free(tmpU);
+  m_apm_free(tmpV);
 }
 
 /****************************************************************************/
@@ -261,7 +261,7 @@ static inline void log_local(M_APM outval, int places, M_APM inval)
   
   dplaces = places + 8;
   
-  tmp6 = m_apm_new() ;
+  tmp6 = m_apm_new();
   tmp7 = m_apm_new();
   tmp8 = m_apm_new();
   tmp9 = m_apm_new();
@@ -278,10 +278,10 @@ static inline void log_local(M_APM outval, int places, M_APM inval)
   m_apm_subtract(tmp6, tmp9, tmp8);
   m_apm_round(outval, places, tmp6);
   
-  m_apm_free(tmp6) ;
-  m_apm_free(tmp7) ;
-  m_apm_free(tmp8) ;
-  m_apm_free(tmp9) ;
+  m_apm_free(tmp6);
+  m_apm_free(tmp7);
+  m_apm_free(tmp8);
+  m_apm_free(tmp9);
 }
 
 
@@ -2919,8 +2919,8 @@ static inline int mapm_test_special_set(void)
   if (pass == 0)
     if (__verbose) fprintf(stdout,"... Set String & Fixed Point Formatting passes.\n");
   
-  if (__verbose) fprintf(stdout,"M_APM class is ... %s\n", NAMEOFCLASS(mapm1)) ;
-  if (__verbose) fprintf(stdout,"Trying release on M_APM ...") ;
+  if (__verbose) fprintf(stdout,"M_APM class is ... %s\n", NAMEOFCLASS(mapm1));
+  if (__verbose) fprintf(stdout,"Trying release on M_APM ...");
   RELEASE(mapm1);
   RELEASE(mapm2);
   RELEASE(mapm3);

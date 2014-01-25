@@ -187,7 +187,7 @@
 #ifndef M__APM_LOCAL_INC
 #define M__APM_LOCAL_INC
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 /* 
  *   this supports older (and maybe newer?) Borland compilers.
@@ -349,16 +349,16 @@ extern M_APM MM_lc_log10;
 extern M_APM MM_lc_log10R;
 extern M_APM MM_RND_AA;
 extern M_APM MM_RND_MM;
-extern M_APM MM_EXP_LOG2R ;
-extern M_APM MM_EXP_512R ;
+extern M_APM MM_EXP_LOG2R;
+extern M_APM MM_EXP_512R;
 
-extern UCHAR MM_MUL_DIV[10000] ;
-extern UCHAR MM_MUL_REM[10000] ;
+extern UCHAR MM_MUL_DIV[10000];
+extern UCHAR MM_MUL_REM[10000];
 extern UCHAR MM_MUL_DIV_10[100];
 extern UCHAR MM_MUL_REM_10[100];
 
-extern int MM_BIT_LIMIT ;
-extern int MM_SIZEOF_INT ;
+extern int MM_BIT_LIMIT;
+extern int MM_SIZEOF_INT;
 
 /*
  *   type for holding fast multiplication context
@@ -380,16 +380,16 @@ typedef struct {
   UCHAR *_mul_stack_data[M_STACK_SIZE];
   int    _mul_stack_data_size[M_STACK_SIZE];
   int    _M_mul_stack_ptr;
-} M_APM_FMC_struct ;
+} M_APM_FMC_struct;
 
-typedef M_APM_FMC_struct *M_APM_FMC ;
+typedef M_APM_FMC_struct *M_APM_FMC;
 
 /*
  *   prototypes for internal functions
  */
 
-extern M_APM_FMC M_init_fmul_context(void) ;
-extern void      M_free_fmul_context(M_APM_FMC) ;
+extern M_APM_FMC M_init_fmul_context(void);
+extern void      M_free_fmul_context(M_APM_FMC);
 
 extern int  M_exp_compute_nn(int *, const M_APM, const M_APM);
 extern void M_raw_exp(M_APM, int, const M_APM);

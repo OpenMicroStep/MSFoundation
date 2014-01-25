@@ -38,19 +38,19 @@
  
  */
 
-#include "MSCorePrivate_.h"
-#include "MSCoreUnicharPrivate_.h"
+#include "MSCore_Private.h"
+#include "MSCoreUnichar_Private.h"
 
 unichar CUnicharToUpper(unichar ch)
 {
-    int info = GetUniCharInfo(ch);
-    if (GetCaseType(info) & 0x04) return (unichar) (ch - GetDelta(info));
-    else return ch;
+  int info = GetUniCharInfo(ch);
+  if (GetCaseType(info) & 0x04) return (unichar) (ch - GetDelta(info));
+  else return ch;
 }
 
 unichar CUnicharToLower(unichar ch)
 {
-    int info = GetUniCharInfo(ch);
+  int info = GetUniCharInfo(ch);
   if (GetCaseType(info) & 0x02) return (unichar) (ch + GetDelta(info));
   else return ch;
 }
@@ -61,108 +61,107 @@ BOOL CUnicharIsControl(unichar ch)   { return ((GetUniCharInfo(ch) & UNICODE_CAT
 BOOL CUnicharIsUpper(unichar ch)   { return ((GetUniCharInfo(ch) & UNICODE_CATEGORY_MASK) == UPPERCASE_LETTER); }
 BOOL CUnicharIsLower(unichar ch)   { return ((GetUniCharInfo(ch) & UNICODE_CATEGORY_MASK) == LOWERCASE_LETTER); }
 BOOL CUnicharIsDigit(unichar ch)   { return ((GetUniCharInfo(ch) & UNICODE_CATEGORY_MASK)  == DECIMAL_DIGIT_NUMBER); }
-BOOL CUnicharIsSpace(unichar ch)  { return _CUnicharIsSpace(ch) ; }
-BOOL CUnicharIsSolid(unichar ch)  { return !_CUnicharIsSpace(ch) && !CUnicharIsEOL(ch) ; }
+BOOL CUnicharIsSpace(unichar ch)  { return _CUnicharIsSpace(ch); }
+BOOL CUnicharIsSolid(unichar ch)  { return !_CUnicharIsSpace(ch) && !CUnicharIsEOL(ch); }
 
-BOOL CUnicharIsPunct(unichar ch) { return ((PUNCT_BITS >> (GetUniCharInfo(ch) & UNICODE_CATEGORY_MASK)) & 1) ; }
+BOOL CUnicharIsPunct(unichar ch) { return ((PUNCT_BITS >> (GetUniCharInfo(ch) & UNICODE_CATEGORY_MASK)) & 1); }
 BOOL CUnicharIsWordChar(unichar ch) { return (((ALPHA_BITS | DIGIT_BITS | CONNECTOR_BITS) >> (GetUniCharInfo(ch) & UNICODE_CATEGORY_MASK)) & 1); }
 BOOL CUnicharIsPrintable(unichar ch) { return ((PRINT_BITS >> (GetUniCharInfo(ch) & UNICODE_CATEGORY_MASK)) & 1); }
 
-BOOL CUnicharIsLetter(unichar c) { return (c < 'A' || c > 'z' || (c > 'Z' && c < 'a') ? NO : YES) ; }
-BOOL CUnicharIsHexa(unichar c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) ; }
+BOOL CUnicharIsLetter(unichar c) { return (c < 'A' || c > 'z' || (c > 'Z' && c < 'a') ? NO : YES); }
+BOOL CUnicharIsHexa(unichar c) { return ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')); }
 
-BOOL CUnicharIsEOL(unichar c) { return (c == 0x000a || c == 0x000d ||  c == 0x2028 || c ==  0x2029 ? YES : NO) ; }
-BOOL CUnicharIsSeparator(unichar c) { return CUnicharIsEOL(c) || _CUnicharIsSpace(c) || CUnicharIsPunct(c) ? YES : NO ; }
-BOOL CUnicharIsIsoDigit(unichar c) { return (c < '0' || c > '9' ? NO : YES) ; }
-BOOL CUnicharIsSpaceOrEOL(unichar c) { return CUnicharIsEOL(c) || _CUnicharIsSpace(c) ? YES : NO ; }
+BOOL CUnicharIsEOL(unichar c) { return (c == 0x000a || c == 0x000d ||  c == 0x2028 || c ==  0x2029 ? YES : NO); }
+BOOL CUnicharIsSeparator(unichar c) { return CUnicharIsEOL(c) || _CUnicharIsSpace(c) || CUnicharIsPunct(c) ? YES : NO; }
+BOOL CUnicharIsIsoDigit(unichar c) { return (c < '0' || c > '9' ? NO : YES); }
+BOOL CUnicharIsSpaceOrEOL(unichar c) { return CUnicharIsEOL(c) || _CUnicharIsSpace(c) ? YES : NO; }
 
-unichar  CAnsiToUnicode(MSByte c) { return __MSAnsiToUnicode[c] ; }
-unichar CMacRomanToUnicode(MSByte c) { return __MSMacRomanToUnicode[c] ; }
-unichar CNextstepToUnicode(MSByte c) { return __MSNextstepToUnicode[c] ; }
-unichar CWindows1250ToUnicode(MSByte c) { return __MSWindows1250ToUnicode[c] ; }
-unichar CWindows1251ToUnicode(MSByte c) { return __MSWindows1251ToUnicode[c] ; }
-unichar CWindows1253ToUnicode(MSByte c) { return __MSWindows1253ToUnicode[c] ; }
-unichar CWindows1254ToUnicode(MSByte c) { return __MSWindows1254ToUnicode[c] ; }
-unichar CDOSToUnicode(MSByte c) { return __MSDOSToUnicode[c] ; }
-unichar CIsoLatin2ToUnicode(MSByte c) { return __MSIsoLatin2ToUnicode[c] ; }
-unichar CAdobeSymbolToUnicode(MSByte c) { return __MSAdobeSymbolToUnicode[c] ; }
+unichar  CAnsiToUnicode(MSByte c) { return __MSAnsiToUnicode[c]; }
+unichar CMacRomanToUnicode(MSByte c) { return __MSMacRomanToUnicode[c]; }
+unichar CNextstepToUnicode(MSByte c) { return __MSNextstepToUnicode[c]; }
+unichar CWindows1250ToUnicode(MSByte c) { return __MSWindows1250ToUnicode[c]; }
+unichar CWindows1251ToUnicode(MSByte c) { return __MSWindows1251ToUnicode[c]; }
+unichar CWindows1253ToUnicode(MSByte c) { return __MSWindows1253ToUnicode[c]; }
+unichar CWindows1254ToUnicode(MSByte c) { return __MSWindows1254ToUnicode[c]; }
+unichar CDOSToUnicode(MSByte c) { return __MSDOSToUnicode[c]; }
+unichar CIsoLatin2ToUnicode(MSByte c) { return __MSIsoLatin2ToUnicode[c]; }
+unichar CAdobeSymbolToUnicode(MSByte c) { return __MSAdobeSymbolToUnicode[c]; }
 
 BOOL CUnicharInsensitiveEquals(unichar ca, unichar cb)
 {
   if (ca != cb) {
-    int infoA = GetUniCharInfo(ca), infoB = GetUniCharInfo(cb) ;
-    if (((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) != ((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb)) return NO ;
+    int infoA = GetUniCharInfo(ca), infoB = GetUniCharInfo(cb);
+    if (((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) != ((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb)) return NO;
   }
-  return YES ;
+  return YES;
 }
 
 NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb)
 {
   if (ca != cb) {
-    int infoA = GetUniCharInfo(ca), infoB = GetUniCharInfo(cb) ;
-    int comp = (int)((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) - (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb) ;
-    if (comp < 0) { return NSOrderedAscending ; }
-    else if (comp > 0) { return NSOrderedDescending ; }
+    int infoA = GetUniCharInfo(ca), infoB = GetUniCharInfo(cb);
+    int comp = (int)((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) - (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb);
+    if (comp < 0) { return NSOrderedAscending; }
+    else if (comp > 0) { return NSOrderedDescending; }
     
   }
-  return NSOrderedSame ;
+  return NSOrderedSame;
 }
 
 BOOL CUnicharsInsensitiveEquals(const unichar *ba, const unichar *bb, NSUInteger length)
 {
-    if (ba != bb) {
-        NSUInteger i ;
-        if (!ba || !length) return NO ;
-        for (i = 0 ; i < length ; i++) { if (!CUnicharInsensitiveEquals(ba[i], bb[i])) return NO ; }
+  if (ba != bb) {
+    NSUInteger i;
+    if (!ba || !length) return NO;
+    for (i = 0; i < length; i++) { if (!CUnicharInsensitiveEquals(ba[i], bb[i])) return NO; }
     
-    }
-    return YES ;
+  }
+  return YES;
 }
 
 NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, const unichar *bb, NSUInteger length)
 {
   if (ba != bb) {
-    NSUInteger i ;
-    unichar ca, cb ;
-    int infoA, infoB ;
-    int comp = 0 ;
-    if (!ba) return NSOrderedAscending ;
-    if (!bb) return NSOrderedDescending ;
-    for (i = 0 ; !comp && i < length ; i++) {
-      ca = ba[i] ; cb = bb[i] ;
+    NSUInteger i;
+    unichar ca, cb;
+    int infoA, infoB;
+    int comp = 0;
+    if (!ba) return NSOrderedAscending;
+    if (!bb) return NSOrderedDescending;
+    for (i = 0; !comp && i < length; i++) {
+      ca = ba[i]; cb = bb[i];
       infoA = GetUniCharInfo(ca); infoB = GetUniCharInfo(cb);
-      comp = (int)((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) - (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb) ;
+      comp = (int)((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) - (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb);
     }
-    if (comp < 0) { return NSOrderedAscending ; }
-    else if (comp > 0) { return NSOrderedDescending ; }
+    if (comp < 0) { return NSOrderedAscending; }
+    else if (comp > 0) { return NSOrderedDescending; }
     
   }
-  return NSOrderedSame ;
+  return NSOrderedSame;
 }
 
 NSUInteger CUnicharsInsensitiveFind(const unichar *b, NSUInteger l, const unichar *bf, NSUInteger lf)
 {
   if (lf && lf < l && b && bf) {
-    register NSUInteger found = 0, i ;
-        unichar ca, cb = bf[0] ;
-        int infoA, infoB = GetUniCharInfo(cb) ;
-        int compB = (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb) ;
-        int compB0 = compB ;
+    register NSUInteger found = 0, i;
+    unichar ca, cb = bf[0];
+    int infoA, infoB = GetUniCharInfo(cb);
+    int compB = (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb);
+    int compB0 = compB;
     
-    for (i = 0 ; i < l ; i++) {
-      ca = b[i] ; infoA = GetUniCharInfo(ca) ;
-            if ((int)((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) == compB) {
-                found++ ;
-                if (found == lf) return (i+1)-found ; // OK, we found our string
-                cb = bf[found] ;
-                infoB = GetUniCharInfo(cb) ;
-                compB = (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb) ;
+    for (i = 0; i < l; i++) {
+      ca = b[i]; infoA = GetUniCharInfo(ca);
+      if ((int)((GetCaseType(infoA) & 0x02) ? (unichar) (ca + GetDelta(infoA)) : ca) == compB) {
+        found++;
+        if (found == lf) return (i+1)-found; // OK, we found our string
+        cb = bf[found];
+        infoB = GetUniCharInfo(cb);
+        compB = (int)((GetCaseType(infoB) & 0x02) ? (unichar) (cb + GetDelta(infoB)) : cb);
       }
-            else if (found) { i -= found ; found = 0 ; compB = compB0 ; }
+      else if (found) { i -= found; found = 0; compB = compB0; }
     }
     
   }
-  return NSNotFound ;
+  return NSNotFound;
 }
-
 

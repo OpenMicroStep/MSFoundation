@@ -158,7 +158,7 @@ void m_apm_to_fixpt_stringex(char *s, int dplaces, M_APM atmp,
   if ((cps = (char *)MAPM_MALLOC((size_t)(ii + 32) * sizeof(char))) == NULL)
   {
     /* fatal, this does not return */
-    m_apm_free(btmp) ;
+    m_apm_free(btmp);
     M_apm_log_error_msg(M_APM_MALLOC_ERROR,
                         "\'m_apm_to_fixpt_stringex\', Out of memory");
   }
@@ -253,7 +253,7 @@ void m_apm_to_fixpt_stringex(char *s, int dplaces, M_APM atmp,
   }
   
   MAPM_FREE(cps);
-  m_apm_free(btmp) ;
+  m_apm_free(btmp);
 }
 /****************************************************************************/
 void m_apm_to_fixpt_string(char *ss, int dplaces, const M_APM mtmp)
@@ -280,7 +280,7 @@ void m_apm_to_fixpt_string(char *ss, int dplaces, const M_APM mtmp)
     
     m_apm_to_integer_string(cpd, ctmp);
     
-    m_apm_free(ctmp) ;
+    m_apm_free(ctmp);
     return;
   }
   
@@ -305,7 +305,7 @@ void m_apm_to_fixpt_string(char *ss, int dplaces, const M_APM mtmp)
       cpd[places + 2] = '\0';
     }
     
-    m_apm_free(ctmp) ;
+    m_apm_free(ctmp);
     return;
   }
   
@@ -421,7 +421,7 @@ void m_apm_to_fixpt_string(char *ss, int dplaces, const M_APM mtmp)
   if (vp != NULL)
     MAPM_FREE(vp);
   
-  m_apm_free(ctmp) ;
+  m_apm_free(ctmp);
 }
 /****************************************************************************/
 void M_apm_round_fixpt(M_APM btmp, int places, const M_APM atmp)

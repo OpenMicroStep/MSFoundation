@@ -88,7 +88,7 @@ void m_apm_floor(M_APM bb, const M_APM aa)
     
     m_apm_add(bb, mtmp, MM_One);
     bb->m_apm_sign = -1;
-    m_apm_free(mtmp) ;
+    m_apm_free(mtmp);
   }
   else {
     bb->m_apm_datalength = bb->m_apm_exponent;
@@ -127,7 +127,7 @@ void m_apm_ceil(M_APM bb, const M_APM aa)
     M_apm_normalize(mtmp);
     
     m_apm_add(bb, mtmp, MM_One);
-    m_apm_free(mtmp) ;
+    m_apm_free(mtmp);
   }
 }
 /****************************************************************************/

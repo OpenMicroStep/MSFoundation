@@ -104,7 +104,7 @@ void m_apm_divide(M_APM rr, int places, const M_APM aa, const M_APM bb)
   m_apm_multiply(tmp1, tmp0, aa);
   m_apm_round(rr, dplaces, tmp1);
   
-  m_apm_free(tmp0) ; m_apm_free(tmp1) ;
+  m_apm_free(tmp0); m_apm_free(tmp1);
 }
 
 /****************************************************************************/
@@ -194,8 +194,8 @@ void m_apm_reciprocal(M_APM rr, int places, const M_APM aa)
   rr->m_apm_sign = aa->m_apm_sign;
   
   
-  m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmpN) ;
-  m_apm_free(last_x) ; m_apm_free(guess) ;
+  m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmpN);
+  m_apm_free(last_x); m_apm_free(guess);
   
 }
 /****************************************************************************/

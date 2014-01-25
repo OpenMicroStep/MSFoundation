@@ -84,7 +84,7 @@ void M_5x_sin(M_APM r, int places, const M_APM x)
   M_5x_do_it(tmp8, (places + 4), tmp9);
   M_5x_do_it(r, places, tmp8);
   
-  m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+  m_apm_free(tmp8); m_apm_free(tmp9);
 }
 /****************************************************************************/
 void M_4x_cos(M_APM r, int places, const M_APM x)
@@ -117,7 +117,7 @@ void M_4x_cos(M_APM r, int places, const M_APM x)
     M_4x_do_it(r, places, tmp8);
   }
   
-  m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+  m_apm_free(tmp8); m_apm_free(tmp9);
 }
 /****************************************************************************/
 /*
@@ -151,8 +151,8 @@ void M_5x_do_it(M_APM rr, int places, const M_APM xx)
   
   m_apm_round(rr, places, tmp0);
   
-  m_apm_free(tmp0) ; m_apm_free(tmp1) ;
-  m_apm_free(t2) ; m_apm_free(t3) ; m_apm_free(t5) ;
+  m_apm_free(tmp0); m_apm_free(tmp1);
+  m_apm_free(t2); m_apm_free(t3); m_apm_free(t5);
 }
 /****************************************************************************/
 /*
@@ -178,8 +178,8 @@ void M_4x_do_it(M_APM rr, int places, const M_APM xx)
   m_apm_add(tmp0, MM_One, tmp1);
   m_apm_round(rr, places, tmp0);
   
-  m_apm_free(tmp0) ; m_apm_free(tmp1) ;
-  m_apm_free(t2) ; m_apm_free(t4) ;
+  m_apm_free(tmp0); m_apm_free(tmp1);
+  m_apm_free(t2); m_apm_free(t4);
 }
 /****************************************************************************/
 /*
@@ -196,6 +196,6 @@ void M_cos_to_sin(M_APM r, int places, const M_APM a)
   m_apm_subtract(tmp2, MM_One, tmp1);
   m_apm_sqrt(r, places, tmp2);
   
-  m_apm_free(tmp1) ; m_apm_free(tmp2) ;
+  m_apm_free(tmp1); m_apm_free(tmp2);
 }
 /****************************************************************************/

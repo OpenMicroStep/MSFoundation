@@ -96,7 +96,7 @@ extern void M_fast_multiply(M_APM, const M_APM, const M_APM);
 void m_apm_multiply(M_APM r, const M_APM a, const M_APM b)
 {
   int ai, itmp, sign, nexp, ii, jj, indexa, indexb, index0, numdigits;
-  UCHAR   *cp, *cpr ;
+  UCHAR   *cp, *cpr;
   void *vp;
   
   sign = a->m_apm_sign * b->m_apm_sign;
@@ -135,7 +135,7 @@ void m_apm_multiply(M_APM r, const M_APM a, const M_APM b)
     {
       /* fatal, this does not return */
       M_apm_log_error_msg(M_APM_MALLOC_ERROR, "\'m_apm_multiply\', Out of memory");
-      return ;
+      return;
     }
     
     r->m_apm_malloclength = ii + 28;

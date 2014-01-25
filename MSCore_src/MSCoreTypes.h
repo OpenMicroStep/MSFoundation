@@ -214,40 +214,4 @@ enum {
   NSDOSStringEncoding= 0x20000 // we add a string encoding for DOS
 };
 
-#pragma mark export
-
-#ifdef WIN32
-
-#define MSExport  extern
-#define MSImport  extern
-#define MSPrivate extern
-/*
-#ifdef __cplusplus
-#define MSExport       extern "C" __declspec(dllexport)
-#define MSImport       extern "C" __declspec(dllimport)
-#define MSPrivate      extern
-#else
-#define MSExport       __declspec(dllexport) extern
-#define MSImport       __declspec(dllimport) extern
-#define MSPrivate      extern
-#endif // __cplusplus
-*/
-#else // !WIN32
-
-#ifdef __cplusplus
-#define MSExport       extern "C"
-#define MSImport       extern "C"
-#define MSPrivate      extern "C"
-#else // !__cplusplus
-#define MSExport       extern
-#define MSImport       extern
-#if defined(__APPLE__)
-#define MSPrivate      extern
-#else
-#define MSPrivate      __private_extern__
-#endif
-#endif // __cplusplus
-
-#endif // WIN32
-
 #endif // MSCORE_TYPES_H

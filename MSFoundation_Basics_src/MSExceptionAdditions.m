@@ -39,51 +39,51 @@ Herve Malaingre : herve@malaingre.com
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 @implementation NSException (MSAdditions)
 
 + (void)raise:(NSString *)exceptionName from:(id)object in:(SEL)selector format:(NSString *)format arguments:(va_list)argList
-{ MSRaiseFromV(exceptionName, object, selector, format, argList) ; }
+{ MSRaiseFromV(exceptionName, object, selector, format, argList); }
 
 + (void)raise:(NSString *)exceptionName from:(id)object in:(SEL)selector format:(NSString *)format, ...
 {
     va_list ap;
     va_start (ap, format);
-    MSRaiseFromV(exceptionName, object, selector, format, ap) ;
-    va_end(ap) ;
+    MSRaiseFromV(exceptionName, object, selector, format, ap);
+    va_end(ap);
 }
 
 @end
 
 void MSRaise(NSString *name, NSString *format, ...)
 {
-    va_list ap ;
-    va_start (ap, format) ;
-    MSRaiseV(name, format, ap) ;
-    va_end(ap) ;
+    va_list ap;
+    va_start (ap, format);
+    MSRaiseV(name, format, ap);
+    va_end(ap);
 }
 
 void MSRaiseV(NSString *name, NSString *format, va_list argList)
-{ [NSException raise:name format:format arguments:argList] ; }
+{ [NSException raise:name format:format arguments:argList]; }
 
 void MSRaiseFrom(NSString *name, id object, SEL selector, NSString *format, ...)
 {
-    va_list ap ;
-    va_start (ap, format) ;
-    MSRaiseFromV(name, object, selector, format, ap) ;
-    va_end(ap) ;
+    va_list ap;
+    va_start (ap, format);
+    MSRaiseFromV(name, object, selector, format, ap);
+    va_end(ap);
 }
 
 void MSRaiseFromV(NSString *name, id object, SEL selector, NSString *format, va_list argList)
 {
-    Class cls = [object class] ;
+    Class cls = [object class];
     format = [NSString stringWithFormat:@"%c [%@ (0x%p) %@] : %@",
         //(ISMETA(cls) ? '+' : '-'), TODO: CLS_META undefined on Win32
         '-',
         NSStringFromClass(cls),
         object,
         NSStringFromSelector(selector),
-        format] ;
-    MSRaiseV(name, format, argList) ;
+        format];
+    MSRaiseV(name, format, argList);
 }

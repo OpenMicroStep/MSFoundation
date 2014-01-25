@@ -57,25 +57,25 @@
 
 #include "m_apm_lc.h"
 
-static M_apm_alloc_fn             __alloc_callback_fn=             NULL ;
-static M_apm_free_fn              __free_callback_fn=              NULL ;
-static M_apm_log_fn               __log_callback_fn=               NULL ;
-static M_apm_string_components_fn __string_components_callback_fn= NULL ;
+static M_apm_alloc_fn             __alloc_callback_fn=             NULL;
+static M_apm_free_fn              __free_callback_fn=              NULL;
+static M_apm_log_fn               __log_callback_fn=               NULL;
+static M_apm_string_components_fn __string_components_callback_fn= NULL;
 
 /****************************************************************************/
 M_APM m_apm_allocate(void)
 {
   if (__alloc_callback_fn) {
-    return __alloc_callback_fn() ;
+    return __alloc_callback_fn();
   }
-  return (M_APM)MAPM_MALLOC(sizeof(CDecimal)) ;
+  return (M_APM)MAPM_MALLOC(sizeof(CDecimal));
 }
 
 /****************************************************************************/
 void m_apm_free(void *atmp)
 {
   if (__free_callback_fn) {
-    __free_callback_fn(atmp) ;
+    __free_callback_fn(atmp);
   }
   else if (m_apm_deallocate((M_APM)atmp)) {
     MAPM_FREE(atmp);
@@ -85,7 +85,7 @@ void m_apm_free(void *atmp)
 /****************************************************************************/
 void M_apm_log_error_msg(int code, const char *message)
 {
-  if (__log_callback_fn) __log_callback_fn(code, message) ;
+  if (__log_callback_fn) __log_callback_fn(code, message);
   if (code > 0) {
     fprintf(stderr, "MAPM Error: %s\n", message);
     exit(code);
@@ -98,9 +98,9 @@ void M_apm_log_error_msg(int code, const char *message)
 void    m_apm_set_callbacks(M_apm_alloc_fn fnalloc, M_apm_free_fn fndealloc, M_apm_log_fn fnlog, M_apm_string_components_fn fnsc)
 {
   // this function should be thread protected
-  __alloc_callback_fn = fnalloc ;
-  __free_callback_fn = fndealloc ;
-  __log_callback_fn = fnlog ;
-  __string_components_callback_fn = fnsc ;
+  __alloc_callback_fn = fnalloc;
+  __free_callback_fn = fndealloc;
+  __log_callback_fn = fnlog;
+  __string_components_callback_fn = fnsc;
 }
 /****************************************************************************/

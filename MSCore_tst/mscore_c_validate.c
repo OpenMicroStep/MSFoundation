@@ -1,6 +1,6 @@
 // mscore_c_validate.c, ecb, 130911
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 #include "mscore_validate.h"
 
 static inline int c_isa(CClassIndex classIndex)

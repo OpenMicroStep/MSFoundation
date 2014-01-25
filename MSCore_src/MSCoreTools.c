@@ -41,7 +41,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #pragma mark ***** Checksum
 
@@ -115,11 +115,11 @@ static const MSUInt __MSCRCTable32[]= {
 
 MSUShort MSBytesShortCRC(const void *bytes, NSUInteger length)
 {
-  MSUShort crc= 0XFFFF ;
+  MSUShort crc= 0XFFFF;
   
   if (bytes) {
-    NSUInteger i ;
-    for (i= 0 ; i < length; i++) {
+    NSUInteger i;
+    for (i= 0; i < length; i++) {
       crc= (MSUShort)(crc << 8) ^ (MSUShort)(*((MSByte *)bytes + i)) ^ (MSUShort)__MSCRCTable16[((crc >> 8) & 0xff)];
     }
   }
@@ -128,11 +128,11 @@ MSUShort MSBytesShortCRC(const void *bytes, NSUInteger length)
 
 MSUInt MSBytesLongCRC(const void *bytes, NSUInteger length)
 {
-  MSUInt crc= 0XFFFFFFFF ;
+  MSUInt crc= 0XFFFFFFFF;
   
   if (bytes) {
-    NSUInteger i ;
-    for (i= 0 ; i < length; i++) {
+    NSUInteger i;
+    for (i= 0; i < length; i++) {
       crc= ((crc >> 8) & 0x00ffffff) ^ __MSCRCTable32[(crc ^ (*((MSByte *)bytes + i))) & 0xff];
     }
   }
@@ -141,11 +141,11 @@ MSUInt MSBytesLongCRC(const void *bytes, NSUInteger length)
 
 MSUInt MSBytesELF(const void *bytes, NSUInteger length)
 {
-  MSUInt h= 0 ;
+  MSUInt h= 0;
   if (length) {
-    MSUInt g ;
-    NSUInteger i ;
-    for (i= 0 ; i < length ; i++) {
+    MSUInt g;
+    NSUInteger i;
+    for (i= 0; i < length; i++) {
       if ((g= ((h=(h<<4)+(*((MSByte *)bytes + i))) & 0xF0000000U))) h ^= g >> 24;
       h &= ~g;
     }
@@ -156,11 +156,11 @@ MSUInt MSBytesELF(const void *bytes, NSUInteger length)
 
 MSUInt MSBytesUppercaseELF(const void *bytes, NSUInteger length)
 {
-  MSUInt h= 0 ;
+  MSUInt h= 0;
   if (length) {
-    MSUInt g ;
-    NSUInteger i ;
-    for (i= 0 ; i < length ; i++) {
+    MSUInt g;
+    NSUInteger i;
+    for (i= 0; i < length; i++) {
       if ((g= ((h=(h<<4)+((*((MSByte *)bytes + i)) & 223)) & 0xF0000000U))) h ^= g >> 24;
       h &= ~g;
     }
@@ -183,7 +183,7 @@ MSUInt MSBytesAdlerHash(MSULong adler, const void *bytes, NSUInteger length)
   if (bytes) {
     MSUInt s1= adler & 0xffff;
     MSUInt s2= (adler >> 16) & 0xffff;
-    MSByte *buf= (MSByte *)bytes ;
+    MSByte *buf= (MSByte *)bytes;
     NSUInteger k;
     
     while (length > 0) {
@@ -203,7 +203,7 @@ MSUInt MSBytesAdlerHash(MSULong adler, const void *bytes, NSUInteger length)
     }
     return (s2 << 16) | s1;
   }
-  return 1 ;
+  return 1;
 }
 
 NSUInteger MSPointerHash(void *pointer)

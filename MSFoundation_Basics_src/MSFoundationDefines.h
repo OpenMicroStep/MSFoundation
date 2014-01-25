@@ -51,8 +51,8 @@
 
 #if defined(WIN32)
 /************************ APPLE WO 451 ON WIN32 **********************/
-struct WOFakeClass { long isa ; } ;
-MSImport          IMP class_lookupMethod(Class, SEL) ;
+struct WOFakeClass { long isa; };
+MSImport          IMP class_lookupMethod(Class, SEL);
 
 //#define ISA(X)     ((Class)(((struct WOFakeClass *)(X))->isa))
 #define LOOKUP(X, Y) class_lookupMethod(X, Y)
@@ -83,7 +83,7 @@ MSImport          IMP class_lookupMethod(Class, SEL) ;
 //#define ISA(X)     ((Class)(((Class)(X))->isa))
 #define LOOKUP(X, Y) class_getMethodImplementation(X, Y)
 #define ISMETA(cls)  class_isMetaClass(cls)
-#define ISCLASS(cls) ({ __typeof__(cls) __a = (cls); (__a ? !class_isMetaClass(__a) : NO) ;})
+#define ISCLASS(cls) ({ __typeof__(cls) __a = (cls); (__a ? !class_isMetaClass(__a) : NO);})
 #define NAMEOF(X)    object_getClassName(X)
 // SELNAME iS DEFINED
 #define SELECTOR(X)  sel_getUid(X)
@@ -110,13 +110,13 @@ MSImport          IMP class_lookupMethod(Class, SEL) ;
 //#define ISA(X)     ((Class)(((Class)(X))->isa))
 #define LOOKUP(X, Y) class_getMethodImplementation(X, Y)
 #define ISMETA(cls)  class_isMetaClass(cls)
-#define ISCLASS(cls) ({ __typeof__(cls) __a = (cls); (__a ? !class_isMetaClass(__a) : NO) ;})
+#define ISCLASS(cls) ({ __typeof__(cls) __a = (cls); (__a ? !class_isMetaClass(__a) : NO);})
 //  NAMEOF   already defined in Apple runtime
 //  SELNAME  already defined in Apple runtime
 #define SELECTOR(X)  sel_getUid(X)
 
 #else
-MSImport          IMP class_lookupMethod(Class, SEL) ;
+MSImport          IMP class_lookupMethod(Class, SEL);
 
 #define MSMethod      Method
 //#define ISA(X)     ((Class)(((Class)(X))->isa))
@@ -164,7 +164,7 @@ MSImport          IMP class_lookupMethod(Class, SEL) ;
 #ifdef ASSIGNCOPY
 #undef ASSIGNCOPY
 #endif
-#define ASSIGNCOPY(X,Y)     ({id __x__ = (id)X, __y__ = (id)(Y) ; \
+#define ASSIGNCOPY(X,Y)     ({id __x__ = (id)X, __y__ = (id)(Y); \
 if (__x__ != __y__) { X =  (__y__ ? COPY(__y__) : nil); if (__x__) RELEASE(__x__); } \
 })
 

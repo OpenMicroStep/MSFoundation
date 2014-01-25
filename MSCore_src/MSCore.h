@@ -1,4 +1,4 @@
-/*   MSFoundationPrivate_.h
+/*   MSCore_Private.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -6,6 +6,9 @@
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
  Herve Malaingre : herve@malaingre.com
+ Eric Baradat :  k18rt@free.fr
+ Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
+ 
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -36,22 +39,32 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : this header file IS PRIVATE, don't use it directly
+ AND NEVER INCLUDE IT IN MSFoundation framework, it is maint to
+ be exclusively used in MSCore standalone mode
+ 
  */
 
-#import <Foundation/Foundation.h>
-#import "MSCorePrivate_.h"
+#ifndef MSCORE_H
+#define MSCORE_H
 
-#import "MSFoundationDefines.h"
-#import "MSCoderAdditions.h"
-#import "MSExceptionAdditions.h"
-#import "MSObjectAdditions.h"
+#include <MSCore/MSCoreIncludes.h>
+#include <MSCore/MSCoreTypes.h>
+#include <MSCore/MSCoreSystem.h>
+#include <MSCore/MSCoreTools.h>
+#include <MSCore/MSCObject.h>
 
-#import "MSArray.h"
-#import "MSMutableArray.h"
-#import "MSBuffer.h"
-#import "MSColor.h"
-#import "MSCouple.h"
-#import "MSDate.h"
-#import "MSDecimal.h"
-#import "MSDictionary.h"
-#import "MSUnicodeBuffer.h"
+#include <MSCore/MSCoreUnichar.h>
+#include <MSCore/MSCoreSES.h>
+#include <MSCore/MSCUnicodeBuffer.h>
+
+#include <MSCore/MSCArray.h>
+#include <MSCore/MSCBuffer.h>
+#include <MSCore/MSCColor.h>
+#include <MSCore/MSCCouple.h>
+#include <MSCore/MSCDate.h>
+#include <MSCore/MSCDecimal.h>
+#include <MSCore/m_apm.h>
+#include <MSCore/MSCDictionary.h>
+
+#endif

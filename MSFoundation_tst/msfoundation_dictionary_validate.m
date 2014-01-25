@@ -1,6 +1,6 @@
 // msfoundation_dictionary_validate.m, ecb, 130911
 
-#include "MSFoundationPrivate_.h"
+#include "MSFoundation_Private.h"
 #include "msfoundation_validate.h"
 
 static inline void cdictionary_print(MSDictionary *d)

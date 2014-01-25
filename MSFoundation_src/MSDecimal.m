@@ -40,7 +40,7 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 #define MS_DECIMAL_LAST_VERSION 301
 

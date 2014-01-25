@@ -40,17 +40,17 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 #pragma mark Declarations
 
-static NSString *MSDelayedPostingNotification=           @"MSDelayedPostingNotification" ;
-static NSString *MSDelayedPostingWithObjectNotification= @"MSDelayedPostingWithObjectNotification" ;
+static NSString *MSDelayedPostingNotification=           @"MSDelayedPostingNotification";
+static NSString *MSDelayedPostingWithObjectNotification= @"MSDelayedPostingWithObjectNotification";
 
 @interface _MSDelayedPostingManager : NSObject
-+ (_MSDelayedPostingManager *)defaultDelayedManager ;
-- (void)postAction:(SEL)action to:(id)target withObject:(id)argument ;
-- (void)postAction:(SEL)action to:(id)target ;
++ (_MSDelayedPostingManager *)defaultDelayedManager;
+- (void)postAction:(SEL)action to:(id)target withObject:(id)argument;
+- (void)postAction:(SEL)action to:(id)target;
 @end
 static _MSDelayedPostingManager *__theMSDelayedPostingManager= nil;
 
@@ -198,7 +198,7 @@ NSNull *MSNull= nil;
 {
   NSString *name;
   if (action && [(name= NSStringFromSelector(action)) length] && target) {
-    NSNotification *notif ;
+    NSNotification *notif;
     NSDictionary *userInfo= DICT name,@"selector", target,@"target", argument,@"argument" END;
     notif= [NSNotification notificationWithName:MSDelayedPostingWithObjectNotification
                                          object:self
@@ -247,11 +247,11 @@ NSNull *MSNull= nil;
 @end
 
 @implementation NSNull (MSObjectAdditions)
-- (NSString *)description        { return @""    ; }
+- (NSString *)description        { return @""; }
 - (NSString *)toString           { return @"null"; }
 - (NSString *)listItemString     { return @"null"; }
-- (NSString *)displayString      { return @""    ; }
-- (NSString *)htmlRepresentation { return @""    ; }
+- (NSString *)displayString      { return @""; }
+- (NSString *)htmlRepresentation { return @""; }
 
 - (BOOL)isNull        { return YES; }
 - (BOOL)isSignificant { return  NO; }

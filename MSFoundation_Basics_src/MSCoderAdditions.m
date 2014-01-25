@@ -41,7 +41,7 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 @implementation NSCoder (MSObjectAdditions)
 
@@ -50,23 +50,23 @@
 {
   key= nil; // Unused parameter
   if (objects) {
-    NSArray *array = [ALLOC(NSArray) initWithObjects:objects->pointers count:objects->count] ;
-    [self encodeObject:array forKey:@"ms-array"] ;
-    RELEASE(array) ;
+    NSArray *array = [ALLOC(NSArray) initWithObjects:objects->pointers count:objects->count];
+    [self encodeObject:array forKey:@"ms-array"];
+    RELEASE(array);
   }
 }
 
 - (NSUInteger)decodeInCArray:(CArray *)objects retainObjects:(BOOL)flag forKey:(NSString *)key
 {
-  NSArray *array = [self decodeObjectForKey:@"ms-array"] ;
+  NSArray *array = [self decodeObjectForKey:@"ms-array"];
   if (array && objects) {
-    NSUInteger i, count = [array count] ;
-    for (i = 0 ; i < count ; i++) {
-      CArrayAddObject(objects, [array objectAtIndex:i]) ;
+    NSUInteger i, count = [array count];
+    for (i = 0; i < count; i++) {
+      CArrayAddObject(objects, [array objectAtIndex:i]);
     }
-    return count ;
+    return count;
   }
-  return 0 ;
+  return 0;
   flag= NO; // Unused parameter
   key= nil; // Unused parameter
 }
@@ -74,21 +74,21 @@
 
 - (void)encodeUnsignedInteger:(NSUInteger)intv forKey:(NSString *)key
 {
-  NSInteger c = *((NSInteger *)(&intv)) ;
-  [self encodeInteger:c forKey:key] ;
+  NSInteger c = *((NSInteger *)(&intv));
+  [self encodeInteger:c forKey:key];
 }
 
 - (NSUInteger)decodeUnsignedIntegerForKey:(NSString *)key
 {
-  NSInteger intv = [self decodeIntegerForKey:key] ;
-  NSUInteger c = *((NSUInteger *)(&intv)) ;
-  return c ;
+  NSInteger intv = [self decodeIntegerForKey:key];
+  NSUInteger c = *((NSUInteger *)(&intv));
+  return c;
 }
 
 // ========== Microstep extensions end ==========
 
 #ifdef MUST_DEFINE_KEY_CODING
-- (BOOL)allowsKeyedCoding { return NO ; }
+- (BOOL)allowsKeyedCoding { return NO; }
 
 - (void)encodeObject:(id)objv forKey:(NSString *)key {}
 - (void)encodeConditionalObject:(id)objv forKey:(NSString *)key {}
@@ -100,20 +100,20 @@
 - (void)encodeDouble:(double)realv forKey:(NSString *)key {}
 - (void)encodeBytes:(const MSByte *)bytesp length:(NSUInteger)lenv forKey:(NSString *)key {}
 
-- (BOOL)containsValueForKey:(NSString *)key { return NO ; }
-- (id)decodeObjectForKey:(NSString *)key { return nil ; }
-- (BOOL)decodeBoolForKey:(NSString *)key { return NO ; }
-- (int)decodeIntForKey:(NSString *)key { return 0 ; }
-- (MSInt)decodeInt32ForKey:(NSString *)key { return 0 ; }
-- (MSLong)decodeInt64ForKey:(NSString *)key { return 0 ; }
-- (float)decodeFloatForKey:(NSString *)key { return 0.0 ; }
-- (double)decodeDoubleForKey:(NSString *)key { return 0.0 ; }
+- (BOOL)containsValueForKey:(NSString *)key { return NO; }
+- (id)decodeObjectForKey:(NSString *)key { return nil; }
+- (BOOL)decodeBoolForKey:(NSString *)key { return NO; }
+- (int)decodeIntForKey:(NSString *)key { return 0; }
+- (MSInt)decodeInt32ForKey:(NSString *)key { return 0; }
+- (MSLong)decodeInt64ForKey:(NSString *)key { return 0; }
+- (float)decodeFloatForKey:(NSString *)key { return 0.0; }
+- (double)decodeDoubleForKey:(NSString *)key { return 0.0; }
 - (const MSByte *)decodeBytesForKey:(NSString *)key returnedLength:(NSUInteger *)lengthp
-{ if (lengthp) *lengthp = 0 ; return (const MSByte *)NULL ; }
+{ if (lengthp) *lengthp = 0; return (const MSByte *)NULL; }
 #endif
 
 #ifdef MUST_ENCODE_INTEGERS
 - (void)encodeInteger:(NSInteger)intv forKey:(NSString *)key {}
-- (NSInteger)decodeIntegerForKey:(NSString *)key { return (NSInteger)0 ; }
+- (NSInteger)decodeIntegerForKey:(NSString *)key { return (NSInteger)0; }
 #endif
 @end

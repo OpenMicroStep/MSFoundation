@@ -39,7 +39,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #pragma mark c-like class methods
 

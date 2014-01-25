@@ -144,7 +144,7 @@ M_APM m_apm_init(M_APM atmp)
     atmp->m_apm_exponent     = 0;
     atmp->m_apm_sign         = 0;
     if ((atmp->m_apm_data = (UCHAR *)MAPM_MALLOC(84)) == NULL) {
-      MAPM_FREE(atmp) ; atmp = 0 ;
+      MAPM_FREE(atmp); atmp = 0;
       M_apm_log_error_msg(M_APM_INIT_ERROR, M_init_error_msg);
     }
     else {
@@ -172,10 +172,10 @@ BOOL m_apm_deallocate(M_APM atmp)
   if (((M_APM)atmp)->m_apm_id == M_APM_IDENT) {
     ((M_APM)atmp)->m_apm_id = 0x0FFFFFF0L;
     MAPM_FREE(((M_APM)atmp)->m_apm_data);
-    return YES ;
+    return YES;
   }
   M_apm_log_error_msg(M_APM_RETURN, "\'m_apm_free\', Invalid M_APM variable");
-  return NO ;
+  return NO;
 }
 
 /****************************************************************************/
@@ -194,9 +194,9 @@ void M_get_div_rem_10(int tbl_lookup, UCHAR *ndiv, UCHAR *nrem)
 void m_apm_round(M_APM btmp, int places, M_APM atmp)
 {
   int ii;
-  M_APM M_work_0_5 = m_apm_new() ;
+  M_APM M_work_0_5 = m_apm_new();
   
-  m_apm_copy(M_work_0_5, MM_Five) ;
+  m_apm_copy(M_work_0_5, MM_Five);
   ii = places + 1;
   
   if (atmp->m_apm_datalength <= ii)
@@ -214,7 +214,7 @@ void m_apm_round(M_APM btmp, int places, M_APM atmp)
   
   btmp->m_apm_datalength = ii;
   M_apm_normalize(btmp);
-  m_apm_free(M_work_0_5) ;
+  m_apm_free(M_work_0_5);
 }
 /****************************************************************************/
 void M_apm_normalize(M_APM atmp)
@@ -336,7 +336,7 @@ void M_apm_scale(M_APM ctmp, int count)
     {
       /* fatal, this does not return */
       M_apm_log_error_msg(M_APM_MALLOC_ERROR, "\'M_apm_scale\', Out of memory");
-      return ;
+      return;
     }
     
     ctmp->m_apm_malloclength = ii + 28;
@@ -441,7 +441,7 @@ void M_apm_pad(M_APM ctmp, int new_length)
     {
       /* fatal, this does not return */
       M_apm_log_error_msg(M_APM_MALLOC_ERROR, "\'M_apm_pad\', Out of memory");
-      return ;
+      return;
     }
     
     ctmp->m_apm_malloclength = numb + 28;

@@ -45,41 +45,41 @@ typedef unichar (*CHAI)(const void *, NSUInteger);
 #define InvalidCHAI  (CHAI)0
 
 typedef struct SESStruct {
-    CHAI chai ;
-  NSUInteger start ;
-    NSUInteger length ;
-} SES ;
+  CHAI chai;
+  NSUInteger start;
+  NSUInteger length;
+} SES;
 
-MSExport const SES MSInvalidSES ;
+MSExport const SES MSInvalidSES;
 
 static inline SES MSMakeSES(CHAI funct, NSUInteger start, NSUInteger length)
 {
-  SES ret ;
-  ret.chai = funct ;
-  ret.start = start ;
-  ret.length = length ;
-  return ret ;
+  SES ret;
+  ret.chai = funct;
+  ret.start = start;
+  ret.length = length;
+  return ret;
 }
 
-typedef MSByte MSRealScanOptions ;
+typedef MSByte MSRealScanOptions;
 #define MSAcceptsDot    1
 #define MSAcceptsComma    2
 #define MSAcceptsDotOrComma  3
 #define MSAcceptsExponent  4
 
-MSExport SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding) ;
+MSExport SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding);
 
-MSExport SES SESFind(SES ses, const void *source, SES sesSearched, const void *searched) ;
-MSExport SES SESInsensitiveFind(SES ses, const void *source, SES sesSearched, const void *searched) ;
+MSExport SES SESFind(SES ses, const void *source, SES sesSearched, const void *searched);
+MSExport SES SESInsensitiveFind(SES ses, const void *source, SES sesSearched, const void *searched);
 
-MSExport SES SESCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator) ;
-MSExport SES SESInsensitiveCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator) ;
+MSExport SES SESCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator);
+MSExport SES SESInsensitiveCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator);
 
-MSExport SES SESExtractPart(SES ses, const void *s, CUnicharChecker matchingChar) ;
-MSExport SES SESExtractToken(SES ses, const void *s, CUnicharChecker matchingChar, CUnicharChecker leftSpaces) ;
+MSExport SES SESExtractPart(SES ses, const void *s, CUnicharChecker matchingChar);
+MSExport SES SESExtractToken(SES ses, const void *s, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
 
 #define CAIOK(X)      ((X) != InvalidCHAI)
-#define SESOK(X)      ({SES __x__ = (X) ;  CAIOK(__x__.chai) && (__x__.start != NSNotFound) && (__x__.length > 0) ;})
+#define SESOK(X)      ({SES __x__ = (X);  CAIOK(__x__.chai) && (__x__.start != NSNotFound) && (__x__.length > 0);})
 #define SESLength(X)    ((X).length)
 #define SESCHAI(X)      ((X).chai)
 #define SESStart(X)      ((X).start)

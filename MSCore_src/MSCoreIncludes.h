@@ -1,4 +1,4 @@
-/*   MSCorePrivate_.h
+/*   MSCoreIncludes.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -45,8 +45,8 @@
  
  */
 
-#ifndef MSCORE_PRIVATE_H
-#define MSCORE_PRIVATE_H
+#ifndef MSCOREINCLUDES_H
+#define MSCOREINCLUDES_H ////////////////////////////////// MSCOREINCLUDES_H (1)
 
 #ifndef LINUX
 #ifdef __LINUX__
@@ -60,7 +60,7 @@
 #endif
 #endif
 
-#ifdef WIN32
+#ifdef WIN32 //::::::::::::::::::::::::::::::::::::::::::::::::::::::: WIN32 (2)
 
 #include <windows.h>
 #include <stdlib.h>
@@ -70,8 +70,41 @@
 #include <winsock.h>
 #include <process.h>
 #include <fcntl.h>
+#include <math.h>
 
-#else // !WIN32
+/* Pour une exécution directe (tests)
+#define MSExport  extern
+#define MSImport  extern
+#define MSPrivate extern
+*/
+
+#ifdef MSCORE_INCLUDES_FOR_EXPORT_H //------------- Compilation du framework (3)
+
+#ifdef __cplusplus
+#define MSExport  extern "C" __declspec(dllexport)
+#define MSImport  extern "C" __declspec(dllimport)
+#define MSPrivate extern
+#else
+#define MSExport  __declspec(dllexport) extern
+#define MSImport  __declspec(dllimport) extern
+#define MSPrivate extern
+#endif // __cplusplus
+
+#else //----------- !MSCORE_INCLUDES_FOR_EXPORT_H : Utilisation du framework (3)
+
+#ifdef __cplusplus
+#define MSExport  extern "C" __declspec(dllimport)
+#define MSImport  extern "C" __declspec(dllimport)
+#define MSPrivate extern
+#else
+#define MSExport  __declspec(dllimport) extern
+#define MSImport  __declspec(dllimport) extern
+#define MSPrivate extern
+#endif
+
+#endif //-------------------------------------- MSCORE_INCLUDES_FOR_EXPORT_H (3)
+
+#else //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: !WIN32 (2)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -92,51 +125,24 @@
 #include <math.h>
 #include <pthread.h>
 
-#endif // WIN32
+#ifdef __cplusplus
+#define MSExport  extern "C"
+#define MSImport  extern "C"
+#define MSPrivate extern "C"
+#else // !__cplusplus
+#define MSExport  extern
+#define MSImport  extern
+#ifdef __APPLE__
+#define MSPrivate extern
+#else
+#define MSPrivate __private_extern__
+#endif
+#endif // __cplusplus
 
-// On ne peut pas inclure le Foundation quand on compile un .c
-// Donc pour compiler le MSCore lui-même pour une utilisation avec le Foundation
-// on a besoin de redéfinir Class, id, etc.
-// Lorsque l'on compile un .m avec le Foundation, ce dernier doit être inclus
-// avant MSCore.h (comme dans MSFoundation.h)
-// Il y a donc 3 états:
-//    MSCORE_STANDALONE: On implémente une c-like dynamique de classes
-//      (MSCObject.c)
-//    MSCORE_FORFOUNDATION: Pour la compilation de MSCore lui-même mais faisant
-//      appel au Foundation via MSCObject.m
-//    FOUNDATION: On est dans MSFoundation avec un comportement de classes
-//      normal mais les classes qui dérivent du MSCore (comme MSArray qui dérive
-//      de MSCArray) utilisent directement les fonctions du MSCore.
+#endif //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: WIN32 (2)
+
 #if !defined(MSCORE_STANDALONE) && !defined(_OBJC_OBJC_H_)
 #define MSCORE_FORFOUNDATION 1
 #endif
 
-#include "MSCoreTypes.h"
-#include "MSCoreSystem.h"
-#include "MSCoreTools.h"
-#include "MSCObject.h"
-
-//#include "MSCoreNetwork.h"
-//#include "MSCoreEntropy.h"
-//#include "MSCoreCompress.h"
-//#include "MSCoreTimeInterval.h"
-//#include "MSCoreTLS.h"
-
-// ..ToString functions use MSCUnicodeBuffer
-// so we include it first
-#include "MSCoreUnichar.h"
-#include "MSCoreSES.h"
-#include "MSCUnicodeBuffer.h"
-
-#include "MSCArray.h"
-#include "MSCBuffer.h"
-#include "MSCColor.h"
-#include "MSCCouple.h"
-#include "MSCDate.h"
-#include "MSCDecimal.h"
-#include "m_apm.h"
-#include "MSCDictionary.h"
-//#include "MSCMutex.h"
-//#include "MSCNaturalArray.h"
-
-#endif // MSCORE_H
+#endif //////////////////////////////////////////////////// MSCOREINCLUDES_H (1)

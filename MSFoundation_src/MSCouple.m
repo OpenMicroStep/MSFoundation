@@ -40,7 +40,7 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 #define MS_COUPLE_LAST_VERSION 300
 

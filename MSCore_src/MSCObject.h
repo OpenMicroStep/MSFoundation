@@ -261,7 +261,7 @@ MSExport BOOL       CDictionaryIsEqual(id self, id other);
 MSExport NSUInteger CDictionaryHash(id self, unsigned depth);
 MSExport id         CDictionaryCopy(id self);
 
-MSExport void       CMutexFree(id self);
+//MSExport void       CMutexFree(id self);
 
 MSExport void       CUnicodeBufferFree(id self);
 MSExport BOOL       CUnicodeBufferIsEqual(id self, id other);

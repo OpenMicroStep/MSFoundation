@@ -175,7 +175,7 @@ void m_apm_exp(M_APM r, int places, const M_APM x)
   {
     M_raw_exp(tmp9, (places + 6), x);
     m_apm_round(r, places, tmp9);
-    m_apm_free(tmp7) ; m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+    m_apm_free(tmp7); m_apm_free(tmp8); m_apm_free(tmp9);
     return;
   }
   
@@ -199,7 +199,7 @@ void m_apm_exp(M_APM r, int places, const M_APM x)
   if (M_exp_compute_nn(&nn, tmp7, x) != 0)
   {
     M_set_to_zero(r);
-    m_apm_free(tmp7) ; m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+    m_apm_free(tmp7); m_apm_free(tmp8); m_apm_free(tmp9);
     M_apm_log_error_msg(M_APM_OVERFLOW, "\'m_apm_exp\', Input too large, Overflow");
     return;
   }
@@ -270,7 +270,7 @@ void m_apm_exp(M_APM r, int places, const M_APM x)
   m_apm_multiply(tmp9, tmp7, tmp8);
   m_apm_round(r, places, tmp9);
   
-  m_apm_free(tmp7) ; m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+  m_apm_free(tmp7); m_apm_free(tmp8); m_apm_free(tmp9);
 }
 /****************************************************************************/
 /*
@@ -316,7 +316,7 @@ int M_exp_compute_nn(int *n, const M_APM b, const M_APM a)
   {
     if ((vp = (void *)MAPM_MALLOC((size_t)(kk + 16) * sizeof(char))) == NULL)
     {
-      m_apm_free(tmp0) ; m_apm_free(tmp1) ;
+      m_apm_free(tmp0); m_apm_free(tmp1);
       M_apm_log_error_msg(M_APM_MALLOC_ERROR, "\'M_exp_compute_nn\', Out of memory");
       return -1;
     }
@@ -333,7 +333,7 @@ int M_exp_compute_nn(int *n, const M_APM b, const M_APM a)
   
   if (vp != NULL) MAPM_FREE(vp);
   
-  m_apm_free(tmp0) ; m_apm_free(tmp1) ;
+  m_apm_free(tmp0); m_apm_free(tmp1);
   return(kk);
 }
 /****************************************************************************/
@@ -351,9 +351,9 @@ void M_raw_exp(M_APM rr, int places, const M_APM xx)
   int tolerance,  local_precision, prev_exp;
   long    m1;
   
-  tmp0  = m_apm_new() ;
-  term  = m_apm_new() ;
-  digit = m_apm_new() ;
+  tmp0  = m_apm_new();
+  term  = m_apm_new();
+  digit = m_apm_new();
   
   local_precision = places + 8;
   tolerance       = -(places + 4);
@@ -387,6 +387,6 @@ void M_raw_exp(M_APM rr, int places, const M_APM xx)
     m1++;
   }
   
-  m_apm_free(tmp0) ; m_apm_free(term) ; m_apm_free(digit) ;
+  m_apm_free(tmp0); m_apm_free(term); m_apm_free(digit);
 }
 /****************************************************************************/

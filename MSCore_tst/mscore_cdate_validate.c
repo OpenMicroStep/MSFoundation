@@ -1,6 +1,6 @@
 // mscore_cdate_validate.c, ecb, 130911
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 #include "mscore_validate.h"
 
 static inline void cdate_print(CDate *d)
@@ -185,8 +185,8 @@ static inline int cdate_create2(void)
         cdate_print(c[i]);
         cdate_print(d);
         cdate_print(e);
-        err++;}}
-    RELEASE(d); RELEASE(e);}
+        err++;}
+      RELEASE(d); RELEASE(e);}}
   return err;
   }
 

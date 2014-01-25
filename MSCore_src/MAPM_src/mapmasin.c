@@ -240,9 +240,9 @@ void m_apm_arctan(M_APM rr, int places, const M_APM xx)
   m_apm_add(tmp8, tmp9, MM_One);
   m_apm_sqrt(tmp9, (places + 6), tmp8);
   m_apm_divide(tmp8, (places + 6), xx, tmp9);
-  m_apm_arcsin(rr, places, tmp8) ;
+  m_apm_arcsin(rr, places, tmp8);
   
-  m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+  m_apm_free(tmp8); m_apm_free(tmp9);
 }
 /****************************************************************************/
 /*
@@ -271,7 +271,7 @@ void M_arctan_large_input(M_APM rr, int places, const M_APM xx)
   
   rr->m_apm_sign = xx->m_apm_sign;     /* fix final sign */
   
-  m_apm_free(tmp1) ; m_apm_free(tmp2) ;
+  m_apm_free(tmp1); m_apm_free(tmp2);
 }
 /****************************************************************************/
 void m_apm_arcsin(M_APM r, int places, const M_APM x)
@@ -286,7 +286,7 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
   
   if (ii == 1) {      /* |x| > 1 */
     M_set_to_zero(r);
-    m_apm_free(tmp0) ;
+    m_apm_free(tmp0);
     M_apm_log_error_msg(M_APM_BAD_TRIGO, "\'m_apm_arcsin\', |Argument| > 1");
     return;
   }
@@ -295,7 +295,7 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
     M_check_PI_places(places);
     m_apm_round(r, places, MM_lc_HALF_PI);
     r->m_apm_sign = x->m_apm_sign;
-    m_apm_free(tmp0) ;
+    m_apm_free(tmp0);
     return;
   }
   
@@ -305,23 +305,23 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
     M_cos_to_sin(tmp2, (places + 4), x);
     m_apm_arccos(r, places, tmp2);
     r->m_apm_sign = x->m_apm_sign;
-    m_apm_free(tmp2) ;
-    m_apm_free(tmp0) ;
+    m_apm_free(tmp2);
+    m_apm_free(tmp0);
     return;
   }
   
   if (x->m_apm_sign == 0) {         /* input == 0 ?? */
     M_set_to_zero(r);
-    m_apm_free(tmp2) ;
-    m_apm_free(tmp0) ;
+    m_apm_free(tmp2);
+    m_apm_free(tmp0);
     return;
   }
   
   if (x->m_apm_exponent <= -4)        /* input close to 0 ?? */
   {
     M_arcsin_near_0(r, places, x);
-    m_apm_free(tmp2) ;
-    m_apm_free(tmp0) ;
+    m_apm_free(tmp2);
+    m_apm_free(tmp0);
     return;
   }
   
@@ -373,10 +373,10 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
     
     if (++ii == maxiter) {
       m_apm_round(r, places, current_x);
-      m_apm_free(current_x) ;
-      m_apm_free(tmp3) ; m_apm_free(tmp2) ; m_apm_free(tmp1) ; m_apm_free(tmp0) ;
+      m_apm_free(current_x);
+      m_apm_free(tmp3); m_apm_free(tmp2); m_apm_free(tmp1); m_apm_free(tmp0);
       M_apm_log_error_msg(M_APM_BAD_TRIGO, "\'m_apm_arcsin\', max iteration count reached");
-      return ;
+      return;
     }
     
     local_precision *= 2;
@@ -386,8 +386,8 @@ void m_apm_arcsin(M_APM r, int places, const M_APM x)
   
   m_apm_round(r, places, current_x);
   
-  m_apm_free(current_x) ;
-  m_apm_free(tmp3) ; m_apm_free(tmp2) ; m_apm_free(tmp1) ; m_apm_free(tmp0) ;
+  m_apm_free(current_x);
+  m_apm_free(tmp3); m_apm_free(tmp2); m_apm_free(tmp1); m_apm_free(tmp0);
 }
 /****************************************************************************/
 void m_apm_arccos(M_APM r, int places, const M_APM x)
@@ -404,7 +404,7 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
   if (ii == 1) {      /* |x| > 1 */
     M_set_to_zero(r);
     M_apm_log_error_msg(M_APM_BAD_TRIGO, "\'m_apm_arccos\', |Argument| > 1");
-    m_apm_free(tmp0) ;
+    m_apm_free(tmp0);
     return;
   }
   
@@ -415,7 +415,7 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
       m_apm_round(r, places, MM_lc_PI);
     }
     
-    m_apm_free(tmp0) ;
+    m_apm_free(tmp0);
     return;
   }
   
@@ -436,20 +436,20 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
       m_apm_round(r, places, tmp1);
     }
     
-    m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmp3) ;
+    m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmp3);
     return;
   }
   
   if (x->m_apm_sign == 0) {         /* input == 0 ?? */
     M_check_PI_places(places);
     m_apm_round(r, places, MM_lc_HALF_PI);
-    m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmp3) ;
+    m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmp3);
     return;
   }
   
   if (x->m_apm_exponent <= -4) {        /* input close to 0 ?? */
     M_arccos_near_0(r, places, x);
-    m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmp3) ;
+    m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmp3);
     return;
   }
   
@@ -500,8 +500,8 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
     
     if (++ii == maxiter) {
       m_apm_round(r, places, current_x);
-      m_apm_free(current_x) ;
-      m_apm_free(tmp3) ; m_apm_free(tmp2) ; m_apm_free(tmp1) ; m_apm_free(tmp0) ;
+      m_apm_free(current_x);
+      m_apm_free(tmp3); m_apm_free(tmp2); m_apm_free(tmp1); m_apm_free(tmp0);
       M_apm_log_error_msg(M_APM_RETURN, "\'m_apm_arccos\', max iteration count reached");
       return;
     }
@@ -512,7 +512,7 @@ void m_apm_arccos(M_APM r, int places, const M_APM x)
   }
   
   m_apm_round(r, places, current_x);
-  m_apm_free(current_x) ;
-  m_apm_free(tmp3) ; m_apm_free(tmp2) ; m_apm_free(tmp1) ; m_apm_free(tmp0) ;
+  m_apm_free(current_x);
+  m_apm_free(tmp3); m_apm_free(tmp2); m_apm_free(tmp1); m_apm_free(tmp0);
 }
 /****************************************************************************/

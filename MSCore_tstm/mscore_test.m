@@ -1,7 +1,7 @@
 // mscore_test.m, ecb, 130904
 
 #import <Foundation/Foundation.h>
-#import "MSCorePrivate_.h"
+#import "MSCore_Private.h"
 #import "mscore_validate.h"
 
 int main(int argc, const char *argv[])

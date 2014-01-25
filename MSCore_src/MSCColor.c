@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Hervé MALAINGRE. All rights reserved.
 //
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #pragma mark c-like class methods
 

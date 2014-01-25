@@ -81,7 +81,7 @@
  */
 void m_apm_pow(M_APM rr, int places, const M_APM xx, const M_APM yy)
 {
-  int iflag ;
+  int iflag;
   char    sbuf[64];
   M_APM   tmp8, tmp9;
   
@@ -137,6 +137,6 @@ void m_apm_pow(M_APM rr, int places, const M_APM xx, const M_APM yy)
   m_apm_log(tmp9, (places + 8), xx);
   m_apm_multiply(tmp8, tmp9, yy);
   m_apm_exp(rr, places, tmp8);
-  m_apm_free(tmp8) ; m_apm_free(tmp9) ;
+  m_apm_free(tmp8); m_apm_free(tmp9);
 }
 /****************************************************************************/

@@ -41,7 +41,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #pragma mark ***** Compress
 
@@ -65,7 +65,7 @@
 #define MZ_READ_LE32(p) ((MSUInt)(((const MSByte *)(p))[0]) | ((MSUInt)(((const MSByte *)(p))[1]) << 8U) | ((MSUInt)(((const MSByte *)(p))[2]) << 16U) | ((MSUInt)(((const MSByte *)(p))[3]) << 24U))
 #endif
 
-#define MZ_ASSERT(X)    if  (!(X)) { MSReportError(MSInternalInconsistencyError, MSFatalError, -1, "assertion \"" #X "\" did fail in file \"%s\", line %d\n", __FILE__, __LINE__) ; }
+#define MZ_ASSERT(X)    if  (!(X)) { MSReportError(MSInternalInconsistencyError, MSFatalError, -1, "assertion \"" #X "\" did fail in file \"%s\", line %d\n", __FILE__, __LINE__); }
 #define MZ_ADLER32_INIT    (1)
 
 #ifdef _MSC_VER
@@ -85,9 +85,9 @@ typedef void *(*mz_alloc_func)(void *opaque, size_t items, size_t size);
 typedef void (*mz_free_func)(void *opaque, void *address);
 typedef void *(*mz_realloc_func)(void *opaque, void *address, size_t items, size_t size);
 
-static void *def_alloc_func(void *opaque, size_t items, size_t size) ;
-static void def_free_func(void *opaque, void *address) ;
-//static void *def_realloc_func(void *opaque, void *address, size_t items, size_t size) ;
+static void *def_alloc_func(void *opaque, size_t items, size_t size);
+static void def_free_func(void *opaque, void *address);
+//static void *def_realloc_func(void *opaque, void *address, size_t items, size_t size);
 
 enum {
   MZ_DEFAULT_STRATEGY = 0,
@@ -165,16 +165,16 @@ typedef struct mz_stream_s
 
 typedef mz_stream *mz_streamp;
 
-static int mz_compress2(MSByte *pDest, NSUInteger *pDest_len, const MSByte *pSource, NSUInteger source_len, int level) ;
-static int mz_uncompress(MSByte *pDest, NSUInteger *pDest_len, const MSByte *pSource, NSUInteger source_len) ;
+static int mz_compress2(MSByte *pDest, NSUInteger *pDest_len, const MSByte *pSource, NSUInteger source_len, int level);
+static int mz_uncompress(MSByte *pDest, NSUInteger *pDest_len, const MSByte *pSource, NSUInteger source_len);
 
-static int mz_deflateInit2(mz_streamp pStream, int level, int method, int window_bits, int mem_level, int strategy) ;
-static int mz_deflate(mz_streamp pStream, int flush) ;
-static int mz_deflateEnd(mz_streamp pStream) ;
+static int mz_deflateInit2(mz_streamp pStream, int level, int method, int window_bits, int mem_level, int strategy);
+static int mz_deflate(mz_streamp pStream, int flush);
+static int mz_deflateEnd(mz_streamp pStream);
 
-static int mz_inflateInit2(mz_streamp pStream, int window_bits) ;
-static int mz_inflate(mz_streamp pStream, int flush) ;
-static int mz_inflateEnd(mz_streamp pStream) ;
+static int mz_inflateInit2(mz_streamp pStream, int window_bits);
+static int mz_inflate(mz_streamp pStream, int flush);
+static int mz_inflateEnd(mz_streamp pStream);
 
 // ================== TDEFL low level =========================
 enum
@@ -324,35 +324,35 @@ static const MSByte s_tdefl_large_dist_extra[128] = {
   12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
   13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13 };
 
-static MSByte s_tdefl_packed_code_size_syms_swizzle[] = { 16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15 } ;
+static MSByte s_tdefl_packed_code_size_syms_swizzle[] = { 16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15 };
 static const mz_uint mz_bitmasks[17] = { 0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF };
 static const mz_uint s_tdefl_num_probes[11] = { 0, 1, 6, 32,  16, 32, 128, 256,  512, 768, 1500 };
 
-static tdefl_sym_freq* tdefl_radix_sort_syms(mz_uint num_syms, tdefl_sym_freq* pSyms0, tdefl_sym_freq* pSyms1) ;
-static void tdefl_calculate_minimum_redundancy(tdefl_sym_freq *A, int n) ;
-static void tdefl_huffman_enforce_max_code_size(int *pNum_codes, int code_list_len, int max_code_size) ;
-static void tdefl_optimize_huffman_table(tdefl_compressor *d, int table_num, int table_len, int code_size_limit, int static_table) ;
-static void tdefl_start_dynamic_block(tdefl_compressor *d) ;
-static void tdefl_start_static_block(tdefl_compressor *d) ;
-static BOOL tdefl_compress_lz_codes(tdefl_compressor *d) ;
-static BOOL tdefl_compress_block(tdefl_compressor *d, BOOL static_block) ;
-static int tdefl_flush_block(tdefl_compressor *d, int flush) ;
-static void tdefl_find_match(tdefl_compressor *d, mz_uint lookahead_pos, mz_uint max_dist, mz_uint max_match_len, mz_uint *pMatch_dist, mz_uint *pMatch_len) ;
-static BOOL tdefl_compress_normal(tdefl_compressor *d) ;
-static tdefl_status tdefl_flush_output_buffer(tdefl_compressor *d) ;
-static tdefl_status tdefl_compress(tdefl_compressor *d, const void *pIn_buf, size_t *pIn_buf_size, void *pOut_buf, size_t *pOut_buf_size, tdefl_flush flush) ;
-//static tdefl_status tdefl_compress_buffer(tdefl_compressor *d, const void *pIn_buf, size_t in_buf_size, tdefl_flush flush) ;
-static tdefl_status tdefl_init(tdefl_compressor *d, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags) ;
-static MSUInt tdefl_get_adler32(tdefl_compressor *d) ;
-//static BOOL tdefl_compress_mem_to_output(const void *pBuf, size_t buf_len, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags) ;
-//static BOOL tdefl_output_buffer_putter(const void *pBuf, int len, void *pUser) ;
-//static void *tdefl_compress_mem_to_heap(const void *pSrc_buf, size_t src_buf_len, size_t *pOut_len, int flags) ;
-//static size_t tdefl_compress_mem_to_mem(void *pOut_buf, size_t out_buf_len, const void *pSrc_buf, size_t src_buf_len, int flags) ;
-static mz_uint tdefl_create_comp_flags_from_zip_params(int level, int window_bits, int strategy) ;
+static tdefl_sym_freq* tdefl_radix_sort_syms(mz_uint num_syms, tdefl_sym_freq* pSyms0, tdefl_sym_freq* pSyms1);
+static void tdefl_calculate_minimum_redundancy(tdefl_sym_freq *A, int n);
+static void tdefl_huffman_enforce_max_code_size(int *pNum_codes, int code_list_len, int max_code_size);
+static void tdefl_optimize_huffman_table(tdefl_compressor *d, int table_num, int table_len, int code_size_limit, int static_table);
+static void tdefl_start_dynamic_block(tdefl_compressor *d);
+static void tdefl_start_static_block(tdefl_compressor *d);
+static BOOL tdefl_compress_lz_codes(tdefl_compressor *d);
+static BOOL tdefl_compress_block(tdefl_compressor *d, BOOL static_block);
+static int tdefl_flush_block(tdefl_compressor *d, int flush);
+static void tdefl_find_match(tdefl_compressor *d, mz_uint lookahead_pos, mz_uint max_dist, mz_uint max_match_len, mz_uint *pMatch_dist, mz_uint *pMatch_len);
+static BOOL tdefl_compress_normal(tdefl_compressor *d);
+static tdefl_status tdefl_flush_output_buffer(tdefl_compressor *d);
+static tdefl_status tdefl_compress(tdefl_compressor *d, const void *pIn_buf, size_t *pIn_buf_size, void *pOut_buf, size_t *pOut_buf_size, tdefl_flush flush);
+//static tdefl_status tdefl_compress_buffer(tdefl_compressor *d, const void *pIn_buf, size_t in_buf_size, tdefl_flush flush);
+static tdefl_status tdefl_init(tdefl_compressor *d, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags);
+static MSUInt tdefl_get_adler32(tdefl_compressor *d);
+//static BOOL tdefl_compress_mem_to_output(const void *pBuf, size_t buf_len, tdefl_put_buf_func_ptr pPut_buf_func, void *pPut_buf_user, int flags);
+//static BOOL tdefl_output_buffer_putter(const void *pBuf, int len, void *pUser);
+//static void *tdefl_compress_mem_to_heap(const void *pSrc_buf, size_t src_buf_len, size_t *pOut_len, int flags);
+//static size_t tdefl_compress_mem_to_mem(void *pOut_buf, size_t out_buf_len, const void *pSrc_buf, size_t src_buf_len, int flags);
+static mz_uint tdefl_create_comp_flags_from_zip_params(int level, int window_bits, int strategy);
 
 
 #if MINIZ_USE_UNALIGNED_LOADS_AND_STORES && __LITTLE_ENDIAN__
-static BOOL tdefl_compress_fast(tdefl_compressor *d) ;
+static BOOL tdefl_compress_fast(tdefl_compressor *d);
 #endif
 
 #define TDEFL_PUT_BITS(b, l) do { \
@@ -497,12 +497,12 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const MSByte *pIn_buf_next,
 #define TINFL_MEMSET(p, c, l) memset(p, c, l)
 #define TINFL_CR_BEGIN switch(r->m_state) { case 0:
 #define TINFL_CR_RETURN(state_index, result) do { status = result; r->m_state = state_index; goto common_exit; case state_index:; } MZ_MACRO_END
-#define TINFL_CR_RETURN_FOREVER(state_index, result) do { for ( ; ; ) { TINFL_CR_RETURN(state_index, result); } } MZ_MACRO_END
+#define TINFL_CR_RETURN_FOREVER(state_index, result) do { for (;; ) { TINFL_CR_RETURN(state_index, result); } } MZ_MACRO_END
 #define TINFL_CR_FINISH }
 
 #define TINFL_GET_BYTE(state_index, c) do { \
 if (pIn_buf_cur >= pIn_buf_end) { \
-for ( ; ; ) { \
+for (;; ) { \
 if (decomp_flags & TINFL_FLAG_HAS_MORE_INPUT) { \
 TINFL_CR_RETURN(state_index, TINFL_STATUS_NEEDS_MORE_INPUT); \
 if (pIn_buf_cur < pIn_buf_end) { \
@@ -565,7 +565,7 @@ static int mz_compress2(MSByte *pDest, NSUInteger *pDest_len, const MSByte *pSou
   stream.next_out = pDest;
   stream.avail_out = (MSUInt)*pDest_len;
   
-  status = mz_deflateInit2(&stream, level, MZ_DEFLATED, MZ_DEFAULT_WINDOW_BITS, 9, MZ_DEFAULT_STRATEGY) ;
+  status = mz_deflateInit2(&stream, level, MZ_DEFLATED, MZ_DEFAULT_WINDOW_BITS, 9, MZ_DEFAULT_STRATEGY);
   if (status != MZ_OK) return status;
   
   status = mz_deflate(&stream, MZ_FINISH);
@@ -593,7 +593,7 @@ static int mz_uncompress(MSByte *pDest, NSUInteger *pDest_len, const MSByte *pSo
   stream.next_out = pDest;
   stream.avail_out = (MSUInt)*pDest_len;
   
-  status = mz_inflateInit2(&stream, MZ_DEFAULT_WINDOW_BITS) ;
+  status = mz_inflateInit2(&stream, MZ_DEFAULT_WINDOW_BITS);
   
   if (status != MZ_OK)
     return status;
@@ -659,7 +659,7 @@ static int mz_deflate(mz_streamp pStream, int flush)
     return (flush == MZ_FINISH) ? MZ_STREAM_END : MZ_BUF_ERROR;
   
   orig_total_in = pStream->total_in; orig_total_out = pStream->total_out;
-  for ( ; ; ) {
+  for (;; ) {
     tdefl_status defl_status;
     in_bytes = pStream->avail_in; out_bytes = pStream->avail_out;
     
@@ -790,7 +790,7 @@ int mz_inflate(mz_streamp pStream, int flush)
     return ((pState->m_last_status == TINFL_STATUS_DONE) && (!pState->m_dict_avail)) ? MZ_STREAM_END : MZ_OK;
   }
   
-  for ( ; ; )
+  for (;; )
   {
     in_bytes = pStream->avail_in;
     out_bytes = TINFL_LZ_DICT_SIZE - pState->m_dict_ofs;
@@ -995,9 +995,9 @@ static void tdefl_start_static_block(tdefl_compressor *d)
   MSByte *p = &d->m_huff_code_sizes[0][0];
   
   for (i = 0; i <= 143; ++i) *p++ = 8;
-  for ( ; i <= 255; ++i) *p++ = 9;
-  for ( ; i <= 279; ++i) *p++ = 7;
-  for ( ; i <= 287; ++i) *p++ = 8;
+  for (; i <= 255; ++i) *p++ = 9;
+  for (; i <= 279; ++i) *p++ = 7;
+  for (; i <= 287; ++i) *p++ = 8;
   
   memset(d->m_huff_code_sizes[1], 5, 32);
   
@@ -1261,9 +1261,9 @@ static void tdefl_find_match(tdefl_compressor *d, mz_uint lookahead_pos, mz_uint
   const MSUShort *s = (const MSUShort*)(d->m_dict + pos), *p, *q;
   MSUShort c01 = TDEFL_READ_UNALIGNED_WORD(&d->m_dict[pos + match_len - 1]), s01 = TDEFL_READ_UNALIGNED_WORD(s);
   MZ_ASSERT(max_match_len <= TDEFL_MAX_MATCH_LEN); if (max_match_len <= match_len) return;
-  for ( ; ; )
+  for (;; )
   {
-    for ( ; ; )
+    for (;; )
     {
       if (--num_probes_left == 0) return;
 #define TDEFL_PROBE \
@@ -1295,9 +1295,9 @@ static MZ_FORCEINLINE void tdefl_find_match(tdefl_compressor *d, mz_uint lookahe
   const MSByte *s = d->m_dict + pos, *p, *q;
   MSByte c0 = d->m_dict[pos + match_len], c1 = d->m_dict[pos + match_len - 1];
   MZ_ASSERT(max_match_len <= TDEFL_MAX_MATCH_LEN); if (max_match_len <= match_len) return;
-  for ( ; ; )
+  for (;; )
   {
-    for ( ; ; )
+    for (;; )
     {
       if (--num_probes_left == 0) return;
 #define TDEFL_PROBE \
@@ -1640,7 +1640,7 @@ static tdefl_status tdefl_compress(tdefl_compressor *d, const void *pIn_buf, siz
   }
   
   if ((d->m_flags & (TDEFL_WRITE_ZLIB_HEADER | TDEFL_COMPUTE_ADLER32)) && (pIn_buf))
-    d->m_adler32 = MSBytesAdlerHash(d->m_adler32, (const void *)pIn_buf, (NSUInteger)(d->m_pSrc - (const MSByte *)pIn_buf)) ;
+    d->m_adler32 = MSBytesAdlerHash(d->m_adler32, (const void *)pIn_buf, (NSUInteger)(d->m_pSrc - (const MSByte *)pIn_buf));
   // was d->m_adler32 = (MSUInt)mz_adler32(d->m_adler32, (const MSByte *)pIn_buf, d->m_pSrc - (const MSByte *)pIn_buf);
   
   if ((flush) && (!d->m_lookahead_size) && (!d->m_src_buf_left) && (!d->m_output_flush_remaining))
@@ -1760,7 +1760,7 @@ static void *tinfl_decompress_mem_to_heap(const void *pSrc_buf, size_t src_buf_l
   tinfl_decompressor decomp; void *pBuf = NULL, *pNew_buf; size_t src_buf_ofs = 0, out_buf_capacity = 0;
   *pOut_len = 0;
   tinfl_init(&decomp);
-  for ( ; ; )
+  for (;; )
   {
     size_t src_buf_size = src_buf_len - src_buf_ofs, dst_buf_size = out_buf_capacity - *pOut_len, new_out_buf_capacity;
     tinfl_status status = tinfl_decompress(&decomp, (const MSByte *)pSrc_buf + src_buf_ofs, &src_buf_size, (MSByte *)pBuf, pBuf ? (MSByte *)pBuf + *pOut_len : NULL, &dst_buf_size,
@@ -1800,7 +1800,7 @@ static int tinfl_decompress_mem_to_callback(const void *pIn_buf, size_t *pIn_buf
   if (!pDict)
     return TINFL_STATUS_FAILED;
   tinfl_init(&decomp);
-  for ( ; ; )
+  for (;; )
   {
     size_t in_buf_size = *pIn_buf_size - in_buf_ofs, dst_buf_size = TINFL_LZ_DICT_SIZE - dict_ofs;
     tinfl_status status = tinfl_decompress(&decomp, (const MSByte *)pIn_buf + in_buf_ofs, &in_buf_size, pDict, pDict + dict_ofs, &dst_buf_size,
@@ -1892,7 +1892,7 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const MSByte *pIn_buf_next,
       {
         MSByte *p = r->m_tables[0].m_code_size; mz_uint i;
         r->m_table_sizes[0] = 288; r->m_table_sizes[1] = 32; TINFL_MEMSET(r->m_tables[1].m_code_size, 5, 32);
-        for ( i = 0; i <= 143; ++i) *p++ = 8; for ( ; i <= 255; ++i) *p++ = 9; for ( ; i <= 279; ++i) *p++ = 7; for ( ; i <= 287; ++i) *p++ = 8;
+        for ( i = 0; i <= 143; ++i) *p++ = 8; for (; i <= 255; ++i) *p++ = 9; for (; i <= 279; ++i) *p++ = 7; for (; i <= 287; ++i) *p++ = 8;
       }
       else
       {
@@ -1902,7 +1902,7 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const MSByte *pIn_buf_next,
         MZ_CLEAR_OBJ(r->m_tables[2].m_code_size); for (counter = 0; counter < r->m_table_sizes[2]; counter++) { mz_uint s; TINFL_GET_BITS(14, s, 3); r->m_tables[2].m_code_size[s_length_dezigzag[counter]] = (MSByte)s; }
         r->m_table_sizes[2] = 19;
       }
-      for ( ; (int)r->m_type >= 0; r->m_type--)
+      for (; (int)r->m_type >= 0; r->m_type--)
       {
         int tree_next, tree_cur; tinfl_huff_table *pTable;
         mz_uint i, j, used_syms, total, sym_index, next_code[17], total_syms[16]; pTable = &r->m_tables[r->m_type]; MZ_CLEAR_OBJ(total_syms); MZ_CLEAR_OBJ(pTable->m_look_up); MZ_CLEAR_OBJ(pTable->m_tree);
@@ -1948,10 +1948,10 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const MSByte *pIn_buf_next,
           TINFL_MEMCPY(r->m_tables[0].m_code_size, r->m_len_codes, r->m_table_sizes[0]); TINFL_MEMCPY(r->m_tables[1].m_code_size, r->m_len_codes + r->m_table_sizes[0], r->m_table_sizes[1]);
         }
       }
-      for ( ; ; )
+      for (;; )
       {
         MSByte *pSrc;
-        for ( ; ; )
+        for (;; )
         {
           if (((pIn_buf_end - pIn_buf_cur) < 4) || ((pOut_buf_end - pOut_buf_cur) < 2))
           {
@@ -2088,7 +2088,7 @@ common_exit:
         s1 += ptr[0], s2 += s1; s1 += ptr[1], s2 += s1; s1 += ptr[2], s2 += s1; s1 += ptr[3], s2 += s1;
         s1 += ptr[4], s2 += s1; s1 += ptr[5], s2 += s1; s1 += ptr[6], s2 += s1; s1 += ptr[7], s2 += s1;
       }
-      for ( ; i < block_len; ++i) s1 += *ptr++, s2 += s1;
+      for (; i < block_len; ++i) s1 += *ptr++, s2 += s1;
       s1 %= 65521U, s2 %= 65521U; buf_len -= block_len; block_len = 5552;
     }
     r->m_check_adler32 = (s2 << 16) + s1; if ((status == TINFL_STATUS_DONE) && (decomp_flags & TINFL_FLAG_PARSE_ZLIB_HEADER) && (r->m_check_adler32 != r->m_z_adler32)) status = TINFL_STATUS_ADLER32_MISMATCH;
@@ -2104,21 +2104,21 @@ static void def_free_func(void *opaque, void *address) { (void)opaque, (void)add
 
 MSCompressResult MSCompress(void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen)
 {
-  int r = mz_compress2((MSByte *)destination, destinationLen, (const MSByte *)source, sourceLen, MZ_DEFAULT_COMPRESSION) ;
+  int r = mz_compress2((MSByte *)destination, destinationLen, (const MSByte *)source, sourceLen, MZ_DEFAULT_COMPRESSION);
   switch (r) {
-    case MZ_OK: return MSCompressOK ;
-    case MZ_BUF_ERROR: return MSBufferOverflow ;
-    default: return MSCompressError ;
+    case MZ_OK: return MSCompressOK;
+    case MZ_BUF_ERROR: return MSBufferOverflow;
+    default: return MSCompressError;
   }
 }
 
 MSCompressResult MSUncompress(void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen)
 {
-  int r = mz_uncompress((MSByte *)destination, destinationLen, (const MSByte *)source, sourceLen) ;
+  int r = mz_uncompress((MSByte *)destination, destinationLen, (const MSByte *)source, sourceLen);
   switch (r) {
-    case MZ_OK: return MSCompressOK ;
-    case MZ_BUF_ERROR: return MSBufferOverflow ;
-    default: return MSCompressError ;
+    case MZ_OK: return MSCompressOK;
+    case MZ_BUF_ERROR: return MSBufferOverflow;
+    default: return MSCompressError;
   }
 }
 

@@ -144,7 +144,7 @@ void m_apm_log10(M_APM rr, int places, const M_APM aa)
   M_APM   tmp8, tmp9;
   
   tmp8 = m_apm_new();
-  tmp9 = m_apm_new() ;
+  tmp9 = m_apm_new();
   
   dplaces = places + 4;
   M_check_log_places(dplaces + 45);
@@ -152,8 +152,8 @@ void m_apm_log10(M_APM rr, int places, const M_APM aa)
   m_apm_log(tmp9, dplaces, aa);
   m_apm_multiply(tmp8, tmp9, MM_lc_log10R);
   m_apm_round(rr, places, tmp8);
-  m_apm_free(tmp8) ;
-  m_apm_free(tmp9) ;
+  m_apm_free(tmp8);
+  m_apm_free(tmp9);
 }
 /****************************************************************************/
 void m_apm_log(M_APM r, int places, const M_APM a)
@@ -190,14 +190,14 @@ void m_apm_log(M_APM r, int places, const M_APM a)
     if (tmp0->m_apm_sign == 0)    /* is input exactly 1 ?? */
     {                           /* if so, result is 0    */
       M_set_to_zero(r);
-      m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ;
+      m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2);
       return;
     }
     
     if (tmp0->m_apm_exponent <= -4)
     {
       M_log_near_1(r, places, tmp0);
-      m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ;
+      m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2);
       return;
     }
   }
@@ -235,6 +235,6 @@ void m_apm_log(M_APM r, int places, const M_APM a)
     m_apm_round(r, places, tmp1);
   }
   
-  m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ;
+  m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2);
 }
 /****************************************************************************/

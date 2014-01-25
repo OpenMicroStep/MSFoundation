@@ -3,7 +3,7 @@ NAME = MSFoundation_src
 PROJECT_TYPE = Component
 MAKEFILE = subproj.make
 
-HFILES = MSFoundationPrivate_.h MSArray_.h MSArray.h MSMutableArray.h\
+HFILES = MSFoundation_Private.h MSArray_.h MSArray.h MSMutableArray.h\
          MSBuffer.h MSUnicodeBuffer.h
 
 MFILES = MSCObject.m MSArray.m MSMutableArray.m\

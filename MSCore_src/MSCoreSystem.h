@@ -49,21 +49,21 @@
 
 #pragma mark ***** System
 
-MSExport void MSSystemInitialize(int argc, const char **argv) ;
+MSExport void MSSystemInitialize(int argc, const char **argv);
 #ifndef MSCORE_STANDALONE
-MSExport void _MSFoundationCoreSystemInitialize(void) ;
+MSExport void _MSFoundationCoreSystemInitialize(void);
 #endif
 
 //#define MSMacAddressLength 6
 //typedef struct {MSByte component[MSMacAddressLength];} MSMacAddress;
-//MSExport MSLong MSCurrentHostID(void) ;
+//MSExport MSLong MSCurrentHostID(void);
 
-MSExport MSInt  MSCurrentProcessID(void) ;
-MSExport MSInt  MSCurrentThreadID(void) ;
+MSExport MSInt  MSCurrentProcessID(void);
+MSExport MSInt  MSCurrentThreadID(void);
 
-MSExport MSInt      MSCurrentTimezoneOffset(void) ;
+MSExport MSInt      MSCurrentTimezoneOffset(void);
 
-MSExport NSUInteger MSCapacityForCount(NSUInteger count) ;
+MSExport NSUInteger MSCapacityForCount(NSUInteger count);
 
 #pragma mark ***** Memory
 
@@ -81,11 +81,11 @@ typedef enum {
   MSGerman=          26, // GERMAN  ELF MOD 37
   MSEnglish=         29, // ENGLISH ELF MOD 37
   MSUnknownLanguage= 37}
-MSLanguage ;
+MSLanguage;
 
-MSExport MSLanguage       MSCurrentLanguage(void) ;
-MSExport NSStringEncoding MSCurrentCStringEncoding(void) ;
-MSExport const char *     MSCStringEncodingName(NSStringEncoding encoding) ;
+MSExport MSLanguage       MSCurrentLanguage(void);
+MSExport NSStringEncoding MSCurrentCStringEncoding(void);
+MSExport const char *     MSCStringEncodingName(NSStringEncoding encoding);
 
 #pragma mark ***** Error reporting
 
@@ -95,7 +95,7 @@ MSExport const char *     MSCStringEncodingName(NSStringEncoding encoding) ;
 typedef enum {
   MSLightError= 0,
   MSFatalError}
-MSErrorLevel ;
+MSErrorLevel;
 
 typedef enum {
   MSGenericError= 0,
@@ -105,7 +105,7 @@ typedef enum {
   MSMallocError,
   MSMiscalculationError,
   MSMAPMError}
-MSErrorDomain ;
+MSErrorDomain;
 
 #define MSUnsignificantErrorCode            -1
 
@@ -127,16 +127,16 @@ MSErrorDomain ;
 #define MSIndexOutOfRangeError -20000
 #define MSNULLPointerError     -30000
 
-typedef void (*MSErrorCallback)(MSErrorDomain, MSErrorLevel, MSInt, const char *) ;
+typedef void (*MSErrorCallback)(MSErrorDomain, MSErrorLevel, MSInt, const char *);
 
-MSExport void MSReportError( MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, ...) ;
-MSExport void MSReportErrorV(MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, va_list argList) ;
-MSExport void MSSetErrorCallBack(MSErrorCallback fn) ;
+MSExport void MSReportError( MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, ...);
+MSExport void MSReportErrorV(MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, va_list argList);
+MSExport void MSSetErrorCallBack(MSErrorCallback fn);
   // not thread safe. use once.
 
 #ifdef WIN32
-MSExport int snprintf(char *, size_t, const char *, ...) ;
-MSExport int vsnprintf(char *, size_t, const char *, va_list) ;
+MSExport int snprintf(char *, size_t, const char *, ...);
+MSExport int vsnprintf(char *, size_t, const char *, va_list);
 #endif
 
 #pragma mark ***** Swap
@@ -144,9 +144,9 @@ MSExport int vsnprintf(char *, size_t, const char *, va_list) ;
 static inline MSUShort MSSwap16(MSUShort s)
 {
 #ifdef WIN32
-  MSUShort result ;
-  __asm__ volatile("rorw $8,%0" : "=r"  (result) : "0"  (s)) ;
-  return result ;
+  MSUShort result;
+  __asm__ volatile("rorw $8,%0" : "=r"  (result) : "0"  (s));
+  return result;
 #elif defined(__i386__) && defined(__GNUC__)
   __asm__("xchgb %b0, %h0" : "+q" (s));
   return s;
@@ -164,9 +164,9 @@ static inline MSUShort MSSwap16(MSUShort s)
 static inline MSUInt MSSwap32(MSUInt l)
 {
 #ifdef WIN32
-  MSUInt result ;
+  MSUInt result;
   __asm__ volatile("bswap %0" : "=r" (result) : "0"  (l));
-  return result ;
+  return result;
 #elif defined(__i386__) && defined(__GNUC__)
   __asm__("bswap %0" : "+r" (l));
   return l;
@@ -217,12 +217,12 @@ static inline MSULong MSSwap64(MSULong ll)
 #endif
 
 static inline MSUShort  MSFromOrder16(MSUShort X, MSByteOrder Y)
-{ return (Y == MSBigEndian ? MSFromBig16(X) : MSFromLittle16(X)) ; }
+{ return (Y == MSBigEndian ? MSFromBig16(X) : MSFromLittle16(X)); }
 
 static inline MSUInt  MSFromOrder32(MSUInt X, MSByteOrder Y)
-{ return (Y == MSBigEndian ? MSFromBig32(X) : MSFromLittle32(X)) ; }
+{ return (Y == MSBigEndian ? MSFromBig32(X) : MSFromLittle32(X)); }
 
 static inline MSULong MSFromOrder64(MSULong X, MSByteOrder Y)
-{ return (Y == MSBigEndian ? MSFromBig64(X) : MSFromLittle64(X)) ; }
+{ return (Y == MSBigEndian ? MSFromBig64(X) : MSFromLittle64(X)); }
 
 #endif // MS_CORE_SYSTEM_H

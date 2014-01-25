@@ -157,7 +157,7 @@ void m_apm_tan(M_APM r, int places, const M_APM a)
 /****************************************************************************/
 void M_limit_angle_to_pi(M_APM rr, int places, const M_APM aa)
 {
-  M_APM tmp7, tmp8, tmp9 ;
+  M_APM tmp7, tmp8, tmp9;
   
   M_check_PI_places(places);
   

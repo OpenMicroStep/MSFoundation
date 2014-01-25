@@ -137,8 +137,8 @@ void M_log_solve_cubic(M_APM rr, int places, const M_APM nn)
   }
   
   m_apm_round(rr, places, tmp3);
-  m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmp3) ;
-  m_apm_free(guess) ;
+  m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmp3);
+  m_apm_free(guess);
 }
 /****************************************************************************/
 /*
@@ -186,7 +186,7 @@ void M_log_basic_iteration(M_APM rr, int places, const M_APM nn)
     m_apm_add(tmp1, tmpX, tmp0);
     m_apm_round(rr, places, tmp1);
     
-    m_apm_free(tmp0) ; m_apm_free(tmp1) ; m_apm_free(tmp2) ; m_apm_free(tmpX) ;
+    m_apm_free(tmp0); m_apm_free(tmp1); m_apm_free(tmp2); m_apm_free(tmpX);
   }
 }
 /****************************************************************************/

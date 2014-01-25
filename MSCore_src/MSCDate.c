@@ -39,7 +39,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #pragma mark date function declarations
 
@@ -244,12 +244,13 @@ CDate *CCreateDateNow()
 {
   CDate *d; MSTimeInterval t;
 #ifdef WIN32
+#define _MSTimeIntervalSince1601 12622780800.0
   // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
   FILETIME fts, ft;
   GetSystemTimeAsFileTime(&fts);
   if (!FileTimeToLocalFileTime(&fts, &ft)) ft= fts;
   // we devide twice because old compilers
-  t= (*((MSTimeInterval*)(&ft)))/100/100000 - MSTimeIntervalSince1601;
+  t= (*((MSTimeInterval*)(&ft)))/100/100000 - _MSTimeIntervalSince1601;
 #else
   struct tm tm;
   time_t timet= time(NULL);

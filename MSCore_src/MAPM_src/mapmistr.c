@@ -95,7 +95,7 @@ void m_apm_to_integer_string(char *s, const M_APM mtmp)
       
       M_apm_log_error_msg(M_APM_MALLOC_ERROR,
                           "\'m_apm_to_integer_string\', Out of memory");
-      return ;
+      return;
     }
     
     cp = (char *)vp;

@@ -38,7 +38,7 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 #import "MSArray_.h"
 #import <objc/objc-runtime.h>
 

@@ -1,14 +1,12 @@
-
-/*
+/*   MSFoundation_Private.h
  
- mapm_validate.h
+ This file is is a part of the MicroStep Framework.
  
- This file is is a part of the MicroStep Application Server over Http Framework.
- 
- Initial copyright LOGITUD Solutions (logitud@logitud.fr) since 2012
+ Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
+ Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
  Herve Malaingre : herve@malaingre.com
-  
+ 
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
  
@@ -38,16 +36,22 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
- 
- This file is the header file to be used in order to test the included 
- MAPM Library - Copyright (C) 1999 - 2007   Michael C. Ring
-
  */
 
+#import <Foundation/Foundation.h>
+#import "MSCore_Private.h"
 
-#ifndef MSCODE_MAPM_VALIDATE_H
-#define MSCODE_MAPM_VALIDATE_H
+#import "MSFoundationDefines.h"
+#import "MSCoderAdditions.h"
+#import "MSExceptionAdditions.h"
+#import "MSObjectAdditions.h"
 
-extern int mapm_validate(int argc, const char *argv[]) ;
-
-#endif /* MSCODE_MAPM_VALIDATE_H */
+#import "MSArray.h"
+#import "MSMutableArray.h"
+#import "MSBuffer.h"
+#import "MSColor.h"
+#import "MSCouple.h"
+#import "MSDate.h"
+#import "MSDecimal.h"
+#import "MSDictionary.h"
+#import "MSUnicodeBuffer.h"

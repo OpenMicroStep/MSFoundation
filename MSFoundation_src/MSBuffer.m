@@ -39,7 +39,7 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 static Class __MSBufferClass= Nil;
 

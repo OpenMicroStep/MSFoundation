@@ -123,46 +123,46 @@
 int MM_lc_PI_digits = 0;
 int MM_lc_log_digits;
 
-M_APM MM_Zero          = NULL;
-M_APM MM_One           = NULL;
-M_APM MM_Two           = NULL;
-M_APM MM_Three         = NULL;
-M_APM MM_Four          = NULL;
-M_APM MM_Five          = NULL;
-M_APM MM_Ten           = NULL;
-M_APM MM_0_5           = NULL;
-M_APM MM_E             = NULL;
-M_APM MM_PI            = NULL;
-M_APM MM_HALF_PI       = NULL;
-M_APM MM_2_PI          = NULL;
-M_APM MM_lc_PI         = NULL;
-M_APM MM_lc_HALF_PI    = NULL;
-M_APM MM_lc_2_PI       = NULL;
-M_APM MM_lc_log2       = NULL;
-M_APM MM_lc_log10      = NULL;
-M_APM MM_lc_log10R     = NULL;
-M_APM MM_0_85          = NULL;
-M_APM MM_5x_125R       = NULL;
-M_APM MM_5x_64R        = NULL;
-M_APM MM_5x_256R       = NULL;
-M_APM MM_5x_Eight      = NULL;
-M_APM MM_5x_Sixteen    = NULL;
-M_APM MM_5x_Twenty     = NULL;
-M_APM MM_LOG_E_BASE_10 = NULL;
-M_APM MM_LOG_10_BASE_E = NULL;
-M_APM MM_LOG_2_BASE_E  = NULL;
-M_APM MM_LOG_3_BASE_E  = NULL;
-M_APM MM_RND_AA   = NULL;
-M_APM   MM_RND_MM   = NULL;
-M_APM   MM_EXP_LOG2R  = NULL;
-M_APM   MM_EXP_512R   = NULL;
+M_APM MM_Zero=          NULL;
+M_APM MM_One=           NULL;
+M_APM MM_Two=           NULL;
+M_APM MM_Three=         NULL;
+M_APM MM_Four=          NULL;
+M_APM MM_Five=          NULL;
+M_APM MM_Ten=           NULL;
+M_APM MM_0_5=           NULL;
+M_APM MM_E=             NULL;
+M_APM MM_PI=            NULL;
+M_APM MM_HALF_PI=       NULL;
+M_APM MM_2_PI=          NULL;
+M_APM MM_lc_PI=         NULL;
+M_APM MM_lc_HALF_PI=    NULL;
+M_APM MM_lc_2_PI=       NULL;
+M_APM MM_lc_log2=       NULL;
+M_APM MM_lc_log10=      NULL;
+M_APM MM_lc_log10R=     NULL;
+M_APM MM_0_85=          NULL;
+M_APM MM_5x_125R=       NULL;
+M_APM MM_5x_64R=        NULL;
+M_APM MM_5x_256R=       NULL;
+M_APM MM_5x_Eight=      NULL;
+M_APM MM_5x_Sixteen=    NULL;
+M_APM MM_5x_Twenty=     NULL;
+M_APM MM_LOG_E_BASE_10= NULL;
+M_APM MM_LOG_10_BASE_E= NULL;
+M_APM MM_LOG_2_BASE_E=  NULL;
+M_APM MM_LOG_3_BASE_E=  NULL;
+M_APM MM_RND_AA=        NULL;
+M_APM MM_RND_MM=        NULL;
+M_APM MM_EXP_LOG2R=     NULL;
+M_APM MM_EXP_512R=      NULL;
 
-UCHAR MM_MUL_DIV[10000] ;
-UCHAR MM_MUL_REM[10000] ;
+UCHAR MM_MUL_DIV[10000];
+UCHAR MM_MUL_REM[10000];
 UCHAR   MM_MUL_DIV_10[100];
 UCHAR   MM_MUL_REM_10[100];
 
-int  MM_BIT_LIMIT =  8 * sizeof(int) + 1 ;
+int  MM_BIT_LIMIT =  8 * sizeof(int) + 1;
 int  MM_SIZEOF_INT = sizeof(int);
 
 static char MM_cnst_PI[] =
@@ -271,12 +271,12 @@ char *m_apm_lib_short_version(char *v)
 /****************************************************************************/
 void M_init_mapm_constants(void)
 {
-  int i ;
+  int i;
   UCHAR   ndiv, nrem;
   
-  ndiv = 0 ;
-  nrem = 0 ;
-  for (i = 0 ; i < 100; i++) {
+  ndiv = 0;
+  nrem = 0;
+  for (i = 0; i < 100; i++) {
     MM_MUL_DIV_10[i] = ndiv;
     MM_MUL_REM_10[i] = nrem;
     

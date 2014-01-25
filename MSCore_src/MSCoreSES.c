@@ -38,40 +38,40 @@
  
  */
 
-#include "MSCorePrivate_.h"
-#include "MSCoreUnicharPrivate_.h"
+#include "MSCore_Private.h"
+#include "MSCoreUnichar_Private.h"
 
-const SES MSInvalidSES = {InvalidCHAI,NSNotFound,0} ;
+const SES MSInvalidSES = {InvalidCHAI,NSNotFound,0};
 
-unichar __unicodeEnumerator(            const void *source, NSUInteger pos) ;
-unichar __littleEndianUnicodeEnumerator(const void *source, NSUInteger pos) ;
-unichar __bigEndianUnicodeEnumerator(   const void *source, NSUInteger pos) ;
-unichar __asciiEnumerator(              const void *source, NSUInteger pos) ;
-unichar __macRomanEnumerator(           const void *source, NSUInteger pos) ;
-unichar __nextStepEnumerator(           const void *source, NSUInteger pos) ;
-unichar __ansiEnumerator(               const void *source, NSUInteger pos) ;
-unichar __windows1250Enumerator(        const void *source, NSUInteger pos) ;
-unichar __windows1251Enumerator(        const void *source, NSUInteger pos) ;
-unichar __windows1253Enumerator(        const void *source, NSUInteger pos) ;
-unichar __windows1254Enumerator(        const void *source, NSUInteger pos) ;
-unichar __isoLatin2Enumerator(          const void *source, NSUInteger pos) ;
-unichar __adobeSymbolEnumerator(        const void *source, NSUInteger pos) ;
-unichar __dosEnumerator(                const void *source, NSUInteger pos) ;
+unichar __unicodeEnumerator(            const void *source, NSUInteger pos);
+unichar __littleEndianUnicodeEnumerator(const void *source, NSUInteger pos);
+unichar __bigEndianUnicodeEnumerator(   const void *source, NSUInteger pos);
+unichar __asciiEnumerator(              const void *source, NSUInteger pos);
+unichar __macRomanEnumerator(           const void *source, NSUInteger pos);
+unichar __nextStepEnumerator(           const void *source, NSUInteger pos);
+unichar __ansiEnumerator(               const void *source, NSUInteger pos);
+unichar __windows1250Enumerator(        const void *source, NSUInteger pos);
+unichar __windows1251Enumerator(        const void *source, NSUInteger pos);
+unichar __windows1253Enumerator(        const void *source, NSUInteger pos);
+unichar __windows1254Enumerator(        const void *source, NSUInteger pos);
+unichar __isoLatin2Enumerator(          const void *source, NSUInteger pos);
+unichar __adobeSymbolEnumerator(        const void *source, NSUInteger pos);
+unichar __dosEnumerator(                const void *source, NSUInteger pos);
 
-unichar __unicodeEnumerator(const void *source, NSUInteger pos) { return (unichar)((unichar *)source)[pos] ; }
-unichar __littleEndianUnicodeEnumerator(const void *source, NSUInteger pos) { return MSFromLittle16(((unichar *)source)[pos]) ; }
-unichar __bigEndianUnicodeEnumerator(const void *source, NSUInteger pos) { return MSFromBig16(((unichar *)source)[pos]) ; }
-unichar __asciiEnumerator(const void *source, NSUInteger pos) { return (unichar)((char *)source)[pos] ; }
-unichar __macRomanEnumerator(const void *source, NSUInteger pos) { return __MSMacRomanToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __nextStepEnumerator(const void *source, NSUInteger pos) { return __MSNextstepToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __ansiEnumerator(const void *source, NSUInteger pos) { return __MSAnsiToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __windows1250Enumerator(const void *source, NSUInteger pos) { return __MSWindows1250ToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __windows1251Enumerator(const void *source, NSUInteger pos) { return __MSWindows1251ToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __windows1253Enumerator(const void *source, NSUInteger pos) { return __MSWindows1253ToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __windows1254Enumerator(const void *source, NSUInteger pos) { return __MSWindows1254ToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __isoLatin2Enumerator(const void *source, NSUInteger pos) { return __MSIsoLatin2ToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __adobeSymbolEnumerator(const void *source, NSUInteger pos) { return __MSAdobeSymbolToUnicode[(int)(((char*)source)[pos])] ; }
-unichar __dosEnumerator(const void *source, NSUInteger pos) { return __MSDOSToUnicode[(int)(((char*)source)[pos])] ; }
+unichar __unicodeEnumerator(const void *source, NSUInteger pos) { return (unichar)((unichar *)source)[pos]; }
+unichar __littleEndianUnicodeEnumerator(const void *source, NSUInteger pos) { return MSFromLittle16(((unichar *)source)[pos]); }
+unichar __bigEndianUnicodeEnumerator(const void *source, NSUInteger pos) { return MSFromBig16(((unichar *)source)[pos]); }
+unichar __asciiEnumerator(const void *source, NSUInteger pos) { return (unichar)((char *)source)[pos]; }
+unichar __macRomanEnumerator(const void *source, NSUInteger pos) { return __MSMacRomanToUnicode[(int)(((char*)source)[pos])]; }
+unichar __nextStepEnumerator(const void *source, NSUInteger pos) { return __MSNextstepToUnicode[(int)(((char*)source)[pos])]; }
+unichar __ansiEnumerator(const void *source, NSUInteger pos) { return __MSAnsiToUnicode[(int)(((char*)source)[pos])]; }
+unichar __windows1250Enumerator(const void *source, NSUInteger pos) { return __MSWindows1250ToUnicode[(int)(((char*)source)[pos])]; }
+unichar __windows1251Enumerator(const void *source, NSUInteger pos) { return __MSWindows1251ToUnicode[(int)(((char*)source)[pos])]; }
+unichar __windows1253Enumerator(const void *source, NSUInteger pos) { return __MSWindows1253ToUnicode[(int)(((char*)source)[pos])]; }
+unichar __windows1254Enumerator(const void *source, NSUInteger pos) { return __MSWindows1254ToUnicode[(int)(((char*)source)[pos])]; }
+unichar __isoLatin2Enumerator(const void *source, NSUInteger pos) { return __MSIsoLatin2ToUnicode[(int)(((char*)source)[pos])]; }
+unichar __adobeSymbolEnumerator(const void *source, NSUInteger pos) { return __MSAdobeSymbolToUnicode[(int)(((char*)source)[pos])]; }
+unichar __dosEnumerator(const void *source, NSUInteger pos) { return __MSDOSToUnicode[(int)(((char*)source)[pos])]; }
 
 SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding)
 {
@@ -80,144 +80,144 @@ SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEnco
       case NSASCIIStringEncoding:
       case NSNonLossyASCIIStringEncoding:
       case NSISOLatin1StringEncoding:
-        return MSMakeSES(__asciiEnumerator, 0, sourceLength) ;
+        return MSMakeSES(__asciiEnumerator, 0, sourceLength);
       case NSISOLatin2StringEncoding:
-        return MSMakeSES(__isoLatin2Enumerator, 0, sourceLength) ;
+        return MSMakeSES(__isoLatin2Enumerator, 0, sourceLength);
       case NSNEXTSTEPStringEncoding:
-        return MSMakeSES(__nextStepEnumerator, 0, sourceLength) ;
+        return MSMakeSES(__nextStepEnumerator, 0, sourceLength);
       case NSMacOSRomanStringEncoding:
-        return MSMakeSES(__macRomanEnumerator, 0, sourceLength) ;
+        return MSMakeSES(__macRomanEnumerator, 0, sourceLength);
       case NSWindowsCP1250StringEncoding: // WinLatin2
-        return MSMakeSES(__windows1250Enumerator, 0, sourceLength) ;
+        return MSMakeSES(__windows1250Enumerator, 0, sourceLength);
       case NSWindowsCP1251StringEncoding: // Cyrilic
-        return MSMakeSES(__windows1251Enumerator, 0, sourceLength) ;
+        return MSMakeSES(__windows1251Enumerator, 0, sourceLength);
       case NSWindowsCP1252StringEncoding: // WinLatin1
-        return MSMakeSES(__ansiEnumerator, 0, sourceLength) ;
+        return MSMakeSES(__ansiEnumerator, 0, sourceLength);
       case NSWindowsCP1253StringEncoding: // Greec
-        return MSMakeSES(__windows1253Enumerator, 0, sourceLength) ;
+        return MSMakeSES(__windows1253Enumerator, 0, sourceLength);
       case NSWindowsCP1254StringEncoding: // Turkish
-        return MSMakeSES(__windows1254Enumerator, 0, sourceLength) ;
+        return MSMakeSES(__windows1254Enumerator, 0, sourceLength);
       case NSSymbolStringEncoding:
-        return MSMakeSES(__windows1254Enumerator, 0, sourceLength) ;
+        return MSMakeSES(__windows1254Enumerator, 0, sourceLength);
       case NSUnicodeStringEncoding:
-        return MSMakeSES(__unicodeEnumerator, 0, sourceLength) ;
+        return MSMakeSES(__unicodeEnumerator, 0, sourceLength);
       case NSUTF16BigEndianStringEncoding:
-        return MSMakeSES(__bigEndianUnicodeEnumerator, 0, sourceLength) ;
+        return MSMakeSES(__bigEndianUnicodeEnumerator, 0, sourceLength);
       case NSUTF16LittleEndianStringEncoding:
-        return MSMakeSES(__littleEndianUnicodeEnumerator, 0, sourceLength) ;
+        return MSMakeSES(__littleEndianUnicodeEnumerator, 0, sourceLength);
       case NSDOSStringEncoding:
-        return MSMakeSES(__dosEnumerator, 0, sourceLength) ;
-
+        return MSMakeSES(__dosEnumerator, 0, sourceLength);
+        
       default:
         // we dont return a valid enumerator for NSUTF8StringEncoding, NSJapaneseEUCStringEncoding, NSShiftJISStringEncoding and NSISO2022JPStringEncoding
         break;
     }
   }
-  return MSInvalidSES ;
+  return MSInvalidSES;
 }
 
 SES SESFind(SES ses, const void *source, SES sesSearched, const void *searched)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0} ;
+  SES ret = {InvalidCHAI,NSNotFound,0};
   if (source && searched && SESOK(ses) && SESOK(sesSearched) && sesSearched.length <= ses.length) {
-        register NSUInteger i1, i2, end1 = ses.start + ses.length ;
-        for (i1 = ses.start, i2 = 0 ; i1 < end1 && i2 < sesSearched.length ; i1++) {
-            if (SESIndex(ses, source, i1) == SESIndex(sesSearched, searched, i2)) { i2++ ; }
-            else if (i2 > 0) { i1 -= i2 ; i2 = 0 ; /* comming back to last position we can recon knew pattern */ }
-        }
-        if (i2 == sesSearched.length) {
-            ret.length = i2 ;
-            ret.start = i1 - i2 ;
-            ret.chai = ses.chai ;
-        }
-        
+    register NSUInteger i1, i2, end1 = ses.start + ses.length;
+    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesSearched.length; i1++) {
+      if (SESIndex(ses, source, i1) == SESIndex(sesSearched, searched, i2)) { i2++; }
+      else if (i2 > 0) { i1 -= i2; i2 = 0; /* comming back to last position we can recon knew pattern */ }
+    }
+    if (i2 == sesSearched.length) {
+      ret.length = i2;
+      ret.start = i1 - i2;
+      ret.chai = ses.chai;
+    }
+    
   }
-  return ret ;
+  return ret;
 }
 
 SES SESInsensitiveFind(SES ses, const void *source, SES sesSearched, const void *searched)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0} ;
+  SES ret = {InvalidCHAI,NSNotFound,0};
   if (source && searched && SESOK(ses) && SESOK(sesSearched) && sesSearched.length <= ses.length) {
-        register NSUInteger i1, i2, end1 = ses.start + ses.length ;
-        
-        for (i1 = ses.start, i2 = 0 ; i1 < end1 && i2 < sesSearched.length ; i1++) {
-            if (CUnicharInsensitiveEquals(SESIndex(ses, source, i1), SESIndex(sesSearched, searched, i2))) { i2 ++ ; }
-            else if (i2 > 0) { i1 -= i2 ; i2 = 0 ; /* comming back to last position we can recon knew pattern */ }
-        }
-        if (i2 == sesSearched.length) {
-            ret.length = i2 ;
-            ret.start = i1 - i2 ;
-            ret.chai = ses.chai ;
-        }
-        
+    register NSUInteger i1, i2, end1 = ses.start + ses.length;
+    
+    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesSearched.length; i1++) {
+      if (CUnicharInsensitiveEquals(SESIndex(ses, source, i1), SESIndex(sesSearched, searched, i2))) { i2 ++; }
+      else if (i2 > 0) { i1 -= i2; i2 = 0; /* comming back to last position we can recon knew pattern */ }
+    }
+    if (i2 == sesSearched.length) {
+      ret.length = i2;
+      ret.start = i1 - i2;
+      ret.chai = ses.chai;
+    }
+    
   }
-  return ret ;
+  return ret;
 }
 
 SES SESCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0} ;
+  SES ret = {InvalidCHAI,NSNotFound,0};
   if (source && comparator && SESOK(ses) && SESOK(sesComparator)) {
-        register NSUInteger i1, i2, end1 = ses.start + ses.length ;
-        for (i1 = ses.start, i2 = 0 ; i1 < end1 && i2 < sesComparator.length ; i1++) {
-            if (SESIndex(ses, source, i1) == SESIndex(sesComparator, comparator, i2)) { i2++ ; }
-            else { break ;}
-        }
-        ret = ses ;
-        ret.length = i2 ;
+    register NSUInteger i1, i2, end1 = ses.start + ses.length;
+    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesComparator.length; i1++) {
+      if (SESIndex(ses, source, i1) == SESIndex(sesComparator, comparator, i2)) { i2++; }
+      else { break;}
+    }
+    ret = ses;
+    ret.length = i2;
   }
-  return ret ;
+  return ret;
 }
 
 SES SESInsensitiveCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0} ;
+  SES ret = {InvalidCHAI,NSNotFound,0};
   if (source && comparator && SESOK(ses) && SESOK(sesComparator)) {
-        register NSUInteger i1, i2, end1 = ses.start + ses.length ;
-        for (i1 = ses.start, i2 = 0 ; i1 < end1 && i2 < sesComparator.length ; i1++) {
-            if (CUnicharInsensitiveEquals(SESIndex(ses, source, i1), SESIndex(sesComparator, comparator, i2))) { i2++ ; }
-            else { break ;}
-        }
-        ret = ses ;
-        ret.length = i2 ;
+    register NSUInteger i1, i2, end1 = ses.start + ses.length;
+    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesComparator.length; i1++) {
+      if (CUnicharInsensitiveEquals(SESIndex(ses, source, i1), SESIndex(sesComparator, comparator, i2))) { i2++; }
+      else { break;}
+    }
+    ret = ses;
+    ret.length = i2;
   }
-  return ret ;
+  return ret;
 }
 
 SES SESExtractPart(SES ses, const void *s, CUnicharChecker matchingChar)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0} ;
+  SES ret = {InvalidCHAI,NSNotFound,0};
   if (SESOK(ses) && s && matchingChar) {
-    NSUInteger start = ses.start, i = ses.length ;
-    for (; start < i ; start++) if (matchingChar(SESIndex(ses, s, start))) break ;
+    NSUInteger start = ses.start, i = ses.length;
+    for (; start < i; start++) if (matchingChar(SESIndex(ses, s, start))) break;
     if (start < i) {
-            while (i-- > start) { if (matchingChar(SESIndex(ses, s, i))) break ; }
-      ret.chai = ses.chai ;
-      ret.start = start ;
-      ret.length = i-start+1 ;
+      while (i-- > start) { if (matchingChar(SESIndex(ses, s, i))) break; }
+      ret.chai = ses.chai;
+      ret.start = start;
+      ret.length = i-start+1;
     }
   }
-  return ret ;
+  return ret;
 }
 
 SES SESExtractToken(SES ses, const void *s, CUnicharChecker matchingChar, CUnicharChecker leftSpaces)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0} ;
+  SES ret = {InvalidCHAI,NSNotFound,0};
   if (SESOK(ses) && s && matchingChar) {
-    NSUInteger start = ses.start, i = ses.length ;
-    if (!leftSpaces) leftSpaces = (CUnicharChecker)CUnicharIsSpace ;
+    NSUInteger start = ses.start, i = ses.length;
+    if (!leftSpaces) leftSpaces = (CUnicharChecker)CUnicharIsSpace;
     
-    for (; start < i ; start++) if (!leftSpaces(SESIndex(ses, s, start))) break ;
+    for (; start < i; start++) if (!leftSpaces(SESIndex(ses, s, start))) break;
     if (start < i && matchingChar(SESIndex(ses, s, start))) {
-      NSUInteger j ;
-            for (j = start; j < i ; j++) if (!matchingChar(SESIndex(ses, s, j))) break ;
-      ret.chai = ses.chai ;
-      ret.start = start ;
-      ret.length = j-start ;
+      NSUInteger j;
+      for (j = start; j < i; j++) if (!matchingChar(SESIndex(ses, s, j))) break;
+      ret.chai = ses.chai;
+      ret.start = start;
+      ret.length = j-start;
     }
     
   }
-  return ret ;
+  return ret;
 }
 

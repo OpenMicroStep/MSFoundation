@@ -39,7 +39,7 @@
  
  */
 
-#include "MSCorePrivate_.h"
+#include "MSCore_Private.h"
 
 #pragma mark local functions
 
@@ -527,7 +527,6 @@ NSUInteger CSortedArrayAddObject(CArray *self, id obj, MSObjectComparator cmp, v
   return idx;
 }
 
-#ifndef MSCORE_STANDALONE
 /* TODO:
  // these 2 function should be replaced by "MSUnicodeBuffer" functions :
  MSExport NSString *CArrayToString(CArray *self);
@@ -557,4 +556,3 @@ CUnicodeBuffer *CArrayToString(CArray *self)
   return nil;
   self= nil;
   }
-#endif

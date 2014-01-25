@@ -59,7 +59,7 @@
 void m_apm_add(M_APM r, const M_APM a, const M_APM b)
 {
   int j, carry, sign, aexp, bexp, adigits, bdigits;
-  M_APM M_work1, M_work2 ;
+  M_APM M_work1, M_work2;
   
   
   if (a->m_apm_sign == 0)
@@ -95,8 +95,8 @@ void m_apm_add(M_APM r, const M_APM a, const M_APM b)
   aexp = a->m_apm_exponent;
   bexp = b->m_apm_exponent;
   
-  M_work1 = m_apm_new() ;
-  M_work2 = m_apm_new() ;
+  M_work1 = m_apm_new();
+  M_work2 = m_apm_new();
   
   m_apm_copy(M_work1, a);
   m_apm_copy(M_work2, b);
@@ -177,13 +177,13 @@ void m_apm_add(M_APM r, const M_APM a, const M_APM b)
   r->m_apm_sign = sign;
   
   M_apm_normalize(r);
-  m_apm_free(M_work1) ; m_apm_free(M_work2) ;
+  m_apm_free(M_work1); m_apm_free(M_work2);
 }
 /****************************************************************************/
 void m_apm_subtract(M_APM r, const M_APM a, const M_APM b)
 {
-  M_APM M_work1, M_work2 ;
-  int itmp, j, flag, icompare, sign, aexp, bexp ;
+  M_APM M_work1, M_work2;
+  int itmp, j, flag, icompare, sign, aexp, bexp;
   int borrow, adigits, bdigits;
   
   if (b->m_apm_sign == 0)
@@ -218,8 +218,8 @@ void m_apm_subtract(M_APM r, const M_APM a, const M_APM b)
   /* now, the signs are the same  */
   /* make a positive working copy */
   
-  M_work1 = m_apm_new() ;
-  M_work2 = m_apm_new() ;
+  M_work1 = m_apm_new();
+  M_work2 = m_apm_new();
   m_apm_absolute_value(M_work1, a);
   m_apm_absolute_value(M_work2, b);
   
@@ -228,7 +228,7 @@ void m_apm_subtract(M_APM r, const M_APM a, const M_APM b)
   if ((icompare = m_apm_compare(M_work1, M_work2)) == 0)
   {
     M_set_to_zero(r);
-    m_apm_free(M_work1) ; m_apm_free(M_work2) ;
+    m_apm_free(M_work1); m_apm_free(M_work2);
     return;
   }
   
@@ -317,6 +317,6 @@ void m_apm_subtract(M_APM r, const M_APM a, const M_APM b)
   r->m_apm_sign = sign;
   
   M_apm_normalize(r);
-  m_apm_free(M_work1) ; m_apm_free(M_work2) ;
+  m_apm_free(M_work1); m_apm_free(M_work2);
 }
 /****************************************************************************/

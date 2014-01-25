@@ -38,7 +38,7 @@
  
  */
 
-#import "MSFoundationPrivate_.h"
+#import "MSFoundation_Private.h"
 
 @implementation MSDictionaryEnumerator
 - (id)initWithDictionary:(MSDictionary*)d
