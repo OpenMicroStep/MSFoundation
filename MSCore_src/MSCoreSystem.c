@@ -1,4 +1,4 @@
-/*   MSCoreSystem.c
+/* MSCoreSystem.c
  
  This file is is a part of the MicroStep Framework.
  

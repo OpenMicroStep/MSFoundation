@@ -1,4 +1,4 @@
-/*   MSCoreTypes.h
+/* MSCoreTypes.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -182,6 +182,7 @@ enum {
   NSWindowsCP1250StringEncoding= 15, // WinLatin2
   NSISO2022JPStringEncoding=     21, // ISO 2022 Japanese encoding for e-mail
   NSMacOSRomanStringEncoding=    30,
+//NSDOSStringEncoding=           0x20000, // DOS: Added to NS...Encoding constants (see below)
   
   NSUTF16StringEncoding= NSUnicodeStringEncoding, // An alias for NSUnicodeStringEncoding
   

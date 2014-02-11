@@ -1,4 +1,4 @@
-/*   MSCObject.m
+/* MSCObject.m
  
  This file is is a part of the MicroStep Framework.
  
@@ -119,7 +119,7 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
     @"MSDecimal",
     @"MSDictionary",
     0,//MSMutex,
-    @"MSUnicodeBuffer"};
+    @"MSString"};
   
   Class aClass= NSClassFromString(__allCLikeClasses[classIndex]);
   id obj= nil;

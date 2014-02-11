@@ -1,4 +1,4 @@
-/*   MSCore_Private.h
+/* MSCore.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -56,7 +56,7 @@
 
 #include <MSCore/MSCoreUnichar.h>
 #include <MSCore/MSCoreSES.h>
-#include <MSCore/MSCUnicodeBuffer.h>
+#include <MSCore/MSCString.h>
 
 #include <MSCore/MSCArray.h>
 #include <MSCore/MSCBuffer.h>

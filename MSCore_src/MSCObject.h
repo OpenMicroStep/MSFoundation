@@ -1,4 +1,4 @@
-/*   MSCObject.h
+/* MSCObject.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -79,9 +79,9 @@ typedef enum {
   CDecimalClassIndex,
   CDictionaryClassIndex,
   CMUtexClassIndex,
-  CUnicodeBufferClassIndex}
+  CStringClassIndex}
 CClassIndex;
-#define CClassIndexMax ((NSUInteger)CUnicodeBufferClassIndex)
+#define CClassIndexMax ((NSUInteger)CStringClassIndex)
 
 
 id MSCreateObjectWithClassIndex(CClassIndex classIndex);
@@ -263,10 +263,10 @@ MSExport id         CDictionaryCopy(id self);
 
 //MSExport void       CMutexFree(id self);
 
-MSExport void       CUnicodeBufferFree(id self);
-MSExport BOOL       CUnicodeBufferIsEqual(id self, id other);
-MSExport NSUInteger CUnicodeBufferHash(id self, unsigned depth);
-MSExport id         CUnicodeBufferCopy(id self);
+MSExport void       CStringFree(id self);
+MSExport BOOL       CStringIsEqual(id self, id other);
+MSExport NSUInteger CStringHash(id self, unsigned depth);
+MSExport id         CStringCopy(id self);
 
 // Private for CArrayIsEqual, CBufferIsEqual...
 typedef BOOL (*CObjectEq)(id, id);

@@ -1,4 +1,4 @@
-/*   MSUnicodeBuffer.h
+/*   MSString.m
  
  This file is is a part of the MicroStep Framework.
  
@@ -38,11 +38,7 @@
  
  */
 
-@interface MSUnicodeBuffer : NSObject
-{
-@private
-  unichar*   _buf;
-  NSUInteger _length;
-  NSUInteger _size;
-}
+#import "MSFoundation_Private.h"
+
+@implementation MSString
 @end

@@ -1,4 +1,4 @@
-/*   MSCObject.c
+/* MSCObject.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -71,8 +71,9 @@ static CClass __allClasses[CClassIndexMax+1]=
   {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
   {&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
   {&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
+  {&metaclass, "CMutex"        , NULL              , NULL                 , NULL              , NULL              , 0                     },
 //{&metaclass, "CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)        },
-  {&metaclass, "CUnicodeBuffer", CUnicodeBufferFree, CUnicodeBufferIsEqual, CUnicodeBufferHash, CUnicodeBufferCopy, sizeof(CUnicodeBuffer)}
+  {&metaclass, "CString", CStringFree, CStringIsEqual, CStringHash, CStringCopy, sizeof(CString)}
 };
 
 #define CISA(obj) ((CClass*)((obj)->isa))
@@ -127,8 +128,7 @@ id _CObjectCopy(id obj)
 {
   if (obj) {
     if (CISA(obj)->copier) {
-      return CISA(obj)->copier(obj);
-    }
+      return CISA(obj)->copier(obj);}
     else {
       MSReportError(MSGenericError, MSFatalError, MSUnimplementedMethod, "Objects of class %s don't implement the 'copier' function", obj->isa->className);
     }

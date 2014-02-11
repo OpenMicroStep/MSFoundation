@@ -1,4 +1,4 @@
-/*   MSCoreSES.h
+/* MSCoreSES.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -41,49 +41,74 @@
 #ifndef MSCORE_SES_H
 #define MSCORE_SES_H
 
+// CHAI (CHaracter At Index) est une fonction qui, à partir
+// d'un pointeur vers une source et
+// d'un entier i représentant l'index que l'on veut atteindre dans la source,
+// retourne en tant qu'unichar le ième élément de la source.
+
 typedef unichar (*CHAI)(const void *, NSUInteger);
-#define InvalidCHAI  (CHAI)0
+#define InvalidCHAI (CHAI)0
+
+// SES (String Enumerator S...) représente l'accès à une source que l'on peut
+// parcourir grâce à sa fonction 'chai'
+// qu'on limite volontairement à l'intervalle [start, start+length[
 
 typedef struct SESStruct {
+  const void *source;
   CHAI chai;
   NSUInteger start;
   NSUInteger length;
-} SES;
+  NSStringEncoding encoding;}
+SES;
 
 MSExport const SES MSInvalidSES;
 
-static inline SES MSMakeSES(CHAI funct, NSUInteger start, NSUInteger length)
+static inline SES MSMakeSES(const void *source, CHAI funct, NSUInteger start, NSUInteger length, NSStringEncoding encoding)
 {
   SES ret;
-  ret.chai = funct;
-  ret.start = start;
-  ret.length = length;
+  ret.source=   source;
+  ret.chai=     funct;
+  ret.start=    start;
+  ret.length=   length;
+  ret.encoding= encoding;
   return ret;
 }
 
 typedef MSByte MSRealScanOptions;
-#define MSAcceptsDot    1
-#define MSAcceptsComma    2
-#define MSAcceptsDotOrComma  3
-#define MSAcceptsExponent  4
+#define MSAcceptsDot        1
+#define MSAcceptsComma      2
+#define MSAcceptsDotOrComma 3
+#define MSAcceptsExponent   4
+
+unichar        CEncodingToUnicode(unsigned short c, NSStringEncoding encoding);
+unsigned short CUnicodeToEncoding(unichar        u, NSStringEncoding encoding);
 
 MSExport SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding);
 
-MSExport SES SESFind(SES ses, const void *source, SES sesSearched, const void *searched);
-MSExport SES SESInsensitiveFind(SES ses, const void *source, SES sesSearched, const void *searched);
+MSExport SES SESFind(SES src, SES searched);
+MSExport SES SESInsensitiveFind(SES src, SES searched);
 
-MSExport SES SESCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator);
-MSExport SES SESInsensitiveCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator);
+MSExport SES SESCommonPrefix(SES src, SES comparator);
+MSExport SES SESInsensitiveCommonPrefix(SES src, SES comparator);
+// Retourne en tant que SES sur src le plus grand préfixe entre les deux chaînes.
+// Retourne MSInvalidSES si pas de préfixe commun.
 
-MSExport SES SESExtractPart(SES ses, const void *s, CUnicharChecker matchingChar);
-MSExport SES SESExtractToken(SES ses, const void *s, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
+MSExport SES SESExtractPart(SES src, CUnicharChecker matchingChar);
+MSExport SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
+// Si 'leftSpaces' est NULL, il est remplacé par CUnicharIsSpace.
+// Retourne un SES de 'src' sans les 'leftSpaces', avec les caractères qui matchent
+// avec 'matchingChar'.
+// Ex: ('  123zehgf',CUnicharIsDigit,NULL) -> '123'
 
 #define CAIOK(X)      ((X) != InvalidCHAI)
-#define SESOK(X)      ({SES __x__ = (X);  CAIOK(__x__.chai) && (__x__.start != NSNotFound) && (__x__.length > 0);})
-#define SESLength(X)    ((X).length)
-#define SESCHAI(X)      ((X).chai)
-#define SESStart(X)      ((X).start)
-#define SESIndex(X,Y,Z)    ((X).chai(Y,Z))
-#define SESEnd(X)      ((X).start + (X).length)
+#define SESOK(X)      ({SES __x__= (X);  \
+  (__x__.source != NULL) && CAIOK(__x__.chai) && \
+  (__x__.start != NSNotFound) && (__x__.length > 0);})
+#define SESSource(X)  ((X).source)
+#define SESCHAI(X)    ((X).chai)
+#define SESStart(X)   ((X).start)
+#define SESLength(X)  ((X).length)
+#define SESIndex(X,I) ({SES __x__= (X); __x__.chai(__x__.source,(I));})
+#define SESEnd(X)     ((X).start + (X).length)
 
 #endif /* MSCORE_SES_H */

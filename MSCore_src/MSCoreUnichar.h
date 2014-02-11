@@ -1,4 +1,4 @@
-/*   MSCoreUnichar.h
+/* MSCoreUnichar.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -82,11 +82,15 @@ MSExport unichar CWindows1253ToUnicode(MSByte c);
 MSExport unichar CWindows1254ToUnicode(MSByte c);
 MSExport unichar CAdobeSymbolToUnicode(MSByte c);
 
-MSExport BOOL CUnicharInsensitiveEquals(unichar ca, unichar cb);
+MSExport unichar CEncodingToUnichar(MSByte  c, NSStringEncoding encoding);
+MSExport MSByte  CUnicharToEncoding(unichar u, NSStringEncoding encoding);
+
+MSExport BOOL               CUnicharEquals(unichar ca, unichar cb, BOOL insensitive);
+MSExport BOOL               CUnicharInsensitiveEquals (unichar ca, unichar cb);
 MSExport NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb);
 
-MSExport BOOL CUnicharsInsensitiveEquals(const unichar *ba, const unichar *bb, NSUInteger length);
-MSExport NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, const unichar *bb, NSUInteger length);
+MSExport BOOL               CUnicharsInsensitiveEquals (const unichar *ba, NSUInteger la, const unichar *bb, NSUInteger lb);
+MSExport NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, NSUInteger la, const unichar *bb, NSUInteger lb);
 
 MSExport NSUInteger CUnicharsInsensitiveFind(const unichar *b, NSUInteger l, const unichar *bf, NSUInteger lf);
 

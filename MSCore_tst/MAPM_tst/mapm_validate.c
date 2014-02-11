@@ -62,7 +62,7 @@
  *      initial version
  */
 #include "m_apm_lc.h"
-//#include "mscore_validate.h"
+#include "mapm_validate.h"
 
 static int __verbose= 0;
 

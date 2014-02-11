@@ -1,4 +1,4 @@
-/*   MSCUnicodeBuffer.c
+/* MSCString.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -40,83 +40,188 @@
  */
 
 #include "MSCore_Private.h"
-#include "MSCoreUnichar_Private.h"
 
-#ifdef MSCORE_STANDALONE
-//#include "_MSCorePrivate.h"
+#pragma mark c-like class methods
 
-void CUnicodeBufferFree(id self)
+void CStringFreeInside(id self)
 {
   if (self) {
-    if (((CUnicodeBuffer*)self)->buf)
-      MSFree(((CUnicodeBuffer *)self)->buf, "CUnicodeBufferFree() [memory]");
-    MSFree(self, "CUnicodeBufferFree() [self]");}
+    CString *s= (CString*)self;
+    MSFree(s->buf, "CStringFree() [memory]");
+    s->length= 0; s->buf= NULL;}
 }
 
-id  CUnicodeBufferCopy(id self)
+void CStringFree(id self)
 {
-  if (self) {
-    CUnicodeBuffer *newObject= (CUnicodeBuffer*)MSCreateObjectWithClassIndex(CUnicodeBufferClassIndex);
-    if (newObject) {
-      CUnicodeBufferAppendUnicodeBuffer(newObject, (const CUnicodeBuffer*)self);}
-    return (id)newObject;}
-  return nil;
+  CStringFreeInside(self);
+  MSFree(self, "CStringFree() [self]");
+}
+
+BOOL CStringIsEqual(id self, id other)
+{
+  return _CClassIsEqual(self,other,(CObjectEq)CStringEquals);
 }
 
 #define _CHashCharactersLimit 96
 
-#define HashNextFourUniChars(accessStart, accessEnd, pointer) \
-{result= result * 67503105 + (accessStart 0 accessEnd) * 16974593  + (accessStart 1 accessEnd) * 66049  + (accessStart 2 accessEnd) * 257 + (accessStart 3 accessEnd); pointer += 4;}
+#define HashNextFourUniChars(accessStart, accessEnd, pointer) { \
+  result= result * 67503105 + \
+          (accessStart 0 accessEnd) * 16974593 + \
+          (accessStart 1 accessEnd) *    66049 + \
+          (accessStart 2 accessEnd) *      257 + \
+          (accessStart 3 accessEnd); \
+  pointer += 4;}
 
 #define HashNextUniChar(accessStart, accessEnd, pointer) \
 {result= result * 257 + (accessStart 0 accessEnd); pointer++;}
 
-static inline MSUInt _CHashCharacters(const unichar *uContents, NSUInteger len) {
+static inline MSUInt _CHashCharacters(const unichar *uContents, NSUInteger len)
+{
   MSUInt result = (MSUInt)len;
   if (len <= _CHashCharactersLimit) {
-    const unichar *end4 = uContents + (len & (NSUInteger)~3);
-    const unichar *end = uContents + len;
-    while (uContents < end4) HashNextFourUniChars(uContents[, ], uContents);   // First count in fours
-    while (uContents < end) HashNextUniChar(uContents[, ], uContents);    // Then for the last <4 chars, count in ones...
-  } else {
+    const unichar *end4= uContents + (len & (NSUInteger)~3);
+    const unichar *end= uContents + len;
+    while (uContents < end4) HashNextFourUniChars(uContents[, ], uContents); // First count in fours
+    while (uContents < end) HashNextUniChar(uContents[, ], uContents);}      // Then for the last <4 chars, count in ones...
+  else {
     const unichar *contents, *end;
-    contents = uContents;
-    end = contents + 32;
+    contents= uContents;
+    end= contents + 32;
     while (contents < end) HashNextFourUniChars(contents[, ], contents);
-    contents = uContents + (len >> 1) - 16;
-    end = contents + 32;
+    contents= uContents + (len >> 1) - 16;
+    end= contents + 32;
     while (contents < end) HashNextFourUniChars(contents[, ], contents);
-    end = uContents + len;
-    contents = end - 32;
-    while (contents < end) HashNextFourUniChars(contents[, ], contents);
-  }
+    end= uContents + len;
+    contents= end - 32;
+    while (contents < end) HashNextFourUniChars(contents[, ], contents);}
   return result + (result << (len & 31));
 }
 
 /* for unicode buffers, for now we use the same hashing algorithm has in CoreFoundation */
-NSUInteger CUnicodeBufferHash(id self, unsigned depth)
+NSUInteger CStringHash(id self, unsigned depth)
 {
+  CString *s= (CString*)self;
+  return s && s->length ? (NSUInteger)_CHashCharacters(s->buf, s->length) : 0;
   depth= 0; // Unused
-  return self && ((CUnicodeBuffer *)self)->length ? (NSUInteger)_CHashCharacters(((CUnicodeBuffer *)self)->buf, ((CUnicodeBuffer *)self)->length) : 0;
 }
 
-BOOL CUnicodeBufferIsEqual(id self, id other)
+id CStringCopy(id self)
 {
-  if (self == other) { return YES; };
-  return  self && other &&
-  ((CUnicodeBuffer *)self)->isa == ((CUnicodeBuffer *)other)->isa &&
-  CUnicodeBufferEquals(((CUnicodeBuffer *)self), ((CUnicodeBuffer *)other)) ? YES : NO;
+  CString *s= nil;
+  if (self) {
+    s= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
+    CStringAppendString(s, (const CString*)self);}
+  return (id)s;
 }
 
-#else
-//#import "_MSFoundationCorePrivate.h"
-//#import "_MSCoreUnicharPrivate.h"
-#endif
+#pragma mark Equality
 
+BOOL CStringEquals(const CString *s1, const CString *s2)
+{
+  if (s1 == s2) return YES;
+  if (s1 && s2) {
+    NSUInteger l1= s1->length;
+    return l1 == s2->length && !memcmp(s1->buf, s2->buf, l1*sizeof(unichar)) ? YES : NO;}
+  return NO;
+}
 
+BOOL CStringInsensitiveEquals(const CString *s1, const CString *s2)
+{
+  if (s1 == s2) return YES;
+  if (s1 && s2) {
+    return CUnicharsInsensitiveEquals(s1->buf, s1->length, s2->buf, s2->length);}
+  return NO;
+}
 
+#pragma mark Creation
 
-static inline NSUInteger _addNonASCIIByte(CUnicodeBuffer *self,
+CString *CCreateString(NSUInteger capacity)
+{
+  CString *s= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
+  if (s && capacity) CStringGrow(s, capacity);
+  return s;
+}
+
+CString *CCreateStringWithBytes(const void *s, NSUInteger length, NSStringEncoding encoding)
+{
+  CString *x= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
+  CStringAppendBytes(x, s, length, encoding);
+  return x;
+}
+
+#pragma mark Management
+
+void CStringGrow(CString *self, NSUInteger n)
+{
+  _CClassGrow((id)self, n, self->length, sizeof(unichar), &self->size, (void**)&self->buf);
+}
+
+void CStringAdjustSize(CString *self)
+{
+  _CClassAdjustSize((id)self, self->length, sizeof(unichar), &self->size, (void**)&self->buf);
+}
+
+NSUInteger CStringLength(const CString *self)
+{
+  return (self ? self->length : 0);
+}
+unichar CStringCharacterAtIndex(const CString *self, NSUInteger i)
+{
+  if (!self || i >= self->length) return (unichar)0;
+  return self->buf[i];
+}
+
+NSUInteger CStringIndexOfCharacter(const CString *self, unichar c)
+{
+  if (self) {
+    NSUInteger i, l= self->length;
+    for (i= 0; i < l; i++) if (self->buf[i] == c) return i;}
+  return NSNotFound;
+}
+
+#pragma mark Append
+
+void CStringAppendCharacter(CString *self, unichar c)
+{
+  if (self) {
+    if (self->size < self->length+1) CStringGrow(self, 1);
+    self->buf[self->length++]= c;}
+}
+
+void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb)
+{
+  if (self && nb) {
+    register NSUInteger i;
+    if (self->size < self->length+nb) CStringGrow(self, nb);
+    for (i= 0; i < nb; i++) self->buf[self->length++]= c;}
+}
+
+static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger length);
+void CStringAppendBytes(CString *self, const void *s, NSUInteger length, NSStringEncoding encoding)
+{
+  if (encoding==NSUTF8StringEncoding) _CStringAppendUTF8Bytes(self, s, length);
+  else CStringAppendSES(self, MSMakeSESWithBytes(s, length, encoding));
+}
+
+void CStringAppendSES(CString *self, SES ses)
+{
+  if (self && SESOK(ses)) {
+    register NSUInteger i, end, lg= SESLength(ses);
+    if (self->size < self->length+lg) CStringGrow(self, lg);
+    if (ses.encoding==NSUnicodeStringEncoding) {
+      memmove(self->buf+self->length, SESSource(ses)+SESStart(ses), lg*sizeof(unichar));
+      self->length+= SESLength(ses);}
+    else for (i= SESStart(ses), end= SESEnd(ses); i < end; i++) {
+      self->buf[self->length++]= SESIndex(ses, i);}}
+}
+
+void CStringAppendString(CString *self, const CString *s)
+{
+  if (self && s && s->length) {
+    CStringAppendSES(self, MSMakeSESWithBytes(s->buf, s->length, NSUnicodeStringEncoding));}
+}
+
+static inline NSUInteger _addNonASCIIByte(CString *self,
                                           NSUInteger initialLen,
                                           MSByte c, NSUInteger pos,
                                           NSUInteger len,
@@ -128,13 +233,16 @@ static inline NSUInteger _addNonASCIIByte(CUnicodeBuffer *self,
                                           NSStringEncoding *encoding)
 {
   switch (*encoding) {
-    case NSMacOSRomanStringEncoding:
-      self->buf[self->length++] = __MSMacRomanToUnicode[c];
-      pos ++;
-      break;
     case NSNEXTSTEPStringEncoding:
-      // we should never be here, but it's for the fun
-      self->buf[self->length++] = __MSNextstepToUnicode[c];
+    case NSSymbolStringEncoding:
+    case NSWindowsCP1251StringEncoding:
+    case NSWindowsCP1252StringEncoding:
+    case NSWindowsCP1253StringEncoding:
+    case NSWindowsCP1254StringEncoding:
+    case NSWindowsCP1250StringEncoding:
+    case NSMacOSRomanStringEncoding:
+    case NSDOSStringEncoding:
+      self->buf[self->length++]= CEncodingToUnicode(c, *encoding);
       pos ++;
       break;
     case NSUTF8StringEncoding:{
@@ -234,45 +342,11 @@ static inline NSUInteger _addNonASCIIByte(CUnicodeBuffer *self,
         pos = 0;
       }
       else {
-        self->buf[self->length++] = __MSIsoLatin2ToUnicode[c];
+        self->buf[self->length++]= CEncodingToUnicode(c, NSISOLatin2StringEncoding);
         pos ++;
       }
       break;
     }
-    case NSWindowsCP1252StringEncoding:
-      self->buf[self->length++] = __MSAnsiToUnicode[c];
-      pos ++;
-      break;
-    case NSWindowsCP1250StringEncoding:
-      // we should never be here, but it's for the fun
-      self->buf[self->length++] = __MSWindows1250ToUnicode[c];
-      pos ++;
-      break;
-    case NSWindowsCP1251StringEncoding:
-      // we should never be here, but it's for the fun
-      self->buf[self->length++] = __MSWindows1251ToUnicode[c];
-      pos ++;
-      break;
-    case NSWindowsCP1253StringEncoding:
-      // we should never be here, but it's for the fun
-      self->buf[self->length++] = __MSWindows1253ToUnicode[c];
-      pos ++;
-      break;
-    case NSWindowsCP1254StringEncoding:
-      // we should never be here, but it's for the fun
-      self->buf[self->length++] = __MSWindows1254ToUnicode[c];
-      pos ++;
-      break;
-    case NSSymbolStringEncoding:
-      // we should never be here, but it's for the fun
-      self->buf[self->length++] = __MSAdobeSymbolToUnicode[c];
-      pos ++;
-      break;
-    case NSDOSStringEncoding:
-      // we should never be here, but it's for the fun
-      self->buf[self->length++] = __MSDOSToUnicode[c];
-      pos ++;
-      break;
       
     case NSASCIIStringEncoding:
     default:
@@ -290,7 +364,7 @@ static inline NSUInteger _addNonASCIIByte(CUnicodeBuffer *self,
 }
 
 
-BOOL CUnicodeBufferAppendUTF8Bytes(CUnicodeBuffer *self, const void *bytes, NSUInteger len)
+static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger len)
 {
   if (self && bytes && len) {
     MSByte c, *s = (MSByte *)bytes;
@@ -298,42 +372,20 @@ BOOL CUnicodeBufferAppendUTF8Bytes(CUnicodeBuffer *self, const void *bytes, NSUI
     NSUInteger i = 0, initialLen = self->length;
     NSUInteger sequenceLen = 0, sequenceIndex = 0;
     NSStringEncoding encoding = NSUTF8StringEncoding;
-    
-    
-    if (self->length + len > self->size && !CUnicodeBufferGrow(self, len)) return NO; // we (hope) know that the length(utf8) <= length(unicode equivalent)
-    
+
+    if (self->length + len > self->size) CStringGrow(self, len); // we (hope) know that the length(utf8) <= length(unicode equivalent)
     while (i < len) {
       c = s[i];
       if (c > 0x7f) {
         i = _addNonASCIIByte(self, initialLen, c, i, len, NSASCIIStringEncoding, NO, &uc, &sequenceLen, &sequenceIndex, &encoding);
         if (encoding != NSUTF8StringEncoding) {
-          return NO;
-        }
-      }
+          return;}}
       else {
         self->buf[self->length++] = (unichar)c;
-        i++;
-      }
-    }
+        i++;}}
     if (sequenceLen > 0) {
       self->length = initialLen; // we go back to initial buffer state
-      return NO;
-    }
-    
-  }
-  return YES;
-}
-
-BOOL CUnicodeBufferAppendBytesWithEncoding(CUnicodeBuffer *self, const void *bytes, NSUInteger len, NSStringEncoding encoding)
-{
-  switch (encoding) {
-    case NSUTF8StringEncoding:    return CUnicodeBufferAppendUTF8Bytes(self, bytes, len);
-    case NSUnicodeStringEncoding:  return CUnicodeBufferAppendCharacters(self, (const unichar *)bytes, len);
-    default:{
-      SES ses = MSMakeSESWithBytes(bytes, len, encoding);
-      return SESOK(ses) ? CUnicodeBufferAppendWithSES(self, ses, bytes) : NO;
-    }
-  }
+      return;}}
 }
 
 #define NO_CONVERSION    0x0000
@@ -346,7 +398,7 @@ BOOL CUnicodeBufferAppendBytesWithEncoding(CUnicodeBuffer *self, const void *byt
 #define _XISHEXA(C)  (((C) >= '0' && (C) <= '9') || ((C) >= 'A' && (C) <= 'F') || ((C) >= 'a' && (C) <= 'f'))
 #define _XHEXAVAL(C) ((C) >= 'a' ? (C) - 'a' + 10 : ((C) >= 'A' ? (C) - 'A' + 10 : (C) - '0'))
 
-static BOOL _CUBAppendUnknownEncodingBytes(CUnicodeBuffer *self, const void *bytes, NSUInteger len, MSUShort cmode, NSStringEncoding encoding, BOOL tryIsoLatin, NSStringEncoding *foundEncodingPointer)
+static BOOL _CUBAppendUnknownEncodingBytes(CString *self, const void *bytes, NSUInteger len, MSUShort cmode, NSStringEncoding encoding, BOOL tryIsoLatin, NSStringEncoding *foundEncodingPointer)
 {
   if (self && bytes && len) {
     MSByte c, escaped = 0, *s = (MSByte *)bytes;
@@ -378,7 +430,7 @@ static BOOL _CUBAppendUnknownEncodingBytes(CUnicodeBuffer *self, const void *byt
       worse = NSUnicodeStringEncoding;
     }
     
-    if (self->length + len > self->size && !CUnicodeBufferGrow(self, len)) return NO; // we (hope) know that the length(8byte encoding) <= length(unicode equivalent)
+    if (self->length + len > self->size) CStringGrow(self, len); // we (hope) know that the length(8byte encoding) <= length(unicode equivalent)
     
   restart:
     if (cmode == NO_CONVERSION) {
@@ -459,19 +511,19 @@ static BOOL _CUBAppendUnknownEncodingBytes(CUnicodeBuffer *self, const void *byt
   return YES;
 }
 
-BOOL CUnicodeBufferAppendInternetBytes(CUnicodeBuffer *self, const void *bytes, NSUInteger len, NSStringEncoding encoding, NSStringEncoding *foundEncodingPointer)
+BOOL CStringAppendInternetBytes(CString *self, const void *bytes, NSUInteger len, NSStringEncoding encoding, NSStringEncoding *foundEncodingPointer)
 { return _CUBAppendUnknownEncodingBytes(self, bytes, len, NO_CONVERSION, encoding, YES, foundEncodingPointer); }
 
-BOOL CUnicodeBufferAppendSupposedEncodingBytes(CUnicodeBuffer *self, const void *bytes, NSUInteger len, NSStringEncoding encoding, NSStringEncoding *foundEncodingPointer)
+BOOL CStringAppendSupposedEncodingBytes(CString *self, const void *bytes, NSUInteger len, NSStringEncoding encoding, NSStringEncoding *foundEncodingPointer)
 { return _CUBAppendUnknownEncodingBytes(self, bytes, len, NO_CONVERSION, encoding, NO, foundEncodingPointer); }
 
-BOOL CUnicodeBufferAppendURLBytes(CUnicodeBuffer *self, const void *bytes, NSUInteger len, NSStringEncoding encoding, NSStringEncoding *foundEncodingPointer)
+BOOL CStringAppendURLBytes(CString *self, const void *bytes, NSUInteger len, NSStringEncoding encoding, NSStringEncoding *foundEncodingPointer)
 { return _CUBAppendUnknownEncodingBytes(self, bytes, len, CONV_URI_MODE, encoding, NO, foundEncodingPointer); }
 
-typedef BOOL (*_CUBNumberAppender)(CUnicodeBuffer *self, MSLong n);
+typedef BOOL (*_CUBNumberAppender)(CString *self, MSLong n);
 
 #warning Re-enable MAPM
-static BOOL _snd(CUnicodeBuffer *self, MSLong n)
+static BOOL _snd(CString *self, MSLong n)
 {
   BOOL ret= NO;
   n= 0; // TODO: n is UNUSED, Re-enable MAPM
@@ -481,7 +533,7 @@ static BOOL _snd(CUnicodeBuffer *self, MSLong n)
    char buf[128];
    M_APM bignum = m_apm_new();
    m_apm_to_integer_string(buf, bignum);
-   ret = CUnicodeBufferAppendISOLatin1CString(self, buf);
+   ret = CStringAppendISOLatin1CString(self, buf);
    m_apm_free(bignum);
    */
   return ret;
@@ -500,62 +552,65 @@ static char *__french100[100] = {
   "quatre-vingt-dix", "quatre-vingt-onze", "quatre-vingt-douze", "quatre-vingt-treize", "quatre-vingt-quatorze", "quatre-vingt-quinze", "quatre-vingt-seize", "quatre-vingt-dix-sept", "quatre-vingt-dix-huit", "quatre-vingt-dix-neuf"
 };
 
-static inline BOOL _frenchNumber999(CUnicodeBuffer *self, NSUInteger originalLength, unsigned number, BOOL invariable)
+static inline BOOL _frenchNumber999(CString *self, NSUInteger originalLength, unsigned number, BOOL invariable)
 {
-  unsigned centaines = number / 100;
-  unsigned reste = number % 100;
+  unsigned centaines= number / 100;
+  unsigned reste= number % 100;
+  char *s;
   if (centaines > 0) {
     if (centaines > 1) {
-      if (!CUnicodeBufferAppendISOLatin1CString(self, __french100[centaines])) { self->length = originalLength; return NO; };
-      if (!CUnicodeBufferAppendISOLatin1CString(self, (reste > 0 ? " cent " : (invariable ? " cent" : " cents")))) { self->length = originalLength; return NO; }
-    }
+      s= __french100[centaines];
+      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+      s= (reste > 0 ? " cent " : (invariable ? " cent" : " cents"));
+      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
     else {
-      if (!CUnicodeBufferAppendISOLatin1CString(self, (reste > 0 ? "cent " : "cent"))) { self->length = originalLength; return NO; }
-    }
-  }
-  if (reste && !CUnicodeBufferAppendISOLatin1CString(self, __french100[reste])) { self->length = originalLength; return NO; };
+      s= (reste > 0 ? "cent " : "cent");
+      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}}
+  if (reste) {
+    s= __french100[reste];
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
   return YES;
+  originalLength= 0; // Unused
 }
 
-
-static BOOL CUnicodeBufferAppendFrenchNumber(CUnicodeBuffer *self, MSLong n)
+static BOOL CStringAppendFrenchNumber(CString *self, MSLong n)
 {
   MSULong number = (MSULong)ABS(n);
   MSULong milliers, millions, milliards = number / 1000000000;
   NSUInteger originalLength = self->length;
   BOOL needsSpace = (originalLength == 0 || CUnicharIsSpace(self->buf[originalLength-1]) ? NO : YES);
+  char *s;
   
   if (n == 0) {
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
-    if (!CUnicodeBufferAppendCharacter(self, 0x007a) || /* oh yeah, that's z&eacute;ro in french */
-        !CUnicodeBufferAppendCharacter(self, 0x00e9) ||
-        !CUnicodeBufferAppendCharacter(self, 0x0072) ||
-        !CUnicodeBufferAppendCharacter(self, 0x006f)) { self->length = originalLength; return NO; }
-    return YES;
-  }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
+    CStringAppendCharacter(self, 0x007a); /* oh yeah, that's z&eacute;ro in french */
+    CStringAppendCharacter(self, 0x00e9);
+    CStringAppendCharacter(self, 0x0072);
+    CStringAppendCharacter(self, 0x006f);
+    return YES;}
   if (number > 999999999999ULL) {
-    return _snd(self, n);
-  }
+    return _snd(self, n);}
+
   if (n < 0) {
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, "moins")) { self->length = originalLength; return NO; }
-    needsSpace = YES;
-  }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
+    s= "moins";
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    needsSpace= YES;}
   if (milliards) {
-    number -= milliards * 1000000000;
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
+    number-= milliards * 1000000000;
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_frenchNumber999(self, originalLength, (unsigned)milliards, NO)) {  return NO; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, (milliards > 1 ? " milliards" : " milliard"))) { self->length = originalLength; return NO; }
-    needsSpace = YES;
-  }
+    s= (milliards > 1 ? " milliards" : " milliard");
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    needsSpace = YES;}
   millions = number / 1000000;
   if (millions) {
     number -= millions * 1000000;
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_frenchNumber999(self, originalLength, (unsigned)millions, NO)) {  return NO; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, (millions > 1 ? " millions" : " millions"))) { self->length = originalLength; return NO; }
-    needsSpace = YES;
-  }
+    s= (millions > 1 ? " millions" : " millions");
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    needsSpace = YES;}
   milliers = number / 1000;
   if (milliers) {
     number -= milliers * 1000;
@@ -563,16 +618,14 @@ static BOOL CUnicodeBufferAppendFrenchNumber(CUnicodeBuffer *self, MSLong n)
       number += 1000; // on le fait sous la forme treize-cents...
     }
     else {
-      if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
+      if (needsSpace) CStringAppendCharacter(self, 0x0020);
       if (milliers > 1 && !_frenchNumber999(self, originalLength, (unsigned)milliers, YES)) {  return NO; }
-      if (!CUnicodeBufferAppendISOLatin1CString(self, " mille")) { self->length = originalLength; return NO; }
-      needsSpace = YES;
-    }
-  }
+      s= " mille";
+      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+      needsSpace = YES;}}
   if (number) {
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
-    if (!_frenchNumber999(self, originalLength, (unsigned)number, NO)) {  return NO; }
-  }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
+    if (!_frenchNumber999(self, originalLength, (unsigned)number, NO)) {  return NO; }}
   return YES;
 }
 
@@ -589,72 +642,75 @@ static char *__english100[100] = {
   "ninety", "ninety-one", "ninety-two", "ninety-three", "ninety-four", "ninety-five", "ninety-six", "ninety-seven", "ninety-height", "ninety-nine"
 };
 
-static inline BOOL _englishNumber999(CUnicodeBuffer *self, NSUInteger originalLength, unsigned number)
+static inline BOOL _englishNumber999(CString *self, NSUInteger originalLength, unsigned number)
 {
   unsigned centaines = number / 100;
   unsigned reste = number % 100;
+  char *s;
   if (centaines > 0) {
-    if (!CUnicodeBufferAppendISOLatin1CString(self, __english100[centaines])) { self->length = originalLength; return NO; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, (reste > 0 ? "hundred and " : "hundred"))) { self->length = originalLength; return NO; }
-  }
-  if (reste && !CUnicodeBufferAppendISOLatin1CString(self, __english100[reste])) { self->length = originalLength; return NO; }
+    s= __english100[centaines];
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    s= (reste > 0 ? "hundred and " : "hundred");
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
+  if (reste) {
+    s= __english100[reste];
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
   return YES;
+  originalLength= 0; // Unused
 }
 
-static BOOL CUnicodeBufferAppendEnglishNumber(CUnicodeBuffer *self, MSLong n)
+static BOOL CStringAppendEnglishNumber(CString *self, MSLong n)
 {
   MSULong number = (MSULong)ABS(n);
   MSULong initialNumber = number;
   MSULong milliers, millions, milliards = number / 1000000000;
   NSUInteger originalLength = self->length;
   BOOL needsSpace = (originalLength == 0 || CUnicharIsSpace(self->buf[originalLength-1]) ? NO : YES);
-  
+  char *s;
   if (n == 0) {
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, "zero")) { self->length = originalLength; return NO; }
-    return YES;
-  }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
+    s= "zero";
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    return YES;}
   if (number > 999999999999ULL) {
-    return _snd(self, n);
-  }
+    return _snd(self, n);}
   if (n < 0) {
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, "minus")) { self->length = originalLength; return NO; }
-    needsSpace = YES;
-  }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
+    s= "minus";
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    needsSpace = YES;}
   if (milliards) {
     number -= milliards * 1000000000;
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_englishNumber999(self, originalLength, (unsigned)milliards)) { return NO; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, " billion")) { self->length = originalLength; return NO; }
-    needsSpace = YES;
-  }
+    s= " billion";
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    needsSpace = YES;}
   millions = number / 1000000;
   if (millions) {
     number -= millions * 1000000;
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_englishNumber999(self, originalLength, (unsigned)millions)) { return NO; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, " million")) { self->length = originalLength; return NO; }
-    needsSpace = YES;
-  }
+    s= " million";
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    needsSpace = YES;}
   milliers = number / 1000;
   if (milliers) {
     number -= milliers * 1000;
-    if (needsSpace) { if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }; }
+    if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_englishNumber999(self, originalLength, (unsigned)milliers)) { return NO; }
-    if (!CUnicodeBufferAppendISOLatin1CString(self, " thousand")) { self->length = originalLength; return NO; }
-    needsSpace = YES;
-  }
+    s= " thousand";
+    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    needsSpace = YES;}
   if (number) {
     if (needsSpace) {
-      if (number < 100 && initialNumber > 100 && !CUnicodeBufferAppendISOLatin1CString(self, " and ")) { self->length = originalLength; return NO; }
-      else if (!CUnicodeBufferAppendCharacter(self, 0x0020)) { self->length = originalLength; return NO; }
-    }
-    if (!_englishNumber999(self, originalLength, (unsigned)number)) { return NO; }
-  }
+      if (number < 100 && initialNumber > 100) {
+        s= " and ";
+        CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
+      else CStringAppendCharacter(self, 0x0020);}
+    if (!_englishNumber999(self, originalLength, (unsigned)number)) { return NO; }}
   return YES;
 }
-
 
 static _CUBNumberAppender __numberAppenders[37] =
 {
@@ -675,7 +731,7 @@ static _CUBNumberAppender __numberAppenders[37] =
   _snd, // MSDutch
   _snd, // MSNorwegian
   _snd, // MSRoman ==> should we use the roman representation here ?
-  CUnicodeBufferAppendFrenchNumber, // MSFrench =*=*=*=*=*=*=*=*=*=*=    DEFINED
+  CStringAppendFrenchNumber, // MSFrench =*=*=*=*=*=*=*=*=*=*=    DEFINED
   _snd, // -- 18
   _snd, // -- 19
   _snd, // MSSpanish =*=*=*=*=*=*=*=*=*=*=                               DEFINED
@@ -687,7 +743,7 @@ static _CUBNumberAppender __numberAppenders[37] =
   _snd, // MSGerman =*=*=*=*=*=*=*=*=*=*=                                DEFINED
   _snd, // MSBulgarian
   _snd, // -- 28
-  CUnicodeBufferAppendEnglishNumber, // MSEnglish =*=*=*=*=*=*=*=*=*=*=  DEFINED
+  CStringAppendEnglishNumber, // MSEnglish =*=*=*=*=*=*=*=*=*=*=  DEFINED
   _snd, // MSSerbian
   _snd, // -- 31
   _snd, // MSCzech
@@ -697,7 +753,7 @@ static _CUBNumberAppender __numberAppenders[37] =
   _snd  // -- 36
 };
 
-BOOL CUnicodeBufferAppendTextNumber(CUnicodeBuffer *self, MSLong n, MSLanguage language)
+BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage language)
 { return (__numberAppenders[(int)language])(self, n); }
 
 
@@ -708,6 +764,58 @@ BOOL CUnicodeBufferAppendTextNumber(CUnicodeBuffer *self, MSLong n, MSLanguage l
  (3)  recognising NSSymbolStringEncoding, NSISOLatin2StringEncoding,
  NSWindowsCP1251StringEncoding,  NSWindowsCP1253StringEncoding,
  NSWindowsCP1254StringEncoding, NSWindowsCP1250StringEncoding
- in CUnicodeBufferAppendUnknownEncodingBytes()
+ in CStringAppendUnknownEncodingBytes()
  
  *************************************************************/
+
+/*
+parse number
+def string_to_int(s):
+    i = 0
+    sign = 1
+    if s[0] == '-':
+        sign = -1
+        s = s[1:]
+    for c in s:
+        if not ('0' <= c <= '9'):
+            raise ValueError
+        i *= 10
+        i += ord(c) - ord('0')
+    i *= sign
+    return i
+
+// atoi - christopher.watford@gmail.com
+// PUBLIC DOMAIN
+long atoi(const char *value) {
+  unsigned long ival = 0, c, n = 1, i = 0, oval;
+  for( ; c = value[i]; ++i) // chomp leading spaces
+    if(!isspace(c)) break;
+  if(c == '-' || c == '+') { // chomp sign
+    n = (c != '-' ? n : -1);
+    i++;
+  }
+  while(c = value[i++]) { // parse number
+    if(!isdigit(c)) return 0;
+    ival = (ival * 10) + (c - '0'); // mult/accum
+    if((n > 0 && ival > LONG_MAX)
+    || (n < 0 && ival > (LONG_MAX + 1UL))) {
+      // report overflow/underflow
+      errno = ERANGE;
+      return (n > 0 ? LONG_MAX : LONG_MIN);
+    }
+  }
+  return (n>0 ? (long)ival : -(long)ival);
+}
+
+parseNumber(plusSigns,minusSigns,chiffreSigns,separatorSigns,pointSigns)
+1/ retourne l’index du premier caractère non reconnu
+2/ retourne le décimal associé, NULL si non reconnu
+sign= +1; decimal= NULL;
+passer les blancs
+Si c est dans plusSigns sign= +1;
+Si c est dans minusSigns sign= -1;
+Si c n’est pas un chiffre on sort avec l’index de c
+tant que c est un chiffre ou un séparateur (' ' ou ',')
+
+// http://krashan.ppa.pl/articles/stringtofloat/
+*/

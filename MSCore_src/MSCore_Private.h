@@ -1,4 +1,4 @@
-/*   MSCore_Private.h
+/* MSCore_Private.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -79,11 +79,11 @@
 //#include "MSCoreTimeInterval.h"
 //#include "MSCoreTLS.h"
 
-// ..ToString functions use MSCUnicodeBuffer
+// ..ToString functions use MSCString
 // so we include it first
 #include "MSCoreUnichar.h"
 #include "MSCoreSES.h"
-#include "MSCUnicodeBuffer.h"
+#include "MSCString.h"
 
 #include "MSCArray.h"
 #include "MSCBuffer.h"

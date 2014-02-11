@@ -1,4 +1,4 @@
-/*   MSCoreSES.c
+/* MSCoreSES.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -39,185 +39,392 @@
  */
 
 #include "MSCore_Private.h"
-#include "MSCoreUnichar_Private.h"
 
-const SES MSInvalidSES = {InvalidCHAI,NSNotFound,0};
+const SES MSInvalidSES= {NULL,InvalidCHAI,NSNotFound,0,0};
 
-unichar __unicodeEnumerator(            const void *source, NSUInteger pos);
-unichar __littleEndianUnicodeEnumerator(const void *source, NSUInteger pos);
-unichar __bigEndianUnicodeEnumerator(   const void *source, NSUInteger pos);
-unichar __asciiEnumerator(              const void *source, NSUInteger pos);
-unichar __macRomanEnumerator(           const void *source, NSUInteger pos);
-unichar __nextStepEnumerator(           const void *source, NSUInteger pos);
-unichar __ansiEnumerator(               const void *source, NSUInteger pos);
-unichar __windows1250Enumerator(        const void *source, NSUInteger pos);
-unichar __windows1251Enumerator(        const void *source, NSUInteger pos);
-unichar __windows1253Enumerator(        const void *source, NSUInteger pos);
-unichar __windows1254Enumerator(        const void *source, NSUInteger pos);
-unichar __isoLatin2Enumerator(          const void *source, NSUInteger pos);
-unichar __adobeSymbolEnumerator(        const void *source, NSUInteger pos);
-unichar __dosEnumerator(                const void *source, NSUInteger pos);
+#pragma mark Encoding and Unicode
 
-unichar __unicodeEnumerator(const void *source, NSUInteger pos) { return (unichar)((unichar *)source)[pos]; }
-unichar __littleEndianUnicodeEnumerator(const void *source, NSUInteger pos) { return MSFromLittle16(((unichar *)source)[pos]); }
-unichar __bigEndianUnicodeEnumerator(const void *source, NSUInteger pos) { return MSFromBig16(((unichar *)source)[pos]); }
-unichar __asciiEnumerator(const void *source, NSUInteger pos) { return (unichar)((char *)source)[pos]; }
-unichar __macRomanEnumerator(const void *source, NSUInteger pos) { return __MSMacRomanToUnicode[(int)(((char*)source)[pos])]; }
-unichar __nextStepEnumerator(const void *source, NSUInteger pos) { return __MSNextstepToUnicode[(int)(((char*)source)[pos])]; }
-unichar __ansiEnumerator(const void *source, NSUInteger pos) { return __MSAnsiToUnicode[(int)(((char*)source)[pos])]; }
-unichar __windows1250Enumerator(const void *source, NSUInteger pos) { return __MSWindows1250ToUnicode[(int)(((char*)source)[pos])]; }
-unichar __windows1251Enumerator(const void *source, NSUInteger pos) { return __MSWindows1251ToUnicode[(int)(((char*)source)[pos])]; }
-unichar __windows1253Enumerator(const void *source, NSUInteger pos) { return __MSWindows1253ToUnicode[(int)(((char*)source)[pos])]; }
-unichar __windows1254Enumerator(const void *source, NSUInteger pos) { return __MSWindows1254ToUnicode[(int)(((char*)source)[pos])]; }
-unichar __isoLatin2Enumerator(const void *source, NSUInteger pos) { return __MSIsoLatin2ToUnicode[(int)(((char*)source)[pos])]; }
-unichar __adobeSymbolEnumerator(const void *source, NSUInteger pos) { return __MSAdobeSymbolToUnicode[(int)(((char*)source)[pos])]; }
-unichar __dosEnumerator(const void *source, NSUInteger pos) { return __MSDOSToUnicode[(int)(((char*)source)[pos])]; }
-
-SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding)
-{
-  if (source && sourceLength) {
-    switch (sourceEncoding) {
-      case NSASCIIStringEncoding:
-      case NSNonLossyASCIIStringEncoding:
-      case NSISOLatin1StringEncoding:
-        return MSMakeSES(__asciiEnumerator, 0, sourceLength);
-      case NSISOLatin2StringEncoding:
-        return MSMakeSES(__isoLatin2Enumerator, 0, sourceLength);
-      case NSNEXTSTEPStringEncoding:
-        return MSMakeSES(__nextStepEnumerator, 0, sourceLength);
-      case NSMacOSRomanStringEncoding:
-        return MSMakeSES(__macRomanEnumerator, 0, sourceLength);
-      case NSWindowsCP1250StringEncoding: // WinLatin2
-        return MSMakeSES(__windows1250Enumerator, 0, sourceLength);
-      case NSWindowsCP1251StringEncoding: // Cyrilic
-        return MSMakeSES(__windows1251Enumerator, 0, sourceLength);
-      case NSWindowsCP1252StringEncoding: // WinLatin1
-        return MSMakeSES(__ansiEnumerator, 0, sourceLength);
-      case NSWindowsCP1253StringEncoding: // Greec
-        return MSMakeSES(__windows1253Enumerator, 0, sourceLength);
-      case NSWindowsCP1254StringEncoding: // Turkish
-        return MSMakeSES(__windows1254Enumerator, 0, sourceLength);
-      case NSSymbolStringEncoding:
-        return MSMakeSES(__windows1254Enumerator, 0, sourceLength);
-      case NSUnicodeStringEncoding:
-        return MSMakeSES(__unicodeEnumerator, 0, sourceLength);
-      case NSUTF16BigEndianStringEncoding:
-        return MSMakeSES(__bigEndianUnicodeEnumerator, 0, sourceLength);
-      case NSUTF16LittleEndianStringEncoding:
-        return MSMakeSES(__littleEndianUnicodeEnumerator, 0, sourceLength);
-      case NSDOSStringEncoding:
-        return MSMakeSES(__dosEnumerator, 0, sourceLength);
-        
-      default:
-        // we dont return a valid enumerator for NSUTF8StringEncoding, NSJapaneseEUCStringEncoding, NSShiftJISStringEncoding and NSISO2022JPStringEncoding
-        break;
-    }
+typedef struct _encodingStuffStruct {
+  unichar *toUnicode; // 256
+  unichar (*char2Unichar)(unsigned short);
+  CHAI chai;
   }
-  return MSInvalidSES;
+_encodingStuff;
+
+static _encodingStuff _encoding[];
+static inline _encodingStuff *_encodingStuffForEncoding(NSStringEncoding encoding)
+{
+  if (0< encoding && encoding<=15)          return _encoding+encoding;
+  else switch (encoding) {
+    case NSISO2022JPStringEncoding:         return _encoding+16;
+    case NSMacOSRomanStringEncoding:        return _encoding+17;
+    case NSDOSStringEncoding:               return _encoding+18;
+    case NSUTF16StringEncoding:             return _encoding+19;
+    case NSUTF16BigEndianStringEncoding:    return _encoding+20;
+    case NSUTF16LittleEndianStringEncoding: return _encoding+21;
+    default:
+      // we dont return a valid enumerator for NSUTF8StringEncoding, NSJapaneseEUCStringEncoding,
+      // NSShiftJISStringEncoding and NSISO2022JPStringEncoding
+      break;}
+  return _encoding+0;
+}
+static unichar __MSMacRomanToUnicode   [256];
+static inline unichar _aChar(unsigned short c, NSStringEncoding encoding)
+  {return c>UCHAR_MAX ? 0 : _encodingStuffForEncoding(encoding)->toUnicode[(int)c];}
+static inline unichar _aChai(const void *src, NSUInteger pos, NSStringEncoding encoding)
+  {return _aChar((unsigned short)(((unsigned char*)src)[pos]), encoding);}
+
+static unichar __MSNextstepToUnicode   [256];
+static unichar __MSAnsiToUnicode       [256];
+static unichar __MSDOSToUnicode        [256];
+static unichar __MSIsoLatin2ToUnicode  [256];
+static unichar __MSWindows1250ToUnicode[256];
+static unichar __MSWindows1251ToUnicode[256];
+static unichar __MSWindows1253ToUnicode[256];
+static unichar __MSWindows1254ToUnicode[256];
+static unichar __MSAdobeSymbolToUnicode[256];
+
+static unichar _fromAscii   (unsigned short c) {return (unichar)c;}
+static unichar _fromUnicode (unsigned short c) {return (unichar)c;}
+static unichar _fromNextstep(unsigned short c) {return _aChar(c,NSNEXTSTEPStringEncoding     );}
+static unichar _fromSymbol  (unsigned short c) {return _aChar(c,NSSymbolStringEncoding       );}
+static unichar _fromLatin2  (unsigned short c) {return _aChar(c,NSISOLatin2StringEncoding    );}
+static unichar _fromW1251   (unsigned short c) {return _aChar(c,NSWindowsCP1251StringEncoding);}
+static unichar _fromAnsi    (unsigned short c) {return _aChar(c,NSWindowsCP1252StringEncoding);}
+static unichar _fromW1253   (unsigned short c) {return _aChar(c,NSWindowsCP1253StringEncoding);}
+static unichar _fromW1254   (unsigned short c) {return _aChar(c,NSWindowsCP1254StringEncoding);}
+static unichar _fromW1250   (unsigned short c) {return _aChar(c,NSWindowsCP1250StringEncoding);}
+static unichar _fromMac     (unsigned short c) {return _aChar(c,NSMacOSRomanStringEncoding   );}
+static unichar _fromDos     (unsigned short c) {return _aChar(c,NSDOSStringEncoding          );}
+static unichar _fromBig     (unsigned short c) {return MSFromBig16   ((unichar)c);}
+static unichar _fromLittle  (unsigned short c) {return MSFromLittle16((unichar)c);}
+
+static unichar _asciiChai   (const void *src, NSUInteger pos) {return (unichar)((char   *)src)[pos];}
+static unichar _unicodeChai (const void *src, NSUInteger pos) {return (unichar)((unichar*)src)[pos];}
+static unichar _nextstepChai(const void *src, NSUInteger pos) {return _aChai(src,pos,NSNEXTSTEPStringEncoding     );}
+static unichar _symbolChai  (const void *src, NSUInteger pos) {return _aChai(src,pos,NSSymbolStringEncoding       );}
+static unichar _latin2Chai  (const void *src, NSUInteger pos) {return _aChai(src,pos,NSISOLatin2StringEncoding    );}
+static unichar _w1251Chai   (const void *src, NSUInteger pos) {return _aChai(src,pos,NSWindowsCP1251StringEncoding);}
+static unichar _ansiChai    (const void *src, NSUInteger pos) {return _aChai(src,pos,NSWindowsCP1252StringEncoding);}
+static unichar _w1253Chai   (const void *src, NSUInteger pos) {return _aChai(src,pos,NSWindowsCP1253StringEncoding);}
+static unichar _w1254Chai   (const void *src, NSUInteger pos) {return _aChai(src,pos,NSWindowsCP1254StringEncoding);}
+static unichar _w1250Chai   (const void *src, NSUInteger pos) {return _aChai(src,pos,NSWindowsCP1250StringEncoding);}
+static unichar _macChai     (const void *src, NSUInteger pos) {return _aChai(src,pos,NSMacOSRomanStringEncoding   );}
+static unichar _dosChai     (const void *src, NSUInteger pos) {return _aChai(src,pos,NSDOSStringEncoding          );}
+static unichar _bigChai     (const void *src, NSUInteger pos) {return MSFromBig16   (((unichar*)src)[pos]);}
+static unichar _littleChai  (const void *src, NSUInteger pos) {return MSFromLittle16(((unichar*)src)[pos]);}
+
+static _encodingStuff _encoding[]= {
+  {NULL                    , NULL         , InvalidCHAI  }, //  0
+  {NULL                    , _fromAscii   , _asciiChai   }, //  1 NSASCIIStringEncoding=          1, // 0..127 only
+  {__MSNextstepToUnicode   , _fromNextstep, _nextstepChai}, //  2 NSNEXTSTEPStringEncoding=       2,
+  {NULL                    , NULL         , InvalidCHAI  }, //  3 NSJapaneseEUCStringEncoding=    3,
+  {NULL                    , NULL         , InvalidCHAI  }, //  4 NSUTF8StringEncoding=           4,
+  {NULL                    , _fromAscii   , _asciiChai   }, //  5 NSISOLatin1StringEncoding=      5,
+  {__MSAdobeSymbolToUnicode, _fromSymbol  , _symbolChai  }, //  6 NSSymbolStringEncoding=         6,
+  {NULL                    , _fromAscii   , _asciiChai   }, //  7 NSNonLossyASCIIStringEncoding=  7,
+  {NULL                    , NULL         , InvalidCHAI  }, //  8 NSShiftJISStringEncoding=       8, // kCFStringEncodingDOSJapanese
+  {__MSIsoLatin2ToUnicode  , _fromLatin2  , _latin2Chai  }, //  9 NSISOLatin2StringEncoding=      9,
+  {NULL                    , _fromUnicode , _unicodeChai }, // 10 NSUnicodeStringEncoding=       10,
+  {__MSWindows1251ToUnicode, _fromW1251   , _w1251Chai   }, // 11 NSWindowsCP1251StringEncoding= 11, // Cyrillic; same as AdobeStandardCyrillic
+  {__MSAnsiToUnicode       , _fromAnsi    , _ansiChai    }, // 12 NSWindowsCP1252StringEncoding= 12, // WinLatin1
+  {__MSWindows1253ToUnicode, _fromW1253   , _w1253Chai   }, // 13 NSWindowsCP1253StringEncoding= 13, // Greek
+  {__MSWindows1254ToUnicode, _fromW1254   , _w1254Chai   }, // 14 NSWindowsCP1254StringEncoding= 14, // Turkish
+  {__MSWindows1250ToUnicode, _fromW1250   , _w1250Chai   }, // 15 NSWindowsCP1250StringEncoding= 15, // WinLatin2
+
+  {NULL                    , NULL         , InvalidCHAI  }, // 16 NSISO2022JPStringEncoding=     21, // ISO 2022 Japanese encoding for e-mail
+  {__MSMacRomanToUnicode   , _fromMac     , _macChai     }, // 17 NSMacOSRomanStringEncoding=    30,
+  {__MSDOSToUnicode        , _fromDos     , _dosChai     }, // 18 NSDOSStringEncoding=           0x20000, // DOS: Added to NS...Encoding constants
+  
+  {NULL                    , NULL         , InvalidCHAI  }, // 19 NSUTF16StringEncoding= NSUnicodeStringEncoding, // An alias for NSUnicodeStringEncoding
+  
+  {NULL                    , _fromBig     , _bigChai     }, // 20 NSUTF16BigEndianStringEncoding=    0x90000100,  // explicit endianness
+  {NULL                    , _fromLittle  , _littleChai  }  // 21 NSUTF16LittleEndianStringEncoding= 0x94000100,  // explicit endianness
+};
+
+
+unichar CEncodingToUnicode(unsigned short c, NSStringEncoding encoding)
+{
+  unichar (*char2Unichar)(unsigned short)= _encodingStuffForEncoding(encoding)->char2Unichar;
+  return char2Unichar ? char2Unichar(c) : 0;
+}
+unsigned short CUnicodeToEncoding(unichar u, NSStringEncoding encoding)
+{
+  return 0;
 }
 
-SES SESFind(SES ses, const void *source, SES sesSearched, const void *searched)
+SES MSMakeSESWithBytes(const void *src, NSUInteger srcLength, NSStringEncoding srcEncoding)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0};
-  if (source && searched && SESOK(ses) && SESOK(sesSearched) && sesSearched.length <= ses.length) {
-    register NSUInteger i1, i2, end1 = ses.start + ses.length;
-    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesSearched.length; i1++) {
-      if (SESIndex(ses, source, i1) == SESIndex(sesSearched, searched, i2)) { i2++; }
-      else if (i2 > 0) { i1 -= i2; i2 = 0; /* comming back to last position we can recon knew pattern */ }
-    }
-    if (i2 == sesSearched.length) {
-      ret.length = i2;
-      ret.start = i1 - i2;
-      ret.chai = ses.chai;
-    }
-    
-  }
+  CHAI chai= _encodingStuffForEncoding(srcEncoding)->chai;
+  return src && srcLength && chai ? MSMakeSES(src,chai,0,srcLength,srcEncoding) : MSInvalidSES;
+}
+
+#pragma mark Finding
+
+static SES _SESPrefix(SES src, SES comparator, BOOL insensitive)
+{
+  SES ret= MSInvalidSES;
+  if (SESOK(src) && SESOK(comparator)) {
+    NSUInteger i1,i2,end1,end2,n; BOOL fd;
+    i1= SESStart(src); i2= SESStart(comparator);
+    end1= SESEnd(src); end2= SESEnd(comparator);
+    for (fd= YES, n=0; fd && i1 < end1 && i2 < end2; i1++, i2++) {
+      if (CUnicharEquals(SESIndex(src, i1), SESIndex(comparator, i2), insensitive)) n++;
+      else fd= NO;}
+    if (n) {
+      ret= src;
+      ret.length= n;}}
   return ret;
 }
 
-SES SESInsensitiveFind(SES ses, const void *source, SES sesSearched, const void *searched)
+static SES _SESFind(SES src, SES searched, BOOL insensitive)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0};
-  if (source && searched && SESOK(ses) && SESOK(sesSearched) && sesSearched.length <= ses.length) {
-    register NSUInteger i1, i2, end1 = ses.start + ses.length;
-    
-    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesSearched.length; i1++) {
-      if (CUnicharInsensitiveEquals(SESIndex(ses, source, i1), SESIndex(sesSearched, searched, i2))) { i2 ++; }
-      else if (i2 > 0) { i1 -= i2; i2 = 0; /* comming back to last position we can recon knew pattern */ }
-    }
-    if (i2 == sesSearched.length) {
-      ret.length = i2;
-      ret.start = i1 - i2;
-      ret.chai = ses.chai;
-    }
-    
-  }
+  SES ret= MSInvalidSES;
+  if (SESOK(src) && SESOK(searched) && searched.length <= src.length) {
+    SES ses; NSUInteger i,l;
+    ses= src; ses.length= searched.length; l= src.length-searched.length;
+    for (i= 0; ret.start==NSNotFound && i<=l; i++, ses.start++) {
+      if (_SESPrefix(ses, searched, insensitive).length==ses.length) ret= ses;}}
   return ret;
 }
 
-SES SESCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator)
+SES SESFind(SES src, SES searched)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0};
-  if (source && comparator && SESOK(ses) && SESOK(sesComparator)) {
-    register NSUInteger i1, i2, end1 = ses.start + ses.length;
-    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesComparator.length; i1++) {
-      if (SESIndex(ses, source, i1) == SESIndex(sesComparator, comparator, i2)) { i2++; }
-      else { break;}
-    }
-    ret = ses;
-    ret.length = i2;
-  }
+  return _SESFind(src, searched, NO);
+}
+SES SESInsensitiveFind(SES src, SES searched)
+{
+  return _SESFind(src, searched, YES);
+}
+
+SES SESCommonPrefix(SES src, SES comparator)
+{
+  return _SESPrefix(src, comparator, NO);
+}
+SES SESInsensitiveCommonPrefix(SES src, SES comparator)
+{
+  return _SESPrefix(src, comparator, YES);
+}
+
+SES SESExtractPart(SES src, CUnicharChecker matchingChar)
+{
+  SES ret= MSInvalidSES;
+  if (SESOK(src) && matchingChar) {
+    NSUInteger start= SESStart(src), end= SESEnd(src);
+    for (; start < end; start++) if (matchingChar(SESIndex(src, start))) break;
+    for (; start < end; end--  ) if (matchingChar(SESIndex(src, end-1))) break;
+    if (start < end) {
+      ret=        src;
+      ret.start=  start;
+      ret.length= end-start;}}
   return ret;
 }
 
-SES SESInsensitiveCommonPrefix(SES ses, const void *source, SES sesComparator, const void *comparator)
+SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces)
 {
-  SES ret = {InvalidCHAI,NSNotFound,0};
-  if (source && comparator && SESOK(ses) && SESOK(sesComparator)) {
-    register NSUInteger i1, i2, end1 = ses.start + ses.length;
-    for (i1 = ses.start, i2 = 0; i1 < end1 && i2 < sesComparator.length; i1++) {
-      if (CUnicharInsensitiveEquals(SESIndex(ses, source, i1), SESIndex(sesComparator, comparator, i2))) { i2++; }
-      else { break;}
-    }
-    ret = ses;
-    ret.length = i2;
-  }
+  SES ret= MSInvalidSES;
+  if (SESOK(src) && matchingChar) {
+    NSUInteger start= SESStart(src), end= SESEnd(src), c;
+    if (!leftSpaces) leftSpaces= (CUnicharChecker)CUnicharIsSpace;
+    for (; start < end; start++) if (!leftSpaces(SESIndex(src, start))) break;
+    for (c= start; c < end; c++) if (!matchingChar(SESIndex(src, c))) break;
+    if (start < c) {
+      ret=        src;
+      ret.start=  start;
+      ret.length= c-start;}}
   return ret;
 }
 
-SES SESExtractPart(SES ses, const void *s, CUnicharChecker matchingChar)
-{
-  SES ret = {InvalidCHAI,NSNotFound,0};
-  if (SESOK(ses) && s && matchingChar) {
-    NSUInteger start = ses.start, i = ses.length;
-    for (; start < i; start++) if (matchingChar(SESIndex(ses, s, start))) break;
-    if (start < i) {
-      while (i-- > start) { if (matchingChar(SESIndex(ses, s, i))) break; }
-      ret.chai = ses.chai;
-      ret.start = start;
-      ret.length = i-start+1;
-    }
-  }
-  return ret;
-}
+// -----------------------------------------------------------------------------
+#pragma mark encoding
 
-SES SESExtractToken(SES ses, const void *s, CUnicharChecker matchingChar, CUnicharChecker leftSpaces)
-{
-  SES ret = {InvalidCHAI,NSNotFound,0};
-  if (SESOK(ses) && s && matchingChar) {
-    NSUInteger start = ses.start, i = ses.length;
-    if (!leftSpaces) leftSpaces = (CUnicharChecker)CUnicharIsSpace;
-    
-    for (; start < i; start++) if (!leftSpaces(SESIndex(ses, s, start))) break;
-    if (start < i && matchingChar(SESIndex(ses, s, start))) {
-      NSUInteger j;
-      for (j = start; j < i; j++) if (!matchingChar(SESIndex(ses, s, j))) break;
-      ret.chai = ses.chai;
-      ret.start = start;
-      ret.length = j-start;
-    }
-    
-  }
-  return ret;
-}
+static unichar __MSAnsiToUnicode[256]= {
+  0x00, 0x01, 0x02 , 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+  0x10, 0x11, 0x12 , 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+  0x20, 0x21, 0x22 , 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+  0x30, 0x31, 0x32 , 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  0x40, 0x41, 0x42 , 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
+  0x50, 0x51, 0x52 , 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
+  0x60, 0x61, 0x62 , 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
+  0x70, 0x71, 0x72 , 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
+  0x20ac, 0x81, 0x201a , 0x192, 0x201e, 0x2026, 0x2020, 0x2021, 0x2c6, 0x2030, 0x160, 0x2039, 0x152, 0x8d, 0x17d, 0x8f,
+  0x90, 0x2018, 0x2019 , 0x201c, 0x201d, 0x2022, 0x2013, 0x2014, 0x2dc, 0x2122, 0x161, 0x203a, 0x153, 0x9d, 0x17e, 0x178,
+  0xa0, 0xa1, 0xa2 , 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf,
+  0xb0, 0xb1, 0xb2 , 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf,
+  0xc0, 0xc1, 0xc2 , 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf,
+  0xd0, 0xd1, 0xd2 , 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf,
+  0xe0, 0xe1, 0xe2 , 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef,
+  0xf0, 0xf1, 0xf2 , 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff
+};
 
+static unichar __MSMacRomanToUnicode[256]= {
+  0x00, 0x01, 0x02 , 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+  0x10, 0x11, 0x12 , 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+  0x20, 0x21, 0x22 , 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+  0x30, 0x31, 0x32 , 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  0x40, 0x41, 0x42 , 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
+  0x50, 0x51, 0x52 , 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
+  0x60, 0x61, 0x62 , 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
+  0x70, 0x71, 0x72 , 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x7f,
+  0xc4, 0xc5, 0xc7 , 0xc9, 0xd1, 0xd6, 0xdc, 0xe1, 0xe0, 0xe2, 0xe4, 0xe3, 0xe5, 0xe7, 0xe9, 0xe8,
+  0xea, 0xeb, 0xed , 0xec, 0xee, 0xef, 0xf1, 0xf3, 0xf2, 0xf4, 0xf6, 0xf5, 0xfa, 0xf9, 0xfb, 0xfc,
+  0x2020, 0xb0, 0xa2 , 0xa3, 0xa7, 0x2022, 0xb6, 0xdf, 0xae, 0xa9, 0x2122, 0xb4, 0xa8, 0x2260, 0xc6, 0xd8,
+  0x221e, 0xb1, 0x2264 , 0x2265, 0xa5, 0xb5, 0x2202, 0x2211, 0x220f, 0x3c0, 0x222b, 0xaa, 0xba, 0x3a9, 0xe6, 0xf8,
+  0xbf, 0xa1, 0xac , 0x221a, 0x192, 0x2248, 0x2206, 0xab, 0xbb, 0x2026, 0xa0, 0xc0, 0xc3, 0xd5, 0x152, 0x153,
+  0x2013, 0x2014, 0x201c , 0x201d, 0x2018, 0x2019, 0xf7, 0x25ca, 0xff, 0x178, 0x2044, 0x20ac, 0x2039, 0x203a, 0xfb01, 0xfb02,
+  0x2021, 0xb7, 0x201a , 0x201e, 0x2030, 0xc2, 0xca, 0xc1, 0xcb, 0xc8, 0xcd, 0xce, 0xcf, 0xcc, 0xd3, 0xd4,
+  0xf8ff, 0xd2, 0xda , 0xdb, 0xd9, 0x131, 0x2c6, 0x2dc, 0xaf, 0x2d8, 0x2d9, 0x2da, 0xb8, 0x2dd, 0x2db, 0x2c7
+};
+
+static unichar __MSNextstepToUnicode[256]= {
+  0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xa,0xb,0xc,0xd,0xe,0xf,
+  0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x1a,0x1b,0x1c,0x1d,0x1e,0x1f,
+  0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d,0x2e,0x2f,
+  0x30,0x31,0x32,0x33,0x34,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3c,0x3d,0x3e,0x3f,
+  0x40,0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,
+  0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x5b,0x5c,0x5d,0x5e,0x5f,
+  0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,0x68,0x69,0x6a,0x6b,0x6c,0x6d,0x6e,0x6f,
+  0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77,0x78,0x79,0x7a,0x7b,0x7c,0x7d,0x7e,0x7f,
+  0xa0,0xc0,0xc1,0xc2,0xc3,0xc4,0xc5,0xc7,0xc8,0xc9,0xca,0xcb,0xcc,0xcd,0xce,0xcf,
+  0xd0,0xd1,0xd2,0xd3,0xd4,0xd5,0xd6,0xd9,0xda,0xdb,0xdc,0xdd,0xde,0xb5,0xd7,0xf7,
+  0xa9,0xa1,0xa2,0xa3,0x2044,0xa5,0x192,0xa7,0xa4,0x2019,0x201c,0xab,0x2039,0x203a,0xfb01,0xfb02,
+  0xae,0x2013,0x2020,0x2021,0xb7,0xa6,0xb6,0x2022,0x201a,0x201e,0x201d,0xbb,0x2026,0x2030,0xac,0xbf,
+  0xb9,0x2cb,0xb4,0x2c6,0x2dc,0xaf,0x2d8,0x2d9,0xa8,0xb2,0x2da,0xb8,0xb3,0x2dd,0x2db,0x2c7,
+  0x2014,0xb1,0xbc,0xbd,0xbe,0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe7,0xe8,0xe9,0xea,0xeb,
+  0xec,0xc6,0xed,0xaa,0xee,0xef,0xf0,0xf1,0x141,0xd8,0x152,0xba,0xf2,0xf3,0xf4,0xf5,
+  0xf6,0xe6,0xf9,0xfa,0xfb,0x131,0xfc,0xfd,0x142,0xf8,0x153,0xdf,0xfe,0xff,0xfffd,0xfffd
+};
+
+static unichar __MSDOSToUnicode[256]= {
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+  64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+  96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+  112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+  199, 252, 233, 226, 228, 224, 229, 231, 234, 235, 232, 239, 238, 236, 196, 197,
+  201, 230, 198, 244, 246, 242, 251, 249, 255, 214, 220, 162, 163, 165, 8359, 402,
+  225, 237, 243, 250, 241, 209, 170, 186, 191, 8976, 172, 189, 188, 161, 171, 187,
+  9617, 9618, 9619, 9474, 9508, 9569, 9570, 9558, 9557, 9571, 9553, 9559, 9565, 9564, 9563, 9488,
+  9492, 9524, 9516, 9500, 9472, 9532, 9566, 9567, 9562, 9556, 9577, 9574, 9568, 9552, 9580, 9575,
+  9576, 9572, 9573, 9561, 9560, 9554, 9555, 9579, 9578, 9496, 9484, 9608, 9604, 9612, 9616, 9600,
+  945, 223, 915, 960, 931, 963, 181, 964, 934, 920, 937, 948, 8734, 966, 949, 8745,
+  8801, 177, 8805, 8804, 8992, 8993, 247, 8776, 176, 8729, 183, 8730, 8319, 178, 9632, 160
+};
+
+static unichar __MSIsoLatin2ToUnicode[256]= {
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+  64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+  96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+  112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+  128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143,
+  144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
+  0x00A0, 0x0104, 0x02D8, 0x0141, 0x00A4, 0x013D, 0x015A, 0x00A7, 0x00A8, 0x0160, 0x015E, 0x0164, 0x0179, 0x00AD, 0x017D, 0x017B,
+  0x00B0, 0x0105, 0x02DB, 0x0142, 0x00B4, 0x013E, 0x015B, 0x02C7, 0x00B8, 0x0161, 0x015F, 0x0165, 0x017A, 0x02DD, 0x017E, 0x017C,
+  0x0154, 0x00C1, 0x00C2, 0x0102, 0x00C4, 0x0139, 0x0106, 0x00C7, 0x010C, 0x00C9, 0x0118, 0x00CB, 0x011A, 0x00CD, 0x00CE, 0x010E,
+  0x0110, 0x0143, 0x0147, 0x00D3, 0x00D4, 0x0150, 0x00D6, 0x00D7, 0x0158, 0x016E, 0x00DA, 0x0170, 0x00DC, 0x00DD, 0x0162, 0x00DF,
+  0x0155, 0x00E1, 0x00E2, 0x0103, 0x00E4, 0x013A, 0x0107, 0x00E7, 0x010D, 0x00E9, 0x0119, 0x00EB, 0x011B, 0x00ED, 0x00EE, 0x010F,
+  0x0111, 0x0144, 0x0148, 0x00F3, 0x00F4, 0x0151, 0x00F6, 0x00F7, 0x0159, 0x016F, 0x00FA, 0x0171, 0x00FC, 0x00FD, 0x0163, 0x02D9
+};
+
+
+static unichar __MSWindows1250ToUnicode[256]= {
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+  64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+  96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+  112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+  0x20AC, 0xfffd, 0x201A, 0xfffd, 0x201E, 0x2026, 0x2020, 0x2021, 0xfffd, 0x2030, 0x0160, 0x2039, 0x015A, 0x0164, 0x017D, 0x0179,
+  0xfffd, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0xfffd, 0x2122, 0x0161, 0x203A, 0x015B, 0x0165, 0x017E, 0x017A,
+  0x00A0, 0x02C7, 0x02D8, 0x0141, 0x00A4, 0x0104, 0x00A6, 0x00A7, 0x00A8, 0x00A9, 0x015E, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x017B,
+  0x00B0, 0x00B1, 0x02DB, 0x0142, 0x00B4, 0x00B5, 0x00B6, 0x00B7, 0x00B8, 0x0105, 0x015F, 0x00BB, 0x013D, 0x02DD, 0x013E, 0x017C,
+  0x0154, 0x00C1, 0x00C2, 0x0102, 0x00C4, 0x0139, 0x0106, 0x00C7, 0x010C, 0x00C9, 0x0118, 0x00CB, 0x011A, 0x00CD, 0x00CE, 0x010E,
+  0x0110, 0x0143, 0x0147, 0x00D3, 0x00D4, 0x0150, 0x00D6, 0x00D7, 0x0158, 0x016E, 0x00DA, 0x0170, 0x00DC, 0x00DD, 0x0162, 0x00DF,
+  0x0155, 0x00E1, 0x00E2, 0x0103, 0x00E4, 0x013A, 0x0107, 0x00E7, 0x010D, 0x00E9, 0x0119, 0x00EB, 0x011B, 0x00ED, 0x00EE, 0x010F,
+  0x0111, 0x0144, 0x0148, 0x00F3, 0x00F4, 0x0151, 0x00F6, 0x00F7, 0x0159, 0x016F, 0x00FA, 0x0171, 0x00FC, 0x00FD, 0x0163, 0x02D9
+};
+
+static unichar __MSWindows1251ToUnicode[256]= {
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+  64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+  96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+  112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+  0x0402, 0x0403, 0x201A, 0x0453, 0x201E, 0x2026, 0x2020, 0x2021, 0x20AC, 0x2030, 0x0409, 0x2039, 0x040A, 0x040C, 0x040B, 0x040F,
+  0x0452, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0xfffd, 0x2122, 0x0459, 0x203A, 0x045A, 0x045C, 0x045B, 0x045F,
+  0x00A0, 0x040E, 0x045E, 0x0408, 0x00A4, 0x0490, 0x00A6, 0x00A7, 0x0401, 0x00A9, 0x0404, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x0407,
+  0x00B0, 0x00B1, 0x0406, 0x0456, 0x0491, 0x00B5, 0x00B6, 0x00B7, 0x0451, 0x2116, 0x0454, 0x00BB, 0x0458, 0x0405, 0x0455, 0x0457,
+  0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417, 0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
+  0x0420, 0x0421, 0x0422, 0x0423, 0x0424, 0x0425, 0x0426, 0x0427, 0x0428, 0x0429, 0x042A, 0x042B, 0x042C, 0x042D, 0x042E, 0x042F,
+  0x0430, 0x0431, 0x0432, 0x0433, 0x0434, 0x0435, 0x0436, 0x0437, 0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E, 0x043F,
+  0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447, 0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F
+};
+
+static unichar __MSWindows1253ToUnicode[256]= {
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+  64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+  96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+  112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+  0x20AC, 0xfffd, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0xfffd, 0x2030, 0xfffd, 0x2039, 0xfffd, 0xfffd, 0xfffd, 0xfffd,
+  0xfffd, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0xfffd, 0x2122, 0xfffd, 0x203A, 0xfffd, 0xfffd, 0xfffd, 0xfffd,
+  0x00A0, 0x0385, 0x0386, 0x00A3, 0x00A4, 0x00A5, 0x00A6, 0x00A7, 0x00A8, 0x00A9, 0xfffd, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x2015,
+  0x00B0, 0x00B1, 0x00B2, 0x00B3, 0x0384, 0x00B5, 0x00B6, 0x00B7, 0x0388, 0x0389, 0x038A, 0x00BB, 0x038C, 0x00BD, 0x038E, 0x038F,
+  0x0390, 0x0391, 0x0392, 0x0393, 0x0394, 0x0395, 0x0396, 0x0397, 0x0398, 0x0399, 0x039A, 0x039B, 0x039C, 0x039D, 0x039E, 0x039F,
+  0x03A0, 0x03A1, 0xfffd, 0x03A3, 0x03A4, 0x03A5, 0x03A6, 0x03A7, 0x03A8, 0x03A9, 0x03AA, 0x03AB, 0x03AC, 0x03AD, 0x03AE, 0x03AF,
+  0x03B0, 0x03B1, 0x03B2, 0x03B3, 0x03B4, 0x03B5, 0x03B6, 0x03B7, 0x03B8, 0x03B9, 0x03BA, 0x03BB, 0x03BC, 0x03BD, 0x03BE, 0x03BF,
+  0x03C0, 0x03C1, 0x03C2, 0x03C3, 0x03C4, 0x03C5, 0x03C6, 0x03C7, 0x03C8, 0x03C9, 0x03CA, 0x03CB, 0x03CC, 0x03CD, 0x03CE, 0xfffd
+};
+
+static unichar __MSWindows1254ToUnicode[256]= {
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+  64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+  96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+  112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+  0x20AC, 0xfffd, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0xfffd, 0xfffd, 0xfffd,
+  0xfffd, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014, 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0xfffd, 0xfffd, 0x0178,
+  0x00A0, 0x00A1, 0x00A2, 0x00A3, 0x00A4, 0x00A5, 0x00A6, 0x00A7, 0x00A8, 0x00A9, 0x00AA, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x00AF,
+  0x00B0, 0x00B1, 0x00B2, 0x00B3, 0x00B4, 0x00B5, 0x00B6, 0x00B7, 0x00B8, 0x00B9, 0x00BA, 0x00BB, 0x00BC, 0x00BD, 0x00BE, 0x00BF,
+  0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C4, 0x00C5, 0x00C6, 0x00C7, 0x00C8, 0x00C9, 0x00CA, 0x00CB, 0x00CC, 0x00CD, 0x00CE, 0x00CF,
+  0x011E, 0x00D1, 0x00D2, 0x00D3, 0x00D4, 0x00D5, 0x00D6, 0x00D7, 0x00D8, 0x00D9, 0x00DA, 0x00DB, 0x00DC, 0x0130, 0x015E, 0x00DF,
+  0x00E0, 0x00E1, 0x00E2, 0x00E3, 0x00E4, 0x00E5, 0x00E6, 0x00E7, 0x00E8, 0x00E9, 0x00EA, 0x00EB, 0x00EC, 0x00ED, 0x00EE, 0x00EF,
+  0x011F, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x00F7, 0x00F8, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x0131, 0x015F, 0x00FF
+};
+
+static unichar __MSAdobeSymbolToUnicode[256]= {
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+  16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+  0x0020, 0x0021, 0x2200, 0x0023, 0x2203, 0x0025, 0x0026, 0x220B, 0x0028, 0x0029, 0x2217, 0x002B, 0x002C, 0x2212, 0x002E, 0x002F,
+  0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037, 0x0038, 0x0039, 0x003A, 0x003B, 0x003C, 0x003D, 0x003E, 0x003F,
+  0x2245, 0x0391, 0x0392, 0x03A7, 0x0394, 0x0395, 0x03A6, 0x0393, 0x0397, 0x0399, 0x03D1, 0x039A, 0x039B, 0x039C, 0x039D, 0x039F,
+  0x03A0, 0x0398, 0x03A1, 0x03A3, 0x03A4, 0x03A5, 0x03C2, 0x03A9, 0x039E, 0x03A8, 0x0396, 0x005B, 0x2234, 0x005D, 0x22A5, 0x005F,
+  0xF8E5, 0x03B1, 0x03B2, 0x03C7, 0x03B4, 0x03B5, 0x03C6, 0x03B3, 0x03B7, 0x03B9, 0x03D5, 0x03BA, 0x03BB, 0x00B5, 0x03BC, 0x03BD,
+  0x03BF, 0x03C0, 0x03B8, 0x03C1, 0x03C3, 0x03C4, 0x03C5, 0x03D6, 0x03C9, 0x03BE, 0x03C8, 0x03B6, 0x007B, 0x007C, 0x007D, 0x223C,
+  128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143,
+  144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159,
+  0x20AC, 0x03D2, 0x2032, 0x2264, 0x2044, 0x221E, 0x0192, 0x2663, 0x2666, 0x2665, 0x2660, 0x2194, 0x2190, 0x2191, 0x2192, 0x2193,
+  0x00B0, 0x00B1, 0x2033, 0x2265, 0x00D7, 0x221D, 0x2202, 0x2022, 0x00F7, 0x2260, 0x2261, 0x2248, 0x2026, 0xF8E6, 0xF8E7, 0x21B5,
+  0x2135, 0x2111, 0x211C, 0x2118, 0x2297, 0x2295, 0x2205, 0x2229, 0x222A, 0x2283, 0x2287, 0x2284, 0x2282, 0x2286, 0x2208, 0x2209,
+  0x2220, 0x2207, 0xF6DA, 0xF6D9, 0xF6DB, 0x220F, 0x221A, 0x22C5, 0x00AC, 0x2227, 0x2228, 0x21D4, 0x21D0, 0x21D1, 0x21D2, 0x21D3,
+  0x25CA, 0x2329, 0xF8E8, 0xF8E9, 0xF8EA, 0x2211, 0xF8EB, 0xF8EC, 0xF8ED, 0xF8EE, 0xF8EF, 0xF8F0, 0xF8F1, 0xF8F2, 0xF8F3, 0xF8F4,
+  0xfffd, 0x232A, 0x222B, 0x2320, 0xF8F5, 0x2321, 0xF8F6, 0xF8F7, 0xF8F8, 0xF8F9, 0xF8FA, 0xF8FB, 0xF8FC, 0xF8FD, 0xF8FE, 0xfffd
+};

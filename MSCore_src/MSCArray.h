@@ -1,4 +1,4 @@
-/*   MSCArray.h
+/* MSCArray.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -159,12 +159,12 @@ MSExport NSUInteger CSortedArrayAddObject(CArray *self, id object,
 
 /* TODO:
  #ifndef MSCORE_STANDALONE
- // these 2 function should be replaced by "MSUnicodeBuffer" functions :
+ // these 2 function should be replaced by "MSCString" functions :
  MSExport NSString *CArrayToString(CArray *self);
  MSExport NSString *CArrayJsonRepresentation(CArray *self);
  #endif
  */
-MSExport CUnicodeBuffer *CArrayToString(CArray *self);
+MSExport CString *CArrayToString(CArray *self);
 
 #define MSAAdd(  X, Y) CArrayAddObject((CArray*)(X), (Y))
 #define MSAPush( X, Y) MSAAdd(X, Y)

@@ -292,7 +292,7 @@ static Class __MSBufferClass= Nil;
   return AUTORELEASE((id)CCreateBufferWithBytes(_buf+range.location, range.length));
 }
 
-// TODO: MSBytesToHexaString as CUnicodeBuffer
+// TODO: MSBytesToHexaString as CString
 //- (NSString *)toString       { return MSBytesToHexaString(_buf, _length, YES); }
 //- (NSString *)listItemString { return MSBytesToHexaString(_buf, _length, YES); }
 - (MSUShort)shortCRC         { return MSBytesShortCRC    ((void *)_buf, _length); }
@@ -503,7 +503,7 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
 
 #endif
 
-// TODO: MSBytesToHexaString as CUnicodeBuffer
+// TODO: MSBytesToHexaString as CString
 //- (NSString *)toString { return MSBytesToHexaString((void *)[self bytes], [self length], YES); }
 //- (NSString *)listItemString { return MSBytesToHexaString((void *)[self bytes], [self length], YES); }
 - (MSUShort)shortCRC         { return MSBytesShortCRC    ((void *)[self bytes], [self length]); }

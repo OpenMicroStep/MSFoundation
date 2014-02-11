@@ -1,4 +1,4 @@
-/*   MSCBuffer.c
+/* MSCBuffer.c
  
  This file is is a part of the MicroStep Framework.
  

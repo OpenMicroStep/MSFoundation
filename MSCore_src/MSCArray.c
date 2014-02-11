@@ -1,4 +1,4 @@
-/*   MSCArray.c
+/* MSCArray.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -528,7 +528,7 @@ NSUInteger CSortedArrayAddObject(CArray *self, id obj, MSObjectComparator cmp, v
 }
 
 /* TODO:
- // these 2 function should be replaced by "MSUnicodeBuffer" functions :
+ // these 2 function should be replaced by "MSCString" functions :
  MSExport NSString *CArrayToString(CArray *self);
  MSExport NSString *CArrayJsonRepresentation(CArray *self);
 NSString *CArrayToString(CArray *self)
@@ -551,7 +551,7 @@ NSString *CArrayToString(CArray *self)
   return nil;
   }
  */
-CUnicodeBuffer *CArrayToString(CArray *self)
+CString *CArrayToString(CArray *self)
   {
   return nil;
   self= nil;
