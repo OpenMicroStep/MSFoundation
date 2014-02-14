@@ -16,7 +16,7 @@
 #include "MSTDecoder.h"
 
 
-int					test_LexTokenDump(
+static int				test_LexTokenDump(
 enum JsonLexTk				tk,
 CBuffer*				bfr)
 {
@@ -40,7 +40,7 @@ CBuffer*				bfr)
 }
 
 
-enum JsonLexTk				test_LexTokenRead(
+static enum JsonLexTk			test_LexTokenRead(
 struct JsonLex*				lex)
 {
 	enum JsonLexTk			tk;
@@ -54,7 +54,7 @@ struct JsonLex*				lex)
 }
 
 
-int					test_LexTokensLoop(
+static int				test_LexTokensLoop(
 char*					str)
 {
 	struct JsonLex			lex;
@@ -74,7 +74,7 @@ char*					str)
 }
 
 
-int					test_Lex(
+static int				test_Lex(
 int					argc,
 char**					argv)
 {
@@ -86,7 +86,7 @@ char**					argv)
 }
 
 
-enum MSTReaderTk			test_MstTokenRead(
+static enum MSTReaderTk			test_MstTokenRead(
 struct MSTReader*			mst)
 {
 	enum MSTReaderTk		tk;
@@ -104,7 +104,7 @@ struct MSTReader*			mst)
 }
 
 
-int					test_MstTokensLoop(
+static int				test_MstTokensLoop(
 char*					str)
 {
 	struct MSTReader		mst;
@@ -121,7 +121,7 @@ char*					str)
 }
 
 
-int					test_Mst(
+static int				test_Mst(
 int					argc,
 char**					argv)
 {
@@ -133,7 +133,7 @@ char**					argv)
 }
 
 
-int					test_MstDec(
+static int				test_MstDec(
 char*					str)
 {
 	int				ret;
@@ -152,7 +152,7 @@ char*					str)
 }
 
 
-int					test_MstDecs(
+static int				test_MstDecs(
 int					argc,
 char**					argv)
 {
@@ -188,10 +188,12 @@ char**					arge */)
 	return 1;
 }
 
+/*
 static char * tst1= "[\"MSTE0101\",45,\"CRC00000000\",1,\"MSTETest\",7,"
   "\"Arraaaayy\",\"blabla\",\"Array\",\"color\",\"datatau0042\",\"date\","
   "\"string\",50,6,0,20,2,7,2200083711,8,1,1,6,1351586383,2,20,3,14,12,1,9,2,"
   "3,9,2,4,23,\"bcOpbG9kaWU=\",5,9,4,6,5,\"SomeTu00E9ext\"]";
+*/
 
 static char * tst2= "[\"MSTE0101\",45,\"CRC00000000\",1,\"MSTETest\",7,"
   "\"Arraaaayy\",\"blabla\",\"Array\",\"color\",\"datatau0042\",\"date\","

@@ -18,10 +18,10 @@ va_list*				vaLst)
 
 	vprintf(fmt, *vaLst);
 	ptr = (char*)CBufferCString(bfr);
-	len = CBufferLength(bfr);
+	len = (int)CBufferLength(bfr);
 	endLen = len - idx;
 	printf("\n\tin: %.*s\n\tat %i: %.*s%s\n", len, ptr, idx,
-					(endLen > 64) ? 64 : endLen,
+					(endLen > 32) ? 32 : endLen,
 					ptr + idx, (endLen > 20) ? "..." : "");
 }
 
@@ -80,11 +80,11 @@ CBuffer*				self,
 CBuffer*				dst,
 int*					idx)
 {
-	char				chr;
+	MSByte				chr;
 
 	if (CBufferLength(self) < 1)
 		return 1;
-	chr = CBufferByteAtIndex(self, *idx);
+	chr = CBufferByteAtIndex(self, (unsigned int)*idx);
 	if (chr != CBUFFER_NBRMINUS)
 		return 0;
 	CBufferAppendByte(dst, chr);
@@ -98,11 +98,11 @@ CBuffer*				self,
 CBuffer*				dst,
 int*					idx)
 {
-	char				chr;
+	MSByte				chr;
 
 	if (CBufferLength(self) < 1)
 		return 1;
-	chr = CBufferByteAtIndex(self, *idx);
+	chr = CBufferByteAtIndex(self, (unsigned int)*idx);
 	if (!CBUFFER_ISDIGIT(chr))
 		return CBuffer_errAtReturn(self, *idx, 1,
 							"bad digit in number");
@@ -117,13 +117,13 @@ CBuffer*				self,
 CBuffer*				dst,
 int*					pIdx)
 {
-	char*				bfr;
+	MSByte*				bfr;
 	int				len;
 	int				idx;
-	char				chr;
+	MSByte				chr;
 
-	len = CBufferLength(self);
-	bfr = (char*)CBufferCString(self);
+	len = (int)CBufferLength(self);
+	bfr = CBufferCString(self);
 	for (idx = *pIdx; idx < len; idx ++)
 	{
 		chr = bfr[idx];
@@ -154,11 +154,11 @@ CBuffer*				self,
 CBuffer*				dst,
 int*					idx)
 {
-	char				chr;
+	MSByte				chr;
 
 	if (CBufferLength(self) < 1)
 		return 1;
-	chr = CBufferByteAtIndex(self, *idx);
+	chr = CBufferByteAtIndex(self, (unsigned int)*idx);
 	if (chr != CBUFFER_NBRDOT)
 		return 0;
 	CBufferAppendByte(dst, chr);
@@ -191,11 +191,11 @@ CBuffer*				self,
 CBuffer*				dst,
 int*					idx)
 {
-	char				chr;
+	MSByte				chr;
 
 	if (CBufferLength(self) < 1)
 		return 1;
-	chr = CBufferByteAtIndex(self, *idx);
+	chr = CBufferByteAtIndex(self, (unsigned int)*idx);
 	if (chr != CBUFFER_NBRLEXP && chr != CBUFFER_NBRUEXP)
 		return 0;
 	CBufferAppendByte(dst, chr);
@@ -209,11 +209,11 @@ CBuffer*				self,
 CBuffer*				dst,
 int*					idx)
 {
-	char				chr;
+	MSByte				chr;
 
 	if (CBufferLength(self) < 1)
 		return 1;
-	chr = CBufferByteAtIndex(self, *idx);
+	chr = CBufferByteAtIndex(self, (unsigned int)*idx);
 	if (chr != CBUFFER_NBRMINUS && chr != CBUFFER_NBRPLUS)
 		return 0;
 	CBufferAppendByte(dst, chr);
@@ -280,13 +280,13 @@ int					bgnIdx,
 CBuffer*				dst)
 {
 	enum CBufferNbrState		state;
-	char*				bfr;
+	MSByte*				bfr;
 	int				len;
 	int				idx;
-	char				chr;
+	MSByte				chr;
 
-	len = CBufferLength(self);
-	bfr = (char*)CBufferCString(self);
+	len = (int)CBufferLength(self);
+	bfr = CBufferCString(self);
 	state = CBufferNbrState_bgn;
 	for (idx = bgnIdx; idx < len && state != CBufferNbrState_end; )
 	{

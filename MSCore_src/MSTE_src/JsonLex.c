@@ -31,14 +31,14 @@ const char*				fmt,
 }
 
 
-int					JsonLex_skipSpaces(
+static int				JsonLex_skipSpaces(
 struct JsonLex*				self)
 {
 	char*				bfr;
 	int				len;
 	int				idx;
 
-	len = CBufferLength(self->bfr);
+	len = (int)CBufferLength(self->bfr);	/* TODO remove cast */
 	bfr = (char*)CBufferCString(self->bfr);
 	for (idx = self->idx; idx < len && JSON_ISSPACE(bfr[idx]); idx ++)
 		;
@@ -50,11 +50,11 @@ struct JsonLex*				self)
 enum JsonLexTk				JsonLex_tokenPeek(
 struct JsonLex*				self)
 {
-	char				chr;
+	MSByte				chr;
 
 	if (JsonLex_skipSpaces(self))
 		return JsonLexTk_eof;
-	switch ((chr = CBufferByteAtIndex(self->bfr, self->idx)))
+	switch ((chr = CBufferByteAtIndex(self->bfr, (unsigned int)self->idx)))
 	{
 	case JSON_MINUS:		return JsonLexTk_nbr;
 	case JSON_PLUS:			return JsonLexTk_nbr;
@@ -137,7 +137,7 @@ CBuffer*				dst)
 	char				chr;
 	int				chrLen;
 
-	len = CBufferLength(self->bfr);
+	len = (int)CBufferLength(self->bfr);
 	bfr = (char*)CBufferCString(self->bfr);
 	for (idx = self->idx + 1; idx < len && bfr[idx] != JSON_STREND;
 								idx += chrLen)
@@ -145,7 +145,7 @@ CBuffer*				dst)
 		chrLen = JsonLex_StrChrRead(bfr + idx, len - idx, &chr);
 		if (chrLen == -1)
 			return JsonLex_err(self, "bad char in str at %i", idx);
-		CBufferAppendByte(dst, chr);
+		CBufferAppendByte(dst, (MSByte)chr);
 	}
 	if (idx >= len)
 		return JsonLex_err(self, "eof in string");

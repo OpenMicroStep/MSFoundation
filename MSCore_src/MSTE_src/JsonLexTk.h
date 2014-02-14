@@ -13,6 +13,15 @@ enum					JsonLexTk
 };
 
 
+/*
+ * me		a JSON token
+ * dst		a pointer to the destination character to store
+ *		the character corresponding to the given JSON token
+ *
+ * returns:
+ *	0	ok, *dst contains the character
+ *	1	failed, given token has no corresponding character
+ */
 int					JsonLexTk_charGet(
 	enum JsonLexTk			me,
 	char*				dst);

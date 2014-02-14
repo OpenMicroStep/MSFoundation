@@ -130,12 +130,12 @@ CBuffer*				bfr)
 enum MSTReaderTk			MSTReader_newTokenRead(
 struct MSTReader*			self,
 CBuffer**				pBfr,
-int					expectedLen)
+int					expectedLen) /* TODO(maybe) NSUInteger*/
 {
 	CBuffer*			bfr;
 	enum MSTReaderTk		tk;
 
-	if ((bfr = CCreateBuffer(expectedLen)) == NULL)
+	if ((bfr = CCreateBuffer((unsigned int)expectedLen)) == NULL)
 		return MSTReaderTk_err;
 	if ((tk = MSTReader_tokenRead(self, bfr)) == MSTReaderTk_err
 					|| tk == MSTReaderTk_eof)
@@ -195,11 +195,11 @@ CBuffer*				bfr)
 
 CBuffer*				MSTReader_newNbrRead(
 struct MSTReader*			self,
-int					expectedLen)
+int					expectedLen) /* TODO(maybe)NSUInteger */
 {
 	CBuffer*			bfr;
 
-	if ((bfr = CCreateBuffer(expectedLen)) == NULL)
+	if ((bfr = CCreateBuffer((unsigned int)expectedLen)) == NULL)
 		return NULL;
 	if (MSTReader_nbrRead(self, bfr))
 	{
@@ -212,11 +212,11 @@ int					expectedLen)
 
 CBuffer*				MSTReader_newStrRead(
 struct MSTReader*			self,
-int					expectedLen)
+int					expectedLen) /* TODO(maybe)NSUInteger */
 {
 	CBuffer*			bfr;
 
-	if ((bfr = CCreateBuffer(expectedLen)) == NULL)
+	if ((bfr = CCreateBuffer((unsigned int)expectedLen)) == NULL)
 		return NULL;
 	if (MSTReader_strRead(self, bfr))
 	{
@@ -227,19 +227,19 @@ int					expectedLen)
 }
 
 
-int					MSTReader_intRead(
+int					MSTReader_longLongRead(
 struct MSTReader*			self,
-int*					dst)
+long long*				dst)
 {
 	CBuffer*			bfr;
 	char*				end;
-	long				val;
+	long long			val;
 	int				ret;
 
 	if ((bfr = MSTReader_newNbrRead(self, 8)) == NULL)
 		return 1;
 	CBufferAppendByte(bfr, 0);
-	val = strtol((char*)CBufferCString(bfr), &end, 10);
+	val = strtoll((char*)CBufferCString(bfr), &end, 10);
 	if (*end != 0)
 	{
 		printf("expected number to be int: \"%s\"\n",
@@ -256,15 +256,110 @@ int*					dst)
 }
 
 
+int					MSTReader_uLongLongRead(
+struct MSTReader*			self,
+unsigned long long*			dst)
+{
+	CBuffer*			bfr;
+	char*				end;
+	unsigned long long		val;
+	int				ret;
+
+	if ((bfr = MSTReader_newNbrRead(self, 8)) == NULL)
+		return 1;
+	CBufferAppendByte(bfr, 0);
+	val = strtoull((char*)CBufferCString(bfr), &end, 10);
+	if (*end != 0)
+	{
+		printf("expected number to be int: \"%s\"\n",
+							CBufferCString(bfr));
+		ret = 1;
+	}
+	else
+	{
+		*dst = val;
+		ret = 0;
+	}
+	RELEASE(bfr);
+	return ret;
+}
+
+
+int					MSTReader_rangeLongLongRead(
+struct MSTReader*			self,
+long long*				dst,
+int					min,
+int					max)
+{
+	long long			val;
+
+	if (MSTReader_longLongRead(self, &val))
+		return 1;
+	if (val < min || val > max)
+	{
+		printf("number out of range [%i-%i]: %lli\n", min, max, val);
+		return 1;
+	}
+	*dst = val;
+	return 0;
+}
+
+
+int					MSTReader_rangeULongLongRead(
+struct MSTReader*			self,
+unsigned long long*			dst,
+unsigned int				min,
+unsigned int				max)
+{
+	unsigned long long		val;
+
+	if (MSTReader_uLongLongRead(self, &val))
+		return 1;
+	if (val < min || val > max)
+	{
+		printf("number out of range [%i-%i]: %lli\n", min, max, val);
+		return 1;
+	}
+	*dst = val;
+	return 0;
+}
+
+
+int					MSTReader_intRead(
+struct MSTReader*			self,
+int*					dst)
+{
+	long long			val;
+
+	if (MSTReader_rangeLongLongRead(self, &val, INT_MIN, INT_MAX))
+		return 1;
+	*dst = (int)val;
+	return 0;
+}
+
+
+int					MSTReader_uIntRead(
+struct MSTReader*			self,
+unsigned int*				dst)
+{
+	unsigned long long		val;
+
+	if (MSTReader_rangeULongLongRead(self, &val, 0, UINT_MAX))
+		return 1;
+	*dst = (unsigned int)val;
+	return 0;
+}
+
+
 CArray*					MSTReader_strArrayRead(
 struct MSTReader*			self)
 {
-	int				cnt;
+	unsigned int			cnt;
 	CArray*				array;
 	CBuffer*			bfr;
-	int				idx;
+	unsigned int			idx;
 
-	if (MSTReader_intRead(self, &cnt)
+	if (MSTReader_uIntRead(self, &cnt)
 				|| (array = CCreateArray(cnt)) == NULL)
 		return NULL;
 	for (idx = 0; idx < cnt; idx ++)

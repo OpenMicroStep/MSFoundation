@@ -7,7 +7,7 @@
 #include "JsonLex.h"
 #include "MSTReaderTk.h"
 #include "MSTReader.h"
-#include "MSTCObjReader.h"
+#include "MSTObjBuilder.h"
 #include "MSTHeader.h"
 #include "MSTType.h"
 #include "MSTDecoder.h"
