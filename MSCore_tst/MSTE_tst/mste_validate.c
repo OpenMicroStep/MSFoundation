@@ -188,12 +188,38 @@ char**					arge */)
 	return 1;
 }
 
+
 /*
+	["MSTE0101",45,"CRC00000000",
+	1,"MSTETest",
+	7,"Arraaaayy","blabla","Array","color","datatau0042","date","string",
+	50,6,		class(MSTETest), 6kv,
+	0,			k[1]="Arraaaayy"
+	20,2,			v[1]=array[2]
+	7,2200083711,			[0]=Color(2200083711)
+	8,1,				[1]=Dictionary(1)
+	1,					k="blabla"
+	6,1351586383,				v=date(1351586383)
+	2,			k[2]="Array"
+	20,3,			v[2]=array[3]
+	14,12,				int32(12)
+	1,				true
+	9,2,				ref(2)
+	3,			k[3]="color"
+	9,2,			v[3]=ref(2)
+	4,			k[4]="datatau0042"
+	23,"bcOpbG9kaWU=",	v[4]=base64("bcOpbG9kaWU=")
+	5,			k[5]="date"
+	9,4,			v[5]=ref(4)
+	6,			k[6]="string"
+	5,"SomeTu00E9ext"	v[6]=string("SomeTu00E9ext")
+	]
+*/
 static char * tst1= "[\"MSTE0101\",45,\"CRC00000000\",1,\"MSTETest\",7,"
   "\"Arraaaayy\",\"blabla\",\"Array\",\"color\",\"datatau0042\",\"date\","
   "\"string\",50,6,0,20,2,7,2200083711,8,1,1,6,1351586383,2,20,3,14,12,1,9,2,"
   "3,9,2,4,23,\"bcOpbG9kaWU=\",5,9,4,6,5,\"SomeTu00E9ext\"]";
-*/
+
 
 static char * tst2= "[\"MSTE0101\",45,\"CRC00000000\",1,\"MSTETest\",7,"
   "\"Arraaaayy\",\"blabla\",\"Array\",\"color\",\"datatau0042\",\"date\","
@@ -238,7 +264,7 @@ int mste_validate()
   err+= test(argc, argv);
 
   argv[1]= "mstDec";
-  argv[2]= tst2;
+  argv[2]= tst1;
   err+= test(argc, argv);
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;

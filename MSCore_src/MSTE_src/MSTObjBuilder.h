@@ -12,6 +12,10 @@
  */
 
 
+void					MSTObjBuilder_Release(
+	id				obj);
+
+
 CDecimal*				MSTObjBuilder_NewDecimalFromLong(
 	long				val);
 
@@ -55,7 +59,11 @@ int					MSTObjBuilder_NewArrayVal(
 	id				val);
 
 
-CCouple*				MSTObjBuilder_NewCouple(
+CCouple*				MSTObjBuilder_NewCouple(void);
+
+
+void					MSTObjBuilder_CoupleSetMembers(
+	id				couple,
 	id				first,
 	id				second);
 

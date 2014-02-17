@@ -2,6 +2,13 @@
 #include "MSTE_Private.h"
 
 
+void					MSTObjBuilder_Release(
+id					obj)
+{
+	RELEASE(obj);
+}
+
+
 CDecimal*				MSTObjBuilder_NewDecimalFromLong(
 long					val)
 {
@@ -99,11 +106,20 @@ id					val)
 }
 
 
-CCouple*				MSTObjBuilder_NewCouple(
+CCouple*				MSTObjBuilder_NewCouple(void)
+{
+	return CCreateCouple(NULL, NULL);
+}
+
+
+void					MSTObjBuilder_CoupleSetMembers(
+id					couple,
 id					first,
 id					second)
 {
-	return CCreateCouple(first, second);
+	/* TODO typesafe cast */
+	CCoupleSetFirstMember((CCouple*)couple, first);
+	CCoupleSetSecondMember((CCouple*)couple, second);
 }
 
 

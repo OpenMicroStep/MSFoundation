@@ -12,7 +12,7 @@ void					MSTDecoder_init(
 struct MSTDecoder*			self,
 CBuffer*				bfr)
 {
-	self->bfr = NULL;
+	self->bfr = bfr;
 	MSTReader_init(&self->reader, bfr);
 	MSTHeader_initNull(&self->header);
 	self->classes = NULL;
@@ -34,7 +34,8 @@ struct MSTDecoder*			self)
 }
 
 
-static id				MSTDecoder_IndexGetFromArray(
+static id				MSTDecoder_indexGetFromArray(
+struct MSTDecoder*			self,
 CArray*					array,
 unsigned int				idx,
 const char*				name)
@@ -43,7 +44,8 @@ const char*				name)
 
 	if ((val = CArrayObjectAtIndex(array, idx)) == NULL)
 	{
-		printf("%s index out of range: %u\n", name, idx);
+		MSTReader_err(&self->reader, "%s index out of range [%u]: %u",
+						name, CArrayCount(array), idx);
 		return NULL;
 	}
 	return val;
@@ -59,7 +61,7 @@ const char*				name)
 
 	if (MSTReader_uIntRead(&self->reader, &valRef))
 		return NULL;
-	return MSTDecoder_IndexGetFromArray(array, valRef, name);
+	return MSTDecoder_indexGetFromArray(self, array, valRef, name);
 }
 
 
@@ -77,7 +79,7 @@ static id				MSTDecoder_classGet(
 struct MSTDecoder*			self,
 unsigned int				idx)
 {
-	return MSTDecoder_IndexGetFromArray(self->classes, idx, "class");
+	return MSTDecoder_indexGetFromArray(self, self->classes, idx, "class");
 }
 
 
@@ -161,6 +163,7 @@ id*					obj)
 	RELEASE(bfr);
 	if (str == NULL)
 		return 1;
+	MSTDecoder_decodedObjetAdd(self, str);
 	*obj = str;
 	return 0;
 }
@@ -178,6 +181,7 @@ id*					obj)
 	/* TODO typesafe cast */
 	if ((date = (id)MSTObjBuilder_NewDate(sse)) == NULL)
 		return 1;
+	MSTDecoder_decodedObjetAdd(self, date);
 	*obj = date;
 	return 0;
 }
@@ -188,14 +192,32 @@ struct MSTDecoder*			self,
 id*					obj)
 {
 	long long			rgb;
-	id				date;
+	id				color;
 
 	if (MSTReader_longLongRead(&self->reader, &rgb))
 		return 1;
 	/* TODO typesafe cast */
-	if ((date = (id)MSTObjBuilder_NewColor(rgb)) == NULL)
+	if ((color = (id)MSTObjBuilder_NewColor(rgb)) == NULL)
 		return 1;
-	*obj = date;
+	MSTDecoder_decodedObjetAdd(self, color);
+	*obj = color;
+	return 0;
+}
+
+
+static int				MSTDecoder_keyValDecode(
+struct MSTDecoder*			self,
+id*					pKey,
+id*					pVal)
+{
+	id				key;
+	id				obj;
+
+	if ((key = MSTDecoder_keyReadAndGet(self)) == NULL
+		|| MSTDecoder_objectDecode(self, &obj, NULL))
+		return 1;
+	*pKey = key;
+	*pVal = obj;
 	return 0;
 }
 
@@ -207,12 +229,11 @@ id					dic)
 	id				key;
 	id				obj;
 
-	if ((key = MSTDecoder_keyReadAndGet(self)) == NULL
-		|| MSTDecoder_objectDecode(self, &obj, NULL))
+	if (MSTDecoder_keyValDecode(self, &key, &obj))
 		return 1;
 	if (MSTObjBuilder_NewDictionaryKeyVal(dic, key, obj))
 	{
-		RELEASE(obj);
+		MSTObjBuilder_Release(obj);
 		return 1;
 	}
 	return 0;
@@ -236,7 +257,8 @@ id*					obj)
 	for (idx = 0; idx < cnt; idx ++)
 		if (MSTDecoder_dictionaryEntryDecode(self, dic))
 		{
-			RELEASE(dic);	/* TODO check that content is freed */
+			/* TODO check that content is freed */
+			MSTObjBuilder_Release(dic);
 			return 1;
 		}
 	*obj = dic;
@@ -268,7 +290,7 @@ id					dic)
 		return 1;
 	if (MSTObjBuilder_NewArrayVal(dic, obj))
 	{
-		RELEASE(obj);
+		MSTObjBuilder_Release(obj);
 		return 1;
 	}
 	return 0;
@@ -292,7 +314,8 @@ id*					obj)
 	for (idx = 0; idx < cnt; idx ++)
 		if (MSTDecoder_arrayEntryDecode(self, array))
 		{
-			RELEASE(array);	/* TODO check that content is freed */
+			/* TODO check that content is freed */
+			MSTObjBuilder_Release(array);
 			return 1;
 		}
 	*obj = array;
@@ -311,7 +334,7 @@ id					dic)
 		return 1;
 	if (MSTObjBuilder_NewArrayVal(dic, obj))
 	{
-		RELEASE(obj);
+		MSTObjBuilder_Release(obj);
 		return 1;
 	}
 	return 0;
@@ -335,7 +358,8 @@ id*					obj)
 	for (idx = 0; idx < cnt; idx ++)
 		if (MSTDecoder_naturalArrayEntryDecode(self, array))
 		{
-			RELEASE(array);	/* TODO check that content is freed */
+			/* TODO check that content is freed */
+			MSTObjBuilder_Release(array);
 			return 1;
 		}
 	*obj = array;
@@ -355,7 +379,7 @@ id*					second)
 		return 1;
 	if (MSTDecoder_objectDecode(self, &lSecond, NULL))
 	{
-		RELEASE(first);
+		MSTObjBuilder_Release(lFirst);
 		return 1;
 	}
 	*first = lFirst;
@@ -372,16 +396,16 @@ id*					obj)
 	id				second;
 	id				couple;
 
-	if (MSTDecoder_coupleObjsDecode(self, &first, &second))
-		return 1;
 	/* TODO typesafe cast */
-	if ((couple = (id)MSTObjBuilder_NewCouple(first, second)) == NULL)
+	if ((couple = (id)MSTObjBuilder_NewCouple()) == NULL)
+		return 1;
+	MSTDecoder_decodedObjetAdd(self, couple);
+	if (MSTDecoder_coupleObjsDecode(self, &first, &second))
 	{
-		RELEASE(second);
-		RELEASE(first);
+		MSTObjBuilder_Release(couple);
 		return 1;
 	}
-	MSTDecoder_decodedObjetAdd(self, couple);
+	MSTObjBuilder_CoupleSetMembers(couple, first, second);
 	*obj = couple;
 	return 0;
 }
@@ -390,7 +414,8 @@ id*					obj)
 /*
  * TODO(maybe) move to a MSCBuffer constructor
  */
-static CBuffer*				MSTDecoder_Base64DoDecode(
+static CBuffer*				MSTDecoder_base64DoDecode(
+struct MSTDecoder*			self,
 CBuffer*				src)
 {
 	CBuffer*			dst;
@@ -400,8 +425,8 @@ CBuffer*				src)
 	if (CBufferBase64DecodeAndAppendBytes(dst, CBufferCString(src),
 						CBufferLength(src)) == NO)
 	{
-		printf("Invalid base64 data: %.*s\n", (int)CBufferLength(src),
-							CBufferCString(src));
+		MSTReader_err(&self->reader, "Invalid base64 data: %.*s",
+				(int)CBufferLength(src), CBufferCString(src));
 		RELEASE(dst);
 		return NULL;
 	}
@@ -424,7 +449,7 @@ id*					obj)
 
 	if ((bfr = MSTReader_newStrRead(&self->reader, 64)) == NULL)
 		return 1;
-	dec = MSTDecoder_Base64DoDecode(bfr);
+	dec = MSTDecoder_base64DoDecode(self, bfr);
 	RELEASE(bfr);
 	if (dec == NULL)
 		return 1;
@@ -432,6 +457,7 @@ id*					obj)
 	dat = (id)MSTObjBuilder_NewBuffer(bfr);
 	if (dat == NULL)
 		return 1;
+	MSTDecoder_decodedObjetAdd(self, dat);
 	*obj = dat;
 	return 0;
 }
@@ -464,19 +490,47 @@ id*					obj)
 }
 
 
+static int				MSTDecoder_userObjectEntryDecode(
+struct MSTDecoder*			self,
+id					dic)
+{
+	id				key;
+	id				obj;
+
+	if (MSTDecoder_keyValDecode(self, &key, &obj))
+		return 1;
+	if (MSTObjBuilder_NewObjKeyVal(dic, key, obj))
+	{
+		MSTObjBuilder_Release(obj);
+		return 1;
+	}
+	return 0;
+}
+
+
 static int				MSTDecoder_userObjectDecode(
 struct MSTDecoder*			self,
 id*					obj,
-int					classIdx)
+unsigned int				classIdx)
 {
+	unsigned int			cnt;
+	unsigned int			idx;
 	id				classId;
-	id				userObj;
+	id				usrObj;
 
-	if ((classId = MSTDecoder_classGet(self, (unsigned int)classIdx))
-									== NULL)
-		return 1;
-	/* TODO almost the same as _dictionaryDecode */
-	/*MSTDecoder_decodedObjetAdd(self, userObj);*/
+	if ((classId = MSTDecoder_classGet(self, classIdx)) == NULL
+		|| MSTReader_uIntRead(&self->reader, &cnt)
+		|| (usrObj = (id)MSTObjBuilder_NewObj(cnt, classId)) == NULL)
+		return 1;			/* TODO typesafe cast */
+	MSTDecoder_decodedObjetAdd(self, usrObj);
+	for (idx = 0; idx < cnt; idx ++)
+		if (MSTDecoder_userObjectEntryDecode(self, usrObj))
+		{
+			/* TODO check that content is freed */
+			MSTObjBuilder_Release(usrObj);
+			return 1;
+		}
+	*obj = usrObj;
 	return 0;
 }
 
@@ -490,12 +544,10 @@ int*					isWeakRef)
 	int				classIdx;
 
 	if (type < MSTETYPE_USER_CLASS)
-	{
-		printf("unhandled type: %i\n", type);
-		return 1;
-	}
+		return MSTReader_err(&self->reader, "unhandled type: %i",
+									type);
 	classIdx = (type - MSTETYPE_USER_CLASS) / 2;
-	if (MSTDecoder_userObjectDecode(self, obj, classIdx))
+	if (MSTDecoder_userObjectDecode(self, obj, (unsigned int)classIdx))
 		return 1;
 	if (isWeakRef != NULL)
 		*isWeakRef = type % 2;
@@ -510,8 +562,10 @@ int*					isWeakRef)
 {
 	int				type;
 
+int idx = MSTReader_idxGet(&self->reader);
 	if (MSTReader_intRead(&self->reader, &type))
 		return 1;
+printf("DB %i:%i\n", idx, type);
 	switch (type)
 	{
 	case MSTETYPE_NULL:
@@ -522,7 +576,7 @@ int*					isWeakRef)
 	case MSTETYPE_FALSE:
 		return MSTDecoder_BooleanDecode(1, obj);
 	case MSTETYPE_INTEGER_VALUE:
-	case MSTETYPE_REAL_VALUE:
+	case MSTETYPE_REAL_VALUE:	/* TODO: add to decoded objects */
 	case MSTETYPE_CHAR:
 	case MSTETYPE_UNSIGNED_CHAR:
 	case MSTETYPE_SHORT:
@@ -583,8 +637,8 @@ struct MSTDecoder*			self)
 	hdrCnt = MSTHeader_cntGet(&self->header);
 	rdrCnt = MSTReader_tkCntGet(&self->reader);
 	if (hdrCnt != rdrCnt)
-		printf("token read/expected count mismatch: %i/%i\n",
-								rdrCnt, hdrCnt);
+		MSTReader_err(&self->reader, "token read/expected count"
+					" mismatch: %i/%i", rdrCnt, hdrCnt);
 	return MSTReader_endRead(&self->reader);
 }
 
@@ -599,6 +653,7 @@ struct MSTDecoder*			self)
 		|| (self->classes = MSTReader_strArrayRead(&self->reader))
 									== NULL
 		|| (self->keys = MSTReader_strArrayRead(&self->reader)) == NULL
+		|| (self->objects = CCreateArray(16)) == NULL
 		|| MSTDecoder_rootObjectDecode(self, &obj)
 		|| MSTDecoder_endChk(self));
 }

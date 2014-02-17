@@ -1,6 +1,7 @@
 
 #include "MSTE_Private.h"
 
+
 void					MSTReader_init(
 struct MSTReader*			self,
 CBuffer*				bfr)
@@ -8,6 +9,27 @@ CBuffer*				bfr)
 	JsonLex_init(&self->JsonLex, bfr);
 	self->state = MSTReader_stateBgn;
 	self->tkCnt = 0;
+}
+
+
+int					MSTReader_err(
+struct MSTReader*			self,
+const char*				fmt,
+					...)
+{
+	va_list				vaLst;
+
+	va_start(vaLst, fmt);
+	JsonLex_verr(&self->JsonLex, fmt, &vaLst);
+        va_end(vaLst);
+        return 1;
+}
+
+
+int					MSTReader_idxGet(
+struct MSTReader*			self)
+{
+	return JsonLex_idxGet(&self->JsonLex);
 }
 
 
@@ -242,7 +264,7 @@ long long*				dst)
 	val = strtoll((char*)CBufferCString(bfr), &end, 10);
 	if (*end != 0)
 	{
-		printf("expected number to be int: \"%s\"\n",
+		MSTReader_err(self, "expected number to be int: \"%s\"",
 							CBufferCString(bfr));
 		ret = 1;
 	}
@@ -271,7 +293,7 @@ unsigned long long*			dst)
 	val = strtoull((char*)CBufferCString(bfr), &end, 10);
 	if (*end != 0)
 	{
-		printf("expected number to be int: \"%s\"\n",
+		MSTReader_err(self, "expected number to be int: \"%s\"",
 							CBufferCString(bfr));
 		ret = 1;
 	}
@@ -296,10 +318,8 @@ int					max)
 	if (MSTReader_longLongRead(self, &val))
 		return 1;
 	if (val < min || val > max)
-	{
-		printf("number out of range [%i-%i]: %lli\n", min, max, val);
-		return 1;
-	}
+		return MSTReader_err(self, "number out of range"
+					" [%i-%i]: %lli", min, max, val);
 	*dst = val;
 	return 0;
 }
@@ -316,10 +336,8 @@ unsigned int				max)
 	if (MSTReader_uLongLongRead(self, &val))
 		return 1;
 	if (val < min || val > max)
-	{
-		printf("number out of range [%i-%i]: %lli\n", min, max, val);
-		return 1;
-	}
+		return MSTReader_err(self, "number out of range"
+					" [%i-%i]: %lli", min, max, val);
 	*dst = val;
 	return 0;
 }

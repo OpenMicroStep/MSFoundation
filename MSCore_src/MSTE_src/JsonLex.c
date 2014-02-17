@@ -17,6 +17,16 @@ CBuffer*				bfr)
 }
 
 
+enum JsonLexTk				JsonLex_verr(
+struct JsonLex*				self,
+const char*				fmt,
+va_list*				vaLst)
+{
+	CBuffer_verrAt(self->bfr, self->idx, fmt, vaLst);
+	return JsonLexTk_err;
+}
+
+
 enum JsonLexTk				JsonLex_err(
 struct JsonLex*				self,
 const char*				fmt,
@@ -25,7 +35,7 @@ const char*				fmt,
 	va_list				vaLst;
 
 	va_start(vaLst, fmt);
-	CBuffer_verrAt(self->bfr, self->idx, fmt, &vaLst);
+	JsonLex_verr(self, fmt, &vaLst);
         va_end(vaLst);
 	return JsonLexTk_err;
 }
@@ -120,6 +130,7 @@ char*					bfr,
 int					len,
 char*					dst)
 {
+	/* TODO(maybe) check that chars are in 0x20-0x7F */
 	if (bfr[0] == JSON_STRESC)
 		return JsonLex_StrEscRead(bfr, len, dst);
 	*dst = bfr[0];
@@ -170,4 +181,11 @@ CBuffer*				bfr)
 	default:		self->idx ++;
 				return nxt;
 	}
+}
+
+
+int					JsonLex_idxGet(
+struct JsonLex*				self)
+{
+	return self->idx;
 }

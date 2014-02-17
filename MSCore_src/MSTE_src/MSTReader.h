@@ -24,6 +24,25 @@ void					MSTReader_init(
 	CBuffer*			bfr);
 
 
+
+/*
+ * fmt		printf format string
+ * ...		printf arguments
+ *
+ * returns 1
+ */
+int					MSTReader_err(
+	struct MSTReader*		self,
+	const char*			fmt,
+					...);
+
+
+/*
+ * returns current position in buffer
+ */
+int					MSTReader_idxGet(
+	struct MSTReader*		self);
+
 /*
  * returns
  *	count of tokens previously read
