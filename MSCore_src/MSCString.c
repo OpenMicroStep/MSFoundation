@@ -196,29 +196,41 @@ void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb)
     for (i= 0; i < nb; i++) self->buf[self->length++]= c;}
 }
 
-static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger length);
+//static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger length);
 void CStringAppendBytes(CString *self, const void *s, NSUInteger length, NSStringEncoding encoding)
 {
-  if (encoding==NSUTF8StringEncoding) _CStringAppendUTF8Bytes(self, s, length);
-  else CStringAppendSES(self, MSMakeSESWithBytes(s, length, encoding));
+/*  if (encoding==NSUTF8StringEncoding) _CStringAppendUTF8Bytes(self, s, length);
+  else
+*/CStringAppendSES(self, MSMakeSESWithBytes(s, length, encoding));
 }
 
 void CStringAppendSES(CString *self, SES ses)
 {
   if (self && SESOK(ses)) {
-    register NSUInteger i, end, lg= SESLength(ses);
+    NSUInteger i, end, lg= SESLength(ses);
     if (self->size < self->length+lg) CStringGrow(self, lg);
     if (ses.encoding==NSUnicodeStringEncoding) {
       memmove(self->buf+self->length, SESSource(ses)+SESStart(ses), lg*sizeof(unichar));
       self->length+= SESLength(ses);}
-    else for (i= SESStart(ses), end= SESEnd(ses); i < end; i++) {
-      self->buf[self->length++]= SESIndex(ses, i);}}
+    else for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
+      unichar u= SESIndexN(ses, &i);
+    //self->buf[self->length++]= u; // TODO: What do we do if wrong utf8 ?
+      self->buf[self->length++]= (u?u:'?');
+      }}
 }
 
 void CStringAppendString(CString *self, const CString *s)
 {
   if (self && s && s->length) {
     CStringAppendSES(self, MSMakeSESWithBytes(s->buf, s->length, NSUnicodeStringEncoding));}
+}
+
+static inline unichar _CEncodingToUnicode(MSByte c, NSStringEncoding encoding)
+// TODO: use SES
+{
+  SES ses= MSMakeSESWithBytes(&c, 1, encoding);
+  NSUInteger index= 0;
+  return SESIndexN(ses, &index);
 }
 
 static inline NSUInteger _addNonASCIIByte(CString *self,
@@ -242,7 +254,7 @@ static inline NSUInteger _addNonASCIIByte(CString *self,
     case NSWindowsCP1250StringEncoding:
     case NSMacOSRomanStringEncoding:
     case NSDOSStringEncoding:
-      self->buf[self->length++]= CEncodingToUnicode(c, *encoding);
+      self->buf[self->length++]= _CEncodingToUnicode(c, *encoding);
       pos ++;
       break;
     case NSUTF8StringEncoding:{
@@ -342,7 +354,7 @@ static inline NSUInteger _addNonASCIIByte(CString *self,
         pos = 0;
       }
       else {
-        self->buf[self->length++]= CEncodingToUnicode(c, NSISOLatin2StringEncoding);
+        self->buf[self->length++]= _CEncodingToUnicode(c, NSISOLatin2StringEncoding);
         pos ++;
       }
       break;
@@ -363,7 +375,7 @@ static inline NSUInteger _addNonASCIIByte(CString *self,
   return pos;
 }
 
-
+/*
 static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger len)
 {
   if (self && bytes && len) {
@@ -387,7 +399,7 @@ static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger
       self->length = initialLen; // we go back to initial buffer state
       return;}}
 }
-
+*/
 #define NO_CONVERSION    0x0000
 #define CONV_URI_MODE    0x0001
 

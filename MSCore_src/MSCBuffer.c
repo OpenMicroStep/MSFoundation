@@ -235,6 +235,79 @@ void CBufferFillWithByte(CBuffer *self, MSByte c, NSUInteger nb)
     for (i= 0; i < nb; i++) self->buf[self->length++]= c;}
 }
 
+void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncoding)
+// Only UTF8. TODO: Use a CHAI-1
+{
+  NSUInteger i,end,u8n;
+  unichar u;
+  MSByte u8[3];
+  if (destinationEncoding==NSUTF8StringEncoding) {
+    for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
+      u= SESIndexN(ses, &i);
+      if (u<0x0080) {u8[0]= (MSByte)u; u8n= 1;}
+      else if (u<0x0800) {
+        u8[1]= (MSByte)(u & 0x003F) | 0x80; u>>= 6;
+        u8[0]= (MSByte)(u & 0x001F) | 0xC0; u8n= 2;}
+      else {
+        u8[2]= (MSByte)(u & 0x003F) | 0x80; u>>= 6;
+        u8[1]= (MSByte)(u & 0x003F) | 0x80; u>>= 6;
+        u8[0]= (MSByte)(u & 0x000F) | 0xE0; u8n= 3;}
+      _append(self, u8, u8n);}}
+}
+
+void CBufferAppendString(CBuffer *self, CString *s, NSStringEncoding destinationEncoding)
+{
+  SES ses= MSMakeSESWithBytes(s->buf, s->length, NSUnicodeStringEncoding);
+  CBufferAppendSES(self, ses, destinationEncoding);
+}
+
+/*
+void printkanji(int c)
+{
+int t1,t2,t3;
+
+t1 = (char) c & 0x3F;
+t1 = t1 | 0x80;
+
+c = c >> 6;
+t2 = (char) c & 0x3F;
+t2 = t2 | 0x80;
+
+c = c >> 6;
+t3 = (char) c & 0x0F;
+t3 = t3 | 0xE0;
+
+putchar(t3);
+putchar(t2);
+putchar(t1);
+}
+
+ MSExport BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict)
+ {
+ switch (destinationEncoding) {
+ case NSUTF8StringEncoding:
+ return CBufferAppendUTF8WithSES(self, enumerator, source);
+ case NSNonLossyASCIIStringEncoding:
+ strict = YES;
+ case NSASCIIStringEncoding:
+ if (strict) {
+ }
+ else {
+ }
+ case NSISOLatin1StringEncoding:
+ break;
+ case NSUnicodeStringEncoding:
+ return _CBufferAppendUnicode(self, enumerator, source, NO); // we don't swap
+ case NSUTF16BigEndianStringEncoding:
+ return _CBufferAppendUnicode(self, enumerator, source, MSCurrentByteOrder() == MSLittleEndian ? YES : NO);
+ case NSUTF16LittleEndianStringEncoding:
+ return _CBufferAppendUnicode(self, enumerator, source, MSCurrentByteOrder() == MSBigEndian ? YES : NO);
+ default:
+ return NO;
+ }
+ }
+ */
+
 #pragma mark Base64
 
 static const MSByte  __cb64[64]=    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -365,33 +438,6 @@ BOOL CBufferBase64DecodeAndAppendBytes   (CBuffer *self, const void *bytes, NSUI
 { return _CBase64Decode(self, __cd64,    (MSByte)'=', bytes, len); }
 BOOL CBufferBase64URLDecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len)
 { return _CBase64Decode(self, __cd64URL, (MSByte)'=', bytes, len); }
-
-/*
- MSExport BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict)
- {
- switch (destinationEncoding) {
- case NSUTF8StringEncoding:
- return CBufferAppendUTF8WithSES(self, enumerator, source);
- case NSNonLossyASCIIStringEncoding:
- strict = YES;
- case NSASCIIStringEncoding:
- if (strict) {
- }
- else {
- }
- case NSISOLatin1StringEncoding:
- break;
- case NSUnicodeStringEncoding:
- return _CBufferAppendUnicode(self, enumerator, source, NO); // we don't swap
- case NSUTF16BigEndianStringEncoding:
- return _CBufferAppendUnicode(self, enumerator, source, MSCurrentByteOrder() == MSLittleEndian ? YES : NO);
- case NSUTF16LittleEndianStringEncoding:
- return _CBufferAppendUnicode(self, enumerator, source, MSCurrentByteOrder() == MSBigEndian ? YES : NO);
- default:
- return NO;
- }
- }
- */
 
 #pragma mark Compress
 

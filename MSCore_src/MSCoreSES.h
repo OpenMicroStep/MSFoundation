@@ -43,10 +43,16 @@
 
 // CHAI (CHaracter At Index) est une fonction qui, à partir
 // d'un pointeur vers une source et
-// d'un entier i représentant l'index que l'on veut atteindre dans la source,
-// retourne en tant qu'unichar le ième élément de la source.
+// d'un pointeur pi vers un entier représentant l'index que l'on veut atteindre dans la source,
+// retourne en tant qu'unichar l'élément à la ième position de la source (pas
+// nécessairement le ième élément : ex UTF-8).
+// et dans pi l'index du prochain caractère.
+// Peut aussi être utilisé pour parcourir dans l'autre sens. Dans ce cas, on veut le
+// caractère AVANT l'index, ie c'est l'index de la fin du caractère, et on
+// retourne par référence l'index du caractère (donc l'index à fournir pour
+// avoir le précédent).
 
-typedef unichar (*CHAI)(const void *, NSUInteger);
+typedef unichar (*CHAI)(const void *, NSUInteger*);
 #define InvalidCHAI (CHAI)0
 
 // SES (String Enumerator S...) représente l'accès à une source que l'on peut
@@ -80,10 +86,17 @@ typedef MSByte MSRealScanOptions;
 #define MSAcceptsDotOrComma 3
 #define MSAcceptsExponent   4
 
-unichar        CEncodingToUnicode(unsigned short c, NSStringEncoding encoding);
-unsigned short CUnicodeToEncoding(unichar        u, NSStringEncoding encoding);
+// TODO: A revoir avec des const void *
+//unichar        CEncodingToUnicode(unsigned short c, NSStringEncoding encoding);
+//unsigned short CUnicodeToEncoding(unichar        u, NSStringEncoding encoding);
 
 MSExport SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding);
+// Use this function to make a SES from a source.
+// To obtain the unichar suite equivalent to a source use:
+// SES ses= MSMakeSESWithBytes(cmySource, mySourceLength, mySourceEncoding);
+// NSUInteger i,n; unichar u;
+// for (i= SESStart(ses), n= SESLength(ses); i<n;) u= SESIndexN(ses, &i);
+// Or CCreateStringWithBytes()
 
 MSExport SES SESFind(SES src, SES searched);
 MSExport SES SESInsensitiveFind(SES src, SES searched);
@@ -93,22 +106,25 @@ MSExport SES SESInsensitiveCommonPrefix(SES src, SES comparator);
 // Retourne en tant que SES sur src le plus grand préfixe entre les deux chaînes.
 // Retourne MSInvalidSES si pas de préfixe commun.
 
-MSExport SES SESExtractPart(SES src, CUnicharChecker matchingChar);
+//MSExport SES SESExtractPart(SES src, CUnicharChecker matchingChar);
+// TODO: Need SESINDEXP
 MSExport SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
 // Si 'leftSpaces' est NULL, il est remplacé par CUnicharIsSpace.
 // Retourne un SES de 'src' sans les 'leftSpaces', avec les caractères qui matchent
 // avec 'matchingChar'.
 // Ex: ('  123zehgf',CUnicharIsDigit,NULL) -> '123'
 
-#define CAIOK(X)      ((X) != InvalidCHAI)
-#define SESOK(X)      ({SES __x__= (X);  \
+#define CAIOK(X)       ((X) != InvalidCHAI)
+#define SESOK(X)       ({SES __x__= (X);  \
   (__x__.source != NULL) && CAIOK(__x__.chai) && \
   (__x__.start != NSNotFound) && (__x__.length > 0);})
-#define SESSource(X)  ((X).source)
-#define SESCHAI(X)    ((X).chai)
-#define SESStart(X)   ((X).start)
-#define SESLength(X)  ((X).length)
-#define SESIndex(X,I) ({SES __x__= (X); __x__.chai(__x__.source,(I));})
-#define SESEnd(X)     ((X).start + (X).length)
+#define SESSource(X)   ((X).source)
+#define SESCHAI(X)     ((X).chai)
+#define SESStart(X)    ((X).start)
+#define SESLength(X)   ((X).length)
+#define SESIndexN(X,PI)({SES __x__= (X); __x__.chai(__x__.source,(PI));})
+// Attention SESIndexN prend comme deuxième argument un pointeur sur un index et
+// non simplement l'index. Voir ci-dessus CHAI.
+#define SESEnd(X)      ((X).start + (X).length)
 
 #endif /* MSCORE_SES_H */

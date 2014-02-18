@@ -43,8 +43,6 @@
  
  */
 
-// First valid date is 1/1/1
-
 #ifndef MSCORE_DECIMAL_H
 #define MSCORE_DECIMAL_H
 

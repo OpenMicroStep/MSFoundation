@@ -84,11 +84,9 @@ MSExport void CStringAppendCharacter(CString *self, unichar c);
 MSExport void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb);
 MSExport void CStringAppendBytes(CString *self, const void *s, NSUInteger length, NSStringEncoding encoding);
 MSExport void CStringAppendSES(CString *self, SES ses);
-  // using String Enumeration Structure (see MSCoreSES).
-  // TODO: Not yet usable for UTF8. Use previous one insteed.
 MSExport void CStringAppendString(CString *self, const CString *s);
 
-
+// TODO: Not reviewed, not tested.
 // this functions work only for ANSI, Mac roman, NextStep, ISO Latin 1, UTF8 and ASCII as supposed encoding NOT TESTED
 MSExport BOOL CStringAppendSupposedEncodingBytes(CString *self, const void *bytes, NSUInteger length, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer);
 // if you don't know what encoding you've got from your internet source, try UTF8 as supposed encoding

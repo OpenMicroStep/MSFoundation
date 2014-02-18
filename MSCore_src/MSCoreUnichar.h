@@ -71,20 +71,6 @@ MSExport BOOL CUnicharIsSpaceOrEOL(unichar c);
 MSExport unichar CUnicharToUpper(unichar c);
 MSExport unichar CUnicharToLower(unichar c);
 
-MSExport unichar CAnsiToUnicode       (MSByte c);
-MSExport unichar CMacRomanToUnicode   (MSByte c);
-MSExport unichar CNextstepToUnicode   (MSByte c);
-MSExport unichar CIsoLatin2ToUnicode  (MSByte c);
-MSExport unichar CDOSToUnicode        (MSByte c);
-MSExport unichar CWindows1250ToUnicode(MSByte c);
-MSExport unichar CWindows1251ToUnicode(MSByte c);
-MSExport unichar CWindows1253ToUnicode(MSByte c);
-MSExport unichar CWindows1254ToUnicode(MSByte c);
-MSExport unichar CAdobeSymbolToUnicode(MSByte c);
-
-MSExport unichar CEncodingToUnichar(MSByte  c, NSStringEncoding encoding);
-MSExport MSByte  CUnicharToEncoding(unichar u, NSStringEncoding encoding);
-
 MSExport BOOL               CUnicharEquals(unichar ca, unichar cb, BOOL insensitive);
 MSExport BOOL               CUnicharInsensitiveEquals (unichar ca, unichar cb);
 MSExport NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb);

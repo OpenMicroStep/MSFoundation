@@ -93,6 +93,7 @@ MSExport void CBufferAdjustSize(CBuffer *self);
 MSExport NSUInteger CBufferLength(const CBuffer *self);
 MSExport MSByte CBufferByteAtIndex(const CBuffer *self, NSUInteger i);
 MSExport MSByte *CBufferCString(CBuffer *self);
+// Make sure buf ends with 0x00 before returning the buf.
 
 MSExport NSUInteger CBufferIndexOfByte          (const CBuffer *self, MSByte c);
 MSExport NSUInteger CBufferIndexOfBytes         (const CBuffer *self, void *sbytes, NSUInteger slen);
@@ -105,6 +106,10 @@ MSExport void CBufferAppendCString(CBuffer *self, const char *myStr);
 MSExport void CBufferAppendBytes  (CBuffer *self, const void *bytes, NSUInteger length);
 MSExport void CBufferAppendByte   (CBuffer *self, MSByte c);
 MSExport void CBufferFillWithByte (CBuffer *self, MSByte c, NSUInteger nb);
+MSExport void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncoding);
+// Only UTF8 for destinationEncoding at this time
+MSExport void CBufferAppendString(CBuffer *self, CString *s, NSStringEncoding destinationEncoding);
+// Only UTF8 for destinationEncoding at this time
 
 MSExport void CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 MSExport BOOL CBufferBase64DecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
@@ -124,7 +129,7 @@ MSExport BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *bytes, 
 #define MSBAddBuffer(X, Y) CBufferAppendBuffer((CBuffer*)(X), (const CBuffer*)(Y))
 #define MSBAddByte(X, Y)   CBufferAppendByte  ((CBuffer*)(X), (MSByte)(Y))
 #define MSBLength(X)       CBufferLength((const CBuffer*)(X))
-#define MSBIndex(X,Y)                         ((CBuffer*)(X))->_buf[(Y)]
+#define MSBIndex(X,Y)                         ((CBuffer*)(X))->buf[(Y)]
 
 //#define MSBAddData(X, Y)   CBufferAppendData  ((CBuffer*)(X), (NSData*)(Y))
 

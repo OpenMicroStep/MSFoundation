@@ -3,6 +3,59 @@
 #include "MSCore_Private.h"
 #include "mscore_validate.h"
 
+static inline int unichar_test(void)
+  {
+  int err= 0,r;
+  CString *a;
+  CBuffer *b;
+  char *s,c1,c2; NSUInteger l,i,usn; unichar us[20],u1,u2; SES ses;
+  
+  a= CCreateString(0);
+  s= "éèàô"; l= strlen(s);
+  CStringAppendBytes(a, s, l, NSUTF8StringEncoding);
+  ses= MSMakeSESWithBytes(s, l, NSUTF8StringEncoding);
+  for (usn= i= 0; i<l;) us[usn++]= SESIndexN(ses, &i);
+  i= 0; u1= CStringCharacterAtIndex(a, 0); u2= us[0];
+  if (u1 != u2) {
+    fprintf(stdout, "A1 Bad equal: %hu %hu\n",u1,u2); err++;}
+  if (!CUnicharEquals(u1,u2,NO)) {
+    fprintf(stdout, "A2 Bad equal: %hu %hu\n",u1,u2); err++;}
+  u1= 101; // e
+  if (CUnicharEquals(u1,u2,NO)) { // e != é
+    fprintf(stdout, "A3 Bad equal: %hu %hu\n",u1,u2); err++;}
+  if (CUnicharEquals(u1,u2,YES)) { // e !insensitive= é
+    fprintf(stdout, "A4 Bad equal: %hu %hu\n",u1,u2); err++;}
+  u1= CUnicharToUpper(233); // 201 É
+  if (!CUnicharEquals(u1,u2,YES)) { // É insensitive= é
+    fprintf(stdout, "A5 Bad equal: %hu %hu\n",u1,u2); err++;}
+  if (!CUnicharsInsensitiveEquals(a->buf,CStringLength(a),us,usn)) {
+    fprintf(stdout, "A6 Bad equal: %hu %hu\n",u1,u2); err++;}
+  RELEASE(a);
+  s= "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫"; l= strlen(s);
+  a= CCreateStringWithBytes(s, l, NSUTF8StringEncoding);
+  us[0]= 233; us[1]= 232; us[2]= 224; us[3]= 244; us[4]= 161;
+  us[5]= 174; us[6]= 339; us[7]= 177; us[8]= 256; us[9]= 1023;
+  us[10]= 7680; us[11]= 9471; us[12]= 10495; us[13]= 12991; us[14]= 65131;
+  usn= 15;
+  if (!CUnicharsInsensitiveEquals(a->buf,CStringLength(a),us,usn)) {
+    fprintf(stdout, "A7 Bad equal: %s\n",s); err++;}
+  for (i= 0; i<usn; i++) {
+    u1= CStringCharacterAtIndex(a, i);
+    if (CStringIndexOfCharacter(a,u1)!=i) {
+      fprintf(stdout, "A7 Bad index: %lu %hu\n",i,u1); err++;}}
+  b= CCreateBuffer(0);
+  CBufferAppendString(b, a, NSUTF8StringEncoding);
+  for (i= 0; i<l; i++) {
+    c1= s[i]; c2= (char)MSBIndex(b,i);
+    u1= CStringCharacterAtIndex(a, i);
+    if (c1!=c2) {
+      fprintf(stdout, "A8 Bad index: %hhu %hhu\n",c1,c2); err++;}}
+  if ((r= strncmp(s, (char*)(b->buf), l))!=0) {
+    fprintf(stdout, "A9 Bad equal: %s %s %d\n",s,CBufferCString(b),r); err++;}
+  RELEASE(a);
+  return err;
+  }
+
 static inline void cstring_print(CString *d)
   {
   fprintf(stdout, "%lu\n",WLU(CStringLength(d)));
@@ -11,126 +64,27 @@ static inline void cstring_print(CString *d)
 static inline int cstring_create(void)
   {
   int err= 0;
-  CString *c,*d,*m; id k,o,x; int i;
+  CString *c,*d;
   unsigned char cs[10];
   c= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
   d= CCreateString(0);
   if (RETAINCOUNT(c)!=1) {
-    fprintf(stdout, "A1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
+    fprintf(stdout, "B1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
   if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A2 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
+    fprintf(stdout, "B2 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
   if (!CStringEquals(c, d)) {
-    fprintf(stdout, "A3 c & d are not equals\n"); err++;}
-printf("A5\n");
+    fprintf(stdout, "B3 c & d are not equals\n"); err++;}
   CStringAppendCharacter(c, 60);
   CStringAppendCharacterSuite(d, 60, 1);
   if (!CStringEquals(c, d)) {
-    fprintf(stdout, "A4 c & d are not equals\n"); err++;}
+    fprintf(stdout, "B4 c & d are not equals\n"); err++;}
   CStringAppendCharacterSuite(c, 161, 2);
-printf("A6\n");
   cs[0]= cs[1]= 193; // 0xC1 ¡
   CStringAppendBytes(d, cs, 2, NSMacOSRomanStringEncoding);
   if (!CStringEquals(c, d)) {
-    fprintf(stdout, "A5 c & d are not equals\n"); err++;}
-printf("A1\n");
+    fprintf(stdout, "B5 c & d are not equals\n"); err++;}
   RELEASE(d);
-/*
-  if (RETAINCOUNT(k)!=1) {
-    fprintf(stdout, "A10 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if (RETAINCOUNT(o)!=2) {
-    fprintf(stdout, "A11 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
-  d= CCreateStringWithObjectsAndKeys(&k, &k, 1);
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A12 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (RETAINCOUNT(k)!=2) {
-    fprintf(stdout, "A13 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if (CStringEquals(c, d)) {
-    fprintf(stdout, "A14 c & d are equals\n"); err++;}
-  CStringSetObjectForKey(d, o, k);
-  if (RETAINCOUNT(k)!=1) {
-    fprintf(stdout, "A15 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if (RETAINCOUNT(o)!=3) {
-    fprintf(stdout, "A16 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
-  if (!CStringEquals(c, d)) {
-    fprintf(stdout, "A17 c & d are not equals\n"); err++;}
-  m= (CString*)COPY(d);
-  RELEASE(d); d= m;
-  x= (id)CCreateBufferWithBytes("a key", 5);
-  CStringSetObjectForKey(d, o, x);
-  if (CStringLength(d)!=2) {
-    fprintf(stdout, "A20 Bad count: %lu\n",WLU(CStringLength(d))); err++;}
-  if (CStringEquals(c, d)) {
-    fprintf(stdout, "A21 c & d are equals\n"); err++;}
-  CStringSetObjectForKey(d, nil, x);
-  if (!CStringEquals(c, d)) {
-    fprintf(stdout, "A22 c & d are not equals\n"); err++;}
-  for (i= 0; i<100; i++) {
-    CBufferAppendByte((CBuffer*)x, (MSByte)i);
-    CStringSetObjectForKey(d, o, x);}
-  if (RETAINCOUNT(o)!=103) {
-    fprintf(stdout, "A23 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
-//printf("1\n");
-  RELEASE(x);
   RELEASE(c);
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A41 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  RELEASE(d);
-  if (RETAINCOUNT(k)!=1) {
-    fprintf(stdout, "A42 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if (RETAINCOUNT(o)!=1) {
-    fprintf(stdout, "A43 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
-  RELEASE(k);
-  RELEASE(o);
-*/
-  RELEASE(c);
-  return err;
-  }
-
-static inline int cstring_enum(void)
-  {
-  int err= 0;
-/*
-  CString *c,*d; id ks[1000],os[1000],k,o; int i,n,fd; CStringEnumerator *de;
-  k= (id)CCreateBufferWithBytes("a key", 5);
-  o= (id)CCreateBufferWithBytes("an object", 9);
-  for (i=0; i<1000; i++) {
-    CBufferAppendByte((CBuffer*)k, (MSByte)i); ks[i]= COPY(k);
-    CBufferAppendByte((CBuffer*)o, (MSByte)i); os[i]= COPY(o);}
-  RELEASE(k);
-  RELEASE(o);
-  d= CCreateStringWithObjectsAndKeys(os, ks, 1000);
-  if (CStringLength(d)!=1000) {
-    fprintf(stdout, "B1 Bad count: %lu\n",WLU(CStringLength(d))); err++;}
-
-  c= (CString*)COPY((id)d);
-  RELEASE(d);
-  d= (CString*)CStringCopy((id)c);
-  RELEASE(c);
-
-  de= CStringEnumeratorAlloc(d);
-  for (n= 0, fd= 0; (o= (id)CStringEnumeratorNextObject(de)); n++) {
-    k= CStringEnumeratorCurrentKey(de);
-    for (i= 0; i<1000; i++) {
-      if (ISEQUAL(k, ks[i])) fd++;}
-    if (fd!=n+1) {
-      fprintf(stdout, "B2 Bad fd: %lu %lu\n",WLI(fd),WLI(n)); err++;}}
-  if (n!=1000) {
-    fprintf(stdout, "B3 Bad n: %lu\n",WLI(n)); err++;}
-  CStringEnumeratorFree(de);
-  de= CStringEnumeratorAlloc(d);
-  for (n= 0, fd= 0; (k= (id)CStringEnumeratorNextKey(de)); n++) {
-    o= CStringEnumeratorCurrentObject(de);
-    for (i= 0; i<1000; i++) {
-      if (ISEQUAL(o, os[i])) fd++;}
-    if (fd!=n+1) {
-      fprintf(stdout, "B4 Bad fd: %lu %lu\n",WLI(fd),WLI(n)); err++;}}
-  if (n!=1000) {
-    fprintf(stdout, "B5 Bad n: %lu\n",WLI(n)); err++;}
-  CStringEnumeratorFree(de);
-  for (i= 0; i<1000; i++) {
-    RELEASE(ks[i]); RELEASE(os[i]);}
-  RELEASE(d);
-*/
   return err;
   }
 
@@ -138,8 +92,8 @@ int mscore_cstring_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
+  err+= unichar_test();
   err+= cstring_create();
-  err+= cstring_enum();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CString",(err?"FAIL":"PASS"),seconds);
