@@ -10,6 +10,7 @@ int mapm_validate              (void);
 int mscore_cdecimal_validate   (void);
 int mscore_cdictionary_validate(void);
 int mscore_cstring_validate    (void);
+int mscore_mste_validate       (void);
 
 static inline int testCore(BOOL alone)
   {
@@ -33,6 +34,7 @@ static inline int testCore(BOOL alone)
        mscore_cdecimal_validate   () +
        mscore_cdictionary_validate() +
        mscore_cstring_validate    () +
+       mscore_mste_validate       () +
        0;
   if (alone) {
     if (!err)

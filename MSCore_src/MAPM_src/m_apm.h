@@ -270,6 +270,7 @@ MSExport void  m_apm_to_fixpt_string(char *, int, M_APM);
 MSExport void  m_apm_to_fixpt_stringex(char *, int, M_APM, char, char, int);
 MSExport char *m_apm_to_fixpt_stringexp(int, M_APM, char, char, int);
 MSExport void  m_apm_to_integer_string(char *, M_APM);
+MSExport long long m_apm_to_longlong(const M_APM mtmp);
 
 MSExport void m_apm_absolute_value(M_APM, const M_APM);
 MSExport void m_apm_negate(M_APM, const M_APM);

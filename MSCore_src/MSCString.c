@@ -142,10 +142,17 @@ CString *CCreateString(NSUInteger capacity)
   return s;
 }
 
-CString *CCreateStringWithBytes(const void *s, NSUInteger length, NSStringEncoding encoding)
+CString *CCreateStringWithBytes(NSStringEncoding encoding, const void *s, NSUInteger length)
 {
   CString *x= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
-  CStringAppendBytes(x, s, length, encoding);
+  CStringAppendBytes(x, encoding, s, length);
+  return x;
+}
+
+CString *CCreateStringWithSES(SES ses)
+{
+  CString *x= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
+  CStringAppendSES(x, ses);
   return x;
 }
 
@@ -197,11 +204,27 @@ void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb)
 }
 
 //static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger length);
-void CStringAppendBytes(CString *self, const void *s, NSUInteger length, NSStringEncoding encoding)
+void CStringAppendBytes(CString *self, NSStringEncoding encoding, const void *s, NSUInteger length)
 {
 /*  if (encoding==NSUTF8StringEncoding) _CStringAppendUTF8Bytes(self, s, length);
   else
 */CStringAppendSES(self, MSMakeSESWithBytes(s, length, encoding));
+}
+
+void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const char *fmt, ...)
+{
+  va_list args;
+  if (fmt) {
+    va_start(args,fmt); CStringAppendEncodedFormatArguments(self, encoding, fmt, args); va_end(args);}
+}
+
+MSExport void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args)
+{
+  if (fmt) {
+    char *x= NULL; vasprintf(&x, fmt, args);
+    if (x) {
+      CStringAppendBytes(self, encoding, x, strlen(x));
+      free(x);}}
 }
 
 void CStringAppendSES(CString *self, SES ses)
@@ -572,15 +595,15 @@ static inline BOOL _frenchNumber999(CString *self, NSUInteger originalLength, un
   if (centaines > 0) {
     if (centaines > 1) {
       s= __french100[centaines];
-      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+      CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
       s= (reste > 0 ? " cent " : (invariable ? " cent" : " cents"));
-      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
+      CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}
     else {
       s= (reste > 0 ? "cent " : "cent");
-      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}}
+      CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}}
   if (reste) {
     s= __french100[reste];
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}
   return YES;
   originalLength= 0; // Unused
 }
@@ -606,14 +629,14 @@ static BOOL CStringAppendFrenchNumber(CString *self, MSLong n)
   if (n < 0) {
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     s= "moins";
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     needsSpace= YES;}
   if (milliards) {
     number-= milliards * 1000000000;
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_frenchNumber999(self, originalLength, (unsigned)milliards, NO)) {  return NO; }
     s= (milliards > 1 ? " milliards" : " milliard");
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     needsSpace = YES;}
   millions = number / 1000000;
   if (millions) {
@@ -621,7 +644,7 @@ static BOOL CStringAppendFrenchNumber(CString *self, MSLong n)
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_frenchNumber999(self, originalLength, (unsigned)millions, NO)) {  return NO; }
     s= (millions > 1 ? " millions" : " millions");
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     needsSpace = YES;}
   milliers = number / 1000;
   if (milliers) {
@@ -633,7 +656,7 @@ static BOOL CStringAppendFrenchNumber(CString *self, MSLong n)
       if (needsSpace) CStringAppendCharacter(self, 0x0020);
       if (milliers > 1 && !_frenchNumber999(self, originalLength, (unsigned)milliers, YES)) {  return NO; }
       s= " mille";
-      CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+      CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
       needsSpace = YES;}}
   if (number) {
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
@@ -661,12 +684,12 @@ static inline BOOL _englishNumber999(CString *self, NSUInteger originalLength, u
   char *s;
   if (centaines > 0) {
     s= __english100[centaines];
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     s= (reste > 0 ? "hundred and " : "hundred");
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}
   if (reste) {
     s= __english100[reste];
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}
   return YES;
   originalLength= 0; // Unused
 }
@@ -682,21 +705,21 @@ static BOOL CStringAppendEnglishNumber(CString *self, MSLong n)
   if (n == 0) {
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     s= "zero";
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     return YES;}
   if (number > 999999999999ULL) {
     return _snd(self, n);}
   if (n < 0) {
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     s= "minus";
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     needsSpace = YES;}
   if (milliards) {
     number -= milliards * 1000000000;
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_englishNumber999(self, originalLength, (unsigned)milliards)) { return NO; }
     s= " billion";
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     needsSpace = YES;}
   millions = number / 1000000;
   if (millions) {
@@ -704,7 +727,7 @@ static BOOL CStringAppendEnglishNumber(CString *self, MSLong n)
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_englishNumber999(self, originalLength, (unsigned)millions)) { return NO; }
     s= " million";
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     needsSpace = YES;}
   milliers = number / 1000;
   if (milliers) {
@@ -712,13 +735,13 @@ static BOOL CStringAppendEnglishNumber(CString *self, MSLong n)
     if (needsSpace) CStringAppendCharacter(self, 0x0020);
     if (!_englishNumber999(self, originalLength, (unsigned)milliers)) { return NO; }
     s= " thousand";
-    CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);
+    CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));
     needsSpace = YES;}
   if (number) {
     if (needsSpace) {
       if (number < 100 && initialNumber > 100) {
         s= " and ";
-        CStringAppendBytes(self, s, strlen(s), NSISOLatin1StringEncoding);}
+        CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}
       else CStringAppendCharacter(self, 0x0020);}
     if (!_englishNumber999(self, originalLength, (unsigned)number)) { return NO; }}
   return YES;

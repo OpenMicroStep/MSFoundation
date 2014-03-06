@@ -1,4 +1,4 @@
-/* MSCDecimal.h
+/* MSTE.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -6,7 +6,6 @@
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
  Herve Malaingre : herve@malaingre.com
- 
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -40,58 +39,53 @@
  WARNING : outside the MSFoundation framework or the MSCore library,
  this header file cannot be included alone, please direclty include
  MSCore.h or MSFoundation.h
- 
  */
 
-#ifndef MSCORE_DECIMAL_H
-#define MSCORE_DECIMAL_H
+// Value means not a reference token
 
-typedef struct CDecimalStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
-  unsigned char *m_apm_data;
-  long m_apm_id;
-  int  m_apm_malloclength;
-  int  m_apm_datalength;
-  int  m_apm_exponent;
-  int  m_apm_sign;}
-CDecimal;
+#define MSTE_NULL_VALUE           0
+#define MSTE_TRUE_VALUE           1
+#define MSTE_FALSE_VALUE          2
+#define MSTE_NUMBER         3
+#define MSTE_STRING         4
+#define MSTE_DATE           5
+#define MSTE_COLOR          6
+#define MSTE_DICTIONARY     7
+#define MSTE_REFERENCE      8
+#define MSTE_CHAR_VALUE           9
+#define MSTE_UCHAR_VALUE         10
+#define MSTE_SHORT_VALUE         11
+#define MSTE_USHORT_VALUE        12
+#define MSTE_INT_VALUE           13
+#define MSTE_UINT_VALUE          14
+#define MSTE_LONG_VALUE          15
+#define MSTE_ULONG_VALUE         16
+#define MSTE_FLOAT_VALUE         17
+#define MSTE_DOUBLE_VALUE        18
+#define MSTE_ARRAY         19
+#define MSTE_NATURAL_ARRAY 20
+#define MSTE_COUPLE        21
+#define MSTE_BASE64_DATA   22
+#define MSTE_DISTANT_PAST_VALUE   23
+#define MSTE_DISTANT_FUTURE_VALUE 24
+#define MSTE_EMPTY_STRING_VALUE   25
 
+#define MSTE_USER_CLASS    50
 
-  MSExport void CDecimalFreeInside(id self);
-//Already defined in MSCObject.h
-//MSExport void       CDecimalFree(id self);
-//MSExport BOOL       CDecimalIsEqual(id self, id other);
-//MSExport NSUInteger CDecimalHash(id self, unsigned depth);
-//MSExport id         CDecimalCopy(id self);
+// MSTE constants as objects. Can be compared with ==
+MSExport id MSTENull;
+MSExport id MSTETrue;
+MSExport id MSTEFalse;
+MSExport id MSTEDistantPast;
+MSExport id MSTEDistantFuture;
+MSExport id MSTEEmptyString;
 
-MSExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
+MSExport id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictionary **error);
+// The MSTE decoder
+// If an error occurs, an error dictionary is created and returned in 'error', with 2 keys: 'code' and 'description'. The caller is responsible for its release.
+// On critical error (header, crc... witch may occurs with communication failure), the returned root objet is nil and the value of the 'code' key is always 1
+// If both root objet and error are returned, the error comes probably from a malformation of the source.
+// 'code' 2: the error has stopped the process.
+// 'code' 3: another error.
+// Warning: nil may be returned without any error.
 
-#pragma mark Creation
-
-//TODO: MSExport CDecimal *CCreateDecimalFromString(MSString *x);
-MSExport CDecimal *CCreateDecimalFromUTF8String(const char *x);
-MSExport CDecimal *CCreateDecimalFromDouble(double x);
-MSExport CDecimal *CCreateDecimalFromLong  (long   x);
-MSExport CDecimal *CCreateDecimalFromMantissaExponentSign(
-  unsigned long long mm, int exponent, int sign);
-
-#pragma mark Calculation
-
-MSExport CDecimal *CDecimalFloor   (CDecimal *a);
-MSExport CDecimal *CDecimalCeil    (CDecimal *a);
-MSExport CDecimal *CDecimalAdd     (CDecimal *a, CDecimal *b);
-MSExport CDecimal *CDecimalSubtract(CDecimal *a, CDecimal *b);
-MSExport CDecimal *CDecimalMultiply(CDecimal *a, CDecimal *b);
-MSExport CDecimal *CDecimalDivide  (CDecimal *a, CDecimal *b,int decimalPlaces);
-
-#pragma mark Value
-
-MSExport MSLong CDecimalIntegerValue(CDecimal *a);
-//MSExport double    CDecimalDoubleValue (CDecimal *a);
-
-// TODO: description functions
-
-#endif

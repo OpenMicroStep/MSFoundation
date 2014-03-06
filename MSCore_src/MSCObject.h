@@ -221,10 +221,10 @@ static inline BOOL ISEQUAL(id x, id y) {
     X=  (__y__ ? RETAIN(__y__) : nil); \
     if (__x__) RELEASE(__x__); }})
 
-#ifdef DESTROY
-#undef DESTROY
+#ifdef RELEAZEN
+#undef RELEAZEN
 #endif
-#define DESTROY(X) ({ id __x__= (id)X; X= NULL; RELEASE(__x__); })
+#define RELEAZEN(X) ({ id __x__= (id)X; X= NULL; RELEASE(__x__); })
 
 MSExport void       CArrayFree(id self);
 MSExport BOOL       CArrayIsEqual(id self, id other);

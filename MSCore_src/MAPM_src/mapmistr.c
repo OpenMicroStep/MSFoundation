@@ -146,3 +146,77 @@ void m_apm_to_integer_string(char *s, const M_APM mtmp)
   if (vp != NULL) MAPM_FREE(vp);
 }
 /****************************************************************************/
+long long m_apm_to_longlong(const M_APM mtmp)
+{
+  long long ll;
+  M_APM  ctmp; BOOL freeCtmp,neg;
+  void  *vp;
+  UCHAR *ucp, numdiv, numrem;
+  char  *cp, *p, sbuf[128];
+  int    ct, dl, numb;
+
+  ll= 0;
+  freeCtmp= NO;
+  if (!m_apm_is_integer(mtmp)) {
+    ctmp= m_apm_new(); freeCtmp= TRUE;
+    if (mtmp->m_apm_sign >= 0)
+      m_apm_add(ctmp, mtmp, MM_0_5);
+    else
+      m_apm_subtract(ctmp, mtmp, MM_0_5);}
+  else {ctmp= mtmp; freeCtmp= FALSE;}
+
+  vp = NULL;
+  ct = ctmp->m_apm_exponent;
+  dl = ctmp->m_apm_datalength;
+
+  // if |input| < 1, result is "0"
+  if (ct <= 0 || ctmp->m_apm_sign == 0) return 0;
+  
+  if (ct > 112) {
+    if ((vp = (void *)MAPM_MALLOC((size_t)(ct + 32) * sizeof(char))) == NULL) {
+      /* fatal, this does not return */
+      
+      M_apm_log_error_msg(M_APM_MALLOC_ERROR,
+                          "\'m_apm_to_integer_string\', Out of memory");
+      return 0;}
+    cp= (char *)vp;}
+  else cp= sbuf;
+  
+  p= cp;
+  
+  neg= (ctmp->m_apm_sign == -1); // handle a negative number
+  
+  // get num-bytes of data (#digits / 2) to use in the string
+  
+  if (ct > dl)
+    numb = (dl + 1) >> 1;
+  else
+    numb = (ct + 1) >> 1;
+  
+  ucp = ctmp->m_apm_data;
+  
+  while (TRUE)
+  {
+    M_get_div_rem_10((int)(*ucp++), &numdiv, &numrem);
+    
+    // TODO: optimisation just something like ll= (ll*10+numdiv)*10+numrem; ?
+    *p++ = (char)(numdiv + '0');
+    *p++ = (char)(numrem + '0');
+    
+    if (--numb == 0)
+      break;
+  }
+  
+  // pad with trailing zeros if the exponent > datalength */
+  
+  if (ct > dl)
+    memset(p, '0', (ct + 1 - dl));
+  
+  cp[ct] = '\0';
+  ll= strtoll(cp, NULL, 10);
+  
+  if (vp != NULL) MAPM_FREE(vp);
+  if (freeCtmp) MAPM_FREE(ctmp);
+  return neg?-ll:ll;
+}
+/****************************************************************************/

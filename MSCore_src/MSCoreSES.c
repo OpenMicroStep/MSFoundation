@@ -88,7 +88,6 @@ static unichar __MSDOSToUnicode        [256];
 
 static unichar _asciiChaiN   (const void *src, NSUInteger *pos) {return (unichar)((char   *)src)[(*pos)++];}
 static unichar _unicodeChaiN (const void *src, NSUInteger *pos) {return (unichar)((unichar*)src)[(*pos)++];}
-static unichar _utf8ChaiN    (const void *src, NSUInteger *pos);
 static unichar _nextstepChaiN(const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSNEXTSTEPStringEncoding     );}
 static unichar _symbolChaiN  (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSSymbolStringEncoding       );}
 static unichar _latin2ChaiN  (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSISOLatin2StringEncoding    );}
@@ -107,7 +106,7 @@ static _encodingStuff _encoding[]= {
   {NULL                    , _asciiChaiN   }, //  1 NSASCIIStringEncoding=          1, // 0..127 only
   {__MSNextstepToUnicode   , _nextstepChaiN}, //  2 NSNEXTSTEPStringEncoding=       2,
   {NULL                    , InvalidCHAI   }, //  3 NSJapaneseEUCStringEncoding=    3,
-  {NULL                    , _utf8ChaiN    }, //  4 NSUTF8StringEncoding=           4,
+  {NULL                    , utf8ChaiN     }, //  4 NSUTF8StringEncoding=           4,
   {NULL                    , _asciiChaiN   }, //  5 NSISOLatin1StringEncoding=      5,
   {__MSAdobeSymbolToUnicode, _symbolChaiN  }, //  6 NSSymbolStringEncoding=         6,
   {NULL                    , _asciiChaiN   }, //  7 NSNonLossyASCIIStringEncoding=  7,
@@ -150,7 +149,8 @@ SES MSMakeSESWithBytes(const void *src, NSUInteger srcLength, NSStringEncoding s
 
 #pragma mark UTF8
 
-static unichar _utf8ChaiN(const void *src, NSUInteger *pos)
+unichar utf8ChaiN(const void *src, NSUInteger *pos)
+// TODO: attention on ne vérifie pas un débordement éventuel du à une malformation
 // Si pas de l'utf8, retourne 0.
 // Ne prend en compte que jusqu'à 16 bits (si 4 octets, ie 17 à 21 bits, retourne 0 mais avance de 4.
   {
@@ -184,6 +184,30 @@ static unichar _utf8ChaiN(const void *src, NSUInteger *pos)
 //printf("C %hu\n",u);
   return u;
   }
+
+unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
+// TODO: attention on ne vérifie pas un débordement éventuel du à une malformation
+// Return 0xFFFF on begin or end of string ("), but return " on \"
+{
+  unichar u= utf8ChaiN(src, pos); unsigned char hex[5]; int i;
+  if (u=='\"') u= 0xFFFF;
+  else if (u=='\\') switch ((u= utf8ChaiN(src, pos))) {
+    case '\"': u= '\"'; break;
+    case '\\': u= '\\'; break;
+    case '/':  u= '/';  break;
+    case 'b':  u= '\b'; break;
+    case 'f':  u= '\f'; break;
+    case 'n':  u= '\n'; break;
+    case 'r':  u= '\r'; break;
+    case 't':  u= '\t'; break;
+    case 'u':
+      for (i= 0; i<4; i++) hex[i]= ((unsigned char*)src)[(*pos)++];
+      hex[4]= 0x00;
+      u= (unichar)strtol((char*)hex, NULL, 16);
+      break;
+    default: u= u; break;} // invalid char ?
+  return u;
+}
 
 #pragma mark Finding
 

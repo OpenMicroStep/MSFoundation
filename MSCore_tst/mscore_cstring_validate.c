@@ -12,7 +12,7 @@ static inline int unichar_test(void)
   
   a= CCreateString(0);
   s= "éèàô"; l= strlen(s);
-  CStringAppendBytes(a, s, l, NSUTF8StringEncoding);
+  CStringAppendBytes(a, NSUTF8StringEncoding, s, l);
   ses= MSMakeSESWithBytes(s, l, NSUTF8StringEncoding);
   for (usn= i= 0; i<l;) us[usn++]= SESIndexN(ses, &i);
   i= 0; u1= CStringCharacterAtIndex(a, 0); u2= us[0];
@@ -32,7 +32,7 @@ static inline int unichar_test(void)
     fprintf(stdout, "A6 Bad equal: %hu %hu\n",u1,u2); err++;}
   RELEASE(a);
   s= "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫"; l= strlen(s);
-  a= CCreateStringWithBytes(s, l, NSUTF8StringEncoding);
+  a= CCreateStringWithBytes(NSUTF8StringEncoding, s, l);
   us[0]= 233; us[1]= 232; us[2]= 224; us[3]= 244; us[4]= 161;
   us[5]= 174; us[6]= 339; us[7]= 177; us[8]= 256; us[9]= 1023;
   us[10]= 7680; us[11]= 9471; us[12]= 10495; us[13]= 12991; us[14]= 65131;
@@ -80,7 +80,7 @@ static inline int cstring_create(void)
     fprintf(stdout, "B4 c & d are not equals\n"); err++;}
   CStringAppendCharacterSuite(c, 161, 2);
   cs[0]= cs[1]= 193; // 0xC1 ¡
-  CStringAppendBytes(d, cs, 2, NSMacOSRomanStringEncoding);
+  CStringAppendBytes(d, NSMacOSRomanStringEncoding, cs, 2);
   if (!CStringEquals(c, d)) {
     fprintf(stdout, "B5 c & d are not equals\n"); err++;}
   RELEASE(d);

@@ -118,6 +118,13 @@ CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUInteger length
   return b;
 }
 
+CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationEncoding)
+{
+  CBuffer *b= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
+  CBufferAppendString(b, s, destinationEncoding);
+  return b;
+}
+
 #pragma mark Management
 
 void CBufferGrow(CBuffer *self, NSUInteger n)
@@ -236,12 +243,18 @@ void CBufferFillWithByte(CBuffer *self, MSByte c, NSUInteger nb)
 }
 
 void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncoding)
-// Only UTF8. TODO: Use a CHAI-1
+// Only UTF8 and NSUnicodeStringEncoding. TODO: Use a CHAI-1
 {
   NSUInteger i,end,u8n;
   unichar u;
   MSByte u8[3];
-  if (destinationEncoding==NSUTF8StringEncoding) {
+  if (destinationEncoding==NSUnicodeStringEncoding) {
+    if (ses.encoding==NSUnicodeStringEncoding) {
+      _append(self, SESSource(ses), SESLength(ses)*sizeof(unichar));}
+    else for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
+      u= SESIndexN(ses, &i);
+      _append(self, &u, sizeof(unichar));}}
+  else if (destinationEncoding==NSUTF8StringEncoding) {
     for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
       u= SESIndexN(ses, &i);
       if (u<0x0080) {u8[0]= (MSByte)u; u8n= 1;}
@@ -255,33 +268,14 @@ void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncodi
       _append(self, u8, u8n);}}
 }
 
-void CBufferAppendString(CBuffer *self, CString *s, NSStringEncoding destinationEncoding)
+void CBufferAppendString(CBuffer *self, const CString *s, NSStringEncoding destinationEncoding)
 {
-  SES ses= MSMakeSESWithBytes(s->buf, s->length, NSUnicodeStringEncoding);
-  CBufferAppendSES(self, ses, destinationEncoding);
+  if (s) {
+    SES ses= MSMakeSESWithBytes(s->buf, s->length, NSUnicodeStringEncoding);
+    CBufferAppendSES(self, ses, destinationEncoding);}
 }
 
 /*
-void printkanji(int c)
-{
-int t1,t2,t3;
-
-t1 = (char) c & 0x3F;
-t1 = t1 | 0x80;
-
-c = c >> 6;
-t2 = (char) c & 0x3F;
-t2 = t2 | 0x80;
-
-c = c >> 6;
-t3 = (char) c & 0x0F;
-t3 = t3 | 0xE0;
-
-putchar(t3);
-putchar(t2);
-putchar(t1);
-}
-
  MSExport BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict)
  {
  switch (destinationEncoding) {

@@ -140,6 +140,19 @@ CDecimal *CDecimalMultiply(CDecimal *a, CDecimal *b)
 CDecimal *CDecimalDivide(CDecimal *a, CDecimal *b, int decimalPlaces)
 {CDecimal *d= m_apm_new(); m_apm_divide(d, decimalPlaces, a, b); return d;}
 
+#pragma mark Value
+
+MSExport MSLong CDecimalIntegerValue(CDecimal *a)
+{
+  return !a?0:m_apm_to_longlong(a);
+}
+/*
+MSExport double CDecimalDoubleValue (CDecimal *a)
+{
+  if (!a) return 0.;
+  return 1.0;
+}
+*/
 #pragma mark Description
 
 // TODO: !!!

@@ -41,6 +41,27 @@
 
 #include "MSCore_Private.h"
 
+#pragma mark initialize
+
+CDate *CDateDistantPast;
+CDate *CDateDistantFuture;
+CDate *CDate19700101;
+CDate *CDate20010101;
+MSTimeInterval CDateSecondsFrom19700101To20010101;
+
+void _CDateInitialize(void); // used in MSSystemInitialize
+void _CDateInitialize()
+{
+  CDateDistantPast= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
+  CDateDistantPast->interval= MSLongMin;
+  CDateDistantFuture= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
+  CDateDistantFuture->interval= MSLongMax;
+  CDate19700101= CCreateDateFromYMD(1970, 1, 1);
+  CDate20010101= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
+  CDateSecondsFrom19700101To20010101= CDateSecondsBetweenDates(CDate19700101, CDate20010101);
+printf("CDateSecondsFrom19700101To20010101 %lld",CDateSecondsFrom19700101To20010101);
+}
+
 #pragma mark date function declarations
 
 static BOOL _verifyYMD(unsigned year, unsigned month, unsigned day,
@@ -219,6 +240,14 @@ CDate *CCreateDateFromYMDHMS(unsigned year, unsigned month, unsigned day,
   (void)_verifyHMS(hour, minute, second, YES);
   d= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
   d->interval= _tmFromYMDHMS(year, month, day, hour, minute, second);
+  return d;
+}
+
+CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s)
+{
+  CDate *d;
+  d= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
+  d->interval= s;
   return d;
 }
 

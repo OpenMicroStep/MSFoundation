@@ -257,6 +257,8 @@ static M_APM _MS_APM_Allocate(void)
   return (M_APM)MSCreateObjectWithClassIndex(CDecimalClassIndex);
 }
 
+void _CDateInitialize();
+void _MSTEInitialize();
 void MSSystemInitialize(int argc, const char **argv)
 {
   M_apm_free_fn freeFct;
@@ -271,6 +273,8 @@ void MSSystemInitialize(int argc, const char **argv)
 #ifndef MSCORE_STANDALONE
   _MSFoundationCoreSystemInitialize(); // this function is in an ObjC context
 #endif
+  _CDateInitialize();
+  _MSTEInitialize();
   
 #ifndef COCOTRON
 #ifdef WIN32

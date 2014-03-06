@@ -55,6 +55,9 @@
 typedef unichar (*CHAI)(const void *, NSUInteger*);
 #define InvalidCHAI (CHAI)0
 
+MSExport unichar utf8ChaiN          (const void *src, NSUInteger *pos);
+MSExport unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos);
+
 // SES (String Enumerator S...) représente l'accès à une source que l'on peut
 // parcourir grâce à sa fonction 'chai'
 // qu'on limite volontairement à l'intervalle [start, start+length[

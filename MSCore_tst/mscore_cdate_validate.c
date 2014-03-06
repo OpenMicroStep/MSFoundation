@@ -8,6 +8,20 @@ static inline void cdate_print(CDate *d)
   fprintf(stdout, "%u/%02u/%02u-%02u:%02u:%02d %lld\n",CDateYearOfCommonEra(d), CDateMonthOfYear(d), CDateDayOfMonth(d), CDateHourOfDay(d), CDateMinuteOfHour(d), CDateSecondOfMinute(d),d->interval);
   }
 
+static inline int cdate_constants(void)
+{
+  int err= 0;
+  if (!CDateDistantPast) {
+    fprintf(stdout, "D1-No distantPast\n"); err++;}
+  if (!CDateDistantFuture) {
+    fprintf(stdout, "D2-No distantFuture\n"); err++;}
+  if (!CDate19700101) {
+    fprintf(stdout, "D3-No 19700101\n"); err++;}
+  if (!CDate20010101) {
+    fprintf(stdout, "D4-No 20010101\n"); err++;}
+  return err;
+}
+
 static inline int cdate_create(void)
   {
   int err= 0;
@@ -222,6 +236,7 @@ int mscore_cdate_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
+  err+= cdate_constants();
   err+= cdate_create();
   err+= cdate_create2();
   err+= cdate_week();

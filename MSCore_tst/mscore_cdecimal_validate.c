@@ -72,12 +72,36 @@ static inline int cdecimal_op(void)
   return err;
   }
 
+static inline int cdecimal_value(void)
+  {
+  int err= 0, i;
+  CDecimal *c[10];
+  MSLong l[10]= {0,0,0,0,1,1,-1,-1,12,100};
+  c[0]= CCreateDecimalFromUTF8String("0");
+  c[1]= CCreateDecimalFromUTF8String("-0");
+  c[2]= CCreateDecimalFromUTF8String("0.44");
+  c[3]= CCreateDecimalFromUTF8String("-0.49");
+  c[4]= CCreateDecimalFromUTF8String("0.5");
+  c[5]= CCreateDecimalFromUTF8String("1.499999");
+  c[6]= CCreateDecimalFromUTF8String("-0.5");
+  c[7]= CCreateDecimalFromUTF8String("-1.499999");
+  c[8]= CCreateDecimalFromUTF8String("12");
+  c[9]= CCreateDecimalFromUTF8String("99.99");
+  for (i=1; i<10; i++) {
+    if (CDecimalIntegerValue(c[i])!=l[i]) {
+      cdecimal_print(c[i]);
+      fprintf(stdout, "B2-%d bad %lld\n",i,(MSLong)l[i]); err++;}}
+  for (i=1; i<10; i++) RELEASE(c[i]);
+  return err;
+  }
+
 int mscore_cdecimal_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
   err+= cdecimal_create();
   err+= cdecimal_op();
+  err+= cdecimal_value();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CDecimal",(err?"FAIL":"PASS"),seconds);

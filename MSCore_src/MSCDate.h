@@ -57,6 +57,13 @@ typedef struct CDateStruct {
 CDate;
 
 
+// Constants
+MSExport CDate *CDateDistantPast;
+MSExport CDate *CDateDistantFuture;
+MSExport CDate *CDate19700101;
+MSExport CDate *CDate20010101;
+MSExport MSTimeInterval CDateSecondsFrom19700101To20010101; // 978307200
+
   MSExport void CDateFreeInside(id self);
 //Already defined in MSCObject.h
 //MSExport void       CDateFree(id self);
@@ -75,6 +82,7 @@ MSExport CDate *CCreateDateFromYMD(
 MSExport CDate *CCreateDateFromYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second);
+MSExport CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s);
 
 //CDate *CCreateDateNowGMT(); // Useful ????
 MSExport CDate *CCreateDateNow  (void);        // With time

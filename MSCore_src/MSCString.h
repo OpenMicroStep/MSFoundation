@@ -70,7 +70,8 @@ MSExport BOOL CStringEquals           (const CString *s1, const CString *s2);
 MSExport BOOL CStringInsensitiveEquals(const CString *s1, const CString *s2);
 
 MSExport CString *CCreateString(NSUInteger capacity);
-MSExport CString *CCreateStringWithBytes(const void *s, NSUInteger length, NSStringEncoding encoding);
+MSExport CString *CCreateStringWithBytes(NSStringEncoding encoding, const void *s, NSUInteger length);
+MSExport CString *CCreateStringWithSES(SES ses);
 
 MSExport void CStringGrow(CString *self, NSUInteger n);
 MSExport void CStringAdjustSize(CString *self);
@@ -82,7 +83,9 @@ MSExport NSUInteger CStringIndexOfCharacter(const CString *self, unichar c);
 
 MSExport void CStringAppendCharacter(CString *self, unichar c);
 MSExport void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb);
-MSExport void CStringAppendBytes(CString *self, const void *s, NSUInteger length, NSStringEncoding encoding);
+MSExport void CStringAppendBytes(CString *self, NSStringEncoding encoding, const void *s, NSUInteger length);
+MSExport void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const char *fmt, ...);
+MSExport void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args);
 MSExport void CStringAppendSES(CString *self, SES ses);
 MSExport void CStringAppendString(CString *self, const CString *s);
 
@@ -98,6 +101,8 @@ MSExport BOOL CStringAppendURLBytes(CString *self, const void *bytes, NSUInteger
 
 MSExport BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage language);
 
+#define MSSCreate(S) ({ \
+  char *__x__= (S); __x__?CCreateStringWithBytes(NSUTF8StringEncoding, __x__, strlen(__x__)):CCreateString(0);})
 #define MSSAdd(       X, Y) CStringAppendString((CString*)(X), Y)
 #define MSSAddUnichar(X, Y) CStringAppendCharacter((CString*)(X), Y)
 #define MSSLength(    X   ) CStringLength((const CString*)(X))
