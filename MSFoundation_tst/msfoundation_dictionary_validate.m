@@ -2,12 +2,12 @@
 
 #include "MSFoundation_Private.h"
 #include "msfoundation_validate.h"
-
+/*
 static inline void cdictionary_print(MSDictionary *d)
   {
   fprintf(stdout, "%lu\n",WLU([d count]));
   }
-
+*/
 static inline int cdictionary_create(void)
   {
   int err= 0;

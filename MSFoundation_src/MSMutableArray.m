@@ -63,6 +63,20 @@
   CArrayAddObjects((CArray*)self, objects, n, copy);
 }
 
+- (void)addObjectsFromArray:(NSArray*)otherArray
+{
+  if (otherArray) {
+    if ([otherArray _isMS]) {
+      CArrayAddArray((CArray*)self, (CArray*)otherArray, NO);} // No copy
+    else {
+      NSUInteger i, n; id o;
+      n= [otherArray count];
+      CArrayGrow((CArray*)self, n);
+      for (i= 0; i < n; i++) {
+        o= [otherArray objectAtIndex:i]; // WE CAN OPTIMIZE THAT WITH LOOKUP
+        CArrayAddObject((CArray*)self, o);}}}
+}
+
 - (void)replaceObjectsInRange:(NSRange)rg withObjects:(const id*)objects copyItems:(BOOL)copy
 {
   CArrayReplaceObjectsInRange((CArray*)self, objects, rg, copy);
@@ -122,15 +136,7 @@
 {
   if (otherArray != self) {
     CArrayRemoveAllObjects((CArray*)self);
-    if ([otherArray _isMS]) {
-      CArrayAddArray((CArray*)self, (CArray*)otherArray, NO);} // No copy
-    else {
-      NSUInteger i, n; id o;
-      n= [otherArray count];
-      CArrayGrow((CArray*)self, n);
-      for (i= 0; i < n; i++) {
-        o= [otherArray objectAtIndex:i]; // WE CAN OPTIMIZE THAT WITH LOOKUP
-        CArrayAddObject((CArray*)self, o);}}}
+    [self addObjectsFromArray:otherArray];}
 }
 
 - (void)removeObjectsFromIndices:(NSUInteger *)indices numIndices:(NSUInteger)count

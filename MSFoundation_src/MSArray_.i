@@ -336,7 +336,17 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 }
 - (NSString *)jsonRepresentation { return CArrayJsonRepresentation((CArray *)self); }
 */
-- (NSString*)toString {return (NSString*)CArrayToString((CArray*)self);}
+- (NSString*)toString
+{
+// TODO: return (NSString*)CArrayToString((CArray*)self);
+  NSMutableString *s; id oe,o; BOOL first;
+  s= [NSMutableString string];
+  [s appendString:@"["];
+  for (first= YES, oe= [self objectEnumerator]; (o= [oe nextObject]); first= NO) {
+    [s appendFormat:@"%@%@",(first?@"":@", "),o];}
+  [s appendString:@"]"];
+  return s;
+}
 
 - (NSString*)description                                                          {return [self toString];}
 - (NSString*)descriptionWithLocale:(NSDictionary*)locale                          {return [self toString]; locale= NULL;}

@@ -1,6 +1,7 @@
 // mscore_validate.h, ecb, 130911
 
 int mscore_c_validate          (void);
+int mscore_tools_validate      (void);
 int mscore_carray_validate     (void);
 int mscore_cbuffer_validate    (void);
 int mscore_ccolor_validate     (void);
@@ -25,6 +26,7 @@ static inline int testCore(BOOL alone)
     }
   MSSystemInitialize(0, NULL);
   err= mscore_c_validate          () +
+       mscore_tools_validate      () +
        mscore_carray_validate     () +
        mscore_cbuffer_validate    () +
        mscore_ccolor_validate     () +

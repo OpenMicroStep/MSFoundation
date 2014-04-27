@@ -270,9 +270,7 @@ void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncodi
 
 void CBufferAppendString(CBuffer *self, const CString *s, NSStringEncoding destinationEncoding)
 {
-  if (s) {
-    SES ses= MSMakeSESWithBytes(s->buf, s->length, NSUnicodeStringEncoding);
-    CBufferAppendSES(self, ses, destinationEncoding);}
+  if (s) CBufferAppendSES(self, MSSSES(s), destinationEncoding);
 }
 
 /*

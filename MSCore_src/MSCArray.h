@@ -121,7 +121,7 @@ MSExport NSUInteger CArrayIndexOfIdenticalObject(const CArray *self, const id ob
 // If the array doesn't retain objects, added objects are not retained.
 MSExport void CArrayAddObject( CArray *self, id object);
 MSExport void CArrayAddObjects(CArray *self, const id *objects, NSUInteger nb, BOOL copyItems);
-MSExport void CArrayAddArray(  CArray *self, const CArray *other       , BOOL copyItems);
+MSExport void CArrayAddArray(  CArray *self, const CArray *other             , BOOL copyItems);
 
 MSExport void CArrayRemoveObjectAtIndex(CArray *self, NSUInteger i);
 MSExport void CArrayRemoveLastObject(CArray *self);

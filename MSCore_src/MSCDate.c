@@ -59,7 +59,7 @@ void _CDateInitialize()
   CDate19700101= CCreateDateFromYMD(1970, 1, 1);
   CDate20010101= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
   CDateSecondsFrom19700101To20010101= CDateSecondsBetweenDates(CDate19700101, CDate20010101);
-printf("CDateSecondsFrom19700101To20010101 %lld",CDateSecondsFrom19700101To20010101);
+//printf("CDateSecondsFrom19700101To20010101 %lld",CDateSecondsFrom19700101To20010101);
 }
 
 #pragma mark date function declarations

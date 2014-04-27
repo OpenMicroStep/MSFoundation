@@ -194,14 +194,14 @@ MSExport id          _MObjectCopy     (id obj);
 #define RETAIN(X)      [(X) retain]
 #define RELEASE(X)     [(X) release]
 #define AUTORELEASE(X) [(X) autorelease]
-
+/*
 #define ISEQUAL(X,Y) ({ \
   id __x__= (id)(X), __y__= (id)(Y); \
   (__x__ == __y__) ? YES : [__x__ isEqual:__y__];})
-/*
-static inline BOOL ISEQUAL(id x, id y) {
-  return (x == y) ? YES : [x isEqual:y];}
 */
+static inline BOOL ISEQUAL(id x, id y) {
+  return (x == y) ? YES : (!x || !y) ? NO : [x isEqual:y];}
+
 #define HASH(X)        [(X) hash:0]
 #define HASHDEPTH(X,D) [(X) hash:(D)]
 #define COPY(X)        [(X) copyWithZone:NULL]
@@ -225,6 +225,7 @@ static inline BOOL ISEQUAL(id x, id y) {
 #undef RELEAZEN
 #endif
 #define RELEAZEN(X) ({ id __x__= (id)X; X= NULL; RELEASE(__x__); })
+#define DESTROY RELEAZEN
 
 MSExport void       CArrayFree(id self);
 MSExport BOOL       CArrayIsEqual(id self, id other);

@@ -57,10 +57,16 @@ typedef unichar (*CHAI)(const void *, NSUInteger*);
 
 MSExport unichar utf8ChaiN          (const void *src, NSUInteger *pos);
 MSExport unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos);
+// For UTF8 and UTF8 JSON String encoding.
+// These chai returns 0x00 on badly-formed character. And pos-1 is the error position.
+// if you're not sure that the string is well-formed
+// add a 0x00 character at the end of the string to avoid crash.
 
 // SES (String Enumerator S...) représente l'accès à une source que l'on peut
 // parcourir grâce à sa fonction 'chai'
 // qu'on limite volontairement à l'intervalle [start, start+length[
+// Attention, les chai NE vérifie PAS que la 'pos' donnée est bien dans
+// l'intervalle [start, start+length[.
 
 typedef struct SESStruct {
   const void *source;

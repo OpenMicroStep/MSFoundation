@@ -44,7 +44,8 @@
 
 #define MS_DATE_LAST_VERSION 301
 
-static Class __MSDateClass= Nil;
+static Class       __MSDateClass= Nil;
+static NSTimeZone *__MSDateTimeZone= nil;
 
 #pragma mark Create functions
 
@@ -65,7 +66,9 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 + (void)initialize
 {
   if ([self class] == [MSDate class]) {
-    [MSDate setVersion:MS_DATE_LAST_VERSION];}
+    [MSDate setVersion:MS_DATE_LAST_VERSION];
+    __MSDateTimeZone= RETAIN([NSTimeZone timeZoneForSecondsFromGMT:0]);
+    }
 }
 
 #pragma mark Initialisation
@@ -126,6 +129,12 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 - (id)initWithSeconds:(int)secs sinceDate:(NSDate*)d
 {
   self->_interval= [d secondsSinceReferenceDate]+(MSTimeInterval)secs;
+  return self;
+}
+
+- (id)initWithMSTimeIntervalSinceReferenceDate:(MSTimeInterval)secsToBeAdded
+{
+  self->_interval= secsToBeAdded;
   return self;
 }
 
@@ -318,6 +327,14 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 - (id)dateWithoutTime
 {
   return AUTORELEASE((id)CCreateDayDate((CDate*)self));
+}
+
+#pragma mark description
+
+- (NSString*)descriptionWithCalendarFormat:(NSString*)fmt
+{
+  id d= [NSDate dateWithTimeIntervalSinceReferenceDate:_interval];
+  return [d descriptionWithCalendarFormat:fmt timeZone:__MSDateTimeZone locale:nil];
 }
 
 #pragma mark NSCoding

@@ -84,7 +84,7 @@ Herve Malaingre : herve@malaingre.com
 + (id)bufferWithBuffer:(MSBuffer *)data;
 + (id)bufferWithContentsOfFile:(NSString *)path;
 
-+ (id)bufferWithBytes:(void *)bytes length:(NSUInteger)length;
++ (id)bufferWithBytes:(const void *)bytes length:(NSUInteger)length;
 + (id)bufferWithBytesNoCopy:(void *)bytes length:(NSUInteger)length;
 + (id)bufferWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
 
@@ -102,6 +102,7 @@ Herve Malaingre : herve@malaingre.com
 - (BOOL)isEqualToBuffer:(MSBuffer *)other;
 - (MSBuffer *)bufferWithRange:(NSRange)range;
 
+- (MSByte*)cString; // With 0x00 at end
 - (MSBuffer *)encodedToBase64;
 - (MSBuffer *)decodedFromBase64;
   // return nil if not decodable.

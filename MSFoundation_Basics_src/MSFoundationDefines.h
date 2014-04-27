@@ -172,9 +172,9 @@ if (__x__ != __y__) { X =  (__y__ ? COPY(__y__) : nil); if (__x__) RELEASE(__x__
 #define NEW_POOL       CREATE_POOL(_localPool_)
 #define KILL_POOL      RELEASE(_localPool_)
 
-#define DICT   [NSDictionary dictionaryWithObjectsAndKeys:
+#define DICT   [MSDictionary dictionaryWithObjectsAndKeys:
 #define ARRAY  [MSArray arrayWithObjects:
-#define MDICT  [NSMutableDictionary dictionaryWithObjectsAndKeys:
+#define MDICT  [MSMutableDictionary dictionaryWithObjectsAndKeys:
 #define MARRAY [MSMutableArray arrayWithObjects:
 
 #define END    , nil]

@@ -302,4 +302,26 @@ id CDictionaryEnumeratorCurrentKey(CDictionaryEnumerator *de)
   return !de || !de->jnode ? nil : ((_node*)(de->jnode))->key;
 }
 
+CArray *CCreateArrayOfDictionaryKeys(CDictionary *d)
+{
+  CArray *a; CDictionaryEnumerator *de; id k;
+  if (!d) return NULL;
+  a= CCreateArray(CDictionaryCount(d));
+  de= CDictionaryEnumeratorAlloc(d);
+  while ((k= CDictionaryEnumeratorNextKey(de))) CArrayAddObject(a, k);
+  CDictionaryEnumeratorFree(de);
+  return a;
+}
+
+CArray *CCreateArrayOfDictionaryObjects(CDictionary *d)
+{
+  CArray *a; CDictionaryEnumerator *de; id o;
+  if (!d) return NULL;
+  a= CCreateArray(CDictionaryCount(d));
+  de= CDictionaryEnumeratorAlloc(d);
+  while ((o= CDictionaryEnumeratorNextObject(de))) CArrayAddObject(a, o);
+  CDictionaryEnumeratorFree(de);
+  return a;
+}
+
 #pragma mark Description

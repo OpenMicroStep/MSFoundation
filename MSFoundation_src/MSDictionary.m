@@ -40,6 +40,42 @@
 
 #import "MSFoundation_Private.h"
 
+@implementation NSDictionary (MSAddendum)
+- (id)objectForLazyKey:(id)aKey
+{
+	id o= nil;
+	if (aKey) {
+		o= [self objectForKey:aKey];
+		if (!o) {
+			if (![aKey isKindOfClass:[NSString class]]) {
+				aKey= [aKey toString];
+				o= [self objectForKey:aKey];}
+			if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
+	return o;
+}
+- (id)objectForLazyKeys:(id)aKey, ...
+{
+  id ret= nil;
+  if (aKey && !(ret= [self objectForLazyKey:aKey])) {
+    va_list args; id k= aKey;
+    va_start(args, aKey);
+    while (!ret && (k= va_arg(args, id))) {
+      ret= [self objectForLazyKey:k];}
+    va_end(args);}
+  return ret;
+}
+@end
+
+@implementation NSMutableDictionary (MSAddendum)
+- (void)setObject:(id)o forLazyKey:(id)k
+{
+	if (k) k= [[k toString] lowercaseString];
+	if ([k length]) {
+		if (o) [self setObject:o forKey:k];
+		else [self removeObjectForKey:k];}
+}
+@end
+
 @implementation MSDictionaryEnumerator
 - (id)initWithDictionary:(MSDictionary*)d
 {
@@ -71,6 +107,12 @@
   CDictionarySetObjectForKey((CDictionary*)d, object, key);
   return AUTORELEASE(d);
   }
++ (id)dictionaryWithKey:(id <NSCopying>)k andObject:(id)o
+  {
+  id d= MSAllocateObject(self, 0, NULL); // self may be a MSMutableDictionary
+  CDictionarySetObjectForKey((CDictionary*)d, o, k);
+  return AUTORELEASE(d);
+  }
 
 #if WIN32
 + (id)dictionaryWithObjects:(const id [])os forKeys:(const id             [])ks count:(NSUInteger)n
@@ -91,6 +133,16 @@
       o= nil;}}
   return self;
   }
+- (id)_initWithFirstKey:(id)k arguments:(va_list)ap
+  {
+  id o;
+  if (k) while ((o= va_arg (ap, id))) {
+    if (k==nil) {k= o;}
+    else {
+      CDictionarySetObjectForKey((CDictionary*)self, o, k);
+      k= nil;}}
+  return self;
+  }
 + (id)dictionaryWithObjectsAndKeys:(id)firstObject, ...
   {
   id d= MSAllocateObject(self, 0, NULL);
@@ -100,14 +152,28 @@
   va_end(ap);
   return AUTORELEASE(d);
   }
++ (id)dictionaryWithKeysAndObjects:(id)firstKey, ...
+  {
+  id d= MSAllocateObject(self, 0, NULL);
+  va_list ap;
+  va_start(ap, firstKey);
+  d= [d _initWithFirstKey:firstKey arguments:ap];
+  va_end(ap);
+  return AUTORELEASE(d);
+  }
 
 - (id)init
   {
   return self;
   }
-- (id)initWithObject:(id)object forKeys:(id <NSCopying>)key
+- (id)initWithObject:(id)object forKey:(id <NSCopying>)key
   {
   CDictionarySetObjectForKey((CDictionary*)self, object, key);
+  return self;
+  }
+- (id)initWithKey:(id <NSCopying>)k andObject:(id)o
+  {
+  CDictionarySetObjectForKey((CDictionary*)self, o, k);
   return self;
   }
 
@@ -132,6 +198,26 @@
   va_end(ap);
   return self;
 }
+- initWithKeysAndObjects:(id)firstKey, ...
+{
+  va_list ap;
+  va_start(ap, firstKey);
+  self= [self _initWithFirstKey:firstKey arguments:ap];
+  va_end(ap);
+  return self;
+}
+
+- (id)initWithDictionary:(NSDictionary*)src copyItems:(BOOL)cpy
+{
+  if ([src respondsToSelector:@selector(dictionaryEnumerator)]) {
+    id de,k,o;
+    CDictionaryGrow((CDictionary*)self, [src count]);
+    for (de= [(MSDictionary*)src dictionaryEnumerator]; (k= [de nextKey]);) {
+      if ((o= [de currentObject]) && cpy) o= COPY(o);
+      if (o) CDictionarySetObjectForKey((CDictionary*)self,o,k);}}
+  else self= [super initWithDictionary:src copyItems:cpy];
+  return self;
+}
 
 - (void)dealloc
   {
@@ -152,6 +238,16 @@
 {
   return [[[MSDictionaryEnumerator alloc] initWithDictionary:self] autorelease];
 }
+
+- (MSArray*)allKeys
+{
+  return AUTORELEASE((id)CCreateArrayOfDictionaryKeys((CDictionary*)self));
+}
+- (MSArray*)allObjects
+{
+  return AUTORELEASE((id)CCreateArrayOfDictionaryObjects((CDictionary*)self));
+}
+
 
 #pragma mark Global methods
 
@@ -208,6 +304,7 @@
 {
   CDictionarySetObjectForKey((CDictionary*)self, nil, k);
 }
+
 - (void)setObject:(id)o forKey:(id <NSCopying>)k
 {
   if (o && k) CDictionarySetObjectForKey((CDictionary*)self, o, k);

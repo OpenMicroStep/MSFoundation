@@ -116,7 +116,7 @@
 		resultSet = [ALLOC(MSSQLiteResultSet) initWithStatement:statement connection:self] ;
 		if (resultSet) {
 			// === WARNING === the connection does not retain its operations...
-			CArrayAddObjectWithoutRetain(&_operations, resultSet) ;
+			[_operations addObject:resultSet] ;
 			return AUTORELEASE(resultSet) ;
 		}
 	}
@@ -133,7 +133,7 @@
 		if ([self executeRawSQL:"BEGIN TRANSACTION;"] == SQLITE_OK) {
 			MSSQLiteTransaction *transaction = [ALLOC(MSSQLiteTransaction) initWithDatabaseConnection:self] ;
 			if (transaction) {
-				CArrayAddObjectWithoutRetain(&_operations, transaction) ;
+				[_operations addObject:transaction] ;
 				return transaction;
 			}
 		}

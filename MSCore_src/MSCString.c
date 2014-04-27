@@ -237,15 +237,13 @@ void CStringAppendSES(CString *self, SES ses)
       self->length+= SESLength(ses);}
     else for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
       unichar u= SESIndexN(ses, &i);
-    //self->buf[self->length++]= u; // TODO: What do we do if wrong utf8 ?
       self->buf[self->length++]= (u?u:'?');
       }}
 }
 
 void CStringAppendString(CString *self, const CString *s)
 {
-  if (self && s && s->length) {
-    CStringAppendSES(self, MSMakeSESWithBytes(s->buf, s->length, NSUnicodeStringEncoding));}
+  CStringAppendSES(self, MSSSES(s));
 }
 
 static inline unichar _CEncodingToUnicode(MSByte c, NSStringEncoding encoding)

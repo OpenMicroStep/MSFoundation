@@ -107,5 +107,8 @@ MSExport BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage langua
 #define MSSAddUnichar(X, Y) CStringAppendCharacter((CString*)(X), Y)
 #define MSSLength(    X   ) CStringLength((const CString*)(X))
 #define MSSIndex(     X, Y) (((CString*)(X))->buf[(Y)])
+#define MSSSES(       X   ) ({ \
+  CString *__x__= (CString*)(X); !__x__? MSInvalidSES : \
+  MSMakeSESWithBytes(__x__->buf, __x__->length, NSUnicodeStringEncoding);})
 
 #endif

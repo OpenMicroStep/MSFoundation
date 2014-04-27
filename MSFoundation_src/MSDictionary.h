@@ -38,6 +38,17 @@
  
  */
 
+@interface NSDictionary (MSAddendum)
+- (id)objectForLazyKey: (id)aKey;
+- (id)objectForLazyKeys:(id)aKey, ...; // nil terminated
+@end
+
+@interface NSMutableDictionary (MSAddendum)
+- (void)setObject:(id)anObject forLazyKey:(id <NSCopying>)aKey;
+  // set the object to the lowercase aKey.
+  // TODO: Good ? If no aKey, remove the object to the lowercase aKey.
+@end
+
 @class MSDictionary;
 @interface MSDictionaryEnumerator : NSEnumerator
 {
@@ -51,7 +62,7 @@
 - (id)currentKey;
 @end
 
-@interface MSDictionary : NSObject
+@interface MSDictionary : NSDictionary
 {
 @private
   NSUInteger _count;
@@ -61,7 +72,9 @@
 + (id)dictionary;
 - (id)init;
 + (id)dictionaryWithObject:(id)object forKey:(id <NSCopying>)key;
-- (id)     initWithObject:(id)object forKeys:(id <NSCopying>)key;
+- (id)      initWithObject:(id)object forKey:(id <NSCopying>)key;
++ (id)dictionaryWithKey:(id <NSCopying>)k andObject:(id)o;
+- (id)      initWithKey:(id <NSCopying>)k andObject:(id)o;
 #if WIN32
 + (id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys count:(NSUInteger)cnt;
 - (id)      initWithObjects:(const id [])objects forKeys:(const id [])keys count:(NSUInteger)cnt;
@@ -71,9 +84,16 @@
 #endif
 + (id)dictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 - (id)      initWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
++ (id)dictionaryWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)      initWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+
+- (id)initWithDictionary:(NSDictionary*)otherDictionary copyItems:(BOOL)flag;
 
 - (NSUInteger)count;
 - (id)objectForKey:(id)aKey;
+
+- (MSArray*)allKeys;
+- (MSArray*)allObjects;
 
 //- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict; // ???
 

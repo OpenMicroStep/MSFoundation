@@ -97,7 +97,7 @@
 
     mysql_init(&_db); 
     mysql_options(&_db, MYSQL_OPT_CONNECT_TIMEOUT, timeout); 
-    if (!(mysql_real_connect(&_db, host, user, pwd, db, port, sock, 0))) { 
+    if (!(mysql_real_connect(&_db, host, user, pwd, db, (MSUInt)port, sock, 0))) {
       const char *errorMsg= mysql_error(&_db);
       NSLog(@"MySQL database could not be opened for reason : %@",
         [NSString stringWithCString:errorMsg encoding:NSUTF8StringEncoding]);
@@ -143,7 +143,7 @@
 		MSMySQLResultSet *resultSet = [ALLOC(MSMySQLResultSet) initWithMySQLRes:result connection:self] ;
 		if (resultSet) {
 			// === WARNING === the connection does not retain its operations...
-			CArrayAddObjectWithoutRetain(&_operations, resultSet) ;
+			[_operations addObject:resultSet] ;
 			return AUTORELEASE(resultSet) ;
 		}
 	}
@@ -160,7 +160,7 @@
 		// nothing special to do because transaction is activated
 		MSMySQLTransaction *transaction = [ALLOC(MSMySQLTransaction) initWithDatabaseConnection:self] ;
 		if (transaction) {
-			CArrayAddObjectWithoutRetain(&_operations, transaction) ;
+			[_operations addObject:transaction] ;
 			return transaction;
 		}
 	}

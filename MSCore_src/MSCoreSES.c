@@ -151,45 +151,48 @@ SES MSMakeSESWithBytes(const void *src, NSUInteger srcLength, NSStringEncoding s
 
 unichar utf8ChaiN(const void *src, NSUInteger *pos)
 // TODO: attention on ne vérifie pas un débordement éventuel du à une malformation
+// Juste on s'arrête sur 0x00.
 // Si pas de l'utf8, retourne 0.
 // Ne prend en compte que jusqu'à 16 bits (si 4 octets, ie 17 à 21 bits, retourne 0 mais avance de 4.
   {
   unsigned char c, c1, c2;
-  unichar u;
+  unichar u; int i;
 //printf("A %lu %hhu\n",*pos,((unsigned char*)src)[*pos]);
+  // 80: 1000 0000
+  // C0: 1100 0000
+  // E0: 1110 0000
+  // F0: 1111 0000
   if ((c= ((unsigned char*)src)[(*pos)++]) < 0x80) u= (unichar)c;
   else if (c<0xe0) { // 110xxxxx 10xxxxxx
     if (c < 0xc0) u= 0;
     else {
-      c1= ((unsigned char*)src)[*pos];
+      c1= ((unsigned char*)src)[(*pos)++];
       if (c1 < 0x80 || c1 >=0xc0) u= 0;
       else {
-        *pos+= 1;
         u= (unichar)( ((unsigned)(c & 0x1f) << 6) | (unsigned)(c1 & 0x3f) );
 //printf("B %hu\n",u);
         }}}
-  else if (c<0xf0) { // 110xxxxx 10xxxxxx 10xxxxxx
-    c1= ((unsigned char*)src)[*pos];
+  else if (c<0xf0) { // 1110xxxx 10xxxxxx 10xxxxxx
+    c1= ((unsigned char*)src)[(*pos)++];
     if (c1 < 0x80 || c1 >=0xc0) u= 0;
     else {
-      *pos+= 1;
-      c2= ((unsigned char*)src)[*pos];
+      c2= ((unsigned char*)src)[(*pos)++];
       if (c2 < 0x80 || c2 >=0xc0) u= 0;
       else {
-        *pos+= 1;
         u= (unichar)( ((unsigned)(c & 0x0f) << 12) | ((unsigned)(c1 & 0x3f) << 6) | (unsigned)(c2 & 0x3f) );}}}
   else {
-    *pos+= 3;
+    for (i=0; c!=0x00 && i<3; i++) {
+      c= ((unsigned char*)src)[(*pos)++];
+      if (c < 0x80 || c >=0xc0) c= 0x00;}
     u= 0;}
 //printf("C %hu\n",u);
   return u;
   }
 
 unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
-// TODO: attention on ne vérifie pas un débordement éventuel du à une malformation
 // Return 0xFFFF on begin or end of string ("), but return " on \"
 {
-  unichar u= utf8ChaiN(src, pos); unsigned char hex[5]; int i;
+  unichar u= utf8ChaiN(src, pos); unsigned char c,hex[5]; int i;
   if (u=='\"') u= 0xFFFF;
   else if (u=='\\') switch ((u= utf8ChaiN(src, pos))) {
     case '\"': u= '\"'; break;
@@ -201,9 +204,12 @@ unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
     case 'r':  u= '\r'; break;
     case 't':  u= '\t'; break;
     case 'u':
-      for (i= 0; i<4; i++) hex[i]= ((unsigned char*)src)[(*pos)++];
-      hex[4]= 0x00;
-      u= (unichar)strtol((char*)hex, NULL, 16);
+      for (c= 1, i= 0; c!=0x00 && i<4; i++) {
+        hex[i]= c= ((unsigned char*)src)[(*pos)++];}
+      if (!c) u= 0;
+      else {
+        hex[4]= 0x00;
+        u= (unichar)strtol((char*)hex, NULL, 16);}
       break;
     default: u= u; break;} // invalid char ?
   return u;

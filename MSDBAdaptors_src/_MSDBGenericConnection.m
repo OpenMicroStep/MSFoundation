@@ -55,7 +55,7 @@
 {
 	NSZone *zone = [self zone] ;
 
-	_operations = (CArray){Nil, NULL, 0, 0} ;
+	_operations = [[MSMutableArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:NO] ;
 	_originalDictionary = [dictionary copyWithZone:zone] ;
 	_currentDictionary = [dictionary mutableCopyWithZone:zone] ;
 	_identifiersStore = [[NSMutableDictionary allocWithZone:zone] initWithCapacity:31] ;
@@ -63,11 +63,11 @@
     _writeEncoding = _readEncoding = NSUTF8StringEncoding ;
     
     // MSGetEncodingFrom is declared in MSUnichar.h. WARNING : you can get NSNEXTSTEPStringEncoding and NSUTF16StringEncoding
-    
+    /* TODO: Reenable
     if (MSGetEncodingFrom([dictionary objectForKey:@"encoding"], &_writeEncoding)) { _readEncoding = _writeEncoding ; }
     (void)MSGetEncodingFrom([dictionary objectForKey:@"write-encoding"], &_writeEncoding) ;
     (void)MSGetEncodingFrom([dictionary objectForKey:@"read-encoding"], &_readEncoding) ;
-
+    */
 	return self ;
 }
 
@@ -79,28 +79,22 @@
 
 - (void)terminateAllOperations
 {
-	NSUInteger i = CArrayCount(&_operations) ;
+	NSUInteger i = [_operations count] ;
 	// leave this loop in that order if you don't want to destroy the element of you array
 	// before the end of the loop
-	while (i-- > 0) {[CArrayObjectAtIndex(&_operations, i) terminateOperation] ;} 
+	while (i-- > 0) {[[_operations objectAtIndex:i] terminateOperation] ;}
 }
 
 - (void)resetOperationsArray
 {
-	if (CArrayCount(&_operations)) {
-		CArrayRemoveAllObjectsWithoutRelease(&_operations) ;
-		CArrayAdjustSize(&_operations) ;
-	}
+  [_operations removeAllObjects];
+  CArrayAdjustSize((CArray*)_operations) ;
 }
 
 - (void)unregisterOperation:(MSDBOperation *)anOperation
 {
-	NSUInteger i = CArrayIndexOfIdenticalObject(&_operations, anOperation, 0, CArrayCount(&_operations)) ;
-	if (i != NSNotFound) {
-		CArrayRemoveObjectAtIndexWithoutRelease(&_operations, i) ;
-	}
+  [_operations removeObjectIdenticalTo:anOperation];
 }
-
 
 - (void)dealloc
 {
@@ -111,15 +105,13 @@
 	DESTROY(_originalDictionary) ;
 	DESTROY(_currentDictionary) ;
 	DESTROY(_identifiersStore) ;
+	DESTROY(_operations) ;
 	[super dealloc] ;
 }
 
 - (MSArray *)allOperations
 {
-	NSUInteger count = _operations.count ;
-	MSArray *array = MSCreateArray(count) ;
-	(void)CArrayAddArray((CArray *)array, &_operations) ;
-	return AUTORELEASE(array) ;
+	return AUTORELEASE(COPY(_operations)) ;
 }
 
 - (MSArray *)_operationsOfClass:(Class)searchedClass
@@ -128,7 +120,7 @@
 	MSArray *array = MSCreateArray(count) ;
 
 	for (i = 0 ; i < count ; i++) {
-		MSDBOperation *o = CArrayObjectAtIndex(&_operations, i) ;
+		MSDBOperation *o = [_operations objectAtIndex:i] ;
 		if ([o isKindOfClass:searchedClass]) {
 			MSAAdd(array, o) ;
 		}
@@ -143,7 +135,7 @@
 	NSUInteger i, count = _operations.count, total = 0 ;
 	Class searchedClass = [MSDBTransaction class] ;
 	for (i = 0 ; i < count ; i++) {
-		MSDBOperation *o = CArrayObjectAtIndex(&_operations, i) ;
+		MSDBOperation *o = [_operations objectAtIndex:i] ;
 		if ([o isKindOfClass:searchedClass]) { total ++ ; }
 	}
 	return total ;
@@ -166,16 +158,12 @@
 
 - (void)addSQLString:(const char *)cString toUnicodeBuffer:(CUnicodeBuffer *)buffer
 {
-    NSString *s = [self stringWithSQLCString:cString] ;
-    if (s) { CUnicodeBufferAppendString(buffer, s) ; }
+    if (cString) { CStringAppendBytes((CString*)buffer, _readEncoding, cString, strlen(cString)); }
 }
 
 - (void)addSQLBuffer:(MSBuffer *)sqlBuffer toUnicodeBuffer:(CUnicodeBuffer *)unicodebuffer
 {
-    if (sqlBuffer && unicodebuffer) {
-        NSString *s = AUTORELEASE([ALLOC(NSString) initWithData:sqlBuffer encoding:_readEncoding]) ;
-        if (s) { CUnicodeBufferAppendString(unicodebuffer, s) ; }
-    }
+  CStringAppendBytes((CString*)unicodebuffer, _readEncoding, sqlBuffer, [sqlBuffer length]);
 }
 
 @end

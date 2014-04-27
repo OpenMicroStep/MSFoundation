@@ -284,7 +284,7 @@
             resultSet = [ALLOC(MSOCIResultSet) initWithStatement:stmt connection:self] ;
             if (resultSet) {
                 // === WARNING === the connection does not retain its operations...
-                CArrayAddObjectWithoutRetain(&_operations, resultSet) ;
+                [_operations addObject:resultSet] ;
                 return AUTORELEASE(resultSet) ;
             }
         }
@@ -325,7 +325,7 @@
         // only one transaction at a time
         MSOCITransaction *transaction = [ALLOC(MSOCITransaction) initWithDatabaseConnection:self] ;
         if (transaction) {
-            CArrayAddObjectWithoutRetain(&_operations, transaction) ;
+            [_operations addObject:transaction] ;
             return transaction;
         }
     }

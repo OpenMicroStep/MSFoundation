@@ -239,13 +239,14 @@ static inline int _moveToNewToken(_MSTEDecode *src, SES sesTk, int errLevel, cha
   delta= endTk-SESStart(src->ses); src->ses.start+= delta; src->ses.length-= delta;
   src->currentToken++;
   if (!err) {
-    if      (!src->ses.length && src->currentToken+1 < src->nbToken) err= 2;
+    if      (!src->ses.length && src->currentToken  <  src->nbToken) err= 2;
     else if ( src->ses.length && src->currentToken  >= src->nbToken) err= 3;}
   if (err) {
     if      (errLevel==1) _ERROR(w,1,err,src->currentToken,s,error);
     else if (errLevel==2) _ERROR(w,2,err,src->currentToken,s,error);
     else if (errLevel==3) {
-      if (!error) _ERROR(w,3,err,src->currentToken,s,error);}}
+      if (!*error) _ERROR(w,3,err,src->currentToken,s,error);}}
+//printf("_moveToNewToken: %d %lu %lu %lu\n",err,src->currentToken,src->ses.start,src->ses.length);
   return err;
 }
 
@@ -257,7 +258,7 @@ static inline int _readClassesOrKeys(_MSTEDecode *src, NSUInteger *nb, CArray **
   if (type!=NOT_STR) err= _ERROR("MSTE-25",1,1,src->currentToken,"Bad number of classes or keys.",error);
   if (!err) {
     _number(ses, MSTE_ULONG_VALUE, nb);
-    if (_moveToNewToken(src,ses,1,"MSTE-26","Bad number of classes.",error)) err= 1;}
+    if (_moveToNewToken(src,ses,1,"MSTE-26","Bad while reading number of classes or keys.",error)) err= 1;}
   if (!err) {
     if (*nb) *a= CCreateArray(*nb);
     for (i= 0; i<*nb && SESLength(src->ses)>0; i++) {
@@ -279,7 +280,7 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
 {
   id ret= nil;
   NSStringEncoding srcEncoding;
-  SES ses,sesCmp,sesRes; int type,stop; NSUInteger i;
+  SES ses,sesCmp,sesRes; int type,stop; NSUInteger i,delta,crc1,crc2; char crc[9],*crcend;
   _MSTEDecode src;
   NSUInteger code;
   id o,ref;
@@ -290,7 +291,7 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
   // -------------------------------------------------------------------- HEADER
 
   if (!source)                  RETURN_NIL("MSTE-1","No entry to decode.");
-  if (CBufferLength(source)<28) RETURN_NIL("MSTE-2","Header badly-formed.");
+  if (CBufferLength(source)<32) RETURN_NIL("MSTE-2","Header badly-formed.");
   src.ses= MSMakeSESWithBytes(MSBPointer(source), MSBLength(source), srcEncoding);
   ///// Les [ et ]
   if (((char*)SESSource(src.ses))[                   0]!='[') RETURN_NIL("MSTE-5","No begin character ([).");
@@ -308,8 +309,8 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
   ses= _readToken(&src, &type);
   if (type!=NOT_STR)                        RETURN_NIL("MSTE-15","Bad number of tokens.");
   _number(ses, MSTE_ULONG_VALUE, &src.nbToken); src.currentToken= 0;
-  if (src.nbToken < 6)                      RETURN_NIL("MSTE-16","Bad number of tokens (<6).");
-  else src.currentToken++; // MSTE0101
+  if (src.nbToken < 5)                      RETURN_NIL("MSTE-16","Bad number of tokens (<5).");
+  else src.currentToken++; // 0:MSTE0101 1:nbToken
   if (_moveToNewToken(&src,ses,1,"MSTE-17","Bad number of tokens.",error)) return nil;
   ///// CRC
   ses= _readToken(&src, &type);
@@ -317,8 +318,20 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
   sesCmp= MSMakeSESWithBytes("CRC", 3, NSUTF8StringEncoding);
   sesRes= SESCommonPrefix(ses, sesCmp);
   if (SESLength(sesRes)!=SESLength(sesCmp)) RETURN_NIL("MSTE-21","Bad CRC.");
-  // TODO: Verif du crc
-  if (_moveToNewToken(&src,ses,1,"MSTE-22","Bad CRC.",error)) return nil;
+  // Verif du crc
+// TODO: vérifier le calcul du CRC
+// http://www.fileformat.info/tool/hash.htm?text=%5B%22MSTE0101%22%2C5%2C%22CRC00000000%22%2C0%2C0%5D
+  delta= SESLength(sesRes); ses.start+= delta; ses.length-= delta;
+  if (ses.length!=8)                        RETURN_NIL("MSTE-22","Bad CRC.");
+  for (i= 0; i < ses.length; i++) {
+    crc[i]= ((char*)ses.source)[SESStart(ses)+i];
+    ((char*)ses.source)[SESStart(ses)+i]= '0';}
+  crc[8]= 0x00; crc1= strtoul(crc, &crcend, 16);
+  crc2= MSBytesLongCRC(src.ses.source, src.ses.length);
+if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,MSBPointer(source));
+  if (crc1!=crc2)                           RETURN_NIL("MSTE-23","Bad CRC.");
+  for (i= 0; i < ses.length; i++) {((char*)ses.source)[SESStart(ses)+i]= crc[i];}
+  if (_moveToNewToken(&src,ses,1,"MSTE-24","Bad CRC.",error)) return nil;
 
   // ------------------------------------------------------------------- CLASSES
 
@@ -337,7 +350,7 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
       if (type!=NOT_STR) stop= STOPPING_ERROR("MSTE-50");
       else {
         _number(ses, MSTE_ULONG_VALUE, &code);
-        if (code < 26 && (o= _MSTEConstants[code])) {} // Done !
+        if (code < 26 && (o= RETAIN(_MSTEConstants[code]))) {} // Done !
         }}
     else if (MSTE_CHAR_VALUE<=code && code<=MSTE_DOUBLE_VALUE) {
       NSUInteger v;

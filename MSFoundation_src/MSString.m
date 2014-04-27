@@ -40,5 +40,119 @@
 
 #import "MSFoundation_Private.h"
 
+@implementation NSString (MSAddendum)
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)allowLossyConversion
+{
+  MSBuffer *buf= nil;
+  if (allowLossyConversion || [self canBeConvertedToEncoding:encoding]) {
+    NSData *data= [self dataUsingEncoding:encoding allowLossyConversion:YES];
+    buf= [MSBuffer bufferWithBytes:[data bytes] length:[data length]];}
+  return (const char *)[buf cString];
+}
+@end
+
 @implementation MSString
+#pragma mark alloc / init
+
++ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
++ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
++ (id)new                         {return MSAllocateObject(self, 0, NULL);}
++ (id)string         {return AUTORELEASE(MSAllocateObject(self, 0, NULL));}
+- (id)init
+  {
+  return self;
+  }
+- (id)initWithFormat:(NSString *)fmt locale:(id)locale arguments:(va_list)args
+  {
+  RELEASE(self);
+  return (MSString*)[[NSString alloc] initWithFormat:fmt locale:locale arguments:args];
+  }
+- (void)dealloc
+  {
+  CStringFreeInside(self);
+  [super dealloc];
+  }
+
+#pragma mark Primitives
+
+- (NSUInteger)length
+{
+  return _length;
+}
+- (unichar)characterAtIndex:(NSUInteger)index
+//The index value must not lie outside the bounds of the receiver.
+{
+  return _buf[index];
+}
+- (void)getCharacters:(unichar*)buffer range:(NSRange)rg
+{
+  NSUInteger i,n; unichar *p;
+  p= _buf+rg.location;
+  for (n= rg.length, i=0; i<n; i++) {*buffer++= *p++;}
+}
+
+#pragma mark Global methods
+
+- (NSUInteger)hash:(unsigned)depth {return CStringHash(self, depth);}
+
+- (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
+  {
+  CString *s= (CString*)MSAllocateObject([MSString class], 0, z);
+  CStringAppendString(s, (const CString*)self);
+  return (id)s;
+  }
+- (id)mutableCopyWithZone:(NSZone*)z
+  {
+  CString *s= (CString*)MSAllocateObject([MSMutableString class], 0, z);
+  CStringAppendString(s, (const CString*)self);
+  return (id)s;
+  }
+/*
+- (BOOL)isEqualToString:(NSString*)s
+  {
+  if (s == (id)self) return YES;
+  if (!s) return NO;
+  if ([s _isMS]) return CStringEquals((CString*)self,(CString*)s);
+  return [super isEqualToString:s];
+  }
+*/
+- (BOOL)isEqual:(id)object
+  {
+  if (object == (id)self) return YES;
+  if (!object) return NO;
+  if ([object isKindOfClass:[MSString class]]) {
+    return CStringEquals((CString*)self, (CString*)object);}
+  else if ([object isKindOfClass:[NSString class]]) { // TODO: a revoir. Quid dans l'autre sens ?
+    BOOL eq; NSUInteger i,n= [object length]; unichar b[n?n:1];
+    [object getCharacters:b range:NSMakeRange(0, n)];
+    for (eq= YES, i= 0; eq && i<n; i++) eq= (_buf[i]==b[i]);
+//NSLog(@"MSString isEqual %@ %@= %@ %@\n",self,(eq?@"=":@"!"),[object class],object);
+    return eq;}
+  return NO;
+  }
+
+#pragma mark description
+
+- (NSString*)description
+{
+  return self;
+}
+
+@end
+
+@implementation MSMutableString
+
++ (id)stringWithCapacity:(NSUInteger)capacity
+  {
+  id d= MSAllocateObject(self, 0, NULL);
+  CStringGrow((CString*)d, capacity);
+  return AUTORELEASE(d);
+  }
+
+- (id)initWithCapacity:(NSUInteger)capacity
+  {
+  CStringGrow((CString*)self, capacity);
+  return self;
+  }
+
 @end

@@ -141,7 +141,7 @@
 		resultSet = [ALLOC(MSSQLCipherResultSet) initWithStatement:statement connection:self] ;
 		if (resultSet) {
 			// === WARNING === the connection does not retain its operations...
-			CArrayAddObjectWithoutRetain(&_operations, resultSet) ;
+			[_operations addObject:resultSet] ;
 			return AUTORELEASE(resultSet) ;
 		}
 	}
@@ -159,7 +159,7 @@
 		if ([self executeRawSQL:"BEGIN TRANSACTION;"] == SQLITE_OK) {
 			MSSQLCipherTransaction *transaction = [ALLOC(MSSQLCipherTransaction) initWithDatabaseConnection:self] ;
 			if (transaction) {
-				CArrayAddObjectWithoutRetain(&_operations, transaction) ;
+				[_operations addObject:transaction] ;
 				return transaction;
 			}
 		}

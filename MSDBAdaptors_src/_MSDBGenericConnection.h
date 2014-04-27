@@ -46,7 +46,8 @@
  every adaptors
  
  */
-#import <MSFoundation/MSFoundation.h>
+//#import <MSFoundation/MSFoundation.h>
+#import "MSObi_Private.h"
 
 typedef struct _MSDBGenericConnectionFlagsStruct {
 #ifdef __BIG_ENDIAN__
@@ -71,9 +72,9 @@ typedef struct _MSDBGenericConnectionFlagsStruct {
 	NSMutableDictionary *_currentDictionary ;
 	NSMutableDictionary *_identifiersStore ;
 	NSStringEncoding _readEncoding ;
-    NSStringEncoding _writeEncoding ;
+  NSStringEncoding _writeEncoding ;
     
-	CArray _operations ;
+	MSMutableArray *_operations ;
 	
 	NSUInteger _requestSizeLimit ;
 	NSUInteger _inClauseMaxElements ;

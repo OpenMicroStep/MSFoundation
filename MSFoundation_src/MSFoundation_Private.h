@@ -55,3 +55,5 @@
 #import "MSDecimal.h"
 #import "MSDictionary.h"
 #import "MSString.h"
+
+#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]

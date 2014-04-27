@@ -3,78 +3,64 @@
 #include "MSCore_Private.h"
 #include "mscore_validate.h"
 
+static CString *_ke,*_kd;
+static inline int _testError(CBuffer *src_, char *errLoc_,int errNo_)
+  {
+  int err= 0;
+  CDictionary *error;
+  id o,v,d;
+  SES ses1,ses2,ses3;
+  CBuffer *buf;
+
+  o= MSTECreateRootObjectFromBuffer(src_, nil, &error);
+  v= CDictionaryObjectForKey(error, (id)_ke);
+  d= CDictionaryObjectForKey(error, (id)_kd);
+  if (errLoc_) {
+    ses1= MSMakeSESWithBytes(errLoc_, strlen(errLoc_), NSUTF8StringEncoding);
+    ses2= MSSSES(d);
+    ses3= SESCommonPrefix(ses1, ses2);}
+  if ((!errLoc_ && error) ||
+      (errLoc_ && (!CDecimalEquals((CDecimal*)v, MM_One) || ses1.length!=ses3.length))) {
+    buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
+    printf("A%d: %ld %s\n",errNo_,(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
+    RELEAZEN(buf);}
+  RELEAZEN(o); RELEAZEN(error);
+  return err;
+  }
+// convertion hex <-> decimal
+//http://www.statman.info/conversions/hexadecimal.html
 static inline int _test(void)
   {
   int err= 0;
-  CBuffer *src,*buf;
-  CDictionary *error;
-  CString *ke,*kd;
-  id o,v,d;
+  CBuffer *src;
   
-  ke= MSSCreate("error");
-  kd= MSSCreate("description");
+  _ke= MSSCreate("error");
+  _kd= MSSCreate("description");
   // Decode sans source
-  o= MSTECreateRootObjectFromBuffer(nil, nil, &error);
-  if (!o) {
-    if (!error) {
-      printf("A1: no error\n"); err++;}
-    v= CDictionaryObjectForKey(error, (id)ke);
-    if (!v) {
-      printf("A2: no error value\n"); err++;}
-    else if (!CDecimalEquals((CDecimal*)v, MM_One)) {
-      printf("A3: %ld\n",(long)CDecimalIntegerValue((CDecimal*)v)); err++;}}
-  RELEAZEN(o); RELEAZEN(error);
-  // Decode erreur MSTE0102      "MSTE0101" ,9, "CRC00000000", 1,\"C\",Z,KKK,T]"
-  src= CCreateBufferWithBytes("[\"MSTE0102\",X,\"CRC00000000\",Y,\"C\",Z,KKK,T]", 42);
-  o= MSTECreateRootObjectFromBuffer(src, nil, &error);
-  v= CDictionaryObjectForKey(error, (id)ke);
-  if (!CDecimalEquals((CDecimal*)v, MM_One)) {
-    printf("A4: %ld\n",(long)CDecimalIntegerValue((CDecimal*)v)); err++;}
-  RELEAZEN(o); RELEAZEN(error);
+  err+= _testError(nil, "MSTE-1-", 1);
+  // Decode erreur MSTE0102    [ "MSTE0101" ,8, "CRCbda1803f", 1,\"C\",Z,KKK,T]"
+  src= CCreateBufferWithBytes("[\"MSTE0102\",X,\"CRCbda1803f\",Y,\"C\",Z,KKK,T]", 42);
+  err+= _testError(src, "MSTE-11-", 2);
   MSBIndex(src, 9)= '1';
-  // Decode X au lieu d'un nombre
-  o= MSTECreateRootObjectFromBuffer(src, nil, &error);
-  v= CDictionaryObjectForKey(error, (id)ke);
-  d= CDictionaryObjectForKey(error, (id)kd);
-  if (!CDecimalEquals((CDecimal*)v, MM_One)) {
-    buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
-    printf("A5: %ld %s\n",(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
-    RELEAZEN(buf);}
-  RELEAZEN(o); RELEAZEN(error);
-  MSBIndex(src, 12)= '9';
+  // Decode X au lieu d'un nombre: -> 0: trop petit
+  err+= _testError(src, "MSTE-16-", 3);
+  MSBIndex(src, 12)= '1';
+  // Decode nbToken = 1: trop petit
+  err+= _testError(src, "MSTE-16-", 4);
+  MSBIndex(src, 12)= '8';
   // Decode Y->0, "C" pas un nombre: bad number of keys
-  o= MSTECreateRootObjectFromBuffer(src, nil, &error);
-  v= CDictionaryObjectForKey(error, (id)ke);
-  d= CDictionaryObjectForKey(error, (id)kd);
-  if (!CDecimalEquals((CDecimal*)v, MM_One)) {
-    buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
-    printf("A6: %ld %s\n",(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
-    RELEAZEN(buf);}
-  RELEAZEN(o); RELEAZEN(error);
-  MSBIndex(src, 28)= '1';
-  // Decode Z->1, KKK pas une chaine
+  err+= _testError(src, "MSTE-25-", 5);
+  MSBIndex(src, 28)= '1'; // Y
   MSBIndex(src, 34)= '1'; // Z
-  o= MSTECreateRootObjectFromBuffer(src, nil, &error);
-  v= CDictionaryObjectForKey(error, (id)ke);
-  d= CDictionaryObjectForKey(error, (id)kd);
-  if (!CDecimalEquals((CDecimal*)v, MM_One)) {
-    buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
-    printf("A7: %ld %s\n",(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
-    RELEAZEN(buf);}
-  RELEAZEN(o); RELEAZEN(error);
-  // Decode Z->1, "K" une chaine, T->0 : ok
+//memmove(src->buf+18, "bda18000", 8);
+  // Decode Z->1, KKK pas une chaine
+  err+= _testError(src, "MSTE-30-", 6);
   MSBIndex(src, 36)= '"';
   MSBIndex(src, 38)= '"';
-  o= MSTECreateRootObjectFromBuffer(src, nil, &error);
-  v= CDictionaryObjectForKey(error, (id)ke);
-  d= CDictionaryObjectForKey(error, (id)kd);
-  if (error) {
-    buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
-    printf("A9: %ld %s\n",(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
-    RELEAZEN(buf);}
-  RELEAZEN(o); RELEAZEN(error);
+  // Decode Z->1, "K" une chaine, T->0 : ok
+  err+= _testError(src, NULL, 7);
   // End
-  RELEAZEN(ke); RELEAZEN(kd);
+  RELEAZEN(_ke); RELEAZEN(_kd);
 //printf("SZ %lu %lu\n",sizeof(float),sizeof(double));
   return err;
   }
@@ -83,7 +69,7 @@ static inline int _decode(char *ssrc, id ret)
   {
   int err= 0;
   CDictionary *error; CBuffer *src,*buf; id ke,kd,v,d;
-  id o;
+  id o,s;
 printf("B0: %s\n",ssrc);
   src= CCreateBufferWithBytes(ssrc, strlen(ssrc));
   o= MSTECreateRootObjectFromBuffer(src, nil, &error);
@@ -96,8 +82,16 @@ printf("B0: %s\n",ssrc);
     printf("B1: %ld %s\n",(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
     RELEAZEN(ke); RELEAZEN(o); RELEAZEN(buf);}
   else if (!ISEQUAL(ret, o)) {
-    printf("B2: Bad result for %s\n",ssrc); err++;}
-  RELEAZEN(src); RELEAZEN(error); RELEAZEN(o);
+    s= (id)MSSCreate(NULL);
+    if (ISEQUAL(ISA(o), ISA(s))) {
+      buf= CCreateBufferWithString((CString*)o, NSUTF8StringEncoding);
+      printf("B2: %s\n",CBufferCString(buf));
+      RELEAZEN(buf);}
+    RELEAZEN(s);
+    printf("B3: Bad result for %s\n",ssrc); err++;}
+  RELEAZEN(src);
+  RELEAZEN(error);
+  RELEAZEN(o);
   return err;
   }
 
@@ -107,28 +101,39 @@ int mscore_mste_validate(void)
   id o1; char b[1024]; MSUInt col; CBuffer *buf= NULL;
 
   err+= _test();
-  err+= _decode("[\"MSTE0101\",6,\"CRC00000000\",0,0]",nil);
-  err+= _decode("[\"MSTE0101\",7,\"CRC00000000\",0,0,0]",MSTENull);
-  err+= _decode("[\"MSTE0101\",8,\"CRC00000000\",1,\"FirstClass\",0,1]",MSTETrue);
-  err+= _decode("[\"MSTE0101\",9,\"CRC00000000\",1,\"FirstClass\",1,\"OneKey\",2]",MSTEFalse);
+  err+= _decode("[\"MSTE0101\",5,\"CRCac1d7833\",0,0]",nil);
+  err+= _decode("[\"MSTE0101\",6,\"CRC2709142b\",0,0,0]",MSTENull);
+  err+= _decode("[\"MSTE0101\",7,\"CRCb8b8b932\",1,\"FirstClass\",0,1]",MSTETrue);
+  err+= _decode("[\"MSTE0101\",8,\"CRC2fe08843\",1,\"FirstClass\",1,\"OneKey\",2]",MSTEFalse);
+
   o1= (id)CCreateDecimalFromUTF8String("12.34");
-  err+= _decode("[\"MSTE0101\",9,\"CRC00000000\",1,\"FirstClass\",1,\"OneKey\",3,12.34]",o1);
-  err+= _decode("[\"MSTE0101\",9,\"CRC00000000\",1,\"FirstClass\",1,\"OneKey\",3,\"12.34\"]",o1);
+  err+= _decode("[\"MSTE0101\",9,\"CRCe52c2946\",1,\"FirstClass\",1,\"OneKey\",3,12.34]",o1);
+  err+= _decode("[\"MSTE0101\",9,\"CRC63ee54c2\",1,\"FirstClass\",1,\"OneKey\",3,\"12.34\"]",o1);
   RELEAZEN(o1);
+
   o1= (id)MSSCreate("My beautiful string éè");
-  err+= _decode("[\"MSTE0101\",9,\"CRC00000000\",1,\"FirstClass\",1,\"OneKey\",4,\"My beautiful string éè\"]",o1);
+  err+= _decode("[\"MSTE0101\",9,\"CRC3108fd09\",1,\"FirstClass\",1,\"OneKey\",4,\"My beautiful string éè\"]",o1);
   RELEAZEN(o1);
+
   o1= (id)MSSCreate("Json \\a/b\"cÆ"); // Json \a/b"cÆ
   buf= CCreateBufferWithString((CString*)o1, NSUTF8StringEncoding);
 //printf("B %s\n",CBufferCString(buf));
   RELEAZEN(buf);
-  err+= _decode("[\"MSTE0101\",9,\"CRC00000000\",1,\"FirstClass\",1,\"OneKey\",4,\"Json \\\\a\\/b\\\"c\\u00C6\"]",o1);
+//["MSTE0101",9,"CRCc8e768a6",1,"FirstClass",1,"OneKey",4,"Json \\a\/b\"c\u00C6"]
+  err+= _decode("[\"MSTE0101\",9,\"CRCc8e768a6\",1,\"FirstClass\",1,\"OneKey\",4,\"Json \\\\a\\/b\\\"c\\u00C6\"]",o1);
   RELEAZEN(o1);
+
+  o1= (id)MSSCreate("Æ?"); // Badly-formed last character
+//["MSTE0101",7,"CRC609231cb",0,0,4,"\u00C6\u"]
+  err+= _decode("[\"MSTE0101\",7,\"CRC609231cb\",0,0,4,\"\\u00C6\\u\"]",o1);
+  RELEAZEN(o1);
+
   o1= (id)CCreateDateFromYMD(2001, 1, 1);
-  err+= _decode("[\"MSTE0101\",9,\"CRC00000000\",1,\"FirstClass\",1,\"OneKey\",5,978307200]",o1);
+  err+= _decode("[\"MSTE0101\",9,\"CRCfa465229\",1,\"FirstClass\",1,\"OneKey\",5,978307200]",o1);
   RELEAZEN(o1);
+
   o1= (id)CCreateColor(1, 2, 3, 4); col= (1 << 16) | (2 << 8) | (3 << 0) | ((255U-4U) << 24);
-  sprintf(b, "[\"MSTE0101\",7,\"CRC00000000\",0,0,6,%u]",col);
+  sprintf(b, "[\"MSTE0101\",7,\"CRC609231cb\",0,0,6,%u]",col);
   err+= _decode(b,o1);
   RELEAZEN(o1);
 

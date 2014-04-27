@@ -47,6 +47,7 @@
   CArrayFlags _flags;
 }
 
+- (id)initWithObject:(id)o;
 - (id)initWithObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
 - (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
 

@@ -308,7 +308,7 @@ NSUInteger CArrayIndexOfObject(const CArray *self, const id object, NSUInteger s
     register id *p = self->pointers;
     register NSUInteger end = MIN(start + count, self->count);
     for (i = start; i < end; i++) {
-      if (object == p[i] || ISEQUAL(object, p[i])) return i;}
+      if (object == p[i] || ISEQUAL(p[i], object)) return i;}
   }
   return NSNotFound;
 }

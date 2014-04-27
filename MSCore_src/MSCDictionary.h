@@ -71,6 +71,9 @@ MSExport id CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
 MSExport id CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
 MSExport id CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
 
+MSExport CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
+MSExport CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
+
   MSExport void       CDictionaryFreeInside(id self);
   MSExport id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied);
 //Already defined in MSCObject.h

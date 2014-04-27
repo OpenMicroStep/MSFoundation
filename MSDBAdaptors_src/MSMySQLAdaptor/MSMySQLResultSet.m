@@ -55,7 +55,7 @@
 	if ((self = [super initWithDatabaseConnection:connection])) 
 	{
 		NSUInteger count = mysql_num_fields(result) ;
-		MSArray *keys = MSCreateArray(count) ;
+		MSMutableArray *keys= [[MSMutableArray alloc] initWithCapacity:count noRetainRelease:YES nilItems:NO];
 		MYSQL_FIELD *field;
 
 		if (!keys) { RELEASE(self) ; return nil ; }
@@ -65,7 +65,7 @@
 			if (!field->name || !*field->name) { RELEASE(keys) ; RELEASE(self) ; return nil ; }
 				NSString *s = [ALLOC(NSString) initWithCString:field->name encoding:NSUTF8StringEncoding] ;
 				if (!s) { RELEASE(keys) ; RELEASE(self) ; return nil ; }
-				MSAAddUnretained(keys, s) ;
+        [keys addObject:s];
 		}
 
 		_columnsDescription = RETAIN([MSRowKeys rowKeysWithKeys:keys]) ;
@@ -108,7 +108,7 @@
 {
 	if (_result) {
 		if (column <  MSACount(_columnsDescription->_keys)) {
-			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, column);
+			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, (MSUInt)column);
 			switch (field->type) {
 				case MYSQL_TYPE_DECIMAL:
 				case MYSQL_TYPE_TINY:
@@ -183,7 +183,7 @@
 		} \
 		else \
 		{ \
-			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, column); \
+			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, (MSUInt)column); \
 			switch (field->type) { \
 				case MYSQL_TYPE_DECIMAL: \
 				case MYSQL_TYPE_TINY: \
@@ -196,7 +196,7 @@
 				case MYSQL_TYPE_BIT: \
 				case MYSQL_TYPE_NEWDECIMAL:{ \
 					char *stopString; \
-					INTERNAL_TYPE value = CONVERT_FUNCTION(_row[column], &stopString, 10); \
+					INTERNAL_TYPE value = (INTERNAL_TYPE)CONVERT_FUNCTION(_row[column], &stopString, 10); \
 					if ((LEFT == RIGHT) || (value >= LEFT && value <= RIGHT)) { \
 						if (aValue) *aValue = (TYPE)value ; \
 						error = MSFetchOK ; good = YES ; \
@@ -217,8 +217,8 @@
 	return good ; \
 }
 
-long  MSStrtod(const char *StringPtr, char **stopString, int unusedBase) { return strtod(StringPtr, stopString) ;} 
-float MSStrtof(const char *StringPtr, char **stopString, int unusedBase) { return strtof(StringPtr, stopString) ;} 
+static float  MSStrtof(const char *StringPtr, char **stopString, int unusedBase) { return strtof(StringPtr, stopString) ; unusedBase= 0; }
+static double MSStrtod(const char *StringPtr, char **stopString, int unusedBase) { return strtod(StringPtr, stopString) ; unusedBase= 0; }
 
 _GET_NUMBER_VALUE_METHOD(Char, MSChar, -128, 127, int, strtol)
 _GET_NUMBER_VALUE_METHOD(Byte, MSByte, 0, 256, int, strtoul)
@@ -245,7 +245,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 		}
 		else 
 		{
-			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, column);
+			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, (MSUInt)column);
 			switch (field->type) 
 			{
 				case MYSQL_TYPE_TIMESTAMP:
@@ -258,8 +258,11 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 					MYSQL_TIME l_time ;
 					int was_cut ;
 				
-					str_to_datetime(_row[column], l, &l_time, /*uint flags*/0, &was_cut);
-					if (aDate) *aDate = timeIntervalFromDate(l_time.year, l_time.month, l_time.day, l_time.hour, l_time.minute, l_time.second) ;
+					str_to_datetime(_row[column], (MSUInt)l, &l_time, /*uint flags*/0, &was_cut);
+					if (aDate) {
+            CDate *d= CCreateDateFromYMDHMS(l_time.year, l_time.month, l_time.day, l_time.hour, l_time.minute, l_time.second);
+            *aDate= CDateSecondsBetweenDates(d, CDate20010101);
+            RELEAZEN(d);}
 					error = MSFetchOK ; good = YES ;
 					break ;
 				}
@@ -293,7 +296,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 				case MYSQL_TYPE_VAR_STRING:
 				case MYSQL_TYPE_STRING:{
 					const unsigned char *s = (unsigned char *)_row[column] ;
-					unsigned l ;
+					NSUInteger l ;
 					if (s && (l = strlen((char *)s))) {
 						if ((good = MSGetSqlDateFromBytes((void *)s,l, aDate))) { error = MSFetchOK ; }
 						else { error = MSNotConverted ; } 
@@ -343,7 +346,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 		}
 		else 
 		{
-			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, column);
+			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, (MSUInt)column);
 			switch (field->type) {
 				case MYSQL_TYPE_DECIMAL:
 				case MYSQL_TYPE_TINY:
@@ -370,12 +373,12 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 				case MYSQL_TYPE_NEWDATE:{
 					const unsigned char *s = (unsigned char *)_row[column] ;
 					if (s) {
-						unsigned l = strlen((char *)s) ;
+						NSUInteger l = strlen((char *)s) ;
 						if (l) {
 							// we assume we have a UTF8 string
 							if (aString) { 
-								good = CUnicodeBufferAppendUTF8Bytes(aString, (void *)s, (NSUInteger)l) ;
-								if (!good) { error = MSFetchMallocError ; }
+								CStringAppendBytes((CString*)aString, NSUTF8StringEncoding, (void *)s, l) ;
+                good= YES;
 							}
 						}
 						if (good) { error = MSFetchOK ; }
@@ -410,7 +413,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 		}
 		else 
 		{
-			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, column);
+			MYSQL_FIELD *field = mysql_fetch_field_direct(_result, (MSUInt)column);
 			switch (field->type) {
 				case MYSQL_TYPE_DECIMAL:
 				case MYSQL_TYPE_TINY:
@@ -441,8 +444,8 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 						unsigned long l = lengths[column] ;
 						if (l) {
 							if (aBuffer) { 
-								good = CBufferAppendBytes(aBuffer, bytes, (NSUInteger)l) ;
-								if (!good) { error = MSFetchMallocError ; }
+								CStringAppendBytes((CString*)aBuffer, NSUTF8StringEncoding, bytes, l) ;
+                good= YES;
 							}
 						}
 						if (good) { error = MSFetchOK ; }
@@ -472,7 +475,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 			MYSQL_FIELD *field;
 			if (!_row[column]) return nil ;
 			
-			field = mysql_fetch_field_direct(_result, column);
+			field = mysql_fetch_field_direct(_result, (MSUInt)column);
 			switch (field->type) {
 				case MYSQL_TYPE_FLOAT:
 					return [NSNumber numberWithDouble:strtof(_row[column], &stopString)] ;
@@ -495,7 +498,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 					MYSQL_TIME l_time ;
 					int was_cut ;
 					
-					str_to_datetime(_row[column], l, &l_time, /*uint flags*/0, &was_cut);
+					str_to_datetime(_row[column], (MSUInt)l, &l_time, /*uint flags*/0, &was_cut);
 					return [MSDate dateWithYear:l_time.year month:l_time.month day:l_time.day hour:l_time.hour minute:l_time.minute second:l_time.second] ;
 				}
 				case MYSQL_TYPE_VARCHAR:
@@ -503,7 +506,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 				case MYSQL_TYPE_STRING:{
 					const unsigned char *s = (unsigned char *)_row[column] ;
 					if (s) {
-						unsigned l = strlen((char *)s) ;
+						NSUInteger l = strlen((char *)s) ;
 						if (l) { return [NSString stringWithCString:(char *)s encoding:NSUTF8StringEncoding] ; }
 						return @"" ;
 					}

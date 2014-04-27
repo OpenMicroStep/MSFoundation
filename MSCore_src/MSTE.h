@@ -73,6 +73,7 @@
 #define MSTE_USER_CLASS    50
 
 // MSTE constants as objects. Can be compared with ==
+// Warning: Follow the retain/release rule.
 MSExport id MSTENull;
 MSExport id MSTETrue;
 MSExport id MSTEFalse;

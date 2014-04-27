@@ -41,7 +41,8 @@
  
  */
 
-#import <MSFoundation/MSFoundation.h>
+//#import <MSFoundation/MSFoundation.h>
+#import "_MSDBGenericConnection.h"
 #import <my_global.h>
 #import <mysql.h>
 

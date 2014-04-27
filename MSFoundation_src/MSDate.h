@@ -70,6 +70,7 @@ Eric Baradat :  k18rt@free.fr
               hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec;
 - (id)initWithSecondsSinceNow:(int)secsToBeAddedToNow;
 - (id)initWithSeconds:(int)secs sinceDate:(NSDate*)d;
+- (id)initWithMSTimeIntervalSinceReferenceDate:(MSTimeInterval)secsToBeAdded;
 
 - (BOOL)isEqualToDate:(NSDate*)o;
 
@@ -114,6 +115,8 @@ Eric Baradat :  k18rt@free.fr
 - (id)dateOfFirstDayOfWeek;
 - (id)dateOfLastDayOfWeek;
 - (id)dateWithoutTime;
+
+- (NSString*)descriptionWithCalendarFormat:(NSString*)format;
 
 @end
 

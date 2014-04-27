@@ -75,7 +75,7 @@ static Class __MSBufferClass= Nil;
   return AUTORELEASE((id)CCreateBufferWithBytes((void*)[data bytes], [data length]));
 }
 
-+ (id)bufferWithBytes:(void *)bytes length:(NSUInteger)length
++ (id)bufferWithBytes:(const void *)bytes length:(NSUInteger)length
 {
   return AUTORELEASE((id)CCreateBufferWithBytes(bytes, length));
 }
@@ -249,6 +249,7 @@ static Class __MSBufferClass= Nil;
 
 - (NSUInteger)length { return _length; }
 - (const void *)bytes { return (const void *)_buf; }
+- (MSByte*)cString { return CBufferCString((CBuffer*)self); }
 
 // - (NSString *)description;
 

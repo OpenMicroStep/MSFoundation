@@ -38,11 +38,23 @@
  
  */
 
-@interface MSString : NSObject
+@interface NSString (MSAddendum)
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)allowLossyConversion;
+@end
+
+@interface MSString : NSString
 {
 @private
   unichar*   _buf;
   NSUInteger _length;
   NSUInteger _size;
 }
+@end
+
+@interface MSMutableString : MSString
+{
+@private
+}
++ (id)stringWithCapacity:(NSUInteger)capacity;
+- (id)initWithCapacity:(NSUInteger)capacity;
 @end

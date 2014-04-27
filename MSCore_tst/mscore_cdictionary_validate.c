@@ -2,12 +2,12 @@
 
 #include "MSCore_Private.h"
 #include "mscore_validate.h"
-
+/*
 static inline void cdictionary_print(CDictionary *d)
   {
   fprintf(stdout, "%lu\n",WLU(CDictionaryCount(d)));
   }
-
+*/
 static inline int cdictionary_create(void)
   {
   int err= 0;

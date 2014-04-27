@@ -218,7 +218,7 @@
         // only one transaction at a time
         MSODBCTransaction *transaction = [ALLOC(MSODBCTransaction) initWithDatabaseConnection:self] ;
         if (transaction) {
-            CArrayAddObjectWithoutRetain(&_operations, transaction) ;
+            [_operations addObject:transaction] ;
             return transaction;
         }
     }
@@ -231,7 +231,7 @@
     resultSet = [ALLOC(MSODBCResultSet) initWithStatement:statement connection:self] ;
     if (resultSet) {
         // === WARNING === the connection does not retain its operations...
-        CArrayAddObjectWithoutRetain(&_operations, resultSet) ;
+        [_operations addObject:resultSet] ;
         return AUTORELEASE(resultSet) ;
     }
     return nil ;

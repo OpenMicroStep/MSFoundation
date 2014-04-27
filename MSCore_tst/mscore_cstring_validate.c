@@ -55,12 +55,12 @@ static inline int unichar_test(void)
   RELEASE(a);
   return err;
   }
-
+/*
 static inline void cstring_print(CString *d)
   {
   fprintf(stdout, "%lu\n",WLU(CStringLength(d)));
   }
-
+*/
 static inline int cstring_create(void)
   {
   int err= 0;
