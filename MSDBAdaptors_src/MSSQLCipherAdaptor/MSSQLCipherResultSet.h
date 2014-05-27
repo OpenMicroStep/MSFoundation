@@ -40,7 +40,7 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-#import <MSFoundation/MSFoundation.h>
+//#import <MSFoundation/MSFoundation.h>
 #ifdef WO451
 #import "sqlcipher.subproj/sqlite3.h"
 #else

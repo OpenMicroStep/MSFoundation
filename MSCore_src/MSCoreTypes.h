@@ -144,6 +144,8 @@ typedef unsigned char BOOL;
 #define ABS(A)  ({ __typeof__(A) __a= (A); __a < 0 ? -__a : __a; })
 #endif
 
+typedef double NSTimeInterval;
+
 typedef struct NSRangeStruct {
   NSUInteger location;
   NSUInteger length;}
@@ -214,5 +216,37 @@ MSByteOrder;
 enum {
   NSDOSStringEncoding= 0x20000 // we add a string encoding for DOS
 };
+
+///// Definition of mutexes
+#ifdef WIN32
+
+#define mutex_t                          CRITICAL_SECTION
+#define mutex_init(mutex)                InitializeCriticalSection(&mutex)
+#define mutex_lock(mutex)                EnterCriticalSection(&mutex)
+#define mutex_trylock(mutex)             TryEnterCriticalSection(&mutex)
+#define mutex_unlock(mutex)              LeaveCriticalSection(&mutex)
+#define mutex_delete(mutex)              DeleteCriticalSection(&mutex)
+
+#else
+
+#define mutex_t                          pthread_mutex_t
+#define mutex_init(mutex)                pthread_mutex_init(&mutex, NULL)
+#define mutex_lock(mutex)                pthread_mutex_lock(&mutex)
+#define mutex_trylock(mutex)             !pthread_mutex_trylock(&mutex)
+#define mutex_unlock(mutex)              pthread_mutex_unlock(&mutex)
+#define mutex_delete(mutex)              pthread_mutex_destroy(&mutex)
+
+typedef int SOCKET;
+
+#endif
+
+///// Definition of MSFileHandle
+#ifdef WIN32
+#define MSFileHandle HANDLE
+#define MSInvalidFileHandle INVALID_HANDLE_VALUE
+#else
+#define MSFileHandle int
+#define MSInvalidFileHandle -1
+#endif
 
 #endif // MSCORE_TYPES_H

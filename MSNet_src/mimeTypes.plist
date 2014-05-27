@@ -1,0 +1,22 @@
+{
+	json = "application/json" ;
+	jpg  = "image/jpeg" ;
+	jpeg = "image/jpeg" ;
+	png  = "image/png" ;
+	zip  = "application/zip" ;
+	exe  = "application/octet-stream" ;
+	xml  = "text/xml" ;
+	txt  = "text/plain" ;
+	js   = "text/javascript" ;
+	css  = "text/css" ;
+	gif  = "image/gif" ;
+	rtf  = "application/rtf" ;
+	pdf  = "application/pdf" ; 
+	html = "text/html" ;
+	htm  = "text/html" ;
+	gz   = "application/x-gzip" ;
+	doc  = "application/msword" ;
+	xls  = "application/vnd.ms-excel" ;
+	docx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document.xml" ;
+	xlxs = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.xml" ;
+}

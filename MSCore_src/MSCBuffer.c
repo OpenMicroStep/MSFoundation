@@ -198,6 +198,7 @@ NSUInteger CBufferIndexOfCStringInRange(const CBuffer *self, char *cString, NSRa
 static inline void _append(CBuffer *self, const void *ptr, NSUInteger length)
 {
   if (self && ptr && length) {
+    // TODO: Raise sur le Grow
     if (self->flags.noFree) { // immutable
       MSReportError(MSInvalidArgumentError, MSFatalError, MSIndexOutOfRangeError,
         "CBufferAppend...(): try to append on immutable buffer.");

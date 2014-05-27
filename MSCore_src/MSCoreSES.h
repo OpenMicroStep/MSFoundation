@@ -55,8 +55,8 @@
 typedef unichar (*CHAI)(const void *, NSUInteger*);
 #define InvalidCHAI (CHAI)0
 
-MSExport unichar utf8ChaiN          (const void *src, NSUInteger *pos);
-MSExport unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos);
+MSExport unichar utf8ChaiN          (         const void *src, NSUInteger *pos);
+MSExport unichar utf8JsonStringChaiN(         const void *src, NSUInteger *pos);
 // For UTF8 and UTF8 JSON String encoding.
 // These chai returns 0x00 on badly-formed character. And pos-1 is the error position.
 // if you're not sure that the string is well-formed
@@ -115,13 +115,14 @@ MSExport SES SESInsensitiveCommonPrefix(SES src, SES comparator);
 // Retourne en tant que SES sur src le plus grand préfixe entre les deux chaînes.
 // Retourne MSInvalidSES si pas de préfixe commun.
 
-//MSExport SES SESExtractPart(SES src, CUnicharChecker matchingChar);
-// TODO: Need SESINDEXP
+MSExport SES SESExtractPart(SES src, CUnicharChecker matchingChar);
+// TODO: Need utf8 SESIndexP NOT TESTED
 MSExport SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
 // Si 'leftSpaces' est NULL, il est remplacé par CUnicharIsSpace.
 // Retourne un SES de 'src' sans les 'leftSpaces', avec les caractères qui matchent
 // avec 'matchingChar'.
 // Ex: ('  123zehgf',CUnicharIsDigit,NULL) -> '123'
+SES SESExtractInteger(SES ses, MSLong min, MSLong max, CUnicharChecker leftSpaces, MSLong *valuePtr);
 
 #define CAIOK(X)       ((X) != InvalidCHAI)
 #define SESOK(X)       ({SES __x__= (X);  \

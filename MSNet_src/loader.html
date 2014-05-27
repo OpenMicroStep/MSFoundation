@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C/DTD HTML 4.0 Transitional//EN">
+<html>
+    <head>
+        <META HTTP-EQUIV = "Pragma" CONTENT="no-cache" />
+        <title>MASH Server</title>
+        <script type="text/javascript">
+
+            var contextID = "%__CONTEXTID__%";
+            var path = window.location.pathname;
+            var pathResources = path + "resources" ;
+
+            ///////////////
+            // Scripts chargement JS
+            (function (name, definition, context) {
+             if (typeof context['module'] != 'undefined' && context['module']['exports']) context['module']['exports'] = definition()
+             else if (typeof context['define'] != 'undefined' && context['define'] == 'function' && context['define']['amd']) define(name, definition)
+             else context[name] = definition()
+             })('$script', function () {
+                var doc = document
+                , head = doc.getElementsByTagName('head')[0]
+                , validBase = /^https?:\/\//
+                , list = {}, ids = {}, delay = {}, scriptpath
+                , scripts = {}, s = 'string', f = false
+                , push = 'push', domContentLoaded = 'DOMContentLoaded', readyState = 'readyState'
+                , addEventListener = 'addEventListener', onreadystatechange = 'onreadystatechange'
+                
+                function every(ar, fn) {
+                for (var i = 0, j = ar.length; i < j; ++i) if (!fn(ar[i])) return f
+                return 1
+                }
+                function each(ar, fn) {
+                every(ar, function(el) {
+				      return !fn(el)
+                      })
+                }
+                
+                if (!doc[readyState] && doc[addEventListener]) {
+                doc[addEventListener](domContentLoaded, function fn() {
+                                      doc.removeEventListener(domContentLoaded, fn, f)
+                                      doc[readyState] = 'complete'
+                                      }, f)
+                doc[readyState] = 'loading'
+                }
+                
+                function $script(paths, idOrDone, optDone) {
+                paths = paths[push] ? paths : [paths]
+                var idOrDoneIsDone = idOrDone && idOrDone.call
+                , done = idOrDoneIsDone ? idOrDone : optDone
+                , id = idOrDoneIsDone ? paths.join('') : idOrDone
+                , queue = paths.length
+                function loopFn(item) {
+                return item.call ? item() : list[item]
+                }
+                function callback() {
+                if (!--queue) {
+                list[id] = 1
+                done && done()
+                for (var dset in delay) {
+                every(dset.split('|'), loopFn) && !each(delay[dset], loopFn) && (delay[dset] = [])
+                }
+                }
+                }
+                setTimeout(function () {
+                           each(paths, function (path) {
+                                if (scripts[path]) {
+                                id && (ids[id] = 1)
+                                return scripts[path] == 2 && callback()
+                                }
+                                scripts[path] = 1
+                                id && (ids[id] = 1)
+                                create(!validBase.test(path) && scriptpath ? scriptpath + path + '.js' : path, callback)
+                                })
+                           }, 0)
+                return $script
+                }
+                
+                function create(path, fn) {
+                var el = doc.createElement('script')
+                , loaded = f
+                el.onload = el.onerror = el[onreadystatechange] = function () {
+                if ((el[readyState] && !(/^c|loade/.test(el[readyState]))) || loaded) return;
+                el.onload = el[onreadystatechange] = null
+                loaded = 1
+                scripts[path] = 2
+                fn()
+                }
+                el.async = 1
+                el.src = path
+                head.insertBefore(el, head.firstChild)
+                }
+                
+                $script.get = create
+                
+                $script.order = function (scripts, id, done) {
+                (function callback(s) {
+                 s = scripts.shift()
+                 if (!scripts.length) $script(s, id, done)
+                 else $script(s, callback)
+                 }())
+                }
+                
+                $script.path = function (p) {
+                scriptpath = p
+                }
+                $script.ready = function (deps, ready, req) {
+                deps = deps[push] ? deps : [deps]
+                var missing = [];
+                !each(deps, function (dep) {
+				      list[dep] || missing[push](dep);
+                      }) && every(deps, function (dep) {return list[dep]}) ?
+                ready() : !function (key) {
+                delay[key] = delay[key] || []
+                delay[key][push](ready)
+                req && req(missing)
+                }(deps.join('|'))
+                return $script
+                }
+                return $script
+				}, this);
+			// End Fonctions chargement JS
+			//////////////
+            
+			////////////////////////
+            // Fonction de chargement de CSS
+            loadFile = function(fileName) {
+                // extraire filetype
+                var tempFileName = fileName.split(".");
+                var fileType = tempFileName[tempFileName.length - 1];
+                
+                if (fileType=="js"){ //if filename is a external JavaScript file
+                    var fileref=document.createElement('script')
+                    fileref.setAttribute("type","text/javascript")
+                    fileref.setAttribute("src", fileName)
+                } else {
+                    if (fileType=="css"){ //if filename is an external CSS file
+                        var fileref=document.createElement("link")
+                        fileref.setAttribute("rel", "stylesheet")
+                        fileref.setAttribute("type", "text/css")
+                        fileref.setAttribute("href", fileName)
+                    }
+                }
+                
+                // Ajoute page
+                if (typeof fileref!="undefined") {
+                    document.getElementsByTagName("head")[0].appendChild(fileref)
+                }
+            }
+            // End fonctions chargement CSS
+            //////////////////////
+            
+	    	//////////////////
+	    	// Chargement Page
+            
+            loader = function() {
+                
+                // Montre Chargeur
+                document.getElementById('loading-mask').style.display = 'block';
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('loading').style.visibility = 'visible';
+                
+                // Chargement CSS (async)
+                loadFile(pathResources + "/css/ext-all.css");
+                loadFile(pathResources + "/css/forms.css");
+                loadFile(pathResources + "/css/planning.css");
+                
+                // Chargement des scripts dans l'order
+                $script(pathResources + "/js/raphael-min.js", 'raphael');
+                $script.ready('raphael', function() {
+                              $script(pathResources + "/js/colorpicker.js", 'colorpicker');
+                });
+                $script.ready('colorpicker', function() {
+                              $script(pathResources + '/js/MSFunctions.js', 'msfunctions');
+                              });
+                $script.ready('msfunctions', function() {
+                              $script(pathResources + '/js/MSJSContainers.js', 'msjscontainer');
+                              });
+                $script.ready('msjscontainer', function() {
+                              $script(pathResources + '/js/MSTE.js', 'mste');
+                              });
+                $script.ready('mste', function() {
+                              $script(pathResources + '/js/ext-all.js', 'extjs');
+                              });
+                $script.ready('extjs', function() {
+                              $script(pathResources + '/js/app-all.js', 'wib');
+                });
+            }
+			// End chargement Page
+	    	//////////////////
+        </script>
+    </head>
+    <body style="width: 100%; height: 100%; margin: 0px; " onload="loader()">
+        <div id="loading-mask"></div>
+        <div id="loading" style="visibility: hidden">
+            <div class="loading-indicator">
+                Chargement...
+            </div>
+        </div>
+    </body>
+</html>

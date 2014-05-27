@@ -15,7 +15,7 @@ static inline int testFoundation(BOOL alone)
   {
   int err= 0;
   if (alone)
-    printf("********** Test of the Microstep MSFoundation Library **********\n\n");
+    printf("******* Test of the Microstep MSFoundation Framework %s *******\n\n",[[MSDate date] UTF8String]);
   err= testCore(NO) +
        msfoundation_array_validate()      +
        msfoundation_buffer_validate()     +
@@ -28,8 +28,8 @@ static inline int testFoundation(BOOL alone)
        0;
   if (alone) {
     if (!err)
-      printf("\n********** ALL THE TESTS ARE SUCCESSFUL !!!           **********\n\n");
+      printf("\n********************    ALL THE TESTS ARE SUCCESSFUL !!!    ********************\n\n");
     else
-      printf("\n** FAIL *** FAIL *** FAIL *** FAIL *** FAIL *** FAIL *** FAIL **\n\n");}
+      printf("\n**** FAIL ***** FAIL ***** FAIL ***** FAIL ***** FAIL ***** FAIL ***** FAIL ****\n\n");}
   return err;
   }

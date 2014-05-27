@@ -43,6 +43,7 @@
  
  */
 
+// MSDate sont exprimées dans le referentiel LOCAL.
 // First valid date is 1/1/1
 
 #ifndef MSCORE_DATE_H
@@ -84,7 +85,6 @@ MSExport CDate *CCreateDateFromYMDHMS(
   unsigned hour, unsigned minute, unsigned second);
 MSExport CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s);
 
-//CDate *CCreateDateNowGMT(); // Useful ????
 MSExport CDate *CCreateDateNow  (void);        // With time
 MSExport CDate *CCreateDateToday(void);        // No time
 MSExport CDate *CCreateDayDate  (CDate *self); // No time
@@ -128,6 +128,24 @@ MSExport void CDateSetWeek     (CDate *self, unsigned week);
 MSExport void CDateSetDay      (CDate *self, unsigned day);
 MSExport void CDateSetDayOfYear(CDate *self, unsigned doy);
 
+// GMT
+MSExport NSTimeInterval GMTNow(void);
+MSExport NSTimeInterval GMTFromYMDHMS(
+  unsigned year, unsigned month,  unsigned day,
+  unsigned hour, unsigned minute, unsigned second);
+  // The date is supposed valid. If you're not sure, use the CVerify... fcts.
+  // YMDHMS are expressed in GMT.
+  // If YMDHMS are in Local, use:
+  //   CDate *d= CCreateDateFromYMDHMS();
+  //   NSTimeInterval dgmt;
+  //   dgmt= GMTFromLocal(CDateSecondsBetweenDates(CDate20010101,d));
+  //   or
+  //   dgmt= GMTFromLocal(d->interval);
+// Changement de référentiel Local <-> GMT
+MSExport NSTimeInterval GMTFromLocal(MSTimeInterval t); // TODO: How on windows ?
+MSExport MSTimeInterval GMTToLocal(NSTimeInterval t);
+
 // TODO: description functions
+MSExport CString *CCreateDateDescription(CDate *self); // %Y/%m/%d-%H:%M:%S
 
 #endif

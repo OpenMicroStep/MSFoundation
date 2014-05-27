@@ -1,0 +1,93 @@
+/*
+ 
+ MHContext.m
+ 
+ This file is is a part of the MicroStep Application Server over Http Framework.
+ 
+ Initial copyright LOGITUD Solutions (logitud@logitud.fr) since 2012
+ 
+ Herve Malaingre : herve@malaingre.com
+ Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
+ 
+ 
+ This software is a computer program whose purpose is to [describe
+ functionalities and technical features of your software].
+ 
+ This software is governed by the CeCILL-C license under French law and
+ abiding by the rules of distribution of free software.  You can  use, 
+ modify and/ or redistribute the software under the terms of the CeCILL-C
+ license as circulated by CEA, CNRS and INRIA at the following URL
+ "http://www.cecill.info". 
+ 
+ As a counterpart to the access to the source code and  rights to copy,
+ modify and redistribute granted by the license, users are provided only
+ with a limited warranty  and the software's author,  the holder of the
+ economic rights,  and the successive licensors  have only  limited
+ liability. 
+ 
+ In this respect, the user's attention is drawn to the risks associated
+ with loading,  using,  modifying and/or developing or reproducing the
+ software by the user in light of its specific status of free software,
+ that may mean  that it is complicated to manipulate,  and  that  also
+ therefore means  that it is reserved for developers  and  experienced
+ professionals having in-depth computer knowledge. Users are therefore
+ encouraged to load and test the software's suitability as regards their
+ requirements in conditions enabling the security of their systems and/or 
+ data to be ensured and,  more generally, to use and operate it in the 
+ same conditions as regards security. 
+ 
+ The fact that you are presently reading this means that you have had
+ knowledge of the CeCILL-C license and that you accept its terms.
+ 
+ A Special homage to Steve Jobs who permits the Objective-C technology
+ to meet the world. Without him, this years-long work should not have
+ been existing at all. Thank you Steve and rest in peace.
+ 
+ */
+
+#import "_MASHPrivate.h"
+
+static NSString *_generateNewContextID()
+{
+    MSUInt newID = fabs(floor(GMTNow())) ;
+    MSUInt addrID = (MSUInt)rand() ;
+    return [NSString stringWithFormat:@"C%04X%08X%04X", addrID & 0x0000FFFF, newID, (addrID >> 16)  & 0x0000FFFF] ;
+}
+
+@implementation MHContext
+
+- (void)dealloc
+{
+    DESTROY(_contextID) ;
+    //DESTROY(_session) ; //no release on _session
+    [super dealloc] ;
+}
+
++ (id)newRetainedContextWithRetainedSession:(MHSession *)session { return [[self alloc] initWithRetaintedSession:session] ; }
+
+- (id)initWithRetaintedSession:(MHSession *)session
+{  
+    NSString *newContextID = nil ;
+    if ([session contextCount]) {
+        newContextID = _generateNewContextID() ;
+        while ((contextForKey(newContextID))) { //verify if contextID already exists
+            newContextID = _generateNewContextID() ;
+        }
+    }
+    else {
+        //if session has no context, new context has same ID than session except first character S -> C 
+        newContextID = [NSString stringWithFormat:@"%s%@", "C", MSTrimAt([session sessionID], 1, [[session sessionID] length], CUnicharIsSolid)] ;
+    }
+    _session = session ; //no retain on _session
+    ASSIGN(_contextID, newContextID) ;
+
+    setContextForKey(self, _contextID) ;
+    [session addContext:self] ;
+
+    return self ;
+}
+
+- (NSString *)contextID { return _contextID ; }
+- (MHSession *)session { return _session ; }
+
+@end

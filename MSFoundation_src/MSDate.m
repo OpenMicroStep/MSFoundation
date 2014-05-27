@@ -44,8 +44,7 @@
 
 #define MS_DATE_LAST_VERSION 301
 
-static Class       __MSDateClass= Nil;
-static NSTimeZone *__MSDateTimeZone= nil;
+static Class __MSDateClass= Nil;
 
 #pragma mark Create functions
 
@@ -67,7 +66,6 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 {
   if ([self class] == [MSDate class]) {
     [MSDate setVersion:MS_DATE_LAST_VERSION];
-    __MSDateTimeZone= RETAIN([NSTimeZone timeZoneForSecondsFromGMT:0]);
     }
 }
 
@@ -97,6 +95,15 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
   return YMDHMS(year, month, day, h, mn, sec);
 }
 
++ (id)dateWithSecondsSinceLocalReferenceDate:(MSTimeInterval)secsToBeAdded
+{
+  return AUTORELEASE([[self alloc] initWithSecondsSinceLocalReferenceDate:secsToBeAdded]);
+}
+
++ (id)date
+{
+  return AUTORELEASE((id)CCreateDateNow());
+}
 + (id)now
 {
   return AUTORELEASE((id)CCreateDateNow());
@@ -118,21 +125,21 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
   return self;
 }
 
-- (id)initWithSecondsSinceNow:(int)secsToBeAddedToNow
+- (id)initWithSecondsSinceNow:(MSTimeInterval)secsToBeAddedToNow
 {
   CDate *d;
   [self release];
   d= CCreateDateNow();
-  CDateAddYMDHMS(d, 0, 0, 0, 0, 0, secsToBeAddedToNow);
+  d->interval+= secsToBeAddedToNow;
   return (id)d;
 }
-- (id)initWithSeconds:(int)secs sinceDate:(NSDate*)d
+- (id)initWithSeconds:(MSTimeInterval)secs sinceDate:(NSDate*)d
 {
-  self->_interval= [d secondsSinceReferenceDate]+(MSTimeInterval)secs;
+  self->_interval= [d secondsSinceLocalReferenceDate]+secs;
   return self;
 }
 
-- (id)initWithMSTimeIntervalSinceReferenceDate:(MSTimeInterval)secsToBeAdded
+- (id)initWithSecondsSinceLocalReferenceDate:(MSTimeInterval)secsToBeAdded
 {
   self->_interval= secsToBeAdded;
   return self;
@@ -153,7 +160,7 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 {
   if (o == self) return YES;
   return [o isKindOfClass:[NSDate class]] ?
-      _interval==[o secondsSinceReferenceDate]:
+      _interval==[o secondsSinceLocalReferenceDate]:
       NO;
 }
 
@@ -161,16 +168,24 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 {
   if (o == self) return YES;
   if (!o) return NO;
-  return _interval==[o secondsSinceReferenceDate];
+  return _interval==[o secondsSinceLocalReferenceDate];
 }
 
 // TODO: Voir avec MSString
 - (NSString *)toString
 {
-  return [NSString string];
+  return AUTORELEASE((MSString*)CCreateDateDescription((CDate*)self));
 }
 
-- (NSString *)description { return [self toString]; }
+- (NSString *)description
+{
+  return AUTORELEASE((MSString*)CCreateDateDescription((CDate*)self));
+}
+- (NSString *)descriptionWithLocale:(id)locale
+{
+  return AUTORELEASE((MSString*)CCreateDateDescription((CDate*)self));
+  locale= nil;
+}
 - (NSString *)displayString
 {
   return nil;
@@ -180,7 +195,7 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 
 - (NSTimeInterval)timeIntervalSinceReferenceDate
 {
-  return (NSTimeInterval)_interval;
+  return GMTFromLocal(_interval);
 }
 
 #pragma mark Informations
@@ -225,7 +240,7 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
   return r;
 }
 
-- (MSTimeInterval)secondsSinceReferenceDate
+- (MSTimeInterval)secondsSinceLocalReferenceDate
 {
   return _interval;
 }
@@ -333,8 +348,31 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 
 - (NSString*)descriptionWithCalendarFormat:(NSString*)fmt
 {
-  id d= [NSDate dateWithTimeIntervalSinceReferenceDate:_interval];
-  return [d descriptionWithCalendarFormat:fmt timeZone:__MSDateTimeZone locale:nil];
+  NSTimeInterval t= GMTFromLocal(_interval);
+  id d= [NSDate dateWithTimeIntervalSinceReferenceDate:t];
+  return [d descriptionWithCalendarFormat:fmt timeZone:nil locale:nil];
+}
+
+NSString *GMTdescriptionRfc1123(NSTimeInterval t)
+// http://tools.ietf.org/html/rfc2616 3.3 Date/Time Formats
+// TODO: Normalement il n'y a pas de tirets pour la date
+// ou alors rfc 850 mais le weekday est long
+{
+  static NSDictionary *localeDict;
+  if (!localeDict) localeDict= [[NSDictionary alloc] initWithObjectsAndKeys:
+    [NSArray arrayWithObjects:@"Sun",@"Mon",@"Tue",@"Wed",@"Thu",@"Fri",@"Sat", nil],
+    @"NSShortWeekDayNameArray",
+    [NSArray arrayWithObjects:@"Jan",@"Feb",@"Mar",@"Apr",@"May",@"Jun",@"Jul",
+      @"Aug",@"Sep",@"Oct",@"Nov",@"Dec", nil],
+    @"NSShortMonthNameArray",nil];
+  id d= [NSDate dateWithTimeIntervalSinceReferenceDate:t];
+  return [d descriptionWithCalendarFormat:@"%a, %d-%b-%Y %H:%M:%S GMT"
+    timeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]
+    locale:localeDict];
+}
+- (NSString*)descriptionRfc1123
+{
+  return GMTdescriptionRfc1123(GMTFromLocal(_interval));
 }
 
 #pragma mark NSCoding
@@ -365,9 +403,13 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 @end
 
 @implementation NSDate (MSDateAddendum)
-- (MSTimeInterval)secondsSinceReferenceDate
+- (MSTimeInterval)secondsSinceLocalReferenceDate
 {
   NSTimeInterval t= [self timeIntervalSinceReferenceDate];
-  return (MSTimeInterval)(t>=0. ? t+.5 : t-.5);
+  return GMTToLocal(t>=0 ? t+.5 :  t-.5);
+}
+- (NSString*)descriptionRfc1123
+{
+  return GMTdescriptionRfc1123([self timeIntervalSinceReferenceDate]);
 }
 @end

@@ -75,6 +75,14 @@ static inline unichar _aSimpleChaiN(const void *src, NSUInteger *pos, NSStringEn
   return _encodingStuffForEncoding(encoding)->toUnicode[c];
   }
 
+// TODO: à revoir pour les NSString -stringEnumeratorStructure
+typedef unichar (*BasicCHAI)(const void *, NSUInteger);
+MSExport unichar chaiN4BasicChai(BasicCHAI c, const void *src, NSUInteger *pos);
+unichar chaiN4BasicChai(BasicCHAI c, const void *src, NSUInteger *pos)
+{
+  return c(src,(*pos)++);
+}
+
 static unichar __MSNextstepToUnicode   [256];
 static unichar __MSAdobeSymbolToUnicode[256];
 static unichar __MSIsoLatin2ToUnicode  [256];
@@ -261,7 +269,15 @@ SES SESInsensitiveCommonPrefix(SES src, SES comparator)
 {
   return _SESPrefix(src, comparator, YES);
 }
-/*
+
+static unichar SESIndexP(SES src, NSUInteger *pos)
+  {
+  unichar u= 0;
+  if (*pos>0) {
+    NSUInteger p= --(*pos);
+    u= SESIndexN(src, &p);}
+  return u;
+  }
 SES SESExtractPart(SES src, CUnicharChecker matchingChar)
 {
   SES ret= MSInvalidSES;
@@ -275,19 +291,82 @@ SES SESExtractPart(SES src, CUnicharChecker matchingChar)
       ret.length= end-start;}}
   return ret;
 }
-*/
+
+static inline NSUInteger _go(SES src, CUnicharChecker check, NSUInteger b)
+{
+  NSUInteger pos,e= SESEnd(src);
+  for (pos= b; b < e && check(SESIndexN(src, &pos)); b= pos);
+  return b;
+}
 SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces)
 {
   SES ret= MSInvalidSES;
   if (SESOK(src) && matchingChar) {
-    NSUInteger start= SESStart(src), end= SESEnd(src), c;
+    NSUInteger start,end;
     if (!leftSpaces) leftSpaces= (CUnicharChecker)CUnicharIsSpace;
-    while (start < end) if (!leftSpaces(SESIndexN(src, &start))) break;
-    for (c= start; c < end;) if (!matchingChar(SESIndexN(src, &c))) break;
-    if (start < c) {
+    start= _go(src, leftSpaces  , SESStart(src));
+    end=   _go(src, matchingChar, start);
+    if (start < end) {
       ret=        src;
       ret.start=  start;
-      ret.length= c-start;}}
+      ret.length= end-start;}}
+  return ret;
+}
+
+// TODO: ???? For parsing
+SES SESExtractInteger(SES src, MSLong min, MSLong max, CUnicharChecker leftSpaces, MSLong *valuePtr)
+{
+  SES ret= MSInvalidSES;
+  const void *s= src.source;
+  if (SESOK(src) && s && min <= max) {
+    NSUInteger start, end= SESEnd(src);
+    if (!leftSpaces) leftSpaces= (CUnicharChecker)CUnicharIsSpace;
+    start= _go(src, leftSpaces  , SESStart(src));
+    if (start < end) {
+      BOOL negative= NO;
+      NSUInteger pos; unichar u;
+      if (min == 0 && max == 0) {
+        min= MSLongMin;
+        max= MSLongMax;}
+      pos= start; u= SESIndexN(src, &pos);
+      if (min < 0) {
+        if (u == '-') {negative= YES; start= pos;}
+        else if (u == '+') start= pos;
+        // TO DO : must we check for other blanks here (I mean before the digits)
+        }
+      pos= start; u= SESIndexN(src, &pos);
+      if (start < end && u >= (unichar)'0' && u <= (unichar)'9') {
+        NSUInteger i= start;
+        MSULong value= 0;
+        MSULong stop= 0;
+        MSULong minimum= 0;
+        BOOL worseCase= NO;
+        if (negative) {
+          if (min < 0) {
+            if (min == MSLongMin) {
+              stop= ((MSULong)MSLongMax)+1;
+              worseCase= YES;}
+            else {
+              stop= (MSULong)(-min);}
+            if (max < 0) {
+              minimum= (MSULong)-max;}}}
+        else if (max > 0) {
+          stop= (MSULong)max;
+          if (min > 0) minimum= (MSULong)min;}
+        while (i < end && value <= stop) {
+          pos= start; u= SESIndexN(src, &pos);
+					if (u < (unichar)'0' || u > (unichar)'9') break;
+          value*= 10;
+          value+= (u - (unichar)'0');
+          i++;}
+        if (i > start && value <= stop && value >= minimum) {
+          if (valuePtr) {
+            *valuePtr= (worseCase && value == stop ?
+                        MSLongMin :
+                        (negative ?
+                          -(MSLong)value :
+                           (MSLong)value));}
+            ret= MSMakeSES(s, src.chai, start, i - start, src.encoding);}}}}
   return ret;
 }
 

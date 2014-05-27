@@ -117,6 +117,7 @@
 #include <sys/ioctl.h>
 #include <sys/sysctl.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <net/if.h>
 #include <net/if_dl.h>
 #include <netinet/in.h>

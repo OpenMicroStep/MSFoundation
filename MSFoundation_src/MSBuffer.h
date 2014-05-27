@@ -70,6 +70,16 @@ Herve Malaingre : herve@malaingre.com
  
  */
 
+#define MSBAddData(X, Y) CBufferAppendData((CBuffer*)(X), (NSData*)(Y))
+static inline void CBufferAppendData(CBuffer *self, NSData *d)
+{
+  NSUInteger length= [d length];
+  if (self && length) {
+    CBufferGrow(self, length);
+    [d getBytes:(void*)(self->buf+self->length) range:NSMakeRange(0,length)];
+    self->length+= length;}
+}
+
 @interface MSBuffer : NSData
 {
 @private
@@ -124,7 +134,7 @@ Herve Malaingre : herve@malaingre.com
 //The following methods are obsolete Use: CBufferBase64[En|De]codeAndAppendBytes(b, bytes, length)
 //MSExport MSBuffer *MSBase64FromBytes(const void *bytes, NSUInteger length, BOOL encodeWithNewLines);
 //MSExport MSBuffer *MSBufferFromBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);
-MSExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);
+//MSExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length);
 
 // TODO: A mettre dans CBuffer
 MSExport MSBuffer *MSURLComponentFromBytes(void *bytes, NSUInteger length); // also converts special characters $-_.+!*'(),
@@ -166,6 +176,7 @@ MSExport MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length); // doesn't co
 - (MSUInt  )longCRC;
 - (MSUInt  )elfHash;
 - (MSUInt  )elfUppercaseHash;
+- (BOOL)containsOnlyBase64Characters;
 
 @end
 

@@ -138,14 +138,14 @@
     CArrayRemoveAllObjects((CArray*)self);
     [self addObjectsFromArray:otherArray];}
 }
-
+/*
 - (void)removeObjectsFromIndices:(NSUInteger *)indices numIndices:(NSUInteger)count
 {
   if (indices && count) {
     while (count-- > 0) {
       CArrayRemoveObjectAtIndex((CArray *)self, indices[count]);}}
 }
-
+*/
 - (void)sortUsingFunction:(NSInteger (*)(id, id, void *))comparator context:(void *)context
 {
   if (_count > 1 ) {

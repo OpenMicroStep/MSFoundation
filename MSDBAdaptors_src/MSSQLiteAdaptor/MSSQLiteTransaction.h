@@ -41,7 +41,7 @@
  
  */
 
-#import <MSFoundation/MSFoundation.h>
+//#import <MSFoundation/MSFoundation.h>
 #import <sqlite3.h>
 
 @interface MSSQLiteTransaction : MSDBTransaction

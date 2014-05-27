@@ -5,7 +5,7 @@
 
 static inline void date_print(MSDate *d)
   {
-  fprintf(stdout, "%u/%02u/%02u-%02u:%02u:%02d %lld\n",[d yearOfCommonEra], [d monthOfYear], [d dayOfMonth], [d hourOfDay], [d minuteOfHour], [d secondOfMinute],[d secondsSinceReferenceDate]);
+  fprintf(stdout, "%u-%02u-%02u %02u:%02u:%02d %lld\n",[d yearOfCommonEra], [d monthOfYear], [d dayOfMonth], [d hourOfDay], [d minuteOfHour], [d secondOfMinute],[d secondsSinceLocalReferenceDate]);
   }
 
 static inline int date_create(void)
@@ -40,16 +40,16 @@ static inline int date_create(void)
   e= RETAIN([f dateWithoutTime]);
   g= MSCreateObjectWithClassIndex(CDateClassIndex);
 //fprintf(stdout, "1/1/1-0:0 %lld %lld %lld\n",d->interval,d->interval/86400,(d->interval/730485)*730485);
-  if ([c secondsSinceReferenceDate]!=-63113904000LL) {
-    fprintf(stdout, "A21-%lld\n",[c secondsSinceReferenceDate]); err++;}
-  if ([d secondsSinceReferenceDate]!=-63113904000LL+(31LL+28LL-1LL)*86400LL) {
-    fprintf(stdout, "A22-%lld\n",[d secondsSinceReferenceDate]); err++;}
-  if ([e secondsSinceReferenceDate]!=-86400LL) {
-    fprintf(stdout, "A23-%lld\n",[e secondsSinceReferenceDate]); err++;}
-  if ([f secondsSinceReferenceDate]!=-10LL) {
-    fprintf(stdout, "A24-%lld\n",[f secondsSinceReferenceDate]); err++;}
-  if ([g secondsSinceReferenceDate]!=0LL) {
-    fprintf(stdout, "A25-%lld\n",[g secondsSinceReferenceDate]); err++;}
+  if ([c secondsSinceLocalReferenceDate]!=-63113904000LL) {
+    fprintf(stdout, "A21-%lld\n",[c secondsSinceLocalReferenceDate]); err++;}
+  if ([d secondsSinceLocalReferenceDate]!=-63113904000LL+(31LL+28LL-1LL)*86400LL) {
+    fprintf(stdout, "A22-%lld\n",[d secondsSinceLocalReferenceDate]); err++;}
+  if ([e secondsSinceLocalReferenceDate]!=-86400LL) {
+    fprintf(stdout, "A23-%lld\n",[e secondsSinceLocalReferenceDate]); err++;}
+  if ([f secondsSinceLocalReferenceDate]!=-10LL) {
+    fprintf(stdout, "A24-%lld\n",[f secondsSinceLocalReferenceDate]); err++;}
+  if ([g secondsSinceLocalReferenceDate]!=0LL) {
+    fprintf(stdout, "A25-%lld\n",[g secondsSinceLocalReferenceDate]); err++;}
 
   if ([c dayOfWeek]!=0) {
     fprintf(stdout, "A26-%u\n",[c dayOfWeek]); err++;}
@@ -181,7 +181,7 @@ static inline int date_create2(void)
       d= RETAIN(YMD([c[i] yearOfCommonEra], [c[i] monthOfYear], [c[i] dayOfMonth]));
       e= RETAIN([c[i] dateWithoutTime]);
       if (![d isEqualToDate:e]) {
-        fprintf(stdout, "B2-%d-d & e are not equals %lld %lld %lld\n",i,[d secondsSinceReferenceDate],[e secondsSinceReferenceDate],[d secondsSinceReferenceDate]-[e secondsSinceReferenceDate]);
+        fprintf(stdout, "B2-%d-d & e are not equals %lld %lld %lld\n",i,[d secondsSinceLocalReferenceDate],[e secondsSinceLocalReferenceDate],[d secondsSinceLocalReferenceDate]-[e secondsSinceLocalReferenceDate]);
         date_print(c[i]);
         date_print(d);
         date_print(e);
@@ -203,7 +203,7 @@ static inline int date_week(void)
     ASSIGN(c, [c dateByAddingYears:0 months:0 days:1]);
     ASSIGN(d, [d dateByAddingYears:0 months:0 days:1]);}
   w= [c dayOfMonth]<=4 ? 1 : 2;
-  for (t= [c secondsSinceReferenceDate], i= 0; i<M2; i++) {
+  for (t= [c secondsSinceLocalReferenceDate], i= 0; i<M2; i++) {
     ASSIGN(d, [c dateByAddingHours:0 minutes:0 seconds:7*86400-1]);
     if ([d weekOfYear]!=w) {
       fprintf(stdout, "C1-%d-bad week %d expected %d ",i,[d weekOfYear],w); date_print(d);
@@ -294,6 +294,34 @@ static inline int date_replacing(void)
   return err;
   }
 
+static inline int date_now(void)
+  {
+  int err= 0;
+  MSDate *d1,*d2m; NSDate *d2; MSTimeInterval dt1m,dt2m; NSTimeInterval dt1n,dt2n;
+
+  d1= [MSDate now];
+  d2= [NSDate date];
+  dt1m= [d1 secondsSinceLocalReferenceDate];
+  dt2m= [d2 secondsSinceLocalReferenceDate];
+  dt1n= [d1 timeIntervalSinceReferenceDate];
+  dt2n= [d2 timeIntervalSinceReferenceDate];
+  d2m= [MSDate dateWithSecondsSinceLocalReferenceDate:dt2m];
+  if (ABS(dt1m-dt2m)>1) {
+    fprintf(stdout, "F1-bad now\n");
+    date_print(d1);
+    date_print(d2m);
+    err++;}
+  if (ABS(dt1n-dt2n)>1) {
+    fprintf(stdout, "F2-bad now %f %f %f %lld %lld %lld\n",dt1n,dt2n,dt1n-dt2n,dt1m,dt2m,dt1m-dt2m);
+    NSLog(@"%@ %@ %@",d2,[d2 descriptionWithCalendarFormat:@"%Y/%m/%d-%H:%M:%S" timeZone:nil locale:nil],[NSCalendarDate calendarDate]);
+    NSLog(@"%@ %@",[d1 descriptionRfc1123],[d1 descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S"]);
+    //NSLog(@"%@",[[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
+    date_print(d1);
+    date_print(d2m);
+    err++;}
+  return err;
+  }
+
 int msfoundation_date_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -303,6 +331,7 @@ int msfoundation_date_validate(void)
   err+= date_week();
   err+= date_firstLast();
   err+= date_replacing();
+  err+= date_now();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSDate",(err?"FAIL":"PASS"),seconds);

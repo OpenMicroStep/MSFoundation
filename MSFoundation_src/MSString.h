@@ -38,8 +38,31 @@
  
  */
 
+#define SESFromString(X)    ({ __typeof__(X) __x = (X) ; (__x ? [__x stringEnumeratorStructure] : MSInvalidSES) ; })
+MSExport BOOL MSStringIsTrue(NSString *s);
+MSExport BOOL MSEqualStrings(NSString *s1, NSString *s2);
+MSExport BOOL MSInsensitiveEqualStrings(NSString *s1, NSString *s2);
+MSExport NSRange MSStringFind(NSString *source, NSString *searched) ;
+MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger length, CUnicharChecker matchingSolidChar) ;
+
 @interface NSString (MSAddendum)
++ (NSString *)stringWithContentsOfUTF8File:(NSString *)file;
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)allowLossyConversion;
+- (SES)stringEnumeratorStructure; // Not implemented. Use MSString.
+- (NSMutableString *)replaceOccurrencesOfString:(NSString *)tag withString:(NSString *)replace;
+- (NSString *)mid:(NSUInteger)position;
+- (NSString *)mid:(NSUInteger)position :(NSUInteger)length;
+- (NSString *)left:(NSUInteger)length ;
+- (NSString *)trim;
+- (NSString *)substringBeforeString:(NSString *)string ;
+- (NSString *)substringAfterString:(NSString *)string;
+- (BOOL)containsString:(NSString *)anotherString;
+- (const char *)asciiCString;
+// In MSString (MSNetAddedum) ?
+- (NSString *)stringWithURLEncoding:(NSStringEncoding)conversionEncoding;
+- (NSString *)stringWithURLEncoding;
+- (NSString *)stringByAppendingURLComponent:(NSString *)urlComponent ;
+- (NSString *)stringByDeletingLastURLComponent;
 @end
 
 @interface MSString : NSString
@@ -49,6 +72,9 @@
   NSUInteger _length;
   NSUInteger _size;
 }
+- (SES)stringEnumeratorStructure;
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
+- (const char *)UTF8String;
 @end
 
 @interface MSMutableString : MSString

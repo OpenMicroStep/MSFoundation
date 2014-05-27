@@ -1,4 +1,5 @@
-#import <MSFoundation/MSFoundation.h>
+//#import <MSFoundation/MSFoundation.h>
+#import "MSFoundation_Private.h"
 
 /*
 ** SQLCipher

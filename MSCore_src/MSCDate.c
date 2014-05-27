@@ -251,43 +251,90 @@ CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s)
   return d;
 }
 
-/*
- CDate *CCreateDateNowGMT()
- {
- CDate *d; MSTimeInterval t;
- #ifdef WIN32
- SYSTEMTIME fts; FILETIME ft;
- GetSystemTime(&fts);
- SystemTimeToFileTime(&fts, &ft);
- // we devide twice because old compilers
- t= (*((MSTimeInterval*)(&ft)))/100/100000 - MSTimeIntervalSince1601;
- #else
- t= (MSTimeInterval)time(NULL) - MSTimeIntervalSince1970;
- #endif
- d= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
- d->interval= t;
- return d;
- }
- */
-CDate *CCreateDateNow()
-{
-  CDate *d; MSTimeInterval t;
-#ifdef WIN32
 #define _MSTimeIntervalSince1601 12622780800.0
+
+static MSTimeInterval _GMTNow(void)
+{
+  MSTimeInterval t;
+#ifdef WIN32
   // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
+  // NOT Win64 compatible
+  // Do not cast a pointer to a FILETIME structure to either a ULARGE_INTEGER*
+  // or __int64* value because it can cause alignment faults on 64-bit Windows.
   FILETIME fts, ft;
   GetSystemTimeAsFileTime(&fts);
-  if (!FileTimeToLocalFileTime(&fts, &ft)) ft= fts;
-  // we devide twice because old compilers
   t= (*((MSTimeInterval*)(&ft)))/100/100000 - _MSTimeIntervalSince1601;
 #else
-  struct tm tm;
   time_t timet= time(NULL);
-  (void)localtime_r(&timet, &tm);
-  t= (MSTimeInterval)timet - (MSTimeInterval)(tm.tm_gmtoff);
+  t= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101;
 #endif
+  return t;
+}
+static MSTimeInterval _GMTToLocal(MSTimeInterval tIn)
+{
+  MSTimeInterval tOut;
+#ifdef WIN32
+  // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
+  FILETIME fts, ftl;
+  fts= (tIn + _MSTimeIntervalSince1601) *100 * 100000;
+  if (FileTimeToLocalFileTime(&fts, &ftl))
+    tOut= (*((MSTimeInterval*)(&ftl))) / 100 / 100000 - _MSTimeIntervalSince1601;
+#else
+  struct tm tm;
+  time_t timet= tIn + CDateSecondsFrom19700101To20010101;
+  (void)localtime_r(&timet, &tm);
+  tOut= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101 + (MSTimeInterval)(tm.tm_gmtoff);
+//printf("%ld %lld %lld %lld %lld\n",tm.tm_gmtoff,t,rt,GMTFromLocal(rt),t-rt);
+#endif
+  return tOut;
+}
+
+NSTimeInterval GMTNow(void)
+{
+  return (NSTimeInterval)_GMTNow();
+}
+NSTimeInterval GMTFromLocal(MSTimeInterval t)
+// TODO: How on windows ?
+{
+#ifdef WIN32
+  // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
+  FILETIME fts, ftl;
+  ftl= (t + _MSTimeIntervalSince1601) *100 * 100000;
+  // LocalFileTimeToFileTime n'existe pas comment on fait ?
+  if (LocalFileTimeToFileTime(&ftl, &fts))
+    t= (*((MSTimeInterval*)(&fts))) / 100 / 100000 - _MSTimeIntervalSince1601;
+#else
+  _dtm dtm= _dtmCast(t);
+  struct tm tm= {dtm.second,dtm.minute,dtm.hour,
+                 dtm.day,dtm.month-1,(int)(dtm.year-1900),0,0,-1,0,NULL};
+  time_t timet= mktime(&tm);
+  t= (MSTimeInterval)timet-CDateSecondsFrom19700101To20010101;
+#endif
+  return (NSTimeInterval)t;
+}
+
+MSExport NSTimeInterval GMTFromYMDHMS(
+  unsigned year, unsigned month,  unsigned day,
+  unsigned hour, unsigned minute, unsigned second)
+{
+  return (NSTimeInterval)_tmFromYMDHMS(year, month, day, hour, minute, second);
+}
+
+MSTimeInterval GMTToLocal(NSTimeInterval t)
+{
+  return _GMTToLocal((MSTimeInterval)(t>=0 ? t+.5 :  t-.5));
+}
+static MSTimeInterval _CDateSecondsOfNow(void)
+// NO needs to be public
+{
+  return _GMTToLocal(_GMTNow());
+}
+
+CDate *CCreateDateNow()
+{
+  CDate *d;
   d= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
-  d->interval= t;
+  d->interval= _CDateSecondsOfNow();
   return d;
 }
 
@@ -646,6 +693,21 @@ MSTimeInterval timeIntervalForLastDayOfYear(MSTimeInterval timeInterval)
 */
 #pragma mark Description
 
+MSExport CString *CCreateDateDescription(CDate *self)
+{
+  _dtm dt= _dtmCast(self->interval);
+  char buf[20];
+  CString *s= CCreateString(20);
+  sprintf(buf, "%04u-%02u-%02u %02u:%02u:%02u",
+    (dt.year   % 10000),
+    (dt.month  % 100),
+    (dt.day    % 100),
+    (dt.hour   % 100),
+    (dt.minute % 100),
+    (dt.second % 100));
+  CStringAppendSES(s, MSMakeSESWithBytes(buf, 19, NSASCIIStringEncoding));
+  return s;
+}
 // TODO: !!!
 /*
 NSString *timeIntervalDescription(MSTimeInterval timeInterval, NSString *format)

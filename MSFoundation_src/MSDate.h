@@ -44,8 +44,11 @@ Eric Baradat :  k18rt@free.fr
  */
 
 
+NSString *GMTdescriptionRfc1123(NSTimeInterval t);
+
 @interface NSDate (MSDateAddendum)
-- (MSTimeInterval)secondsSinceReferenceDate;
+- (MSTimeInterval)secondsSinceLocalReferenceDate;
+- (NSString*)descriptionRfc1123;
 @end
 
 @interface MSDate : NSDate
@@ -62,15 +65,18 @@ Eric Baradat :  k18rt@free.fr
 + (id)dateWithYear:(unsigned)year month: (unsigned)month day:   (unsigned)day
               hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec;
 
++ (id)dateWithSecondsSinceLocalReferenceDate:(MSTimeInterval)secsToBeAdded;
+
++ (id)date;
 + (id)now;
 + (id)today;
 
 - (id)initWithYear:(unsigned)year month: (unsigned)month day:   (unsigned)day;
 - (id)initWithYear:(unsigned)year month: (unsigned)month day:   (unsigned)day
               hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec;
-- (id)initWithSecondsSinceNow:(int)secsToBeAddedToNow;
-- (id)initWithSeconds:(int)secs sinceDate:(NSDate*)d;
-- (id)initWithMSTimeIntervalSinceReferenceDate:(MSTimeInterval)secsToBeAdded;
+- (id)initWithSecondsSinceNow:(MSTimeInterval)secsToBeAddedToNow;
+- (id)initWithSeconds:(MSTimeInterval)secs sinceDate:(NSDate*)d;
+- (id)initWithSecondsSinceLocalReferenceDate:(MSTimeInterval)secsToBeAdded;
 
 - (BOOL)isEqualToDate:(NSDate*)o;
 
@@ -95,8 +101,11 @@ Eric Baradat :  k18rt@free.fr
 - (int)monthsSinceDate:(MSDate*)d usesTime:(BOOL)usesTime;
 - (int)daysSinceDate:  (MSDate*)d usesTime:(BOOL)usesTime;
 - (MSTimeInterval)secondsSinceNow;
-- (MSTimeInterval)secondsSinceReferenceDate;
 - (MSTimeInterval)secondsSinceDate:(MSDate*)d;
+- (MSTimeInterval)secondsSinceLocalReferenceDate;
+  // From 1/1/2001 local
+- (NSTimeInterval)timeIntervalSinceReferenceDate;
+  // From 1/1/2001 GMT
 
 - (id)dateByAddingYears:(int)years  months:(int)months days:(int)days;
 - (id)dateByAddingWeeks:(int)weeks;
@@ -117,6 +126,7 @@ Eric Baradat :  k18rt@free.fr
 - (id)dateWithoutTime;
 
 - (NSString*)descriptionWithCalendarFormat:(NSString*)format;
+- (NSString*)descriptionRfc1123;
 
 @end
 

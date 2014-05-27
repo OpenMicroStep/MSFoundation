@@ -387,7 +387,14 @@ static Class __MSBufferClass= Nil;
 - (Class)classForPortCoder { return [self class]; }
 
 @end
-
+/*
+MSExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length)
+{
+  MSBuffer *b= MSCreateBuffer(0);
+  CBufferBase64EncodeAndAppendBytes((CBuffer*)b, bytes, length);
+  return b;
+}
+*/
 static char *__fullURITags[256]= {
   /*00*/ "\003%00", "\003%01", "\003%02", "\003%03", "\003%04", "\003%05", "\003%06", "\003%07",
   /*08*/ "\003%08", "\003%09", "\003%0A", "\003%0B", "\003%0C", "\003%0D", "\003%0E", "\003%0F",
@@ -511,6 +518,27 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
 - (MSUInt  )longCRC          { return MSBytesLongCRC     ((void *)[self bytes], [self length]); }
 - (MSUInt  )ELFHash          { return MSBytesELF         ((void *)[self bytes], [self length]); }
 - (MSUInt  )elfUppercaseHash { return MSBytesUppercaseELF((void *)[self bytes], [self length]); }
+
+- (BOOL)containsOnlyBase64Characters
+{
+  NSUInteger i = 0 ;
+  NSUInteger len = [self length] ;
+  unsigned char *c = (unsigned char *)[self bytes] ;
+
+  for (i = 0 ; i < len ; i++)
+    {
+    if (   !(*c >= 65 && *c <=  90) //'A' to 'Z'
+        && !(*c >= 97 && *c <= 122) //'a' to 'z'
+        && !(*c >= 48 && *c <=  57) //'0' to '9'
+        && (*c != 43)  // '+'
+        && (*c != 47)  // '/'
+        && (*c != 61)) // '/'
+      {
+      return NO ;
+      }
+    }
+  return YES ;
+}
 @end
 
 @implementation NSMutableData (MSDataAdditions)
