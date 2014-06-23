@@ -41,7 +41,7 @@
  
  */
 
-@class MHApplication, MHAuthenticatedApplication, MHSession, MHContext, MHResource, MHDownloadResource, MHNotification, MHHTTPMessage ;
+@class MHApplication, MHSession, MHContext, MHResource, MHDownloadResource, MHNotification, MHHTTPMessage ;
 
 #define BLACKLIST_SIZE 500
 #define WHITELIST_SIZE 16 // 8 pairs of ipv4 addresses
@@ -172,7 +172,7 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
 void MHSendResourceOrHTTPNotModifiedToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResource *resource, BOOL isAdmin, MHSession *session, MHHTTPMessage *message, NSDictionary *headers) ;
 BOOL MHSendResourceToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResource *resource, BOOL isAdmin, MHSession *session, MHHTTPMessage *message, NSDictionary *headers) ;
 BOOL MHReplyWithNewUploadID(MHSSLSocket *secureSocket, MHApplication *application);
-BOOL MHRedirectToURL(MHSSLSocket *secureSocket, NSString *URL) ;
+BOOL MHRedirectToURL(MHSSLSocket *secureSocket, NSString *URL, BOOL isPermanent) ;
 BOOL MHCloseBrowserSession(MHSSLSocket *secureSocket, MHSession *session, MSUInt status) ;
 
 void _fatal_error(const char *msg, int errcode) ;
@@ -206,3 +206,8 @@ BOOL MHMakeTemporaryDir(NSString *name) ;
 NSString *MHMakeTemporaryName(void) ;
 NSString *MHMakeTemporaryFileName(void) ;
 
+//Notification macro
+#define MHProcessingEnqueueNotificationOrSendError() if (!MHProcessingEnqueueNotification(notification)) { \
+[notification end] ; \
+_send_error_message(secureSocket, HTTP_503_RESPONSE); \
+}

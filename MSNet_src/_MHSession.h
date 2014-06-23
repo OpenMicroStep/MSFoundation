@@ -66,7 +66,7 @@ typedef enum {
     NSMutableDictionary *_members ;
     MSUInt _fastNotificationCount ;
     BOOL _mustChangeSessionID ; //change session when responding
-    MHAppAuthentication _authentificationType ;
+    MHAppAuthentication _authenticationType ;
 }
 
 + (id)newRetainedSessionWithApplication:(MHApplication *)anApplication timeOut:(MSUInt)seconds authenticationType:(MHAppAuthentication)authenticationType ;

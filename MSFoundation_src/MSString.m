@@ -273,6 +273,21 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
     else return self ;
 }
 
+- (NSString*)decodedURLString
+{
+	char *s = (char *)[self UTF8String] ; // on retourne à use form de buffer (!?!)
+	if (s && *s) {
+		NSUInteger len = (NSUInteger)strlen(s) ;
+		MSString *ret = MSCreateString(len) ;
+		
+		if (CStringAppendURLBytes((CString*)ret, (void *)s, len, NSUTF8StringEncoding, NULL)) {
+			return AUTORELEASE(ret) ;
+		}
+		RELEASE(ret) ;
+	}
+	return [NSString string] ;
+}
+
 @end
 
 @implementation MSString
@@ -370,7 +385,7 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
 {
   CBuffer *b= CCreateBufferWithString((CString*)self, encoding);
   AUTORELEASE((MSBuffer*)b);
-  return (const char*)b->buf;
+  return (const char *)CBufferCString(b);
 }
 - (const char *)UTF8String
 {

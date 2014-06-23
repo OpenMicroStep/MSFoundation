@@ -91,6 +91,7 @@ _btypedValue;
 - (void)setState:(MSByte)state;
 - (void)setSub:(MSObi*)o;
 - (NSString*)description:(int)n;
+- (NSString*)descriptionForDb:(MSOdb*)db;
 @end
 
 @interface MSObi : NSObject

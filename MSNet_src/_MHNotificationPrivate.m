@@ -78,14 +78,14 @@ static mutex_t __waitingNotificationsMutex ;
     
     [self lockWaitingNotifications] ;
     if (_secureSocket) {
-        NSMapRemove(__waitingNotifications, (const void *)[_secureSocket socket]) ;
+        NSMapRemove(__waitingNotifications, (const void *)(intptr_t)[_secureSocket socket]) ;
         
         [[_message clientSecureSocket] close] ;
         
         DESTROY(_secureSocket) ;
     }
     else {
-        NSMapRemove(__waitingNotifications, (const void *)_fd) ;
+        NSMapRemove(__waitingNotifications, (const void *)(intptr_t)_fd) ;
 
         MHCloseSocket(_fd) ;
     }
@@ -97,7 +97,7 @@ static mutex_t __waitingNotificationsMutex ;
 - (MHSSLSocket *)clientSecureSocket { return [_message clientSecureSocket] ; }
 
 - (NSMapTable *)waitingNotifications { return __waitingNotifications ; }
-- (void)lockWaitingNotifications { mutex_lock(__waitingNotificationsMutex) ; } ;
+- (void)lockWaitingNotifications { mutex_lock(__waitingNotificationsMutex) ; }
 - (void)unlockWaitingNotifications { mutex_unlock(__waitingNotificationsMutex) ; }
 
 - (MSInt)applicationSocket
@@ -112,15 +112,22 @@ static mutex_t __waitingNotificationsMutex ;
 
 - (MHAppAuthentication)authenticationType { return [[self memberNamed:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] intValue] ; }
 
-- (void)storeGUIAuthenticationLogin:(NSString *)login andPassword:(NSString *)password
+- (void)storeAuthenticationLogin:(NSString *)login andPassword:(NSString *)password authType:(MHAppAuthentication)authType
 {
-    [self storeMember:[NSNumber numberWithInt:MHAuthLoginPass] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
+    [self storeMember:[NSNumber numberWithInt:authType] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
     [self storeMember:login named:MHNOTIF_PARAM_MHLOGIN] ;
     [self storeMember:password ? password : @"" named:MHNOTIF_PARAM_MHPWD] ;
 }
 
-- (NSString *)storedGUIAuthenticationLogin { return [self memberNamed:MHNOTIF_PARAM_MHLOGIN] ; }
-- (NSString *)storedGUIAuthenticationPassword { return [self memberNamed:MHNOTIF_PARAM_MHPWD] ; }
+- (void)storeAuthenticationLogin:(NSString *)login andPassword:(NSString *)password andTarget:(NSString *)target
+{
+    [self storeAuthenticationLogin:login andPassword:password authType:MHAuthChallengedPasswordLoginOnTarget] ;
+    [self storeMember:target named:MHNOTIF_PARAM_MHTARGET] ;
+}
+
+- (NSString *)storedAuthenticationLogin { return [self memberNamed:MHNOTIF_PARAM_MHLOGIN] ; }
+- (NSString *)storedAuthenticationPassword { return [self memberNamed:MHNOTIF_PARAM_MHPWD] ; }
+- (NSString *)storedAuthenticationTarget { return [self memberNamed:MHNOTIF_PARAM_MHTARGET] ; }
 
 - (void)storeAuthenticationTicket:(NSString *)ticket
 {
@@ -128,15 +135,15 @@ static mutex_t __waitingNotificationsMutex ;
     [self storeMember:ticket named:MHNOTIF_PARAM_TICKET] ;
 }
 
-- (void)storeChallenge:(NSString *)challenge {
-    [self storeMember:[NSNumber numberWithInt:MHAuthChallenge] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
+- (void)storeAuthenticationChallenge:(NSString *)challenge {
+    [self storeMember:[NSNumber numberWithInt:MHAuthPKChallengeAndURN] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
     [self storeMember:challenge named:MHNOTIF_PARAM_CHALLENGE] ;
 }
 
-- (NSString *)storedChallenge { return [self memberNamed:MHNOTIF_PARAM_CHALLENGE] ; }
+- (NSString *)storedAuthenticationChallenge { return [self memberNamed:MHNOTIF_PARAM_CHALLENGE] ; }
 
-- (NSString *)storedTicket { return [self memberNamed:MHNOTIF_PARAM_TICKET] ; }
+- (NSString *)storedAuthenticationTicket { return [self memberNamed:MHNOTIF_PARAM_TICKET] ; }
 
-- (void)storeCustomAuthenticationMode { [self storeMember:[NSNumber numberWithInt:MHAuthCustom] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ; }
+- (void)storeAuthenticationCustomMode { [self storeMember:[NSNumber numberWithInt:MHAuthCustom] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ; }
 
 @end

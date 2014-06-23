@@ -1,30 +1,45 @@
 //  MHRepository.h, ecb, 131010
 
-#define MHRElementId NSNumber
+#define EID NSNumber
 
 @interface MHRepository : NSObject
 {
 @private
-    NSMutableDictionary *_db;
-    MHRElementId *_connectedEid;
-    MHRElementId *_representativeEid;
+    EID *_connectedEid;
+    EID *_representativeEid;
 }
 
-+ (MHRElementId*)eidForUniqueRepositoryName:(NSString*)name inRepositoryDatabase:(NSDictionary *)database;
+//----------
++ (void)setDatabase:(NSDictionary *)database ;
++ (NSDictionary *)database ;
 
-- (id)initForEid:(MHRElementId*)eid withCertificate:(MSCertificate*)certif inRepositoryDatabase:(NSDictionary *)database;
++ (NSString *)generateAndStoreChallengeForURN:(NSString *)urn ;
++ (NSString *)plainStoredChallengeForURN:(NSString *)urn ;
+
+
+//----------
++ (EID*)eidForURN:(NSString*)name ;
+
+
+/*
+
+- (id)initForEid:(EID*)eid withCertificate:(MSCertificate*)certif inRepositoryDatabase:(NSDictionary *)database;
 // Pour ouvrir une session, il faut être un eid avec un certificat valide.
-- (id)initForEid:(MHRElementId*)eid withRepresentativeEid:(MHRElementId*)coEid withCertificate:(MSCertificate*)certif inRepositoryDatabase:(NSDictionary *)database;
+- (id)initForEid:(EID*)eid withRepresentativeEid:(EID*)coEid withCertificate:(MSCertificate*)certif inRepositoryDatabase:(NSDictionary *)database;
 // Ou avoir un représentant (connu de l'annuaire) avec un certificat valide.
 
-- (BOOL)isCertificate:(MSCertificate*)certif verifiedForEid:(MHRElementId*)eid;
 
-- (NSArray*)eidsGraphOf:(NSString*)k startingAt:(MHRElementId*)eid;
+- (BOOL)isCertificate:(MSCertificate*)certif verifiedForEid:(EID*)eid;
+*/
+ 
+- (NSArray*)eidsGraphOf:(NSString*)k startingAt:(EID*)eid;
 // Values for attribute k must be eids.
 
-- (NSDictionary*)publicInformationsWithKey: (NSString*)k forEid: (MHRElementId*)eid;
++ (NSDictionary*)publicInformationsWithKey: (NSString*)k forEid: (EID*)eid;
+
+- (NSDictionary*)publicInformationsWithKey: (NSString*)k forEid: (EID*)eid;
 - (NSDictionary*)publicInformationsWithKey: (NSString*)k forEids:(NSArray*)eids;
-- (NSDictionary*)publicInformationsWithKeys:(NSArray*)ks forEid: (MHRElementId*)eid;
+- (NSDictionary*)publicInformationsWithKeys:(NSArray*)ks forEid: (EID*)eid;
 - (NSDictionary*)publicInformationsWithKeys:(NSArray*)ks forEids:(NSArray*)eids;
 // eid1= {k1= [v]; k2= [v1, v2];}
 // En k=0 on obtient le type (ID|STR) et la cardinalité (single|multi) de chaque clé:

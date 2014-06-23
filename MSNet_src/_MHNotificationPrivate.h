@@ -59,16 +59,18 @@
 
 // Authentication private methods
 - (MHAppAuthentication)authenticationType ;
-- (void)storeGUIAuthenticationLogin:(NSString *)login andPassword:(NSString *)password ;
-- (NSString *)storedGUIAuthenticationLogin ;
-- (NSString *)storedGUIAuthenticationPassword ;
+- (void)storeAuthenticationLogin:(NSString *)login andPassword:(NSString *)password authType:(MHAppAuthentication)authType ;
+- (NSString *)storedAuthenticationLogin ;
+- (NSString *)storedAuthenticationPassword ;
+- (void)storeAuthenticationLogin:(NSString *)login andPassword:(NSString *)password andTarget:(NSString *)target ;
+- (NSString *)storedAuthenticationTarget ;
 
-- (void)storeChallenge:(NSString *)challenge ;
-- (NSString *)storedChallenge ;
+- (void)storeAuthenticationChallenge:(NSString *)challenge ;
+- (NSString *)storedAuthenticationChallenge ;
 
 - (void)storeAuthenticationTicket:(NSString *)ticket ;
-- (NSString *)storedTicket ;
+- (NSString *)storedAuthenticationTicket ;
 
-- (void)storeCustomAuthenticationMode ;
+- (void)storeAuthenticationCustomMode ;
 
 @end

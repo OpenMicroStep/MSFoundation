@@ -56,6 +56,8 @@ typedef enum {
 @interface MHSSLSocket (Private)
 
 - (SSL *)SSLSocket ;
+- (void)setSSLSocket:(SSL *)secureSocket ;
+
 - (MSInt)localPort ;
 
 - (void)close ;

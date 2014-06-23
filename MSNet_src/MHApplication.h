@@ -51,9 +51,26 @@ typedef enum {
     MHAppError
 } MHAppLogLevel ;
 
-#define DEFAULT_LOGIN_URL_COMPONENT @"login"
+typedef enum {
+    MHAuthUndefined                         = 0,   //Undefined
+    MHAuthNone                              = 1,   //No auth
+    MHAuthCustom                            = 2,   //Application defined auth
+    MHAuthTicket                            = 4,   //Ticket auth
+    MHAuthSimpleGUIPasswordAndLogin         = 8,   //GUI login password auth
+    MHAuthChallengedPasswordLogin           = 16,  //Auth with challenged password for login
+    MHAuthChallengedPasswordLoginOnTarget   = 32,  //Auth with challenged password for login on a specifig URN
+    MHAuthPKChallengeAndURN                 = 64   //Challenge auth
+} MHAppAuthentication ;
 
 @class MHSession, MHResource ;
+
+#define MHAUTH_QUERY_PARAM_TICKET   @"ticket"
+#define MHAUTH_HEADER_RESPONSE      @"MASH-AUTH-RESPONSE"
+#define MHAUTH_HEADER_RESPONSE_OK   @"SUCCESS"
+#define MHAUTH_HEADER_RESPONSE_FAIL @"FAILURE"
+
+NSString *MHChallengedPasswordHash(NSString *password, NSString *challenge) ;
+NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 
 @interface MHApplication : NSObject <MHNotificationTargetAction>
 {
@@ -68,118 +85,134 @@ typedef enum {
     NSString *_authenticatedResourceURL ;
     NSString *_publicResourceURL ;
     NSString *_uncURL ;
+    NSString *_logoutURL ;
+    
+    //authentication members
+    MSBuffer *_loginInterface ;
+    MSUInt _authenticationMethods ;
+    NSMutableDictionary *_tickets ;
+    MSMutex *_ticketsMutex ;
+    
+    //repository connection dictionary
+    NSDictionary *_netRepositoryServerParameters ;
 }
 
 + (id)applicationOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters ;
 - (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters ;
 
-- (id)parameterNamed:(NSString *)name ;
+- (void)setBundle:(NSBundle *)bundle;
+- (MHAppLogLevel)logLevel ;
+- (void)logWithLevel:(MHAppLogLevel)level log:(NSString *)log, ... ;
 
-- (MHSession *)hasValidSessionForID:(NSString *)aSessionID ;
-- (BOOL)mustRespondWithAuthentication ; //must be overridden by sub classes
-- (BOOL)canVerifyPeerCertificate ;
-
-+ (MSUInt)defaultSessionInitTimeout ;
-- (BOOL)mustUpdateLastActivity ;
-
-- (void)awakeOnRequest:(MHNotification *)notification ; //must be overridden by sub classes
-- (void)sessionWillExpire:(MHNotification *)notification ; //can be overridden by sub classes
-
-- (void)clean ;
-
-+ (MHApplication *)applicationForURL:(NSString *)url listeningPort:(MSInt)listeningPort baseUrlComponentsCount:(MSUInt)count;
-+ (NSString *)applicationFullName ; //must be overridden by sub classes 
-+ (BOOL)isAdminApplication ;
 - (NSString *)baseURL ;
-- (NSString *)loginURL ;
-- (NSString *)postProcessingURL ; 
+- (NSString *)postProcessingURL ;
 - (NSString *)authenticatedResourceURL ;
 - (NSString *)publicResourceURL ;
 - (NSString *)uncURL ;
-- (NSString *)applicationName ;
+- (NSString *)logoutURL ;
+
++ (NSString *)applicationFullName ; //must be overridden by sub classes
 - (NSString *)applicationFullName ;
+- (NSString *)applicationName ;
 - (NSString *)instanceName ;
-- (BOOL)isAdminApplication ;
-- (void)setBundle:(NSBundle *)bundle;
+
+- (BOOL)hasUploadSupport ;
+- (BOOL)canVerifyPeerCertificate ;
+- (id)parameterNamed:(NSString *)name ;
+
+//resource management
 - (MHResource *)getResourceForURL:(NSString *)url ;
-- (MHResource *)getResourceFromBundleForURL:(NSString *)url mimeType:(NSString *)mimeType isPublicResource:(BOOL)isPublicResource ;
+- (MHResource *)getResourceFromBundleForURL:(NSString *)url mimeType:(NSString *)mimeType isPublicResource:(BOOL)isPublicResource ; //GEO TODO PRIVATE
 - (BOOL)resourceExistsInCacheForURL:(NSString *)url ;
-- (NSString *)getUploadResourceURLForID:(NSString *)uploadID ;
-- (void)logWithLevel:(MHAppLogLevel)level log:(NSString *)log, ... ;
-- (MHAppLogLevel)logLevel ;
-
-//bundle configuration
-- (NSDictionary *)parameterForKey:(NSString *)key ;
-
--(BOOL)hasUploadSupport ;
-
-- (MSUInt)getKeepAliveTimeout ; //returns timout in seconds if application need keep alive requests to maintain session alive, else returns 0
-- (MSUInt)getKeepAliveInterval ; //returns interval in seconds if application need keep alive requests to maintain session alive, else returns 0
-
+//- (NSString *)getUploadResourceURLForID:(NSString *)uploadID ;
 - (NSString *)convertUncFromUrl:(NSString *)url ;
 
-@end
+//bundle configuration
+- (NSDictionary *)bundleParameterForKey:(NSString *)key ; // GEO TODO PRIVATE ?
 
-@interface MHPublicApplication : MHApplication
-@end
-
-#define MHAUTHENTICATED_APP_QUERY_PARAM_TICKET  @"ticket"
-#define MHAUTHENTICATED_CHALLENGE_ADDITIONAL_STORED_OBJECT  @"challengeAdditionalObject"
-
-@interface MHAuthenticatedApplication : MHApplication
-{
-    MSUInt _authenticationMethods ;
-    MSBuffer *_loginInterface ;
-    NSMutableDictionary *_tickets ;
-    MSMutex *_ticketsMutex ;
-}
-
-- (MSBuffer *)loginInterfaceWithMessage:(MHHTTPMessage *)message errorMessage:(NSString *)error ; //can be overriden by sub classes
-- (MSBuffer *)firstPage:(MHNotification *)notification ;
+//timeout and keepAlive managements
++ (MSUInt)defaultSessionInitTimeout ;
 + (MSUInt)authentifiedSessionTimeout ; //can be overridden by subclasses
+- (BOOL)mustUpdateLastActivity ;
+- (MSUInt)getKeepAliveTimeout ; //returns timout in seconds if application need keep alive requests to maintain session alive, else returns 0
+- (MSUInt)getKeepAliveInterval ; //returns interval in seconds if application need keep alive requests to maintain session alive, else returns 0
+- (void)sessionWillExpire:(MHNotification *)notification ; //can be overridden by sub classes
+
+//application methods to override
+- (void)awakeOnRequest:(MHNotification *)notification ; //must be overridden by sub classes
+- (void)clean ;
+
+- (MSBuffer *)firstPage:(MHNotification *)notification ;
 
 //authentication methods
-- (BOOL)canAuthenticateWithLoginPassword ;
-- (BOOL)canAuthenticateWithLoginTicket ;
-- (BOOL)canAuthenticateWithChallenge ;
-- (BOOL)canAuthenticateWithCustomAuthentication ;
-
 + (MSUInt)defaultAuthenticationMethods ;
 - (MSUInt)authenticationMethods ;
 
-- (void)setAuthenticationMethods:(MSUInt)authenticationMethods ;
-- (void)setAuthentificationMethod:(MHAppAuthentication)authenticationMethod ;
-- (void)unsetAuthentificationMethod:(MHAppAuthentication)authenticationMethod ;
+- (BOOL)canHaveNoAuthentication ;
+- (BOOL)canAuthenticateWithSimpleGUILoginPassword ;
+- (BOOL)canAuthenticateWithChallengedPasswordLogin ;
+- (BOOL)canAuthenticateWithChallengedPasswordLoginOnTarget ;
+- (BOOL)canAuthenticateWithTicket ;
+- (BOOL)canAuthenticateWithPKChallenge ;
+- (BOOL)canAuthenticateWithCustomAuthentication ;
 
-- (void)validateAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate ;
+- (void)setAuthenticationMethods:(MSUInt)authenticationMethods ;
+- (void)setAuthenticationMethod:(MHAppAuthentication)authenticationMethod ;
+- (void)unsetAuthenticationMethod:(MHAppAuthentication)authenticationMethod ;
+
+- (void)validateAuthentication:(MHNotification *)notification
+                     challenge:(NSString *)challenge
+              sessionChallenge:(NSString *)storedChallenge
+                           urn:(NSString *)urn
+                   certificate:(MSCertificate *)certificate ;
+
+- (void)validateAuthentication:(MHNotification *)notification
+                         login:(NSString *)login
+            challengedPassword:(NSString *)challengedPassword
+              sessionChallenge:(NSString *)storedChallenge
+                   certificate:(MSCertificate *)certificate ;
+
+- (void)validateAuthentication:(MHNotification *)notification
+                         login:(NSString *)login
+            challengedPassword:(NSString *)challengedPassword
+              sessionChallenge:(NSString *)storedChallenge
+                        target:(NSString *)target
+                   certificate:(MSCertificate *)certificate ;
+
 - (void)validateAuthentication:(MHNotification *)notification ticket:(NSString *)ticket certificate:(MSCertificate *)certificate ;
-- (void)validateAuthentication:(MHNotification *)notification challenge:(NSString *)challenge certificate:(MSCertificate *)certificate ;
 - (void)validateAuthentication:(MHNotification *)notification certificate:(MSCertificate *)certificate ;
 
 //challenge generation
-- (NSString *)generateChallengeForMessage:(MHHTTPMessage *)httpMessage plainStoredChallenge:(NSString **)plainChallenge additionalStoredObject:(id *)object ;
-- (NSString *)sessionChallengeMemberName ;
-- (NSString *)sessionChallengeAdditionalObjectMemberName ;
+- (NSString *)publicKeyForURN:(NSString *)urn ; //can be overridden, not implemented
+- (NSString *)generatePlainChallenge ;
+- (NSString *)generatePKChallengeURN:(NSString *)urn storedPlainChallenge:(NSString **)plainChallenge ;
 
 //tickets management
-- (BOOL)canAuthenticateWithTicket ;
+- (NSString *)ticketForValidity:(MSTimeInterval)duration ;
 - (NSMutableDictionary *)tickets ;
 - (void)setTickets:(NSDictionary *)tickets ;
-- (NSString *)ticketForValidity:(MSTimeInterval)duration ;
-
-- (void)setObject:(id)object forTicket:(NSString *)ticket ;
 - (id)objectForTicket:(NSString *)ticket ;
+- (void)setObject:(id)object forTicket:(NSString *)ticket ;
 - (NSNumber *)validityForTicket:(NSString *)ticket ;
-  // TODO: Non c'est pas bien, si c'est une date, il faut retourner une date
+- (NSNumber *)creationDateForTicket:(NSString *)ticket ;
 - (void)removeTicket:(NSString *)ticket ;
 
-//authentication posted parameters
-- (NSString *)loginFieldName ;
-- (NSString *)passwordFieldName ;
-- (NSString *)challengeFieldName ;
+// net repository parameters
+- (NSDictionary *)netRepositoryConnectionDictionary ;
+- (NSDictionary *)netRepositoryParameters ;
 
 @end
 
-@interface MHGUIAuthenticatedApplication : MHAuthenticatedApplication
+#define MHGUI_AUTH_FORM_LOGIN       @"MH-LOGIN"
+#define MHGUI_AUTH_FORM_PASSWORD    @"MH-PASSWORD"
+
+@interface MHGUIApplication : MHApplication
+{
+    NSString *_loginURL ;
+}
+
+- (NSString *)loginURL ;
+- (MSBuffer *)loginInterfaceWithErrorMessage:(NSString *)errorMessage ;
+- (void)validateSimpleGUIAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate ;
 
 @end

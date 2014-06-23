@@ -71,7 +71,7 @@ NSString *MSDigestData(MSDigest digest, const void *bytes, NSUInteger length)
 	
 	// Initialisations
 	OPENSSL_EVP_MD_CTX_init(&mdctx) ;
-  data = MSCreateBufferWithBytes((void *)bytes, length) ;
+  data = AUTORELEASE(MSCreateBufferWithBytes((void *)bytes, length)) ;
 	outBuff = (unsigned char *)malloc(EVP_MAX_MD_SIZE * sizeof(unsigned char)) ;
 	range.location = 0;
 	range.length = WORKING_BLOCK_SIZE ;

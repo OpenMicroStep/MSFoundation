@@ -7,9 +7,9 @@ static inline int ms_ns(void)
   {
   int err= 0;
   NSString *s,*sl1,*sl2;
-  s= (id)MSSCreate("MSString");
+  s= MSCreateString("MSString");
   sl1= [(MSString*)s lowercaseString];
-  sl2= (id)MSSCreate("msstring");
+  sl2= MSCreateString("msstring");
   if (!ISEQUAL(sl1, sl2)) {
     NSLog(@"A1 not equal %@ %@",sl1,sl2); err++;}
   RELEASE(s);

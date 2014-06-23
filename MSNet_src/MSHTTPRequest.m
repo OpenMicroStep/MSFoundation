@@ -26,9 +26,11 @@
 
 - (id)initWithMethod:(MSHTTPMethod)method toHost:(NSString *)host url:(NSString*)url
 {
+    MSBuffer *buf = AUTORELEASE(MSCreateBuffer(0)) ;
+
     ASSIGN(_additionalHeaders, [NSMutableDictionary dictionary]) ;
     ASSIGN(_queryParameters, [NSMutableDictionary dictionary]) ;
-    ASSIGN(_content, MSCreateBuffer(0)) ;
+    ASSIGN(_content, buf) ;
     
     [self setMethod:method] ;
     [self setHost:host] ;
@@ -77,7 +79,7 @@
 
 - (MSBuffer *)buffer
 {
-    NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:[_additionalHeaders copy]] ;
+    NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithDictionary:[[_additionalHeaders copy] autorelease]] ;
     NSString *method = (_method == GET) ? HTTP_METHOD_GET : HTTP_METHOD_POST ;
     NSString *request = @"" ;
     NSString *key, *tmp ;

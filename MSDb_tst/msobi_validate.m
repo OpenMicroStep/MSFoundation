@@ -14,31 +14,31 @@ static inline int tst_uid(void)
   {
   int err= 0;
   id o1,o2,u1,u2;
-  o1= [MSOid oidWithLongValue:1];
-  u1= [MSUid uidWithUid:o1];
+  o1= [MSOid oidWithLongValue:1];  // 1 oid: obi id
+  u1= [MSUid uidWithUid:o1];       // uid: union d'oid. u1= (o1)
   o2= [MSArray arrayWithObject:[MSOid oidWithLongValue:1]];
-  u2= [MSUid uidWithUid:o2];
-  if (!_eq(1, YES, u1, u2)) err++;
+  u2= [MSUid uidWithUid:o2];       // u2= (o1)
+  if (!_eq(1, YES, u1, u2)) err++; // [1]==[1]
   u2= [MSUid uidWithUid:[MSOid oidWithLongValue:-1]];
-  if (!_eq(2, NO, u1, u2)) err++;
+  if (!_eq(2, NO, u1, u2)) err++;  // [1]!=[-1]
   [u1 addUid:u2];
-  if (!_eq(3, NO, u1, u2)) err++;
+  if (!_eq(3, NO, u1, u2)) err++;  // [1,-1]!=[-1]
   [u2 addUid:u1];
-  if (!_eq(4, YES, u1, u2)) err++;
-  o1= (id)MSSCreate("ASystemName");
+  if (!_eq(4, YES, u1, u2)) err++; // [1,-1]==[-1,1]
+  o1= MSCreateString("ASystemName");
   [u1 addUid:o1];
   RELEASE(o1);
-  if (!_eq(5, NO, u1, u2)) err++;
+  if (!_eq(5, NO, u1, u2)) err++;  // [1,-1,ASystemName]!=[-1,1]
   [u1 addUid:@"ASystemName"];
   [u2 addUid:@"ASystemName"];
-  if (!_eq(6, YES, u1, u2)) err++;
+  if (!_eq(6, YES, u1, u2)) err++; // [1,-1,ASystemName]==[-1,1,ASystemName]
   [u1 addUid:@"d"];
-  o1= (id)MSSCreate("d");
+  o1= MSCreateString("d");
   [u2 addUid:[MSArray arrayWithObject:[NSArray arrayWithObject:o1]]];
   RELEASE(o1);
-  if (!_eq(7, YES, u1, u2)) err++;
+  if (!_eq(7, YES, u1, u2)) err++; // [1,-1,ASystemName,d]==[-1,1,ASystemName,d]
   [u1 addUid:u2];
-  if (!_eq(8, YES, u1, u2)) err++;
+  if (!_eq(8, YES, u1, u2)) err++; // [1,-1,ASystemName,d]==[-1,1,ASystemName,d]
   return err;
   }
 
@@ -55,6 +55,7 @@ static inline int tst_obi_nu(id dbParams)
   o= [db systemObiWithOid:MSCarSystemNameId];
   if (!o) {
     NSLog(@"B2: no MSCarSystemNameId %@",[o descriptionInContext:ctx]); err++;}
+  // Recherche de tous les types, ie ayant pour caractéristique 'entity' l'entity 'Typ'
   ids= [db oidsWithCars:[MSDictionary dictionaryWithKeysAndObjects:
     MSCarEntityId,MSEntTypId,nil]];
   strId= [[db systemObiWithName:@"STR"] oid];
@@ -83,6 +84,26 @@ static id d1= @"3 // first test !\n"
 " // empty line \n"
 "  102: nom système\n"
 "  _end:\n";
+
+static id d2= @"Ent // Test of Ent with inline gabs\n"
+"  _id: 1\n"
+"  nom système: Ent\n"
+"  gabarit: \n"
+"    Gab\n"
+"    _id: 1011\n"
+"    caractéristique: entité\n"
+"    _end:\n"
+"  gabarit: \n"
+"    Gab\n"
+"    _id: 1012\n"
+"    caractéristique: nom système\n"
+"    _end:\n"
+"  gabarit: \n"
+"    Gab\n"
+"    _id: 1013\n"
+"    caractéristique: gabarit\n"
+"    _end:\n"
+"  _end:\n";
 static inline int tst_obi_decode(id dbParams, id x)
 {
   int err= 0;
@@ -110,6 +131,7 @@ int msobi_validate(void)
   err+= tst_uid();
   err+= tst_obi_nu(dbParams);
   err+= tst_obi_decode(dbParams,d1);
+  err+= tst_obi_decode(dbParams,d2);
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSObi",(err?"FAIL":"PASS"),seconds);

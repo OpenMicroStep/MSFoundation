@@ -14,19 +14,9 @@
 + (NSString *)applicationName { return @"MessengerForMunicipolMobileServerApp" ; }
 - (NSString *)applicationFullName { return @"Messenger Municipol Mobile Server application" ; }
 
-- (id)initWithCertificateFile:(NSString *)certificateFile
-                      keyFile:(NSString *)keyFile
-                       CAFile:(NSString *)CAFile
-                     onServer:(NSString *)server
-                      baseURL:(NSString *)baseURL
-                         port:(MSUInt)port
+- (id)initWithServerParameters:(NSDictionary *)parameters
 {
-    if ([super initWithCertificateFile:certificateFile
-                               keyFile:keyFile
-                                CAFile:CAFile
-                              onServer:server
-                               baseURL:baseURL
-                                  port:port])
+    if ([self initWithServerParameters:parameters])
     {
         _responseFormat = MHMResponseFormatMSTE ; //default response format
         return self ;
@@ -76,29 +66,17 @@
     return decodedObject ;
 }
 
-- (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorBuffer:(MSBuffer **)errorBuffer
+- (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorString:(NSString **)error
 {
     NSString *responseFormatStr = [self _responseFormatToString] ;
     
     [request addAdditionalHeaderValue:responseFormatStr forKey:@"Accept"] ;
     
-    return [super performRequest:request errorBuffer:errorBuffer] ;
+    return [super performRequest:request errorString:error] ;
 }
 
 - (void)setResponseFormat:(MHMessengerResponseFormat)responseFormat { _responseFormat = responseFormat ; }
 - (MHMessengerResponseFormat)responseFormat { return _responseFormat ; }
-
-- (MSHTTPRequest *)authenticationRequest
-{
-    MSHTTPRequest *request = nil ;
-    char *content = "DUMMY" ;
-    
-    request = [MSHTTPRequest requestWithMethod:POST toHost:[self server] url:[self baseURL]] ;
-    [request addBytes:(void *)content length:strlen(content)] ;
-    [request setContentType:@"text/xml; charset=utf-8"] ;
-    
-    return request ;
-}
 
 - (BOOL)sendMessage:(MHMessengerMessage *)message
 {
@@ -116,14 +94,15 @@
         MSULong envelopeLength = 0 ;
         NSString *contentType = nil ;
         MSBuffer *messageBuf = [message dataWithEnvelopeType:envelopeType envelopeLength:&envelopeLength contentType:&contentType] ;
-
-        request = [MSHTTPRequest requestWithMethod:POST toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MESSENGER_SUB_URL_SEND_MSG]] ;
+        
+        request = [self request:POST onSubURL:MESSENGER_SUB_URL_SEND_MSG] ;
+        
         [request addBytes:(void *)[messageBuf bytes] length:[messageBuf length]] ;
         [request addAdditionalHeaderValue:[NSNumber numberWithLongLong:envelopeLength] forKey:MESSENGER_HEAD_ENVELOPPE_LENGTH] ;
         [request addAdditionalHeaderValue:(envelopeType == MHMEnvelopeTypePlain) ? MESSENGER_ENV_TYPE_PLAIN : MESSENGER_ENV_TYPE_MSTE forKey:MESSENGER_HEAD_ENVELOPPE_TYPE] ;
         [request setContentType:contentType] ; //GEO TODO REVIEW
         
-        response = [self performRequest:request errorBuffer:NULL] ;
+        response = [self performRequest:request errorString:NULL] ;
         sent = ([response HTTPStatus] == 200) ;
     }
     
@@ -140,10 +119,10 @@
         MSHTTPResponse *response = nil ;
         NSDictionary *responseDic = nil ;
         
-        request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MESSENGER_SUB_URL_FIND_MSG]] ;
+        request = [self request:GET onSubURL:MESSENGER_SUB_URL_FIND_MSG] ;
         [request addQueryParameter:mid forKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
         
-        response = [self performRequest:request errorBuffer:NULL] ;
+        response = [self performRequest:request errorString:NULL] ;
         responseDic = [self _decodedObjectFromBuffer:[response content]] ;
         
         if ([responseDic count])
@@ -156,7 +135,7 @@
     return exist ;
 }
 
-- (NSArray *)findMessagesForThread:(NSString *)thread status:(MSUInt)status externalIdentifier:(NSString *)xid maxResponses:(MSUInt)maxResponses hasMore:(BOOL *)hasMore ;
+- (NSArray *)findMessagesForThread:(NSString *)thread status:(MSUInt)status externalIdentifier:(NSString *)xid maxResponses:(MSUInt)maxResponses hasMore:(BOOL *)hasMore
 {
     NSArray *messagesFound = nil ;
     
@@ -165,12 +144,13 @@
         MSHTTPRequest *request = nil ;
         MSHTTPResponse *response = nil ;
         NSDictionary *responseDic = nil ;
-        request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MESSENGER_SUB_URL_FIND_MSG]] ;
+        
+        request = [self request:GET onSubURL:MESSENGER_SUB_URL_FIND_MSG] ;
         [request addQueryParameter:thread forKey:MESSENGER_QUERY_PARAM_THREAD_ID] ;
         [request addQueryParameter:xid forKey:MESSENGER_QUERY_PARAM_EXTERNAL_REF] ;
         [request addQueryParameter:[NSNumber numberWithInt:maxResponses] forKey:MESSENGER_QUERY_PARAM_MAX] ;
         
-        response = [self performRequest:request errorBuffer:NULL] ;
+        response = [self performRequest:request errorString:NULL] ;
         responseDic = [self _decodedObjectFromBuffer:[response content]] ;
         
         if ([responseDic count])
@@ -191,10 +171,10 @@
     {
         MSHTTPRequest *request = nil ;
         MSHTTPResponse *response = nil ;
-        request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MESSENGER_SUB_URL_SET_MSG_STATUS]] ;
+        request = [self request:GET onSubURL:MESSENGER_SUB_URL_SET_MSG_STATUS] ;
         [request addQueryParameter:mid forKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
         [request addQueryParameter:[NSString stringWithFormat:@"%d",status] forKey:MESSENGER_QUERY_PARAM_STATUS] ;
-        response = [self performRequest:request errorBuffer:NULL] ;
+        response = [self performRequest:request errorString:NULL] ;
         
         statusSet = ([response HTTPStatus] == 200) ;
     }
@@ -211,10 +191,11 @@
         MSHTTPRequest *request = nil ;
         MSHTTPResponse *response = nil ;
         NSDictionary *responseDic = nil ;
-        request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MESSENGER_SUB_URL_GET_MSG_STATUS]] ;
+
+        request = [self request:GET onSubURL:MESSENGER_SUB_URL_GET_MSG_STATUS] ;
         [request addQueryParameter:mid forKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
         
-        response = [self performRequest:request errorBuffer:NULL] ;
+        response = [self performRequest:request errorString:NULL] ;
         responseDic = [self _decodedObjectFromBuffer:[response content]] ;
         
         if ([responseDic count])
@@ -234,10 +215,11 @@
     {
         MSHTTPRequest *request = nil ;
         MSHTTPResponse *response = nil ;
-        request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MESSENGER_SUB_URL_DEL_MSG]] ;
+        
+        request = [self request:GET onSubURL:MESSENGER_SUB_URL_DEL_MSG] ;
         [request addQueryParameter:mid forKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
 
-        response = [self performRequest:request errorBuffer:NULL] ;
+        response = [self performRequest:request errorString:NULL] ;
         deleted = ([response HTTPStatus] == 200) ;
     }
     
@@ -297,11 +279,11 @@
         MSBuffer *buffer = nil ;
         NSString *envelopeTypeStr = [self _envelopeTypeStringForEnum:envelopeType] ;
         
-        request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MESSENGER_SUB_URL_GET_MSG]] ;
+        request = [self request:GET onSubURL:MESSENGER_SUB_URL_GET_MSG] ;
         [request addQueryParameter:mid forKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
         [request addQueryParameter:envelopeTypeStr forKey:MESSENGER_QUERY_PARAM_MESSAGE_ENV] ;
         
-        response = [self performRequest:request errorBuffer:NULL] ;
+        response = [self performRequest:request errorString:NULL] ;
         buffer = [response content] ;
                 
         if([buffer length])

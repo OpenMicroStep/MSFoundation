@@ -63,6 +63,7 @@ MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger le
 - (NSString *)stringWithURLEncoding;
 - (NSString *)stringByAppendingURLComponent:(NSString *)urlComponent ;
 - (NSString *)stringByDeletingLastURLComponent;
+- (NSString *)decodedURLString ;
 @end
 
 @interface MSString : NSString
@@ -84,3 +85,5 @@ MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger le
 + (id)stringWithCapacity:(NSUInteger)capacity;
 - (id)initWithCapacity:(NSUInteger)capacity;
 @end
+
+#define MSCreateString(S) (MSString*)MCSCreate(S)

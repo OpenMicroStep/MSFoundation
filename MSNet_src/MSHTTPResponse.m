@@ -40,14 +40,14 @@
 
             if (!headerLineLength) break ;
             
-            headerLine = (MSString*)CCreateString(32) ;
+            headerLine = AUTORELEASE((MSString*)CCreateString(32)) ;
             CStringAppendBytes((CString*)headerLine,
               NSUTF8StringEncoding, headerStart, headerLineLength) ;
             
             if(first) //status line
             {
-                NSMutableArray *statusLine = [[headerLine componentsSeparatedByString:@" "] mutableCopy] ;
-                
+                NSMutableArray *statusLine = [[[headerLine componentsSeparatedByString:@" "] mutableCopy] autorelease] ;
+              
                 if([statusLine count] < 3)
                 {
                     ok = NO ;
@@ -84,7 +84,7 @@
             
             if(remainingBytes && [_headers objectForKey:@"Content-Length"]) //get content
             {
-                ASSIGN(_content, MSCreateBufferWithBytes((void *)bodyStart, remainingBytes)) ;
+                ASSIGN(_content, AUTORELEASE(MSCreateBufferWithBytes((void *)bodyStart, remainingBytes))) ;
             }
             return self ;
         }

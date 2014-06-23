@@ -255,6 +255,32 @@
                         if(!_headers[MHHTTPResponseFormat])
                             _headers[MHHTTPResponseFormat] = token + 17;
                     }
+                    else if(!strncasecmp(token, "MH-LOGIN: ", 10))
+                    {
+                        if(!_headers[MHHTTPAuthLogin])
+                            _headers[MHHTTPAuthLogin] = token + 10;
+                    }
+                    else if(!strncasecmp(token, "MH-PASSWORD: ", 13))
+                    {
+                        if(!_headers[MHHTTPAuthPassword])
+                            _headers[MHHTTPAuthPassword] = token + 13;
+                    }
+                    else if(!strncasecmp(token, "MH-TARGET: ", 11))
+                    {
+                        if(!_headers[MHHTTPAuthTarget])
+                            _headers[MHHTTPAuthTarget] = token + 11;
+                    }
+                    else if(!strncasecmp(token, "MH-CHALLENGE: ", 14))
+                    {
+                        if(!_headers[MHHTTPAuthChallenge])
+                            _headers[MHHTTPAuthChallenge] = token + 14;
+                    }
+                    else if(!strncasecmp(token, "MH-URN: ", 8))
+                    {
+                        if(!_headers[MHHTTPAuthURN])
+                            _headers[MHHTTPAuthURN] = token + 8;
+                    }
+                    
                     token = strtok_r(NULL, "\r\n", &savedPtr);
                 }
                 _fullBodySize = (MSUInt)bodySize;
@@ -415,10 +441,10 @@
         [queryString appendString:[url substringFromIndex:(questionMark.location + 1)]] ;
     }
     
-    if([method isEqualToString:MHTTPMethodPOST])
+    if([method isEqualToString:MHHTTPMethodPOST])
     {
         // POST method => check the content-type then extract parameters from the body
-        if([[self getHeader:MHHTTPBodyType] isEqualToString:@"application/x-www-form-urlencoded"])
+        if([[self getHeader:MHHTTPBodyType] containsString:@"application/x-www-form-urlencoded"])
         {
             if(_fullBodySize < 4096)
             {
@@ -472,12 +498,12 @@
 
 - (BOOL)isGetRequest
 {
-    return [[self httpMethod] isEqualToString:MHTTPMethodGET] ;
+    return [[self httpMethod] isEqualToString:MHHTTPMethodGET] ;
 }
 
 - (BOOL)isPostRequest
 {
-    return [[self httpMethod] isEqualToString:MHTTPMethodPOST] ;
+    return [[self httpMethod] isEqualToString:MHHTTPMethodPOST] ;
 }
 
 - (BOOL)clientBrowserSupportsDeflateCompression

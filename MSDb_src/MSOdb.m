@@ -113,22 +113,24 @@ NSLog(@"_valTables %@",_valTables);
 
 - (NSString*)description
 {
-  CString *s;
-  s= MSSCreate(NULL);
-  CStringAppendEncodedFormat(s, NSUTF8StringEncoding, "[MSOdb:%p]", self);
-  return (id)s;
+  MSString *s;
+  s= MSCreateString(NULL);
+  CStringAppendEncodedFormat((CString*)s, NSUTF8StringEncoding, "[MSOdb:%p]", self);
+  return s;
 }
+
+- (NSString*)escapeString:(NSString*)aString withQuotes:(BOOL)withQuotes
+  {
+  return [_db escapeString:aString withQuotes:withQuotes];
+  }
 
 #pragma mark Private
 
-- (NSString*)_escape:(id)s // quoted:(BOOL)quoted
-  {
-  return [_db escapeString:[s description] withQuotes:YES];
-  }
-
-- (NSString*)_inValues:(id)u quoted:(BOOL)quoted
+- (NSString*)_inValues:(id)u
   // retourne nil ou '="v"' ou ' IN("v1","v2")' (or not quoted)
   // If u is a dict, we take the keys.
+  // If u is an MSUid we take the oids, not the otherSystemNames.
+  // Values of u needs to respond to descriptionForDb:
   {
   NSMutableString *r;
   NSUInteger n; id ae, v; BOOL dict,first;
@@ -141,7 +143,7 @@ NSLog(@"_valTables %@",_valTables);
   else {
     ae= [([u isKindOfClass:[MSUid class]]?[u oids]:u) objectEnumerator]; dict= NO;}
   for (first= YES; (v= (dict?[ae nextKey]:[ae nextObject])); first= NO) {
-    [r appendFormat:@"%@%@",(first?@"":@","),(quoted?[self _escape:v]:v)];}
+    [r appendFormat:@"%@%@",(first?@"":@","),[v descriptionForDb:self]];}
   if (n>1) [r appendString:@")"];
   return r;
   }
@@ -236,7 +238,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   {
   MSMutableDictionary *search;
   id ids,q,te,t, cs,ce,cid,vs, oi,oc,ocs,ie;
-  BOOL quoted; MSULong nc; MSLong i,c; MSDBResultSet *result;
+  MSULong nc; MSLong i,c; MSDBResultSet *result;
   if (![tcars count]) return nil;
   ids= nil;
   search= [MSMutableDictionary dictionary];
@@ -244,7 +246,6 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   nc= 0;
 //NSLog(@"Q1 %@",tcars);
   while ((t= [te nextKey])) {
-    quoted= [t isEqual:@"STR"]; // TODO: QUE STR ?
     q= nil;
     cs=  [te currentObject];
     nc+= [cs count];
@@ -257,7 +258,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
       [q appendFormat:@"(VAL_CAR=%@",cid];
       vs= [ce currentObject];
       if (![vs count]) [q appendString:@")"];
-      else [q appendFormat:@" AND VAL%@)",[self _inValues:vs quoted:quoted]];}
+      else [q appendFormat:@" AND VAL%@)",[self _inValues:vs]];}
 //NSLog(@"Q5 %@",q);
     result= [_db fetchWithRequest:q];
     while ([result nextRow]) {
@@ -451,17 +452,17 @@ static inline MSByte _valueTypeFromTable(id table)
   // Si au moins une car prend ses valeurs dans 'ID' on commence par
   // rechercher récursivement tous les ids.
   if ((cids4t= [tcids objectForKey:(t= @"ID")])) {
-    inCids4t= [self _inValues:cids4t quoted:NO];
+    inCids4t= [self _inValues:cids4t];
     is2= [MSUid uidWithUid:is];
     while ([is2 count]) {
 //NSLog(@"4 %@",is2);
-      inIds= [self _inValues:is2 quoted:NO];
+      inIds= [self _inValues:is2];
       is2= [self _fillAllIds:all :inIds :t :inCids4t];}}
-  inIds= [self _inValues:all quoted:NO];
+  inIds= [self _inValues:all];
   for (te= [tcids dictionaryEnumerator]; (t= [te nextKey]);) {
     if (![t isEqualToString:@"ID"]) {
       cids4t= [te currentObject];
-      inCids4t= [self _inValues:cids4t quoted:NO];
+      inCids4t= [self _inValues:cids4t];
 //NSLog(@"6 %@",t);
       [self _fillAllIds:all :inIds :t :inCids4t];}}
 //NSLog(@"8 %@",all);
@@ -474,8 +475,8 @@ static inline MSByte _valueTypeFromTable(id table)
 // TODO: traiter les sub sid automatiquement
 - (BOOL)changeObis:(MSDictionary*)x
   {
-  id de,obi,q,result,e,t,cid,vs,ve,v,tStr;
-  MSOid *oid; MSByte status; MSLong bid,oidv; BOOL ok,sys,done,creat,quoted;
+  id de,obi,q,result,e,t,cid,vs,ve,tStr; MSOValue *v;
+  MSOid *oid; MSByte status; MSLong bid,oidv; BOOL ok,sys,done,creat;
   sys= NO;
   // BEGIN TRANSACTION
   for (ok= YES, de= [x dictionaryEnumerator]; ok && (oid= [de nextKey]);) {
@@ -510,18 +511,17 @@ NSLog(@"%d %@",ok,q);
         if (ISEQUAL(cid, MSCarSystemNameId)) sys= YES;
         vs= [e currentObject];
         tStr= [self _table4Cid:cid];
-        quoted= [tStr isEqual:@"STR"];
         for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
           if ([v state]==MSRemove) {
-            if (quoted) v= [self _escape:v];
             q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%lld "
-                    "AND VAL_CAR=%@ AND VAL=%@",t,oidv,cid,[v typedValue]);
+                    "AND VAL_CAR=%@ AND VAL=%@",
+                   t,oidv,cid,[v descriptionForDb:self]);
             if ([_db executeRawSQL:[q UTF8String]]) ok= NO; else done= YES;}}
         for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
           if ([v state]==MSAdd) {
-            if (quoted) v= [self _escape:v];
             q= FMT(@"INSERT INTO TJ_VAL_%@ WHERE VAL_INST=%lld "
-                    "AND VAL_CAR=%@ AND VAL=%@",t,oidv,cid,[v typedValue]);
+                    "AND VAL_CAR=%@ AND VAL=%@",
+                   t,oidv,cid,[v descriptionForDb:self]);
             if ([_db executeRawSQL:[q UTF8String]]) ok= NO; else done= YES;}}}
       if (ok && creat) [obi setOid:[MSOid oidWithLongValue:oidv]];}
     if (ok && done && [_sysObiByOid objectForKey:x]) sys= YES;}
@@ -534,18 +534,22 @@ NSLog(@"%d %@",ok,q);
   return ok;
   }
 
-static inline id _subtrim(id l, NSRange rg)
+static inline id _subtrim(id l, NSRange rg) // sub to range and trim
 {
   if (rg.location!=NSNotFound) l= [l substringWithRange:rg];
   return [l stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 static inline id _obi(id l, id db, MSMutableDictionary *all, MSMutableDictionary *byName)
+// On reccherche dans all puis dans db et sinon, on le crée
+// l est un nombre ou une string.
+// Si on crée à partir d'une string, l'obi est créé avec un oid local (négatif)
 {
-  id obi= nil, oid;
-  if (![l length]) return  nil;
-  if ([[NSCharacterSet decimalDigitCharacterSet] characterIsMember:[l characterAtIndex:0]]) {
-    oid= [MSOid oidWithLongValue:[l longLongValue]];
-    // On reccherche dans all puis dans db et sinon, on le crée
+  id obi= nil, oid= nil;
+  if ([l isKindOfClass:[MSOid class]]) oid= l;
+  else if (![l length]) oid= nil;
+  else if ([[NSCharacterSet decimalDigitCharacterSet] characterIsMember:[l characterAtIndex:0]]) {
+    oid= [MSOid oidWithLongValue:[l longLongValue]];}
+  if (oid) {
     obi= [all objectForKey:oid];
     if (!obi) {
       obi= [db systemObiWithOid:oid];
@@ -565,13 +569,17 @@ static inline id _obi(id l, id db, MSMutableDictionary *all, MSMutableDictionary
         [all setObject:obi forKey:[obi oid]];}}}
   return obi;
 }
-static inline void _addIfNeeded(id obi, id cid, id tableStr, id v,
+static inline void _addIfNeeded(id obi, id cid, id tableStr, id v, id o,
   id db, MSMutableDictionary *all, MSMutableDictionary *byName)
+// Ajoute à obi cid:v sauf si exsite déjà (quand T8 ou B8) TODO: S8 R8
 {
   id vobi,vs,val,vo; _btypedValue tv; MSByte type;
   type= _valueTypeFromTable(tableStr);
   if (type==B8 && [v isKindOfClass:[NSString class]]) {
     vobi= _obi(v,db,all,byName);
+    v= [vobi oid];}
+  else if (type==B8 && o) {
+    vobi= o;
     v= [vobi oid];}
   vs= [obi typedValuesForCid:cid];
   vo= nil;
@@ -582,58 +590,115 @@ static inline void _addIfNeeded(id obi, id cid, id tableStr, id v,
   else {
     val= [MSOValue valueWithCid:cid state:MSAdd type:type
       timestamp:0 value:tv];
+    // TODO: add vobi as val subObject
     [obi setValue:val];
     }
+NSLog(@"   %@ -> car: %@ value: %@",[obi oid],cid,v);
 }
-- (MSMutableDictionary*)decodeObis:(MSString*)x
+static inline void _addCarValue(id obi, id car, id v, id o,
+  id db, MSMutableDictionary *all, MSMutableDictionary *byName)
+  {
+  id typId,typ,t;
+  t= nil;
+  // on recherche t: le type de la car (peut-être inconnu)
+  if ((typId= [car oidValueForCid:MSCarTypeId])) {
+    typ= [all objectForKey:typId];
+    if (!typ) {
+      typ= [db systemObiWithOid:typId];
+      if (typ) [all setObject:typ forKey:typId];}
+    if (typ && !(t= [typ stringValueForCid:MSCarTableId]))
+      t= [typ stringValueForCid:MSCarSystemNameId];}
+  if (!t) t= @"ID";
+  // TODO: NON on ne peut pas inférer le type. Il faut faire en deux tours.
+  _addIfNeeded(obi,[car oid],t,v,o,db,all,byName);
+  }
+static id _readObiCidValue(MSString *x, NSUInteger *plineBeg, NSUInteger xEnd,
+  id db, MSMutableDictionary *all, MSMutableDictionary *byName, BOOL *pok)
 {
-  id db= nil;
-//id db= self;
-  MSMutableDictionary *all,*byName; MSMutableArray *obis;
-  BOOL ok; NSUInteger lbeg,nlbeg,lend,xend; id l,veObi,c,v,obi,cObi; NSRange rg;
-  all= [MSMutableDictionary new];
-  byName= [MSMutableDictionary new];
-  [byName setObject:@"_id"  forKey:@"_id" ];
-  [byName setObject:@"_end" forKey:@"_end"];
-  obis= [MSMutableArray new];
-  veObi= obi= nil;
-  for (ok= YES, xend= [x length], lbeg= 0; ok && lbeg<xend; lbeg= nlbeg) {
-    [x getLineStart:&lbeg end:&nlbeg contentsEnd:&lend forRange:NSMakeRange(lbeg,1)];
-    l= [x substringWithRange:NSMakeRange(lbeg, lend-lbeg)];
+  id obiEntityValue, obi, l,c,car,v,o; BOOL cis_id, subOk;
+  NSUInteger lineBeg,nextLineBeg, lineEnd; NSRange rg;
+  NSUInteger state;
+  obi= obiEntityValue= nil;
+  for (state= 1, lineBeg= *plineBeg; state==1 && lineBeg<xEnd;) {
+    [x getLineStart:&lineBeg end:&nextLineBeg contentsEnd:&lineEnd
+       forRange:NSMakeRange(lineBeg,1)];
+    l= [x substringWithRange:NSMakeRange(lineBeg, lineEnd-lineBeg)];
+    lineBeg= nextLineBeg;
     rg= [l rangeOfString:@"//"];
     l= _subtrim(l, (rg.location==NSNotFound?rg:NSMakeRange(0,rg.location)));
     if ([l length]) {
 NSLog(@"-%@-",l);
       rg= [l rangeOfString:@":"];
-      if (!rg.length) { // C'est l'entité d'un nouvel objet
-        veObi= l;}
+      // Lecture de l'entité
+      if (!rg.length) { // pas de ':', c'est l'entité d'un nouvel objet
+        obiEntityValue= l;}
+      // Lecture des cars
       else {
         c= _subtrim(l, NSMakeRange(0,rg.location));
-        if (ISEQUAL(c,@"_end")) {
-          if ([obis count]) [obis removeLastObject]; else ok= NO;
-          obi= [obis count]?[obis objectAtIndex:1]:nil;
-          veObi= nil;}
-        else if (ISEQUAL(c,@"_id")) {
+        cis_id= ISEQUAL(c,@"_id");
+        if (ISEQUAL(c,@"_end")) state= 2; // this is the end
+        else if (!obi && !obiEntityValue) state= 0;
+        // en fait on pourrait accepter !obiEntityValue mais alors il faudrait
+        // la rechercher à partir de upC
+        else if (obi && cis_id) state= 0; // _id ne peut être que la 1ère car
+        else { // car: value
           v= _subtrim(l, NSMakeRange(NSMaxRange(rg),[l length]-NSMaxRange(rg)));
-          obi= _obi(v,db,all,byName);
-          if (!obi || !veObi) ok= NO;
-          else {
-            _addIfNeeded(obi,MSCarEntityId,@"ID",veObi,db,all,byName);}}
-        else { // cid: value
-          id typId,typ,t;
-          cObi= _obi(c,db,all,byName);
-          v= _subtrim(l, NSMakeRange(NSMaxRange(rg),[l length]-NSMaxRange(rg)));
-          // on recherche t: le type de la car (peut-être inconnu)
-          t= 0;
-          if ((typId= [cObi oidValueForCid:MSCarTypeId])) {
-            typ= [all objectForKey:typId];
-            if (!typ) {
-              typ= [db systemObiWithOid:typId];
-              if (typ) [all setObject:typ forKey:typId];}
-            if (typ && !(t= [typ stringValueForCid:MSCarTableId]))
-              t= [typ stringValueForCid:MSCarSystemNameId];}
-          _addIfNeeded(obi,[cObi oid],t,v,db,all,byName);
-          }}}}
+          if (!obi) {
+            obi= _obi((cis_id?v:nil),db,all,byName);
+            if (!obi) state= 0;
+            else if (obiEntityValue) {
+              car= _obi(MSCarEntityId,db,all,byName);
+              _addCarValue(obi, car, obiEntityValue,nil, db, all, byName);}}
+          if (state==1 && !cis_id) {
+            car= _obi(c,db,all,byName);
+            if (!v || ISEQUAL(v,@"")) { // début d'un sous obi
+              o= _readObiCidValue(x,&lineBeg,xEnd, db,all,byName, &subOk);
+              if (!subOk || !o) state= 0;
+              else _addCarValue(obi, car, nil,o, db, all, byName);}
+            // Enfin, la car normale
+            else {
+              _addCarValue(obi, car, v,nil, db, all, byName);
+              // Attention cette car doit être la deuxième après _id
+              // Car pas de sous-objet si jamais on doit échanger (cf. ci-après).
+              // Si un obi systeme est redéfinit, il doit aussi redéfinir son
+              // _id et celui-ci doit être identique.
+              // TODO: Si _id local (ie champs _id non redéfinit), échanger
+              // l'obi avec l'obi système ?
+              // Ex: Ent / _id: xxx / system name : Car ...
+              // TODO: Si _id non local et non identique, => conflit.
+              // On enregistre dans byName et si déjà connu, on échange l'obi
+              // avec celui de byName.
+              if (ISEQUAL([car oid],MSCarSystemNameLib) ||
+                  ISEQUAL(c,MSCarSystemNameLib)) {
+                id knownObi= [byName objectForKey:v];
+NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu":@"Remplacé"),v);
+                if (!knownObi) [byName setObject:obi forKey:v];
+                else if (knownObi!=obi) {
+                  // On est obligé de prendre le knownObi car il est peut-être
+                  // déjà utilisé par ailleurs. Néanmoins, si ![[obi oid] isLocal]
+                  // mais [[knownObi oid] isLocal], il faut changer la valeur de
+                  // l'oid de knownObi par celle de obi.
+                  if ([[knownObi oid] isLocal] && ![[obi oid] isLocal])
+                    [[knownObi oid] setNonLocalLongValue:[[obi oid] longValue]];
+                  obi= knownObi;
+                  }}}}}}}}
+  *plineBeg= lineBeg;
+  *pok= (state==2);
+  return obi;
+}
+- (MSMutableDictionary*)decodeObis:(MSString*)x
+// Référence locale négative ou référence externe nom système ou #id ?
+// Retourne tous les obis décodés, le premier étant le root.
+{
+id db= nil;
+//id db= self;
+  MSMutableDictionary *all,*byName;
+  BOOL ok; NSUInteger lineBeg,xEnd; id obi;
+  all= [MSMutableDictionary new];
+  byName= [MSMutableDictionary new];
+  lineBeg= 0;
+  xEnd= [x length];
+  obi= _readObiCidValue(x,&lineBeg,xEnd, db,all,byName, &ok);
 NSLog(@"A");
 NSLog(@"all:%@",[MSUid uidWithUid:[all allKeys]]);
 NSLog(@"all:%@",[all allObjects]);

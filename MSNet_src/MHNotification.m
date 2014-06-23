@@ -112,7 +112,7 @@
         else _expirationDate = 0 ;
 
         [self lockWaitingNotifications] ;
-        waitingNotification = NSMapGet([self waitingNotifications], (const void *)fd) ;
+        waitingNotification = NSMapGet([self waitingNotifications], (const void *)(intptr_t)fd) ;
 
         if (waitingNotification) {
             //there is already a notification waiting on this socket! waiting...
@@ -135,7 +135,7 @@
             }
         }
 
-        NSMapInsert([self waitingNotifications], (const void *)fd, self) ;
+        NSMapInsert([self waitingNotifications], (const void *)(intptr_t)fd, self) ;
         [self unlockWaitingNotifications] ;
 
         result = MHSendDataOnConnectedSocket(data, fd, &error) ;
@@ -148,7 +148,7 @@
         }
         else {
             [self lockWaitingNotifications] ;
-            NSMapRemove([self waitingNotifications], (const void *)fd) ;
+            NSMapRemove([self waitingNotifications], (const void *)(intptr_t)fd) ;
             MHCancelAllProcessingNotificationsForClientSocket(fd, _isAdminNotification);
             [self unlockWaitingNotifications] ;
             if (error) {
@@ -180,8 +180,8 @@
         else _expirationDate = 0 ;
 
         [self lockWaitingNotifications] ;
-        waitingNotification = NSMapGet([self waitingNotifications], (const void *)_fd) ;
-        
+        waitingNotification = NSMapGet([self waitingNotifications], (const void *)(intptr_t)_fd) ;
+      
         if (waitingNotification) {
             //there is already a notification waiting on this socket! waiting...
             if (canDelay) {
@@ -203,7 +203,7 @@
             }
         }
 
-        NSMapInsert([self waitingNotifications], (const void *)_fd, self) ;
+        NSMapInsert([self waitingNotifications], (const void *)(intptr_t)_fd, self) ;
         [self unlockWaitingNotifications] ;
 
         result = MHSendDataOnConnectedSSLSocket(data, secureSocket, &error) ;
@@ -216,7 +216,7 @@
         }
         else {
             [self lockWaitingNotifications] ;
-            NSMapRemove([self waitingNotifications], (const void *)_fd) ;
+            NSMapRemove([self waitingNotifications], (const void *)(intptr_t)_fd) ;
             [self unlockWaitingNotifications] ;
             if (error) {
                 MHServerLogWithLevel(MHLogError, @"[MHNotification sendData:onSSLSocket:retainedReceiverTarget:action:timeout:] : Unable to send data on ssl socket (%@)", error) ;
@@ -265,10 +265,10 @@
 {
     [self lockWaitingNotifications] ;
     if (_secureSocket) {
-        NSMapRemove([self waitingNotifications], (const void *)[_secureSocket socket]) ;
+        NSMapRemove([self waitingNotifications], (const void *)(intptr_t)[_secureSocket socket]) ;
     }
     else {
-        NSMapRemove([self waitingNotifications], (const void *)_fd) ;
+        NSMapRemove([self waitingNotifications], (const void *)(intptr_t)_fd) ;
     }
     [self unlockWaitingNotifications] ;
     
@@ -294,14 +294,8 @@
 {
     BOOL result = NO ;
     if (closeSession) {
-        if ([[_session application] isKindOfClass:[MHAuthenticatedApplication class]]) {
-            result = MHCloseBrowserSession([_message clientSecureSocket], _session, status) ;
-            [self closeSession] ;
-        }
-        else {
-            [self closeSession] ;
-            result = YES ;
-        }
+        result = MHCloseBrowserSession([_message clientSecureSocket], _session, status) ;
+        [self closeSession] ;
     }
     else {
         NSMutableDictionary * hdrs = [NSMutableDictionary dictionaryWithDictionary:headers];
@@ -323,9 +317,9 @@
     return MHPostProcess(input, parameters, output, html, message) ;
 }
 
-- (BOOL)redirectToURL:(NSString *)url
+- (BOOL)redirectToURL:(NSString *)url isPermanent:(BOOL)isPermanent
 {
-    return MHRedirectToURL([[self message] clientSecureSocket], url) ;
+    return MHRedirectToURL([[self message] clientSecureSocket], url, isPermanent) ;
 }
 
 - (BOOL)respondsToMessageWithResource:(MHDownloadResource *)resource useOnce:(BOOL)useOnce lifetime:(MSULong)seconds forMessage:(MHHTTPMessage *)message additionalHeaders:(NSDictionary *)headers
@@ -359,7 +353,7 @@
     if (!firstPage)
     {
         MHSession *session = [self session] ;
-        firstPage = [(MHAuthenticatedApplication *)[session application] firstPage:self] ;
+        firstPage = [[session application] firstPage:self] ;
     }
     
     MHValidateAuthentication(self, isAuthenticated, firstPage) ;

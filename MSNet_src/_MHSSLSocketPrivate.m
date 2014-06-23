@@ -57,6 +57,15 @@
 }
 
 - (SSL *)SSLSocket { return _secureSocket ; }
+- (void)setSSLSocket:(SSL *)secureSocket
+{
+    if (secureSocket)
+    {
+        [self close] ;
+        _secureSocket = secureSocket ;
+    }
+}
+
 - (MSInt)localPort { return _localPort ; }
 
 
@@ -219,7 +228,7 @@ static int __mh_ssl_twoWay_auth_id_ctx = 2 ;
     socklen_t addrlen = sizeof(sin) ;
 #endif
     _ssl_ctx = ctx ;
-    _secureSocket = OPENSSL_SSL_new(_ssl_ctx);
+    [self setSSLSocket:OPENSSL_SSL_new(_ssl_ctx)] ;
     OPENSSL_SSL_set_fd(_secureSocket, sd);
     _socket = sd ;
     _isBlockingIO = isBlockingIO ;

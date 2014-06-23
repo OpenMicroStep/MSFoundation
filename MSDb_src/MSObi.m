@@ -98,41 +98,40 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   [super dealloc];
   }
 
-- (NSString*)_description
+- (NSString*)_descriptionWithType:(BOOL)withType
   {
-  id d= nil;
-  id v= _valueType==S8 ?
-          (ISEQUAL(_cid,MSCarDateId) ? // || [_cid longValue]==110000?
-            [(d= [[MSDate alloc] initWithSecondsSinceLocalReferenceDate:_value.s])
-              descriptionWithCalendarFormat:@"%d/%m/%Y"] :
-            FMT(@"%lld", _value.s)) :
-        _valueType==R8 ? FMT(@"%f", _value.r) :
-        _valueType==B8 ? FMT(@"%@", _value.b) :
-        _valueType==T8 ? _value.t : @"Unknown value";
-  RELEASE(d);
+  id v;
+  if (_valueType==S8) {
+    if (ISEQUAL(_cid,MSCarDateId)) {
+      id d= [[MSDate alloc] initWithSecondsSinceLocalReferenceDate:_value.s];
+      v= [d descriptionWithCalendarFormat:(withType?@"D %d/%m/%Y":@"%d/%m/%Y")];
+      RELEASE(d);}
+    else v= FMT((withType?@"S %lld":@"%lld"), _value.s);}
+  else v=
+    _valueType==R8 ? FMT((withType?@"R %f":@"%f"), _value.r) :
+    _valueType==B8 ? FMT((withType?@"B %@":@"%@"), _value.b) :
+    _valueType==T8 ? (withType?FMT(@"T %@",_value.t):_value.t) :
+    @"Unknown value";
   if (_state==MSAdd) v= FMT(@"%@[+]",v);
   return v;
   }
 - (NSString*)description:(int)n
   {
-  id d= nil;
-  id v= _valueType==S8 ?
-          (ISEQUAL(_cid,MSCarDateId) ? // || [_cid longValue]==110000?
-            [(d= [[MSDate alloc] initWithSecondsSinceLocalReferenceDate:_value.s])
-              descriptionWithCalendarFormat:@"%d/%m/%Y"] :
-            FMT(@"S %lld", _value.s)) :
-        _valueType==R8 ? FMT(@"R %f"  , _value.r) :
-        _valueType==B8 ?
-          (!n && _subValue ? [_subValue description:n+1]
-                           : FMT(@"B %@", _value.b)) :
-        _valueType==T8 ? _value.t : @"Unknown value";
-  RELEASE(d);
+  id v= [self _descriptionWithType:YES];
+  if (_valueType==B8 && !n && _subValue) v=  [_subValue description:n+1];
 //return FMT(@"[%lld %lld %@]", _carBid, _timestamp, v);
   return ISEQUAL(_cid,MSCarEntityId) ? v : FMT(@"{%@}", v);
   }
 - (NSString*)description
   {
-  return [self _description];
+  return [self _descriptionWithType:NO];
+  }
+- (NSString*)descriptionForDb:(MSOdb*)db
+  {
+  id v= [self _descriptionWithType:NO];
+  if      (!_valueType)    return [db escapeString:@"" withQuotes:YES];
+  else if (_valueType==T8) return [db escapeString:v   withQuotes:YES];
+  else                     return v;
   }
 
 - (oid)cid
@@ -203,8 +202,6 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 
 @end
 
-static MSLong _MSObiNewLocalOidLongValue= -1;
-
 @implementation MSObi
 
 + (void)initialize
@@ -225,6 +222,7 @@ static MSLong _MSObiNewLocalOidLongValue= -1;
   }
 - (id)iniWithLocalId:(id)db
   {
+  static MSLong _MSObiNewLocalOidLongValue= -1;
   MSOid *oid;
   // Lock
   oid= [MSOid oidWithLongValue:_MSObiNewLocalOidLongValue--];

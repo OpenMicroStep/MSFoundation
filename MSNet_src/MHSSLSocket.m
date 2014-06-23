@@ -170,6 +170,7 @@ int MHCheckSocketState(int sock_fd, int writing)
 
 - (void)dealloc
 {
+    OPENSSL_SSL_CTX_free(_ssl_ctx) ;
     [self close] ;
     [super dealloc] ;
 }
@@ -184,7 +185,7 @@ int MHCheckSocketState(int sock_fd, int writing)
     BOOL isDir = NO ;
     _isBlockingIO = isBlockingIO ;
     //create ssl ctx
-    if((_ssl_ctx = MHCreateClientSSLContext(sslOptions)) == NULL) return NULL ;
+    if((_ssl_ctx = MHCreateClientSSLContext(sslOptions)) == NULL) return nil ;
     OPENSSL_SSL_CTX_set_mode(_ssl_ctx, SSL_MODE_AUTO_RETRY) ;
     
     //load cert and key is provided
@@ -198,8 +199,8 @@ int MHCheckSocketState(int sock_fd, int writing)
         
         certFilePathCStr = (char *)[certPath fileSystemRepresentation] ;
         keyFilePathCStr = (char *)[keyPath fileSystemRepresentation] ;
-
-        if(MHLoadCertificate(_ssl_ctx, certFilePathCStr, keyFilePathCStr) != EXIT_SUCCESS) return NULL ;
+        
+        if(MHLoadCertificate(_ssl_ctx, certFilePathCStr, keyFilePathCStr) != EXIT_SUCCESS) return nil ;
     }
     
     //load ca file if provided
@@ -231,14 +232,13 @@ int MHCheckSocketState(int sock_fd, int writing)
     //connect socket
     if((sd = MHNewSocketOnServerPort(server, port, _isBlockingIO, &error)) == -1) return NO ;
     
-    _secureSocket = OPENSSL_SSL_new(_ssl_ctx) ;
+    [self setSSLSocket:OPENSSL_SSL_new(_ssl_ctx)] ;
     OPENSSL_SSL_set_fd(_secureSocket, sd) ;
     _socket = sd ;
     
     do {
         connect = OPENSSL_SSL_connect(_secureSocket) ;
         err = OPENSSL_SSL_get_error(_secureSocket, connect);
-        
     } while (!_isBlockingIO && connect < 0 && (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE)) ;
     
     if (connect != 1)

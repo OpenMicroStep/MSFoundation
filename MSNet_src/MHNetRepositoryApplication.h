@@ -1,6 +1,6 @@
 /*
  
- _MASHPrivate.h
+ _MHNetRepositoryApplication
  
  This file is is a part of the MicroStep Application Server over Http Framework.
  
@@ -41,79 +41,37 @@
  
  */
 
-//#import <MSFoundation/MSFoundation.h>
-#import "MSNet_Private.h"
+#define URN NSString
 
-#ifdef WO451
+#define MHNR_QUERY_PARAM_URN            @"urn"
+#define MHNR_QUERY_PARAM_TID            @"tid"
+#define MHNR_QUERY_PARAM_KEY            @"key"
+#define MHNR_QUERY_PARAM_UNDER_ID       @"underIdentifier"
+#define MHNR_QUERY_PARAM_IN_TREE        @"inTree"
+#define MHNR_QUERY_PARAM_SEPARATOR      @"|"
 
-#ifdef __cplusplus
-#define MASHExport					extern "C" __declspec(dllimport)
-#define MASHImport					extern "C" __declspec(dllimport)
-#define MASHPrivate					extern
-#else
-#define MASHExport					__declspec(dllexport) extern
-#define MASHImport					__declspec(dllimport) extern
-#define MASHPrivate					extern
-#endif
+#define MHNR_SUB_URL_ID_FOR_URN         @"identifierForURN"
+#define MHNR_SUB_URL_GET_PUB_INFOS      @"getPublicInformations"
 
-#else
+#define MHNR_KEY_URN                    @"urn"
+#define MHNR_KEY_SERVICE                @"service"
+#define MHNR_KEY_PERSON                 @"person"
+#define MHNR_KEY_PUBLIC_KEY             @"public key"
+#define MHNR_KEY_CERTIFICATE            @"certificate"
 
-#ifdef __cplusplus
-#define MASHExport					extern "C"
-#define MASHImport					extern "C"
-#define MASHPrivate					extern "C"
-#else
-#define MASHExport					extern
-#define MASHImport					extern
-#if defined(MAC_OS_X_VERSION_MAX_ALLOWED)
-#define MASHPrivate					extern
-#else
-#define MASHPrivate					__private_extern__
-#endif
-#endif
+#define MHNR_TREE_SERVICE               @"service"
+#define MHNR_TREE_PERSON                @"person"
 
-#endif
 
-#import "_MHThreadPrivate.h"
-#import "_MHOpenSSLPrivate.h"
-#import "MHSSLSocket.h"
-#import "_MHSSLSocketPrivate.h"
-#import "_MHQueuePrivate.h"
-#import "MHLogging.h"
-#import "_MHBunchAllocatorPrivate.h"
-#import "_MHBunchRegisterPrivate.h"
-#import "_MHQueuePrivate.h"
+@class EID ;
 
-#import "MHPublicProtocols.h"
+@class MHNRepository ;
 
-#import "MHBunchableObject.h"
-#import "MHHTTPMessage.h"
-#import "_MHHTTPMessagePrivate.h"
-#import "_CHTTPMessagePrivate.h"
-#import "MHApplication.h"
-#import "_MHApplicationPrivate.h"
-#import "MHNotification.h"
-#import "_MHNotificationPrivate.h"
-#import "_MHContext.h"
-#import "_MHSession.h"
-#import "_MHServerPrivate.h"
+@interface MHNetRepositoryApplication : MHApplication
+{
+}
 
-#import "_CNotificationPrivate.h"
-#import "MHResource.h"
-#import "_MHResourcePrivate.h"
-#import "_MHPostProcessingDelegate.h"
+- (void)verifyChallenge:(MHNotification *)notification ;
+- (void)getPublicKey:(MHNotification *)notification ;
 
-#import "_MHAdminApplication.h"
-#import "MHNetRepositoryApplication.h"
-#import "MHMessengerMessage.h"
-#import "_MHMessengerMessagePrivate.h"
-
-#import "MHServer.h"
-
-#import "MHApplicationClient.h"
-#import "MHCertificateAdditions.h"
-
-#import "MHApplicationClient.h"
-#import "MHMessengerClient.h"
-#import "MHNetRepositoryClient.h"
-
+@end

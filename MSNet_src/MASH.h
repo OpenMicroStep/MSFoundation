@@ -59,9 +59,7 @@
 #import <MASH/MHResource.h>
 #import <MASH/MHSSLSocket.h>
 #import <MASH/MHMessengerMessage.h>
-#import <MASH/MHNetRepository.h>
 #import <MASH/MHApplicationClient.h>
-#import <MASH/MHCertificateAdditions.h>
 
 #import <MASH/MHApplicationClient.h>
 #import <MASH/MHMessengerClient.h>

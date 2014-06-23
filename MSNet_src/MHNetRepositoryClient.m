@@ -9,75 +9,65 @@
 //#import <MASH/MASH.h>
 #import "_MASHPrivate.h"
 #import "MHNetRepositoryClient.h"
+#import "MHNetRepositoryApplication.h"
 
 #define CRLF @"\r\n"
 
 @implementation MHNetRepositoryClient
 
-- (MSHTTPRequest *)authenticationRequest
+- (NSString *)publicKeyForURN:(NSString *)urn
 {
+    //GEO TODO #define hard-coded values
+    NSString *publicKey = nil ;
+    MSHTTPResponse *response = nil ;
     MSHTTPRequest *request = nil ;
-    char *content = "DUMMY" ;
+    MSBuffer *responseContent = nil ;
+    NSString *error = nil ;
     
-    request = [MSHTTPRequest requestWithMethod:POST toHost:[self server] url:[self baseURL]] ;
-    [request addBytes:(void *)content length:strlen(content)] ;
-    [request setContentType:@"text/xml; charset=utf-8"] ;
+    request = [self request:GET onSubURL:@"getPublicKey"] ;
+    [request addAdditionalHeaderValue:urn forKey:@"MH-URN"] ;
+    response = [self performRequest:request errorString:&error] ;
+    responseContent = [response content] ;
     
-    return request ;
+    if (!error && [response HTTPStatus] == HTTPOK && [responseContent length])
+    {
+        publicKey = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[responseContent bytes], [responseContent length], YES, YES)) ;
+    }
+    
+    return publicKey ;
 }
 
-- (TID *)identifierForUrn:(NSString *)urn
+
+- (BOOL)verifyChallengedPassword:(NSString *)password
+                        forLogin:(NSString *)login
+                    andChallenge:(NSString *)challenge
 {
-    TID *tid = nil ;
-    MSHTTPRequest *request = nil ;
+    //GEO TODO #define hard-coded values
     MSHTTPResponse *response = nil ;
+    MSHTTPRequest *request = nil ;
+    NSString *authResponseStr = nil ;
+    BOOL auth = NO ;
+    NSString *error ;
+
+    request = [self request:GET onSubURL:@"verifyChallenge"] ;
+    [request addAdditionalHeaderValue:login forKey:@"MH-LOGIN"] ;
+    [request addAdditionalHeaderValue:password forKey:@"MH-PASSWORD"] ;
+    [request addAdditionalHeaderValue:challenge forKey:@"MH-CHALLENGE"] ;
     
-    request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MHNR_SUB_URL_ID_FOR_URN]] ;
-    [request addQueryParameter:urn forKey:MHNR_QUERY_PARAM_URN] ;
-    
-    response = [self performRequest:request errorBuffer:NULL] ;
-    
-    if(response)
+    response = [self performRequest:request errorString:&error] ;
+
+    if (response && !error)
     {
-        void *bytes = (void *)[[response content] bytes] ;
-                
-        if(bytes)
+        authResponseStr = [response headerValueForKey:MHAUTH_HEADER_RESPONSE] ;
+        
+        if ([response HTTPStatus] == HTTPOK &&
+            [MHAUTH_HEADER_RESPONSE_OK isEqualToString:authResponseStr])
         {
-            NSString *str = AUTORELEASE(MSCreateASCIIStringWithBytes(bytes, strlen(bytes), YES, YES)) ;
-            tid = [[str componentsSeparatedByString:CRLF] objectAtIndex:0] ;
+            auth = YES ;
         }
     }
     
-    return tid ;
-}
-
-- (NSDictionary *)_parseInformationResponse:(MSHTTPResponse *)response
-{
-    NSDictionary *dic = nil ;
-    void *bytes = (void *)[[response content] bytes] ;
-    
-    if (bytes)
-    {
-        dic = [[[NSString alloc] initWithData:[response content] encoding:NSUTF8StringEncoding] dictionaryValue];
-    }
-        
-    return dic ;
-}
-
-- (NSDictionary *)getPublicInformationsForKeys:(NSArray *)keys inTree:(NSString *)tree underIdentifier:(TID *)identifier
-{
-    MSHTTPRequest *request = nil ;
-    MSHTTPResponse *response = nil ;
-    NSString *splittedKeys = [keys componentsJoinedByString:MHNR_QUERY_PARAM_SEPARATOR] ;
-    
-    request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:MHNR_SUB_URL_GET_PUB_INFOS]] ;
-    [request addQueryParameter:splittedKeys forKey:MHNR_QUERY_PARAM_KEY] ;
-    [request addQueryParameter:identifier forKey:MHNR_QUERY_PARAM_UNDER_ID] ;
-    [request addQueryParameter:tree forKey:MHNR_QUERY_PARAM_IN_TREE] ;
-    
-    response = [self performRequest:request errorBuffer:NULL] ;
-    
-    return [self _parseInformationResponse:response] ;
+    return auth ;
 }
 
 @end

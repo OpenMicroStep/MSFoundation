@@ -41,9 +41,9 @@
  
  */
 
+//#import "MHApplication.h"
 
 @class MHHTTPMessage ;
-//@class MHContext ;
 @class MHSession ;
 @class MHDownloadResource ;
 @class MHSSLSocket ;
@@ -68,15 +68,6 @@ typedef enum {
     MHSocketSendingFailed,
     MHSocketDelayedSending
 } MHSocketSendingStatus ;
-
-typedef enum {
-    MHAuthUndefined      = 0,    //Authentification not defined yet
-    MHAuthNone           = 1,    //No authentication
-    MHAuthCustom         = 2,    //application defined authentication
-    MHAuthLoginPass      = 4,    //MHGUIAuthenticatedApplication : mhlogin + mhpasword
-    MHAuthTicket         = 16,   //ticket auth
-    MHAuthChallenge      = 32    //challenge auth
-} MHAppAuthentication ;
 
 @interface MHNotification : MHBunchableObject
 {
@@ -120,7 +111,7 @@ typedef enum {
 - (BOOL)prepareAndCacheResource:(MHDownloadResource *)resource childrenResources:(NSArray *)childRes useOnce:(BOOL)useOnce lifetime:(MSULong)seconds forceToDisk:(BOOL)forceToDisk ;
 - (BOOL)postProcessInput:(MHDownloadResource *)input withParameters:(MHDownloadResource *)parameters toOutputResource:(MHDownloadResource **)output andToOutputHTMLResource:(MHDownloadResource **)html usingValuesFromMessage:(MHHTTPMessage *)message ;
 //method to call to redirect client to an url
-- (BOOL)redirectToURL:(NSString *)url ;
+- (BOOL)redirectToURL:(NSString *)url isPermanent:(BOOL)isPermanent ;
 
 //method to call to send an http response to client
 - (BOOL)respondsToMessageWithBody:(MSBuffer *)body httpStatus:(MSUInt)status headers:(NSDictionary *)headers closeSession:(BOOL)closeSession ;
@@ -183,8 +174,8 @@ BOOL res = [notification postProcessInput:IR withParameters:PR toOutputResource:
 if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"postprocess: Error while post processing [%s:%d]",__FILE__,__LINE__]) ; \
 }
 
-#define MHREDIRECT_TO_URL(U)  { \
-BOOL res = [notification redirectToURL:U] ; \
+#define MHREDIRECT_TO_URL(U,P)  { \
+BOOL res = [notification redirectToURL:U isPermanent:P] ; \
 [notification end] ; \
 if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"redirectToURL: Error while responding on client socket [%s:%d]",__FILE__,__LINE__]) ; \
 } \

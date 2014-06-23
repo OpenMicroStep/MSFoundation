@@ -48,32 +48,35 @@ MSOid *MSTypIDId,*MSTypSIDId,*MSTypSTRId,*MSTypINTId,
       *MSTypDATId,*MSTypDTRId,*MSTypDURId;
 MSOid *MSObiDatabaseId;
 
+MSString *MSCarSystemNameLib;
+
 @implementation MSOid
 
 + (void)initialize
 {
   if ([self class] == [MSOid class]) {
-    MSEntEntId= [[MSOid alloc] initWithLongValue:1]; // id de l'entité 'ENT'
-//  MSEntCarId= [[MSOid alloc] initWithLongValue:3]; // id de l'entité 'Car'
-    MSEntTypId= [[MSOid alloc] initWithLongValue:5]; // id de l'entité 'Typ'
-    MSCarEntityId=         [[MSOid alloc] initWithLongValue:101]; // id de la car 'entité'
-    MSCarSystemNameId=     [[MSOid alloc] initWithLongValue:102]; // id de la car 'system name'
-//  MSCarClassNameId=      [[MSOid alloc] initWithLongValue:102]; // id de la car 'class name'
-//  MSCarCharacteristicId= [[MSOid alloc] initWithLongValue:103]; // id de la car 'caract.'
-    MSCarTypeId=           [[MSOid alloc] initWithLongValue:105]; // id de la car 'type'
-    MSCarTableId=          [[MSOid alloc] initWithLongValue:106]; // id de la car 'table'
-//  MSCarGabaritId=        [[MSOid alloc] initWithLongValue:107]; // id de la car 'gabarit'
-//  MSCarDomaineId=        [[MSOid alloc] initWithLongValue:109]; // id de la car 'domaine'
-    MSCarDateId=           [[MSOid alloc] initWithLongValue:135]; // id de la car 'date'
-//  MSCarLibelleId=        [[MSOid alloc] initWithLongValue:232]; // id de la car 'libellé'
-//  MSTypIDId=  [[MSOid alloc] initWithLongValue:1055]; // id du Type 'ID'
-//  MSTypSIDId= [[MSOid alloc] initWithLongValue:1056]; // id du Type 'SID'
-//  MSTypSTRId= [[MSOid alloc] initWithLongValue:1061]; // id du Type 'STR'
-//  MSTypINTId= [[MSOid alloc] initWithLongValue:1062]; // id du Type 'INT'
-//  MSTypDATId= [[MSOid alloc] initWithLongValue:1063]; // id du Type 'DAT'
-//  MSTypDTRId= [[MSOid alloc] initWithLongValue:1064]; // id du Type 'DTR'
-//  MSTypDURId= [[MSOid alloc] initWithLongValue:1065]; // id du Type 'DUR'
-    MSObiDatabaseId=       [[MSOid alloc] initWithLongValue:100000]; // id de la 'database'
+    MSEntEntId= [[MSOid alloc] initWithLongValue:1]; // id  de l'entité 'ENT'
+//  MSEntCarId= [[MSOid alloc] initWithLongValue:3]; // id  de l'entité 'Car'
+    MSEntTypId= [[MSOid alloc] initWithLongValue:5]; // id  de l'entité 'Typ'
+    MSCarEntityId=         [[MSOid alloc] initWithLongValue:101]; // id  de la car 'entité'
+    MSCarSystemNameId=     [[MSOid alloc] initWithLongValue:102]; // id  de la car 'system name'
+    MSCarSystemNameLib=    MSCreateString("nom système");         // lib de la car 'system name'
+//  MSCarClassNameId=      [[MSOid alloc] initWithLongValue:102]; // id  de la car 'class name'
+//  MSCarCharacteristicId= [[MSOid alloc] initWithLongValue:103]; // id  de la car 'caract.'
+    MSCarTypeId=           [[MSOid alloc] initWithLongValue:105]; // id  de la car 'type'
+    MSCarTableId=          [[MSOid alloc] initWithLongValue:106]; // id  de la car 'table'
+//  MSCarGabaritId=        [[MSOid alloc] initWithLongValue:107]; // id  de la car 'gabarit'
+//  MSCarDomaineId=        [[MSOid alloc] initWithLongValue:109]; // id  de la car 'domaine'
+    MSCarDateId=           [[MSOid alloc] initWithLongValue:135]; // id  de la car 'date'
+//  MSCarLibelleId=        [[MSOid alloc] initWithLongValue:232]; // id  de la car 'libellé'
+//  MSTypIDId=  [[MSOid alloc] initWithLongValue:1055]; // id  du Type 'ID'
+//  MSTypSIDId= [[MSOid alloc] initWithLongValue:1056]; // id  du Type 'SID'
+//  MSTypSTRId= [[MSOid alloc] initWithLongValue:1061]; // id  du Type 'STR'
+//  MSTypINTId= [[MSOid alloc] initWithLongValue:1062]; // id  du Type 'INT'
+//  MSTypDATId= [[MSOid alloc] initWithLongValue:1063]; // id  du Type 'DAT'
+//  MSTypDTRId= [[MSOid alloc] initWithLongValue:1064]; // id  du Type 'DTR'
+//  MSTypDURId= [[MSOid alloc] initWithLongValue:1065]; // id  du Type 'DUR'
+    MSObiDatabaseId=       [[MSOid alloc] initWithLongValue:100000]; // id  de la 'database'
     }
 }
 
@@ -128,11 +131,16 @@ MSOid *MSObiDatabaseId;
 
 - (NSString*)description
 {
-  CString *s;
-  s= MSSCreate(NULL);
-  CStringAppendEncodedFormat(s, NSUTF8StringEncoding, "%ld", _oid);
-  return (id)s;
+  MSString *s;
+  s= MSCreateString(NULL);
+  CStringAppendEncodedFormat((CString*)s, NSUTF8StringEncoding, "%ld", _oid);
+  return s;
 }
+- (NSString*)descriptionForDb:(MSOdb*)db
+  {
+  return [self description];
+  db= nil;
+  }
 
 - (MSOid*)oid
 {
@@ -144,6 +152,15 @@ MSOid *MSObiDatabaseId;
   return _oid;
 }
 
+- (BOOL)isLocal
+{
+  return (_oid<0);
+}
+
+- (void)setNonLocalLongValue:(MSLong)a
+{
+  if (_oid<0) _oid= a;
+}
 @end
 
 @implementation MSUid

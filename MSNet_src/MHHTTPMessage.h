@@ -157,8 +157,8 @@
 #define HTTPServiceUnavailable            503
 #define HTTPGatewayTimeout                504
 
-#define MHTTPMethodGET      @"GET"
-#define MHTTPMethodPOST     @"POST"
+#define MHHTTPMethodGET      @"GET"
+#define MHHTTPMethodPOST     @"POST"
 
 typedef enum {
     MHHTTPMethod = 0,
@@ -186,6 +186,11 @@ typedef enum {
     MHHTTPContextId,
     MHHTTPAuthResponse,
     MHHTTPAuthGetSession,
+    MHHTTPAuthLogin,
+    MHHTTPAuthPassword,
+    MHHTTPAuthTarget,
+    MHHTTPAuthChallenge,
+    MHHTTPAuthURN,
     MHHTTPUploadFileName,
     MHHTTPUploadResourceURL,
     MHHTTPContainsVolatileUploadedResource,

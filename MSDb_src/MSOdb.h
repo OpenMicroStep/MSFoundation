@@ -100,4 +100,8 @@
   // La car 'entity' est toujours remplie même si elle n'est pas demandée.
 
 - (MSMutableDictionary*)decodeObis:(MSString*)x;
+
+// Redirected on _db
+- (NSString*)escapeString:(NSString*)aString withQuotes:(BOOL)withQuotes;
+
 @end

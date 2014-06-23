@@ -48,11 +48,50 @@
 
 #import "_MASHPrivate.h"
 
+NSString *MHAuthenticationNameForType(MHAppAuthentication authType)
+{
+    NSString *authName = nil ;
+    
+    switch (authType) {
+        case MHAuthUndefined:
+            authName = @"MHAuthUndefined" ;
+            break;
+        case MHAuthCustom:
+            authName = @"MHAuthCustom" ;
+            break;
+        case MHAuthTicket:
+            authName = @"MHAuthTicket" ;
+            break;
+        case MHAuthSimpleGUIPasswordAndLogin:
+            authName = @"MHAuthSimpleGUIPasswordAndLogin" ;
+            break;
+        case MHAuthChallengedPasswordLogin:
+            authName = @"MHAuthChallengedPasswordLogin" ;
+            break;
+        case MHAuthChallengedPasswordLoginOnTarget:
+            authName = @"MHAuthChallengedPasswordLoginOnTarget" ;
+            break ;
+        case MHAuthPKChallengeAndURN:
+            authName = @"MHAuthPKChallengeAndURN" ;
+            break;
+        default:
+            authName = @"Not Supported" ;
+            break;
+    }
+    return authName ;
+}
+
 #define SESSION_DEFAULT_INIT_TIMEOUT 90
 #define SESSION_DEFAULT_AUTHENTICATED_TIMEOUT 600
 
 #define BUNDLE_AUTHENTICATED_RESOURCE_SUBDIRECTORY      @"authenticatedResources"
 #define BUNDLE_PUBLIC_RESOURCE_SUBDIRECTORY             @"publicResources"
+
+#define DEFAULT_PASSWORD    @"password"
+#define DEFAULT_LOGIN       @"login"
+#define DEFAULT_LOGIN_ERROR_MESSAGE "Wrong login or password"
+
+static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNone ;
 
 @implementation MHApplication
 
@@ -61,11 +100,17 @@
     return [[[self alloc] initOnBaseURL:url instanceName:instanceName withLogger:logger parameters:parameters] autorelease] ;
 }
 - (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters
-{
+{   
     ASSIGN(_logger, logger) ;
     ASSIGN(_parameters, parameters) ;
     ASSIGN(_baseURL, url) ;
     ASSIGN(_instanceName, instanceName) ;
+    ASSIGN(_tickets, [NSMutableDictionary dictionary]) ;
+    ASSIGN(_ticketsMutex, [MSMutex mutex]) ;
+    ASSIGN(_netRepositoryServerParameters, [parameters objectForKey:@"netRepository"]) ;
+    
+    _authenticationMethods = [ISA(self) defaultAuthenticationMethods] ;
+    
     return self ;
 }
 
@@ -79,6 +124,12 @@
     DESTROY(_authenticatedResourceURL) ;
     DESTROY(_publicResourceURL) ;
     DESTROY(_uncURL) ;
+    DESTROY(_logoutURL) ;
+    
+    DESTROY(_loginInterface) ;
+    DESTROY(_tickets) ;
+    DESTROY(_ticketsMutex) ;
+    DESTROY(_netRepositoryServerParameters) ;
     
     [super dealloc] ;
 }
@@ -87,41 +138,6 @@
 {
     return [_parameters objectForKey:name] ;
 }
-
-+ (MHApplication *)applicationForURL:(NSString *)url listeningPort:(MSInt)listeningPort baseUrlComponentsCount:(MSUInt)count
-{
-    NSString *urlWithoutQueryParams = [url containsString:@"?"] ? [url substringBeforeString:@"?"] : url ;
-    NSArray *urlComponents = [urlWithoutQueryParams componentsSeparatedByString:@"/"] ;
-
-    if ([urlComponents count] >= count) {
-        
-        switch(count)
-        {
-            case BASE_URL_COMPONENT_COUNT_BUNDLE_MODE :
-                return applicationForPortAndKey(listeningPort,
-                                                [NSString stringWithFormat:@"%@/%@/%@/",
-                                          [urlComponents objectAtIndex:0], //client URL subpart
-                                          [urlComponents objectAtIndex:1], //service URL subpart
-                                          [urlComponents objectAtIndex:2]]) ; //application instance URL subpart
-                
-            case BASE_URL_COMPONENT_COUNT_STATIC_MODE :
-                return applicationForPortAndKey(listeningPort,
-                                                [NSString stringWithFormat:@"%@/",
-                                          [urlComponents objectAtIndex:0]]) ; //application instance URL subpart
-            default : break ;
-        }
-    }
-    return nil ;
-}
-
-- (MHSession *)hasValidSessionForID:(NSString *)aSessionID { 
-    MHSession *session = sessionForKey(aSessionID) ;
-    if (session && ([session application] == self)) {
-       return session ;
-    }
-    return nil ; 
-}
-- (BOOL)mustRespondWithAuthentication { [self notImplemented:_cmd] ; return YES ; }
 
 - (BOOL)canVerifyPeerCertificate { return NO ; }
 
@@ -170,20 +186,21 @@
 
 - (void)sessionWillExpire:(MHNotification *)notification { RELEASE(notification) ; }
 
-- (void)clean {}
+- (void)clean
+{
+    if ([self canAuthenticateWithTicket])
+    {
+        [self deleteExpiredTickets] ;
+    }
+}
 
 + (NSString *)applicationName { [self notImplemented:_cmd] ; return nil ; }
 + (NSString *)applicationFullName { [self notImplemented:_cmd] ; return nil ; }
-+ (BOOL)isAdminApplication { return NO ; }
 - (NSString *)baseURL { return _baseURL ; }
-- (NSString *)loginURL
-{
-    return [[self baseURL] length] ? [[self baseURL] stringByAppendingURLComponent:DEFAULT_LOGIN_URL_COMPONENT] : DEFAULT_LOGIN_URL_COMPONENT ;
-}
+
 - (NSString *)applicationName { return [[self class] applicationName] ; }
 - (NSString *)applicationFullName { return [[self class] applicationFullName] ; }
 - (NSString *)instanceName { return _instanceName ; }
-- (BOOL)isAdminApplication {return NO ; }
 
 - (NSString *)postProcessingURL { if(!_postProcessingURL) { ASSIGN(_postProcessingURL,[[self baseURL] stringByAppendingString:@"postproc"]) ; } return _postProcessingURL ; }
 
@@ -212,6 +229,19 @@
     return _uncURL ;
 }
 
+#define DEFAULT_LOGOUT_URL_COMPONENT    @"logout"
+
+- (NSString *)logoutURL
+{
+    if(!_logoutURL) {
+        NSString *baseURL = [self baseURL] ;
+        NSString *logoutURL = [baseURL length] ? [baseURL stringByAppendingURLComponent:DEFAULT_LOGOUT_URL_COMPONENT] : DEFAULT_LOGOUT_URL_COMPONENT ;
+        
+        ASSIGN(_logoutURL, logoutURL) ;
+    }
+    return _logoutURL ;
+}
+
 - (void)setBundle:(NSBundle *)bundle
 {
     _bundle = bundle ;
@@ -224,15 +254,7 @@
 
 - (NSString *)_getResourceSubDirectoryWithIsPublicResource:(BOOL)isPublicResource
 {
-    NSString *resourceSubDirectory = nil ;
-    
-    if ([self mustRespondWithAuthentication])
-    {
-        resourceSubDirectory = (isPublicResource) ? BUNDLE_PUBLIC_RESOURCE_SUBDIRECTORY : BUNDLE_AUTHENTICATED_RESOURCE_SUBDIRECTORY ;
-    } else { //public application, any resource url points to the public resource subdirectory
-        resourceSubDirectory = BUNDLE_PUBLIC_RESOURCE_SUBDIRECTORY ;
-    }
-    return resourceSubDirectory ;
+    return (isPublicResource) ? BUNDLE_PUBLIC_RESOURCE_SUBDIRECTORY : BUNDLE_AUTHENTICATED_RESOURCE_SUBDIRECTORY ;
 }
 
 // returns the content of the resource file or nil on error
@@ -274,10 +296,10 @@
     return MHResourceExistsInCache(url) ;
 }
 
-- (NSString *)getUploadResourceURLForID:(NSString *)uploadID
+/*- (NSString *)getUploadResourceURLForID:(NSString *)uploadID
 {
     return MHGetUploadResourceURLForID(self, uploadID) ;
-}
+}*/
 
 - (void)logWithLevel:(MHAppLogLevel)level log:(NSString *)log, ...
 {
@@ -294,14 +316,18 @@
     return [_logger logLevel] ;
 }
 
-- (NSDictionary *)parameterForKey:(NSString *)key
+- (NSDictionary *)bundleParameterForKey:(NSString *)key
 {
     NSString *bundleName = NSStringFromClass([_bundle principalClass]) ;
-    NSMutableDictionary *params = [[MHBundlesConfig() objectForKey:bundleName] objectForKey:key] ;
-    NSMutableDictionary *generalParams = [[MHBundlesConfig() objectForKey:@"general"] objectForKey:key] ;
+    NSMutableDictionary *params = nil ;
+    NSMutableDictionary *generalParams = nil ;
     
+    params = [[MHBundlesConfig() objectForKey:bundleName] objectForKey:key] ;
     if(params) return params ;
+    
+    generalParams = [[MHBundlesConfig() objectForKey:@"general"] objectForKey:key] ;
     if (generalParams) return generalParams ;
+    
     return [NSDictionary dictionary] ;
 }
 
@@ -316,67 +342,98 @@
     return [NSString stringWithFormat:@"\\\\%@", [urlComponents componentsJoinedByString:@"\\"]] ;
 }
 
-@end
-
-
-@implementation MHPublicApplication
-
-- (BOOL)mustRespondWithAuthentication { return NO ; }
-
-@end
-
-static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNone ;
-
-@implementation MHAuthenticatedApplication
-
-- (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters
-{
-    if ([super initOnBaseURL:url instanceName:instanceName withLogger:logger parameters:parameters])
-    {
-        ASSIGN(_tickets, [NSMutableDictionary dictionary]) ;
-        ASSIGN(_ticketsMutex, [MSMutex mutex]) ;
-        _authenticationMethods = [ISA(self) defaultAuthenticationMethods] ;
-        
-        return self ;
-    }
-    return nil ;
-}
-
-- (void)dealloc
-{
-    DESTROY(_loginInterface) ;
-    DESTROY(_tickets) ;
-    DESTROY(_ticketsMutex) ;
-    
-    [super dealloc] ;
-}
-
-- (BOOL)mustRespondWithAuthentication { return YES ; }
-
-- (void)validateAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate
+- (void)validateSimpleGUIAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate
 {
     MHVALIDATE_AUTHENTICATION(NO, nil) ;
 }
 
-- (NSString *)generateChallengeForMessage:(MHHTTPMessage *)httpMessage plainStoredChallenge:(NSString **)plainChallenge additionalStoredObject:(id *)object
+- (void)validateAuthentication:(MHNotification *)notification
+                         login:(NSString *)login
+            challengedPassword:(NSString *)challengedPassword
+              sessionChallenge:(NSString *)storedChallenge
+                   certificate:(MSCertificate *)certificate
 {
-    NSString *retChallenge = nil ;
-    MSBuffer *randBuff = nil ;
-    MSBuffer *base64Buf = nil ;
-    
-    randBuff = MSCreateRandomBuffer(8) ;
-    base64Buf = [randBuff encodedToBase64] ;
-    
-    retChallenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[base64Buf bytes], [base64Buf length], YES, YES)) ;
-    *plainChallenge = retChallenge ;
-    
-    return retChallenge ;
+    if ([storedChallenge length] && [login length])
+    {
+        NSString *challengedPasswordHash = MHChallengedPasswordHash(DEFAULT_PASSWORD, storedChallenge) ;
+        
+        if([DEFAULT_LOGIN isEqual:login] && [challengedPasswordHash isEqual:challengedPassword])
+        {
+            [self logWithLevel:MHAppDebug log:@"Challenge Authentication success for login '%@'", login] ;
+            MHVALIDATE_AUTHENTICATION(YES, nil) ;
+        }
+        else
+        {
+            [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for login '%@'", login] ;
+            MHVALIDATE_AUTHENTICATION(NO, AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree(DEFAULT_LOGIN_ERROR_MESSAGE,strlen(DEFAULT_LOGIN_ERROR_MESSAGE)))) ;
+        }
+    } else {
+        MHVALIDATE_AUTHENTICATION(NO, AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree(DEFAULT_LOGIN_ERROR_MESSAGE,strlen(DEFAULT_LOGIN_ERROR_MESSAGE)))) ;
+    }
 }
 
-#define SESSION_PARAM_CHALLENGE     @"__SESS_CHALLENGE__"
-#define SESSION_PARAM_ADDED_OBJECT     @"__SESS_CHALLENGE_ADDED_OBJECT__"
-- (NSString *)sessionChallengeMemberName { return SESSION_PARAM_CHALLENGE ; }
-- (NSString *)sessionChallengeAdditionalObjectMemberName { return SESSION_PARAM_ADDED_OBJECT ; }
+- (void)validateAuthentication:(MHNotification *)notification
+                         login:(NSString *)login
+            challengedPassword:(NSString *)challengedPassword
+              sessionChallenge:(NSString *)storedChallenge
+                        target:(NSString *)target
+                   certificate:(MSCertificate *)certificate
+{
+    [self notImplemented:_cmd] ;
+}
+
+- (NSString *)publicKeyForURN:(NSString *)urn { [self notImplemented:_cmd] ; return nil ; }
+
+- (NSString *)generatePKChallengeURN:(NSString *)urn storedPlainChallenge:(NSString **)plainChallenge
+{
+    NSData *encryptedChallengeData = nil ;
+    NSString *encryptedChallenge = nil ;
+    NSString *challenge = [self generatePlainChallenge] ;
+    MSBuffer *base64Buf = nil ;
+    
+    if ([challenge length])
+    {
+        NSString *publicKey = [self publicKeyForURN:urn] ;
+        
+        if ([publicKey length])
+        {
+            NSData *challengeData = nil ;
+            MSCipher *cypher = nil ;
+            MSBuffer *pkBuf = AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree((void *)[publicKey UTF8String], [publicKey length])) ;
+            
+            //convert challenge to data
+            challengeData = [NSData dataWithBytes:(void *)[challenge UTF8String] length:[challenge length]] ;
+            
+            //encrypt challenge
+            cypher = [MSCipher cipherWithKey:pkBuf type:RSAEncoder] ;
+            encryptedChallengeData = [cypher encryptData:challengeData] ;
+            
+            *plainChallenge = challenge ; //store plain challenge
+        }
+        else // do not store challenge
+        {
+            *plainChallenge = nil ;
+            encryptedChallengeData = [challenge dataUsingEncoding:NSUTF8StringEncoding] ;
+        }
+    } else
+    {
+        MSRaise(NSInternalInconsistencyException, @"generatePKChallengeURN : Challenge generation failed") ;
+    }
+
+    //always return a challenge, even is no public key was found
+    base64Buf = [[MSBuffer bufferWithBytesNoCopyNoFree:(void*)[encryptedChallengeData bytes] length:[encryptedChallengeData length]] encodedToBase64] ;
+    encryptedChallenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[base64Buf bytes], [base64Buf length], YES, YES)) ;
+    
+    return encryptedChallenge ;
+}
+
+- (NSString *)generatePlainChallenge
+{
+    MSBuffer *randBuff = AUTORELEASE(MSCreateRandomBuffer(8)) ;
+    MSBuffer *b64Buf = [randBuff encodedToBase64] ;
+    
+    return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[b64Buf bytes], [b64Buf length], YES, YES)) ;
+}
 
 - (NSString *)_generateNewTicketID
 {
@@ -395,8 +452,6 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     return ticket ;
 }
 
-#define MHAPP_TICKET_VALIDITY      @"ticketValidity"
-#define MHAPP_TICKET_PARAMETERS     @"ticketParameters"
 - (void)validateAuthentication:(MHNotification *)notification ticket:(NSString *)ticket certificate:(MSCertificate *)certificate
 {
     NSDictionary *ticketFound = [[self tickets] objectForKey:ticket] ;
@@ -404,6 +459,7 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     if (ticketFound)
     {
         MSTimeInterval ticketValidityEnd = [[ticketFound objectForKey:MHAPP_TICKET_VALIDITY] longLongValue] ;
+      //if (!ticketValidityEnd || GMTNow() < ticketValidityEnd) En master on avait ça ecb 140623
         if (GMTNow() < ticketValidityEnd)
         {
             [self logWithLevel:MHAppDebug log:@"Ticket Authentication success"] ;
@@ -419,28 +475,19 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     MHVALIDATE_AUTHENTICATION(NO, nil) ;
 }
 
-- (void)validateAuthentication:(MHNotification *)notification challenge:(NSString *)challenge certificate:(MSCertificate *)certificate
+- (void)validateAuthentication:(MHNotification *)notification
+                     challenge:(NSString *)challenge
+              sessionChallenge:(NSString *)storedChallenge
+                           urn:(NSString *)urn
+                   certificate:(MSCertificate *)certificate
 {
-    if ([challenge length])
+    if ([challenge length] && [storedChallenge length] && [challenge isEqualToString:storedChallenge])
     {
-        NSString *storedPlainChallenge = [notification memberNamedInSession:[self sessionChallengeMemberName]] ;
-        
-        if ([storedPlainChallenge length])
-        {
-            if ([challenge isEqualToString:storedPlainChallenge])
-            {
-                [self logWithLevel:MHAppDebug log:@"Challenge Authentication success"] ;
-                MHVALIDATE_AUTHENTICATION(YES, nil) ;
-            }
-        } else
-        {
-            [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure : stored challenge not found"] ;
-            MHVALIDATE_AUTHENTICATION(NO, nil) ;
-        }
-    } else
-    {
-        [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure : challenge not found"] ;
+        [self logWithLevel:MHAppDebug log:@"Challenge Authentication success for URN '%@'",urn] ;
+        MHVALIDATE_AUTHENTICATION(YES, nil) ;
     }
+    
+    [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for URN '%@' : stored challenge not found", urn] ;
     MHVALIDATE_AUTHENTICATION(NO, nil) ;
 }
 
@@ -448,10 +495,6 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 {
     MHVALIDATE_AUTHENTICATION(NO, nil) ;
 }
-
-- (BOOL)canAuthenticateWithTicket { return NO ; }
-
-- (MSBuffer *)loginInterfaceWithMessage:(MHHTTPMessage *)message errorMessage:(NSString *)error { [self notImplemented:_cmd] ; return nil ; }
 
 - (MSBuffer *)firstPage:(MHNotification *)notification { return nil ; }
 
@@ -461,18 +504,20 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 
 - (void)setTickets:(NSDictionary *)tickets { ASSIGN(_tickets, tickets) ; }
 
-
-- (BOOL)canAuthenticateWithLoginPassword { return _authenticationMethods & MHAuthLoginPass ; }
-- (BOOL)canAuthenticateWithLoginTicket { return _authenticationMethods & MHAuthTicket ; }
-- (BOOL)canAuthenticateWithChallenge { return _authenticationMethods & MHAuthChallenge ; }
+- (BOOL)canHaveNoAuthentication { return _authenticationMethods & MHAuthNone ; }
+- (BOOL)canAuthenticateWithSimpleGUILoginPassword { return _authenticationMethods & MHAuthSimpleGUIPasswordAndLogin ; }
+- (BOOL)canAuthenticateWithChallengedPasswordLogin { return _authenticationMethods & MHAuthChallengedPasswordLogin ; }
+- (BOOL)canAuthenticateWithChallengedPasswordLoginOnTarget { return _authenticationMethods & MHAuthChallengedPasswordLoginOnTarget ; }
+- (BOOL)canAuthenticateWithTicket { return _authenticationMethods & MHAuthTicket ; }
+- (BOOL)canAuthenticateWithPKChallenge { return _authenticationMethods & MHAuthPKChallengeAndURN ; }
 - (BOOL)canAuthenticateWithCustomAuthentication { return _authenticationMethods & MHAuthCustom ; }
 
 + (MSUInt)defaultAuthenticationMethods { return __authenticatedApplicationDefaultAuthenticationMethods ; }
 - (MSUInt)authenticationMethods { return _authenticationMethods ; }
 
 - (void)setAuthenticationMethods:(MSUInt)authenticationMethods { _authenticationMethods |= authenticationMethods ; }
-- (void)setAuthentificationMethod:(MHAppAuthentication)authenticationMethod { _authenticationMethods |= authenticationMethod ; }
-- (void)unsetAuthentificationMethod:(MHAppAuthentication)authenticationMethod { _authenticationMethods &= ~authenticationMethod ; }
+- (void)setAuthenticationMethod:(MHAppAuthentication)authenticationMethod { _authenticationMethods |= authenticationMethod ; }
+- (void)unsetAuthenticationMethod:(MHAppAuthentication)authenticationMethod { _authenticationMethods &= ~authenticationMethod ; }
 
 
 - (NSString *)ticketForValidity:(MSTimeInterval)duration
@@ -490,7 +535,7 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     else{ //validité permanente : duration = 0
         ticketEndValidity = 0 ;        
     }
-    ticketDictionary = [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithLongLong:ticketEndValidity] forKey:MHAPP_TICKET_VALIDITY] ;
+    ticketDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithLongLong:ticketEndValidity], MHAPP_TICKET_VALIDITY,[NSNumber numberWithLongLong:GMTNow()] , MHAPP_TICKET_CREATIONDATE, nil] ;
     [_tickets setObject:ticketDictionary forKey:newTicket] ;
     
     [_ticketsMutex unlock] ;
@@ -537,6 +582,11 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     return [self _objectForTicket:ticket key:MHAPP_TICKET_VALIDITY] ;
 }
 
+- (NSNumber *)creationDateForTicket:(NSString *)ticket
+{
+    return [self _objectForTicket:ticket key:MHAPP_TICKET_CREATIONDATE] ;
+}
+
 - (void)removeTicket:(NSString *)ticket
 {
     [_ticketsMutex lock] ;
@@ -547,66 +597,38 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     [_ticketsMutex unlock] ;
 }
 
-
-- (void)_deleteExpiredTickets
+- (NSDictionary *)netRepositoryConnectionDictionary
 {
-    NSEnumerator *ticketEnum = [_tickets keyEnumerator] ;
-    NSString *ticket = nil ;
-    NSMutableArray *ticketsArray = [NSMutableArray array];
-    
-    while ((ticket = [ticketEnum nextObject]))
-    {
-        MSTimeInterval ticketValidityEnd = [[[_tickets objectForKey:ticket] objectForKey:MHAPP_TICKET_VALIDITY] longLongValue] ;
-        if (GMTNow() > ticketValidityEnd)
-        {
-            if(ticketValidityEnd!=0){
-                [ticketsArray addObject:ticket];
-            }
-        }
-    }
-    [_tickets removeObjectsForKeys:ticketsArray] ;
+    return [[self netRepositoryParameters] objectForKey:@"netRepositories"] ;
 }
 
-- (void)clean
+- (NSDictionary *)netRepositoryParameters
 {
-    if ([self canAuthenticateWithTicket])
-    {
-        [self _deleteExpiredTickets] ;
-    }
-    
-    [super clean] ;
+    return _netRepositoryServerParameters ;
 }
-
-#define MHAPP_DEFAULT_LOGIN_FIELD_NAME      @"mhuser"
-#define MHAPP_DEFAULT_PASSWORD_FIELD_NAME   @"mhpass"
-#define MHAPP_DEFAULT_CHALLENGE_FIELD_NAME  @"mhchallenge"
-
-- (NSString *)loginFieldName { return MHAPP_DEFAULT_LOGIN_FIELD_NAME ; }
-- (NSString *)passwordFieldName { return MHAPP_DEFAULT_PASSWORD_FIELD_NAME ; }
-- (NSString *)challengeFieldName { return MHAPP_DEFAULT_CHALLENGE_FIELD_NAME ; }
 
 @end
 
-static MSUInt __guiAuthenticatedApplicationDefaultAuthenticationMethods = MHAuthLoginPass ;
 
-@implementation MHGUIAuthenticatedApplication
 
-- (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters
+#define DEFAULT_LOGIN_URL_COMPONENT     @"login"
+
+@implementation MHGUIApplication
+
++ (MSUInt)defaultAuthenticationMethods { return 0 ; }
+
+- (NSString *)loginURL
 {
-    if ([super initOnBaseURL:url instanceName:instanceName withLogger:logger parameters:parameters])
-    {
-        ASSIGN(_tickets, [NSMutableDictionary dictionary]) ;
-        ASSIGN(_ticketsMutex, [MSMutex mutex]) ;
-        _authenticationMethods |= [ISA(self) defaultAuthenticationMethods] ;
+    if(!_loginURL) {
+        NSString *baseURL = [self baseURL] ;
+        NSString *loginURL = [baseURL length] ? [baseURL stringByAppendingURLComponent:DEFAULT_LOGIN_URL_COMPONENT] : DEFAULT_LOGIN_URL_COMPONENT ;
         
-        return self ;
+        ASSIGN(_loginURL, loginURL) ;
     }
-    return nil ;
+    return _loginURL ;
 }
 
-+ (MSUInt)defaultAuthenticationMethods { return __guiAuthenticatedApplicationDefaultAuthenticationMethods ; }
-
-- (MSBuffer *)loginInterfaceWithMessage:(MHHTTPMessage *)message errorMessage:(NSString *)error
+- (MSBuffer *)loginInterfaceWithErrorMessage:(NSString *)errorMessage
 {
     NSString *appName = nil ;
     NSString *file = nil ;
@@ -619,35 +641,29 @@ static MSUInt __guiAuthenticatedApplicationDefaultAuthenticationMethods = MHAuth
     if(!file) {
         file = [[NSBundle bundleForClass:[self class]] pathForResource:@"default_application_login" ofType:@"html"] ;
     }
-
+    
     appName = ([[self instanceName] length]) ? [[self instanceName] htmlRepresentation] : [[self applicationFullName] htmlRepresentation] ;
     if (![appName length]) { appName = @"g&eacute;n&eacute;rale" ; }
     
     if (MSFileExistsAtPath(file, &isDir) && !isDir)
     {
-        void *bytes ;
         NSMutableString *page = MHOpenFileForSubstitutions(file) ;
         
         page = [page replaceOccurrencesOfString:@"%__APPLICATION_NAME__%" withString:appName] ;
-        page = [page replaceOccurrencesOfString:@"%__ERROR_MESSAGE__%" withString:[error length] ? error : @""] ;
+        page = [page replaceOccurrencesOfString:@"%__ERROR_MESSAGE__%" withString:[errorMessage length] ? errorMessage : @""] ;
         page = [page replaceOccurrencesOfString:@"%__ACTION_URL__%" withString:[NSString stringWithFormat:@"/%@",[self baseURL]]] ;
         
-        bytes = (void *)[page UTF8String] ;
-        loginInterface = AUTORELEASE(MSCreateBufferWithBytes(bytes, strlen(bytes))) ;
+        loginInterface = AUTORELEASE(MSCreateBufferWithBytes((void *)[page UTF8String], [page length])) ;
         
     } else
     {
-        MSRaise(NSGenericException, @"MHGUIAuthenticatedApplication : cannot find interface templace at path '%@'", file) ;
+        MSRaise(NSGenericException, @"MHGUIApplication : cannot find interface template at path '%@'", file) ;
     }
     
     return loginInterface ;
 }
 
-#define DEFAULT_PASSWORD    @"password"
-#define DEFAULT_LOGIN       @"login"
-#define DEFAULT_LOGIN_ERROR_MESSAGE "Wrong login or password"
-
-- (void)validateAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate
+- (void)validateSimpleGUIAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate
 {
     if([DEFAULT_LOGIN isEqual:login] && [DEFAULT_PASSWORD isEqual:password])
     {
@@ -655,10 +671,38 @@ static MSUInt __guiAuthenticatedApplicationDefaultAuthenticationMethods = MHAuth
     }
     else
     {
-        MHVALIDATE_AUTHENTICATION(NO, MSCreateBufferWithBytesNoCopyNoFree(DEFAULT_LOGIN_ERROR_MESSAGE,strlen(DEFAULT_LOGIN_ERROR_MESSAGE))) ;
+        MHVALIDATE_AUTHENTICATION(NO, AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree(DEFAULT_LOGIN_ERROR_MESSAGE,strlen(DEFAULT_LOGIN_ERROR_MESSAGE)))) ;
     }
-    
 }
 
+- (void)dealloc
+{
+    DESTROY(_loginURL) ;
+
+    [super dealloc] ;
+}
 
 @end
+
+
+NSString *MHChallengedPasswordHash(NSString *password, NSString *challenge)
+{
+    NSString *challengedPassword = nil ;
+    NSString *hashesdPassword = @"" ;
+    NSString *tmp = nil ;
+
+    if (![challenge length])
+    {
+        MSRaise(NSInternalInconsistencyException, @"MHChallengedPassword error : empty challenge provided") ;
+    }
+    
+    if ([password length])
+    {
+        hashesdPassword = MSDigestData(MS_SHA512, (void *)[password UTF8String], [password length]) ;
+    }
+
+    tmp = [challenge stringByAppendingString:hashesdPassword] ;
+    challengedPassword = MSDigestData(MS_SHA512, (void *)[tmp UTF8String], [tmp length]) ;
+    
+    return challengedPassword ;
+}

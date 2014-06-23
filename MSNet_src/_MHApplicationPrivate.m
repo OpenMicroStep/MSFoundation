@@ -1,5 +1,5 @@
 //
-//  MHAuthenticatedApplication+Private.m
+//  MHApplication+Private.m
 //  MSFoundation
 //
 //  Created by Geoffrey Guilbon on 20/11/13.
@@ -17,77 +17,133 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file)
 #endif
 }
 
-@implementation MHAuthenticatedApplication (Private)
+@implementation MHApplication (Private)
 
 - (void)validateAuthentication:(MHNotification *)notification {
     
     MHAppAuthentication authType = [notification authenticationType] ;
     MSCertificate *peerCertificate = [[[notification message] clientSecureSocket] getPeerCertificate] ;
+    MHSession *session = [notification session] ;
+    
+    if (session) { authType = [session authenticationType] ; }
     
     if (peerCertificate) {
         [self logWithLevel:MHAppDebug log:@"SSL AUTH : received client certificate : %@",peerCertificate] ;
     }
 
+    [self logWithLevel:MHAppDebug log:@"validateAuthentication with authentication type : %@", MHAuthenticationNameForType(authType)] ;
+    
     switch (authType) {
-        case MHAuthLoginPass:
-        {
-            NSString *login = [notification storedGUIAuthenticationLogin] ;
-            NSString *password = [notification storedGUIAuthenticationPassword] ;
 
-            [self validateAuthentication:notification login:login password:password certificate:peerCertificate] ;
-            break;
-        }
-        case MHAuthTicket:
-        {
-            NSString *ticket = [notification storedTicket] ;
-            [self validateAuthentication:notification ticket:ticket certificate:peerCertificate] ;
-            break ;
-        }
-            
-        case MHAuthChallenge:
-        {
-            NSString *challenge = [notification storedChallenge] ;
-            [self validateAuthentication:notification challenge:challenge certificate:peerCertificate] ;
-            break ;
-        }
-        
         case MHAuthCustom:
         {
             [self validateAuthentication:notification certificate:peerCertificate] ;
             break ;
         }
             
+        case MHAuthTicket:
+        {
+            NSString *ticket = [notification storedAuthenticationTicket] ;
+            [self validateAuthentication:notification ticket:ticket certificate:peerCertificate] ;
+            break ;
+        }
+            
+        case MHAuthChallengedPasswordLogin:
+        {
+            NSString *login = [notification storedAuthenticationLogin] ;
+            NSString *password = [notification storedAuthenticationPassword] ;
+            NSString *plainStoredChallenge = [notification memberNamedInSession:SESSION_PARAM_CHALLENGE] ;
+
+            [self validateAuthentication:notification
+                                   login:login
+                      challengedPassword:password
+                        sessionChallenge:plainStoredChallenge
+                             certificate:peerCertificate] ;
+
+            break;
+        }
+            
+        case MHAuthChallengedPasswordLoginOnTarget:
+        {
+            NSString *login = [notification storedAuthenticationLogin] ;
+            NSString *password = [notification storedAuthenticationPassword] ;
+            NSString *plainStoredChallenge = [notification memberNamedInSession:SESSION_PARAM_CHALLENGE] ;
+            NSString *target = [notification memberNamedInSession:SESSION_PARAM_TARGET] ;
+            
+            [self validateAuthentication:notification
+                                   login:login challengedPassword:password
+                        sessionChallenge:plainStoredChallenge
+                                  target:target
+                             certificate:peerCertificate] ;
+            break;
+        }
+            
+        case MHAuthPKChallengeAndURN:
+        {
+            NSString *challenge = [notification storedAuthenticationChallenge] ;
+            NSString *plainStoredChallenge = [notification memberNamedInSession:SESSION_PARAM_CHALLENGE] ;
+            NSString *urn = [notification memberNamedInSession:SESSION_PARAM_URN] ;
+            
+            [self validateAuthentication:notification
+                               challenge:challenge
+                        sessionChallenge:plainStoredChallenge
+                                    urn:urn
+                             certificate:peerCertificate] ;
+            break ;
+        }
+            
         default:
-             MSRaise(NSInternalInconsistencyException, @"validateAuthentication : authentication type not supported : %d", authType) ;
+             MSRaise(NSInternalInconsistencyException, @"validateAuthentication : authentication type not supported : '%@'", MHAuthenticationNameForType(authType)) ;
             break;
     }
 }
 
+- (void)deleteExpiredTickets
+{
+    NSEnumerator *ticketEnum = [_tickets keyEnumerator] ;
+    NSString *ticket = nil ;
+    NSMutableArray *ticketsArray = [NSMutableArray array];
+    
+    while ((ticket = [ticketEnum nextObject]))
+    {
+        MSTimeInterval ticketValidityEnd = [[[_tickets objectForKey:ticket] objectForKey:MHAPP_TICKET_VALIDITY] longLongValue] ;
+        if (GMTNow() > ticketValidityEnd)
+        {
+            if(ticketValidityEnd!=0){
+                [ticketsArray addObject:ticket];
+            }
+        }
+    }
+    [_tickets removeObjectsForKeys:ticketsArray] ;
+}
+
+- (BOOL)isGUIApplication { return NO ; }
+- (BOOL)isAdminApplication {return NO ; }
+
 @end
 
-@implementation MHGUIAuthenticatedApplication (Private)
+@implementation MHGUIApplication (Private)
 
-+ (MSBuffer *)loginInterfaceWithParameters:(NSDictionary *)params {
++ (MSBuffer *)loginInterfaceAppChoiceWithParameters:(NSDictionary *)params {
     
     MSBuffer *loginInterface = nil ;    
     NSString *knownCustomer = [params objectForKey:@"knownCustomer"] ;
     NSString *knownGroup    = [params objectForKey:@"knownGroup"] ;
     NSString *url           = [params objectForKey:@"url"] ;
-    MSUInt baseUrlComponentsCount = (MSUInt)[[params objectForKey:@"baseUrlComponentsCount"] intValue] ;
     NSString *errorMessage = [params objectForKey:@"errorMessage"] ;
-    MSInt listeningPort = [[params objectForKey:@"listeningPort"] intValue] ;
     
     NSString *file = nil ;
     NSString *applicationList = @"" ;
-    NSArray *applicationBaseURLs = [params objectForKey:@"applicationBaseURLs"] ;
+    NSArray *guiApps = [params objectForKey:@"guiApplications"] ;
     
-    NSEnumerator *e = [applicationBaseURLs objectEnumerator] ;
+    NSEnumerator *e = [guiApps objectEnumerator] ;
     NSDictionary *appURLInfos ;
     NSString *fileName = @"default_choice_login" ;
     BOOL isDir = NO ;
     
     file = [[NSBundle bundleForClass:[MHApplication class]]  pathForResource:fileName ofType:@"html"] ;
     
+ NSLog(@"%@ %@",file, fileName);
     if (MSFileExistsAtPath(file, &isDir) && !isDir)
     {
         void *bytes ;
@@ -95,31 +151,27 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file)
                 
         while ((appURLInfos = [e nextObject]))
         {
-            MSInt appListeningPort = [[appURLInfos objectForKey:@"listeningPort"] intValue] ;
-            if((appListeningPort == listeningPort) && [[appURLInfos objectForKey:@"application"] isKindOfClass:[MHGUIAuthenticatedApplication class]]) //only display Authenticated application in list
+            NSString *appURL = [appURLInfos objectForKey:@"url"] ;
+            MHApplication *app = [appURLInfos objectForKey:@"application"] ;
+            NSString *appUseName = ([[app instanceName] length]) ? [[app instanceName] htmlRepresentation] : [[app applicationFullName] htmlRepresentation] ;
+            
+            if(knownCustomer && knownGroup) // customer and group url ex : /city/group
             {
-                NSString *appURL = [appURLInfos objectForKey:@"url"] ;
-                MHApplication *app = [MHApplication applicationForURL:appURL listeningPort:listeningPort baseUrlComponentsCount:baseUrlComponentsCount] ;
-                NSString *appUseName = ([[app instanceName] length]) ? [[app instanceName] htmlRepresentation] : [[app applicationFullName] htmlRepresentation] ;
-                
-                if(knownCustomer && knownGroup) // customer and group url ex : /city/group
+                if([knownCustomer isEqual:[appURLInfos objectForKey:@"customer"]] && [knownGroup isEqual:[appURLInfos objectForKey:@"group"]])
                 {
-                    if([knownCustomer isEqual:[appURLInfos objectForKey:@"customer"]] && [knownGroup isEqual:[appURLInfos objectForKey:@"group"]])
-                    {
-                        applicationList = [applicationList stringByAppendingFormat:@"<option value=\"%@\">%@</option>\n",
-                                           appURL,
-                                           appUseName] ;
-                    }
+                    applicationList = [applicationList stringByAppendingFormat:@"<option value=\"%@\">%@</option>\n",
+                                       appURL,
+                                       appUseName] ;
                 }
-                else // customer url only eg : /city
+            }
+            else // customer url only eg : /city
+            {
+                if([knownCustomer isEqual:[appURLInfos objectForKey:@"customer"]])
                 {
-                    if([knownCustomer isEqual:[appURLInfos objectForKey:@"customer"]])
-                    {
-                        applicationList = [applicationList stringByAppendingFormat:@"<option value=\"%@\">%@ - %@</option>\n",
-                                           appURL,
-                                           [appURLInfos objectForKey:@"group"],
-                                           appUseName] ;
-                    }
+                    applicationList = [applicationList stringByAppendingFormat:@"<option value=\"%@\">%@ - %@</option>\n",
+                                       appURL,
+                                       [appURLInfos objectForKey:@"group"],
+                                       appUseName] ;
                 }
             }
         }
@@ -133,11 +185,28 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file)
         
     } else
     {
-        MSRaise(NSGenericException, @"MHGUIAuthenticatedApplication : cannot find interface templace at path '%@'", file) ;
+        MSRaise(NSGenericException, @"MHGUIApplication : cannot find interface templace at path '%@'", file) ;
     }
     
     return loginInterface ;
 }
 
+- (void)validateAuthentication:(MHNotification *)notification
+{
+    if ([notification authenticationType] == MHAuthSimpleGUIPasswordAndLogin)
+    {
+        NSString *login = [notification storedAuthenticationLogin] ;
+        NSString *password = [notification storedAuthenticationPassword] ;
+        MSCertificate *peerCertificate = [[[notification message] clientSecureSocket] getPeerCertificate] ;
+        
+        [self validateSimpleGUIAuthentication:notification login:login password:password certificate:peerCertificate] ;
+    } else
+    {
+        [super validateAuthentication:notification] ;
+    }
+
+}
+
+- (BOOL)isGUIApplication { return YES ; }
 
 @end

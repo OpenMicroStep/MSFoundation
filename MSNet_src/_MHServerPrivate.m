@@ -63,6 +63,7 @@
 
 #define HTTP_200_OK "HTTP/1.1 200 OK\r\n"
 #define HTTP_301_MOVED_PERMANENTLY "HTTP/1.1 301 Moved Permanently\r\n"
+#define HTTP_302_FOUND "HTTP/1.1 302 Found\r\n"
 #define HTTP_304_NOT_MODIFIED "HTTP/1.1 304 Not Modified\r\n"
 #define HTTP_307_TEMPORARY_REDIRECT "HTTP/1.1 307 Temporary Redirect\r\n"
 #define HTTP_400_MALFORMED "HTTP/1.1 400 Malformed Request\r\n"
@@ -81,12 +82,8 @@ static NSString *__serverName = nil ;
 
 //response headers
 //static NSString *__header_mash_auth_get_session = @"MASH_AUTH_GET_SESSION" ;
-static NSString *__header_mash_auth_response    = @"MASH_AUTH_RESPONSE" ;
 static NSString *__header_mash_session_id       = @"Set-Cookie" ;
 static NSString *__header_mash_context_id       = @"MASH_CONTEXT_ID" ;
-static NSString *__header_mash_auth_required    = @"MASH_AUTH_REQUIRED" ;
-static NSString *__header_mash_auth_response_ok     = @"SUCCESS" ;
-static NSString *__header_mash_auth_response_fail   = @"FAILURE" ;
 
 //server configuration
 static NSString *__mashRoot ;
@@ -96,10 +93,12 @@ static NSString *__serverCertificate = nil ;
 static NSString *__serverPrivateKey = nil ;
 static NSString *__serverLogFile = nil ;
 
+static NSDictionary *__netRepositoryConfigurations = nil ;
+
 static NSMapTable *__applicationsByPort = NULL ;
 static MSMutableArray *__applications = nil ;
 
-static NSMutableArray *__applicationBaseURLs = nil ;
+static NSMutableArray *__applicationsInfos = nil ;
 static mutex_t __applicationsMutex ;
 
 static NSMapTable *__sessions = NULL ;
@@ -203,7 +202,6 @@ static MHLogging *__logger = nil ;
 static NSDictionary *__parameters = nil ;
 static NSMutableDictionary *__bundlesConfig = nil ;
 static NSString *__temporaryFolderPath ;
-
 NSMutableDictionary *MHBundlesConfig() { return __bundlesConfig ; }
 
 typedef callback_t(* MHThreadMainFunctionProto)(void *) ;
@@ -227,8 +225,8 @@ MSUShort usedAdminProcessingThreads() { return __usedAdminProcessingThreads ; }
 MSUShort maxAdminWaitingThreads() { return __maxAdminWaitingThreads ; } 
 MSUShort usedAdminWaitingThreads() { return __usedAdminWaitingThreads ; }
 
-void decreaseCurrentClientProcessingRequestCount() ;
-void decreaseCurrentAdminProcessingRequestCount() ;
+void decreaseCurrentClientProcessingRequestCount(void) ;
+void decreaseCurrentAdminProcessingRequestCount(void) ;
 
 static NSComparisonResult compareNumbers(id obj1, id obj2, void *c)
 {
@@ -297,7 +295,7 @@ void _fatal_error(const char *msg, int errcode)
 #endif
 }
 
-static NSTimeInterval MHModifiedSinceTimeIntervalFromMessage(MHHTTPMessage *message)
+static MSTimeInterval MHModifiedSinceTimeIntervalFromMessage(MHHTTPMessage *message)
 {
     NSString *ifModifiedSince = [message getHeader:MHHTTPIfModifiedSince] ;
     if (ifModifiedSince) {
@@ -328,7 +326,7 @@ static NSTimeInterval MHModifiedSinceTimeIntervalFromMessage(MHHTTPMessage *mess
                 else if ([@"OCT" isEqual:uppMonthStr]) month = 10 ;
                 else if ([@"NOV" isEqual:uppMonthStr]) month = 11 ;
                 else if ([@"DEC" isEqual:uppMonthStr]) month = 12 ;
-              
+                    
                 result= GMTFromYMDHMS(
                   (unsigned)[[dateComponents objectAtIndex:2] intValue],
                   month,
@@ -344,6 +342,53 @@ static NSTimeInterval MHModifiedSinceTimeIntervalFromMessage(MHHTTPMessage *mess
         }        
     }
     return 0 ;
+}
+
+static MHApplication *_MHApplicationForURLAndPort(NSString *url, MSInt listeningPort, MSUInt baseUrlComponentCount)
+{
+    NSString *urlWithoutQueryParams = [url containsString:@"?"] ? [url substringBeforeString:@"?"] : url ;
+    NSArray *urlComponents = [urlWithoutQueryParams componentsSeparatedByString:@"/"] ;
+    
+    if ([urlComponents count] >= baseUrlComponentCount) {
+        
+        switch(baseUrlComponentCount)
+        {
+            case BASE_URL_COMPONENT_COUNT_BUNDLE_MODE :
+                return applicationForPortAndKey(listeningPort,
+                                                [NSString stringWithFormat:@"%@/%@/%@/",
+                                                 [urlComponents objectAtIndex:0], //client URL subpart
+                                                 [urlComponents objectAtIndex:1], //service URL subpart
+                                                 [urlComponents objectAtIndex:2]]) ; //application instance URL subpart
+                
+            case BASE_URL_COMPONENT_COUNT_STATIC_MODE :
+                return applicationForPortAndKey(listeningPort,
+                                                [NSString stringWithFormat:@"%@/",
+                                                 [urlComponents objectAtIndex:0]]) ; //application instance URL subpart
+            default : break ;
+        }
+    }
+    return nil ;
+}
+
+static NSArray *_MHGUIApplicationsForPort(MSInt listeningPort, MSUInt baseUrlComponentCount)
+{
+    NSMutableArray *guiAppsInfos = [NSMutableArray array] ;
+    NSEnumerator *appsInfosEnum = [__applicationsInfos objectEnumerator] ;
+    NSDictionary *appInfo = nil ;
+    MHApplication *application = nil ;
+    MSUInt appPort = 0 ;
+    
+    while ((appInfo = [appsInfosEnum nextObject]))
+    {
+        application = [appInfo objectForKey:@"application"] ;
+        appPort = [[appInfo objectForKey:@"listeningPort"] intValue] ;
+        
+        if(appPort == listeningPort && [application isKindOfClass:[MHGUIApplication class]])
+        {
+            [guiAppsInfos addObject:appInfo] ;
+        }
+    }
+    return guiAppsInfos ;
 }
 
 static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
@@ -461,7 +506,7 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
             else if(boundaryLength > 2)
             {
                 // !! UPLOAD !!
-                MHApplication *application = [MHApplication applicationForURL:url listeningPort:[secureSocket localPort] baseUrlComponentsCount:__baseUrlComponentsCount] ;
+                MHApplication *application = _MHApplicationForURLAndPort(url, [secureSocket localPort], __baseUrlComponentsCount) ;
                 if(![application hasUploadSupport])
                 {
                     MHServerLogWithLevel(MHLogError, @"Received a invalid request : the application does not have UPLOAD support") ;
@@ -760,6 +805,544 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
     return nil ;
 }
 
+static BOOL _MHIsStandardResourceDownload(const MHNotificationType notificationType)
+{
+    return (notificationType == MHAuthenticatedResourceDownload ||
+            notificationType == MHPublicResourceDownload) ;
+}
+
+static BOOL _MHIsResourceDownload(const MHNotificationType notificationType)
+{
+    return (notificationType == MHAuthenticatedResourceDownload ||
+            notificationType == MHUncResourceDownload ||
+            notificationType == MHPublicResourceDownload) ;
+}
+
+static void _MHRunApplicationWithNoSessionGetRequest(MHApplication *application,
+                                              MHHTTPMessage *message,
+                                              MHNotificationType notificationType,
+                                              MHSSLSocket *secureSocket,
+                                              NSString *url,
+                                              BOOL isAdmin)
+{
+    MH_LOG_ENTER(@"_MHRunApplicationWithNoSessionGetRequest") ;
+    
+    if ([application isGUIApplication] &&
+        [url isEqualToString:[(MHGUIApplication *)application loginURL]]) // GUI Application requests login page
+    {
+        MSBuffer *loginInterface = [(MHGUIApplication *)application loginInterfaceWithErrorMessage:nil] ;
+        MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, loginInterface, HTTPOK, isAdmin, nil, nil, NO) ;
+
+    }
+    else if ([url isEqualToString:[application baseURL]]) //Authentication
+    {
+        NSString *headerLogin       = [message getHeader:MHHTTPAuthLogin] ;
+        NSString *headerTarget      = [message getHeader:MHHTTPAuthTarget] ;
+        NSString *headerURN         = [message getHeader:MHHTTPAuthURN] ;
+        
+        if([application canAuthenticateWithTicket]
+           && [message fastContainsQueryParameterNamed:MHAUTH_QUERY_PARAM_TICKET]) //AUTHENTICATION WITH TICKET
+        {
+            NSDictionary *queryParameters = [message parameters] ;
+            NSString *ticket = [queryParameters objectForKey:MHAUTH_QUERY_PARAM_TICKET] ;
+            
+            if([ticket length])
+            {
+                MHNotification *notification ;
+                MHSession *session ;
+                MHContext *context = MHCreateInitialContextAndSession(application, MHAuthTicket) ;
+                session = [context session] ;
+                [session storeMember:[context contextID] named:@"contextID"] ;
+                [session storeMember:ticket named:@"ticket"] ;
+                
+                notification = [MHNotification retainedNotificationWithMessage:message
+                                                                       session:session
+                                                                retainedTarget:application
+                                                                retainedAction:@"validateAuthentication:"
+                                                              notificationType:notificationType
+                                                           isAdminNotification:isAdmin] ;
+                
+                [notification storeAuthenticationTicket:ticket] ;
+                MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : TICKET APPLICATION AUTHENTICATION REQUEST MESSAGE on socket %d", [secureSocket socket]) ;
+                MHProcessingEnqueueNotificationOrSendError() ;
+            }
+            else {
+                _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED);
+            }
+        } else if ([application canAuthenticateWithPKChallenge] && headerURN) // PK CHALLENGE AUTHENTICATION
+        {
+            NSString *challengeStored = nil ;
+            NSMutableDictionary *headers = nil ;
+            MSBuffer *response = nil ;
+            void *bytes = NULL ;
+            MHAppAuthentication authType = MHAuthPKChallengeAndURN ;
+            
+            //store plain challenge in session
+            NSString *challengeSent = [application generatePKChallengeURN:headerURN storedPlainChallenge:&challengeStored] ;
+            
+            MHContext *context = MHCreateInitialContextAndSession(application, authType) ;
+            MHSession *session = [context session] ;
+            [session storeMember:[context contextID] named:@"contextID"] ;
+            
+            if (challengeStored) { [session storeMember:challengeStored named:SESSION_PARAM_CHALLENGE] ; }
+            [session storeMember:headerURN named:SESSION_PARAM_URN] ;
+            [session changeStatus:MHSessionStatusLoginInterfaceSent] ;
+            
+            bytes = (void *)[challengeSent UTF8String] ;
+            response = AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree(bytes, strlen(bytes))) ;
+            
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CHALLENGE GENERATED for authentication type %@ on socket %d",
+                                 MHAuthenticationNameForType(authType),
+                                 [secureSocket socket]) ;
+            MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, response, HTTPOK, isAdmin, headers, session, NO) ;
+            
+        } else if ((headerLogin && [application canAuthenticateWithChallengedPasswordLogin]) ||
+                   (headerLogin && headerTarget && [application canAuthenticateWithChallengedPasswordLoginOnTarget])) //CHALLENGED PASSWORD AUTHENTICATION
+                    
+        {
+            MHAppAuthentication authType = headerTarget ? MHAuthChallengedPasswordLoginOnTarget : MHAuthChallengedPasswordLogin ;
+            NSMutableDictionary *headers = nil ;
+            MSBuffer *response = nil ;
+            void *bytes = NULL ;
+            
+            //store plain challenge in session
+            NSString *challengeSent = [application generatePlainChallenge] ;
+            
+            MHContext *context = MHCreateInitialContextAndSession(application, authType) ;
+            MHSession *session = [context session] ;
+            [session storeMember:[context contextID] named:@"contextID"] ;
+            
+            if (headerTarget) { [session storeMember:headerTarget named:SESSION_PARAM_TARGET] ; }
+            [session storeMember:headerLogin named:SESSION_PARAM_LOGIN] ;
+            [session storeMember:challengeSent named:SESSION_PARAM_CHALLENGE] ;
+            [session changeStatus:MHSessionStatusLoginInterfaceSent] ;
+            
+            bytes = (void *)[challengeSent UTF8String] ;
+            response = AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree(bytes, strlen(bytes))) ;
+            
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CHALLENGE GENERATED for authentication type %@ on socket %d",
+                                 MHAuthenticationNameForType(authType),
+                                 [secureSocket socket]) ;
+            MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, response, HTTPOK, isAdmin, headers, session, NO) ;
+        }
+        else if ([application canAuthenticateWithCustomAuthentication]) //AUTHENTICATION CUSTOM
+        {
+            MHNotification *notification ;
+            MHContext *context = MHCreateInitialContextAndSession(application, MHAuthCustom) ;
+            [[context session] storeMember:[context contextID] named:@"contextID"] ;
+            
+            notification = [MHNotification retainedNotificationWithMessage:message
+                                                                   session:[context session]
+                                                            retainedTarget:application
+                                                            retainedAction:@"validateAuthentication:"
+                                                          notificationType:notificationType
+                                                       isAdminNotification:isAdmin] ;
+            
+            [notification storeAuthenticationCustomMode] ;
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CUSTOM APPLICATION AUTHENTICATION REQUEST GET MESSAGE on socket %d", [secureSocket socket]) ;
+            MHProcessingEnqueueNotificationOrSendError() ;
+            
+        }
+        else if ([application canHaveNoAuthentication]) //No authentication
+        {
+            MHNotification *notification ;
+            MHContext *context = MHCreateInitialContextAndSession(application, MHAuthNone) ;
+            
+            
+            notification = [MHNotification retainedNotificationWithMessage:message
+                                                                   session:[context session]
+                                                            retainedTarget:application
+                                                            retainedAction:@"awakeOnRequest:"
+                                                          notificationType:notificationType
+                                                       isAdminNotification:isAdmin] ;
+            
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED GET MESSAGE WITH NO SESSION on socket %d", [secureSocket socket]) ;
+            MHProcessingEnqueueNotificationOrSendError() ;
+        }
+        else {
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED GET MESSAGE WITH NO SESSION : could not find a valid authentication method on socket %d", [secureSocket socket]) ;
+            _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+        }
+    }
+    else {
+        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED GET MESSAGE WITH NO SESSION : wrong url for authentication on socket %d", [secureSocket socket]) ;
+        _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+    }
+    MH_LOG_LEAVE(@"_MHRunApplicationWithNoSessionGetRequest") ;
+}
+
+
+static void _MHRunApplicationWithNoSessionPostRequest(MHApplication *application,
+                                               MHHTTPMessage *message,
+                                               MHNotificationType notificationType,
+                                               MHSSLSocket *secureSocket,
+                                               NSString *url,
+                                               BOOL isAdmin)
+{
+    MH_LOG_ENTER(@"_MHRunApplicationWithNoSessionPostRequest") ;
+    
+    if ([url isEqualToString:[application baseURL]])
+    {
+        NSString *userLogin = [message parameterNamed:MHGUI_AUTH_FORM_LOGIN] ;
+        NSString *userPassword = [message parameterNamed:MHGUI_AUTH_FORM_PASSWORD] ;
+        
+        if ([application canAuthenticateWithSimpleGUILoginPassword] && [userLogin length] && userPassword) //SimpleGUIAuthentication
+        {
+            MHNotification *notification ;
+            MHContext *context = MHCreateInitialContextAndSession(application, MHAuthSimpleGUIPasswordAndLogin) ;
+            [[context session] storeMember:[context contextID] named:@"contextID"] ;
+            
+            notification = [MHNotification retainedNotificationWithMessage:message
+                                                                   session:[context session]
+                                                            retainedTarget:application
+                                                            retainedAction:@"validateAuthentication:"
+                                                          notificationType:notificationType
+                                                       isAdminNotification:isAdmin] ;
+            
+            [notification storeAuthenticationLogin:userLogin andPassword:userPassword authType:MHAuthSimpleGUIPasswordAndLogin] ;
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : SIMPLE GUI AUTHENTICATION REQUEST MESSAGE on socket %d", [secureSocket socket]) ;
+            MHProcessingEnqueueNotificationOrSendError() ;
+        }
+        else if ([application canAuthenticateWithCustomAuthentication]) //CUSTOM AUTH POST
+        {
+            MHNotification *notification ;
+            MHContext *context = MHCreateInitialContextAndSession(application, MHAuthCustom) ;
+            [[context session] storeMember:[context contextID] named:@"contextID"] ;
+            
+            notification = [MHNotification retainedNotificationWithMessage:message
+                                                                   session:[context session]
+                                                            retainedTarget:application
+                                                            retainedAction:@"validateAuthentication:"
+                                                          notificationType:notificationType
+                                                       isAdminNotification:isAdmin] ;
+            
+            [notification storeAuthenticationCustomMode] ;
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CUSTOM APPLICATION AUTHENTICATION REQUEST POST MESSAGE on socket %d", [secureSocket socket]) ;
+            MHProcessingEnqueueNotificationOrSendError() ;
+        }
+        else if ([application canHaveNoAuthentication]) //No authentication
+        {
+            MHNotification *notification ;
+            MHContext *context = MHCreateInitialContextAndSession(application, MHAuthNone) ;
+            
+            
+            notification = [MHNotification retainedNotificationWithMessage:message
+                                                                   session:[context session]
+                                                            retainedTarget:application
+                                                            retainedAction:@"awakeOnRequest:"
+                                                          notificationType:notificationType
+                                                       isAdminNotification:isAdmin] ;
+            
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED POST MESSAGE WITH NO SESSION on socket %d", [secureSocket socket]) ;
+            MHProcessingEnqueueNotificationOrSendError() ;
+        }
+        else
+        {
+            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED POST MESSAGE WITH NO SESSION : could not find a valid authentication method on socket %d", [secureSocket socket]) ;
+            _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+        }
+        
+    } else
+    {
+        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED POST MESSAGE WITH NO SESSION : wrong url for authentication on socket %d", [secureSocket socket]) ;
+        _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+    }
+    
+    MH_LOG_LEAVE(@"_MHRunApplicationWithNoSessionPostRequest") ;
+}
+
+
+static void _MHRunApplicationWithNoSession(MHApplication *application,
+                                    MHHTTPMessage *message,
+                                    MHNotificationType notificationType,
+                                    MHSSLSocket *secureSocket,
+                                    NSString *url,
+                                    BOOL isAdmin)
+{
+    BOOL isGetRequest = [message isGetRequest] ;
+    MH_LOG_ENTER(@"_MHRunApplicationWithNoSession") ;
+    
+    if(isGetRequest)
+    {
+        if(_MHIsResourceDownload(notificationType)) //GET resource is it's a public resource in bundle, else HTTPForbidden
+        {
+            MHDownloadResource *resource ;
+            
+            if(notificationType == MHPublicResourceDownload &&
+               (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
+            {
+                MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, nil, message, nil) ;
+            }
+            else
+            {
+                MHRespondToClientOnSocket(secureSocket, nil, HTTPForbidden, isAdmin) ;
+            }
+        } else //GET message, not on a resource
+        {
+            _MHRunApplicationWithNoSessionGetRequest(application, message, notificationType, secureSocket, url, isAdmin) ;
+        }
+    } else //POST message, not on a resource
+    {
+        _MHRunApplicationWithNoSessionPostRequest(application, message, notificationType, secureSocket, url, isAdmin) ;
+    }
+    MH_LOG_LEAVE(@"_MHRunApplicationWithNoSession") ;
+}
+
+static void _MHRunApplicationWithSession(MHApplication *application,
+                                  MHHTTPMessage *message,
+                                  MHSession *session,
+                                  MHContext *context,
+                                  MHNotificationType notificationType,
+                                  MHSSLSocket *secureSocket,
+                                  NSString *url,
+                                  NSArray *urlComponents,
+                                  BOOL isAdmin)
+{
+    MHSessionStatus status = [session status] ;
+    BOOL isGetRequest = [message isGetRequest] ;
+    BOOL internalSubURLNotFound = YES ;
+    MSUInt urlComponentsCount = (MSUInt)[urlComponents count] ;
+    MH_LOG_ENTER(@"_MHRunApplicationWithSession") ;
+    
+    if (isGetRequest)
+    {
+        if([url hasSuffix:@"getUploadID"]) {
+            if([application hasUploadSupport]) { MHReplyWithNewUploadID(secureSocket, application) ; }
+            else { MHRespondToClientOnSocket(secureSocket, nil, HTTPUnauthorized, isAdmin) ; }
+            internalSubURLNotFound = NO ;
+            
+        } else if(urlComponentsCount > __baseUrlComponentsCount && [[urlComponents objectAtIndex:__baseUrlComponentsCount] hasPrefix:@"getUploadStatus"]) {
+            
+            NSString * uploadID = [message parameterNamed:@"id"] ;
+            NSDictionary * response = nil ;
+            MHUploadResource *upResource = nil ;
+            NSDictionary * hdrs = [NSDictionary dictionaryWithObjectsAndKeys:@"no-cache", @"Pragma",
+                                   @"no-cache, must-revalidate", @"Cache-Control",
+                                   @"application/json", @"Content-Type",
+                                   nil] ;
+            lock_resources_mutex() ;
+            upResource = (MHUploadResource *)resourceForKey([[[url stringByDeletingLastURLComponent] stringByAppendingURLComponent:[MHUploadResource uploadPathComponent]] stringByAppendingURLComponent:uploadID]) ;
+            unlock_resources_mutex() ;
+            
+            if(upResource) {
+                response = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSNumber numberWithInt:[upResource status]], @"upload_status",
+                            [NSNumber numberWithUnsignedLongLong:[upResource expectedSize]], @"expected_size",
+                            [NSNumber numberWithUnsignedLongLong:[upResource receivedSizeWithBoundary]], @"received_size", nil] ;
+            } else {
+                response = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:UPLOAD_UNKNOWN_ID ] forKey:@"upload_status"] ;
+            }
+            MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, [response MSTEncodedBuffer], HTTPOK, isAdmin, hdrs, nil, NO) ;
+            internalSubURLNotFound = NO ;
+        } else {
+            if(([url rangeOfString:[application postProcessingURL]]).length) {
+                MHPreparePostProcess(message, isAdmin) ;
+                internalSubURLNotFound = NO ;
+            }
+        }
+    }
+    
+    if (internalSubURLNotFound) { //no internal sub-url has been found.
+        
+        if (notificationType == MHPublicResourceDownload) //public resource request
+        {
+            //get on public resource with session
+            MHNotification *notification ;
+            MHDownloadResource *resource ;
+            BOOL isStandardResourceDownload = _MHIsStandardResourceDownload(notificationType) ;
+            
+            if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
+            {
+                MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, nil, message, nil) ;
+            }
+            else
+            {
+                notification = [MHNotification retainedNotificationWithMessage:message
+                                //                             retainedContext:context
+                                                                       session:[context session]
+                                                                retainedTarget:application
+                                                                retainedAction:@"awakeOnRequest:"
+                                                              notificationType:notificationType
+                                                           isAdminNotification:isAdmin] ;
+                
+                MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : AUTHENTICATED GET PUBLIC RESSOURCE WITH SESSION on socket %d", [secureSocket socket]) ;
+                MHProcessingEnqueueNotificationOrSendError() ;
+            }
+            
+        } else
+        {
+            switch(status) //check if not expired and returns session status
+            {
+                case MHSessionStatusAuthenticated :
+                {
+                    NSString *sessionTicket = [session memberNamed:@"ticket"] ;
+                    MHDownloadResource *resource ;
+                    BOOL isStandardResourceDownload = _MHIsStandardResourceDownload(notificationType) ;
+                    
+                    if ([application isGUIApplication] &&
+                        [url isEqualToString:[(MHGUIApplication *)application loginURL]]) //request login interface, destroy dession
+                    {
+                        NSMutableDictionary *headers = [NSMutableDictionary dictionary] ;
+                        MSBuffer *loginInterface = [(MHGUIApplication *)application loginInterfaceWithErrorMessage:nil] ;
+                        MHDestroySession(session) ;
+                        MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, loginInterface, HTTPOK, isAdmin, headers, nil, NO) ;
+                    }
+                    else if ([url isEqualToString:[application logoutURL]]) //logout : destroys session
+                    {
+                        MHDestroySession(session) ;
+                        MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, nil, HTTPOK, isAdmin, nil, nil, NO) ;
+                    }
+                    else if ([url isEqualToString:[application baseURL]] && //already authenticated, and specifies a new ticket
+                             [application canAuthenticateWithTicket] &&
+                             [message fastContainsQueryParameterNamed:MHAUTH_QUERY_PARAM_TICKET] &&
+                             ! [sessionTicket isEqualToString:[message parameterNamed:MHAUTH_QUERY_PARAM_TICKET]])
+                    {
+                        MHDestroySession(session) ;
+                        MHRedirectToURL(secureSocket, [@"/" stringByAppendingURLComponent:[message getHeader:MHHTTPUrl]], NO) ;
+                    }
+                    else if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
+                    {
+                        MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, session, message, nil) ;
+                    }
+                    else {
+                        BOOL isKeepAliveRequest = NO ;
+                        if(urlComponentsCount > __baseUrlComponentsCount) {
+                            isKeepAliveRequest = [[urlComponents objectAtIndex:__baseUrlComponentsCount] hasPrefix:KEEP_ALIVE_URL_COMPONENT] ;
+                        }
+                        
+                        if (isKeepAliveRequest) {
+                            BOOL isGetKeepAliveIntervalRequest =  [[urlComponents objectAtIndex:__baseUrlComponentsCount + 1] hasPrefix:GET_KEEP_ALIVE_INTERVAL_URL_COMPONENT] ;
+                            
+                            if (isGetKeepAliveIntervalRequest) {
+                                NSDictionary *getKeepAliveIntervalResponse = [NSDictionary dictionaryWithObjectsAndKeys:
+                                                                              [NSNumber numberWithUnsignedInt:[application getKeepAliveInterval]],
+                                                                              @"keepAliveInterval",
+                                                                              nil] ;
+                                
+                                MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, [getKeepAliveIntervalResponse MSTEncodedBuffer], HTTPOK, isAdmin, nil, session, NO) ;
+                            }
+                            else {
+                                //mise à jour de la session
+                                [session keepAliveTouch] ;
+                                
+                                MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, [@"OK" MSTEncodedBuffer], HTTPOK, isAdmin, nil, session, NO) ; //Just for clean warning on web client if body is empty in an ajax response
+                            }
+                        }
+                        else {
+                            MHNotification *notification = [MHNotification retainedNotificationWithMessage:message
+                                                                                                   session:session
+                                                                                            retainedTarget:application
+                                                                                            retainedAction:@"awakeOnRequest:"
+                                                                                          notificationType:notificationType
+                                                                                       isAdminNotification:isAdmin] ;
+                            
+                            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : AUTHENTICATED MESSAGE on socket %d", [secureSocket socket]) ;
+                            MHProcessingEnqueueNotificationOrSendError() ;
+                        }
+                    }
+                    
+                    break ;
+                }
+                    
+                case MHSessionStatusLoginInterfaceSent : //continue challenge authentication application authentication process
+                {
+                    NSString *headerChallenge   = [message getHeader:MHHTTPAuthChallenge] ;
+                    NSString *headerPassword    = [message getHeader:MHHTTPAuthPassword] ;
+                    
+                    if (isGetRequest && (headerChallenge || headerPassword))
+                    {
+                        MHNotification *notification = [MHNotification retainedNotificationWithMessage:message
+                                                                                               session:session
+                                                                                        retainedTarget:application
+                                                                                        retainedAction:@"validateAuthentication:"
+                                                                                      notificationType:notificationType
+                                                                                   isAdminNotification:isAdmin] ; ;
+                        
+                        if (headerPassword)         //password challenged authentication
+                        {
+                            NSString *sessionTargetURN = [session memberNamed:SESSION_PARAM_URN] ;
+                            NSString *sessionLogin = [session memberNamed:SESSION_PARAM_LOGIN] ;
+                            
+                            if (sessionTargetURN) //authentication on target URN
+                            {
+                                [notification storeAuthenticationLogin:sessionLogin andPassword:headerPassword andTarget:sessionTargetURN] ;
+                            } else
+                            {
+                                [notification storeAuthenticationLogin:sessionLogin andPassword:headerPassword authType:[session authenticationType]] ;
+                            }
+
+                        } else if (headerChallenge) //public key challenge authentication
+                        {
+                            [notification storeAuthenticationChallenge:headerChallenge] ;
+                        }
+                        
+                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CHALLENGE APPLICATION AUTHENTICATION REQUEST MESSAGE for authentication type %@ on socket %d",
+                                             MHAuthenticationNameForType([session authenticationType]),
+                                             [secureSocket socket]) ;
+                        MHProcessingEnqueueNotificationOrSendError() ;
+                        
+                    } else
+                    {
+                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CHALLENGE APPLICATION AUTHENTICATION REQUEST MESSAGE : wrong parameters on socket %d") ;
+                        MHDestroySession(session) ;
+                        _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+                    }
+                    break ;
+                }
+                    
+                default: //MHSessionStatusExpired
+                {
+                    MHNotification *notification ;
+                    MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : EXPIRED SESSION on socket %d", [secureSocket socket]) ;
+                    
+                    notification = [MHNotification retainedNotificationWithMessage:message
+                                                                           session:session
+                                                                    retainedTarget:application
+                                                                    retainedAction:@"sessionWillExpire:"
+                                                                  notificationType:notificationType
+                                                               isAdminNotification:isAdmin] ;
+                    
+                    if (!MHProcessingEnqueueNotification(notification)) {
+                        _send_error_message(secureSocket, HTTP_503_NOT_AVAILABLE) ;
+                        [notification end] ;
+                    }
+                    MHDestroySession(session) ;
+                }
+            }
+        }
+    }
+    MH_LOG_LEAVE(@"_MHRunApplicationWithSession") ;
+
+}
+
+static void _MHRunGUIApplicationChoice(NSString *knownCustomer,
+                                NSString *knownGroup,
+                                MHSSLSocket *secureSocket,
+                                NSString *url,
+                                NSArray *urlComponents,
+                                BOOL isAdmin)
+{
+    MSUInt urlComponentsCount = (MSUInt)[urlComponents count] ;
+    
+    if(urlComponentsCount >= __baseUrlComponentsCount && [[urlComponents objectAtIndex:__baseUrlComponentsCount-1] length]) {
+        MHRedirectToURL(secureSocket, [NSString stringWithFormat:@"/%@/%@/", knownCustomer, knownGroup], NO) ;
+    }
+    else {
+        NSMutableDictionary *headers = nil ;
+        NSMutableDictionary *params = [NSMutableDictionary dictionary] ;
+        MSBuffer *loginInterface ;
+        NSArray *guiAppsAndURLs = _MHGUIApplicationsForPort([secureSocket localPort], __baseUrlComponentsCount) ;
+        
+        if(knownCustomer) [params setObject:knownCustomer forKey:@"knownCustomer"] ;
+        if(knownGroup) [params setObject:knownGroup forKey:@"knownGroup"] ;
+        [params setObject:url forKey:@"url"] ;
+        [params setObject:guiAppsAndURLs forKey:@"guiApplications"] ;
+        
+        loginInterface = [MHGUIApplication loginInterfaceAppChoiceWithParameters:params] ;
+        MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, loginInterface, HTTPOK, isAdmin, headers, nil, NO) ;
+    }
+}
+
 static callback_t _MHApplicationRun(void *arg)
 {
     MSInt sock;
@@ -775,7 +1358,7 @@ static callback_t _MHApplicationRun(void *arg)
         waitingAcceptedSockets = __waitingAcceptedAdminSockets ;
     }
     else { //client mode
-        newConnectionAccepted = __newClientConnectionAccepted ; 
+        newConnectionAccepted = __newClientConnectionAccepted ;
         accept_mutex = &__client_accept_mutex ;
         waitingAcceptedSockets = __waitingAcceptedClientSockets ;
     }
@@ -785,7 +1368,6 @@ static callback_t _MHApplicationRun(void *arg)
         //        myLog("_MHApplicationRun waiting for new event...") ;
         if(!event_wait(newConnectionAccepted))
         {
-            MHDownloadResource *resource = nil ;
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init] ;
             MH_LOG_ENTER(@"_MHApplicationRun") ;
             
@@ -803,7 +1385,7 @@ static callback_t _MHApplicationRun(void *arg)
                 [waitingAcceptedSockets removeNaturalAtIndex:0] ;
             }
             mutex_unlock(*accept_mutex);
-                        
+            
             while (sock != -1)
             {
                 NS_DURING
@@ -859,11 +1441,10 @@ static callback_t _MHApplicationRun(void *arg)
                                 NSString *url = [message getHeader:MHHTTPUrl] ;
                                 NSString *knownGroup = nil ;
                                 NSString *knownCustomer = nil ;
-                                BOOL isGetRequest = [message isGetRequest] ;
                                 
                                 MHNotificationType notificationType = MHStandardNotification ;
                                 BOOL isStandardResourceDownload = NO ;
-                                MHApplication *application = (isAdmin) ? (MHApplication *)__adminApplication : [MHApplication applicationForURL:url listeningPort:[secureSocket localPort] baseUrlComponentsCount:(MSUInt)__baseUrlComponentsCount] ;
+                                MHApplication *application = (isAdmin) ? (MHApplication *)__adminApplication : _MHApplicationForURLAndPort(url, [secureSocket localPort], __baseUrlComponentsCount) ;
                                 MHSession *session = sessionWithKeyForApplication([message getHeader:MHHTTPCookie], application) ;
                                 MHContext *context = contextForKey([message getHeader:MHHTTPContextId]) ; //get context from contextID
                                 
@@ -884,7 +1465,7 @@ static callback_t _MHApplicationRun(void *arg)
                                 {
                                     NSString *customerURL = nil, *groupURL = nil, *applicationURL = nil ;
                                     
-                                    NSEnumerator *e = [__applicationBaseURLs objectEnumerator] ;
+                                    NSEnumerator *e = [__applicationsInfos objectEnumerator] ;
                                     NSDictionary *baseURL ;
                                     
                                     customerURL     = (urlComponentsCount)      ? [urlComponents objectAtIndex:0] : nil ;
@@ -935,476 +1516,40 @@ static callback_t _MHApplicationRun(void *arg)
                                     }
                                     
                                     if(session) {
-                                        
-                                        MHSessionStatus status = [session status] ;
-                                        BOOL internalSubURLNotFound = YES ;
-                                        
-                                        if (isGetRequest)
+                                        if([session application] == application) //valid session and application matches the url
                                         {
-                                           if([url hasSuffix:@"getUploadID"]) {
-                                                if([application hasUploadSupport]) { MHReplyWithNewUploadID(secureSocket, application) ; }
-                                                else { MHRespondToClientOnSocket(secureSocket, nil, HTTPNotImplemented, isAdmin) ; }
-                                                internalSubURLNotFound = NO ;
-                                                
-                                            } else if(urlComponentsCount > __baseUrlComponentsCount && [[urlComponents objectAtIndex:__baseUrlComponentsCount] hasPrefix:@"getUploadStatus"]) {
-                                                
-                                                NSString * uploadID = [message parameterNamed:@"id"] ;
-                                                NSDictionary * response = nil ;
-                                                MHUploadResource *upResource = nil ;
-                                                NSDictionary * hdrs = [NSDictionary dictionaryWithObjectsAndKeys:@"no-cache", @"Pragma",
-                                                                       @"no-cache, must-revalidate", @"Cache-Control",
-                                                                       @"application/json", @"Content-Type",
-                                                                       nil] ;
-                                                lock_resources_mutex() ;
-                                                upResource = (MHUploadResource *)resourceForKey([[[url stringByDeletingLastURLComponent] stringByAppendingURLComponent:[MHUploadResource uploadPathComponent]] stringByAppendingURLComponent:uploadID]) ;
-                                                unlock_resources_mutex() ;
-                                                
-                                                if(upResource) {
-                                                    response = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                                [NSNumber numberWithInt:[upResource status]], @"upload_status",
-                                                                [NSNumber numberWithUnsignedLongLong:[upResource expectedSize]], @"expected_size",
-                                                                [NSNumber numberWithUnsignedLongLong:[upResource receivedSizeWithBoundary]], @"received_size", nil] ;
-                                                } else {
-                                                    response = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:UPLOAD_UNKNOWN_ID ] forKey:@"upload_status"] ;
-                                                }
-                                                MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, [response MSTEncodedBuffer], HTTPOK, isAdmin, hdrs, nil, NO) ;
-                                                internalSubURLNotFound = NO ;
-                                            } else {
-                                                if(([url rangeOfString:[application postProcessingURL]]).length) {
-                                                    MHPreparePostProcess(message, isAdmin) ;
-                                                    internalSubURLNotFound = NO ;
-                                                }
-                                            }
-                                        }
-                                        
-                                        if (internalSubURLNotFound) { //no internal sub-url has been found.
-                                            
-                                            if (notificationType == MHPublicResourceDownload) //public resource request
-                                            {
-                                                //get on public resource with session
-                                                MHNotification *notification ;
-                                                
-                                                if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
-                                                {
-                                                    MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, nil, message, nil) ;
-                                                }
-                                                else
-                                                {
-                                                    notification = [MHNotification retainedNotificationWithMessage:message
-                                                                    //                             retainedContext:context
-                                                                                                           session:[context session]
-                                                                                                    retainedTarget:application
-                                                                                                    retainedAction:@"awakeOnRequest:"
-                                                                                                  notificationType:notificationType
-                                                                                               isAdminNotification:isAdmin] ;
-                                                    
-                                                    MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : AUTHENTICATED GET PUBLIC RESSOURCE WITH SESSION on socket %d", sock) ;
-                                                    
-                                                    if (!MHProcessingEnqueueNotification(notification)) {
-                                                        [notification end] ;
-                                                        RELEASE(context) ;
-                                                        _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                    }
-                                                }
-                                                
-                                            } else
-                                            {
-                                                switch(status) //check if not expired and returns session status
-                                                {
-                                                    case MHSessionStatusAuthenticated :
-                                                    {
-                                                        MHNotification *notification ;
-                                                        
-                                                        if (isGetRequest && [url isEqualToString:[application baseURL]])
-                                                        {
-                                                            MHDestroySession(session) ;
-                                                            MHRedirectToURL(secureSocket, [NSString stringWithFormat:@"/%@", [application loginURL]]) ;
-                                                        }
-                                                        else if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
-                                                        {
-                                                            MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, session, message, nil) ;
-                                                        }
-                                                        else {
-                                                            BOOL isKeepAliveRequest = NO ;
-                                                            if(urlComponentsCount > __baseUrlComponentsCount) {
-                                                                isKeepAliveRequest = [[urlComponents objectAtIndex:__baseUrlComponentsCount] hasPrefix:KEEP_ALIVE_URL_COMPONENT] ;
-                                                            }
-                                                            
-                                                            if (isKeepAliveRequest) {
-                                                                BOOL isGetKeepAliveIntervalRequest =  [[urlComponents objectAtIndex:__baseUrlComponentsCount + 1] hasPrefix:GET_KEEP_ALIVE_INTERVAL_URL_COMPONENT] ;
-                                                                
-                                                                if (isGetKeepAliveIntervalRequest) {
-                                                                    NSDictionary *getKeepAliveIntervalResponse = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                                                                                  [NSNumber numberWithUnsignedInt:[application getKeepAliveInterval]],
-                                                                                                                  @"keepAliveInterval",
-                                                                                                                  nil] ;
-                                                                    
-                                                                    MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, [getKeepAliveIntervalResponse MSTEncodedBuffer], HTTPOK, isAdmin, nil, session, NO) ;
-                                                                }
-                                                                else {
-                                                                    //mise à jour de la session
-                                                                    [session keepAliveTouch] ;
-                                                                    
-                                                                    MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, [@"OK" MSTEncodedBuffer], HTTPOK, isAdmin, nil, session, NO) ; //Just for clean warning on web client if body is empty in an ajax response
-                                                                }
-                                                            }
-                                                            else {
-                                                                notification = [MHNotification retainedNotificationWithMessage:message
-                                                                                                                       session:session
-                                                                                                                retainedTarget:application
-                                                                                                                retainedAction:@"awakeOnRequest:"
-                                                                                                              notificationType:notificationType
-                                                                                                           isAdminNotification:isAdmin] ;
-                                                                
-                                                                MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : AUTHENTICATED MESSAGE on socket %d", sock) ;
-                                                                
-                                                                if (!MHProcessingEnqueueNotification(notification)) {
-                                                                    [notification end] ;
-                                                                    _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                                }
-                                                            }
-                                                        }
-                                                        
-                                                        break ;
-                                                    }
-                                                        
-                                                    case MHSessionStatusLoginInterfaceSent : //continue application authentication process
-                                                    {
-                                                        if( !isGetRequest && [application mustRespondWithAuthentication]) //POST - Challenge Validate Authentication
-                                                        {
-                                                            MHAuthenticatedApplication *authApplication = (MHAuthenticatedApplication *)application ;
-                                                            NSString *challenge = [message parameterNamed:[authApplication challengeFieldName]] ;
-                                                            
-                                                            if ([authApplication canAuthenticateWithChallenge] && challenge)
-                                                            {
-                                                                MHNotification *notification = [MHNotification retainedNotificationWithMessage:message
-                                                                                                                                       session:session
-                                                                                                                                retainedTarget:authApplication
-                                                                                                                                retainedAction:@"validateAuthentication:"
-                                                                                                                              notificationType:notificationType
-                                                                                                                           isAdminNotification:isAdmin] ;
-                                                                [notification storeChallenge:challenge] ;
-                                                                
-                                                                MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CHALLENGE APPLICATION AUTHENTICATION REQUEST MESSAGE on socket %d", sock) ;
-                                                                
-                                                                
-                                                                if (!MHProcessingEnqueueNotification(notification)) {
-                                                                    [notification end] ;
-                                                                    _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                                }
-                                                            }
-                                                        } else {
-                                                            _send_error_message(secureSocket, HTTP_501_RESPONSE) ;
-                                                        }
-                                                        break ;
-                                                    }
-                                                        
-                                                    default: //MHSessionStatusExpired
-                                                    {
-                                                        MHNotification *notification ;
-                                                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : EXPIRED SESSION on socket %d", sock) ;
-                                                        
-                                                        notification = [MHNotification retainedNotificationWithMessage:nil
-                                                                                                               session:session
-                                                                                                        retainedTarget:application
-                                                                                                        retainedAction:@"sessionWillExpire:"
-                                                                                                      notificationType:notificationType
-                                                                                                   isAdminNotification:isAdmin] ;
-                                                        
-                                                        if (!MHProcessingEnqueueNotification(notification)) {
-                                                            [notification end] ;
-                                                            _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                        }
-                                                        else { MHCloseBrowserSession(secureSocket, session, HTTPForbidden) ; }
-                                                        
-                                                        MHDestroySession(session) ;
-                                                    }
-                                                }   
-                                            }
+                                            _MHRunApplicationWithSession(application,
+                                                                         message,
+                                                                         session,
+                                                                         context,
+                                                                         notificationType,
+                                                                         secureSocket,
+                                                                         url,
+                                                                         urlComponents,
+                                                                         isAdmin) ;
+                                        } else
+                                        {
+                                            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : wrong application for session on socket %d", [secureSocket socket]) ;
+                                            _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ; //wrong application for session
                                         }
                                         
                                     } else { //application && !session
-                                        
-                                        if([message isGetRequest]) //GET received
-                                        {
-                                            if([application mustRespondWithAuthentication]) // Authentication required for this application or unknown application
-                                            {
-                                                MHAuthenticatedApplication *authApplication = (MHAuthenticatedApplication *)application ;
-                                                
-                                                if (notificationType == MHAuthenticatedResourceDownload ||
-                                                    notificationType == MHUncResourceDownload)
-                                                {
-                                                    // Access forbidden
-                                                    MHRespondToClientOnSocket(secureSocket, nil, HTTPForbidden, isAdmin);
-                                                } else if (notificationType == MHPublicResourceDownload)
-                                                {
-                                                    //get on public resource without session
-                                                    MHNotification *notification ;
-                                                    context = MHCreateInitialContextAndSession(application, MHAuthNone) ;
-                                                    
-                                                    if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, authApplication, [message contentType], notificationType)))
-                                                    {
-                                                        MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, nil, message, nil) ;
-                                                    }
-                                                    else
-                                                    {
-                                                        notification = [MHNotification retainedNotificationWithMessage:message
-                                                                        //                             retainedContext:context
-                                                                                                               session:[context session]
-                                                                                                        retainedTarget:authApplication
-                                                                                                        retainedAction:@"awakeOnRequest:"
-                                                                                                      notificationType:notificationType
-                                                                                                   isAdminNotification:isAdmin] ;
-                                                        
-                                                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : AUTHENTICATED GET PUBLIC RESSOURCE WITH NO SESSION on socket %d", sock) ;
-                                                        
-                                                        if (!MHProcessingEnqueueNotification(notification)) {
-                                                            [notification end] ;
-                                                            RELEASE(context) ;
-                                                            _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                        }
-                                                    }
-                                                    
-                                                } else if ([url isEqualToString:[authApplication loginURL]])
-                                                {
-                                                    NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithObject:@"YES" forKey:__header_mash_auth_required] ;
-                                                    MSBuffer *loginInterface = [authApplication loginInterfaceWithMessage:message errorMessage:nil] ;
-                                                    MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, loginInterface, HTTPOK, isAdmin, headers, nil, NO) ;
-                                                }
-                                                else if ([url isEqualToString:[application baseURL]]) //Authentication
-                                                {
-                                                    if([(MHAuthenticatedApplication *)authApplication canAuthenticateWithTicket]
-                                                       && [message fastContainsQueryParameterNamed:MHAUTHENTICATED_APP_QUERY_PARAM_TICKET]) //AUTHENTICATION WITH TICKET
-                                                    {
-                                                        NSDictionary *queryParameters = [message parameters] ;
-                                                        NSString *ticket = [queryParameters objectForKey:MHAUTHENTICATED_APP_QUERY_PARAM_TICKET] ;
-                                                        
-                                                        if([ticket length])
-                                                        {
-                                                            MHNotification *notification ;
-                                                            context = MHCreateInitialContextAndSession(authApplication, MHAuthTicket) ;
-                                                            [[context session] storeMember:[context contextID] named:@"contextID"] ;
-                                                            
-                                                            notification = [MHNotification retainedNotificationWithMessage:message
-                                                                                                                   session:[context session]
-                                                                                                            retainedTarget:authApplication
-                                                                                                            retainedAction:@"validateAuthentication:"
-                                                                                                          notificationType:notificationType
-                                                                                                       isAdminNotification:isAdmin] ;
-                                                            
-                                                            [notification storeAuthenticationTicket:ticket] ;
-                                                            
-                                                            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : TICKET APPLICATION AUTHENTICATION REQUEST MESSAGE on socket %d", sock) ;
-                                                            
-                                                            if (!MHProcessingEnqueueNotification(notification)) {
-                                                                [notification end] ;
-                                                                _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                            }
-                                                        }
-                                                        else {
-                                                            _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED);
-                                                        }
-                                                    } else if ([authApplication canAuthenticateWithCustomAuthentication]) { //AUTHENTICATION CUSTOM
-                                                        MHNotification *notification ;
-                                                        context = MHCreateInitialContextAndSession(authApplication, MHAuthTicket) ;
-                                                        [[context session] storeMember:[context contextID] named:@"contextID"] ;
-                                                        
-                                                        notification = [MHNotification retainedNotificationWithMessage:message
-                                                                                                               session:[context session]
-                                                                                                        retainedTarget:authApplication
-                                                                                                        retainedAction:@"validateAuthentication:"
-                                                                                                      notificationType:notificationType
-                                                                                                   isAdminNotification:isAdmin] ;
-                                                        
-                                                        [notification storeCustomAuthenticationMode] ;
-                                                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CUSTOM APPLICATION AUTHENTICATION REQUEST GET MESSAGE on socket %d", sock) ;
-                                                        
-                                                        if (!MHProcessingEnqueueNotification(notification)) {
-                                                            [notification end] ;
-                                                            _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                        }
-                                                    } else {
-                                                        MHRedirectToURL(secureSocket, [NSString stringWithFormat:@"/%@", [authApplication loginURL]]) ;
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    MHRedirectToURL(secureSocket, [NSString stringWithFormat:@"/%@", [application loginURL]]) ;
-                                                }
-                                            } else { //public application, create session and process request
-                                                
-                                                MHNotification *notification ;
-                                                context = MHCreateInitialContextAndSession(application, MHAuthNone) ;
-                                                
-                                                if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
-                                                {
-                                                    MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, nil, message, nil) ;
-                                                }
-                                                else
-                                                {
-                                                    notification = [MHNotification retainedNotificationWithMessage:message
-                                                                    //                             retainedContext:context
-                                                                                                           session:session
-                                                                                                    retainedTarget:application
-                                                                                                    retainedAction:@"awakeOnRequest:"
-                                                                                                  notificationType:notificationType
-                                                                                               isAdminNotification:isAdmin] ;
-                                                    
-                                                    MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : PUBLIC GET MESSAGE WITH NO SESSION on socket %d", sock) ;
-                                                    
-                                                    if (!MHProcessingEnqueueNotification(notification)) {
-                                                        [notification end] ;
-                                                        RELEASE(context) ;
-                                                        _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        else //POST received
-                                        {
-                                            if([application mustRespondWithAuthentication]) { //MHGUIAuthenticatedApplication login
-                                                MHAuthenticatedApplication *authApplication = (MHAuthenticatedApplication *)application ;
-                                                if ([url isEqualToString:[authApplication baseURL]])
-                                                {
-                                                    NSString *userLogin = [message parameterNamed:[authApplication loginFieldName]] ;
-                                                    NSString *userPassword = [message parameterNamed:[authApplication passwordFieldName]] ;
-                                                    NSString *userChallenge = [message parameterNamed:[authApplication challengeFieldName]] ;
-                                                    
-                                                    if([authApplication canAuthenticateWithLoginPassword] && [userLogin length] && userPassword)
-                                                    {
-                                                        MHNotification *notification ;
-                                                        context = MHCreateInitialContextAndSession(authApplication, MHAuthLoginPass) ;
-                                                        [[context session] storeMember:[context contextID] named:@"contextID"] ;
-                                                        
-                                                        notification = [MHNotification retainedNotificationWithMessage:message
-                                                                                                               session:[context session]
-                                                                                                        retainedTarget:authApplication
-                                                                                                        retainedAction:@"validateAuthentication:"
-                                                                                                      notificationType:notificationType
-                                                                                                   isAdminNotification:isAdmin] ;
-                                                        
-                                                        [notification storeGUIAuthenticationLogin:userLogin andPassword:userPassword] ;
-                                                        
-                                                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : GUI AUTHENTICATION REQUEST MESSAGE on socket %d", sock) ;
-                                                        
-                                                        if (!MHProcessingEnqueueNotification(notification)) {
-                                                            [notification end] ;
-                                                            _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                        }
-                                                    }
-                                                    else if ([authApplication canAuthenticateWithChallenge] && userChallenge) // CHALLENGE AUTHENTICATION
-                                                    {
-                                                        NSString *challengeSent = nil ;
-                                                        NSString *challengeStored = nil ;
-                                                        id additionalStoredObject = nil ;
-                                                        MSBuffer *response = nil ;
-                                                        NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithObject:@"YES" forKey:__header_mash_auth_required] ;
-                                                        
-                                                        //store plain challenge in session
-                                                        challengeSent = [authApplication generateChallengeForMessage:message plainStoredChallenge:&challengeStored additionalStoredObject:&additionalStoredObject] ;
-                                                        
-                                                        if ([challengeSent length])
-                                                        {
-                                                            void *bytes = NULL ;
-                                                            
-                                                            context = MHCreateInitialContextAndSession(authApplication, MHAuthLoginPass) ;
-                                                            [[context session] storeMember:[context contextID] named:@"contextID"] ;
-                                                            
-                                                            [[context session] storeMember:challengeStored named:[authApplication sessionChallengeMemberName]] ;
-                                                            if (additionalStoredObject) { [[context session] storeMember:additionalStoredObject named:[authApplication sessionChallengeAdditionalObjectMemberName]] ; }
-                                                            
-                                                            [[context session] changeStatus:MHSessionStatusLoginInterfaceSent] ;
-                                                            
-                                                            //send potentialy altered challenge
-                                                            bytes = (void *)[challengeSent UTF8String] ;
-                                                            response = AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree(bytes, strlen(bytes))) ;
-                                                            
-                                                            MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CHALLENGE GENERATED on socket %d", sock) ;
-                                                            MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, response, HTTPOK, isAdmin, headers, [context session], NO) ;
-                                                        } else
-                                                        {
-                                                            _send_error_message(secureSocket, HTTP_404_RESPONSE) ;
-                                                        }
-                                                    }
-                                                    else if ([authApplication canAuthenticateWithCustomAuthentication]) //CUSTOM AUTH POST
-                                                    {
-                                                        MHNotification *notification ;
-                                                        
-                                                        context = MHCreateInitialContextAndSession(authApplication, MHAuthLoginPass) ;
-                                                        [[context session] storeMember:[context contextID] named:@"contextID"] ;
-                                                        
-                                                        notification = [MHNotification retainedNotificationWithMessage:message
-                                                                                                               session:[context session]
-                                                                                                        retainedTarget:authApplication
-                                                                                                        retainedAction:@"validateAuthentication:"
-                                                                                                      notificationType:notificationType
-                                                                                                   isAdminNotification:isAdmin] ;
-                                                        
-                                                        [notification storeCustomAuthenticationMode] ;
-                                                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CUSTOM APPLICATION AUTHENTICATION REQUEST GET MESSAGE on socket %d", sock) ;
-                                                        
-                                                        if (!MHProcessingEnqueueNotification(notification)) {
-                                                            [notification end] ;
-                                                            _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                        }
-                                                    } else
-                                                    {
-                                                        //_send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
-                                                        MHRedirectToURL(secureSocket, [NSString stringWithFormat:@"/%@", [authApplication loginURL]]) ;
-                                                    }
-                                                    
-                                                } else
-                                                {
-                                                    _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
-                                                }
-                                            } else //PUBLIC APPLICATION
-                                            {
-                                                MHNotification *notification ;
-                                                context = MHCreateInitialContextAndSession(application, MHAuthCustom) ;
-                                                
-                                                
-                                                notification = [MHNotification retainedNotificationWithMessage:message
-                                                                //                             retainedContext:context
-                                                                                                       session:session
-                                                                                                retainedTarget:application
-                                                                                                retainedAction:@"awakeOnRequest:"
-                                                                                              notificationType:notificationType
-                                                                                           isAdminNotification:isAdmin] ;
-                                                
-                                                MHServerLogWithLevel(MHLogDebug,
-                                                                     @"_MHApplicationRun : AUTHENTICATED POST MESSAGE WITH NO SESSION on socket %d",
-                                                                     sock) ;
-                                                
-                                                if (!MHProcessingEnqueueNotification(notification)) {
-                                                    [notification end] ;
-                                                    RELEASE(context) ;
-                                                    _send_error_message(secureSocket, HTTP_503_RESPONSE);
-                                                }
-                                            }
-                                        }
+                                        _MHRunApplicationWithNoSession(application,
+                                                                       message,
+                                                                       notificationType,
+                                                                       secureSocket,
+                                                                       url,
+                                                                       isAdmin) ;
                                     }
                                 } else { //!application
                                     if(! __staticApplication && knownCustomer && knownGroup) { //bundle mode : valid customer and group, send GUI login interface
                                         
-                                        if(urlComponentsCount >= __baseUrlComponentsCount && [[urlComponents objectAtIndex:__baseUrlComponentsCount-1] length]) {
-                                            MHRedirectToURL(secureSocket, [NSString stringWithFormat:@"/%@/%@/", knownCustomer, knownGroup]) ;
-                                        }
-                                        else {
-                                            NSMutableDictionary *headers = [NSMutableDictionary dictionaryWithObject:@"YES" forKey:__header_mash_auth_required] ;
-                                            NSMutableDictionary *params = [NSMutableDictionary dictionary] ;
-                                            MSBuffer *loginInterface ;
-                                            
-                                            if(knownCustomer) [params setObject:knownCustomer forKey:@"knownCustomer"] ;
-                                            if(knownGroup) [params setObject:knownGroup forKey:@"knownGroup"] ;
-                                            [params setObject:url forKey:@"url"] ;
-                                            [params setObject:__applicationBaseURLs forKey:@"applicationBaseURLs"] ;
-                                            [params setObject:[NSNumber numberWithInt:__baseUrlComponentsCount] forKey:@"baseUrlComponentsCount"] ;
-                                            [params setObject:[NSNumber numberWithInt:[secureSocket localPort]] forKey:@"listeningPort"] ;
-                                            
-                                            loginInterface = [MHGUIAuthenticatedApplication loginInterfaceWithParameters:params] ;
-                                            MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, loginInterface, HTTPOK, isAdmin, headers, nil, NO) ;
-                                        }
-                                        
+                                        _MHRunGUIApplicationChoice(knownCustomer,
+                                                                   knownGroup,
+                                                                   secureSocket,
+                                                                   url,
+                                                                   urlComponents,
+                                                                   isAdmin) ;
                                     } else {
                                         _send_error_message(secureSocket, HTTP_404_RESPONSE) ;
                                     }
@@ -1841,6 +1986,96 @@ static MSInt _MHServerLoadPortsFromConfiguration()
     return EXIT_SUCCESS ;
 }
 
+static BOOL _MHCheckNetRepositoryParameters(NSDictionary *netRepositoryParameters, NSString *name)
+{
+    NSString *serverAddress = [netRepositoryParameters objectForKey:@"serverAddress"] ;
+    MSUInt serverPort = [[netRepositoryParameters objectForKey:@"serverPort"] intValue] ;
+    NSString *CAFile = [netRepositoryParameters objectForKey:@"CAFile"] ;
+    NSString *applicationBaseURL = [netRepositoryParameters objectForKey:@"url"] ;
+    BOOL isDir = NO ;
+    
+    if (![serverAddress length])
+    {
+        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'serverAddress' for repository configuration '%@'", name) ;
+        return NO ;
+    }
+    
+    if (!serverPort)
+    {
+        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'serverPort' for repository configuration '%@'", name) ;
+        return NO ;
+    }
+    
+    if (![applicationBaseURL length])
+    {
+        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'url' for repository configuration '%@'", name) ;
+        return NO ;
+    }
+    
+    if (![CAFile length])
+    {
+        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'CAFile' for repository configuration '%@'", name) ;
+        return NO ;
+    }
+    
+    if (! MSFileExistsAtPath(CAFile, &isDir) && !isDir)
+    {
+        MHServerLogWithLevel(MHAppError, @"CAFile not found at path %@ for repository configuration '%@'", CAFile , name) ;
+        return NO ;
+    }
+    
+    return YES ;
+}
+
+static MSInt _MHServerLoadNetRepositoryConfiguration()
+{
+    NSDictionary *netRepositoryParameters = [__parameters objectForKey:@"netRepositories"] ;
+    
+    if ([netRepositoryParameters count])
+    {
+        NSEnumerator *confEnum = [netRepositoryParameters keyEnumerator] ;
+        NSString *name = nil ;
+        NSDictionary *configurationParameters = nil ;
+        
+        while ((name = [confEnum nextObject]))
+        {
+            configurationParameters = [netRepositoryParameters objectForKey:name] ;
+            
+            if (! _MHCheckNetRepositoryParameters(configurationParameters, name))
+            {
+                return EXIT_FAILURE ;
+            }
+        }
+        __netRepositoryConfigurations = [netRepositoryParameters retain] ;
+    }
+    
+    return EXIT_SUCCESS ;
+}
+
+static NSDictionary *_MHGetParametersDictionary(NSDictionary *appDictionary, NSString **error)
+{
+    NSDictionary *parameters = [appDictionary objectForKey:@"parameters"] ;
+    NSString *repositoryName = [[parameters objectForKey:@"netRepository"] objectForKey:@"repositoryName"] ;
+    
+    if ([repositoryName length])
+    {
+        NSDictionary *netRepositoryParameters = [__netRepositoryConfigurations objectForKey:repositoryName] ;
+        
+        if (netRepositoryParameters)
+        {
+            parameters = [[parameters mutableCopy] autorelease] ;
+            [[parameters objectForKey:@"netRepository"] setObject:netRepositoryParameters forKey:@"netRepositories"] ;
+            parameters = [NSDictionary dictionaryWithDictionary:parameters] ;
+        }
+        else if (error)
+        {
+            *error = [NSString stringWithFormat:@"Could not find net repository parameters for name '%@'", repositoryName] ;
+        }
+    }
+    
+    return parameters ;
+}
+
 //load application instances
 static MSInt _MHServerLoadApplicationInstances(NSDictionary *httpServerParams, NSDictionary *bundlesInfo)
 {
@@ -1881,6 +2116,8 @@ static MSInt _MHServerLoadApplicationInstances(NSDictionary *httpServerParams, N
         NSArray *listeningPorts = [appDict objectForKey:@"listeningPorts"] ;
         NSEnumerator *listeningPortsEnum = [listeningPorts objectEnumerator] ;
         MSInt listeningPort ;
+        NSDictionary *parametersDict = nil ;
+        NSString *appParametersError = nil ;
 
         if(![url length]) {
             MHServerLogWithLevel(MHLogCritical, @"Cannot find url parameter in config file for application : %@",appDict) ;
@@ -1897,12 +2134,20 @@ static MSInt _MHServerLoadApplicationInstances(NSDictionary *httpServerParams, N
             return EXIT_FAILURE;
         }
         
+        //load application parameter section and alter it with suitable repository parameters if needed
+        parametersDict = _MHGetParametersDictionary(appDict, &appParametersError) ;
+        if ([appParametersError length])
+        {
+            MHServerLogWithLevel(MHLogCritical, appParametersError) ;
+            return EXIT_FAILURE;
+        }
+        
         if (__staticApplication) {//load static app instances
 
             loadedApplication = [(MHApplication *)[__staticApplication alloc] initOnBaseURL:baseUrl
                                                                                instanceName:[__staticApplication applicationFullName]
                                                                                  withLogger:__logger
-                                                                                 parameters:[appDict objectForKey:@"parameters"]] ;
+                                                                                 parameters:parametersDict] ;
             if (!loadedApplication) {
                 MHServerLogWithLevel(MHLogCritical, @"Failed to initialize application named:%@ for url:%@", [__staticApplication applicationFullName], baseUrl) ;
                 return EXIT_FAILURE;
@@ -1924,10 +2169,10 @@ static MSInt _MHServerLoadApplicationInstances(NSDictionary *httpServerParams, N
                     MHServerLogWithLevel(MHLogCritical, @"Cannot find port definition %d for instance %@", listeningPort, [loadedApplication applicationName]) ;
                     return EXIT_FAILURE;
                 }
-                if(appUrl) { [urlsInfos setObject:appUrl forKey:@"application"] ; } ;
+                if(appUrl) { [urlsInfos setObject:appUrl forKey:@"application"] ; }
                 [urlsInfos setObject:loadedApplication forKey:@"application"] ;
                 [urlsInfos setObject:[NSNumber numberWithInt:listeningPort] forKey:@"listeningPort"] ;
-                [__applicationBaseURLs addObject:urlsInfos] ;
+                [__applicationsInfos addObject:urlsInfos] ;
                 
                 setApplicationForPortAndKey(listeningPort, loadedApplication, baseUrl) ;
             }
@@ -2011,7 +2256,7 @@ static MSInt _MHServerLoadApplicationInstances(NSDictionary *httpServerParams, N
                 loadedApplication = [(MHApplication *)[applicationClass alloc] initOnBaseURL:baseUrl
                                                                                 instanceName:[appDict objectForKey:@"name"]
                                                                                   withLogger:__logger
-                                                                                  parameters:[appDict objectForKey:@"parameters"]] ;
+                                                                                  parameters:parametersDict] ;
                 
                 if (!loadedApplication)
                 {
@@ -2047,7 +2292,7 @@ static MSInt _MHServerLoadApplicationInstances(NSDictionary *httpServerParams, N
                     
                     [urlsInfos setObject:loadedApplication forKey:@"application"] ;
                     [urlsInfos setObject:[NSNumber numberWithInt:listeningPort] forKey:@"listeningPort"] ;
-                    [__applicationBaseURLs addObject:urlsInfos] ;
+                    [__applicationsInfos addObject:urlsInfos] ;
                     
                     setApplicationForPortAndKey(listeningPort, loadedApplication, baseUrl) ;
                 }
@@ -2216,10 +2461,13 @@ static MSInt _MHServerLoadConfigurationFile(NSArray *params)
     __certificateFile = (char *)[certificateFile fileSystemRepresentation]  ;
     __keyFile = (char *)[keyFile fileSystemRepresentation]  ;
     
-    __applicationBaseURLs = [NSMutableArray array] ;
+    __applicationsInfos = [NSMutableArray array] ;
     
     //load ports and contexts
     if(_MHServerLoadPortsFromConfiguration() != EXIT_SUCCESS) { return EXIT_FAILURE ; }
+    
+    //load net repository configurations
+    if(_MHServerLoadNetRepositoryConfiguration() != EXIT_SUCCESS) { return EXIT_FAILURE ; }
     
     //load application instances
     if(_MHServerLoadApplicationInstances(httpServerParams, bundlesInfo) != EXIT_SUCCESS) { return EXIT_FAILURE ; }
@@ -2365,8 +2613,9 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     MSArray *enabledSSLMethods = MSCreateArray(5);
     MSCouple *listeningPorts ;
     
+    // TODO: MSLanguage not yet ported
     //_initializeLanguageInfos() ;
-    
+  
     //initialize ssl libssl
     MHInitSSL() ;
     
@@ -2997,7 +3246,7 @@ NSArray *allApplicationPorts() {
 
 NSArray *allApplicationsForPort(MSInt listeningPort) {
     if (listeningPort) {
-        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (MSInt *)listeningPort) ;
+        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
         if(appCtx) return appCtx->applications ;
     }
     return nil ;
@@ -3005,7 +3254,7 @@ NSArray *allApplicationsForPort(MSInt listeningPort) {
 
 APPLICATION_PORT_CTX *applicationCtxForPort(MSInt listeningPort) {
     if(listeningPort > 0) {
-        return (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (MSInt *)listeningPort) ;
+        return (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
     }
     return NULL ;
 }
@@ -3013,7 +3262,7 @@ APPLICATION_PORT_CTX *applicationCtxForPort(MSInt listeningPort) {
 MHApplication *applicationForPortAndKey(MSInt listeningPort, NSString *key) {
     if(key && listeningPort)
     {
-        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (MSInt *)listeningPort) ;
+        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
         
         if(appCtx && appCtx->applications) {
             return (MHApplication *)NSMapGet((NSMapTable *)appCtx->applications, (const void *)key) ;
@@ -3032,7 +3281,7 @@ MSCouple *listeningPortsSortedBySSLAuthMode()
     
     while((listeningPort = [portEnum nextObject]))
     {
-        APPLICATION_PORT_CTX *portCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (MSInt *)[listeningPort intValue]) ;
+        APPLICATION_PORT_CTX *portCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)[listeningPort intValue]) ;
         if(portCtx)
         {
             (portCtx->twoWayAuth) ? [twoWayAuth addObject:listeningPort] : [oneWayAuth addObject:listeningPort] ;
@@ -3044,19 +3293,19 @@ MSCouple *listeningPortsSortedBySSLAuthMode()
 }
 
 
-void addApplicationPortCtxForPort(MSInt listeningPort, APPLICATION_PORT_CTX *appCtx) { if(listeningPort && appCtx) NSMapInsertKnownAbsent(__applicationsByPort, (MSInt *)listeningPort, (const void *)appCtx) ; }
+void addApplicationPortCtxForPort(MSInt listeningPort, APPLICATION_PORT_CTX *appCtx) { if(listeningPort && appCtx) NSMapInsertKnownAbsent(__applicationsByPort, (const void *)(intptr_t)listeningPort, (const void *)(intptr_t)appCtx) ; }
 
 void setApplicationForPortAndKey(MSInt listeningPort, MHApplication *application, NSString *key) {
     if(application && key && listeningPort)
     {
-        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (MSInt *)listeningPort) ;
+        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
         
         if(appCtx && appCtx->applications) {
             NSMapInsertKnownAbsent(appCtx->applications, (const void *)key, (const void *)application) ;
         }
     }
 }
-void removeApplicationForPortAndKey(NSString *key)  { }
+static void removeApplicationForPortAndKey(NSString *key)  { }
 void lock_applications_mutex()  { }
 void unlock_applications_mutex()  { }
 
@@ -3124,7 +3373,7 @@ void removeResourceForKey(NSString *key) { NSMapRemove(__resourcesCache, (const 
 void lock_resources_mutex() { mutex_lock(__resourcesCacheMutex) ; }
 void unlock_resources_mutex() { mutex_unlock(__resourcesCacheMutex) ; }
 
-void increaseCurrentClientProcessingRequestCount()
+static void increaseCurrentClientProcessingRequestCount()
 {
     if (__currentClientProcessingRequestCount != (MSUInt)-1) __currentClientProcessingRequestCount++ ;
 }
@@ -3134,7 +3383,7 @@ void decreaseCurrentClientProcessingRequestCount()
     if (__currentClientProcessingRequestCount) __currentClientProcessingRequestCount-- ;
 }
 
-void increaseCurrentAdminProcessingRequestCount()
+static void increaseCurrentAdminProcessingRequestCount()
 {
     if (__currentAdminProcessingRequestCount != (MSUInt)-1) __currentAdminProcessingRequestCount++ ;
 }
@@ -3145,7 +3394,7 @@ void decreaseCurrentAdminProcessingRequestCount()
 }
 
 // Non-empty IPs are at the beginning of the array
-int sort(ip_log *x, ip_log *y)
+static int sort(ip_log *x, ip_log *y)
 {
     long result = x->ipv4 - y->ipv4;
     if(result > 0) return -1;
@@ -3201,7 +3450,7 @@ void MHPutResourceInCache(MHResource *aResource)
 
 }
 
-void MHRemoveResourceFromCache(NSString *url)
+static void MHRemoveResourceFromCache(NSString *url)
 {
     lock_resources_mutex() ;
     removeResourceForKey(url) ;
@@ -3267,7 +3516,7 @@ MHDownloadResource *MHGetResourceFromCacheOrApplication(NSString *url, MHApplica
     return resource ;
 }
 
-BOOL _MHCacheResource(MHDownloadResource *resource, BOOL toDisk, NSString *uniqueName, BOOL isDirectory, BOOL useOnce) //cache resource to disk or memory and calculate url
+static BOOL _MHCacheResource(MHDownloadResource *resource, BOOL toDisk, NSString *uniqueName, BOOL isDirectory, BOOL useOnce) //cache resource to disk or memory and calculate url
 {
     NSString *relativePath = [resource name] ;
     NSString *finalPathOnDisk = nil ;
@@ -3407,7 +3656,7 @@ BOOL MHPostProcess(MHDownloadResource *input, MHDownloadResource *parameters, MH
                 withParameters:parameters
               toOutputResource:output
        andToOutputHTMLResource:html
-usingExternalExecutablesDefinitions:[[input application] parameterForKey:@"externalExecutables"]
+usingExternalExecutablesDefinitions:[[input application] bundleParameterForKey:@"externalExecutables"]
                   postedValues:[message parameters]] ;
     
     return YES ;
@@ -3467,15 +3716,14 @@ void MHSendResourceOrHTTPNotModifiedToClientOnSocket(MHSSLSocket *secureSocket, 
 
 BOOL MHSendResourceToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResource *resource, BOOL isAdmin, MHSession *session, MHHTTPMessage *message, NSDictionary *headers)
 {
-    NSDictionary *headersDict = [NSDictionary dictionaryWithObjectsAndKeys:
-      [resource mimeType], @"Content-Type",
-      GMTdescriptionRfc1123([resource firstActivity]), @"Last-Modified",
-      nil] ;
+    NSDictionary *headersDict = [NSDictionary dictionaryWithObjectsAndKeys:[resource mimeType], @"Content-Type",
+                             GMTdescriptionRfc1123([resource firstActivity]), @"Last-Modified",
+                             nil] ;
     BOOL ret = NO ;
     
     if (headers) //add additional headers
     {
-        NSMutableDictionary *headersDictCopy = [headersDict mutableCopy] ;
+        NSMutableDictionary *headersDictCopy = [[headersDict mutableCopy] autorelease] ;
         [headersDictCopy addEntriesFromDictionary:headers] ;
         headersDict = headersDictCopy ;
     }
@@ -3502,7 +3750,7 @@ BOOL MHSendResourceToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResourc
                 ok = (MSFileOperationSuccess == MSReadFromFile(handle, readBuf, MHDONWLOAD_RESOURCE_CHUNK_SIZE, &readBytes) && (readBytes > 0)) ;
                 if (ok)
                 {
-                    buf = MSCreateBufferWithBytesNoCopyNoFree(readBuf, readBytes) ;
+                    buf = MSCreateBufferWithBytes(readBuf, readBytes) ;
                     
                     ok = MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(secureSocket, buf, HTTPOK, isAdmin, headersDict, session, NO, YES , chunkPos, fileSize) ;
                     remainingBytesToSend -= readBytes ;
@@ -3575,6 +3823,9 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
                 case 301 :
                     strcpy(statusLine, HTTP_301_MOVED_PERMANENTLY) ;
                     break ;
+                case 302 :
+                    strcpy(statusLine, HTTP_302_FOUND) ;
+                    break ;
                 case 304 :
                     strcpy(statusLine, HTTP_304_NOT_MODIFIED) ;
                     break ;
@@ -3607,7 +3858,7 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
             [finalHeaders setObject:@"close" forKey:@"Connection"] ;
             if(![finalHeaders objectForKey:@"Content-Type"])
                 [finalHeaders setObject:@"text/html; charset=utf-8" forKey:@"Content-type"];
-            if (session) [finalHeaders setObject:[session cookieHeader] forKey:__header_mash_session_id] ;
+            if ([session isValid]) [finalHeaders setObject:[session cookieHeader] forKey:__header_mash_session_id] ;
             
             [finalHeaders setObject:GMTdescriptionRfc1123(GMTNow())
                              forKey:@"Date"];
@@ -3714,10 +3965,10 @@ BOOL MHReplyWithNewUploadID(MHSSLSocket *secureSocket, MHApplication *applicatio
                                                           HTTPOK, NO, hdrs, nil, NO) ;
 }
 
-BOOL MHRedirectToURL(MHSSLSocket *secureSocket, NSString *URL)
+BOOL MHRedirectToURL(MHSSLSocket *secureSocket, NSString *URL, BOOL isPermanent)
 {
     NSDictionary * hdrs = [NSDictionary dictionaryWithObject:URL forKey:@"Location"] ;
-    return MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, nil, HTTPMovedPermanently, NO, hdrs, nil, NO) ;
+    return MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, nil, isPermanent ? HTTPMovedPermanently : HTTPFound , NO, hdrs, nil, NO) ;
 }
 
 BOOL MHCloseBrowserSession(MHSSLSocket *secureSocket, MHSession *session, MSUInt status)
@@ -3725,7 +3976,7 @@ BOOL MHCloseBrowserSession(MHSSLSocket *secureSocket, MHSession *session, MSUInt
     NSDictionary * hdrs ;
     NSString * cookieHdr = [NSString stringWithFormat:@"SESS_%@=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/%@; Secure",
                             [[session application] applicationName],
-                            [[session application] loginURL]] ;
+                            [[session application] baseURL]] ;
     hdrs = [NSDictionary dictionaryWithObjectsAndKeys:cookieHdr, __header_mash_session_id,
             @"no-cache", @"Pragma",
             nil] ;
@@ -3983,33 +4234,34 @@ void MHValidateAuthentication(MHNotification *notification, BOOL isAuthenticated
     
     if(!isAuthenticated)
     {
-#warning TO DO Blacklist IP after more than 10 unsuccessful attempts
         MHApplication *application = [session application] ;
         NSString *errorMessage ;
         MSBuffer *loginPage = nil ;
         
-        [headers setObject:__header_mash_auth_response_fail forKey:__header_mash_auth_response] ;
+        [headers setObject:MHAUTH_HEADER_RESPONSE_FAIL forKey:MHAUTH_HEADER_RESPONSE] ;
         
         if([body length])
         {
-#ifdef WO451
-            errorMessage = [[NSString alloc] initWithCString:[body bytes] length:[body length]] ;
-#else
-            
-            errorMessage = [[NSString alloc] initWithBytes:[body bytes] length:[body length] encoding:NSISOLatin1StringEncoding] ;
-#endif
+            errorMessage = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[body bytes], [body length], YES, YES)) ;
         }
         else
         {
             errorMessage = @"Authentication failed" ;
         }
         
-        loginPage = [(MHAuthenticatedApplication *)application loginInterfaceWithMessage:[notification message] errorMessage:errorMessage] ;
+        if ([session authenticationType] == MHAuthSimpleGUIPasswordAndLogin)
+        {
+            loginPage = [(MHGUIApplication *)application loginInterfaceWithErrorMessage:errorMessage] ;
+        } else
+        {
+            loginPage = AUTORELEASE(MSCreateBufferWithBytes((void *)[errorMessage UTF8String], [errorMessage length])) ;
+        }
+        
         MHRESPOND_TO_CLIENT(loginPage , HTTPUnauthorized, headers) ;
     }
     else //auth ok, send session_id context_id and auth_success
     {
-        [headers setObject:__header_mash_auth_response_ok forKey:__header_mash_auth_response] ;
+        [headers setObject:MHAUTH_HEADER_RESPONSE_OK forKey:MHAUTH_HEADER_RESPONSE] ;
         [session changeStatus:MHSessionStatusAuthenticated] ;
         [headers setObject:[session cookieHeader] forKey:__header_mash_session_id] ;
         
@@ -4058,5 +4310,3 @@ BOOL MHSendDataOnConnectedSocket(MSBuffer *aData, MSInt socket, NSString **anErr
     
     return (result != SOCKET_ERROR) ;
 }
-
-

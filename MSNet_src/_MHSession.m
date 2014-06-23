@@ -92,7 +92,7 @@ static NSString *_getUniqueNewSessionID(MSUShort size)
     _lastActivity = GMTNow() ;
     _lastKeepAlive = _lastActivity ;
     _contexts = [[NSMutableArray alloc ] initWithCapacity:2] ;
-    _authentificationType = authenticationType ;
+    _authenticationType = authenticationType ;
     [self changeStatus:MHSessionStatusInit] ;
     
     setSessionForKey(self, _sessionID) ;
@@ -120,14 +120,14 @@ static NSString *_getUniqueNewSessionID(MSUShort size)
     return context ;
 }
 - (void)addContext:(MHContext *)aContext { if (aContext) { [_contexts addObject:aContext] ; } }
-- (MSLong)contextCount { return [_contexts count] ; } ;
+- (MSLong)contextCount { return [_contexts count] ; }
 
 - (void)_touch { if([_application mustUpdateLastActivity]) {_lastActivity = GMTNow() ; _lastKeepAlive = _lastActivity ; } }
 - (void)changeStatus:(MHSessionStatus)aStatus
 { 
     _status = aStatus ; 
     [self _touch] ; 
-    if ((_status == MHSessionStatusAuthenticated) && [_application isKindOfClass:[MHAuthenticatedApplication class]])
+    if (_status == MHSessionStatusAuthenticated)
     {
         _userTimeOut = [[_application class] authentifiedSessionTimeout] ;
     }
@@ -174,7 +174,7 @@ static NSString *_getUniqueNewSessionID(MSUShort size)
 - (NSString *)sessionID { return _sessionID ; }
 - (MHApplication *)application { return _application ; }
 - (void)setApplication:(MHApplication *)application { _application = application ; }
-- (NSArray *)contexts { return _contexts ; } ;
+- (NSArray *)contexts { return _contexts ; }
 - (MSTimeInterval)lastActivity { return _lastActivity ; }
 - (MSTimeInterval)lastKeepAlive { return _lastKeepAlive ; }
 - (NSString *)userLogin { return _userLogin ; }
@@ -191,8 +191,8 @@ static NSString *_getUniqueNewSessionID(MSUShort size)
 
 - (BOOL)mustChangeSessionID { return _mustChangeSessionID ; }
 - (void)setMustChangeSessionID:(BOOL)mustChangeSessionID { _mustChangeSessionID = mustChangeSessionID ; }
-- (MHAppAuthentication)authenticationType { return _authentificationType ; }
-- (void)setAuthenticationType:(MHAppAuthentication)authenticationType { _authentificationType = authenticationType ; }
+- (MHAppAuthentication)authenticationType { return _authenticationType ; }
+- (void)setAuthenticationType:(MHAppAuthentication)authenticationType { _authenticationType = authenticationType ; }
 
 - (void)storeMember:(id)o named:(NSString *)name
 {

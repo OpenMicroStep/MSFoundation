@@ -8,58 +8,62 @@
 
 @interface MHApplicationClient : NSObject
 {
-    NSString *_certificateFile ;
-    NSString *_keyFile ;
-    NSString *_CAFile ;
     NSString *_server ;
-    NSString *_baseURL ;
     MSUInt _port;
+    NSString *_CAFile ;
+    NSString *_baseURL ;
+
     NSString *_sessionID ;
-    MSUInt _authenticationStatus ;
-    BOOL _isChallengeAuthentication ;
     MSHTTPResponse *_challengeResponse ;
+    
+    MHAppAuthentication _authenticationType ;
+    MSInt _authenticationLevel ; //None, Ticket -->0  Custom, Simple GUI -->1, Challenge --> 2
+    
+    NSString *_urn ;
+    NSData *_sk ;
+    
+    NSString *_login ;
+    NSString *_password ;
+    NSString *_target ;
+    
+    NSString *_ticket ;
 }
 
-+ (id)clientWithCertificateFile:(NSString *)certificateFile
-                        keyFile:(NSString *)keyFile
-                         CAFile:(NSString *)CAFile
-                       onServer:(NSString *)server
-                        baseURL:(NSString *)baseURL
-                           port:(MSUInt)port ;
++ (id)clientWithServerParameters:(NSDictionary *)parameters ;
+- (id)initWithServerParameters:(NSDictionary *)parameters ;
 
-- (id)initWithCertificateFile:(NSString *)certificateFile
-                      keyFile:(NSString *)keyFile
-                       CAFile:(NSString *)CAFile
-                     onServer:(NSString *)server
-                      baseURL:(NSString *)baseURL
-                         port:(MSUInt)port ;
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+              challengedPassword:(NSString *)password
+                           login:(NSString *)login ;
 
-- (NSString *)certificateFile ;
-- (void)setCertificateFile:(NSString *)certificateFile ;
-- (NSString *)keyFile ;
-- (void)setKeyFile:(NSString *)keyFile ;
-- (NSString *)CAFile ;
-- (void)setCAFile:(NSString *)CAFile ;
-- (NSString *)server ;
-- (void)setServer :(NSString *)server ;
-- (NSString *)baseURL ;
-- (void)setBaseURL:(NSString *)baseURL ;
-- (MSUInt)port ;
-- (void)setPort :(MSUInt)port ;
-- (NSString *)sessionID ;
-- (void)setSessionID:(NSString *)sessionID ;
-- (BOOL)isAuthenticated ;
+- (id)initWithServerParameters:(NSDictionary *)parameters
+            challengedPassword:(NSString *)password
+                         login:(NSString *)login ;
 
-- (BOOL)isChallengeAuthentication ;
-- (void)setChallengeAuthentication:(BOOL)challengeAuthentication ;
-- (MSHTTPResponse *)challengeResponse ;
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+              challengedPassword:(NSString *)password
+                           login:(NSString *)login
+                          target:(NSString *)target ;
+
+- (id)initWithServerParameters:(NSDictionary *)parameters
+            challengedPassword:(NSString *)password
+                         login:(NSString *)login
+                        target:(NSString *)target ;
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+                             urn:(NSString *)urn
+                       secretKey:(NSData *)sk ;
+
+- (id)initWithServerParameters:(NSDictionary *)parameters
+                           urn:(NSString *)urn
+                     secretKey:(NSData *)sk ;
 
 - (BOOL)authenticate ;
 - (oneway void)close ;
+- (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorString:(NSString **)error ;
 
-- (MSHTTPRequest *)challengeRequest ;
-- (MSHTTPRequest *)authenticationRequest ;
-- (MSHTTPRequest *)closeRequest ;
-- (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorBuffer:(MSBuffer **)errorBuffer ;
+//tools
+- (MSHTTPRequest *)request:(MSHTTPMethod)method onSubURL:(NSString *)subURL ;
 
 @end

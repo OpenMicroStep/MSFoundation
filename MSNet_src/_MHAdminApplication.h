@@ -41,7 +41,7 @@
  
  */
 
-@interface MHAdminApplication : MHGUIAuthenticatedApplication
+@interface MHAdminApplication : MHGUIApplication
 {
     NSString *_adminLogin ;
     NSString *_adminPassword ;

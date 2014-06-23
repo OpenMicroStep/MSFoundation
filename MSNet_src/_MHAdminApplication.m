@@ -71,6 +71,8 @@ static NSComparisonResult compareSessions(id obj1, id obj2, void *c)
 
 @implementation MHAdminApplication
 
++ (MSUInt)defaultAuthenticationMethods { return MHAuthSimpleGUIPasswordAndLogin ; }
+
 - (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters
 {
     ASSIGN(_adminLogin, [parameters objectForKey:@"adminLogin"]) ;
@@ -170,7 +172,7 @@ static NSComparisonResult compareSessions(id obj1, id obj2, void *c)
     return htmlDescription ;
 }
 
-- (void)validateAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate
+- (void)validateSimpleGUIAuthentication:(MHNotification *)notification login:(NSString *)login password:(NSString *)password certificate:(MSCertificate *)certificate
 {
     BOOL isAuthenticated = ([_adminLogin isEqual:login] && [_adminPassword isEqual:password]) ;
     
@@ -194,15 +196,10 @@ static NSComparisonResult compareSessions(id obj1, id obj2, void *c)
         }
         
         [htmlBody appendFormat:@"<br><br><b>%@</b><br>%@",[@"Cache :" htmlRepresentation], [self htmlDescriptionForResourceCache]] ;
-        
         temp = [NSString stringWithFormat:@"<html><head><title>%@</title></head><body><p>%@</body></html>", [[self applicationFullName] htmlRepresentation], htmlBody] ;
-#ifdef WIN32
-        buf = [MSBuffer bufferWithCString:(char *)[temp cString]] ;
-#else    
         buf = [MSBuffer bufferWithCString:(char *)[temp UTF8String]] ;
-#endif    
+
         MHVALIDATE_AUTHENTICATION(YES, buf) ;
-        //MHVALIDATE_AUTHENTICATION(YES, [MSBuffer bufferWithCString:"document.location = window.location.pathname;"]) ;
     }
     else {
         MHVALIDATE_AUTHENTICATION(NO, nil) ;

@@ -84,7 +84,7 @@
 
 @implementation MHMessengerMessage
 
-+ (id)messageFrom:(NSString *)sender to:(NSString *)recipient thread:(NSString *)thread contentType:(NSString *)contentType content:(MSBuffer *)content ;
++ (id)messageFrom:(NSString *)sender to:(NSString *)recipient thread:(NSString *)thread contentType:(NSString *)contentType content:(MSBuffer *)content
 {
     return [[[self alloc] initMessageFrom:sender to:recipient thread:thread contentType:contentType content:content] autorelease] ;
 }
@@ -168,8 +168,8 @@
             }
 
             envelopeBuffer = MSCreateBufferWithBytesNoCopyNoFree((void *)([buffer bytes]+1),    //after the first '[' character
-                                                    (NSUInteger)(envelopeLength-1) //do not take the first '[' character
-                                                    ) ;
+                                                                 (NSUInteger)(envelopeLength-1) //do not take the first '[' character
+                                                                ) ;
                 
             NS_DURING
                 envelope = (NSDictionary *)[envelopeBuffer MSTDecodedObject] ;

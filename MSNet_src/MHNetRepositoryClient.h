@@ -10,7 +10,9 @@
 
 @interface MHNetRepositoryClient : MHApplicationClient
 
-- (TID *)identifierForUrn:(NSString *)urn ;
-- (NSDictionary *)getPublicInformationsForKeys:(NSArray *)keys inTree:(NSString *)tree underIdentifier:(TID *)identifier ;
+- (NSString *)publicKeyForURN:(NSString *)urn ;
+- (BOOL)verifyChallengedPassword:(NSString *)password
+                        forLogin:(NSString *)login
+                    andChallenge:(NSString *)challenge ;
 
 @end

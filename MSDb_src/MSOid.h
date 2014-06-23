@@ -39,7 +39,7 @@
  
  */
 
-@class MSOid;
+@class MSOid,MSOdb;
 typedef MSString* txt;
 typedef MSOid*    oid; // object id
 typedef id        vid; // virtual id: oid | txt | MSObi*
@@ -51,7 +51,7 @@ typedef id        uid; // union id: vid | MSUid*
 @end
 
 // TODO: lien vers la DB
-// TODO: mask de la DB ? Dans _l'iod ?
+// TODO: mask de la DB ? Dans l'_oid ?
 @interface MSOid : NSObject <NSCopying>
 {
 @private
@@ -63,6 +63,10 @@ typedef id        uid; // union id: vid | MSUid*
 - (NSUInteger)hash:(unsigned)depth; // For MSDictionary
 - (MSOid*)oid;
 - (MSLong)longValue;
+- (NSString*)descriptionForDb:(MSOdb*)db;
+- (BOOL)isLocal;
+- (void)setNonLocalLongValue:(MSLong)a;
+  // Uniquement si _oid est local (négatif).
 @end
 
 // Souvent on se réfère à un objet de type uid lorsqu'il fait référence à un oid
@@ -98,27 +102,28 @@ typedef id        uid; // union id: vid | MSUid*
 - (void)removeFirstUid;
 @end
 
-extern MSOid *MSEntEntId;    // id de l'entité 'Ent'
-//extern MSOid *MSEntCarId;    // id de l'entité 'Car'
-extern MSOid *MSEntTypId;    // id de l'entité 'Typ'
-extern MSOid *MSCarEntityId;         // id de la car 'entité'
-extern MSOid *MSCarSystemNameId;     // id de la car 'system name'
-//extern MSOid *MSCarClassNameId;     // id de la car 'class name'
-//extern MSOid *MSCarCharacteristicId; // id de la car 'caract.'
-extern MSOid *MSCarTypeId;           // id de la car 'type'
-extern MSOid *MSCarTableId;          // id de la car 'table'
-//extern MSOid *MSCarGabaritId;        // id de la car 'gabarit'
-//extern MSOid *MSCarDomaineId;        // id de la car 'domaine'
-extern MSOid *MSCarDateId;           // id de la car 'date'
-//extern MSOid *MSCarLibelleId;        // id de la car 'libellé'
-//extern MSOid *MSTypIDId;  // id du Type 'ID'
-//extern MSOid *MSTypSIDId; // id du Type 'SID'
-//extern MSOid *MSTypSTRId; // id du Type 'STR'
-//extern MSOid *MSTypINTId; // id du Type 'INT'
-//extern MSOid *MSTypDATId; // id du Type 'DAT'
-//extern MSOid *MSTypDTRId; // id du Type 'DTR'
-//extern MSOid *MSTypDURId; // id du Type 'DUR'
-extern MSOid *MSObiDatabaseId;           // id de la 'database'
+extern MSOid    *MSEntEntId;    // id de l'entité 'Ent'
+//extern MSOid    *MSEntCarId;    // id de l'entité 'Car'
+extern MSOid    *MSEntTypId;    // id de l'entité 'Typ'
+extern MSOid    *MSCarEntityId;         // id de la car 'entité'
+extern MSOid    *MSCarSystemNameId;     // id de la car 'system name'
+extern MSString *MSCarSystemNameLib;    // id de la car 'system name'
+//extern MSOid    *MSCarClassNameId;     // id de la car 'class name'
+//extern MSOid    *MSCarCharacteristicId; // id de la car 'caract.'
+extern MSOid    *MSCarTypeId;           // id de la car 'type'
+extern MSOid    *MSCarTableId;          // id de la car 'table'
+//extern MSOid    *MSCarGabaritId;        // id de la car 'gabarit'
+//extern MSOid    *MSCarDomaineId;        // id de la car 'domaine'
+extern MSOid    *MSCarDateId;           // id de la car 'date'
+//extern MSOid    *MSCarLibelleId;        // id de la car 'libellé'
+//extern MSOid    *MSTypIDId;  // id du Type 'ID'
+//extern MSOid    *MSTypSIDId; // id du Type 'SID'
+//extern MSOid    *MSTypSTRId; // id du Type 'STR'
+//extern MSOid    *MSTypINTId; // id du Type 'INT'
+//extern MSOid    *MSTypDATId; // id du Type 'DAT'
+//extern MSOid    *MSTypDTRId; // id du Type 'DTR'
+//extern MSOid    *MSTypDURId; // id du Type 'DUR'
+extern MSOid    *MSObiDatabaseId;           // id de la 'database'
 
 #pragma mark private
 

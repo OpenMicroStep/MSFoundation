@@ -13,7 +13,7 @@
 
 typedef enum
 {
-    appNotAuthenticated = 0,
+    appNotAuthenticated = 0, //
     appChallengeRequest,
     appAuthenticating,
 	appAuthenticated,
@@ -21,79 +21,174 @@ typedef enum
     appAuthFailStop
 } MHAppClientAuthStatus ;
 
-@implementation MHApplicationClient
-
-+ (id)clientWithCertificateFile:(NSString *)certificateFile
-                        keyFile:(NSString *)keyFile
-                         CAFile:(NSString *)CAFile
-                       onServer:(NSString *)server
-                        baseURL:(NSString *)baseURL
-                           port:(MSUInt)port
+static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
 {
-    return [[[self alloc] initWithCertificateFile:certificateFile
-                                          keyFile:keyFile
-                                           CAFile:CAFile
-                                         onServer:server
-                                          baseURL:baseURL
-                                             port:port] autorelease];
+    MSInt level = 0 ;
+    
+    switch (authenticationType) {
+        case MHAuthCustom:
+        case MHAuthSimpleGUIPasswordAndLogin:
+            level = 1 ;
+            break;
+            
+        case MHAuthChallengedPasswordLogin:
+        case MHAuthChallengedPasswordLoginOnTarget:
+        case MHAuthPKChallengeAndURN:
+            level = 2 ;
+            break ;
+            
+        default:
+            level = 0 ;
+            break;
+    }
+    
+    return level ;
 }
 
-- (id)initWithCertificateFile:(NSString *)certificateFile
-                      keyFile:(NSString *)keyFile
-                       CAFile:(NSString *)CAFile
-                     onServer:(NSString *)server
-                      baseURL:(NSString *)baseURL
-                         port:(MSUInt)port
+@implementation MHApplicationClient
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+{
+    return [[[self alloc] initWithServerParameters:parameters] autorelease] ;
+}
+
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+                          ticket:(NSString *)ticket
+{
+    return [[[self alloc] initWithServerParameters:parameters ticket:ticket] autorelease] ;
+}
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+                  simplePassword:(NSString *)password
+                           login:(NSString *)login
+{
+    return [[[self alloc] initWithServerParameters:parameters simplePassword:password login:login] autorelease] ;
+}
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+              challengedPassword:(NSString *)password
+                           login:(NSString *)login
+{
+    return [[[self alloc] initWithServerParameters:parameters challengedPassword:password login:login] autorelease] ;
+}
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+              challengedPassword:(NSString *)password
+                           login:(NSString *)login
+                          target:(NSString *)target
+{
+    return [[[self alloc] initWithServerParameters:parameters challengedPassword:password login:login target:target] autorelease] ;
+}
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+                             urn:(NSString *)urn
+                       secretKey:(NSData *)sk ;
+{
+    return [[[self alloc] initWithServerParameters:parameters urn:urn secretKey:sk] autorelease] ;
+}
+
+- (id)initWithServerParameters:(NSDictionary *)parameters
 {
     BOOL isDirectory = YES ;
+    NSString *serverAddress = [parameters objectForKey:@"serverAddress"] ;
+    MSInt serverPort = [[parameters objectForKey:@"serverPort"] intValue] ;
+    NSString *CAFile = [parameters objectForKey:@"CAFile"] ;
+    NSString *applicationBaseURL = [parameters objectForKey:@"url"] ;
     
-    if ([certificateFile length] && (! MSFileExistsAtPath(certificateFile, &isDirectory) || isDirectory)) MSRaise(NSGenericException, @"cannot find certificate file") ;
-    if ([certificateFile length] && (! MSFileExistsAtPath(keyFile, &isDirectory) || isDirectory)) MSRaise(NSGenericException, @"cannot find key file") ;
+    if (! [serverAddress length]) { MSRaise(NSGenericException, @"empty server string") ; }
+    if (! serverPort) { MSRaise(NSGenericException, @"null server port") ; }
     if (! MSFileExistsAtPath(CAFile, &isDirectory) || isDirectory) MSRaise(NSGenericException, @"cannot find CAFile file") ;
-    if (! [server length]) MSRaise(NSGenericException, @"empty server string") ;
     
-    [self setCertificateFile:certificateFile] ;
-    [self setKeyFile:keyFile] ;
-    [self setCAFile:CAFile] ;
-    [self setServer:server] ;
-    [self setBaseURL:baseURL] ;
-    [self setPort:port] ;
+    ASSIGN(_server, serverAddress) ;
+    _port = serverPort ;
+    ASSIGN(_CAFile, CAFile) ;
+    ASSIGN(_baseURL, applicationBaseURL) ;
     
-    _authenticationStatus = appNotAuthenticated ;
+    _authenticationType = MHAuthNone ;
+    _authenticationLevel = 0 ;
     
     return self ;
 }
 
+- (id)initWithServerParameters:(NSDictionary *)parameters
+                        ticket:(NSString *)ticket
+{
+    return nil ;
+}
+
+- (id)initWithServerParameters:(NSDictionary *)parameters
+                simplePassword:(NSString *)password
+                         login:(NSString *)login
+{
+    return nil ;
+}
+
+- (id)initWithServerParameters:(NSDictionary *)parameters
+            challengedPassword:(NSString *)password
+                         login:(NSString *)login
+{
+    if ([self initWithServerParameters:parameters])
+    {
+        ASSIGN(_login, login) ;
+        ASSIGN(_password, password) ;
+        _authenticationType = MHAuthChallengedPasswordLogin ;
+        return self ;
+    }
+    return nil ;
+}
+
+- (id)initWithServerParameters:(NSDictionary *)parameters
+            challengedPassword:(NSString *)password
+                         login:(NSString *)login
+                        target:(NSString *)target
+{
+    if ([self initWithServerParameters:parameters])
+    {
+        ASSIGN(_login, login) ;
+        ASSIGN(_password, password) ;
+        ASSIGN(_target, target) ;
+        _authenticationType = MHAuthChallengedPasswordLoginOnTarget ;
+        return self ;
+    }
+    return nil ;
+}
+
+- (id)initWithServerParameters:(NSDictionary *)parameters
+                           urn:(NSString *)urn
+                     secretKey:(NSData *)sk
+{
+    if ([self initWithServerParameters:parameters])
+    {
+        ASSIGN(_sk, sk) ;
+        ASSIGN(_urn, urn) ;
+        _authenticationType = MHAuthPKChallengeAndURN ;
+        return self ;
+    }
+    return nil ;
+}
+
 - (void)dealloc
 {
-    DESTROY(_certificateFile) ;
-    DESTROY(_keyFile) ;
     DESTROY(_CAFile) ;
     DESTROY(_server) ;
     DESTROY(_baseURL) ;
     DESTROY(_sessionID) ;
     
+    DESTROY(_sk) ;
+    DESTROY(_urn) ;
+    
+    DESTROY(_login) ;
+    DESTROY(_password) ;
+    DESTROY(_target) ;
+    
+    DESTROY(_ticket) ;
+    
     [super dealloc] ;
 }
 
-- (NSString *)certificateFile { return _certificateFile ; }
-- (void)setCertificateFile:(NSString *)certificateFile { ASSIGN(_certificateFile, certificateFile) ; }
-- (NSString *)keyFile { return _keyFile ; }
-- (void)setKeyFile:(NSString *)keyFile { ASSIGN(_keyFile, keyFile) ; }
-- (NSString *)CAFile { return _CAFile ; }
-- (void)setCAFile:(NSString *)CAFile { ASSIGN(_CAFile, CAFile) ; }
-- (NSString *)server { return _server ; }
-- (void)setServer :(NSString *)server { ASSIGN(_server, server) ; }
-- (NSString *)baseURL { return _baseURL ; }
-- (void)setBaseURL:(NSString *)baseURL { ASSIGN(_baseURL, baseURL) ; }
-- (MSUInt)port { return _port ; }
-- (void)setPort:(MSUInt)port { _port = port ; }
-- (NSString *)sessionID { return _sessionID ; }
 - (void)setSessionID:(NSString *)sessionID { ASSIGN(_sessionID, sessionID) ; }
-- (BOOL)isAuthenticated { return _authenticationStatus == appAuthenticated ; }
 
-- (BOOL)isChallengeAuthentication { return _isChallengeAuthentication ; }
-- (void)setChallengeAuthentication:(BOOL)challengeAuthentication { _isChallengeAuthentication = challengeAuthentication ; }
 - (MSHTTPResponse *)challengeResponse { return _challengeResponse ; }
 
 - (NSString *)_sessionIDFromHTTPResponseCookie:(MSHTTPResponse *)response
@@ -103,83 +198,38 @@ typedef enum
     
     if([setCookieLine length] && ![setCookieLine containsString:@"deleted"])
     {
-        sessionID = [[setCookieLine componentsSeparatedByString:@";"] objectAtIndex:0] ;
+        NSArray * components = [setCookieLine componentsSeparatedByString:@";"] ;
+        sessionID = ([components count]) ? [components objectAtIndex:0] : nil ;
     }
     return sessionID ;
 }
 
-- (void)_readResponse:(MSHTTPResponse *)response errorBuffer:(MSBuffer *)errorBuffer
+- (MSHTTPRequest *)request:(MSHTTPMethod)method onSubURL:(NSString *)subURL
 {
-    MSUInt status = [response HTTPStatus] ;
-    [self setSessionID:[self _sessionIDFromHTTPResponseCookie:response]] ;
+    NSString *url = (subURL) ? [_baseURL stringByAppendingURLComponent:subURL] : _baseURL ;
     
-    //NSLog(@"HTTP Status : %d", status) ;
-    //NSLog(@"New sessionID = %@",_sessionID) ;
-    
-    if (_authenticationStatus == appAuthenticating)
-    {
-        NSString *successHeader = [response headerValueForKey:@"MASH_AUTH_RESPONSE"] ;
-        
-        if(status == 200 && [successHeader isEqualToString:@"SUCCESS"])
-        {
-            _authenticationStatus = appAuthenticated ; //authentication ok.
-        } else
-        {
-            _authenticationStatus = appAuthFailStop ; //could not authenticate. Stop.
-        }
-    } else if (_authenticationStatus == appChallengeRequest) //challenge authentication
-    {
-        if (status == 200 && [[response headerValueForKey:@"MASH_AUTH_REQUIRED"] length])
-        {
-            _authenticationStatus = appAuthenticating ; //challenge received, keep authenticating
-        } else
-        {
-            _authenticationStatus = appAuthFailStop ; //challenge not received. Stop.
-        }
-    }
-    else if(status == 403) //session expired must authenticate again
-    {
-        if (_authenticationStatus == appAuthenticating)
-        {
-            _authenticationStatus = appAuthFailStop ; //could not authenticate. Stop.
-        } else
-        {
-            _authenticationStatus = appNotAuthenticated ;
-        }
-    }
-    
-    /*if(status != 200)
-    {
-        if(errorBuffer) {
-            void *bytes = (void *)[errorBuffer bytes] ;
-            MSBuffer *buf = AUTORELEASE(MSCreateBufferWithBytes(bytes, strlen(bytes), YES, YES)) ;
-            NSLog(@"Error Buffer : %@",[[NSString alloc] initWithData:buf encoding:NSUTF8StringEncoding]) ;
-        }
-    }*/
+    return [MSHTTPRequest requestWithMethod:method toHost:_server url:url] ;
 }
 
-- (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorBuffer:(MSBuffer **)errorBuffer
+- (MSHTTPResponse *)_performRequest:(MSHTTPRequest *)request errorString:(NSString **)error
 {
     MHSSLClientSocket *sslSocket = nil ;
     MSHTTPResponse *response = nil ;
     
     if (request)
     {
-        if ([_sessionID length])
-        {
-            [request addAdditionalHeaderValue:_sessionID forKey:@"Cookie"] ;
-        }
+        //if previous response had a session cookie, add session cookie to request
+        if ([_sessionID length]) { [request addAdditionalHeaderValue:_sessionID forKey:@"Cookie"] ; }
         
-        sslSocket = [MHSSLClientSocket sslSocketWithCertificateFile:[self certificateFile]
-                                                            keyFile:[self keyFile]
-                                                             CAFile:[self CAFile]
+        sslSocket = [MHSSLClientSocket sslSocketWithCertificateFile:nil
+                                                            keyFile:nil
+                                                             CAFile:_CAFile
                                                          sslOptions:0
                                                        isBlockingIO:YES] ;
         
         if ([sslSocket connectOnServer:_server port:_port]) {
             
             MSBuffer *queryBuf = [request buffer] ;
-            //NS?Log(@"request=%s",[queryBuf bytes]) ;
             
             if ([sslSocket writeBytes:[queryBuf bytes] length:(MSUInt)[queryBuf length]]) //send query
             {
@@ -187,97 +237,212 @@ typedef enum
                 char data[BUFF_SIZE] ;
                 MSBuffer *buffer = MSCreateBuffer(BUFF_SIZE) ;
                 
-                while ((nbRead = [sslSocket readIn:data length:BUFF_SIZE]))
-                {
-                    CBufferAppendBytes((CBuffer *)buffer, data, nbRead) ;
-                }
+                while ((nbRead = [sslSocket readIn:data length:BUFF_SIZE])) { CBufferAppendBytes((CBuffer *)buffer, data, nbRead) ; }
                 
+                //parse response into MSHTTPResponse
                 response = [MSHTTPResponse httpResponseFromBytes:(void *)[buffer bytes] length:(MSUInt)[buffer length]] ;
                 
-                if(!response && errorBuffer) {
-                    *errorBuffer = AUTORELEASE(MSCreateBufferWithBytes(data, nbRead)) ;
-                }
+                if(!response && error) { *error = AUTORELEASE(MSCreateASCIIStringWithBytes(data, nbRead, YES, YES)) ; }
                 RELEASE(buffer) ;
+                
+                if (error) { *error = nil ; }
+            } else
+            {
+                if (error) { *error = [NSString stringWithFormat:@"write failed on ssl socket on %@:%d",_server, _port] ; }
             }
+        } else
+        {
+            if (error) { *error = [NSString stringWithFormat:@"could not connect ssl socket on %@:%d",_server, _port] ; }
         }
         
-        if (response) {
-            [self _readResponse:response errorBuffer:errorBuffer ? *errorBuffer : NULL] ;
-            //no session, authenticate again, then perform query
-            if (_authenticationStatus == appNotAuthenticated)
-            {
-                if ([self authenticate])
-                {
-                    response = [self performRequest:request errorBuffer:errorBuffer] ; //retry request if reauth succeedeed
-                }
-            }
+        //get session id
+        if (response)
+        {
+            [self setSessionID:[self _sessionIDFromHTTPResponseCookie:response]] ;
         }
     }
-    
     return response ;
 }
 
-- (MSHTTPRequest *)challengeRequest { [self notImplemented:_cmd] ; return nil ; }
-- (MSHTTPRequest *)authenticationRequest { [self notImplemented:_cmd] ; return nil ; }
-- (MSHTTPRequest *)closeRequest
+- (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorString:(NSString **)error
 {
-    MSHTTPRequest *request = nil ;
+    MSHTTPResponse *response = nil ;
+    NSString **errorString = (error) ? error : NULL ;
     
-    request = [MSHTTPRequest requestWithMethod:GET toHost:[self server] url:[[self baseURL] stringByAppendingURLComponent:DEFAULT_LOGIN_URL_COMPONENT]] ;
+    if (_authenticationType == MHAuthTicket && ![_sessionID length])
+    {
+        [request addQueryParameter:_ticket forKey:MHAUTH_QUERY_PARAM_TICKET] ;
+    }
+    
+    // performs athenticated request, if it fails, tries authentcating 3 times... and performs request again
+    response = [self _performRequest:request errorString:errorString] ;
+    
+    if (errorString && !*errorString && [response HTTPStatus] == HTTPUnauthorized)
+    {
+        BOOL auth = NO ;
+        int i ;
+        response = nil ;
+
+        for (i=0; i<3; i++)
+        {
+            if ((auth = [self authenticate]))
+            {
+                response = [self _performRequest:request errorString:errorString] ;
+                if ([response HTTPStatus] == HTTPUnauthorized) { response = nil ; }
+                break ;
+            }
+        }
+        if (!auth && error) { *errorString = @"performRequest : failed to authentcate trice" ; }
+    }
+
+    return response ;
+}
+
+- (BOOL)_performSimpleAuthentication
+{
+    //GEO TODO simple auth
+    [self notImplemented:_cmd] ;
+    return NO ;
+}
+
+- (MSHTTPRequest *)_challengeRequest
+{
+    MSHTTPRequest *request = [self request:GET onSubURL:nil] ;
+    
+    switch (_authenticationType) {
+        case MHAuthPKChallengeAndURN:
+        {
+            [request addAdditionalHeaderValue:_urn forKey:@"MH-URN"] ;
+            break;
+        }
+            
+        case MHAuthChallengedPasswordLogin:
+        {
+            [request addAdditionalHeaderValue:_login forKey:@"MH-LOGIN"] ;
+            break;
+        }
+            
+        case MHAuthChallengedPasswordLoginOnTarget:
+        {
+            [request addAdditionalHeaderValue:_login forKey:@"MH-LOGIN"] ;
+            [request addAdditionalHeaderValue:_target forKey:@"MH-TARGET"] ;
+            break;
+        }
+            
+        default:
+            request = nil ;
+            break;
+    }
+    return request ;
+}
+
+- (NSString *)_decryptRSAChallenge:(NSString *)challenge
+{
+    const void *challengeBytes = NULL ;
+    MSBuffer *challengeBuf = nil ;   //b64 decode
+    MSCipher *decoder = nil ;
+    NSData *decryptedData = nil ;
+    NSString *decodedChallenge = nil ;
+
+    challengeBytes = [challenge UTF8String] ;
+    challengeBuf = [[MSBuffer bufferWithBytesNoCopyNoFree:(void*)challengeBytes length:strlen(challengeBytes)] encodedToBase64] ;
+    decoder = [MSCipher cipherWithKey:_sk type:RSADecoder] ;
+    decryptedData = [decoder decryptData:challengeBuf] ;
+
+    decodedChallenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[decryptedData bytes],
+                                                                [decryptedData length],
+                                                                NO, NO)) ;
+    
+    return decodedChallenge ;
+}
+
+- (MSHTTPRequest *)_challengeAuthenticationRequestWithChallenge:(NSString *)challenge
+{
+    MSHTTPRequest *request = [self request:GET onSubURL:nil] ;
+    NSString *outgoingChallenge = nil ;
+    
+    switch (_authenticationType)
+    {
+        case MHAuthPKChallengeAndURN:
+        {
+            outgoingChallenge = [self _decryptRSAChallenge:challenge] ;
+            [request addAdditionalHeaderValue:outgoingChallenge forKey:@"MH-CHALLENGE"] ;
+            break ;
+        }
+            
+        case MHAuthChallengedPasswordLogin :
+        case MHAuthChallengedPasswordLoginOnTarget:
+        {
+            outgoingChallenge = MHChallengedPasswordHash(_password, challenge) ;
+            [request addAdditionalHeaderValue:outgoingChallenge forKey:@"MH-PASSWORD"] ;
+            break ;
+        }
+            
+        default:
+            request = nil ;
+    }
     
     return request ;
 }
 
-- (void)_performAuthentication
+- (BOOL)_authenticateWithChallenge:(NSString *)challenge
 {
-    MSHTTPResponse *response = nil ;
-    MSHTTPRequest *request = [self authenticationRequest] ;
+    BOOL auth = NO ;
     
-    response = [self performRequest:request errorBuffer:NULL] ;
+    MSHTTPRequest *challengeAuth = [self _challengeAuthenticationRequestWithChallenge:challenge] ;
+    MSHTTPResponse *challengeAuthResponse = [self _performRequest:challengeAuth errorString:NULL] ;
+    
+    if ([challengeAuthResponse HTTPStatus] == HTTPOK &&
+        [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[challengeAuthResponse headerValueForKey:MHAUTH_HEADER_RESPONSE]])
+    {
+        auth = YES ;
+    }
+    
+    return auth ;
 }
 
-- (void)_authenticate
+- (BOOL)_performChallengedAuthentication
 {
-    if (_isChallengeAuthentication)
+    BOOL auth = NO ;
+    MSHTTPRequest *challengeRequest = [self _challengeRequest] ;
+    MSHTTPResponse *challengeResponse = [self _performRequest:challengeRequest errorString:NULL] ;
+
+    if ([challengeResponse HTTPStatus] == HTTPOK && [[challengeResponse content] length])
     {
-        MSHTTPRequest *challengeRequest = nil ;
-        MSHTTPResponse *challengeResponse = nil ;
+        MSBuffer *contentBuf = [challengeResponse content] ;
+        NSString *challenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[contentBuf bytes], [contentBuf length], NO, NO)) ;
         
-        _authenticationStatus = appChallengeRequest ;
-        
-        challengeRequest = [self challengeRequest] ;
-        challengeResponse = [self performRequest:challengeRequest errorBuffer:NULL] ;
-        
-        ASSIGN(_challengeResponse, challengeResponse) ;
-        
-        if([challengeResponse HTTPStatus] == 200 && [[challengeResponse headerValueForKey:@"MASH_AUTH_REQUIRED"] length])
-        {
-            //NSLog(@"Challenge received, perform authentication...") ;
-            [self _performAuthentication] ;
-        }
-        
-    } else
-    {
-        [self _performAuthentication] ;
+        return [self _authenticateWithChallenge:challenge] ;
     }
+    return auth ;
 }
 
 - (BOOL)authenticate
-{    
-    _authenticationStatus = appAuthenticating ;
+{
+    BOOL auth = NO ;
+    _authenticationLevel = authenticationLevelForType(_authenticationType) ;
+    [self setSessionID:nil] ;
     
-    [self _authenticate] ;
-    
-    return (_authenticationStatus == appAuthenticated) ;
+    switch (_authenticationLevel) {
+        case 1:
+            auth = [self _performSimpleAuthentication] ;
+            break;
+            
+        case 2:
+            auth = [self _performChallengedAuthentication] ;
+            break ;
+            
+        default:
+            MSRaise(NSInternalInconsistencyException, @"Authentication level not supported yet : %d", _authenticationLevel) ;
+            break;
+    }
+    return auth ;
 }
 
 - (oneway void)close
 {
-    MSHTTPResponse *response = nil ;
-    MSHTTPRequest *request = [self closeRequest] ;
-    _authenticationStatus = appClosing ;
-    
-    response = [self performRequest:request errorBuffer:NULL] ;
+    MSHTTPRequest *request = [self request:GET onSubURL:@"close"] ;
+    [self performRequest:request errorString:NULL] ;
 }
 
 
