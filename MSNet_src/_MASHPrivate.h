@@ -104,7 +104,7 @@
 #import "_MHPostProcessingDelegate.h"
 
 #import "_MHAdminApplication.h"
-#import "MHNetRepositoryApplication.h"
+//#import "MHNetRepositoryApplication.h"
 #import "MHMessengerMessage.h"
 #import "_MHMessengerMessagePrivate.h"
 
@@ -115,5 +115,4 @@
 
 #import "MHApplicationClient.h"
 #import "MHMessengerClient.h"
-#import "MHNetRepositoryClient.h"
-
+//#import "MHNetRepositoryClient.h"
