@@ -40,9 +40,6 @@
  knowledge of the CeCILL-C license and that you accept its terms.
   
  */
-#import "_MSDBGenericConnection.h"
-#import <my_global.h>
-#import <mysql.h>
 
 #define MYSQL_CONNECTION_DEFAULT_TIMEOUT 2
 
@@ -51,7 +48,7 @@ typedef enum {
 	MySQLFailAtConfigure	
 } MySQLError ;
 
-@interface MSMySQLConnection : _MSDBGenericConnection
+@interface MSMySQLConnection : MSDBGenericConnection
 {
 	MYSQL     _db;
 	MySQLError _lastError ;

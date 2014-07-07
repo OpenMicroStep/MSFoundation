@@ -46,7 +46,7 @@
  */
 
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 NSString *MHAuthenticationNameForType(MHAppAuthentication authType)
 {

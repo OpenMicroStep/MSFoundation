@@ -43,7 +43,7 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  */
 
-#import "MSObi_Private.h"
+#import "MSDb_Private.h"
 
 @implementation MSDBOperation
 

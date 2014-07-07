@@ -23,6 +23,8 @@ static inline NSString *_MSAbsolutePath(NSString *path, int mode)
 #warning TO BE IMPLEMENTED
     [[NSNull null] notImplemented:nil] ;
     return nil ;
+    path= nil; // Unused parameter
+    mode= 0; // Unused parameter
 }
 
 static inline MSFileHandle _MSCreateFileForWritingAtPath(NSString *path)
@@ -40,20 +42,20 @@ static inline MSFileHandle _MSOpenFileForReadingAtPath(NSString *path)
 
 static inline MSFileOperationStatus _MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length)
 {
-    NSUInteger writen = write(file, ptr, length);
+    ssize_t writen = write(file, ptr, length);
 
-    if (writen == length) return MSFileOperationSuccess ;
+    if (writen>0 && (NSUInteger)writen == length) return MSFileOperationSuccess ;
     else return MSFileOperationFail ;
 }
 
 static inline MSFileOperationStatus _MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes)
 {
-    MSInt nbRead = read(file, ptr, length) ;
+    ssize_t nbRead = read(file, ptr, length) ;
     MSFileOperationStatus ret = MSFileOperationFail ;
     
     if (nbRead > 0)
     {
-        if (readBytes) *readBytes = nbRead ;
+        if (readBytes) *readBytes = (NSUInteger)nbRead ;
         ret = MSFileOperationSuccess ;
     }
     
@@ -74,7 +76,7 @@ static inline MSFileOperationStatus _MSMoveFile(NSString *sourcePath, NSString *
 
 }
 
-static inline NSString *_MSUNCPath(NSString *path) { MSRaise(NSInternalInconsistencyException, @"_MSUNCPath() not implemented!") ; return nil ; }
+static inline NSString *_MSUNCPath(NSString *path) { MSRaise(NSInternalInconsistencyException, @"_MSUNCPath() not implemented!") ; return nil ; path= nil; }
 
 static inline BOOL _MSRemoveRecursiveDirectory(NSString *path)
 {
@@ -117,7 +119,7 @@ static inline BOOL _MSRemoveRecursiveDirectory(NSString *path)
     else
     {
         NSArray   *contents = MSDirectoryContentsAtPath(path) ;
-        unsigned	count = [contents count];
+        NSUInteger	count = [contents count];
         unsigned	i;
         
         for (i = 0; i < count; i++)

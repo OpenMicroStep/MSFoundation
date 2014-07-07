@@ -6,7 +6,7 @@
 //
 //
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 //#import <MSFoundation/MSSystemLayer.h>
 
 #define STR2UTF8BUF(X,Y) MSBAddData(X, [Y dataUsingEncoding:NSUTF8StringEncoding])

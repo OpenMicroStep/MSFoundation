@@ -92,7 +92,7 @@ static unsigned char __booleanStart[256] = {
  TO DO : a _MSScanBoolean string which also recognize NO, FALSE, FAUX, FALSH, ....
  */
 
-static inline BOOL _MSStringIsTrue(NSString *self, SES ses, CUnicharChecker stopAtCharacter, NSUInteger *endPosition)
+static inline BOOL _MSStringIsTrue(SES ses, CUnicharChecker stopAtCharacter, NSUInteger *endPosition)
 {
     unsigned char state = _BOOLEAN_START_ ;
 	NSUInteger i = ses.start, j, len = ses.length ; unichar c ;

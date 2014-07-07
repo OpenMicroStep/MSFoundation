@@ -41,7 +41,7 @@
  
  */
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 @implementation MHHTTPMessage
 

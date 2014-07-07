@@ -40,7 +40,7 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 @implementation MHBunchAllocator
 

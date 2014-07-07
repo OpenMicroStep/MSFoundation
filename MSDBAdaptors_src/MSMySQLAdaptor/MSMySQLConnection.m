@@ -40,10 +40,8 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-#import "MSMySQLTransaction.h"
-#import "MSMySQLResultSet.h"
-#import "MSMySQLConnection.h"
 
+#import "MSMySQLAdaptorKit.h"
 
 @implementation MSMySQLConnection
 
@@ -78,7 +76,7 @@
                 [_currentDictionary setObject:pwd     forKey:@"$_password"];
                 [_currentDictionary setObject:timeout forKey:@"$_timeout"];
 
-      _cFlags.readOnly=
+      _cFlags.readOnly= (MSUInt)
         [[dictionary objectForLazyKeys:@"read-only",@"readonly", nil] isTrue];}}
   return self;
   }
@@ -182,7 +180,7 @@
 		while ((row = mysql_fetch_row(result)))
 		{
 			NSUInteger *lengths = mysql_fetch_lengths(result);
-			for (MSInt i=0; i < num_fields; i++)
+			for (MSUInt i=0; i < num_fields; i++)
 			{
 				NSString *tableName = [NSString stringWithFormat:@"%.*s ", (MSInt) lengths[i], row[i] ? row[i] : "NULL"];
 				tableName = [tableName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -204,7 +202,7 @@
 		NSString *stringToEscape, *escapeString ;
 		const char* strToEscape ;
 		char *escapeStr ;
-		MSUInt escapeLen ;
+		MSULong escapeLen ;
 		size_t l ;
 /*
 		if (withQuotes) 

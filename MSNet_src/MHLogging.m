@@ -46,7 +46,7 @@
 #define LOG_HEADER_SIZE 128
 #define MAX_APPNAME_LENGTH 16
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 @implementation MHLogging
 

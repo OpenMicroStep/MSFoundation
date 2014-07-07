@@ -44,20 +44,19 @@
 #import "MSFoundationDefines.h"
 #import "MSCoderAdditions.h"
 #import "MSExceptionAdditions.h"
+#import "MSLanguage.h"
 #import "MSObjectAdditions.h"
 
 #import "MSBool.h"
-#import "_MSCharsetsPrivate.h"
+#import "MSCharsets_Private.h"
 #import "MSASCIIString.h"
 #import "MSMutex.h"
 #import "MSCNaturalArray.h"
 #import "MSNaturalArray.h"
 #import "MSNaturalArrayEnumerator.h"
-#import "_MSNaturalArrayEnumeratorPrivate.h"
+#import "MSNaturalArrayEnumerator_Private.h"
 #import "MSFileManipulation.h"
 
-#import <openssl/ssl.h>
-#import <openssl/crypto.h>
 #import "MSCSSLInterface.h"
 #import "MSSSLInterface.h" // Dans MSNet ?
 
@@ -75,6 +74,6 @@
 #import "MSTEncoder.h"
 
 #import "MSStringParsing.h"
-#import "_MSStringParsingPrivate.h"
+#import "MSStringParsing_Private.h"
 
 #define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]

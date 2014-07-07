@@ -46,7 +46,7 @@
  include <MSFoundation/MSFoundation.h>
  */
 
-#import "MSObi_Private.h"
+#import "MSDb_Private.h"
 
 static NSLock *__connectionsLock = nil ;
 static NSMutableDictionary *__adaptors = nil ;

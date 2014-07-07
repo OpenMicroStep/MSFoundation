@@ -40,10 +40,8 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-//#import <MSFoundation/MSFoundation.h>
-#import "_MSDBGenericConnection.h"
-#import <my_global.h>
-#import <mysql.h>
+
+#import "MSMySQLAdaptorKit.h"
 
 @interface MSMySQLResultSet : MSDBResultSet
 {

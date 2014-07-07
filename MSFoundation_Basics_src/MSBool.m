@@ -61,7 +61,7 @@ MSBool *MSFalse = nil ;
 + (id)trueNumber { return MSTrue ; }
 + (id)falseNumber { return MSFalse ; }
 + (NSNumber *)numberWithBool:(BOOL)value { return (value ? MSTrue : MSFalse) ; }
-+ (id)allocWithZone:(NSZone *)zone { return MSFalse ; }
++ (id)allocWithZone:(NSZone *)zone { return MSFalse ; zone= nil; }
 + (id)alloc { return MSFalse ; }
 + (id)new { return MSFalse ; }
 - (id)retain { return self ; }
@@ -72,17 +72,17 @@ MSBool *MSFalse = nil ;
 - (void)_internalRelease { [ super release] ; }
 - (void)dealloc {if (0) [super dealloc];} // No warning
 
-- (id)copyWithZone:(NSZone *)zone { return self ; }
+- (id)copyWithZone:(NSZone *)zone { return self ; zone= nil; }
 - (id)copy{ return self ; }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder {}
-- (id)initWithCoder:(NSCoder *)aDecoder{ return self ; }
+- (void)encodeWithCoder:(NSCoder *)aCoder { return ; aCoder= nil; }
+- (id)initWithCoder:(NSCoder *)aDecoder{ return self ; aDecoder= nil; }
 
 - (Class)classForAchiver { return [self class] ; }
 - (Class)classForCoder { return [self class] ; }
 - (Class)classForPortCoder { return [self class] ; }
 
-- (id)replacementObjectForPortCoder:(NSPortCoder *)encoder { return self ; }
+- (id)replacementObjectForPortCoder:(NSPortCoder *)encoder { return self ; encoder= nil; }
 @end
 
 @implementation _MSFalseBool 
@@ -113,8 +113,8 @@ MSBool *MSFalse = nil ;
 - (NSString *)description { return @"NO" ; }
 - (NSString *)toString { return @"NO" ; }
 - (NSString *)listItemString { return @"NO" ; }
-- (NSString *)descriptionWithLocale:(NSDictionary *)locale { return @"NO" ; }
-- (NSString *)descriptionWithLocale:(NSDictionary *)d indent:(unsigned)l { return @"NO" ; }
+- (NSString *)descriptionWithLocale:(NSDictionary *)locale { return @"NO" ; locale= nil; }
+- (NSString *)descriptionWithLocale:(NSDictionary *)d indent:(unsigned)l { return @"NO" ; d= nil; l= 0; }
 - (NSString *)htmlRepresentation { return @"false" ; }
 - (NSString *)jsonRepresentation { return @"false" ; }
 - (NSString *)displayString { return @"false" ; }
@@ -132,7 +132,7 @@ MSBool *MSFalse = nil ;
 @implementation _MSTrueBool 
 + (void)load { if (!MSTrue) MSTrue = (MSBool *)MSCreateObject(self) ; }
 - (void)getValue:(void *)value { if (value) *((unsigned char *)value) = '\001' ; }
-+ (id)allocWithZone:(NSZone *)zone { return (id)MSTrue ; }
++ (id)allocWithZone:(NSZone *)zone { return (id)MSTrue ; zone= nil; }
 + (id)alloc { return (id)MSTrue ; }
 + (id)new { return (id)MSTrue ; }
 - (char)charValue { return 1 ; }
@@ -157,8 +157,8 @@ MSBool *MSFalse = nil ;
 - (BOOL)isEqualToNumber:(NSNumber *)number { return number && (number == self || [number isTrue]) ? YES : NO ; }
 - (BOOL)isEqualToValue:(NSValue *)value { return value && (value == self || [value isTrue]) ? YES : NO ; }
 - (NSString *)description { return @"YES" ; }
-- (NSString *)descriptionWithLocale:(NSDictionary *)locale { return @"YES" ; }
-- (NSString *)descriptionWithLocale:(NSDictionary *)d indent:(unsigned)l { return @"YES" ; }
+- (NSString *)descriptionWithLocale:(NSDictionary *)locale { return @"YES" ; locale= nil; }
+- (NSString *)descriptionWithLocale:(NSDictionary *)d indent:(unsigned)l { return @"YES" ; d= nil; l= 0; }
 - (NSString *)htmlRepresentation { return @"true" ; }
 - (NSString *)jsonRepresentation { return @"true" ; }
 - (NSString *)displayString { return @"true" ; }

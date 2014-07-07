@@ -47,7 +47,7 @@
  include <MSFoundation/MSFoundation.h>
  */
 
-#import "MSObi_Private.h"
+#import "MSDb_Private.h"
 
 @implementation MSDBResultSet
 
@@ -60,7 +60,7 @@
 
 - (NSUInteger)columnsCount { return [_columnsDescription count] ; }
 - (NSString *)nameOfColumn:(NSUInteger)column { return [[_columnsDescription keys] objectAtIndex:column] ; }
-- (MSColumnType)typeOfColumn:(NSUInteger)column { return MSNoValueColumn ; }
+- (MSColumnType)typeOfColumn:(NSUInteger)column { return MSNoValueColumn ; column= 0; }
 - (NSArray *)columnNames { return [_columnsDescription keys] ; }
 
 - (id)objectForKey:(id)aKey
@@ -75,7 +75,7 @@
 	return o ;
 }
 
-- (id)objectAtColumn:(NSUInteger)idx { return [self notImplemented:_cmd] ; }
+- (id)objectAtColumn:(NSUInteger)idx { return [self notImplemented:_cmd] ; idx= 0; }
 - (MSRow *)rowDictionary { return [self notImplemented:_cmd] ; }
 
 
@@ -96,15 +96,24 @@
 - (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column { return [self getBufferAt:aBuffer column:column error:NULL] ; }
 
 
-- (BOOL)getCharAt:(MSChar *)aValue column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getShortAt:(MSShort *)aValue column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getIntAt:(MSInt *)aValue column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getLongAt:(MSLong *)aValue column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getFloatAt:(float *)aValue column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getDoubleAt:(double *)aValue column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getDateAt:(MSTimeInterval *)aDate column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
-- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)error { if (error) *error = MSNoAdaptor ; return NO ; }
+- (BOOL)getCharAt:(MSChar *)aValue column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
+- (BOOL)getShortAt:(MSShort *)aValue column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
+- (BOOL)getIntAt:(MSInt *)aValue column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
+- (BOOL)getLongAt:(MSLong *)aValue column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
+- (BOOL)getFloatAt:(float *)aValue column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
+- (BOOL)getDoubleAt:(double *)aValue column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
+- (BOOL)getDateAt:(MSTimeInterval *)aDate column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aDate= NULL; column= 0; }
+- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aString= NULL; column= 0; }
+- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)error
+{ if (error) *error = MSNoAdaptor ; return NO ; aBuffer= NULL; column= 0; }
 
 - (BOOL)getByteAt:(MSByte *)aValue column:(NSUInteger)column error:(MSInt *)error
 { return [self getCharAt:(MSChar *)aValue column:column error:error] ; }
@@ -124,5 +133,6 @@ BOOL MSGetSqlDateFromBytes(void *bytes, NSUInteger length, MSTimeInterval *t)
 {
 	// TO DO : decoding a STANDARD SQL DATE
 	return NO ;
+  bytes= NULL; length= 0; t= NULL;
 }
 

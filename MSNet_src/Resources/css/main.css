@@ -1,0 +1,127 @@
+.table th.rightCell,
+.table td.rightCell {
+    text-align: right;
+}
+
+.navbar .brand {
+    max-height: 63px;
+    overflow: visible;
+    padding-top: 0px;
+    padding-bottom: 0;
+    padding-left:5px;
+}
+
+.popover {
+    max-width: none;
+}
+
+.modal .modal-body {
+    max-width: none;
+    overflow-x: auto;
+    padding: 5px;
+}
+
+.public-link-toggle {
+    cursor: pointer;
+}
+.upload-link-toggle {
+    cursor: pointer;
+}
+
+#logout {
+    margin-top: 15px;
+    margin-right: 5px;
+}
+
+#myAccount {
+    margin-top: 15px;
+    margin-right: 5px;
+}
+
+.disableSelect {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.enableSelect {
+    -moz-user-select: text;
+    -khtml-user-select: auto;
+    -webkit-user-select: auto ;
+    -ms-user-select: auto;
+    user-select: auto;
+}
+
+.popoverLocation {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+}
+
+
+@media screen and (min-width: 768px){ .modal-dialog {
+        right: auto;
+        left: 50%;
+        max-width: 1000px;
+        padding-top: 30px;
+        padding-bottom: 30px;
+        width: auto;
+    }
+}
+
+th.sortBy span.title {
+    text-decoration: underline;
+}
+
+th.sortable {
+    cursor: pointer;
+}
+
+th.sortable:hover {
+    background-color: #f5f5f5;
+}
+
+/* Fix outline in Select boxes */
+.bootstrap-select.btn-group .dropdown-menu li > a {
+    outline: none;
+}
+
+
+
+.bootstrap-select.form-control.small:not([class*="span"]) {
+    width: 150px;
+}
+
+.bootstrap-select.btn-group.small {
+    float: initial;
+    margin-right: 4px;
+}
+
+.bootstrap-select.form-control.small.btn-sm {
+    margin-bottom: -3px;
+}
+
+
+/* Use textareas and inputs to output text that is easily selectable */
+textarea.copyable, input.copyable {
+    border: 0;
+    font: inherit;
+    padding: 0;
+    background-color: transparent;
+    margin: 0;
+    width: 100%;
+    cursor: default;
+}
+
+textarea.copyable {
+    resize: none;
+    height: auto;
+    overflow: visible;
+}
+
+textarea.copyable:focus, input.copyable:focus {
+    outline: 0;
+}
+/* END Easy Selection of text */

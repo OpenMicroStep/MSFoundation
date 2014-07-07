@@ -40,6 +40,7 @@
  knowledge of the CeCILL-C license and that you accept its terms.
   
  */
+ /*
 #ifdef WO451
 #import "../_MSDBGenericConnection.h"
 #import "sqlcipher.subproj/sqlite3.h"
@@ -47,7 +48,7 @@
 #import "_MSDBGenericConnection.h"
 #import "sqlite3.h"
 #endif
-
+*/
 typedef enum {
 	SQLiteDatabaseNotExist,
 	SQLiteFailAtOpen,
@@ -56,7 +57,7 @@ typedef enum {
 	SQLiteFailAtClose
 } SQLiteError ;
 
-@interface MSSQLCipherConnection : _MSDBGenericConnection
+@interface MSSQLCipherConnection : MSDBGenericConnection
 {
 	sqlite3 *_db ;
 	SQLiteError _lastError ;

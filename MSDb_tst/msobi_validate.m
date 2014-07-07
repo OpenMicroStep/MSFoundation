@@ -1,6 +1,6 @@
 // msobi_validate.m, ecb, 140101
 
-#include "MSObi_Private.h"
+#include "MSDb_Private.h"
 #include "msobi_validate.h"
 
 static inline BOOL _eq(int no, BOOL eq, id u1, id u2)

@@ -46,7 +46,7 @@
  
  */
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 #import "_MHServerPrivate.h"
 
 static MSUInt MHStartServer(NSArray *params, Class staticApplication)

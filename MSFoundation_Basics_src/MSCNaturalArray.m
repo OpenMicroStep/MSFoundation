@@ -54,7 +54,7 @@
 NSUInteger CSortedArrayIndexOfNatural(CNaturalArray *self, NSUInteger aNatural, NSUInteger start, NSUInteger nb, BOOL exact)
 {
     if (self) {
-        register NSUInteger min, mid,max, comp = NSOrderedAscending ;
+        register NSUInteger min, mid,max; NSInteger comp = NSOrderedAscending ;
         register NSUInteger *p ;
 		
         if (start >= self->count) { return (exact ? NSNotFound : self->count) ; /* si on recherche au dela du range, on n'insere forcement a la fin */ }

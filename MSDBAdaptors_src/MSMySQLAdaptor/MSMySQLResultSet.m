@@ -40,9 +40,8 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-#import "_MSDBGenericConnection.h"
-#import "MSMySQLResultSet.h"
-#import "my_time.h"
+
+#import "MSMySQLAdaptorKit.h"
 
 #define MYSQL_RESULT_NOT_INITIALIZED	0
 #define MYSQL_POSSIBLE_RESULT			1
@@ -99,7 +98,7 @@
 			_result = NULL ;
 		}
 		_row = NULL ;
-		[(_MSDBGenericConnection *)_connection unregisterOperation:self] ;
+		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
 		[super terminateOperation] ;
 	}
 }

@@ -45,7 +45,7 @@ BOOL MSStringIsTrue(NSString *s)
 { 
 	SES ses = SESFromString(s) ;
 	if (SESOK(ses)) {
-		return _MSStringIsTrue(s, ses, CUnicharIsSpace, NULL) ;
+		return _MSStringIsTrue(ses, CUnicharIsSpace, NULL) ;
 	}
 	return NO ;
 }
@@ -278,7 +278,7 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
 	char *s = (char *)[self UTF8String] ; // on retourne à use form de buffer (!?!)
 	if (s && *s) {
 		NSUInteger len = (NSUInteger)strlen(s) ;
-		MSString *ret = MSCreateString(len) ;
+		MSString *ret = (MSString*)CCreateString(len) ;
 		
 		if (CStringAppendURLBytes((CString*)ret, (void *)s, len, NSUTF8StringEncoding, NULL)) {
 			return AUTORELEASE(ret) ;

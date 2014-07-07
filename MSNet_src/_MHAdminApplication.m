@@ -41,7 +41,7 @@
  
  */
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 static NSComparisonResult compareApplications(id obj1, id obj2, void *c)
 {

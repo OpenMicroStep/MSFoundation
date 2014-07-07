@@ -42,12 +42,13 @@
  */
 
 //#import <MSFoundation/MSFoundation.h>
+/*
 #ifdef WO451
 #import "sqlcipher.subproj/sqlite3.h"
 #else
 #import "sqlite3.h"
 #endif
-
+*/
 @interface MSSQLCipherTransaction : MSDBTransaction
 
 @end

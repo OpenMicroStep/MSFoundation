@@ -6,7 +6,7 @@
 //  Copyright 2011 LOGITUD Solutions. All rights reserved.
 //
 
-#import "MSObi_Private.h"
+#import "MSDb_Private.h"
 
 @implementation MSDBTransaction
 

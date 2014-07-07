@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 #ifndef WIN32
 

@@ -39,7 +39,7 @@
  
  */
 
-#import "MSObi_Private.h"
+#import "MSDb_Private.h"
 
 @implementation MSOdb
 

@@ -50,11 +50,11 @@ typedef enum {
     MH_NET_REPOSITORY_SERVER
 } MHServerModeEnum;
 
-MASHExport MSUInt MHStartBundleServer(NSArray *params) ;
-MASHExport MSUInt MHStartStaticServer(NSArray *params, NSString *staticAppClassName) ;
+MSExport MSUInt MHStartBundleServer(NSArray *params) ;
+MSExport MSUInt MHStartStaticServer(NSArray *params, NSString *staticAppClassName) ;
 
-MASHExport SOCKET MHNewSocketOnServerPort(NSString *aServer, MSUInt aPort, BOOL isblocking, NSString **anError) ;
-MASHExport MSLong MHReceiveDataOnConnectedSocket(MSInt socket, void *buffer, MSInt length) ;
+MSExport SOCKET MHNewSocketOnServerPort(NSString *aServer, MSUInt aPort, BOOL isblocking, NSString **anError) ;
+MSExport MSLong MHReceiveDataOnConnectedSocket(MSInt socket, void *buffer, MSInt length) ;
 
 
-MASHExport BOOL MHCloseSocket(MSInt fd) ;
+MSExport BOOL MHCloseSocket(MSInt fd) ;

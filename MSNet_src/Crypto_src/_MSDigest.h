@@ -46,6 +46,8 @@
  A call to the MSFoundation initialize function must be done before using
  these functions.
  */
+
+// TODO: Pas de type openssl dans le .h
 #import <openssl/evp.h>
 
 const EVP_MD *MSDigestToEVP_MD(MSDigest digest) ;

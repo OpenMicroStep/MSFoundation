@@ -41,11 +41,11 @@
  
  */
 
-#import "_MASHPrivate.h"
-#import <openssl/err.h>
-#import <openssl/rand.h>
-#import <openssl/evp.h>
-#import <openssl/ssl.h>
+#import "MSNet_Private.h"
+//#import <openssl/err.h>
+//#import <openssl/rand.h>
+//#import <openssl/evp.h>
+//#import <openssl/ssl.h>
 
 #ifdef WO451
 @interface MHThreadFakeLauncher : NSObject

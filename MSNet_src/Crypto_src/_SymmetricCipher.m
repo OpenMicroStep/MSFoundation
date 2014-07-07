@@ -41,7 +41,7 @@
  */
 
 #import "MSNet_Private.h"
-#import <openssl/evp.h>
+//#import <openssl/evp.h>
 
 #define BINKEY_ROUND_COUNT 5
 #define WORKING_BLOCK_SIZE 1024

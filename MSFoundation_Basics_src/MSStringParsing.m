@@ -229,9 +229,9 @@ id MSCreatePropertyListFromString(NSString *str,
                     }
                     break ;
                 case UNICODE_DIGITS:
-                    if (c >= (unichar)'0' && c <= (unichar)'9') { c1 = (c1 << 3) + c - (unichar)'0' ; unicodeLength++ ; }
-                    else if (c >= (unichar)'A' && c <= (unichar)'F') { c1 = (c1 << 3) + c - (unichar)'A' + 10 ; unicodeLength++ ; }
-                    else if (c >= (unichar)'a' && c <= (unichar)'f') { c1 = (c1 << 3) + c - (unichar)'a' + 10 ; unicodeLength++ ; }
+                    if      (c >= (unichar)'0' && c <= (unichar)'9') { c1 = (unichar)( (c1 << 3) + c - (unichar)'0'      ); unicodeLength++ ; }
+                    else if (c >= (unichar)'A' && c <= (unichar)'F') { c1 = (unichar)( (c1 << 3) + c - (unichar)'A' + 10 ); unicodeLength++ ; }
+                    else if (c >= (unichar)'a' && c <= (unichar)'f') { c1 = (unichar)( (c1 << 3) + c - (unichar)'a' + 10 ); unicodeLength++ ; }
                     else {
                         // si on a un pb, on insere juste le grand U puisqu'il y avait un antislash devant
                         MSSAddUnichar(buf, (unichar)'U') ;

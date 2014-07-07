@@ -41,7 +41,7 @@
  
  */
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 static NSMapTable *__waitingNotifications = NULL ;
 static mutex_t __waitingNotificationsMutex ;

@@ -43,11 +43,10 @@
 #import "MSCore_Private.h"
 #import "MSCSSLInterface.h"
 #import <openssl/ssl.h>
-#import <openssl/crypto.h>
+//#import <openssl/crypto.h>
 #import <openssl/err.h>
 #import <openssl/rand.h>
-#import <openssl/evp.h>
-#import <openssl/ssl.h>
+//#import <openssl/evp.h>
 
 
 #ifdef WIN32

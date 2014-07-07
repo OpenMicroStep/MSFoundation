@@ -6,7 +6,8 @@
 //
 //
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
+#import <openssl/ssl.h>
 
 // writing: 0 = read; 1 = write, 2 = connect
 int MHCheckSocketState(int sock_fd, int writing)

@@ -45,7 +45,7 @@
  
  */
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 #define SESSION_ID_SIZE 32
 

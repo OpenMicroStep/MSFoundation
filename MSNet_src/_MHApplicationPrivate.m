@@ -6,7 +6,7 @@
 //
 //
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 NSMutableString *MHOpenFileForSubstitutions(NSString *file)
 {

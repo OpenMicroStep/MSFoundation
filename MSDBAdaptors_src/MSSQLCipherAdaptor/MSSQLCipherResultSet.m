@@ -40,13 +40,15 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
+/*
 #ifdef WIN32
 #import "../_MSDBGenericConnection.h"
 #else
 #import "_MSDBGenericConnection.h"
 #endif
 #import "MSSQLCipherResultSet.h"
-
+*/
+#import "MSSQLCipherAdaptorKit.h"
 
 #define SQLITE_RESULT_NOT_INITIALIZED	0
 #define SQLITE_POSSIBLE_RESULT			1
@@ -75,7 +77,7 @@
 #endif
 
 			if (!s) { RELEASE(keys) ; RELEASE(self) ; return nil ; }
-			MSAAddUnretained(keys, s) ;            
+      CArrayAddObject((CArray*)keys, s);
 		}
 		_columnsDescription = RETAIN([MSRowKeys rowKeysWithKeys:keys]) ;
 		RELEASE(keys) ;
@@ -93,7 +95,7 @@
 		sqlite3_finalize(_statement);
 		_statement = NULL ;
 		_state = SQLITE_NO_MORE_RESULTS ;
-		[(_MSDBGenericConnection *)_connection unregisterOperation:self] ;
+		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
 		[super terminateOperation] ;
 	}
 }
@@ -253,8 +255,8 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 					if (l) {
 						// we assume we have a UTF8 string
 						if (aString) { 
-							good = CUnicodeBufferAppendUTF8Bytes(aString, (void *)s, (NSUInteger)l) ;
-							if (!good) { error = MSFetchMallocError ; }
+              CStringAppendBytes((CString*)aString, NSUTF8StringEncoding, (void *)s, l) ;
+							good = YES;
 						}
 					}
 					if (good) { error = MSFetchOK ; }
@@ -294,8 +296,8 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 					int l = sqlite3_column_bytes(_statement, column) ;
 					if (l) {
 						if (aBuffer) { 
-							good = CBufferAppendBytes(aBuffer, bytes, (NSUInteger)l) ;
-							if (!good) { error = MSFetchMallocError ; }
+              CStringAppendBytes((CString*)aBuffer, NSUTF8StringEncoding, bytes, (NSUInteger)l) ;
+							good = YES;
 						}
 					}
 					if (good) { error = MSFetchOK ; }

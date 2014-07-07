@@ -40,11 +40,10 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-#import "MSSQLCipherTransaction.h"
-#import "MSSQLCipherResultSet.h"
-#import "MSSQLCipherConnection.h"
-
-
+//#import "MSSQLCipherTransaction.h"
+//#import "MSSQLCipherResultSet.h"
+//#import "MSSQLCipherConnection.h"
+#import "MSSQLCipherAdaptorKit.h"
 
 @implementation MSSQLCipherConnection
 
@@ -189,20 +188,20 @@
 	if (aString) {
 		SES ses = SESFromString(aString) ;
 		if (SESOK(ses)) {
-			register NSUInteger i, len = SESLength(ses) ;
+      NSUInteger i, len = SESLength(ses) ;
 			CHAI characterAtIndex = SESCHAI(ses) ;
-			MSUnicodeString *result = MSCreateUnicodeString(len+(withQuotes?2:0)) ;
+			CString *result = CCreateString(len+(withQuotes?2:0)) ;
 			unichar c ;
 
-			if (withQuotes) { MSUAddUnichar(result, 0x0027) ; }
-			for (i = 0 ; i < len ; i++) {
-				c = characterAtIndex(aString,i) ;
-				MSUAddUnichar(result, c) ;
-				if (c == 0x0027) { MSUAddUnichar(result, 0x0027) ; }
+			if (withQuotes) { CStringAppendCharacter(result, 0x0027) ; }
+			for (i = 0 ; i < len ; ) {
+				c = characterAtIndex(aString,&i) ;
+				CStringAppendCharacter(result, c) ;
+				if (c == 0x0027) { CStringAppendCharacter(result, 0x0027) ; }
 			}
-			if (withQuotes) { MSUAddUnichar(result, 0x0027) ; }
+			if (withQuotes) { CStringAppendCharacter(result, 0x0027) ; }
 			
-			return AUTORELEASE(result) ;
+			return AUTORELEASE((id)result) ;
 		}
 		return withQuotes ? @"''" : @"" ;
 	}

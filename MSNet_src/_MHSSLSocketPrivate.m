@@ -46,7 +46,8 @@
  
  */
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
+#import <openssl/ssl.h>
 
 @implementation MHSSLSocket (Private)
 

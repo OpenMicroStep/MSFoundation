@@ -5,7 +5,7 @@
 //  Created by Geoffrey Guilbon on 22/06/12.
 //  Copyright (c) 2012 Logitud Solutions. All rights reserved.
 //
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 typedef struct CQueueElementStruct CQueueElement ;
 struct CQueueElementStruct

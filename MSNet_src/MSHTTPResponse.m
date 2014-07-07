@@ -39,7 +39,7 @@
             headerLineLength = headerEnd - headerStart ;
 
             if (!headerLineLength) break ;
-            
+          
             headerLine = AUTORELEASE((MSString*)CCreateString(32)) ;
             CStringAppendBytes((CString*)headerLine,
               NSUTF8StringEncoding, headerStart, headerLineLength) ;

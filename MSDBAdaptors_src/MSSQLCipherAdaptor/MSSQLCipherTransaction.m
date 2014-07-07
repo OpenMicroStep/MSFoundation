@@ -41,6 +41,7 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
+/*
 #ifdef WIN32
 #import "../_MSDBGenericConnection.h"
 #else
@@ -48,6 +49,8 @@
 #endif
 #import "MSSQLCipherTransaction.h"
 #import "MSSQLCipherConnection.h"
+*/
+#import "MSSQLCipherAdaptorKit.h"
 
 
 @implementation MSSQLCipherTransaction
@@ -81,7 +84,7 @@
 			MSRaiseFrom(NSGenericException, self, _cmd, @"impossible to rollback current transaction") ;
 		}
 		
-		[(_MSDBGenericConnection *)_connection unregisterOperation:self] ;
+		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
 		[super terminateOperation] ;
 	}
 }
@@ -95,7 +98,7 @@
 			if (errorPtr) { *errorPtr = error ; }
 			return NO ;
 		}
-		[(_MSDBGenericConnection *)_connection unregisterOperation:self] ;
+		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
 		[super terminateOperation] ;
 		return YES ;
 	}

@@ -39,7 +39,7 @@
  
  */
 
-#import "MSObi_Private.h"
+#import "MSDb_Private.h"
 
 MSOid *MSEntEntId,*MSEntCarId,*MSEntTypId;
 MSOid *MSCarEntityId,*MSCarSystemNameId,*MSCarCharacteristicId,*MSCarTypeId,

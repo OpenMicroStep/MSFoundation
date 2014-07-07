@@ -6,7 +6,7 @@
 //  Copyright (c) 2013 Geoffrey Guilbon. All rights reserved.
 //
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 #import "MHApplicationClient.h"
 
 #define BUFF_SIZE 2048

@@ -41,9 +41,8 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-#import "_MSDBGenericConnection.h"
-#import "MSMySQLTransaction.h"
-#import "MSMySQLConnection.h"
+
+#import "MSMySQLAdaptorKit.h"
 
 @interface MSMySQLConnection (MSMySQLTransaction)
 
@@ -51,9 +50,8 @@
 - (BOOL)rollback ;
 - (MSInt)getLastError ;
 
-
-
 @end
+
 
 @implementation MSMySQLConnection (MSMySQLTransaction)
 
@@ -65,7 +63,6 @@
 	if ([self connect])	return (MSInt)mysql_errno(&_db) ;
 	else return -1 ;
 }
-
 
 @end
 
@@ -88,7 +85,7 @@
 			MSRaiseFrom(NSGenericException, self, _cmd, @"impossible to rollback current transaction") ;
 		}
 		
-		[(_MSDBGenericConnection *)_connection unregisterOperation:self] ;
+		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
 		[super terminateOperation] ;
 	}
 }
@@ -101,7 +98,7 @@
 			if (errorPtr) { *errorPtr = [(MSMySQLConnection *)_connection getLastError] ; }
 			return NO ;
 		}
-		[(_MSDBGenericConnection *)_connection unregisterOperation:self] ;
+		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
 		[super terminateOperation] ;
 		return YES ;
 	}

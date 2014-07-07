@@ -43,7 +43,8 @@
  include <MSFoundation/MSFoundation.h>
  */
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
+#import <openssl/ssl.h>
 
 // Pointer to array of locks.
 static mutex_t *lock_cs;

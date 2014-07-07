@@ -38,7 +38,14 @@
  
  */
 
-#import "MSFoundation_Private.h"
+#import <MSFoundation/MSFoundation.h>
+
+#import "MSJSONEncoder.h"
+#import "MSHTTPRequest.h"
+#import "MSHTTPResponse.h"
+#import "MSCurlInterface_Private.h"
+#import "MSCurlHandler.h"
+#import "MSCurlSendMail.h"
 
 #import "MSCipher.h"
 #import "MSDigest.h"
@@ -50,5 +57,34 @@
 
 #import "MSCertificate.h"
 
-#import "MSHTTPRequest.h"
-#import "MSHTTPResponse.h"
+#import "_MHThreadPrivate.h"
+#import "_MHOpenSSLPrivate.h"
+#import "MHSSLSocket.h"
+#import "_MHSSLSocketPrivate.h"
+#import "_MHQueuePrivate.h"
+#import "MHLogging.h"
+#import "_MHBunchAllocatorPrivate.h"
+#import "_MHBunchRegisterPrivate.h"
+
+#import "MHPublicProtocols.h"
+
+#import "MHBunchableObject.h"
+#import "MHHTTPMessage.h"
+#import "_MHHTTPMessagePrivate.h"
+#import "_CHTTPMessagePrivate.h"
+#import "MHApplication.h"
+#import "_MHApplicationPrivate.h"
+#import "MHNotification.h"
+#import "_MHNotificationPrivate.h"
+#import "_MHContext.h"
+#import "_MHSession.h"
+#import "_MHServerPrivate.h"
+#import "MHServer.h"
+
+#import "_CNotificationPrivate.h"
+#import "MHResource.h"
+#import "_MHResourcePrivate.h"
+#import "_MHPostProcessingDelegate.h"
+
+#import "_MHAdminApplication.h"
+#import "MHApplicationClient.h"

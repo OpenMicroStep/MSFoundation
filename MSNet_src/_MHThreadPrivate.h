@@ -38,6 +38,8 @@
  knowledge of the CeCILL-C license and that you accept its terms.
 */
 
+#warning A revoir dans le Core
+
 #ifndef MY_THREAD_H
 #define MY_THREAD_H
 

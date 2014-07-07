@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 Logitud Solutions. All rights reserved.
 //
 
-#import "_MASHPrivate.h"
+#import "MSNet_Private.h"
 
 @implementation MHQueue
 

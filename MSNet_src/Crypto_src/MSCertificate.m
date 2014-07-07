@@ -44,9 +44,9 @@
  */
 
 #import "MSNet_Private.h"
-#import "MSASCIIString.h"
-#import "MSDate.h"
-#import <openssl/x509.h>
+//#import "MSASCIIString.h"
+//#import "MSDate.h"
+//#import <openssl/x509.h>
 
 @implementation MSCertificate
 
