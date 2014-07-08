@@ -138,6 +138,6 @@ int mscore_mste_validate(void)
   RELEAZEN(o1);
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSTE",(err?"FAIL":"PASS"),seconds);
+  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSTE (Core)",(err?"FAIL":"PASS"),seconds);
   return err;
   }

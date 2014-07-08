@@ -56,6 +56,8 @@
 #define MSTEncoderLastVersion	100
 
 static const char *__hexa = "0123456789ABCDEF" ;
+static NSDictionary *__decimalLocale = nil ;
+
 
 static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 {
@@ -194,6 +196,11 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 - (void)encodeString:(NSString *)s withTokenType:(BOOL)token // transforms a string in its UTF16 counterpart and encodes it
 {
+    [self encodeString:s withTokenType:token andDoubleQuotes:YES] ;
+}
+
+- (void)encodeString:(NSString *)s withTokenType:(BOOL)token andDoubleQuotes:(BOOL)doubleQuotes
+{
     if (s) {
         NSUInteger len = [s length] ;
         if (token) {
@@ -202,8 +209,10 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
         }
         
         [self _encodeTokenSeparator] ;
-        CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
-        
+        if (doubleQuotes) {
+            CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
+        }
+      
         if (len) {
             NSUInteger i ;
             
@@ -270,7 +279,9 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
                 }
             }
         }
-        CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
+      if (doubleQuotes) {
+          CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
+      }
     }
     else MSRaise(NSGenericException, @"encodeString:withTokenType: no string to encode!") ;
 }
@@ -478,11 +489,19 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     NSMutableArray *keys = [ALLOC(NSMutableArray) initWithCapacity:[aDictionary count]] ;
     NSMutableArray *objects = [ALLOC(NSMutableArray) initWithCapacity:[aDictionary count]] ;
     NSUInteger i, count ;
-    
+  
     if (isSnapshot) {
         while ((key = [ek nextObject])) {
-            MSCouple *o = [aDictionary objectForKey:key] ;
-            id object = [o firstMember] ;
+            id o = [aDictionary objectForKey:key] ;
+            id object = nil ;
+          
+            if (![o isKindOfClass:[MSCouple class]]) {
+                [NSException raise:NSGenericException format:@"encodeDictionary:isSnapshot: one object is not a MSCouple in a snapshot!"] ;
+            }
+            else {
+                object = [o firstMember] ;
+            }
+          
             if ([object singleEncodingCode:self] != MSTE_TOKEN_TYPE_NULL) {
                 [keys addObject:[key toString]] ;
                 [objects addObject:o] ;
@@ -514,10 +533,10 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
         [self encodeUnsignedLongLong:(MSULong)(keyReference-1) withTokenType:NO] ;
         if (isSnapshot) {
             MSCouple *o = [objects objectAtIndex:i] ;
-            id weakReferenced = [o secondMember] ;
-            
-            if (weakReferenced) [self encodeObject:[o firstMember] weaklyReferenced:YES] ;
-            else [self encodeObject:[o firstMember] weaklyReferenced:NO] ;
+            id manageReference = [o secondMember] ;
+          
+            if (manageReference) [self encodeObject:[o firstMember] withReferencing:YES] ;
+            else [self encodeObject:[o firstMember] withReferencing:NO] ;
         }
         else [self encodeObject:[objects objectAtIndex:i]] ;
     }
@@ -525,9 +544,9 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     RELEASE(objects) ;
 }
 
-- (void)encodeObject:(id)anObject { [self encodeObject:anObject weaklyReferenced:NO] ; }
+- (void)encodeObject:(id)anObject { [self encodeObject:anObject withReferencing:YES] ; }
 
-- (void)encodeObject:(id)anObject weaklyReferenced:(BOOL)weakRef
+- (void)encodeObject:(id)anObject withReferencing:(BOOL)referencing
 {
     MSInt singleToken = [anObject singleEncodingCode:self] ;
     if (singleToken != MSTE_TOKEN_MUST_ENCODE) {
@@ -540,13 +559,12 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
         if (objectReference) {
             //this is an already encoded object
             [self _encodeTokenSeparator] ;
-            if (weakRef) [self _encodeTokenType:MSTE_TOKEN_TYPE_WEAKLY_REFERENCED_OBJECT] ;
-            else [self _encodeTokenType:MSTE_TOKEN_TYPE_STRONGLY_REFERENCED_OBJECT] ;
+            [self _encodeTokenType:MSTE_TOKEN_TYPE_REFERENCED_OBJECT] ;
             [self encodeUnsignedInt:(objectReference-1) withTokenType:NO] ;
         }
         else {
-            MSByte tokenType = [anObject tokenType] ;
-            if (tokenType == MSTE_TOKEN_TYPE_USER_CLASS) {
+            MSByte tokenType = [anObject tokenTypeWithReference:referencing] ;
+            if (tokenType >= MSTE_TOKEN_TYPE_USER_CLASS) {
                 Class objectClass ;
                 NSUInteger classIndex ;
                 NSDictionary *snapshot = [anObject MSTESnapshot] ;
@@ -564,14 +582,18 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
                 objectReference = ++_lastReference ;
                 NSMapInsertKnownAbsent(_encodedObjects, (const void *)anObject, (const void *)objectReference) ;
                 [self _encodeTokenSeparator] ;
-                [self _encodeTokenType:(weakRef ? (MSTE_TOKEN_TYPE_WEAKLY_REFERENCED_USER_OBJECT + 2*(classIndex - 1)) : (MSTE_TOKEN_TYPE_STRONGLY_REFERENCED_USER_OBJECT + 2*(classIndex - 1)))] ;
+                [self _encodeTokenType:(MSTE_TOKEN_TYPE_USER_CLASS + classIndex - 1)] ;
                 [self encodeDictionary:snapshot isSnapshot:YES] ;
             }
             else if (tokenType <= MSTE_TOKEN_LAST_DEFINED_TYPE) {
-                objectReference = ++_lastReference ;
-                NSMapInsertKnownAbsent(_encodedObjects, (const void *)anObject, (const void *)objectReference) ;
+              
+                if (referencing) {
+                    objectReference = ++_lastReference ;
+                    NSMapInsertKnownAbsent(_encodedObjects, (const void *)anObject, (const void *)objectReference) ;
+                }
+              
                 [self _encodeTokenSeparator] ;
-                [self _encodeTokenType:[anObject tokenType]] ;
+                [self _encodeTokenType:tokenType] ;
                 [anObject encodeWithMSTEncoder:self] ;
             }
             else {
@@ -601,7 +623,10 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     [self encodeObject:anObject] ;
     
     //MSTE header
-    CBufferAppendCString((CBuffer *)_global, "[\"MSTE0101\",");
+    CBufferAppendCString((CBuffer *)_global, "[\"MSTE") ;
+    CBufferAppendCString((CBuffer *)_global, MSTE_CURRENT_VERSION) ;
+    CBufferAppendCString((CBuffer *)_global, "\",") ;
+  
     [self _encodeGlobalUnsignedLongLong:(5+_lastKeyIndex+_lastClassIndex+_tokenCount)] ;
     CBufferAppendCString((CBuffer *)_global, ",\"CRC");
     crcPointer = ((CBuffer*)_global)->buf+((CBuffer*)_global)->length ;
@@ -758,7 +783,9 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 @implementation NSObject (MSTEncoding)
 
-- (MSByte)tokenType { return MSTE_TOKEN_TYPE_USER_CLASS ; } //must be overriden by subclasse to be encoded
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_USER_CLASS ; } //must be overriden by subclasse to be encoded if tokenTypeWithReference: method is not overriden
+- (MSByte)tokenTypeWithReference:(BOOL)isReferenced { return [self tokenType] ; } //must be overriden by subclasse to be encoded if tokenType method is not overriden
+
 - (NSDictionary *)MSTESnapshot { [self notImplemented:_cmd] ; return nil ; } //must be overriden by subclasse to be encoded as a dictionary. keys of snapshot are member names, values are MSCouple with the member in firstMember and in secondMember : nil if member is strongly referenced, or not nil if member is weakly referenced.
 
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder {return MSTE_TOKEN_MUST_ENCODE ; }
@@ -811,64 +838,125 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 }
 @end
 
+static NSNumber *__aBool = nil ;
+
 @implementation NSNumber (MSTEncoding)
-- (MSByte)tokenType
+- (MSInt)singleEncodingCode:(MSTEncoder *)encoder
 {
+  unsigned char type = *[self objCType] ;
+  if (type == 'c') {
+    if(!__aBool) __aBool = [NSNumber numberWithBool:YES] ;
+    if([self isKindOfClass:[__aBool class]]) {
+      if ([self isTrue]) return MSTE_TOKEN_TYPE_TRUE ;
+      else return MSTE_TOKEN_TYPE_FALSE ;
+    }
+  }
+  return MSTE_TOKEN_MUST_ENCODE ;
+}
+
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_DECIMAL_VALUE ; }
+- (MSByte)tokenTypeWithReference:(BOOL)isReferenced
+{
+  if (isReferenced) {
+    return [self tokenType] ;
+  }
+  else {
     unsigned char type = *[self objCType] ;
     switch (type) {
-        case 'c':
-        case 'C':
-        case 's':
-        case 'S':
-        case 'i':
-        case 'I':
-        case 'l':
-        case 'L':
-        case 'q':
-        case 'Q':
-        {
-            return MSTE_TOKEN_TYPE_INTEGER_VALUE ;
-            break ;
-        }
-        case 'f':
-        case 'd':
-        {
-            return MSTE_TOKEN_TYPE_REAL_VALUE ;
-            break ;
-        }
+      case 'c':
+      {
+        return MSTE_TOKEN_TYPE_CHAR ;
+        break ;
+      }
+      case 'C':
+      {
+        return MSTE_TOKEN_TYPE_UNSIGNED_CHAR ;
+        break ;
+      }
+      case 's':
+      {
+        return MSTE_TOKEN_TYPE_SHORT ;
+        break ;
+      }
+      case 'S':
+      {
+        return MSTE_TOKEN_TYPE_UNSIGNED_SHORT ;
+        break ;
+      }
+      case 'i':
+      case 'l':
+      {
+        return MSTE_TOKEN_TYPE_INT32 ;
+        break ;
+      }
+      case 'I':
+      case 'L':
+      {
+        return MSTE_TOKEN_TYPE_INSIGNED_INT32 ;
+        break ;
+      }
+      case 'q':
+      {
+        return MSTE_TOKEN_TYPE_INT64 ;
+        break ;
+      }
+      case 'Q':
+      {
+        return MSTE_TOKEN_TYPE_UNSIGNED_INT64 ;
+        break ;
+      }
+      case 'f':
+      {
+        return MSTE_TOKEN_TYPE_FLOAT ;
+        break ;
+      }
+      case 'd':
+      {
+        return MSTE_TOKEN_TYPE_DOUBLE ;
+        break ;
+      }
 #ifdef WO451
-        default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%s'", type] ; break;
+      default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%s'", type] ; break;
 #else
-        default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%hhu'", type] ; break;
+      default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%hhu'", type] ; break;
 #endif
     }
     return 0 ;
+  }
 }
 @end
 
 @implementation NSNumber (MSTEncodingPrivate)
 - (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
 {
-    unsigned char type = *[self objCType] ;
-    switch (type) {
-        case 'c': [encoder encodeChar:[self charValue] withTokenType:NO] ; break;
-        case 'C': [encoder encodeUnsignedChar:[self unsignedCharValue] withTokenType:NO] ; break;
-        case 's': [encoder encodeShort:[self shortValue] withTokenType:NO] ; break;
-        case 'S': [encoder encodeUnsignedShort:[self unsignedShortValue] withTokenType:NO] ; break;
-        case 'i': [encoder encodeInt:[self intValue] withTokenType:NO] ; break;
-        case 'I': [encoder encodeUnsignedInt:[self unsignedIntValue] withTokenType:NO] ; break;
-        case 'l': [encoder encodeInt:(int)[self longValue] withTokenType:NO] ; break;
-        case 'L': [encoder encodeUnsignedInt:(unsigned int)[self unsignedLongValue] withTokenType:NO] ; break;
-        case 'q': [encoder encodeLongLong:[self longLongValue] withTokenType:NO] ; break;
-        case 'Q': [encoder encodeUnsignedLongLong:[self unsignedLongLongValue] withTokenType:NO] ; break;
-        case 'f': [encoder encodeFloat:[self floatValue] withTokenType:NO] ; break;
-        case 'd': [encoder encodeDouble:[self doubleValue] withTokenType:NO] ; break;
-            #ifdef WO451
-        default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%s'", type] ; break;
+  unsigned char type = *[self objCType] ;
+  switch (type) {
+    case 'c': [encoder encodeChar:[self charValue] withTokenType:NO] ; break;
+    case 'C': [encoder encodeUnsignedChar:[self unsignedCharValue] withTokenType:NO] ; break;
+    case 's': [encoder encodeShort:[self shortValue] withTokenType:NO] ; break;
+    case 'S': [encoder encodeUnsignedShort:[self unsignedShortValue] withTokenType:NO] ; break;
+    case 'i': [encoder encodeInt:[self intValue] withTokenType:NO] ; break;
+    case 'I': [encoder encodeUnsignedInt:[self unsignedIntValue] withTokenType:NO] ; break;
+    case 'l': [encoder encodeInt:(int)[self longValue] withTokenType:NO] ; break;
+    case 'L': [encoder encodeUnsignedInt:(unsigned int)[self unsignedLongValue] withTokenType:NO] ; break;
+    case 'q': [encoder encodeLongLong:[self longLongValue] withTokenType:NO] ; break;
+    case 'Q': [encoder encodeUnsignedLongLong:[self unsignedLongLongValue] withTokenType:NO] ; break;
+    case 'f': [encoder encodeFloat:[self floatValue] withTokenType:NO] ; break;
+    case 'd': [encoder encodeDouble:[self doubleValue] withTokenType:NO] ; break;
+#ifdef WO451
+    default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%s'", type] ; break;
 #else
-        default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%hhu'", type] ; break;
+    default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%hhu'", type] ; break;
 #endif
-    }
+  }
+}
+@end
+
+@implementation NSDecimalNumber (MSTEncodingPrivate)
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
+{
+  if (!__decimalLocale) __decimalLocale = [[NSDictionary alloc] initWithObjectsAndKeys:@".", NSLocaleDecimalSeparator, nil];
+  [encoder encodeString:[self descriptionWithLocale:__decimalLocale] withTokenType:NO andDoubleQuotes:NO] ;
 }
 @end
 
@@ -902,19 +990,34 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 @end
 
 @implementation NSDate (MSTEncoding)
-- (MSInt)singleEncodingCode:(MSTEncoder *)encoder
-{
-    if ([[NSDate distantPast] isEqual:self]) return MSTE_TOKEN_TYPE_DISTANT_PAST ;
-    else if ([[NSDate distantFuture] isEqual:self]) return MSTE_TOKEN_TYPE_DISTANT_FUTURE ;
-    else return MSTE_TOKEN_MUST_ENCODE ;
-}
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_DATE ; }
 @end
 
 @implementation NSDate (MSTEncodingPrivate)
 - (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
 {
-    if (![[NSDate distantPast] isEqual:self] && ![[NSDate distantFuture] isEqual:self]) [encoder encodeLongLong:(MSLong)[self timeIntervalSince1970] withTokenType:NO] ;
+  if (![[NSDate distantPast] isEqual:self] && ![[NSDate distantFuture] isEqual:self]) {
+    [encoder encodeLongLong:[self timeIntervalSince1970] withTokenType:NO] ;
+  }
+  else {
+    [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for NSDate class!"] ;
+  }
+}
+@end
+
+@implementation NSCalendarDate (MSTEncoding)
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_TIMESTAMP ; }
+@end
+
+@implementation NSCalendarDate (MSTEncodingPrivate)
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
+{
+  if (![[NSCalendarDate distantPast] isEqual:self] && ![[NSCalendarDate distantFuture] isEqual:self]) {
+    [encoder encodeDouble:[self timeIntervalSince1970] withTokenType:NO] ;
+  }
+  else {
+    [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for NSCalendarDate class!"] ;
+  }
 }
 @end
 

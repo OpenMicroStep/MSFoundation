@@ -10,6 +10,7 @@ int msfoundation_date_validate      (void);
 int msfoundation_decimal_validate   (void);
 int msfoundation_dictionary_validate(void);
 int msfoundation_string_validate    (void);
+int msfoundation_mste_validate    (void);
 
 static inline int testFoundation(BOOL alone)
   {
@@ -25,6 +26,7 @@ static inline int testFoundation(BOOL alone)
        msfoundation_decimal_validate()    +
        msfoundation_dictionary_validate() +
        msfoundation_string_validate()     +
+       msfoundation_mste_validate()     +
        0;
   if (alone) {
     if (!err)

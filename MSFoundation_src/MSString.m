@@ -293,6 +293,8 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
 	return [NSString string] ;
 }
 
+- (NSString *)toString { return self ; }
+
 @end
 
 @implementation MSString

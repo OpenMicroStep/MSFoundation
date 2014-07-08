@@ -43,18 +43,18 @@
  include <MSFoundation/MSFoundation.h>
  */
 
+#define MSTE_CURRENT_VERSION                "0102"
+
 #define MSTE_TOKEN_MUST_ENCODE              -1
 
 #define MSTE_TOKEN_TYPE_NULL                0
 #define MSTE_TOKEN_TYPE_TRUE                1
 #define MSTE_TOKEN_TYPE_FALSE               2
-#define MSTE_TOKEN_TYPE_INTEGER_VALUE       3
-#define MSTE_TOKEN_TYPE_REAL_VALUE          4
-#define MSTE_TOKEN_TYPE_STRING              5
-#define MSTE_TOKEN_TYPE_DATE                6
-#define MSTE_TOKEN_TYPE_COLOR               7
-#define MSTE_TOKEN_TYPE_DICTIONARY          8
-#define MSTE_TOKEN_TYPE_STRONGLY_REFERENCED_OBJECT   9
+#define MSTE_TOKEN_TYPE_EMPTY_STRING        3
+#define MSTE_TOKEN_TYPE_EMPTY_DATA          4
+
+#define MSTE_TOKEN_TYPE_REFERENCED_OBJECT   9
+
 #define MSTE_TOKEN_TYPE_CHAR                10
 #define MSTE_TOKEN_TYPE_UNSIGNED_CHAR       11
 #define MSTE_TOKEN_TYPE_SHORT               12
@@ -65,20 +65,24 @@
 #define MSTE_TOKEN_TYPE_UNSIGNED_INT64      17
 #define MSTE_TOKEN_TYPE_FLOAT               18
 #define MSTE_TOKEN_TYPE_DOUBLE              19
-#define MSTE_TOKEN_TYPE_ARRAY               20
-#define MSTE_TOKEN_TYPE_NATURAL_ARRAY       21
-#define MSTE_TOKEN_TYPE_COUPLE              22
-#define MSTE_TOKEN_TYPE_BASE64_DATA         23
-#define MSTE_TOKEN_TYPE_DISTANT_PAST        24
-#define MSTE_TOKEN_TYPE_DISTANT_FUTURE      25
-#define MSTE_TOKEN_TYPE_EMPTY_STRING        26
-#define MSTE_TOKEN_TYPE_WEAKLY_REFERENCED_OBJECT   27
+#define MSTE_TOKEN_TYPE_DECIMAL_VALUE       20
+#define MSTE_TOKEN_TYPE_STRING              21
+#define MSTE_TOKEN_TYPE_DATE                22
+#define MSTE_TOKEN_TYPE_TIMESTAMP           23
 
-#define MSTE_TOKEN_LAST_DEFINED_TYPE        MSTE_TOKEN_TYPE_WEAKLY_REFERENCED_OBJECT
+#define MSTE_TOKEN_TYPE_COLOR               24
+#define MSTE_TOKEN_TYPE_BASE64_DATA         25
+#define MSTE_TOKEN_TYPE_NATURAL_ARRAY       26
+
+#define MSTE_TOKEN_TYPE_DICTIONARY          30
+#define MSTE_TOKEN_TYPE_ARRAY               31
+#define MSTE_TOKEN_TYPE_COUPLE              32
+
+#define MSTE_TOKEN_LAST_DEFINED_TYPE        MSTE_TOKEN_TYPE_COUPLE
 
 #define MSTE_TOKEN_TYPE_USER_CLASS        50
-#define MSTE_TOKEN_TYPE_STRONGLY_REFERENCED_USER_OBJECT       MSTE_TOKEN_TYPE_USER_CLASS
-#define MSTE_TOKEN_TYPE_WEAKLY_REFERENCED_USER_OBJECT         MSTE_TOKEN_TYPE_STRONGLY_REFERENCED_USER_OBJECT + 1
+
+#define CREATE_MSTE_SNAPSHOT_VALUE(value, mustBeReferenced) [MSCouple coupleWithFirstMember:value secondMember:(mustBeReferenced ? value : nil)]
 
 
 @interface MSTEncoder : NSObject
@@ -101,6 +105,7 @@
 - (void)encodeBytes:(void *)bytes length:(NSUInteger)length withTokenType:(BOOL)token ;
 - (void)encodeUnicodeString:(const char *)str withTokenType:(BOOL)token ; // encodes an UTF8 string
 - (void)encodeString:(NSString *)s withTokenType:(BOOL)token ; // transforms a string in its UTF16 counterpart and encodes it
+- (void)encodeString:(NSString *)s withTokenType:(BOOL)token andDoubleQuotes:(BOOL)doubleQuotes; // transforms a string in its UTF16 counterpart and encodes it
 - (void)encodeUnsignedChar:(MSByte)c withTokenType:(BOOL)token ;
 - (void)encodeChar:(MSChar)c withTokenType:(BOOL)token ;
 - (void)encodeUnsignedShort:(MSUShort)s withTokenType:(BOOL)token ;
@@ -117,14 +122,14 @@
 - (void)encodeDictionary:(NSDictionary *)aDictionary ;
 
 - (void)encodeObject:(id)anObject ;
-- (void)encodeObject:(id)anObject weaklyReferenced:(BOOL)weakRef ;
 
 - (MSBuffer *)encodeRootObject:(id)anObject ;
 
 @end
 
 @interface NSObject (MSTEncoding)
-- (MSByte)tokenType ; //must be overriden by subclasse to be encoded
+- (MSByte)tokenType ; //must be overriden by subclasse to be encoded if tokenTypeWithReference: method is not overriden
+- (MSByte)tokenTypeWithReference:(BOOL)isReferenced ; //must be overriden by subclasse to be encoded if tokenType method is not overriden
 - (NSDictionary *)MSTESnapshot ; //must be overriden by subclasse to be encoded as a dictionary
 - (MSBuffer *)MSTEncodedBuffer ; //returns a buffer containing the object encoded with MSTE protocol
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder ; // defaults returns MSTE_TOKEN_MUST_ENCODE

@@ -94,6 +94,7 @@ static Class __MSNaturalArrayArangementEnumeratorClass = Nil ;
         return nil ;
     }
     _count = _size = 1 ;
+    *_naturals = n ;
     return self ;
 }
 
