@@ -59,6 +59,7 @@ MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger le
 - (BOOL)containsString:(NSString *)anotherString;
 - (const char *)asciiCString;
 // In MSString (MSNetAddedum) ?
+- (BOOL)hasExtension:(NSString*)ext;
 - (NSString *)stringWithURLEncoding:(NSStringEncoding)conversionEncoding;
 - (NSString *)stringWithURLEncoding;
 - (NSString *)stringByAppendingURLComponent:(NSString *)urlComponent ;

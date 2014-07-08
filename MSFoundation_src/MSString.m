@@ -227,6 +227,11 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
 
 - (const char *)asciiCString { return _MSUnicodeToASCIICString(self) ; }
 
+- (BOOL)hasExtension:(NSString *)ext
+{
+    return (ext ? MSEqualStrings([self pathExtension], ext) : ([[self pathExtension] length] ? NO : YES)) ;
+}
+
 - (NSString *)stringWithURLEncoding:(NSStringEncoding)conversionEncoding
 {
     if ([self length]) {
