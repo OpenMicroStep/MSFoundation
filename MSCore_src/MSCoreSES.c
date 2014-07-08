@@ -282,9 +282,13 @@ SES SESExtractPart(SES src, CUnicharChecker matchingChar)
 {
   SES ret= MSInvalidSES;
   if (SESOK(src) && matchingChar) {
-    NSUInteger start= SESStart(src), end= SESEnd(src);
-    while (start < end) if (matchingChar(SESIndexN(src, &start))) break;
-    while (start < end) if (matchingChar(SESIndexP(src, &end  ))) break;
+    NSUInteger x, start= SESStart(src), end= SESEnd(src);
+    while (start < end) {
+      x= start;
+      if (matchingChar(SESIndexN(src, &start))) {start= x; break;}}
+    while (start < end) {
+      x= end;
+      if (matchingChar(SESIndexP(src, &end  ))) {end= x; break;}}
     if (start < end) {
       ret=        src;
       ret.start=  start;
