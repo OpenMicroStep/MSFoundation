@@ -365,7 +365,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     if (token) {
         [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_INSIGNED_INT32] ;
+        [self _encodeTokenType:MSTE_TOKEN_TYPE_UNSIGNED_INT32] ;
     }
     
     [self _encodeTokenSeparator] ;
@@ -892,7 +892,7 @@ static NSNumber *__aBool = nil ;
       case 'I':
       case 'L':
       {
-        return MSTE_TOKEN_TYPE_INSIGNED_INT32 ;
+        return MSTE_TOKEN_TYPE_UNSIGNED_INT32 ;
         break ;
       }
       case 'q':
@@ -990,23 +990,19 @@ static NSNumber *__aBool = nil ;
 @end
 
 @implementation NSDate (MSTEncoding)
-- (MSByte)tokenType { return MSTE_TOKEN_TYPE_DATE ; }
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_TIMESTAMP ; }
 @end
 
 @implementation NSDate (MSTEncodingPrivate)
 - (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
 {
   if (![[NSDate distantPast] isEqual:self] && ![[NSDate distantFuture] isEqual:self]) {
-    [encoder encodeLongLong:[self timeIntervalSince1970] withTokenType:NO] ;
+    [encoder encodeDouble:[self timeIntervalSince1970] withTokenType:NO] ;
   }
   else {
     [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for NSDate class!"] ;
   }
 }
-@end
-
-@implementation NSCalendarDate (MSTEncoding)
-- (MSByte)tokenType { return MSTE_TOKEN_TYPE_TIMESTAMP ; }
 @end
 
 @implementation NSCalendarDate (MSTEncodingPrivate)
@@ -1017,6 +1013,22 @@ static NSNumber *__aBool = nil ;
   }
   else {
     [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for NSCalendarDate class!"] ;
+  }
+}
+@end
+
+@implementation MSDate (MSTEncoding)
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_DATE ; }
+@end
+
+@implementation MSDate (MSTEncodingPrivate)
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
+{
+  if (![[MSDate distantPast] isEqual:self] && ![[MSDate distantFuture] isEqual:self]) {
+    [encoder encodeLongLong:(MSLong)[self timeIntervalSince1970] withTokenType:NO] ;
+  }
+  else {
+    [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for MSDate class!"] ;
   }
 }
 @end

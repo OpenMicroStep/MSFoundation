@@ -532,7 +532,7 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
             ret = [[NSNumber allocWithZone:zone] initWithInt:_MSTDecodeInt(&s, endPointer, @"_MSTDecodeNumber")] ;
             break ;
         }
-        case MSTE_TOKEN_TYPE_INSIGNED_INT32 : {
+        case MSTE_TOKEN_TYPE_UNSIGNED_INT32 : {
             ret = [[NSNumber allocWithZone:zone] initWithUnsignedInt:_MSTDecodeUnsignedInt(&s, endPointer, @"_MSTDecodeNumber")] ;
             break ;
         }
@@ -790,7 +790,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
         case MSTE_TOKEN_TYPE_SHORT :
         case MSTE_TOKEN_TYPE_UNSIGNED_SHORT :
         case MSTE_TOKEN_TYPE_INT32 :
-        case MSTE_TOKEN_TYPE_INSIGNED_INT32 :
+        case MSTE_TOKEN_TYPE_UNSIGNED_INT32 :
         case MSTE_TOKEN_TYPE_INT64 :
         case MSTE_TOKEN_TYPE_UNSIGNED_INT64 :
         case MSTE_TOKEN_TYPE_FLOAT :

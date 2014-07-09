@@ -60,7 +60,7 @@
 #define MSTE_TOKEN_TYPE_SHORT               12
 #define MSTE_TOKEN_TYPE_UNSIGNED_SHORT      13
 #define MSTE_TOKEN_TYPE_INT32               14
-#define MSTE_TOKEN_TYPE_INSIGNED_INT32      15
+#define MSTE_TOKEN_TYPE_UNSIGNED_INT32      15
 #define MSTE_TOKEN_TYPE_INT64               16
 #define MSTE_TOKEN_TYPE_UNSIGNED_INT64      17
 #define MSTE_TOKEN_TYPE_FLOAT               18
