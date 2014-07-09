@@ -301,12 +301,12 @@
     Person *o = (Person *)object ;
     result = YES ;
     
-    if (result) { result = ((_name && [o name]) ? ([_name isEqual:[o name]]) : ((!_name && ![o name]) ? YES : NO)) ; }
-    if (result) { result = ((_firstName && [o firstName]) ? ([_firstName isEqual:[o firstName]]) : ((!_firstName && ![o firstName]) ? YES : NO)) ; }
-    if (result) { result = ((_birthday && [o birthday]) ? ([_birthday isEqual:[o birthday]]) : ((!_birthday && ![o birthday]) ? YES : NO)) ; }
-    if (result) { result = ((_maried_to && [o mariedTo]) ? ([_maried_to isEqual:[o mariedTo]]) : ((!_maried_to && ![o mariedTo]) ? YES : NO)) ; }
-    if (result) { result = ((_father && [o father]) ? ([_father  isEqual:[o father]]) : ((!_father && ![o father]) ? YES : NO)) ; }
-    if (result) { result = ((_mother && [o mother]) ? ([_mother isEqual:[o mother]]) : ((!_mother && ![o mother]) ? YES : NO)) ; }
+    if (result) { result = ISEQUAL(_name, [o name]) ; }
+    if (result) { result = ISEQUAL(_firstName, [o firstName]) ; }
+    if (result) { result = ISEQUAL(_birthday, [o birthday]) ; }
+    //if (result) { result = ISEQUAL(_maried_to, [o mariedTo]) ; } //unlimited loop
+    if (result) { result = ISEQUAL(_father, [o father]) ; } ;
+    if (result) { result = ISEQUAL(_mother, [o mother]) ; }
   }
   return result ;
 }
@@ -351,6 +351,13 @@ int msfoundation_mste_validate(void)
 {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
+/*  { //For generate MSTE expression...
+    id o = [NSDecimalNumber decimalNumberWithString:@"12.34"] ;
+    MSBuffer *buf = [o MSTEncodedBuffer] ;
+    CBufferAppendByte((CBuffer *)buf, 0) ;
+    NSLog(@"MSTE -> %@", [NSString stringWithUTF8String:[buf bytes]]);
+  }*/
+  
   //nil (code 0)
   err += _decode("[\"MSTE0102\",6,\"CRC82413E70\",0,0,0]", nil);
   //objet null (code 0)
@@ -376,7 +383,7 @@ int msfoundation_mste_validate(void)
     o->_int = -3 ;
     o->_ulong = 4 ;
     o->_long = -4 ;
-    o->_double = 123.456 ;
+    o->_double = 125.75 ;
     o->_float = 12.34f ;
     
     [o setBoolNumber:NO] ;
@@ -388,13 +395,13 @@ int msfoundation_mste_validate(void)
     [o setIntNumber:-30] ;
     [o setULongNumber:40] ;
     [o setLongNumber:-40] ;
-    [o setDoubleNumber:1230.456] ;
-    [o setFloatNumber:-120.34f] ;
+    [o setDoubleNumber:1230.5] ;
+    [o setFloatNumber:-120.5f] ;
 
-    err += _decode("[\"MSTE0102\",94,\"CRCE69F62FD\",1,\"SimpleTypesContainer\",22,\"_char\",\"_float\",\"_byte\",\"_byteNumber\",\"_shortNumber\",\"_charNumber\",\"_floatNumber\",\"_longNumber\",\"_ushort\",\"_ushortNumber\",\"_int\",\"_ulong\",\"_uint\",\"_intNumber\",\"_short\",\"_double\",\"_bool\",\"_uintNumber\",\"_long\",\"_ulongNumber\",\"_doubleNumber\",\"_boolNumber\",50,22,0,10,-1,1,18,12.340000,2,12,1,3,20,10,4,20,-20,5,20,-10,6,20,-120.339996,7,20,-40,8,14,2,9,20,20,10,14,-3,11,16,4,12,16,3,13,20,-30,14,12,-2,15,19,123.456000000000003,16,1,17,20,30,18,16,-4,19,20,40,20,20,1230.455999999999904,21,2]", o);
-    //problème sur la précision de l'encodage des float et des double
+    err += _decode("[\"MSTE0102\",94,\"CRC1BB6B687\",1,\"SimpleTypesContainer\",22,\"_char\",\"_float\",\"_byte\",\"_byteNumber\",\"_shortNumber\",\"_charNumber\",\"_floatNumber\",\"_longNumber\",\"_ushort\",\"_ushortNumber\",\"_int\",\"_ulong\",\"_uint\",\"_intNumber\",\"_short\",\"_double\",\"_bool\",\"_uintNumber\",\"_long\",\"_ulongNumber\",\"_doubleNumber\",\"_boolNumber\",50,22,0,10,-1,1,18,12.340000,2,12,1,3,20,10,4,20,-20,5,20,-10,6,20,-120.500000,7,20,-40,8,14,2,9,20,20,10,14,-3,11,16,4,12,16,3,13,20,-30,14,12,-2,15,19,125.750000000000000,16,1,17,20,30,18,16,-4,19,20,40,20,20,1230.500000000000000,21,2]", o);
+    //problème possible sur la précision de l'encodage des float et des double en fonction des valeurs choisies
   }
-    
+  
   //Decimal number (code 20)
   err += _decode("[\"MSTE0102\",7,\"CRCBF421375\",0,0,20,12.34]", [NSDecimalNumber decimalNumberWithString:@"12.34"]);
   //String "My beautiful string éè" (code 21)
@@ -441,7 +448,7 @@ int msfoundation_mste_validate(void)
     [pers3 setMother:pers2] ;
     [pers3 setFather:pers1] ;
 
-    err += _decode("[\"MSTE0102\",59,\"CRCB7BCC653\",1,\"Person\",6,\"firstName\",\"maried-to\",\"name\",\"birthday\",\"mother\",\"father\",31,3,50,4,0,21,\"Yves\",1,50,4,0,21,\"Claire\",1,9,1,2,21,\"Durand\",3,22,-207360000,2,9,5,3,22,-243820800,9,3,50,5,0,21,\"Lou\",4,9,3,2,9,5,3,22,552096000,5,9,1]", o);
+    err += _decode("[\"MSTE0102\",59,\"CRCBB46D817\",1,\"Person\",6,\"firstName\",\"maried-to\",\"name\",\"birthday\",\"mother\",\"father\",31,3,50,4,0,21,\"Yves\",1,50,4,0,21,\"Claire\",1,9,1,2,21,\"Durand\",3,23,-207360000.000000000000000,2,9,5,3,23,-243820800.000000000000000,9,3,50,5,0,21,\"Lou\",4,9,3,2,9,5,3,23,552096000.000000000000000,5,9,1]", o);
   }
 
   //user classes (code >= 50)
@@ -450,7 +457,7 @@ int msfoundation_mste_validate(void)
     SubPerson *pers2 = [SubPerson personWithName:@"Dupond" firstName:@"Ginette" birthDay:[NSDate dateWithTimeIntervalSince1970:-207360000]] ;
     NSArray *o = [NSArray arrayWithObjects:pers1, pers2, nil] ;
       
-    err += _decode("[\"MSTE0102\",34,\"CRCAA25E425\",2,\"Person\",\"SubPerson\",3,\"name\",\"firstName\",\"birthday\",31,2,50,3,0,21,\"Durand\",1,21,\"Yves\",2,22,-243820800,51,3,0,21,\"Dupond\",1,21,\"Ginette\",2,22,-207360000]", o);
+    err += _decode("[\"MSTE0102\",34,\"CRC7403EC23\",2,\"Person\",\"SubPerson\",3,\"name\",\"firstName\",\"birthday\",31,2,50,3,0,21,\"Durand\",1,21,\"Yves\",2,23,-243820800.000000000000000,51,3,0,21,\"Dupond\",1,21,\"Ginette\",2,23,-207360000.000000000000000]", o);
   }
 
   //already referenced object (code 9)

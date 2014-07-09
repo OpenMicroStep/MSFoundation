@@ -723,7 +723,7 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
 {
     unsigned char *s = (unsigned char *)*pointer ;
     id ret = nil ;
-    MSInt classIndex = (tokenType - MSTE_TOKEN_TYPE_USER_CLASS)/2 ;
+    MSInt classIndex = tokenType - MSTE_TOKEN_TYPE_USER_CLASS ;
     
     if (classIndex >=0 && classIndex < (MSInt)[classes count]) {
         NSString *className = [classes objectAtIndex:classIndex] ;
