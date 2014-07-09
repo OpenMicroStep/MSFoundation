@@ -402,11 +402,17 @@ int msfoundation_mste_validate(void)
   //String "Json \\a/b\"cÆ" (code 21)
   err += _decode("[\"MSTE0102\",7,\"CRC4A08AB7A\",0,0,21,\"Json \\\\a\\/b\\\"c\\u00C6\"]", @"Json \\a/b\"cÆ");
   //date 2001/01/01 (NSDate) (code 22)
-  err += _decode("[\"MSTE0102\",7,\"CRC093D5173\",0,0,22,978307200]", [NSDate dateWithTimeIntervalSince1970:978307200]); //Rajouter le isEqual: entre NSDate et MSDate
+  err += _decode("[\"MSTE0102\",7,\"CRC093D5173\",0,0,22,978307200]", [NSDate dateWithTimeIntervalSince1970:GMTFromLocal(978307200)]); //Rajouter le isEqual: entre NSDate et MSDate
   //date 2001/01/01 (MSDate) (code 22)
   err += _decode("[\"MSTE0102\",7,\"CRC093D5173\",0,0,22,978307200]", [MSDate dateWithYear:2001 month:1 day:1]); //[NSDate initWithTimeIntervalSinceReferenceDate:]: method only defined for abstract class.
   //date 2001/01/01 (NSCalendarDate) (code 23)
-  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978300000.000000000000000]", [NSCalendarDate dateWithString:@"2001-01-01 00:00:00 +0200"]);
+  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978307200.000000000000000]", [NSDate dateWithTimeIntervalSinceReferenceDate:0]);
+  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978307200.000000000000000]", [NSDate dateWithString:@"2001-01-01 00:00:00 +0000"]);
+  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978307200.000000000000000]", [NSDate dateWithString:@"2001-01-01 01:00:00 +0100"]);
+  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978307200.000000000000000]", [NSDate dateWithString:@"2001-01-01 02:00:00 +0200"]);
+  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978303600.000000000000000]", [NSDate dateWithString:@"2001-01-01 00:00:00 +0100"]);
+  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978303600.000000000000000]", [NSDate dateWithString:@"2001-01-01 01:00:00 +0200"]);
+  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978303600.000000000000000]", [NSCalendarDate dateWithString:@"2001-01-01 00:00:00 +0100"]);
   //date Color (code 24)
   err += _decode("[\"MSTE0102\",7,\"CRCAB284946\",0,0,24,4034942921]", [MSColor colorWithRed:128 green:87 blue:201 opacity:15]);
   //data via NSData (code 25)

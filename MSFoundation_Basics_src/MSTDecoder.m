@@ -818,7 +818,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
             MSLong seconds ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
             seconds = _MSTDecodeLong(&s, endPointer, @"_MSTDecodeObject") ;
-            ret = [[[MSDate allocWithZone:zone] initWithTimeIntervalSince1970:seconds] autorelease] ;
+            ret = [[[MSDate allocWithZone:zone] initWithSecondsSinceLocalReferenceDate:seconds-CDateSecondsFrom19700101To20010101] autorelease] ;
             [decodedObjects addObject:ret] ;
             break ;
         }
