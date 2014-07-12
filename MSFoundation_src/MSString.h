@@ -48,8 +48,9 @@ MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger le
 @interface NSString (MSAddendum)
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file;
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)allowLossyConversion;
-- (SES)stringEnumeratorStructure; // Not implemented. Use MSString.
+- (SES)stringEnumeratorStructure;
 - (NSMutableString *)replaceOccurrencesOfString:(NSString *)tag withString:(NSString *)replace;
+- (BOOL)isTrue;
 - (NSString *)mid:(NSUInteger)position;
 - (NSString *)mid:(NSUInteger)position :(NSUInteger)length;
 - (NSString *)left:(NSUInteger)length ;

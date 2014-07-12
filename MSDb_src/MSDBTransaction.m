@@ -10,12 +10,12 @@
 
 @implementation MSDBTransaction
 
+- (BOOL)appendSQLCommand:(NSString *)sql { return [self appendSQLCommand:sql error:NULL] ; }
+- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr { return [self notImplemented:_cmd] ? YES : NO ; sql= nil; errorPtr= nil;}
+
 - (void)cancel { return [self terminateOperation] ; }
 - (BOOL)save { return [self saveWithError:NULL] ; }
 - (BOOL)saveWithError:(MSInt *)error { return [self notImplemented:_cmd] ? YES : NO ; error= nil;}
-- (BOOL)isOpened { return _connection ? YES : NO ; }
-- (BOOL)appendSQLCommand:(NSString *)sql { return [self appendSQLCommand:sql error:NULL] ; }
-- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr { return [self notImplemented:_cmd] ? YES : NO ; sql= nil; errorPtr= nil;}
 
 - (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes { return [_connection escapeString:aString withQuotes:withQuotes] ; }
 - (NSString *)escapeString:(NSString *)aString { return [_connection escapeString:aString] ; }

@@ -54,8 +54,9 @@
 {
 @private
   CDictionaryEnumerator *_dictionaryEnumerator;
+  BOOL _forKeys;
 }
-- (id)initWithDictionary:(MSDictionary*)d;
+- (id)initWithDictionary:(MSDictionary*)d forKeys:(BOOL)forKeys;
 - (id)nextObject;
 - (id)nextKey;
 - (id)currentObject;

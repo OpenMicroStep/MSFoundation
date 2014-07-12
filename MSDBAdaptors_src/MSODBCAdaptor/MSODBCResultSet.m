@@ -434,7 +434,7 @@ void fillTypes(SQLSMALLINT sqlType, _MSODBCType* type)
 
 - (void)terminateOperation
 {
-    if (_connection) {
+    if ([self isActive]) {
         if (_hstmt) {SQLFreeHandle(SQL_HANDLE_STMT, _hstmt);}
         _hstmt = NULL ;
         _state = ODBC_NO_MORE_RESULTS ;
@@ -634,7 +634,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, MSGetDouble)
 }
 
 
-- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column error:(MSInt *)errorPtr
+- (BOOL)getStringAt:(MSString*)aString column:(NSUInteger)column error:(MSInt*)errorPtr
 {
     _MSODBCType type ;
 
@@ -660,7 +660,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, MSGetDouble)
                 }
 
                 if ([self _charBuffer:(CBuffer *)msBuff AtIndex:column]) {
-                    [(_MSDBGenericConnection *)_connection addSQLBuffer:msBuff toUnicodeBuffer:aString] ;
+                    [(_MSDBGenericConnection *)_connection addSQLBuffer:msBuff toString:aString] ;
                     error = MSFetchOK;
                     good = YES;
                     RELEASE(msBuff);
@@ -818,7 +818,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, MSGetDouble)
     return nil ;
 }
 
-- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr
+- (BOOL)getBufferAt:(MSBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr
 {
     _MSODBCType type ;
 

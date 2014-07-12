@@ -45,7 +45,7 @@ static inline int tst_uid(void)
 static inline int tst_obi_nu(id dbParams)
 {
   int err= 0;
-  id db,o,ctx,ids,strId,theDb;
+  id db,ctx,strId,x; MSObi *o,*theDb; MSUid *ids;
   if (!(db= [[MSOdb alloc] initWithParameters:dbParams])) {
     NSLog(@"B1: no db %@",[dbParams objectForLazyKey:@"database"]); err++;}
   ctx= [MSDictionary dictionaryWithObjectsAndKeys:db,@"Odb",
@@ -61,9 +61,9 @@ static inline int tst_obi_nu(id dbParams)
   strId= [[db systemObiWithName:@"STR"] oid];
   if (![ids containsVid:strId]) {
     NSLog(@"B3: no STR Typ %@",[ids descriptionInContext:ctx]); err++;}
-  theDb= [db fillIds:MSObiDatabaseId withCars:nil];
-NSLog(@"X1: %ld",[theDb count]);
-  theDb= [(MSDictionary*)theDb objectForKey:MSObiDatabaseId];
+  x= [db fillIds:MSObiDatabaseId withCars:nil];
+NSLog(@"X1: %ld",[x count]);
+  theDb= [(MSDictionary*)x objectForKey:MSObiDatabaseId];
 //theDb= [[db fillIds:MSObiDatabaseId withCars:nil] objectForKey:MSObiDatabaseId];
   if (!theDb) {
     NSLog(@"B4: no DB Obi %@",MSObiDatabaseId); err++;}
@@ -123,7 +123,7 @@ int msobi_validate(void)
     [NSNumber numberWithInt:8889], @"port",
     @"root", @"user",@"root", @"pwd",
     @"/Applications/MAMP/tmp/mysql/mysql.sock", @"socket",
-    @"mysql", @"adaptator",
+    @"mysql", @"adaptor",
     @"Obi-nu", @"database",
     //@"Spaf-Prod-11", @"database",
     CLOSE;

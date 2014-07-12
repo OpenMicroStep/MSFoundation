@@ -79,7 +79,7 @@
 
 - (void)terminateOperation
 {
-	if (_connection) {
+	if ([self isActive]) {
 		sqlite3_finalize(_statement);
 		_statement = NULL ;
 		_state = SQLITE_NO_MORE_RESULTS ;
@@ -224,7 +224,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 				
 }
 
-- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column error:(MSInt *)errorPtr
+- (BOOL)getStringAt:(MSString*)aString column:(NSUInteger)column error:(MSInt*)errorPtr
 {
 	MSInt error = MSNoColumn ;
 	BOOL good = NO ; 
@@ -243,7 +243,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 					if (l) {
 						// we assume we have a UTF8 string
 						if (aString) { 
-							good = CUnicodeBufferAppendUTF8Bytes(aString, (void *)s, (NSUInteger)l) ;
+							good = CStringAppendBytes((CString*)aString, NSUTF8StringEncoding, (void*)s, (NSUInteger)l) ;
 							if (!good) { error = MSFetchMallocError ; }
 						}
 					}
@@ -266,7 +266,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 	return good ;
 }
 
-- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr 
+- (BOOL)getBufferAt:(MSBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr
 {
 	MSInt error = MSNoColumn ;
 	BOOL good = NO ; 
@@ -284,7 +284,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 					int l = sqlite3_column_bytes(_statement, column) ;
 					if (l) {
 						if (aBuffer) { 
-							good = CBufferAppendBytes(aBuffer, bytes, (NSUInteger)l) ;
+							good = CBufferAppendBytes((CBuffer*)aBuffer, bytes, (NSUInteger)l) ;
 							if (!good) { error = MSFetchMallocError ; }
 						}
 					}

@@ -77,9 +77,10 @@
 @end
 
 @implementation MSDictionaryEnumerator
-- (id)initWithDictionary:(MSDictionary*)d
+- (id)initWithDictionary:(MSDictionary*)d forKeys:(BOOL)forKeys
 {
   _dictionaryEnumerator= CDictionaryEnumeratorAlloc((CDictionary*)d);
+  _forKeys= forKeys;
   return self;
 }
 - (void)dealloc
@@ -87,7 +88,9 @@
   CDictionaryEnumeratorFree(_dictionaryEnumerator);
   [super dealloc];
 }
-- (id)nextObject    {return CDictionaryEnumeratorNextObject   (_dictionaryEnumerator);}
+- (id)nextObject    {return _forKeys?
+                            CDictionaryEnumeratorNextKey      (_dictionaryEnumerator):
+                            CDictionaryEnumeratorNextObject   (_dictionaryEnumerator);}
 - (id)nextKey       {return CDictionaryEnumeratorNextKey      (_dictionaryEnumerator);}
 - (id)currentObject {return CDictionaryEnumeratorCurrentObject(_dictionaryEnumerator);}
 - (id)currentKey    {return CDictionaryEnumeratorCurrentKey   (_dictionaryEnumerator);}
@@ -236,7 +239,15 @@
 
 - (MSDictionaryEnumerator*)dictionaryEnumerator
 {
-  return [[[MSDictionaryEnumerator alloc] initWithDictionary:self] autorelease];
+  return [[[MSDictionaryEnumerator alloc] initWithDictionary:self forKeys:NO] autorelease];
+}
+- (MSDictionaryEnumerator*)objectEnumerator
+{
+  return [[[MSDictionaryEnumerator alloc] initWithDictionary:self forKeys:NO] autorelease];
+}
+- (MSDictionaryEnumerator*)keyEnumerator
+{
+  return [[[MSDictionaryEnumerator alloc] initWithDictionary:self forKeys:YES] autorelease];
 }
 
 - (MSArray*)allKeys

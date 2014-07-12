@@ -62,8 +62,7 @@
 
     if (![host length] || ![db length] || ![user length] ||
         ![pwd length]) {
-      RELEASE(self);
-      self= nil;}
+      RELEAZEN(self);}
     else {
       if (![timeout length]) timeout= [NSString stringWithFormat:@"%u",
         MYSQL_CONNECTION_DEFAULT_TIMEOUT];
@@ -99,16 +98,15 @@
       const char *errorMsg= mysql_error(&_db);
       NSLog(@"MySQL database could not be opened for reason : %@",
         [NSString stringWithCString:errorMsg encoding:NSUTF8StringEncoding]);
-      mysql_close(&_db);
-      _lastError= MySQLFailAtConnect;}
+      mysql_close(&_db);}
     else {
       //force use of UTF8 character set
       mysql_query(&_db, "SET NAMES utf8");
       mysql_query(&_db, "SET CHARACTER SET utf8");
-      if (!mysql_autocommit(&_db, '0')) { //auto-commit not allowed! TODO ???
-        NSLog(@"Unable to remove auto-commit mode!");
-        //mysql_close(&_db);
-        //_lastError= MySQLFailAtConfigure;
+      // Si l'autocommit ne peut pas être off, c'est pas grave, openTransaction
+      // quoiqu'il arrive s'en charge.
+      if (mysql_autocommit(&_db, 0)!=MSSQL_OK) {
+        NSLog(@"Warning: Unable to remove auto-commit mode!");
         }
       _cFlags.connected= YES;
       [[NSNotificationCenter defaultCenter] postNotificationName:
@@ -119,7 +117,9 @@
 - (BOOL)disconnect
 {
 	if ([self isConnected]) {
-		RETAIN(self) ; // since the terminateAllOperations can release us, we must keep that object alive until we decide to release it
+		// since the terminateAllOperations can release us, we must keep that object
+    // alive until we decide to release it
+    RETAIN(self) ;
 		[self terminateAllOperations] ;
 		
 		mysql_close(&_db);
@@ -130,71 +130,60 @@
 	return YES ;
 }
 
+- (MSArray *)tableNames
+{
+	MSMutableArray *array= [MSMutableArray array];
+	MYSQL_RES *result;
+	NEW_POOL;
+	
+	result= mysql_list_tables(&_db, NULL);
+	if (result) {
+		MSUInt num_fields; MYSQL_ROW row; NSUInteger *lengths; MSUInt i; NSString *tableName;
+    num_fields= mysql_num_fields(result);
+		while ((row= mysql_fetch_row(result))) {
+			lengths= mysql_fetch_lengths(result);
+			for (i= 0; i < num_fields; i++) {
+				tableName= [NSString stringWithFormat:@"%.*s ", (MSInt)lengths[i], row[i] ? row[i] : "NULL"];
+				tableName= [tableName stringByTrimmingCharactersInSet:
+          [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+				if ([tableName length]) [array addObject:tableName];}}
+		mysql_free_result(result);}
+	
+	KILL_POOL;
+	return (MSArray*)array;
+}
+
 - (MSDBResultSet *)fetchWithRequest:(NSString *)sql
 {
+  MSMySQLResultSet *resultSet= nil;
 	if ([sql length] && [self connect]) {
-		const char *query = [sql UTF8String];
-		MYSQL_RES *result ;
-		
-		mysql_query(&_db, query);
-		result = mysql_store_result(&_db) ;
-		MSMySQLResultSet *resultSet = [ALLOC(MSMySQLResultSet) initWithMySQLRes:result connection:self] ;
+		MYSQL_RES *result;
+		mysql_query(&_db, [sql UTF8String]);
+		result= mysql_store_result(&_db) ;
+		resultSet = [[MSMySQLResultSet alloc] initWithMySQLRes:result connection:self] ;
 		if (resultSet) {
 			// === WARNING === the connection does not retain its operations...
 			[_operations addObject:resultSet] ;
-			return AUTORELEASE(resultSet) ;
-		}
-	}
-	return nil ;
+			[resultSet autorelease];}}
+	return resultSet;
 }
-
-- (int)executeRawSQL:(char *)command { return mysql_query(&_db, command) ; }
-
 
 - (MSDBTransaction *)openTransaction
 {
-	if (!_cFlags.readOnly && [self connect] && [self openedTransactionsCount] == 0) {
-		// only one transaction at a time
-		// nothing special to do because transaction is activated
-		MSMySQLTransaction *transaction = [ALLOC(MSMySQLTransaction) initWithDatabaseConnection:self] ;
-		if (transaction) {
-			[_operations addObject:transaction] ;
-			return transaction;
-		}
-	}
-	return nil ;
+  // REM: START TRANSACTION remove the auto-commit mode if enabled until the next
+  //      commit or rollback.
+  // TODO: test START TRANSACTION
+  MSMySQLTransaction *transaction= nil;
+	if (!_cFlags.readOnly && [self connect] &&
+      [self openedTransactionsCount] == 0 && // only one transaction at a time
+      [self executeRawSQL:@"START TRANSACTION;"]==MSSQL_OK &&
+      (transaction= [ALLOC(MSMySQLTransaction) initWithDatabaseConnection:self])) {
+    [_operations addObject:transaction];
+    AUTORELEASE(transaction);}
+	return transaction;
 }
 
-- (MSArray *)tableNames
-{
-	MSArray *array = MSCreateArray(8) ;
-	MYSQL_RES *result;
-	NEW_POOL ;
-	
-	result = mysql_list_tables(&_db, NULL);
-	if (result)
-	{
-		MSUInt num_fields = mysql_num_fields(result);
-		MYSQL_ROW row;
-		
-		while ((row = mysql_fetch_row(result)))
-		{
-			NSUInteger *lengths = mysql_fetch_lengths(result);
-			for (MSUInt i=0; i < num_fields; i++)
-			{
-				NSString *tableName = [NSString stringWithFormat:@"%.*s ", (MSInt) lengths[i], row[i] ? row[i] : "NULL"];
-				tableName = [tableName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-				if ([tableName length]) { MSAAdd(array,tableName) ; }
-			}
-		}
-		
-		mysql_free_result(result);
-	}
-	
-	KILL_POOL ;
-	
-	return AUTORELEASE(array) ;
-}
+- (MSInt)executeRawSQL:(NSString *)command { return mysql_query(&_db, [command UTF8String]) ; }
 
 - (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes
 {
@@ -217,6 +206,9 @@
 		stringToEscape = aString ; 
 		strToEscape = [stringToEscape UTF8String] ; 
 		l = strlen(strToEscape) ;
+// TODO: a revoir car 2*l peut ne pas suffir.
+// De plus, ce n'est pas la peine de créer 2 fois des strings pour juste
+// rajouter les "". Il suffit de mysql_real_escape_string(... escapeStr+1 ...)
 		escapeStr = MSMalloc((2*l+1)*sizeof(char), "- [MSMySQLConection escapeString:withQuotes:]"); 
 		
 		escapeLen = mysql_real_escape_string(&_db, escapeStr, strToEscape, l);
@@ -230,7 +222,10 @@
 	return nil ;
 }
 
-- (NSUInteger)lastError {return _lastError;}
+- (MSInt)lastError
+{
+	return ([self connect] ? (MSInt)mysql_errno(&_db) : -1) ;
+}
 @end
 
 /************************** TO DO IN THIS FILE  ****************
@@ -238,4 +233,3 @@
  (1)	check to implemente read only access to database if possible
  
  *************************************************************/
-

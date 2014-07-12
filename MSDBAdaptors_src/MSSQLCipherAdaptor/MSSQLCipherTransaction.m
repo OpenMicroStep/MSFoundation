@@ -58,16 +58,17 @@
 - (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr
 {
 	BOOL ret = NO ;
-	int error = MSSQLCipherExec(_connection, (char *)[sql UTF8String]) ;
-	ret = (error == SQLITE_OK ? YES : NO) ;
-	if (errorPtr) { *errorPtr = (MSInt)error ; }
+  if ([self isActive]) {
+  	int error = [_connection executeRawSQL:sql] ;
+	  ret = (error == SQLITE_OK ? YES : NO) ;
+	  if (errorPtr) { *errorPtr = (MSInt)error ; }}
 	return ret ;
 }
 
 - (void)terminateOperation
 {
-	if ([self isOpened]) {
-		int error = MSSQLCipherExec(_connection, "ROLLBACK;") ;
+	if ([self isActive]) {
+		int error = [_connection executeRawSQL:@"ROLLBACK;"] ;
 		int try = 0 ;
 		
 		/*
@@ -77,7 +78,7 @@
 		 */
 		while (error == SQLITE_BUSY && try < 3) {
                     [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-			error = MSSQLCipherExec(_connection, "ROLLBACK;") ;
+			error = [_connection executeRawSQL:@"ROLLBACK;"] ;
 		}
 		
 		if (error != SQLITE_OK) {
@@ -91,8 +92,8 @@
 
 - (BOOL)saveWithError:(MSInt *)errorPtr
 {
-	if ([self isOpened]) {
-		int error = MSSQLCipherExec(_connection, "COMMIT;") ;
+	if ([self isActive]) {
+		int error = [_connection executeRawSQL:@"COMMIT;"] ;
 		if (error != SQLITE_OK) {
 			[self terminateOperation] ;
 			if (errorPtr) { *errorPtr = error ; }

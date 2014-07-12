@@ -62,9 +62,4 @@ typedef enum {
 	sqlite3 *_db ;
 	SQLiteError _lastError ;
 }
-
-- (int)executeRawSQL:(char *)command ;
-
 @end
-
-#define MSSQLCipherExec(X,Y)	[(MSSQLCipherConnection *)(X) executeRawSQL:(Y)]

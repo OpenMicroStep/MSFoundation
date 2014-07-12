@@ -402,7 +402,7 @@ _GET_NUMBER_VALUE_METHOD(Long, MSLong)
 _GET_NUMBER_VALUE_METHOD(Double, double)
 _GET_NUMBER_VALUE_METHOD(Float, float)
 
-- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column error:(MSInt *)errorPtr ; 
+- (BOOL)getStringAt:(MSString*)aString column:(NSUInteger)column error:(MSInt*)errorPtr
 {
     MSInt error = MSNoColumn ; 
     BOOL good = NO ; 
@@ -421,7 +421,7 @@ _GET_NUMBER_VALUE_METHOD(Float, float)
                     case OCI_TEXT:
                     {
                         error = MSFetchOK ;
-                        good = CUnicodeBufferAppendUTF8Bytes(aString, (void *)def->fetchBuffer->buf, def->fetchBuffer->length) ;	
+                        good = CStringAppendBytes((CString*)aString, NSUTF8StringEncoding, (void*)def->fetchBuffer->buf, def->fetchBuffer->length) ;
                         break; 
                     } 
                     default: 
@@ -434,7 +434,7 @@ _GET_NUMBER_VALUE_METHOD(Float, float)
         return good;
     }
  
-- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr
+- (BOOL)getBufferAt:(MSBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr
 {
     MSInt error = MSNoColumn ;
     BOOL good = NO ;
@@ -712,8 +712,8 @@ _GET_NUMBER_VALUE_METHOD(Float, float)
 
 - (void)terminateOperation
 {
-    OCIResultset *rs ;
-    if (_connection) {
+    if ([self isActive]) {
+        OCIResultset *rs ;
         if (_hstmt) { OCIHandleFree(_hstmt, OCI_HTYPE_STMT);}
         _hstmt = NULL ;
         _state = OCI_NO_MORE_RESULTS ;

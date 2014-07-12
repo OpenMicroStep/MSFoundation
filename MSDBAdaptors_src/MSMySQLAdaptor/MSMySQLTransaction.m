@@ -46,23 +46,16 @@
 
 @interface MSMySQLConnection (MSMySQLTransaction)
 
-- (BOOL)commit ;
-- (BOOL)rollback ;
-- (MSInt)getLastError ;
+- (BOOL)commit;   // YES on success
+- (BOOL)rollback; // YES on success
 
 @end
 
 
 @implementation MSMySQLConnection (MSMySQLTransaction)
 
-- (BOOL)commit { return mysql_commit(&_db) ; }
-- (BOOL)rollback { return mysql_rollback(&_db) ; }
-
-- (MSInt)getLastError
-{
-	if ([self connect])	return (MSInt)mysql_errno(&_db) ;
-	else return -1 ;
-}
+- (BOOL)commit   { return mysql_commit(  &_db)==MSSQL_OK ; }
+- (BOOL)rollback { return mysql_rollback(&_db)==MSSQL_OK ; }
 
 @end
 
@@ -71,38 +64,35 @@
 
 - (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr
 {
-	BOOL ret = NO ;
-	int error = MSMySQLExec(_connection, (char *)[sql UTF8String]) ;
-	ret = (error == 0 ? YES : NO) ;
-	if (errorPtr) { *errorPtr = (MSInt)error ; }
-	return ret ;
+	BOOL ret= NO;
+	if ([self isActive]) {
+  	MSInt error= [_connection executeRawSQL:sql];
+	  ret= (error == MSSQL_OK ? YES : NO);
+	  if (errorPtr) *errorPtr= error;}
+	return ret;
 }
 
 - (void)terminateOperation
 {
-	if ([self isOpened]) {
-		if ([(MSMySQLConnection *)_connection rollback]) {
-			MSRaiseFrom(NSGenericException, self, _cmd, @"impossible to rollback current transaction") ;
-		}
-		
+	if ([self isActive]) {
+		if (![(MSMySQLConnection *)_connection rollback]) {
+			MSRaiseFrom(NSGenericException, self, _cmd, @"impossible to rollback current transaction") ;}
 		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
-		[super terminateOperation] ;
-	}
+		[super terminateOperation] ;}
 }
 
 - (BOOL)saveWithError:(MSInt *)errorPtr
 {
-	if ([self isOpened]) {
-		if ([(MSMySQLConnection *)_connection commit]) {
-			[self terminateOperation] ;
-			if (errorPtr) { *errorPtr = [(MSMySQLConnection *)_connection getLastError] ; }
-			return NO ;
-		}
-		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
-		[super terminateOperation] ;
-		return YES ;
-	}
-	return NO ;
+  BOOL ret= NO;
+	if ([self isActive]) {
+		if (![(MSMySQLConnection *)_connection commit]) {
+			[self terminateOperation];
+			if (errorPtr) *errorPtr = [_connection lastError];}
+    else {
+  		[(MSDBGenericConnection *)_connection unregisterOperation:self] ;
+	  	[super terminateOperation] ;
+		  ret= YES;}}
+	return ret;
 }
 
 @end

@@ -70,7 +70,7 @@ static inline int _decode(char *ssrc, id ret)
   int err= 0;
   CDictionary *error; CBuffer *src,*buf; id ke,kd,v,d;
   id o,s;
-printf("B0: %s\n",ssrc);
+//printf("B0: %s\n",ssrc);
   src= CCreateBufferWithBytes(ssrc, strlen(ssrc));
   o= MSTECreateRootObjectFromBuffer(src, nil, &error);
   if (error) {

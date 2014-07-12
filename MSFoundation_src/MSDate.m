@@ -145,11 +145,14 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
   return self;
 }
 
+/* Intentionnellement non implémentée car pour l'utilisateur, il n'est pas clair
+   si le NSTimeInterval doit être exprimé en GMT ou en Local.
 - (id)initWithTimeIntervalSince1970:(NSTimeInterval)secs
 {
   [self initWithSeconds:(MSTimeInterval)secs sinceDate:[MSDate dateWithYear:1970 month:1 day:1]] ;
   return self;
 }
+*/
 
 - (void)dealloc { CDateFreeInside(self); [super dealloc]; }
 

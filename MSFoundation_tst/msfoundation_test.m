@@ -9,6 +9,7 @@ int main(int argc, const char *argv[])
   int err;
   argc= 0;
   argv= NULL;
+  MSSystemInitialize(0, NULL);
   err= testFoundation(YES);
   [pool release];
   return err;

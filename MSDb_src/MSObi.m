@@ -66,7 +66,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   }
 
 @implementation MSOValue : NSObject
-+ (id)valueWithCid:(oid)cid state:(MSByte)state type:(MSByte)type
++ (id)valueWithCid:(MSOid*)cid state:(MSByte)state type:(MSByte)type
   timestamp:(MSTimeInterval)t value:(_btypedValue)v
   {
   return AUTORELEASE([ALLOC(self) initWithCid:cid state:state type:type
@@ -74,7 +74,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   }
 
 // TODO: si v est un txt le copie-t-on ?
-- (id)initWithCid:(oid)cid state:(MSByte)state type:(MSByte)type
+- (id)initWithCid:(MSOid*)cid state:(MSByte)state type:(MSByte)type
   timestamp:(MSTimeInterval)t value:(_btypedValue)v
   {
   _cid=       RETAIN(cid);
@@ -126,15 +126,17 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   {
   return [self _descriptionWithType:NO];
   }
-- (NSString*)descriptionForDb:(MSOdb*)db
+- (NSString*)descriptionInContext:(id)ctx
   {
-  id v= [self _descriptionWithType:NO];
-  if      (!_valueType)    return [db escapeString:@"" withQuotes:YES];
-  else if (_valueType==T8) return [db escapeString:v   withQuotes:YES];
-  else                     return v;
+  id db, v= [self _descriptionWithType:NO];
+  if (!_valueType || _valueType==T8) {
+    if ([ctx isKindOfClass:[MSOdb class]]) db= ctx;
+    else db= [(MSDictionary*)ctx objectForKey:MSContextOdb];
+    v=[db escapeString:(!_valueType?@"":v) withQuotes:YES];}
+  return v;
   }
 
-- (oid)cid
+- (MSOid*)cid
   {
   return _cid;
   }
@@ -154,7 +156,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   {
   return _valueType!=T8 ? nil : _value.t;
   }
-- (oid)oidValue
+- (MSOid*)oidValue
   {
   return _valueType!=B8 ? nil : _value.b;
   }
@@ -216,7 +218,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   {
   return AUTORELEASE([ALLOC(self) iniWithLocalId:db]);
   }
-+ (id)obiWithOid:(oid)oid :(id)db
++ (id)obiWithOid:(MSOid*)oid :(id)db
   {
   return AUTORELEASE([ALLOC(self) initWithOid:oid :db]);
   }
@@ -231,7 +233,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   // Unlock
   return [self initWithOid:oid :db];
   }
-- (id)initWithOid:(oid)oid :(id)db
+- (id)initWithOid:(MSOid*)oid :(id)db
   {
   _db=          db;
   _status=      MSUnchanged;
@@ -342,12 +344,12 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   {
   return _valuesByCid;
   }
-- (MSArray*)allValuesForCid:(oid)cid
+- (MSArray*)allValuesForCid:(MSOid*)cid
   {
   return [_valuesByCid objectForKey:cid];
   }
 // TODO: The current timestamp
-- (MSArray*)valuesForCid:(oid)cid
+- (MSArray*)valuesForCid:(MSOid*)cid
   {
   id vs; NSUInteger n,ni; BOOL end; MSTimeInterval ti,t=0;
   vs= [_valuesByCid objectForKey:cid];
@@ -362,7 +364,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
       }}
   return vs;
   }
-- (MSOValue*)valueForCid:(oid)cid
+- (MSOValue*)valueForCid:(MSOid*)cid
   {
   id vs,vi,v=nil; NSUInteger n; BOOL end; MSTimeInterval ti,t=0;
   vs= [_valuesByCid objectForKey:cid];
@@ -374,7 +376,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
     else end= TRUE;}
   return v;
   }
-- (NSArray*)typedValuesForCid:(oid)cid
+- (NSArray*)typedValuesForCid:(MSOid*)cid
   {
   MSArray* vs; NSUInteger n,i; id v,ret;
   ret= [MSArray array];
@@ -383,14 +385,14 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
       CArrayAddObject((CArray*)ret, v);}}
   return ret;
   }
-- (id)typedValueForCid:(oid)cid
+- (id)typedValueForCid:(MSOid*)cid
   {
   MSOValue *v; id ret= nil;
   if ((v= [self valueForCid:cid])) {
     ret= [v typedValue];}
   return ret;
   }
-- (MSArray*)stringValuesForCid:(oid)cid
+- (MSArray*)stringValuesForCid:(MSOid*)cid
   {
   MSArray* vs; NSUInteger n,i; id v,ret;
   ret= [MSArray array];
@@ -399,14 +401,14 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
       CArrayAddObject((CArray*)ret, v);}}
   return ret;
   }
-- (NSString*)stringValueForCid:(oid)cid
+- (NSString*)stringValueForCid:(MSOid*)cid
   {
   MSOValue *v; NSString *ret= nil;
   if ((v= [self valueForCid:cid])) {
     ret= [v stringValue];}
   return ret;
   }
-- (MSArray*)oidValuesForCid:(oid)cid
+- (MSArray*)oidValuesForCid:(MSOid*)cid
   {
   MSArray* vs; NSUInteger n,i; id v,ret;
   ret= [MSArray array];
@@ -415,14 +417,14 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
       CArrayAddObject((CArray*)ret, v);}}
   return ret;
   }
-- (oid)oidValueForCid:(oid)cid
+- (MSOid*)oidValueForCid:(MSOid*)cid
   {
-  MSOValue *v; oid ret= nil;
+  MSOValue *v; MSOid* ret= nil;
   if ((v= [self valueForCid:cid])) {
     ret= [v oidValue];}
   return ret;
   }
-- (oid)subValueForCid:(oid)cid
+- (MSObi*)subValueForCid:(MSOid*)cid
   {
   MSOValue *v; id ret= nil;
   if ((v= [self valueForCid:cid])) {
@@ -440,7 +442,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 - (BOOL)_setValue:(MSOValue*)v :(MSByte)how
   {
   BOOL ret= NO;
-  oid  cid= [v cid];
+  MSOid* cid= [v cid];
   id vs;
   if (_status!=MSDelete && cid) {
       if (!(vs= [_valuesByCid objectForKey:cid])) {

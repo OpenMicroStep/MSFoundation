@@ -261,60 +261,63 @@ void _CDateInitialize();
 void _MSTEInitialize();
 void MSSystemInitialize(int argc, const char **argv)
 {
-  M_apm_free_fn freeFct;
-  argc= 0; argv= NULL; // Unused parameters
+  static BOOL done= NO;
+  if (!done) {
+    done= YES;
+    M_apm_free_fn freeFct;
+    argc= 0; argv= NULL; // Unused parameters
 #ifdef MSCORE_STANDALONE
-  freeFct= (M_apm_free_fn)_CRelease;
+    freeFct= (M_apm_free_fn)_CRelease;
 #elif MSCORE_FORFOUNDATION
-  freeFct= (M_apm_free_fn)_MRelease;
+    freeFct= (M_apm_free_fn)_MRelease;
 #endif
-  m_apm_set_callbacks(_MS_APM_Allocate, freeFct, _MS_APM_Log_callback, NULL);
-  M_init_mapm_constants();
+    m_apm_set_callbacks(_MS_APM_Allocate, freeFct, _MS_APM_Log_callback, NULL);
+    M_init_mapm_constants();
 #ifndef MSCORE_STANDALONE
-  _MSFoundationCoreSystemInitialize(); // this function is in an ObjC context
+    _MSFoundationCoreSystemInitialize(); // this function is in an ObjC context
 #endif
-  _CDateInitialize();
-  _MSTEInitialize();
-  
+    _CDateInitialize();
+    _MSTEInitialize();
+
 #ifndef COCOTRON
 #ifdef WIN32
-  {
+    {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2,0),&wsaData) == SOCKET_ERROR) {
-      MSReportError(MSGenericError, MSFatalError, MSNetworkLayerInitializationError, "ERROR: impossible to initialize WINSOCK layer.\n");
+      MSReportError(MSGenericError, MSFatalError, MSNetworkLayerInitializationError, "ERROR: impossible to initialize WINSOCK layer.\n");}
     }
-  }
 #endif
 #endif
   
 #ifndef MSCORE_STANDALONE
 #ifdef COCOTRON
-  MSCocotronInitializeProcess(argc, (const char **)argv);
+    MSCocotronInitializeProcess(argc, (const char **)argv);
   
-  /* MSCocotronInitializeProcess should do that :
-  NSInitializeProcess(argc, (const char **)argv);
-  {
-    // since COCOTRON has no class loading mechanism, we must call all classes load methods
-    int n = objc_getClassList(NULL, 0);
-    if (n) {
-      Class *classList = malloc(n * sizeof(Class));
-      if (classList) {
-        SEL loadSelector = @selector(load);
-        n = objc_getClassList(classList, n);
-        for (i = 0; i < n; i++) {
-          Class cls = classList[idx];
-          if (class_respondsToSelector(cls, loadSelector)) {
-            [(id)cls load];
+    /* MSCocotronInitializeProcess should do that :
+    NSInitializeProcess(argc, (const char **)argv);
+    {
+      // since COCOTRON has no class loading mechanism, we must call all classes load methods
+      int n = objc_getClassList(NULL, 0);
+      if (n) {
+        Class *classList = malloc(n * sizeof(Class));
+        if (classList) {
+          SEL loadSelector = @selector(load);
+          n = objc_getClassList(classList, n);
+          for (i = 0; i < n; i++) {
+            Class cls = classList[idx];
+            if (class_respondsToSelector(cls, loadSelector)) {
+              [(id)cls load];
+            }
           }
         }
+        else { n = 0; }
       }
-      else { n = 0; }
-    }
-    if (!n) {
-      MSReportError(MSGenericError, MSFatalError, -2, "ERROR: impossible to perform load to COCOTRON classes.\n");
-    }
+      if (!n) {
+        MSReportError(MSGenericError, MSFatalError, -2, "ERROR: impossible to perform load to COCOTRON classes.\n");
+      }
 
-  }*/
+    }*/
 #endif
 #endif
+    }
 }

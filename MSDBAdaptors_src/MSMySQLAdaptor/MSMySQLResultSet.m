@@ -90,7 +90,7 @@
 
 - (void)terminateOperation
 {
-	if (_connection) {
+	if ([self isActive]) {
 		_state = MYSQL_NO_MORE_RESULTS ;
 		if (_result) 
 		{
@@ -332,7 +332,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 	return good ;
 }
 
-- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column error:(MSInt *)errorPtr
+- (BOOL)getStringAt:(MSString*)aString column:(NSUInteger)column error:(MSInt*)errorPtr
 {
 	MSInt error = MSNoColumn ;
 	BOOL good = NO ; 
@@ -399,7 +399,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 	return good ;
 }
 
-- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr 
+- (BOOL)getBufferAt:(MSBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr
 {
 	MSInt error = MSNoColumn ;
 	BOOL good = NO ; 
@@ -443,7 +443,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, MSStrtof)
 						unsigned long l = lengths[column] ;
 						if (l) {
 							if (aBuffer) { 
-								CStringAppendBytes((CString*)aBuffer, NSUTF8StringEncoding, bytes, l) ;
+								CBufferAppendBytes((CBuffer*)aBuffer, bytes, l) ;
                 good= YES;
 							}
 						}

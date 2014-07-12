@@ -123,14 +123,17 @@
 	return nil ;
 }
 
-- (int)executeRawSQL:(char *)command { return sqlite3_exec(_db, command, NULL, NULL, NULL) ; }
+- (MSInt)executeRawSQL:(NSString *)command
+{
+  return sqlite3_exec(_db, [command UTF8String], NULL, NULL, NULL);
+}
 
 
 - (MSDBTransaction *)openTransaction
 {
 	if (!_cFlags.readOnly && [self connect] && [self openedTransactionsCount] == 0) {
 		// only one transaction at a time
-		if ([self executeRawSQL:"BEGIN TRANSACTION;"] == SQLITE_OK) {
+		if ([self executeRawSQL:@"BEGIN TRANSACTION;"] == MSSQL_OK) {
 			MSSQLiteTransaction *transaction = [ALLOC(MSSQLiteTransaction) initWithDatabaseConnection:self] ;
 			if (transaction) {
 				[_operations addObject:transaction] ;

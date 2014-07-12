@@ -18,16 +18,16 @@
  functionalities and technical features of your software].
  
  This software is governed by the CeCILL-C license under French law and
- abiding by the rules of distribution of free software.  You can  use, 
+ abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
- "http://www.cecill.info". 
+ "http://www.cecill.info".
  
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
- liability. 
+ liability.
  
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
@@ -36,9 +36,9 @@
  therefore means  that it is reserved for developers  and  experienced
  professionals having in-depth computer knowledge. Users are therefore
  encouraged to load and test the software's suitability as regards their
- requirements in conditions enabling the security of their systems and/or 
- data to be ensured and,  more generally, to use and operate it in the 
- same conditions as regards security. 
+ requirements in conditions enabling the security of their systems and/or
+ data to be ensured and,  more generally, to use and operate it in the
+ same conditions as regards security.
  
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
@@ -53,67 +53,61 @@
 
 - (void)dealloc
 {
-	DESTROY(_columnsDescription) ;
-	[super dealloc] ;
+  RELEASE(_columnsDescription) ;
+  [super dealloc] ;
 }
 - (BOOL)nextRow { return NO ; }
 
-- (NSUInteger)columnsCount { return [_columnsDescription count] ; }
-- (NSString *)nameOfColumn:(NSUInteger)column { return [[_columnsDescription keys] objectAtIndex:column] ; }
-- (MSColumnType)typeOfColumn:(NSUInteger)column { return MSNoValueColumn ; column= 0; }
-- (NSArray *)columnNames { return [_columnsDescription keys] ; }
+- (NSUInteger)columnsCount
+{ return [_columnsDescription count] ; }
+- (NSArray *)columnNames
+{ return [_columnsDescription keys] ; }
+
+- (NSString *)nameOfColumn:(NSUInteger)column
+{ return [[_columnsDescription keys] objectAtIndex:column] ; }
+- (MSColumnType)typeOfColumn:(NSUInteger)column
+{ return MSNoValueColumn ; column= 0; }
 
 - (id)objectForKey:(id)aKey
 {
-	id o = nil ;
-	if (aKey && _columnsDescription) {
-		NSUInteger idx = [_columnsDescription indexForKey:aKey] ;
-		if (idx != NSNotFound) {
-            o = [self objectAtColumn:idx] ;
-        }
-	}
-	return o ;
+  id o = nil ;
+  if (aKey && _columnsDescription) {
+    NSUInteger idx = [_columnsDescription indexForKey:aKey] ;
+    if (idx != NSNotFound) {
+      o = [self objectAtColumn:idx] ;
+    }
+  }
+  return o ;
 }
 
 - (id)objectAtColumn:(NSUInteger)idx { return [self notImplemented:_cmd] ; idx= 0; }
-- (MSRow *)rowDictionary { return [self notImplemented:_cmd] ; }
+- (MSRow *)rowDictionary             { return [self notImplemented:_cmd] ; }
+- (MSArray *)allValues               { return [self notImplemented:_cmd] ; }
 
+- (BOOL)getCharAt:           (MSChar *)aValue column:(NSUInteger)column { return [self getCharAt:         aValue column:column error:NULL]; }
+- (BOOL)getByteAt:           (MSByte *)aValue column:(NSUInteger)column { return [self getByteAt:         aValue column:column error:NULL]; }
+- (BOOL)getShortAt:         (MSShort *)aValue column:(NSUInteger)column { return [self getShortAt:        aValue column:column error:NULL]; }
+- (BOOL)getUnsignedShortAt:(MSUShort *)aValue column:(NSUInteger)column { return [self getUnsignedShortAt:aValue column:column error:NULL]; }
+- (BOOL)getIntAt:             (MSInt *)aValue column:(NSUInteger)column { return [self getIntAt:          aValue column:column error:NULL]; }
+- (BOOL)getUnsignedIntAt:    (MSUInt *)aValue column:(NSUInteger)column { return [self getUnsignedIntAt:  aValue column:column error:NULL]; }
+- (BOOL)getLongAt:           (MSLong *)aValue column:(NSUInteger)column { return [self getLongAt:         aValue column:column error:NULL]; }
+- (BOOL)getUnsignedLongAt:  (MSULong *)aValue column:(NSUInteger)column { return [self getUnsignedLongAt: aValue column:column error:NULL]; }
+- (BOOL)getFloatAt:           (float *)aValue column:(NSUInteger)column { return [self getFloatAt:        aValue column:column error:NULL]; }
+- (BOOL)getDoubleAt:         (double *)aValue column:(NSUInteger)column { return [self getDoubleAt:       aValue column:column error:NULL]; }
+- (BOOL)getDateAt:    (MSTimeInterval *)aDate column:(NSUInteger)column { return [self getDateAt:          aDate column:column error:NULL]; }
+- (BOOL)getStringAt:      (MSString *)aString column:(NSUInteger)column { return [self getStringAt:      aString column:column error:NULL]; }
+- (BOOL)getBufferAt:      (MSBuffer *)aBuffer column:(NSUInteger)column { return [self getBufferAt:      aBuffer column:column error:NULL]; }
 
-- (MSArray *)allValues { return [self notImplemented:_cmd] ; }
-
-- (BOOL)getCharAt:(MSChar *)aValue column:(NSUInteger)column { return [self getCharAt:aValue column:column error:NULL] ; }
-- (BOOL)getByteAt:(MSByte *)aValue column:(NSUInteger)column { return [self getByteAt:aValue column:column error:NULL] ; }
-- (BOOL)getShortAt:(MSShort *)aValue column:(NSUInteger)column { return [self getShortAt:aValue column:column error:NULL] ; }
-- (BOOL)getUnsignedShortAt:(MSUShort *)aValue column:(NSUInteger)column { return [self getUnsignedShortAt:aValue column:column error:NULL] ; }
-- (BOOL)getIntAt:(MSInt *)aValue column:(NSUInteger)column { return [self getIntAt:aValue column:column error:NULL] ; }
-- (BOOL)getUnsignedIntAt:(MSUInt *)aValue column:(NSUInteger)column { return [self getUnsignedIntAt:aValue column:column error:NULL] ; }
-- (BOOL)getLongAt:(MSLong *)aValue column:(NSUInteger)column { return [self getLongAt:aValue column:column error:NULL] ; }
-- (BOOL)getUnsignedLongAt:(MSULong *)aValue column:(NSUInteger)column { return [self getUnsignedLongAt:aValue column:column error:NULL] ; }
-- (BOOL)getFloatAt:(float *)aValue column:(NSUInteger)column { return [self getFloatAt:aValue column:column error:NULL] ; }
-- (BOOL)getDoubleAt:(double *)aValue column:(NSUInteger)column { return [self getDoubleAt:aValue column:column error:NULL] ; }
-- (BOOL)getDateAt:(MSTimeInterval *)aDate column:(NSUInteger)column { return [self getDateAt:aDate column:column error:NULL] ; }
-- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column { return [self getStringAt:aString column:column error:NULL] ; }
-- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column { return [self getBufferAt:aBuffer column:column error:NULL] ; }
-
-
-- (BOOL)getCharAt:(MSChar *)aValue column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
-- (BOOL)getShortAt:(MSShort *)aValue column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
-- (BOOL)getIntAt:(MSInt *)aValue column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
-- (BOOL)getLongAt:(MSLong *)aValue column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
-- (BOOL)getFloatAt:(float *)aValue column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
-- (BOOL)getDoubleAt:(double *)aValue column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aValue= NULL; column= 0; }
-- (BOOL)getDateAt:(MSTimeInterval *)aDate column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aDate= NULL; column= 0; }
-- (BOOL)getStringAt:(CUnicodeBuffer *)aString column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aString= NULL; column= 0; }
-- (BOOL)getBufferAt:(CBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)error
-{ if (error) *error = MSNoAdaptor ; return NO ; aBuffer= NULL; column= 0; }
+#define RETURN_NO(X) if (error) *error = MSNoAdaptor ; return NO ; X= NULL; column= 0
+- (BOOL)getCharAt:         (MSChar *)aValue column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aValue);}
+- (BOOL)getShortAt:       (MSShort *)aValue column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aValue);}
+- (BOOL)getIntAt:           (MSInt *)aValue column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aValue);}
+- (BOOL)getLongAt:         (MSLong *)aValue column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aValue);}
+- (BOOL)getFloatAt:         (float *)aValue column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aValue);}
+- (BOOL)getDoubleAt:       (double *)aValue column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aValue);}
+- (BOOL)getDateAt:  (MSTimeInterval *)aDate column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aDate);}
+- (BOOL)getStringAt:    (MSString *)aString column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aString);}
+- (BOOL)getBufferAt:    (MSBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)error {RETURN_NO(aBuffer);}
 
 - (BOOL)getByteAt:(MSByte *)aValue column:(NSUInteger)column error:(MSInt *)error
 { return [self getCharAt:(MSChar *)aValue column:column error:error] ; }
@@ -131,8 +125,8 @@
 
 BOOL MSGetSqlDateFromBytes(void *bytes, NSUInteger length, MSTimeInterval *t)
 {
-	// TO DO : decoding a STANDARD SQL DATE
-	return NO ;
+  // TODO: decoding a STANDARD SQL DATE
+  return NO ;
   bytes= NULL; length= 0; t= NULL;
 }
 

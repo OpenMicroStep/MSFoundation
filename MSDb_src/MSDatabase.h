@@ -40,7 +40,6 @@
 
 #import <MSFoundation/MSFoundation.h>
 
-#define CUnicodeBuffer CString
 #import <MSDatabase/MSDBConnection.h>
 #import <MSDatabase/MSDBOperation.h>
 #import <MSDatabase/MSDBRow.h>

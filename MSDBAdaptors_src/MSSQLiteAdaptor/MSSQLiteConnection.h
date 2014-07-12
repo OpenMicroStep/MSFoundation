@@ -56,9 +56,4 @@ typedef enum {
 	sqlite3 *_db ;
 	SQLiteError _lastError ;
 }
-
-- (int)executeRawSQL:(char *)command ;
-
 @end
-
-#define MSSQLiteExec(X,Y)	[(MSSQLiteConnection *)(X) executeRawSQL:(Y)]

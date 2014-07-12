@@ -43,19 +43,8 @@
 
 #define MYSQL_CONNECTION_DEFAULT_TIMEOUT 2
 
-typedef enum {
-	MySQLFailAtConnect,
-	MySQLFailAtConfigure	
-} MySQLError ;
-
 @interface MSMySQLConnection : MSDBGenericConnection
 {
-	MYSQL     _db;
-	MySQLError _lastError ;
+	MYSQL _db;
 }
-
-- (int)executeRawSQL:(char *)command ;
-
 @end
-
-#define MSMySQLExec(X,Y)	[(MSMySQLConnection *)(X) executeRawSQL:(Y)]

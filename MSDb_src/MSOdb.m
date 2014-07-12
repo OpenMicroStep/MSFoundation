@@ -56,35 +56,12 @@
   return [[[self alloc] initWithParameters:dict] autorelease];
   }
 
-static inline Class _loadClassInBundle(id className, id bundleName, id bundleTop)
-{
-  Class dbClass= Nil;
-  NSBundle * bdl;
-  NSString *path= [bundleTop pathForResource:bundleName ofType:@"dbadaptor"];
-  if ([path length] && (bdl= [NSBundle bundleWithPath:path]) && [bdl load]) {
-    dbClass= NSClassFromString(className);}
-  return dbClass;
-}
 - (id)initWithParameters:(MSDictionary*)dict
   {
   // Ouverture de la connexion.
-  BOOL connected=NO;
-  Class dbClass=Nil;
-  id n, bundleName= @"MSMySQLAdaptor", className= @"MSMySQLConnection";
-  n= [dict objectForLazyKeys:@"adaptator", @"dbtype", nil];
-  if ([n isEqual:@"mysql"] || [n isEqual:className]) {
-    dbClass= NSClassFromString(className);}
-  if (!dbClass) {
-    NSBundle *bundle= [NSBundle mainBundle];
-    dbClass= _loadClassInBundle(className, bundleName, bundle);}
-  if (!dbClass) {
-    NSEnumerator *fe= [[NSBundle allFrameworks] objectEnumerator];
-    NSBundle *framework;
-    while (!dbClass && (framework= [fe nextObject])) {
-      dbClass= _loadClassInBundle(className, bundleName, framework);}}
-//NSLog(@"adaptator: %@ class: %@",n,dbClass);
-  if (dbClass) {
-    _db= [ALLOC(dbClass) initWithConnectionDictionary:dict];
+  BOOL connected= NO; id db;
+  if ((db= [MSDBConnection uniqueConnectionWithDictionary:dict])) {
+    _db= RETAIN(db);
     connected= [_db connect];}
 //NSLog(@"connected: %d error: %lu",connected,[_db lastError]);
   if (connected) {
@@ -126,11 +103,12 @@ NSLog(@"_valTables %@",_valTables);
 
 #pragma mark Private
 
+// - (NSString*)_inValues:(id)u
+// retourne nil ou '="v"' ou ' IN("v1","v2")' (or not quoted)
+// If u is a dict, we take the keys.
+// If u is an MSUid we take the oids, not the otherSystemNames.
+// Values of u needs to respond to descriptionInContext:
 - (NSString*)_inValues:(id)u
-  // retourne nil ou '="v"' ou ' IN("v1","v2")' (or not quoted)
-  // If u is a dict, we take the keys.
-  // If u is an MSUid we take the oids, not the otherSystemNames.
-  // Values of u needs to respond to descriptionForDb:
   {
   NSMutableString *r;
   NSUInteger n; id ae, v; BOOL dict,first;
@@ -143,7 +121,7 @@ NSLog(@"_valTables %@",_valTables);
   else {
     ae= [([u isKindOfClass:[MSUid class]]?[u oids]:u) objectEnumerator]; dict= NO;}
   for (first= YES; (v= (dict?[ae nextKey]:[ae nextObject])); first= NO) {
-    [r appendFormat:@"%@%@",(first?@"":@","),[v descriptionForDb:self]];}
+    [r appendFormat:@"%@%@",(first?@"":@","),[v descriptionInContext:self]];}
   if (n>1) [r appendString:@")"];
   return r;
   }
@@ -152,7 +130,7 @@ NSLog(@"_valTables %@",_valTables);
 
 - (MSOid*)_vid2oid:(vid)x
   {
-  oid r; id o;
+  MSOid* r; id o;
   if (!x) r= nil;
   else if ([x respondsToSelector:@selector(oid)]) r= [x oid];
   else if ([x isKindOfClass:[NSString class]]) {
@@ -168,18 +146,20 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   if (!*new) {*d= [MSMutableDictionary dictionaryWithDictionary:*d]; *new= YES;}
   return *d;
   }
+
+//- (MSDictionary*)_idsDict:(MSDictionary*)d
+// d: dict car-> values
+// car est un vid.
+// Une même car ne doit pas apparaître plusieurs fois, par exemple par son
+// oid et par son libellé. Sinon, une seule condition persiste.
+// TODO: Union des valeurs ?
+// Retourne : cid -> vals (tj un array même si au départ un seule valeur)
+// vals peut être un array vide dans le cas où l'on accepte toutes les valeurs
+// pour cette car. Cela permet de sélectionner les instances qui ont une
+// valeur pour une car donnée (NomSystème par exemple).
+// Et si une car n'existe pas ? on retourne nil car quand on cherche via
+// oidsWithCars, TOUTES les cars doivent être égales (login, pwd)
 - (MSDictionary*)_idsDict:(MSDictionary*)d
-  // d: dict car-> values
-  // car est un vid.
-  // Une même car ne doit pas apparaître plusieurs fois, par exemple par son
-  // oid et par son libellé. Sinon, une seule condition persiste.
-  // TODO: Union des valeurs ?
-  // Retourne : cid -> vals (tj un array même si au départ un seule valeur)
-  // vals peut être un array vide dans le cas où l'on accepte toutes les valeurs
-  // pour cette car. Cela permet de sélectionner les instances qui ont une
-  // valeur pour une car donnée (NomSystème par exemple).
-  // Et si une car n'existe pas ? on retourne nil car quand on cherche via
-  // oidsWithCars, TOUTES les cars doivent être égales (login, pwd)
   {
   BOOL new,newO,unknownKey; id de,k,nk, o;
   if (!d) return nil;
@@ -199,7 +179,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   return [d count]==0 || unknownKey ? nil : d;
   }
 
-- (NSString*)_table4Cid:(oid)cid
+- (NSString*)_table4Cid:(MSOid*)cid
   {
   id typId,typ,t;
   typId= [[self systemObiWithOid:cid] oidValueForCid:MSCarTypeId];
@@ -208,13 +188,16 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
     t= [typ stringValueForCid:MSCarSystemNameId];
   return t;
   }
+
+//- (MSMutableDictionary*)_tabledCars:(id)cars
+// cars: uid ou dict car-> value(s) où car est un uuid.
+// Une même car ne doit pas apparaître plusieurs fois, par exemple par son
+// oid et par son libellé. Sinon, une seule car ou car-> value(s) persiste.
+// Retourne : tbl -> cids ou tbl -> cids -> values (tj array)
+// (pour les seules tables nécessaires)
+// TODO: Et si une car n'existe pas ? retourner nil car quand on cherche via
+// oidsWithCars, TOUTES les cars doivent être égales (login, pwd)
 - (MSMutableDictionary*)_tabledCars:(id)cars
-  // cars: uid ou dict car-> value(s) où car est un uuid.
-  // Une même car ne doit pas apparaître plusieurs fois, par exemple par son
-  // oid et par son libellé. Sinon, une seule car ou car-> value(s) persiste.
-  // Retourne : tbl -> cids ou tbl -> cids -> values (tj array)
-  // (pour les seules tables nécessaires)
-  // TODO: Et si une car n'existe pas ? retourner nil car quand on cherche via oidsWithCars, TOUTES les cars doivent être égales (login, pwd)
   {
   BOOL isDict; MSMutableDictionary *search; id ce, cid, t, o;
   isDict= [cars respondsToSelector:@selector(dictionaryEnumerator)];
@@ -304,7 +287,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
 //o= [MSDictionary dictionaryWithObjectsAndKeys:self,@"Odb",nil];
 //NSLog(@"_buid: %@",[ids descriptionInContext:o]);
   }
-- (MSObi*)systemObiWithOid:(oid)x
+- (MSObi*)systemObiWithOid:(MSOid*)x
   {
   if (!_sysObiByOid) [self _buildSystemObis];
   return !x?nil:[_sysObiByOid objectForKey:x];
@@ -352,23 +335,24 @@ static inline MSByte _valueTypeFromTable(id table)
          [table isEqualToString:@"FLT"] ? R8 :
          [table isEqualToString:@"STR"] ? T8 : 0x00;
 }
+// - (MSUid*)_fillAllIds:(MSMutableDictionary*)all :inVals :table :inCids4Table
 // TODO: table -> type pour redescendre les types au niveau des values
+// Ex:
+// SELECT VAL_INST,VAL_CAR,VAL FROM TJ_VAL_STR WHERE
+//   VAL_INST IN(1,2)[ AND VAL_CAR IN(1,2)]
+// all est l'ensemble des instances.
+// En retour l'ensembles des nouveaux id (qui sont des valeurs de
+// caractéristiques recherchées et qui ne sont pas encore dans all).
+// inVals est la string de l'ensemble des id des instances recherchées.
+// table est la table des caractéristiques recherchées.
+// inCids4Table est nil ou la string des caractéristiques à lever sous la forme
+// IN(car_id1,car_id2).
+// La ou les valeurs de chaque caractéristique pour chaque id sont toujours
+// stockées dans le tableau $all[$id][$car_id]['_val'].
+// TODO: timestamp: VAL_INST,VAL_CAR,VAL_TMP,VAL
+// TODO: comment je change un obi de classe ? Quand je connais la classe,
+// je fais un [class obiWithObi ?]
 - (MSUid*)_fillAllIds:(MSMutableDictionary*)all :inVals :table :inCids4Table
-  // Ex:
-  // SELECT VAL_INST,VAL_CAR,VAL FROM TJ_VAL_STR WHERE
-  //   VAL_INST IN(1,2)[ AND VAL_CAR IN(1,2)]
-  // all est l'ensemble des instances.
-  // En retour l'ensembles des nouveaux id (qui sont des valeurs de
-  // caractéristiques recherchées et qui ne sont pas encore dans all).
-  // inVals est la string de l'ensemble des id des instances recherchées.
-  // table est la table des caractéristiques recherchées.
-  // inCids4Table est nil ou la string des caractéristiques à lever sous la forme
-  // IN(car_id1,car_id2).
-  // La ou les valeurs de chaque caractéristique pour chaque id sont toujours
-  // stockées dans le tableau $all[$id][$car_id]['_val'].
-  // TODO: timestamp: VAL_INST,VAL_CAR,VAL_TMP,VAL
-  // TODO: comment je change un obi de classe ? Quand je connais la classe,
-  // je fais un [class obiWithObi ?]
   {
   id ret,q,result,inst,oid,cid,val,o; MSLong bid;
   BOOL tIsId,tIsInt,tIsFlt,tIsStr; _btypedValue tv; MSByte type;
@@ -398,7 +382,7 @@ static inline MSByte _valueTypeFromTable(id table)
       else if (tIsStr) {
         tv.t= [MSString new]; // retained
         //BOOL r=
-        [result getStringAt:(CString*)(tv.t) column:2];
+        [result getStringAt:(tv.t) column:2];
 //NSLog(@"S %@",tv.t);
         }
       else if (tIsId) {
@@ -471,7 +455,8 @@ static inline MSByte _valueTypeFromTable(id table)
 }
 
 // TODO: revoir executeRawSQL
-// TODO: faire un roolback si echec
+// TODO: transaction et faire un roolback si echec
+// TODO: pas execute mais appendSQL
 // TODO: traiter les sub sid automatiquement
 - (BOOL)changeObis:(MSDictionary*)x
   {
@@ -498,7 +483,7 @@ NSLog(@"SUPPR NON AUTORISÉE (lié à %lld) %@",bid,obi);
       // TODO: Supprimer aussi tous les sous-objets de type SID
       for (e= [_valTables objectEnumerator]; ok && (t= [e nextObject]); ) {
         q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%@",t,oid);
-        if ([_db executeRawSQL:[q UTF8String]]) ok= NO; else done= YES;
+        if ([_db executeRawSQL:q]) ok= NO; else done= YES;
 NSLog(@"%d %@",ok,q);
         }
       }
@@ -515,14 +500,14 @@ NSLog(@"%d %@",ok,q);
           if ([v state]==MSRemove) {
             q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%lld "
                     "AND VAL_CAR=%@ AND VAL=%@",
-                   t,oidv,cid,[v descriptionForDb:self]);
-            if ([_db executeRawSQL:[q UTF8String]]) ok= NO; else done= YES;}}
+                   t,oidv,cid,[v descriptionInContext:self]);
+            if ([_db executeRawSQL:q]) ok= NO; else done= YES;}}
         for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
           if ([v state]==MSAdd) {
             q= FMT(@"INSERT INTO TJ_VAL_%@ WHERE VAL_INST=%lld "
                     "AND VAL_CAR=%@ AND VAL=%@",
-                   t,oidv,cid,[v descriptionForDb:self]);
-            if ([_db executeRawSQL:[q UTF8String]]) ok= NO; else done= YES;}}}
+                   t,oidv,cid,[v descriptionInContext:self]);
+            if ([_db executeRawSQL:q]) ok= NO; else done= YES;}}}
       if (ok && creat) [obi setOid:[MSOid oidWithLongValue:oidv]];}
     if (ok && done && [_sysObiByOid objectForKey:x]) sys= YES;}
   // Si un des obis est un obi system on les reload tous
@@ -539,10 +524,12 @@ static inline id _subtrim(id l, NSRange rg) // sub to range and trim
   if (rg.location!=NSNotFound) l= [l substringWithRange:rg];
   return [l stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
-static inline id _obi(id l, id db, MSMutableDictionary *all, MSMutableDictionary *byName)
+
+// _obi(l, db, all, byName)
 // On reccherche dans all puis dans db et sinon, on le crée
 // l est un nombre ou une string.
 // Si on crée à partir d'une string, l'obi est créé avec un oid local (négatif)
+static inline id _obi(id l, id db, MSMutableDictionary *all, MSMutableDictionary *byName)
 {
   id obi= nil, oid= nil;
   if ([l isKindOfClass:[MSOid class]]) oid= l;
@@ -569,9 +556,11 @@ static inline id _obi(id l, id db, MSMutableDictionary *all, MSMutableDictionary
         [all setObject:obi forKey:[obi oid]];}}}
   return obi;
 }
+
+// void _addIfNeeded(obi, cid, tableStr, v, o, db, all, byName)
+// Ajoute à obi cid:v sauf si exsite déjà (quand T8 ou B8) TODO: S8 R8
 static inline void _addIfNeeded(id obi, id cid, id tableStr, id v, id o,
   id db, MSMutableDictionary *all, MSMutableDictionary *byName)
-// Ajoute à obi cid:v sauf si exsite déjà (quand T8 ou B8) TODO: S8 R8
 {
   id vobi,vs,val,vo; _btypedValue tv; MSByte type;
   type= _valueTypeFromTable(tableStr);
@@ -679,16 +668,17 @@ NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu":@"Remplacé
                   // mais [[knownObi oid] isLocal], il faut changer la valeur de
                   // l'oid de knownObi par celle de obi.
                   if ([[knownObi oid] isLocal] && ![[obi oid] isLocal])
-                    [[knownObi oid] setNonLocalLongValue:[[obi oid] longValue]];
+                    [[knownObi oid] setLongValueIfLocal:[[obi oid] longValue]];
                   obi= knownObi;
                   }}}}}}}}
   *plineBeg= lineBeg;
   *pok= (state==2);
   return obi;
 }
-- (MSMutableDictionary*)decodeObis:(MSString*)x
+// decodeObis:x
 // Référence locale négative ou référence externe nom système ou #id ?
 // Retourne tous les obis décodés, le premier étant le root.
+- (MSMutableDictionary*)decodeObis:(MSString*)x
 {
 id db= nil;
 //id db= self;

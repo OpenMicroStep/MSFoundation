@@ -24,7 +24,6 @@ static inline int testCore(BOOL alone)
     printf("********** MSCORE\n\n");
     #endif
     }
-  MSSystemInitialize(0, NULL);
   err= mscore_c_validate          () +
        mscore_tools_validate      () +
        mscore_carray_validate     () +

@@ -84,7 +84,7 @@ MSString *MSCarSystemNameLib;
 
 + (id)oidWithLongValue:(MSLong)a
 {
-  return AUTORELEASE([[self alloc] initWithLongValue:a]);
+  return [[[self alloc] initWithLongValue:a] autorelease];
 }
 
 - (id)initWithLongValue:(MSLong)a
@@ -97,7 +97,7 @@ MSString *MSCarSystemNameLib;
 
 - (id)copyWithZone:(NSZone *)zone
 {
-  return RETAIN(self);
+  return [self retain];
   zone= NULL; // unused parameter
 }
 
@@ -106,10 +106,8 @@ MSString *MSCarSystemNameLib;
 - (BOOL)isEqual:(id)object
 {
   if (object == (id)self) return YES;
-  if (!object) return NO;
-  if ([object isKindOfClass:[MSOid class]]) {
-    return _oid==((MSOid*)object)->_oid;}
-  return NO;
+  if (!object || ![object isKindOfClass:[MSOid class]]) return NO;
+  return _oid==((MSOid*)object)->_oid;
 }
 
 - (NSComparisonResult)compare:(id)x
@@ -119,7 +117,7 @@ MSString *MSCarSystemNameLib;
   else if ([x isKindOfClass:[MSOid class]]) {
     MSLong xoid= [(MSOid*)x longValue];
     ret= (_oid < xoid ? NSOrderedAscending : _oid > xoid ? NSOrderedDescending : NSOrderedSame);}
-  else ret= NSOrderedSame;
+  else ret= NSOrderedSame; // ???
   return ret;
   }
 
@@ -132,14 +130,14 @@ MSString *MSCarSystemNameLib;
 - (NSString*)description
 {
   MSString *s;
-  s= MSCreateString(NULL);
+  s= [MSString string];
   CStringAppendEncodedFormat((CString*)s, NSUTF8StringEncoding, "%ld", _oid);
   return s;
 }
-- (NSString*)descriptionForDb:(MSOdb*)db
+- (NSString*)descriptionInContext:(id)ctx
   {
   return [self description];
-  db= nil;
+  ctx= nil;
   }
 
 - (MSOid*)oid
@@ -157,7 +155,7 @@ MSString *MSCarSystemNameLib;
   return (_oid<0);
 }
 
-- (void)setNonLocalLongValue:(MSLong)a
+- (void)setLongValueIfLocal:(MSLong)a
 {
   if (_oid<0) _oid= a;
 }
@@ -175,11 +173,11 @@ MSString *MSCarSystemNameLib;
 
 + (id)uid
 {
-  return AUTORELEASE([self alloc]);
+  return [[self alloc] autorelease];
 }
 + (id)uidWithUid:(uid)u
 {
-  return AUTORELEASE([[self alloc] initWithUid:u]);
+  return [[[self alloc] initWithUid:u] autorelease];
 }
 
 - (id)initWithUid:(uid)u
@@ -228,7 +226,7 @@ static inline BOOL _ISEQUALSET(id a, id b)
   if (object == (id)self) return YES;
   if (!object) return NO;
   if (![object isKindOfClass:[MSUid class]]) {
-    o= RETAIN(object= [[[self class] alloc] initWithUid:object]);}
+    o= object= [[[self class] alloc] initWithUid:object];}
   ret= _ISEQUALSET([self oids], [object oids]) &&
        _ISEQUALSET([self otherSystemNames], [object otherSystemNames]);
   RELEASE(o);
@@ -265,7 +263,7 @@ static inline void _addToArray(id o, id *pArray)
 }
 static inline BOOL _addReferedSystemName(id n, id *ptxtsMore, id *ptxtsInOids)
 // Retourne YES s'il faut ajouter l'oid correspondant
-// Retourne NO si le nom est connu comme se référent déjà à un oid.
+// Retourne NO si le nom est connu comme se référant déjà à un oid.
 {
   BOOL add= YES;
   if ([n length]) {
@@ -354,16 +352,17 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
   return fd;
 }
 
-- (NSString*)description:(int)level inContext:(MSDictionary*)ctx
+- (NSString*)description:(int)level inContext:(id)ctx
 {
   MSOdb *db; MSUid *ids; id todo;
-  db= [ctx objectForKey:@"Odb"];
+  if ([ctx isKindOfClass:[MSOdb class]]) db= ctx;
+  else db= [(MSDictionary*)ctx objectForKey:MSContextOdb];
   ids= [self resolvedUidForOdb:db];
   todo= [db fillIds:ids withCars:nil];
   return _obiDesc(level, ctx, ids, todo);
 }
 
-- (NSString*)descriptionInContext:(MSDictionary*)ctx
+- (NSString*)descriptionInContext:(id)ctx
   {
   return [self description:0 inContext:ctx];
   }
@@ -483,7 +482,7 @@ NSString *_obiDesc(MSLong level, MSDictionary *ctx,
   MSOdb *db; BOOL verbose,strict;
   id done,x,e,ds;
   MSDictionary *dict;
-  db=       [ctx objectForKey:@"Odb"];
+  db=       [ctx objectForKey:MSContextOdb];
   verbose= ![[ctx objectForKey:@"Small" ] boolValue];
   strict=   [[ctx objectForKey:@"Strict"] boolValue];
   

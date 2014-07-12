@@ -149,6 +149,10 @@ NSRange MSStringFind(NSString *source, NSString *searched)
 	return ret ;
 }
 
+- (BOOL)isTrue
+{
+	return MSStringIsTrue(self);
+}
 - (NSString *)mid:(NSUInteger)position
 {
 	NSUInteger selfLen = (NSUInteger)[self length] ;
