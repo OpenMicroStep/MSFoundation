@@ -76,7 +76,7 @@
 #define HTTP_404_RESPONSE "HTTP/1.1 404 Not found\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Tength: 111\r\n"\
+"Content-Length: 111\r\n"\
 "\r\n"\
 "<html><head><title>Not Found</title></head>"\
 "<body><p>Sorry, the object you requested was not found"\
