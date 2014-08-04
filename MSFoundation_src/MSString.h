@@ -66,6 +66,9 @@ MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger le
 - (NSString *)stringByAppendingURLComponent:(NSString *)urlComponent ;
 - (NSString *)stringByDeletingLastURLComponent;
 - (NSString *)decodedURLString ;
+
+- (NSString *)htmlRepresentation; // also converts HTML marks
+- (NSString *)htmlRepresentation:(BOOL)convertsHTMLMarks ;
 @end
 
 @interface MSString : NSString
