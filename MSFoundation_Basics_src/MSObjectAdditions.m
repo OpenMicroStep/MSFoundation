@@ -184,7 +184,7 @@ NSNull *MSNull= nil;
   NSString *name;
   if (action && [(name= NSStringFromSelector(action)) length] && target) {
     NSNotification *notif;
-    NSDictionary *userInfo= DICT name,@"selector", target,@"target" END;
+    NSDictionary *userInfo= [MSDictionary dictionaryWithKeysAndObjects:@"selector",name, @"target",target, nil];
     notif= [NSNotification notificationWithName:MSDelayedPostingNotification
                                          object:self
                                        userInfo:userInfo];
@@ -199,7 +199,7 @@ NSNull *MSNull= nil;
   NSString *name;
   if (action && [(name= NSStringFromSelector(action)) length] && target) {
     NSNotification *notif;
-    NSDictionary *userInfo= DICT name,@"selector", target,@"target", argument,@"argument" END;
+    NSDictionary *userInfo= [MSDictionary dictionaryWithKeysAndObjects:@"selector",name, @"target",target, @"argument", argument, nil];
     notif= [NSNotification notificationWithName:MSDelayedPostingWithObjectNotification
                                          object:self
                                        userInfo:userInfo];

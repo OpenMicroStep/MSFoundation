@@ -47,7 +47,7 @@ static inline int tst_rep_nu(id dbParams, id x, BOOL save)
       err++;}}
   dbObi= [db systemObiWithOid:MSObiDatabaseId];
   tv.t= RETAIN([MSString UUIDString]);
-  v= [MSOValue valueWithCid:MSCarURNId state:MSAdd type:T8 timestamp:0 value:tv];
+  v= [MSOValue valueWithCid:MSCarURNId state:MSAdd type:T8 value:tv];
   [dbObi setValue:v];
   [db changeObi:dbObi];
 //NSLog(@"dbObi:%@",[dbObi descriptionInContext:ctx]);
@@ -106,7 +106,7 @@ NSLog(@"rightsForApplicationUrn %@",[(MSDictionary*)as allKeys]);
     }
   if (!err) {
     id os,error= [rep changeValues:[MSDictionary dictionaryWithKey:persUrn andObject:@"Delete"]];
-NSLog(@"delete %@",error);
+NSLog(@"delete error:%@",error);
     os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:nil];
 NSLog(@"deleted ? Person: %@",os);
     }
@@ -115,14 +115,14 @@ NSLog(@"deleted ? Person: %@",os);
     dos= [rep informationsWithKeys:MSRCarAdministratorLib forRefs:servUrn];
 NSLog(@"before Service: %@",[dos objectForKey:servUrn]);
     error= [rep removeValue:persUrn forKey:MSRCarAdministratorLib onObject:servUrn];
-NSLog(@"remove %@",error);
+NSLog(@"remove error:%@",error);
     dos= [rep informationsWithKeys:MSRCarAdministratorLib forRefs:servUrn];
 NSLog(@"removed ? Service: %@",[dos objectForKey:servUrn]);
     }
   if (!err) {
     id error;
     error= [rep addValue:persUrn forKey:MSRCarAdministratorLib onObject:servUrn];
-NSLog(@"add %@",error);
+NSLog(@"add error:%@",error);
     dos= [rep informationsWithKeys:MSRCarAdministratorLib forRefs:servUrn];
 NSLog(@"added ? Service: %@",[dos objectForKey:servUrn]);
     }
@@ -135,14 +135,16 @@ int msdb_repository_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
-  id dbParams= DICT @"localhost", @"host",
-    [NSNumber numberWithInt:8889], @"port",
-    @"root", @"user",@"root", @"pwd",
-    @"/Applications/MAMP/tmp/mysql/mysql.sock", @"socket",
-    @"mysql", @"adaptor",
-    @"Repository", @"database",
-    //@"Spaf-Prod-11", @"database",
-    CLOSE;
+  id dbParams= [MSDictionary dictionaryWithKeysAndObjects:
+    @"host",     @"localhost",
+    @"port",     [NSNumber numberWithInt:8889],
+    @"user",     @"root",
+    @"pwd",      @"root",
+    @"socket",   @"/Applications/MAMP/tmp/mysql/mysql.sock",
+    @"adaptor",  @"mysql",
+    @"database", @"Repository",
+  //@"database", @"Spaf-Prod-11",
+    nil];
 
 //err+= tst_rep_nu(dbParams,THE_DEFAULT_REPOSITORY_DB,YES);
   err+= tst_rep(dbParams);

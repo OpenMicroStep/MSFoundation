@@ -75,6 +75,8 @@ _btypedValue;
 }
 
 + (id)valueWithCid:(MSOid*)cid state:(MSByte)state type:(MSByte)type
+         value:(_btypedValue)v;
++ (id)valueWithCid:(MSOid*)cid state:(MSByte)state type:(MSByte)type
          timestamp:(MSTimeInterval)t value:(_btypedValue)v;
 - (id)initWithCid:(MSOid*)cid state:(MSByte)state type:(MSByte)type
         timestamp:(MSTimeInterval)t value:(_btypedValue)v;

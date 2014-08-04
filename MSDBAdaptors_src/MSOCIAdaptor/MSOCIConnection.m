@@ -142,7 +142,7 @@
     return self ;
 }
 
--(BOOL) _connectWithDataBase:(NSString *)database User:(NSString *)user Password:(NSString *)password
+-(BOOL) _connectWithDatabase:(NSString *)database User:(NSString *)user Password:(NSString *)password
 {
     text *db =(text *)[database UTF8String] ;
     text *username =(text *)[user UTF8String] ;
@@ -238,7 +238,7 @@
         NSString *user = [_currentDictionary objectForLazyKey:@"$_user"] ;
         NSString *password = [_currentDictionary objectForLazyKey:@"$_password"] ;
 
-        if (![self _connectWithDataBase:database User:user Password:password]) {
+        if (![self _connectWithDatabase:database User:user Password:password]) {
             _lastError = FailAtOpen;
             // 	_hdbc = NULL ;
             return NO ;

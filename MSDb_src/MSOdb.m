@@ -349,13 +349,13 @@ ctx= nil;
   if (!car) {
     car= [MSObi obiWithOid:MSCarNextOidId :self];
     tv.b= RETAIN(MSEntCarId);
-    v= [MSOValue valueWithCid:MSCarEntityId state:MSAdd type:B8 timestamp:0 value:tv];
+    v= [MSOValue valueWithCid:MSCarEntityId state:MSAdd type:B8 value:tv];
     [car setValue:v];
     tv.t= RETAIN(MSCarNextOidLib);
-    v= [MSOValue valueWithCid:MSCarSystemNameId state:MSAdd type:T8 timestamp:0 value:tv];
+    v= [MSOValue valueWithCid:MSCarSystemNameId state:MSAdd type:T8 value:tv];
     [car setValue:v];
     tv.b= RETAIN([[self systemObiWithName:@"INT"] oid]);
-    v= [MSOValue valueWithCid:MSCarTypeId state:MSAdd type:B8 timestamp:0 value:tv];
+    v= [MSOValue valueWithCid:MSCarTypeId state:MSAdd type:B8 value:tv];
     [car setValue:v];
     ok= [self changeObi:car];
 NSLog(@"car ret change %d",ok);
@@ -369,10 +369,10 @@ NSLog(@"car ret change %d",ok);
   if (car && !db) {
     db= [MSObi obiWithOid:MSObiDatabaseId :self];
     tv.t= RETAIN(MSObiDatabaseLib);
-    v= [MSOValue valueWithCid:MSCarSystemNameId state:MSAdd type:T8 timestamp:0 value:tv];
+    v= [MSOValue valueWithCid:MSCarSystemNameId state:MSAdd type:T8 value:tv];
     [db setValue:v];
     tv.s= freeOidv;
-    v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 timestamp:0 value:tv];
+    v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 value:tv];
     [db setValue:v];
     ok= [self changeObi:db];
 NSLog(@"db1 ret change %d",ok);
@@ -390,7 +390,7 @@ NSLog(@"db1 ret change %d",ok);
     v= [db valueForCid:[car oid]];
     [v setState:MSRemove];
     tv.s= r+nb;
-    v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 timestamp:0 value:tv];
+    v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 value:tv];
     [db setValue:v];
     ok= [self changeObi:db];
 NSLog(@"db2 ret change %d",ok);
@@ -475,8 +475,7 @@ static inline MSByte _valueTypeFromTable(id table)
         [result getLongAt:&b column:2];
         tv.b= [[MSOid alloc] initWithValue:b];} // retained
 //NSLog(@"X0 %@",tv.t);
-      val= [MSOValue valueWithCid:cid state:MSUnchanged type:type
-        timestamp:0 value:tv];
+      val= [MSOValue valueWithCid:cid state:MSUnchanged type:type value:tv];
 //NSLog(@"X1 %@.%@.%@   %@",oid,cid,val,inst);
       [inst setValue:val];
 //NSLog(@"X2 %@.%@.%@   %@",oid,cid,val,inst);
@@ -711,8 +710,7 @@ static inline void _addIfNeeded(id obi, id cid, MSByte type, id v)
   else {
 //if(type==S8)NSLog(@"cid %@ vo %@ %@ vs %@ %d",cid,[vo class],vo,vs,[vs containsObject:vo]);
     if(type==S8) RELEASE(vo);
-    val= [MSOValue valueWithCid:cid state:MSAdd type:type
-      timestamp:0 value:tv];
+    val= [MSOValue valueWithCid:cid state:MSAdd type:type value:tv];
     // TODO: add vobi as val subObject
     [obi setValue:val];
     }

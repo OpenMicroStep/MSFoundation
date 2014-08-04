@@ -160,14 +160,16 @@ int msdb_obi_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
-  id dbParams= DICT @"localhost", @"host",
-    [NSNumber numberWithInt:8889], @"port",
-    @"root", @"user",@"root", @"pwd",
-    @"/Applications/MAMP/tmp/mysql/mysql.sock", @"socket",
-    @"mysql", @"adaptor",
-    @"Obi-nu", @"database",
-    //@"Spaf-Prod-11", @"database",
-    CLOSE;
+  id dbParams= [MSDictionary dictionaryWithKeysAndObjects:
+    @"host",     @"localhost",
+    @"port",     [NSNumber numberWithInt:8889],
+    @"user",     @"root",
+    @"pwd",      @"root",
+    @"socket",   @"/Applications/MAMP/tmp/mysql/mysql.sock",
+    @"adaptor",  @"mysql",
+    @"database", @"Obi-nu",
+  //@"database", @"Spaf-Prod-11",
+    nil];
 
   err+= tst_uid();
   err+= tst_obi_nu(dbParams);
