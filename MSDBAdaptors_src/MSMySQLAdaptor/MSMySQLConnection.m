@@ -173,6 +173,7 @@
   // REM: START TRANSACTION remove the auto-commit mode if enabled until the next
   //      commit or rollback.
   // TODO: test START TRANSACTION
+  // TODO: why only one ? To be tested with simultaneously changing the value of a car.
   MSMySQLTransaction *transaction= nil;
 	if (!_cFlags.readOnly && [self connect] &&
       [self openedTransactionsCount] == 0 && // only one transaction at a time

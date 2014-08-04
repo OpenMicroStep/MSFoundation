@@ -40,12 +40,12 @@
  */
 
 #define MSUnchanged 0x00 // Obi OValue
+#define MSAdd       0x03 //     OValue Some new values
+#define MSRemove    0x04 //     OValue Some values to remove
 #define MSCreate    0x01 // Obi
 #define MSDelete    0x02 // Obi
-#define MSModify    0x05 // Obi Some values to add and remove
-#define MSSubModify 0x06 // Obi The modification take place on the sub-instance
-#define MSAdd       0x03 // OValue Some new values
-#define MSRemove    0x04 // OValue Some values to remove
+#define MSModify    0x05 // Obi        Some values to add and remove
+#define MSSubModify 0x06 // Obi        The modification take place on the sub-instance
 
 #define S8 0xF9 // signed  8
 #define R8 0xF6 // real    8
@@ -86,6 +86,7 @@ _btypedValue;
 - (MSTimeInterval)timestamp;
 - (id)typedValue;
 // stringValue: Nil if the value is not of that type
+- (MSLong)longValue;
 - (NSString*)stringValue;
 - (MSOid*)oidValue;
 - (MSObi*)subValue;
@@ -93,6 +94,7 @@ _btypedValue;
 - (void)setState:(MSByte)state;
 - (void)setSub:(MSObi*)o;
 - (NSString*)description:(int)n;
+- (NSString*)sqlDescription:(MSOdb*)db;
 - (NSString*)descriptionInContext:(id)ctx;
 @end
 
@@ -113,6 +115,7 @@ _btypedValue;
 - (id)initWithOid:(MSOid*)oid :(id)db;
 - (MSOid*)oid;
 - (MSByte)status;
+- (void)setStatus:(MSByte)status; // Just for MSDelete ?
 - (NSString*)description:(int)n;
 // descriptionInContext:ctx
 // ctx= {'Odb'=>    MSOdb*,
@@ -124,6 +127,7 @@ _btypedValue;
 - (MSArray*)cids;
 - (MSDictionary*)allValuesByCid;
 
+// TODO: accepter pour cid tout vid
 // allValuesForCid:cid
 // Returns all the values of the car for any timestamp
 - (MSArray*)allValuesForCid:(MSOid*)cid;
@@ -143,6 +147,7 @@ _btypedValue;
 // stringValueForCid:cid
 // Returns only the first (last ?) value (for the last timestamp)
 // Nil if the value is not of that type
+- (MSLong)longValueForCid:(MSOid*)cid;
 - (NSString*)stringValueForCid:(MSOid*)cid;
 - (MSArray*)oidValuesForCid:(MSOid*)cid;
 - (MSOid*)oidValueForCid:(MSOid*)cid;
@@ -150,6 +155,12 @@ _btypedValue;
 - (NSString*)systemName;
 // Set
 - (BOOL)setValue:(MSOValue*)v;
+@end
+
+@interface MSObi (Car)
+- (NSString*)carType;
+- (NSString*)carTable;
+- (NSString*)typeTable;
 @end
 
 @interface MSObi (Private)

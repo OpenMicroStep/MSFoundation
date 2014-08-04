@@ -61,7 +61,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   else if (type==R8) ret= _cmp(a.r,b.r,NSOrderedSame);
   else if (type==T8) ret= (a.t==b.t) ? NSOrderedSame : !a.t ? NSOrderedAscending :
                           !b.t ? NSOrderedDescending : [a.t compare:b.t];
-  else if (type==B8) ret= _cmp([a.b longValue],[b.b longValue],NSOrderedSame);
+  else if (type==B8) ret= _cmp([a.b value],[b.b value],NSOrderedSame);
   return ret;
   }
 
@@ -98,10 +98,10 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   [super dealloc];
   }
 
-- (NSString*)_descriptionWithType:(BOOL)withType
+- (NSString*)_descriptionWithType:(BOOL)withType :(BOOL)withState
   {
   id v;
-  if (_valueType==S8) {
+  if (_valueType==S8) { // TODO: GMT, DAT, DTM, DUR, BOOL
     if (ISEQUAL(_cid,MSCarDateId)) {
       id d= [[MSDate alloc] initWithSecondsSinceLocalReferenceDate:_value.s];
       v= [d descriptionWithCalendarFormat:(withType?@"D %d/%m/%Y":@"%d/%m/%Y")];
@@ -112,23 +112,32 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
     _valueType==B8 ? FMT((withType?@"B %@":@"%@"), _value.b) :
     _valueType==T8 ? (withType?FMT(@"T %@",_value.t):_value.t) :
     @"Unknown value";
-  if (_state==MSAdd) v= FMT(@"%@[+]",v);
+  if (withState) {
+    if      (_state==MSRemove) v= FMT(@"%@[-]",v);
+    else if (_state==MSAdd   ) v= FMT(@"%@[+]",v);}
   return v;
   }
 - (NSString*)description:(int)n
   {
-  id v= [self _descriptionWithType:YES];
+  id v= [self _descriptionWithType:YES :YES];
   if (_valueType==B8 && !n && _subValue) v=  [_subValue description:n+1];
 //return FMT(@"[%lld %lld %@]", _carBid, _timestamp, v);
   return ISEQUAL(_cid,MSCarEntityId) ? v : FMT(@"{%@}", v);
   }
 - (NSString*)description
   {
-  return [self _descriptionWithType:NO];
+  return [self _descriptionWithType:NO :YES];
+  }
+- (NSString*)sqlDescription:(MSOdb*)db
+  {
+  id v= [self _descriptionWithType:NO :NO];
+  if (!_valueType || _valueType==T8) {
+    v=[db escapeString:(!_valueType?@"":v) withQuotes:YES];}
+  return v;
   }
 - (NSString*)descriptionInContext:(id)ctx
   {
-  id db, v= [self _descriptionWithType:NO];
+  id db, v= [self _descriptionWithType:NO :YES];
   if (!_valueType || _valueType==T8) {
     if ([ctx isKindOfClass:[MSOdb class]]) db= ctx;
     else db= [(MSDictionary*)ctx objectForKey:MSContextOdb];
@@ -151,6 +160,10 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
          _valueType==R8 ? [NSNumber numberWithDouble:  _value.r] :
          _valueType==T8 ? (id)_value.t :
          nil;
+  }
+- (MSLong)longValue
+  {
+  return _valueType!=S8 ? 0 : _value.s;
   }
 - (NSString*)stringValue
   {
@@ -182,7 +195,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   MSOValue* v;
   if ([x isKindOfClass:[MSOValue class]]) {
     v= x;
-    ret= _cmp([_cid longValue], [v->_cid longValue],
+    ret= _cmp([_cid value], [v->_cid value],
          _cmp(_timestamp, v->_timestamp,
          _btypedValuesCompare(_value,v->_value,_valueType)));}
   return ret;
@@ -224,12 +237,12 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   }
 - (id)iniWithLocalId:(id)db
   {
-  static MSLong _MSObiNewLocalOidLongValue= -1;
+  static MSLong _MSObiNewLocalOidValue= -1;
   MSOid *oid;
   // Lock
-  oid= [MSOid oidWithLongValue:_MSObiNewLocalOidLongValue--];
+  oid= [MSOid oidWithValue:_MSObiNewLocalOidValue--];
   // Si serveur qui ne s'arrête jamais ?
-  if (_MSObiNewLocalOidLongValue>=0) _MSObiNewLocalOidLongValue= -1;
+  if (_MSObiNewLocalOidValue>=0) _MSObiNewLocalOidValue= -1;
   // Unlock
   return [self initWithOid:oid :db];
   }
@@ -284,7 +297,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 
   else if ((v= [self stringValueForCid:MSCarNomSystemeId])) {
     [x appendString:v];}
-  else if ((v= [self stringValueForCid:MSCarLibelleId])) {
+  else if ((v= [self stringValueForCid:MSCarLabelId])) {
     [x appendString:v];}
   else {
     if (n==0) {
@@ -332,6 +345,10 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 - (MSByte)status
   {
   return _status;
+  }
+- (void)setStatus:(MSByte)status
+  {
+  _status= status;
   }
 
 #pragma mark Get values
@@ -401,6 +418,13 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
       CArrayAddObject((CArray*)ret, v);}}
   return ret;
   }
+- (MSLong)longValueForCid:(MSOid*)cid
+  {
+  MSOValue *v; MSLong ret= 0;
+  if ((v= [self valueForCid:cid])) {
+    ret= [v longValue];}
+  return ret;
+  }
 - (NSString*)stringValueForCid:(MSOid*)cid
   {
   MSOValue *v; NSString *ret= nil;
@@ -466,6 +490,22 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   return [self _setValue:v :MSUnchanged];
   }
 
+@end
+
+@implementation MSObi (Car)
+- (NSString*)carType
+{
+  return [[self subValueForCid:MSCarTypeId] systemName];
+}
+- (NSString*)carTable
+{
+  return [[self subValueForCid:MSCarTypeId] typeTable];
+}
+- (NSString*)typeTable
+{
+  id t= [self stringValueForCid:MSCarTableId];
+  return t ? t : [self stringValueForCid:MSCarSystemNameId];
+}
 @end
 
 @implementation MSObi (Private)

@@ -54,6 +54,7 @@
   MSDBConnection *_connection ; // the connection is retained
 }
 
+// Don't use it for MSDBTransaction. Use openTransaction.
 - (id)initWithDatabaseConnection:(MSDBConnection *)connection ;
 
 - (MSDBConnection *)databaseConnection ;

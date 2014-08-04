@@ -106,8 +106,9 @@
   }
 - (id)initWithFirstObject:(id)o arguments:(va_list)ap
   {
-  CArrayAddObject((CArray*)self,o);
-  while ((o= va_arg (ap, id))) CArrayAddObject((CArray*)self,o);
+  if (o) {
+    CArrayAddObject((CArray*)self,o);
+    while ((o= va_arg (ap, id))) CArrayAddObject((CArray*)self,o);}
   return self;
   }
 

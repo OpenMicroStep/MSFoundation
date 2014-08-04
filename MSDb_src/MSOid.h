@@ -39,43 +39,49 @@
  
  */
 
-#define MSContextOdb @"Odb"
+#define MSContextOdb          @"Odb"
+#define MSContextSystemNames  @"Names"
+#define MSContextCompleteness @"All"
 // descriptionInContext:ctx
-// ctx= {'Odb'=>     MSOdb*,
+// ctx= {MSContextOdb=>     MSOdb*,
+//       MSContextSystemNames=>  if YES, obi completeness (default NO)
+//       MSContextCompleteness=> if YES, obi completeness (default NO)
 //       'Options'=> ('Completude','System name translation')
 //       'Strict'=> If YES, no obi completude,
 //       'Small'=>  If YES, no system name translation,
 //       }
 // The context may also be the MSOdb alone.
-// If strict (default), the description include only the obis of self.
-// If not strict, the description include all the obis needed to be completed.
+// If strict (default), the description includes only the obis of self.
+// If not strict, the description includes all the obis needed to be completed.
 // If small (default), The MSOid are represented as number.
-// If not small, all MSOid with system name are remplaced by system name.
+// If not small, all MSOid with system name are remplaced by there system name.
 
 // MSOid is the id of a oui-base object. It may be in a 'local' temporary state,
 // meaning not yet a fully database reserved number.
 // TODO: lien vers la DB ?
 // TODO: mask de la DB ? Dans l'_oid ?
 
+@class MSOdb;
 @interface MSOid : NSObject <NSCopying>
 {
 @private
   MSLong _oid;
 }
-+ (id)oidWithLongValue:(MSLong)a;
-- (id)initWithLongValue:(MSLong)a;
++ (id)oidWithValue:(MSLong)a;
+- (id)initWithValue:(MSLong)a;
 
 - (NSComparisonResult)compare:(id)x;
 - (NSUInteger)hash:(unsigned)depth; // For MSDictionary
+- (NSString*)sqlDescription:(MSOdb*)db;
 - (NSString*)descriptionInContext:(id)ctx;
 
 - (MSOid*)oid;
-- (MSLong)longValue;
+- (MSLong)value;
 - (BOOL)isLocal;
 
-// setLongValueIfLocal:a
+// replaceLocalValue:a
 // Uniquement si _oid est local (négatif).
-- (void)setLongValueIfLocal:(MSLong)a;
+- (void)replaceLocalValue:(MSLong)a;
 @end
 
 // A oui-base object is called a 'obi'.
@@ -89,15 +95,14 @@
 // (that why MSObi responds to oid message).
 // We refer a system name identifier with the type txt.
 // We refer a virtual identifier (txt, MSOid* or MSObi*) with the type vid.
-// We refer a collection witch may be a simple identifier (vid), a MSUid with
-// the type uid or an array of vid or MSUid.
+// We refer a collection witch may be a simple identifier (vid), a MSUid or
+// an array of vid or MSUid or array with the type uid.
 
 typedef MSString* txt;
 //typedef MSOid*    oid; // object id
 typedef id        vid; // virtual id: txt | MSOid* | MSObi*
 typedef id        uid; // union id: vid | MSUid*
 
-@class MSOdb;
 @interface MSUid : NSObject
 {
 @private
@@ -113,43 +118,68 @@ typedef id        uid; // union id: vid | MSUid*
 - (id)otherSystemNames;
 - (MSUid*)resolvedUidForOdb:(MSOdb*)db;
 - (NSUInteger)count;
-// descriptionInContext:ctx
-// ctx= {'Odb'=>    MSOdb*,
-//       'Strict'=> If YES, no obi completude,
-//       'Small'=>  If YES, no system name translation,
-//       }
 - (NSString*)descriptionInContext:(id)ctx;
 
-- (uid)firstUid;
-- (BOOL)addFirstOid:(MSOid*)u;
-- (void)removeFirstUid;
+- (vid)firstVid;
+- (BOOL)addOidAtFirst:(MSOid*)u;
+- (BOOL)moveOidAtFirst:(MSOid*)u;
+- (void)removeFirstVid;
 - (void)addUid:(uid)u;
 @end
 
-extern MSOid    *MSEntEntId;    // id de l'entité 'Ent'
-//extern MSOid    *MSEntCarId;    // id de l'entité 'Car'
-extern MSOid    *MSEntTypId;    // id de l'entité 'Typ'
-extern MSOid    *MSCarEntityId;         // id de la car 'entité'
-extern MSOid    *MSCarSystemNameId;     // id de la car 'system name'
-extern MSString *MSCarSystemNameLib;    // id de la car 'system name'
-//extern MSOid    *MSCarClassNameId;     // id de la car 'class name'
-//extern MSOid    *MSCarCharacteristicId; // id de la car 'caract.'
-extern MSOid    *MSCarTypeId;           // id de la car 'type'
-extern MSOid    *MSCarTableId;          // id de la car 'table'
-//extern MSOid    *MSCarGabaritId;        // id de la car 'gabarit'
-//extern MSOid    *MSCarDomaineId;        // id de la car 'domaine'
-extern MSOid    *MSCarDateId;           // id de la car 'date'
-//extern MSOid    *MSCarLibelleId;        // id de la car 'libellé'
-//extern MSOid    *MSTypIDId;  // id du Type 'ID'
-//extern MSOid    *MSTypSIDId; // id du Type 'SID'
-//extern MSOid    *MSTypSTRId; // id du Type 'STR'
-//extern MSOid    *MSTypINTId; // id du Type 'INT'
-//extern MSOid    *MSTypDATId; // id du Type 'DAT'
-//extern MSOid    *MSTypDTRId; // id du Type 'DTR'
-//extern MSOid    *MSTypDURId; // id du Type 'DUR'
-extern MSOid    *MSObiDatabaseId;           // id de la 'database'
+extern MSOid    *MSEntEntId;    // id  de l'entité 'ENT'
+extern MSOid    *MSEntCarId;    // id  de l'entité 'Car'
+extern MSOid    *MSEntTypId;    // id  de l'entité 'Typ'
+extern MSOid    *MSCarEntityId;         // id  de la car 'entity'
+extern MSOid    *MSCarSystemNameId;     // id  de la car 'system name'
+extern MSString *MSCarSystemNameLib;    // lib de la car 'system name'
+extern MSOid    *MSCarCharacteristicId; // id  de la car 'caract.'
+extern MSOid    *MSCarTypeId;           // id  de la car 'type'
+extern MSOid    *MSCarTableId;          // id  de la car 'table'
+extern MSOid    *MSCarPatternId;        // id  de la car 'pattern'
+//extern MSOid  *MSCarDomainEntityId;   // id  de la car 'domain entity'
+extern MSOid  *MSCarCardinalityId;      // id  de la car 'cardinality'
+//extern MSOid  *MSCarClassNameId;      // id  de la car 'class name'
+extern MSOid    *MSCarDateId;           // id  de la car 'date'
+//extern MSOid  *MSCarLabelId;          // id  de la car 'label'
+extern MSOid    *MSCarURNId;            // id  de la car 'urn'
+extern MSOid    *MSCarLoginId;          // id  de la car 'login'
+//extern MSOid  *MSTypIDId;  // id  du Type 'ID'
+//extern MSOid  *MSTypSIDId; // id  du Type 'SID'
+//extern MSOid  *MSTypSTRId; // id  du Type 'STR'
+//extern MSOid  *MSTypINTId; // id  du Type 'INT'
+//extern MSOid  *MSTypDATId; // id  du Type 'DAT'
+//extern MSOid  *MSTypDTRId; // id  du Type 'DTR'
+//extern MSOid  *MSTypDURId; // id  du Type 'DUR'
+
+extern MSOid    *MSObiDatabaseId;           // id  de la 'database'
+extern MSString *MSObiDatabaseLib;          // lib de l'obi 'database'
+extern MSOid    *MSCarNextOidId;            // id  de la car 'next oid'
+extern MSString *MSCarNextOidLib;           // lib de la car 'next oid'
+
+extern MSString *MSCarLabelLib;
+extern MSString *MSCarURNLib;
+extern MSString *MSCarParameterLib;
+extern MSString *MSCarFirstNameLib;
+extern MSString *MSCarMiddleNameLib;
+extern MSString *MSCarLastNameLib;
+extern MSString *MSCarLoginLib;
+extern MSString *MSCarHashedPasswordLib;
+extern MSString *MSCarMustChangePasswordLib;
+extern MSString *MSCarPublicKeyLib;
+extern MSString *MSCarPrivateKeyLib;
+extern MSString *MSCarCipheredPrivateKeyLib;
+
+#pragma mark MSDictionary obis description
+
+@protocol MSObiDescriptionPt
+- (NSString*)description:(int)level inContext:(id)ctx;
+- (NSString*)descriptionInContext:(id)ctx;
+@end
+@interface MSDictionary (ObisDescription) <MSObiDescriptionPt>
+@end
 
 #pragma mark private
 
-extern NSString *_obiDesc(MSLong level, MSDictionary *ctx,
+extern NSString *_obiDesc(MSLong level, id ctx,
                           MSUid *todoOrder, MSMutableDictionary *todo);

@@ -317,6 +317,11 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
   RELEASE(self);
   return (MSString*)[[NSString alloc] initWithFormat:fmt locale:locale arguments:args];
   }
++ (id)UUIDString
+  {
+  CString *x= CCreateStringWithSES([[[NSUUID UUID] UUIDString] stringEnumeratorStructure]);
+  return AUTORELEASE((id)x);
+  }
 - (void)dealloc
   {
   CStringFreeInside(self);

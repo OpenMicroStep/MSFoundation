@@ -43,51 +43,78 @@
 
 MSOid *MSEntEntId,*MSEntCarId,*MSEntTypId;
 MSOid *MSCarEntityId,*MSCarSystemNameId,*MSCarCharacteristicId,*MSCarTypeId,
-      *MSCarTableId,*MSCarGabaritId,*MSCarDomaineId,*MSCarDateId,*MSCarLibelleId;
+      *MSCarTableId,*MSCarPatternId,*MSCarDomainEntityId,*MSCarCardinalityId,*MSCarDateId,
+      *MSCarLabelId,*MSCarURNId,*MSCarLoginId;
 MSOid *MSTypIDId,*MSTypSIDId,*MSTypSTRId,*MSTypINTId,
       *MSTypDATId,*MSTypDTRId,*MSTypDURId;
-MSOid *MSObiDatabaseId;
+MSOid *MSObiDatabaseId,*MSCarNextOidId;
 
-MSString *MSCarSystemNameLib;
+MSString *MSCarSystemNameLib,*MSObiDatabaseLib,*MSCarNextOidLib;
+
+MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
+         *MSCarFirstNameLib,*MSCarMiddleNameLib,*MSCarLastNameLib,
+         *MSCarLoginLib,*MSCarHashedPasswordLib,*MSCarMustChangePasswordLib,
+         *MSCarPublicKeyLib,*MSCarPrivateKeyLib,*MSCarCipheredPrivateKeyLib;
 
 @implementation MSOid
 
 + (void)initialize
 {
   if ([self class] == [MSOid class]) {
-    MSEntEntId= [[MSOid alloc] initWithLongValue:1]; // id  de l'entité 'ENT'
-//  MSEntCarId= [[MSOid alloc] initWithLongValue:3]; // id  de l'entité 'Car'
-    MSEntTypId= [[MSOid alloc] initWithLongValue:5]; // id  de l'entité 'Typ'
-    MSCarEntityId=         [[MSOid alloc] initWithLongValue:101]; // id  de la car 'entité'
-    MSCarSystemNameId=     [[MSOid alloc] initWithLongValue:102]; // id  de la car 'system name'
-    MSCarSystemNameLib=    MSCreateString("nom système");         // lib de la car 'system name'
-//  MSCarClassNameId=      [[MSOid alloc] initWithLongValue:102]; // id  de la car 'class name'
-//  MSCarCharacteristicId= [[MSOid alloc] initWithLongValue:103]; // id  de la car 'caract.'
-    MSCarTypeId=           [[MSOid alloc] initWithLongValue:105]; // id  de la car 'type'
-    MSCarTableId=          [[MSOid alloc] initWithLongValue:106]; // id  de la car 'table'
-//  MSCarGabaritId=        [[MSOid alloc] initWithLongValue:107]; // id  de la car 'gabarit'
-//  MSCarDomaineId=        [[MSOid alloc] initWithLongValue:109]; // id  de la car 'domaine'
-    MSCarDateId=           [[MSOid alloc] initWithLongValue:135]; // id  de la car 'date'
-//  MSCarLibelleId=        [[MSOid alloc] initWithLongValue:232]; // id  de la car 'libellé'
-//  MSTypIDId=  [[MSOid alloc] initWithLongValue:1055]; // id  du Type 'ID'
-//  MSTypSIDId= [[MSOid alloc] initWithLongValue:1056]; // id  du Type 'SID'
-//  MSTypSTRId= [[MSOid alloc] initWithLongValue:1061]; // id  du Type 'STR'
-//  MSTypINTId= [[MSOid alloc] initWithLongValue:1062]; // id  du Type 'INT'
-//  MSTypDATId= [[MSOid alloc] initWithLongValue:1063]; // id  du Type 'DAT'
-//  MSTypDTRId= [[MSOid alloc] initWithLongValue:1064]; // id  du Type 'DTR'
-//  MSTypDURId= [[MSOid alloc] initWithLongValue:1065]; // id  du Type 'DUR'
-    MSObiDatabaseId=       [[MSOid alloc] initWithLongValue:100000]; // id  de la 'database'
+    MSEntEntId= [[MSOid alloc] initWithValue:1]; // id  de l'entité 'ENT'
+    MSEntCarId= [[MSOid alloc] initWithValue:3]; // id  de l'entité 'Car'
+    MSEntTypId= [[MSOid alloc] initWithValue:5]; // id  de l'entité 'Typ'
+    MSCarEntityId=         [[MSOid alloc] initWithValue:101]; // id  de la car 'entity'
+    MSCarSystemNameId=     [[MSOid alloc] initWithValue:102]; // id  de la car 'system name'
+//  MSCarSystemNameLib=    MSCreateString("nom système");         // lib de la car 'system name'
+    MSCarSystemNameLib=    MSCreateString("system name");         // lib de la car 'system name'
+    MSCarCharacteristicId= [[MSOid alloc] initWithValue:103]; // id  de la car 'caract.'
+    MSCarTypeId=           [[MSOid alloc] initWithValue:105]; // id  de la car 'type'
+    MSCarTableId=          [[MSOid alloc] initWithValue:106]; // id  de la car 'table'
+    MSCarPatternId=        [[MSOid alloc] initWithValue:107]; // id  de la car 'pattern'
+//  MSCarDomainEntityId=   [[MSOid alloc] initWithValue:109]; // id  de la car 'domain entity'
+//  MSCarDomainListId=     [[MSOid alloc] initWithValue:110]; // id  de la car 'domain list'
+    MSCarCardinalityId=    [[MSOid alloc] initWithValue:115]; // id  de la car 'cardinality'
+//  MSCarClassNameId=      [[MSOid alloc] initWithValue:116]; // id  de la car 'class name'
+    MSCarDateId=           [[MSOid alloc] initWithValue:135]; // id  de la car 'date'
+//  MSCarLabelId=          [[MSOid alloc] initWithValue:232]; // id  de la car 'label'
+    MSCarURNId=            [[MSOid alloc] initWithValue:301]; // id  de la car 'urn'
+    MSCarLoginId=          [[MSOid alloc] initWithValue:321]; // id  de la car 'login'
+//  MSTypIDId=  [[MSOid alloc] initWithValue:1055]; // id  du Type 'ID'
+//  MSTypSIDId= [[MSOid alloc] initWithValue:1056]; // id  du Type 'SID'
+//  MSTypSTRId= [[MSOid alloc] initWithValue:1061]; // id  du Type 'STR'
+//  MSTypINTId= [[MSOid alloc] initWithValue:1062]; // id  du Type 'INT'
+//  MSTypDATId= [[MSOid alloc] initWithValue:1063]; // id  du Type 'DAT'
+//  MSTypDTRId= [[MSOid alloc] initWithValue:1064]; // id  du Type 'DTR'
+//  MSTypDURId= [[MSOid alloc] initWithValue:1065]; // id  du Type 'DUR'
+    MSObiDatabaseId=        [[MSOid alloc] initWithValue:200000]; // id  de la 'database'
+    MSObiDatabaseLib=       MSCreateString("database");               // lib de l'obi 'database'
+    MSCarNextOidId=         [[MSOid alloc] initWithValue:401];    // id  de la car 'next oid'
+    MSCarNextOidLib=        MSCreateString("next oid");               // lib de la car 'next oid'
+
+    MSCarLabelLib=              MSCreateString("label");
+    MSCarURNLib=                MSCreateString("urn");
+    MSCarParameterLib=          MSCreateString("parameter");
+    MSCarFirstNameLib=          MSCreateString("first name");
+    MSCarMiddleNameLib=         MSCreateString("middle name");
+    MSCarLastNameLib=           MSCreateString("last name");
+    MSCarLoginLib=              MSCreateString("login");
+    MSCarHashedPasswordLib=     MSCreateString("hashed password");
+    MSCarMustChangePasswordLib= MSCreateString("must change password");
+    MSCarPublicKeyLib=          MSCreateString("public key");
+    MSCarPrivateKeyLib=         MSCreateString("private key");
+    MSCarCipheredPrivateKeyLib= MSCreateString("ciphered private key ");
     }
 }
 
 #pragma mark Class/Init methods
 
-+ (id)oidWithLongValue:(MSLong)a
++ (id)oidWithValue:(MSLong)a
 {
-  return [[[self alloc] initWithLongValue:a] autorelease];
+  return [[[self alloc] initWithValue:a] autorelease];
 }
 
-- (id)initWithLongValue:(MSLong)a
+- (id)initWithValue:(MSLong)a
 {
   _oid= a;
   return self;
@@ -115,7 +142,7 @@ MSString *MSCarSystemNameLib;
   NSComparisonResult ret;
   if (!x) ret= NSOrderedDescending;
   else if ([x isKindOfClass:[MSOid class]]) {
-    MSLong xoid= [(MSOid*)x longValue];
+    MSLong xoid= [(MSOid*)x value];
     ret= (_oid < xoid ? NSOrderedAscending : _oid > xoid ? NSOrderedDescending : NSOrderedSame);}
   else ret= NSOrderedSame; // ???
   return ret;
@@ -134,6 +161,11 @@ MSString *MSCarSystemNameLib;
   CStringAppendEncodedFormat((CString*)s, NSUTF8StringEncoding, "%ld", _oid);
   return s;
 }
+- (NSString*)sqlDescription:(MSOdb*)db
+  {
+  return [self description];
+  db= nil;
+  }
 - (NSString*)descriptionInContext:(id)ctx
   {
   return [self description];
@@ -145,7 +177,7 @@ MSString *MSCarSystemNameLib;
   return self;
 }
 
-- (MSLong)longValue
+- (MSLong)value
 {
   return _oid;
 }
@@ -155,7 +187,7 @@ MSString *MSCarSystemNameLib;
   return (_oid<0);
 }
 
-- (void)setLongValueIfLocal:(MSLong)a
+- (void)replaceLocalValue:(MSLong)a
 {
   if (_oid<0) _oid= a;
 }
@@ -248,6 +280,24 @@ static inline BOOL _ISEQUALSET(id a, id b)
   return s;
 }
 
+- (NSString*)description:(int)level inContext:(id)ctx
+{
+  MSOdb *db; MSUid *ids; id todo; NSString *ret;
+  if ([ctx isKindOfClass:[MSOdb class]]) db= ctx;
+  else db= [(MSDictionary*)ctx objectForKey:MSContextOdb];
+  if (!db) ret= [self description];
+  else {
+    ids= [self resolvedUidForOdb:db];
+    todo= [db fillIds:ids withCars:nil];
+    ret= _obiDesc(level, ctx, ids, todo);}
+  return ret;
+}
+
+- (NSString*)descriptionInContext:(id)ctx
+  {
+  return [self description:0 inContext:ctx];
+  }
+
 #pragma mark methods
 
 static inline BOOL _addAtFirstToArray(id o, id *pArray)
@@ -280,11 +330,11 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
     if ([o length] && ![*ptxtsInOids containsObject:o] && ![*ptxtsMore containsObject:o]) {
       _addToArray(o, ptxtsMore);}}
   else if ([o respondsToSelector:@selector(oid)]) {
-    BOOL add= YES;
+    BOOL add= YES; MSOid *oid;
     if ([o respondsToSelector:@selector(systemName)]) {
       add= _addReferedSystemName([o systemName],ptxtsMore,ptxtsInOids);}
-    if (add && ![*poids containsObject:o]) {
-      _addToArray([o oid], poids);}}
+    if (add && ![*poids containsObject:(oid= [o oid])]) {
+      _addToArray(o, poids);}}
 }
 
 - (void)addUid:(uid)u_
@@ -295,9 +345,9 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
   if ([u_ isKindOfClass:[MSUid class]]) {
     MSUid *uu= (MSUid*)u_;
     if (!_txtsInOids && !_txtsMore && !_oids) {
-      _txtsInOids= COPY(uu->_txtsInOids);
-      _txtsMore=   COPY(uu->_txtsMore);
-      _oids=       COPY(uu->_oids);}
+      _txtsInOids= [[MSMutableArray alloc] initWithArray:uu->_txtsInOids];
+      _txtsMore=   [[MSMutableArray alloc] initWithArray:uu->_txtsMore];
+      _oids=       [[MSMutableArray alloc] initWithArray:uu->_oids];}
     else {
       u1= uu->_oids;
       u2= uu->_txtsMore;
@@ -326,8 +376,8 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
   MSUid *ret; id ne,n,oid;
   if (![_txtsMore count]) return self;
   ret= [[self class] uidWithUid:nil];
-  ret->_oids=       COPY(_oids);
-  ret->_txtsInOids= COPY(_txtsInOids);
+  ret->_oids=       [[MSMutableArray alloc] initWithArray:_oids];
+  ret->_txtsInOids= [[MSMutableArray alloc] initWithArray:_txtsInOids];
   for (ne= [_txtsMore objectEnumerator]; (n= [ne nextObject]);) {
     oid= [[db systemObiWithName:n] oid];
     if (oid) {
@@ -348,42 +398,40 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
     if ([v length] && ([_txtsInOids containsObject:v] || [_txtsMore containsObject:v])) {
       fd= YES;}}
   else if ([v respondsToSelector:@selector(oid)]) {
-    fd= [_oids containsObject:v];}
+    fd= [_oids containsObject:[v oid]];}
   return fd;
 }
 
-- (NSString*)description:(int)level inContext:(id)ctx
-{
-  MSOdb *db; MSUid *ids; id todo;
-  if ([ctx isKindOfClass:[MSOdb class]]) db= ctx;
-  else db= [(MSDictionary*)ctx objectForKey:MSContextOdb];
-  ids= [self resolvedUidForOdb:db];
-  todo= [db fillIds:ids withCars:nil];
-  return _obiDesc(level, ctx, ids, todo);
-}
-
-- (NSString*)descriptionInContext:(id)ctx
-  {
-  return [self description:0 inContext:ctx];
-  }
-
 #pragma mark methods for first
 
-- (uid)firstUid
+- (vid)firstVid
 {
   return [_oids     count]?[_oids     objectAtIndex:0]:
          [_txtsMore count]?[_txtsMore objectAtIndex:0]:nil;
 }
 
-- (BOOL)addFirstOid:(MSOid*)u
+// TODO: Plutôt setOidAtFirst: combinaison des deux ?
+
+- (BOOL)addOidAtFirst:(MSOid*)u
 {
   BOOL ret= NO;
-  if (u && ![_oids containsObject:u]) {
+  if (u && !(_oids && [_oids containsObject:u])) {
     ret= _addAtFirstToArray(u, &_oids);}
   return ret;
 }
 
-- (void)removeFirstUid
+- (BOOL)moveOidAtFirst:(MSOid*)u
+{
+  BOOL ret= NO; NSUInteger idx= 0;
+//NSLog(@"move %@ %@",u,_oids);
+  if (u && _oids && (idx= [_oids indexOfObject:u])!=NSNotFound) {
+    ret= YES;
+    if (idx!=0) {[_oids removeObjectAtIndex:idx]; [_oids insertObject:u atIndex:0];}}
+//NSLog(@"move %ld %@",idx,self);
+  return ret;
+}
+
+- (void)removeFirstVid
 {
   if      ([_oids     count]) [_oids     removeObjectAtIndex:0];
   else if ([_txtsMore count]) [_txtsMore removeObjectAtIndex:0];
@@ -391,77 +439,128 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
 
 @end
 
+@implementation MSDictionary (ObisDescription)
+
+- (NSString*)description:(int)level inContext:(id)ctx
+{
+  MSOdb *db; MSUid *ids; id todo; NSString *ret;
+  if ([ctx isKindOfClass:[MSOdb class]]) db= ctx;
+  else db= [(MSDictionary*)ctx objectForKey:MSContextOdb];
+  if (!db) ret= [self description];
+  else {
+    ids= [MSUid uidWithUid:[self allKeys]];
+    todo= [MSMutableDictionary dictionaryWithDictionary:self];
+    ret= _obiDesc(level, ctx, ids, todo);}
+  return ret;
+}
+
+- (NSString*)descriptionInContext:(id)ctx
+  {
+  return [self description:0 inContext:ctx];
+  }
+
+@end
+
 #pragma mark private
 
+#define _cmp(A,B,SAME) \
+  ((A) < (B) ? NSOrderedAscending : (A) > (B) ? NSOrderedDescending : (SAME))
 static NSComparisonResult _obiOrderCmp(id e1, id e2, void *ctx)
   {
-  NSComparisonResult ret= NSOrderedSame; id ae1,ae2,ee1,ee2,o1,o2;
+  NSComparisonResult ret= NSOrderedSame; id ae1,ae2,ee1,ee2;
+  MSULong e1e,e1u,e2e,e2u;
   ae1= [(MSDictionary*)e1 objectForKey:@"_order"];
   ae2= [(MSDictionary*)e2 objectForKey:@"_order"];
-  ee1= [ae1 objectEnumerator]; ee2= [ae2 objectEnumerator]; o1= o2= nil;
-  while (ret==NSOrderedSame) {
-    if      (!(o1= [ee1 nextObject])) ret= NSOrderedAscending;
-    else if (!(o2= [ee2 nextObject])) ret= NSOrderedDescending;
-    else ret= [(MSOid*)o1 compare:o2];}
+  ee1= [ae1 objectEnumerator];
+  ee2= [ae2 objectEnumerator];
+  // On passe en MSULong car si <0 alors rangé avec les >10000
+  e1e= (MSULong)[(MSOid*)[ee1 nextObject] value];
+  e1u= (MSULong)[(MSOid*)[ee1 nextObject] value];
+  e2e= (MSULong)[(MSOid*)[ee2 nextObject] value];
+  e2u= (MSULong)[(MSOid*)[ee2 nextObject] value];
+  if ((e1u<=10000 && e2u<=10000)||(e1u>10000 && e2u>10000))
+    ret= _cmp(e1e, e2e, _cmp(e1u, e2u, NSOrderedSame));
+  else ret= _cmp(e1u, e2u, NSOrderedSame);
   return ret;
+  ctx= NULL;
+  }
+static NSComparisonResult _oidOrderCmp(MSOid* oid1, MSOid *oid2, void *ctx)
+  {
+  MSULong l1,l2;
+  l1= (MSULong)[oid1 value];
+  l2= (MSULong)[oid2 value];
+  return _cmp(l1, l2, NSOrderedSame);
   ctx= NULL;
   }
 
 static NSString *_obiRecDesc(MSLong level0, MSLong level,
-  BOOL verbose, BOOL strict, MSOdb *db,
+  BOOL names, BOOL complet, MSOdb *db,
   MSUid *todoOrder,
   MSMutableDictionary *todo, MSMutableDictionary *done)
 {
-  uid uid; id o,ent,order,x,e,cid,car,name,values,ve,value,typeid,oidValue,sub,sobi;
+  vid vid; id o,ent,order,x,e,cids,cid,car,name,values,ve,value,type,oidValue,sub,sobi;
   MSMutableDictionary *dict; MSLong i; BOOL isId,isSid,isCarEnt;
   if (![todoOrder count]) return nil;
-  uid= [todoOrder firstUid]; o= RETAIN([todo objectForKey:uid]);
-  [todoOrder removeFirstUid];
-  [todo removeObjectForKey:uid];
+  vid= [todoOrder firstVid]; o= RETAIN([todo objectForKey:vid]);
+  [todoOrder removeFirstVid];
+  [todo removeObjectForKey:vid];
   ent= [o oidValueForCid:MSCarEntityId];
-  if (!ent) ent= @"No entity";
   if (level==level0) {
     dict= [MSMutableDictionary dictionary];
-    order= [MSArray arrayWithObjects:ent,uid, nil];
+    e= ent ? ent :[MSOid oidWithValue:0];
+    order= [MSArray arrayWithObjects:e,vid, nil];
     [dict setObject:order forKey:@"_order"];
-    [done setObject:dict forKey:uid];}
+    [done setObject:dict forKey:vid];}
   else dict= nil;
-  if (verbose && (name= [[db systemObiWithOid:ent] systemName])) ent= name;
+  if (!ent) ent= @"No entity";
+  if (names && (name= [[db systemObiWithOid:ent] systemName])) ent= name;
   x= [NSMutableString string];
   [x appendString:@"\n"];
   for (i= 0; i<level; i++) [x appendString:@"  "];
   [x appendFormat:@"%@\n",ent?ent:@"Unknown entity"];
   for (i= 0; i<level; i++) [x appendString:@"  "];
-  [x appendFormat:@"_id: %@\n",uid];
-  for (e= [[o allValuesByCid] dictionaryEnumerator]; (cid= [e nextKey]);) {
+  [x appendFormat:@"_id: %@\n",vid];
+  if ((value= [o systemName])) {
+    for (i= 0; i<level; i++) [x appendString:@"  "];
+    cid= MSCarSystemNameId;
+    if (names) cid= MSCarSystemNameLib;
+    [x appendFormat:@"%@: %@\n",cid,value];}
+  cids= [[o allValuesByCid] allKeys];
+  cids= [cids sortedArrayUsingFunction:_oidOrderCmp context:NULL];
+  for (e= [cids objectEnumerator]; (cid= [e nextObject]);) if (!ISEQUAL(cid,MSCarSystemNameId)) {
 //NSLog(@"c %@",cid);
     isCarEnt= ISEQUAL(cid,MSCarEntityId);
     car= [db systemObiWithOid:cid];
-    typeid= [car oidValueForCid:MSCarTypeId];
-    isId=  ISEQUAL([[db systemObiWithOid:typeid] systemName],@"ID");
-    isSid= ISEQUAL([[db systemObiWithOid:typeid] systemName],@"SID");
-    if (verbose && (name= [car systemName])) cid= name;
-    values= [e currentObject];
+    type= [car carType];
+    isId=  ISEQUAL(type,@"ID");
+    isSid= ISEQUAL(type,@"SID");
+    values= [[o allValuesByCid] objectForKey:cid];
+    if (names && (name= [car systemName])) cid= name;
     for (ve= [values objectEnumerator]; (value= [ve nextObject]);) {
 //NSLog(@"v %@",cid);
-    oidValue= isId || isSid ? [value oidValue] : nil;
-      sub= isSid ? [value subValue] : nil;
-      if (sub) {
-        if ([todoOrder addFirstOid:oidValue]) {
-          [todo setObject:sub forKey:oidValue];
-          value= _obiRecDesc(level0, level+1, verbose, strict, db, todoOrder, todo, done);}
-        else {
-          sub= nil;
-          }}
-      else if (!strict && oidValue &&
-          ![todo objectForKey:oidValue] &&
-          ![done objectForKey:oidValue] &&
-           (sobi= [db systemObiWithOid:oidValue])) {
-        [todo setObject:sobi forKey:oidValue];
-        [todoOrder addUid:oidValue];}
-      if (!isCarEnt) {
+      oidValue= isId || isSid ? [value oidValue] : nil;
+      if ((sub= isSid ? [value subValue] : nil)) {
+        if ([todoOrder containsVid:oidValue]) [todoOrder moveOidAtFirst:oidValue];
+        else { // Il a déjà été fait ou on le voit pour la première fois
+//NSLog(@"+++++ add %@ %@",oidValue);
+          [todoOrder addOidAtFirst:oidValue];
+          [todo setObject:sub forKey:oidValue];}
+        // Qu'il ait déjà été fait ou non on le supprime de done.
+        [done removeObjectForKey:oidValue];
+        value= _obiRecDesc(level0, level+1, names, complet, db, todoOrder, todo, done);
+        }
+      else if (complet && oidValue &&
+               ![todo objectForKey:oidValue] &&
+               ![done objectForKey:oidValue]) {
+        if (!(sobi= [db systemObiWithOid:oidValue])) {
+NSLog(@"ADDING NOT SYSTEM OBI FOR COMPLETUDE %@",oidValue);
+          sobi= [[db fillIds:oidValue withCars:nil] objectForKey:oidValue];}
+        if (sobi) {
+          [todo setObject:sobi forKey:oidValue];
+          [todoOrder addUid:oidValue];}}
+      if (!isCarEnt) { // La car entité a déjà été écrite
         for (i= 0; i<level; i++) [x appendString:@"  "];
-        if (oidValue && verbose && (name= [[db systemObiWithOid:oidValue] systemName]))
+        if (oidValue && names && (name= [[db systemObiWithOid:oidValue] systemName]))
           value= name;
         [x appendFormat:@"%@: %@\n",cid,value];}
 //NSLog(@"%@: %@\n",cid,value);
@@ -476,25 +575,58 @@ static NSString *_obiRecDesc(MSLong level0, MSLong level,
   return x;
 }
 
-NSString *_obiDesc(MSLong level, MSDictionary *ctx,
+NSString *_obiDesc(MSLong level, id ctx,
   MSUid *todoOrder, MSMutableDictionary *todo)
 {
-  MSOdb *db; BOOL verbose,strict;
+  MSOdb *db; BOOL names,complet;
   id done,x,e,ds;
   MSDictionary *dict;
-  db=       [ctx objectForKey:MSContextOdb];
-  verbose= ![[ctx objectForKey:@"Small" ] boolValue];
-  strict=   [[ctx objectForKey:@"Strict"] boolValue];
+  if ([ctx isKindOfClass:[MSOdb class]]) {db= ctx; names= NO; complet= NO;}
+  else {
+    db= [(MSDictionary*)ctx objectForKey:MSContextOdb];
+    names=   [[(MSDictionary*)ctx objectForKey:MSContextSystemNames ] boolValue];
+    complet= [[(MSDictionary*)ctx objectForKey:MSContextCompleteness] boolValue];}
   
   x= [NSMutableString string];
   [x appendFormat:@"// Description of: %@",[todoOrder description]];
   done= [MSMutableDictionary dictionary];
 //level++;
   while ([todoOrder count])
-    _obiRecDesc(level, level, verbose, strict, db, todoOrder, todo, done);
+    _obiRecDesc(level, level, names, complet, db, todoOrder, todo, done);
   ds= [(MSDictionary*)done allObjects];
   ds= [ds sortedArrayUsingFunction:_obiOrderCmp context:NULL];
   for (e= [ds objectEnumerator]; (dict= [e nextObject]);) {
     [x appendString:[dict objectForKey:@"txt"]];}
   return x;
 }
+
+#pragma mark NSString sqlDescription
+
+@implementation  NSString (sqlDescription)
+- (NSString*)sqlDescription:(MSOdb*)db
+{
+  return [db escapeString:self withQuotes:YES];
+}
+@end
+
+/*
+@implementation MSOid (MSTEncoding)
+- (MSInt)singleEncodingCode:(MSTEncoder*)encoder
+{
+  return MSTE_TOKEN_MUST_ENCODE;
+  encoder= nil;
+}
+- (MSByte)tokenType
+{
+  return MSTE_TOKEN_TYPE_DECIMAL_VALUE;
+}
+- (MSByte)tokenTypeWithReference:(BOOL)isReferenced
+{
+  return isReferenced ? [self tokenType] : MSTE_TOKEN_TYPE_INT64;
+}
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
+{
+  [encoder encodeLongLong:_oid withTokenType:NO];
+}
+@end
+*/
