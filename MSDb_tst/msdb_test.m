@@ -1,7 +1,7 @@
-// msobi_test.m, ecb, 140101
+// msdb_test.m, ecb, 140101
 
 #import "MSDb_Private.h"
-#import "msobi_validate.h"
+#import "msdb_validate.h"
 
 int main(int argc, const char *argv[])
   {
@@ -10,7 +10,7 @@ int main(int argc, const char *argv[])
   argc= 0;
   argv= NULL;
   MSSystemInitialize(0, NULL);
-  err= testObi(YES);
+  err= testDb(YES);
   [pool release];
   return err;
   }

@@ -78,6 +78,7 @@ MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger le
   NSUInteger _length;
   NSUInteger _size;
 }
++ (id)UUIDString;
 - (SES)stringEnumeratorStructure;
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;

@@ -49,6 +49,11 @@
 
 @interface MSDBTransaction : MSDBOperation
 
+// Don't use MSDbOperation init method for MSDBTransaction. Use openTransaction.
+// TODO: A revoir, c'est pas clair. Pourquoi c'est pas le initWithDatabaseConnection
+// qui fait le START TRANSACTION ?
+//- (id)initWithDatabaseConnection:(MSDBConnection *)connection ;
+
 // Please don't directly send COMMIT or ROLLBACK commands to the database
 // MSDBTransaction handle that for you throught save and cancel methods ;
 

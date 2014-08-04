@@ -53,6 +53,8 @@
 #import <MSNet/MSCurlHandler.h>
 #import <MSNet/MSCurlSendMail.h>
 
+#import <MSNet/MSCipher.h>
+
 #import <MSNet/MSDigest.h>
 
 #import <MSNet/MSCertificate.h>

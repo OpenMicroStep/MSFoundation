@@ -1,16 +1,18 @@
-// msobi_validate.h, ecb, 140101
+// msdb_validate.h, ecb, 140101
 
 #import "msfoundation_validate.h"
 
-int msobi_validate(void);
+int msdb_obi_validate(void);
+int msdb_repository_validate(void);
 
-static inline int testObi(BOOL alone)
+static inline int testDb(BOOL alone)
   {
   int err= 0;
   if (alone)
     printf("**********    Test of the  Microstep MSObi Library    **********\n\n");
-  err= //testFoundation(NO) +
-       msobi_validate()   +
+  err= //testFoundation(NO)           +
+       //msdb_obi_validate()          +
+       msdb_repository_validate()   +
        0;
   if (alone) {
     if (!err)

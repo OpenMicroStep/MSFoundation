@@ -44,8 +44,9 @@
 @interface MSOdb : NSObject
 {
 @public
-  MSDBConnection* _db;
 @private
+  MSDBConnection* _db;
+  MSDBTransaction *_tr;
   MSArray* _valTables;
   MSMutableDictionary* _entByOid;
   MSMutableDictionary* _sysObiByOid;
@@ -56,7 +57,7 @@
 // Ouvre une connexion à la base spécifiée dans 'dict', qui contient les clés:
 //   host:             localhost
 //   port:             nil | (NSNumber)8888
-//   adaptator,dbtype: mysql | oracle
+//   adaptor,dbtype:   mysql | oracle
 //   socket:           /Applications/MAMP/tmp/mysql/mysql.sock
 //   database:         Spaf-Prod-11
 //   user,username:    root
@@ -70,11 +71,12 @@
 - (MSObi*)systemObiWithName:(NSString*)name;
 - (MSDictionary*)systemEntsByOid;
 - (MSDictionary*)systemObisByOid;
+- (MSArray*)systemNames;
 
-// newOidLongValue:nb
+// newOidValue:nb
 // The next oid long value enabled for the db. All the next nb value are
 // considered as consumed.
-- (MSLong)newOidLongValue:(MSLong)nb;
+- (MSLong)newOidValue:(MSLong)nb;
 
 // oidsWithCars:cars
 // Retourne les id des obis qui vérifient tous les car-i de cars.
@@ -99,7 +101,10 @@
 // La car 'entity' est toujours remplie même si elle n'est pas demandée.
 - (MSMutableDictionary*)fillIds:(uid)ids withCars:(uid)cars;
 
-- (MSMutableDictionary*)decodeObis:(MSString*)x;
+- (BOOL)changeObi:(MSObi*)x;
+- (BOOL)changeObis:(MSDictionary*)x;
+
+- (MSMutableDictionary*)decodeObis:(MSString*)x root:(MSObi**)pRoot;
 
 // Redirected on _db
 - (NSString*)escapeString:(NSString*)aString withQuotes:(BOOL)withQuotes;

@@ -1,7 +1,7 @@
-// msobi_validate.m, ecb, 140101
+// msdb_obi_validate.m, ecb, 140101
 
 #include "MSDb_Private.h"
-#include "msobi_validate.h"
+#include "msdb_validate.h"
 
 static inline BOOL _eq(int no, BOOL eq, id u1, id u2)
 {
@@ -14,12 +14,12 @@ static inline int tst_uid(void)
   {
   int err= 0;
   id o1,o2,u1,u2;
-  o1= [MSOid oidWithLongValue:1];  // 1 oid: obi id
+  o1= [MSOid oidWithValue:1];  // 1 oid: obi id
   u1= [MSUid uidWithUid:o1];       // uid: union d'oid. u1= (o1)
-  o2= [MSArray arrayWithObject:[MSOid oidWithLongValue:1]];
+  o2= [MSArray arrayWithObject:[MSOid oidWithValue:1]];
   u2= [MSUid uidWithUid:o2];       // u2= (o1)
   if (!_eq(1, YES, u1, u2)) err++; // [1]==[1]
-  u2= [MSUid uidWithUid:[MSOid oidWithLongValue:-1]];
+  u2= [MSUid uidWithUid:[MSOid oidWithValue:-1]];
   if (!_eq(2, NO, u1, u2)) err++;  // [1]!=[-1]
   [u1 addUid:u2];
   if (!_eq(3, NO, u1, u2)) err++;  // [1,-1]!=[-1]
@@ -48,7 +48,9 @@ static inline int tst_obi_nu(id dbParams)
   id db,ctx,strId,x; MSObi *o,*theDb; MSUid *ids;
   if (!(db= [[MSOdb alloc] initWithParameters:dbParams])) {
     NSLog(@"B1: no db %@",[dbParams objectForLazyKey:@"database"]); err++;}
-  ctx= [MSDictionary dictionaryWithObjectsAndKeys:db,@"Odb",
+  ctx= [MSDictionary dictionaryWithObjectsAndKeys:db,MSContextOdb,
+    [NSNumber numberWithBool:YES],MSContextSystemNames,
+    [NSNumber numberWithBool:YES],MSContextCompleteness,
     //[NSNumber numberWithBool:YES],@"Strict",
     //[NSNumber numberWithBool:YES],@"Small" ,
     nil];
@@ -62,18 +64,23 @@ static inline int tst_obi_nu(id dbParams)
   if (![ids containsVid:strId]) {
     NSLog(@"B3: no STR Typ %@",[ids descriptionInContext:ctx]); err++;}
   x= [db fillIds:MSObiDatabaseId withCars:nil];
-NSLog(@"X1: %ld",[x count]);
+NSLog(@"X0: %ld",[x count]);
   theDb= [(MSDictionary*)x objectForKey:MSObiDatabaseId];
 //theDb= [[db fillIds:MSObiDatabaseId withCars:nil] objectForKey:MSObiDatabaseId];
   if (!theDb) {
     NSLog(@"B4: no DB Obi %@",MSObiDatabaseId); err++;}
-NSLog(@"X1: %@",[theDb class]);
-NSLog(@"X2: %@",[theDb descriptionInContext:ctx]);
+NSLog(@"XA newOidValue: %lld",[db newOidValue:1234]);
+//NSLog(@"XB car next oid: %@",[[db systemObiWithOid:MSCarNextOidId] descriptionInContext:ctx]);
+//NSLog(@"X1: %@",[theDb class]);
+//NSLog(@"X2 db: %@",[[db systemObiWithOid:MSObiDatabaseId] descriptionInContext:ctx]);
 o= [db systemObiWithOid:MSEntEntId]; // MSEntEntId MSCarSystemNameId
-NSLog(@"X3: %@",[o descriptionInContext:ctx]);
-o= [MSUid uidWithUid:MSCarSystemNameId];
-//[o addUid:MSEntEntId];
-NSLog(@"X4: %@",[o descriptionInContext:ctx]);
+//NSLog(@"X3: %@",[o descriptionInContext:ctx]);
+ids= [MSUid uidWithUid:MSCarSystemNameId];
+[ids addUid:MSEntEntId];
+//NSLog(@"X4: %@",[ids descriptionInContext:ctx]);
+ids= [MSUid uidWithUid:[[db systemObisByOid] allKeys]];
+NSLog(@"X5: %@",ids);
+NSLog(@"X6: %@",[ids descriptionInContext:ctx]);
   RELEAZEN(db);
   return err;
 }
@@ -104,18 +111,52 @@ static id d2= @"Ent // Test of Ent with inline gabs\n"
 "    caractéristique: gabarit\n"
 "    _end:\n"
 "  _end:\n";
-static inline int tst_obi_decode(id dbParams, id x)
+
+static id d3= @""
+"  Car\n"
+"  _id: -4\n"
+"  nom système: first name\n"
+"  type: STR\n"
+"  _end:\n"
+
+"  Car\n"
+"  _id: -5\n"
+"  nom système: last name\n"
+"  type: STR\n"
+"  _end:\n"
+
+"  Ent\n"
+"  _id: -1\n"
+"  nom système: Person\n"
+"  gabarit: \n"
+"    Gab\n"
+"    _id: -2\n"
+"    caractéristique: first name\n"
+"    _end:\n"
+"  gabarit: \n"
+"    Gab\n"
+"    _id: -3\n"
+"    caractéristique: last name\n"
+"    _end:\n"
+"  _end:\n"
+;
+static inline int tst_obi_decode(id dbParams, id x, BOOL save)
 {
   int err= 0;
-  id db;
+  id db; MSMutableDictionary *all; MSObi *root= NULL;
   if (!(db= [[MSOdb alloc] initWithParameters:dbParams])) {
     NSLog(@"C1: no db %@",[dbParams objectForLazyKey:@"database"]); err++;}
-  [db decodeObis:x];
+  all= [db decodeObis:x root:&root];
+  if (save) {
+    [db changeObis:all];
+NSLog(@"SAVED1: %@",root);
+NSLog(@"SAVED2: %@",[db systemObiWithName:@"Person"]);
+    }
   RELEAZEN(db);
   return err;
 }
 
-int msobi_validate(void)
+int msdb_obi_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
@@ -130,8 +171,9 @@ int msobi_validate(void)
 
   err+= tst_uid();
   err+= tst_obi_nu(dbParams);
-  err+= tst_obi_decode(dbParams,d1);
-  err+= tst_obi_decode(dbParams,d2);
+//err+= tst_obi_decode(dbParams,d1,NO);
+//err+= tst_obi_decode(dbParams,d2,NO);
+//err+= tst_obi_decode(dbParams,d3,YES);
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSObi",(err?"FAIL":"PASS"),seconds);
