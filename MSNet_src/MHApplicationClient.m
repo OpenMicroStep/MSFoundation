@@ -420,6 +420,7 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
 - (BOOL)authenticate
 {
     BOOL auth = NO ;
+    MHInitSSL();
     _authenticationLevel = authenticationLevelForType(_authenticationType) ;
     [self setSessionID:nil] ;
     
