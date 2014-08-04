@@ -160,7 +160,7 @@
 		MYSQL_RES *result;
 		mysql_query(&_db, [sql UTF8String]);
 		result= mysql_store_result(&_db) ;
-		resultSet = [[MSMySQLResultSet alloc] initWithMySQLRes:result connection:self] ;
+		if (result) resultSet = [[MSMySQLResultSet alloc] initWithMySQLRes:result connection:self] ;
 		if (resultSet) {
 			// === WARNING === the connection does not retain its operations...
 			[_operations addObject:resultSet] ;

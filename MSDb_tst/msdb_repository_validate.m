@@ -138,7 +138,6 @@ int msdb_repository_validate(void)
   id dbParams= DICT @"localhost", @"host",
     [NSNumber numberWithInt:8889], @"port",
     @"root", @"user",@"root", @"pwd",
-    @"/Applications/MAMP/tmp/mysql/mysql.sock", @"socket",
     @"mysql", @"adaptor",
     @"Repository", @"database",
     //@"Spaf-Prod-11", @"database",
