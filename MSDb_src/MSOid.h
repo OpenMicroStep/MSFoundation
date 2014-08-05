@@ -165,7 +165,7 @@ extern MSString *MSCarMiddleNameLib;
 extern MSString *MSCarLastNameLib;
 extern MSString *MSCarLoginLib;
 extern MSString *MSCarHashedPasswordLib;
-extern MSString *MSCarMustChangePasswordLib;
+extern MSString *MSCarResetPasswordLib;
 extern MSString *MSCarPublicKeyLib;
 extern MSString *MSCarPrivateKeyLib;
 extern MSString *MSCarCipheredPrivateKeyLib;

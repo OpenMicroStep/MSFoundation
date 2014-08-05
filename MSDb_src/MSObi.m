@@ -498,16 +498,27 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 
 @end
 
-@implementation MSObi (Car)
+@implementation MSObi (Sys)
+- (MSObi*)entPatternOfCid:(MSOid*)cid
+{
+  id patterns,e,p,pFd;
+  pFd= nil;
+  if (cid) {
+    patterns= [self valuesForCid:MSCarPatternId];
+    for (e= [patterns objectEnumerator]; !pFd && (p= [e nextObject]);) {
+      p= [(MSOValue*)p subValue];
+      if (ISEQUAL(cid, [p oidValueForCid:MSCarCharacteristicId])) pFd= p;}}
+  return pFd;
+}
 - (NSString*)carType
 {
   return [[self subValueForCid:MSCarTypeId] systemName];
 }
 - (NSString*)carTable
 {
-  return [[self subValueForCid:MSCarTypeId] typeTable];
+  return [[self subValueForCid:MSCarTypeId] typTable];
 }
-- (NSString*)typeTable
+- (NSString*)typTable
 {
   id t= [self stringValueForCid:MSCarTableId];
   return t ? t : [self stringValueForCid:MSCarSystemNameId];

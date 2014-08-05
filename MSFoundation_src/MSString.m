@@ -599,6 +599,12 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 
 #pragma mark Primitives
 
+- (BOOL)getFileSystemRepresentation:(char *)buffer maxLength:(NSUInteger)maxLength
+// TODO: something else ?
+{
+  return [[NSString stringWithString:self] getFileSystemRepresentation:buffer maxLength:maxLength];
+}
+
 - (NSUInteger)length
 {
   return _length;

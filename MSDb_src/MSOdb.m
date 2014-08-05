@@ -137,9 +137,11 @@ NSLog(@"_valTables %@",_valTables);
   else if ([x respondsToSelector:@selector(oid)]) r= [x oid];
   else if ([x isKindOfClass:[NSString class]]) {
     r= ((o= [self systemObiWithName:x]) ? [o oid] :
-        (o= [self systemObiWithOid:[MSOid oidWithValue:[x intValue]]]) ? [o oid] :
+        (o= [self systemObiWithOid:[MSOid oidWithValue:[x longLongValue]]]) ? [o oid] :
         nil);}
-  else if ([x isKindOfClass:[NSNumber class]]) r= [MSOid oidWithValue:[(NSNumber*)x longLongValue]];
+  else if ([x isKindOfClass:[NSNumber class]]) {
+    r= (o= [self systemObiWithOid:[MSOid oidWithValue:[x longLongValue]]]) ? [o oid] :
+       nil;}
   else r= nil;
   return r;
   }
@@ -319,6 +321,12 @@ ctx= nil;
   if (!_sysObiByName) [self _buildSystemObis];
   return !name?nil:[_sysObiByName objectForKey:name];
   }
+- (MSObi*)systemObiWithVid:(vid)vid
+  {
+  if (!_sysObiByOid) [self _buildSystemObis];
+  vid= [self _vid2oid:vid];
+  return !vid?nil:[_sysObiByOid objectForKey:vid];
+  }
 - (NSDictionary*)systemEntsByOid
   {
   if (!_entByOid) [self _buildSystemObis];
@@ -358,7 +366,7 @@ ctx= nil;
     v= [MSOValue valueWithCid:MSCarTypeId state:MSAdd type:B8 value:tv];
     [car setValue:v];
     ok= [self changeObi:car];
-NSLog(@"car ret change %d",ok);
+NSLog(@"newOidValue car ret change %d",ok);
     car= [self systemObiWithOid:MSCarNextOidId];}
   //Element
   //_id: 10000
@@ -375,7 +383,7 @@ NSLog(@"car ret change %d",ok);
     v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 value:tv];
     [db setValue:v];
     ok= [self changeObi:db];
-NSLog(@"db1 ret change %d",ok);
+NSLog(@"newOidValue db1 ret change %d",ok);
     db= [self systemObiWithOid:MSObiDatabaseId];}
   // On va chercher en base pour avoir le dernier.
   // BEGIN TRANSACTION
@@ -386,14 +394,15 @@ NSLog(@"db1 ret change %d",ok);
   //next oid: old oid + nb
   if (db && car) {
     r= [db longValueForCid:[car oid]];
-    if (r<freeOidv) r= freeOidv; // Si on est sorti en rollback
+//NSLog(@"db2 r %lld freeOidv %lld %@",r,freeOidv,db);
+    if (r<freeOidv) r= freeOidv; // Si on est sorti en rollback TODO: Si roolback, le no n'a pas été enreg. Est-on sûr que les no n'ont pas été retenus ?
     v= [db valueForCid:[car oid]];
     [v setState:MSRemove];
     tv.s= r+nb;
     v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 value:tv];
     [db setValue:v];
     ok= [self changeObi:db];
-NSLog(@"db2 ret change %d",ok);
+//NSLog(@"db3 ret change %lld %lld %d",r,tv.s,ok);
     }
   // END TRANSACTION
   if (unsetTr) {
@@ -650,6 +659,22 @@ NSLog(@"SUPPR NON AUTORISÉE (lié à %lld) %@",bid,obi);
   return ok;
   }
 
+- (BOOL)beginTransaction
+{
+  BOOL ret= NO;
+  if (!_tr && (_tr= [[_db openTransaction] retain])) ret= YES;
+  return ret;
+}
+- (BOOL)endTransactionSuccessfully:(BOOL)commit
+{
+  BOOL ret= YES;
+  if (!_tr) ret= NO;
+  else if (commit) ret= [_tr saveWithError:NULL];
+  else [_tr terminateOperation];
+  RELEAZEN(_tr);
+  return ret;
+}
+
 static inline id _subtrim(id l, NSRange rg) // sub to range and trim
 {
   if (rg.location!=NSNotFound) l= [l substringWithRange:rg];
@@ -742,7 +767,7 @@ static inline BOOL _addCarValue(id obi, id car, id v, _DS d, BOOL addToUnresolve
     if (!typ) {
       typ= [d.db systemObiWithOid:typId];
       if (typ) [d.all setObject:typ forKey:typId];}
-    t= [typ typeTable];}
+    t= [typ typTable];}
   type= t?_valueTypeFromTable(t):0x00;
   cid= [car oid];
   if (car && !type) {

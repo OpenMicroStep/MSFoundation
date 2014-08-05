@@ -69,6 +69,7 @@
 
 - (MSObi*)systemObiWithOid:(MSOid*)x;
 - (MSObi*)systemObiWithName:(NSString*)name;
+- (MSObi*)systemObiWithVid:(vid)vid;
 - (MSDictionary*)systemEntsByOid;
 - (MSDictionary*)systemObisByOid;
 - (MSArray*)systemNames;
@@ -103,6 +104,9 @@
 
 - (BOOL)changeObi:(MSObi*)x;
 - (BOOL)changeObis:(MSDictionary*)x;
+
+- (BOOL)beginTransaction;
+- (BOOL)endTransactionSuccessfully:(BOOL)commit;
 
 - (MSMutableDictionary*)decodeObis:(MSString*)x root:(MSObi**)pRoot;
 
