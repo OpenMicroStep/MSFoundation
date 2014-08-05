@@ -53,7 +53,7 @@ MSString *MSCarSystemNameLib,*MSObiDatabaseLib,*MSCarNextOidLib;
 
 MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
          *MSCarFirstNameLib,*MSCarMiddleNameLib,*MSCarLastNameLib,
-         *MSCarLoginLib,*MSCarHashedPasswordLib,*MSCarMustChangePasswordLib,
+         *MSCarLoginLib,*MSCarHashedPasswordLib,*MSCarResetPasswordLib,
          *MSCarPublicKeyLib,*MSCarPrivateKeyLib,*MSCarCipheredPrivateKeyLib;
 
 @implementation MSOid
@@ -87,10 +87,10 @@ MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
 //  MSTypDATId= [[MSOid alloc] initWithValue:1063]; // id  du Type 'DAT'
 //  MSTypDTRId= [[MSOid alloc] initWithValue:1064]; // id  du Type 'DTR'
 //  MSTypDURId= [[MSOid alloc] initWithValue:1065]; // id  du Type 'DUR'
-    MSObiDatabaseId=        [[MSOid alloc] initWithValue:200000]; // id  de la 'database'
-    MSObiDatabaseLib=       MSCreateString("database");               // lib de l'obi 'database'
+    MSObiDatabaseId=        [[MSOid alloc] initWithValue:10000]; // id  de la 'database'
+    MSObiDatabaseLib=       MSCreateString("database");           // lib de l'obi 'database'
     MSCarNextOidId=         [[MSOid alloc] initWithValue:401];    // id  de la car 'next oid'
-    MSCarNextOidLib=        MSCreateString("next oid");               // lib de la car 'next oid'
+    MSCarNextOidLib=        MSCreateString("next oid");           // lib de la car 'next oid'
 
     MSCarLabelLib=              MSCreateString("label");
     MSCarURNLib=                MSCreateString("urn");
@@ -100,7 +100,7 @@ MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
     MSCarLastNameLib=           MSCreateString("last name");
     MSCarLoginLib=              MSCreateString("login");
     MSCarHashedPasswordLib=     MSCreateString("hashed password");
-    MSCarMustChangePasswordLib= MSCreateString("must change password");
+    MSCarResetPasswordLib=      MSCreateString("must change password");
     MSCarPublicKeyLib=          MSCreateString("public key");
     MSCarPrivateKeyLib=         MSCreateString("private key");
     MSCarCipheredPrivateKeyLib= MSCreateString("ciphered private key ");

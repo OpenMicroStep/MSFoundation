@@ -159,10 +159,11 @@ _btypedValue;
 - (BOOL)setValue:(MSOValue*)v;
 @end
 
-@interface MSObi (Car)
+@interface MSObi (Sys)
+- (MSObi*)entPatternOfCid:(MSOid*)cid;
 - (NSString*)carType;
 - (NSString*)carTable;
-- (NSString*)typeTable;
+- (NSString*)typTable;
 @end
 
 @interface MSObi (Private)

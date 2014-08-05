@@ -126,6 +126,22 @@ NSLog(@"add error:%@",error);
     dos= [rep informationsWithKeys:MSRCarAdministratorLib forRefs:servUrn];
 NSLog(@"added ? Service: %@",[dos objectForKey:servUrn]);
     }
+  // CREATE PERSON
+  if (!err) {
+    id person= [MSDictionary dictionaryWithKeysAndObjects:
+      MSCarURNLib,            @"new Urn 7",
+      MSCarFirstNameLib,      @"first",
+      MSCarMiddleNameLib,     @"middle",
+      MSCarLastNameLib,       @"last",
+      MSCarLoginLib,          @"lêkg",
+      MSCarHashedPasswordLib, @"pwd",
+      MSCarResetPasswordLib,  @"YES",
+      nil];
+    id error= [rep createPerson:person inService:servUrn]; // servUrn
+NSLog(@"create error:%@",error);
+    dos= [rep informationsWithKeys:MSRCarMemberLib forRefs:servUrn];
+NSLog(@"created ? members: %@",[dos objectForKey:servUrn]);
+    }
   if (dbNo && ![MHRepository closeRepositoryDatabase:dbNo]) {
     NSLog(@"D99: no close %d",dbNo); err++;}
   return err;
