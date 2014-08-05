@@ -657,9 +657,14 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   if ([object isKindOfClass:[MSString class]]) {
     return CStringEquals((CString*)self, (CString*)object);}
   else if ([object isKindOfClass:[NSString class]]) { // TODO: a revoir. Quid dans l'autre sens ?
-    BOOL eq; NSUInteger i,n= [object length]; unichar b[n?n:1];
-    [object getCharacters:b range:NSMakeRange(0, n)];
-    for (eq= YES, i= 0; eq && i<n; i++) eq= (_buf[i]==b[i]);
+    BOOL eq = NO;
+    NSUInteger n= [object length];
+    if (n == [self length]) {
+      unichar b[n?n:1];
+      NSUInteger i;
+      [object getCharacters:b range:NSMakeRange(0, n)];
+      for (eq= YES, i= 0; eq && i<n; i++) eq= (_buf[i]==b[i]);
+    }
 //NSLog(@"MSString isEqual %@ %@= %@ %@\n",self,(eq?@"=":@"!"),[object class],object);
     return eq;}
   return NO;
