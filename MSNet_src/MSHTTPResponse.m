@@ -125,3 +125,21 @@
 
 
 @end
+
+
+@implementation MSHTTPResponse (MASHAdditions)
+
+- (NSString *)mashSessionID
+{
+  NSString *sessionID = nil ;
+  NSString *cookieLine = [self headerValueForKey:@"Set-Cookie"] ;
+  
+  if([cookieLine length] && ![cookieLine containsString:@"deleted"])
+  {
+    NSArray * components = [cookieLine componentsSeparatedByString:@";"] ;
+    sessionID = ([components count]) ? [components objectAtIndex:0] : nil ;
+  }
+  return sessionID ;
+}
+
+@end

@@ -33,6 +33,11 @@
 - (id)initWithServerParameters:(NSDictionary *)parameters ;
 
 + (id)clientWithServerParameters:(NSDictionary *)parameters
+                       sessionID:(NSString *)sessionID ;
+- (id)initWithServerParameters:(NSDictionary *)parameters
+                     sessionID:(NSString *)sessionID ;
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
               challengedPassword:(NSString *)password
                            login:(NSString *)login ;
 
