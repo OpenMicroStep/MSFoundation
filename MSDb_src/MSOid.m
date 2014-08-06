@@ -49,7 +49,8 @@ MSOid *MSTypIDId,*MSTypSIDId,*MSTypSTRId,*MSTypINTId,
       *MSTypDATId,*MSTypDTRId,*MSTypDURId;
 MSOid *MSObiDatabaseId,*MSCarNextOidId;
 
-MSString *MSCarSystemNameLib,*MSObiDatabaseLib,*MSCarNextOidLib;
+MSString *MSCarSystemNameLib,*MSCarTypeLib,*MSCarCardinalityLib,
+         *MSObiDatabaseLib,*MSCarNextOidLib;
 
 MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
          *MSCarFirstNameLib,*MSCarMiddleNameLib,*MSCarLastNameLib,
@@ -61,35 +62,37 @@ MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
 + (void)initialize
 {
   if ([self class] == [MSOid class]) {
-    MSEntEntId= [[MSOid alloc] initWithValue:1]; // id  de l'entité 'ENT'
-    MSEntCarId= [[MSOid alloc] initWithValue:3]; // id  de l'entité 'Car'
-    MSEntTypId= [[MSOid alloc] initWithValue:5]; // id  de l'entité 'Typ'
-    MSCarEntityId=         [[MSOid alloc] initWithValue:101]; // id  de la car 'entity'
-    MSCarSystemNameId=     [[MSOid alloc] initWithValue:102]; // id  de la car 'system name'
-//  MSCarSystemNameLib=    MSCreateString("nom système");         // lib de la car 'system name'
-    MSCarSystemNameLib=    MSCreateString("system name");         // lib de la car 'system name'
-    MSCarCharacteristicId= [[MSOid alloc] initWithValue:103]; // id  de la car 'caract.'
-    MSCarTypeId=           [[MSOid alloc] initWithValue:105]; // id  de la car 'type'
-    MSCarTableId=          [[MSOid alloc] initWithValue:106]; // id  de la car 'table'
-    MSCarPatternId=        [[MSOid alloc] initWithValue:107]; // id  de la car 'pattern'
-//  MSCarDomainEntityId=   [[MSOid alloc] initWithValue:109]; // id  de la car 'domain entity'
-//  MSCarDomainListId=     [[MSOid alloc] initWithValue:110]; // id  de la car 'domain list'
-    MSCarCardinalityId=    [[MSOid alloc] initWithValue:115]; // id  de la car 'cardinality'
-//  MSCarClassNameId=      [[MSOid alloc] initWithValue:116]; // id  de la car 'class name'
-    MSCarDateId=           [[MSOid alloc] initWithValue:135]; // id  de la car 'date'
-//  MSCarLabelId=          [[MSOid alloc] initWithValue:232]; // id  de la car 'label'
-    MSCarURNId=            [[MSOid alloc] initWithValue:301]; // id  de la car 'urn'
-    MSCarLoginId=          [[MSOid alloc] initWithValue:321]; // id  de la car 'login'
-//  MSTypIDId=  [[MSOid alloc] initWithValue:1055]; // id  du Type 'ID'
-//  MSTypSIDId= [[MSOid alloc] initWithValue:1056]; // id  du Type 'SID'
-//  MSTypSTRId= [[MSOid alloc] initWithValue:1061]; // id  du Type 'STR'
-//  MSTypINTId= [[MSOid alloc] initWithValue:1062]; // id  du Type 'INT'
-//  MSTypDATId= [[MSOid alloc] initWithValue:1063]; // id  du Type 'DAT'
-//  MSTypDTRId= [[MSOid alloc] initWithValue:1064]; // id  du Type 'DTR'
-//  MSTypDURId= [[MSOid alloc] initWithValue:1065]; // id  du Type 'DUR'
-    MSObiDatabaseId=        [[MSOid alloc] initWithValue:10000]; // id  de la 'database'
+    MSEntEntId= [[MSOid alloc] initWithValue:1]; // ent 'ENT'
+    MSEntCarId= [[MSOid alloc] initWithValue:3]; // ent 'Car'
+    MSEntTypId= [[MSOid alloc] initWithValue:5]; // ent 'Typ'
+    MSCarEntityId=         [[MSOid alloc] initWithValue:101]; // car 'entity'
+    MSCarSystemNameId=     [[MSOid alloc] initWithValue:102]; // car 'system name'
+//  MSCarSystemNameLib=    MSCreateString("nom système");
+    MSCarSystemNameLib=    MSCreateString("system name");
+    MSCarCharacteristicId= [[MSOid alloc] initWithValue:103]; // car 'characteristique'
+    MSCarTypeId=           [[MSOid alloc] initWithValue:105]; // car 'type'
+    MSCarTypeLib=          MSCreateString("type");
+    MSCarTableId=          [[MSOid alloc] initWithValue:106]; // car 'table'
+    MSCarPatternId=        [[MSOid alloc] initWithValue:107]; // car 'pattern'
+//  MSCarDomainEntityId=   [[MSOid alloc] initWithValue:109]; // car 'domain entity'
+//  MSCarDomainListId=     [[MSOid alloc] initWithValue:110]; // car 'domain list'
+    MSCarCardinalityId=    [[MSOid alloc] initWithValue:115]; // car 'cardinality'
+    MSCarCardinalityLib=   MSCreateString("cardinality");
+//  MSCarClassNameId=      [[MSOid alloc] initWithValue:116]; // car 'class name'
+    MSCarDateId=           [[MSOid alloc] initWithValue:135]; // car 'date'
+//  MSCarLabelId=          [[MSOid alloc] initWithValue:232]; // car 'label'
+    MSCarURNId=            [[MSOid alloc] initWithValue:301]; // car 'urn'
+    MSCarLoginId=          [[MSOid alloc] initWithValue:321]; // car 'login'
+//  MSTypIDId=  [[MSOid alloc] initWithValue:1055]; // typ 'ID'
+//  MSTypSIDId= [[MSOid alloc] initWithValue:1056]; // typ 'SID'
+//  MSTypSTRId= [[MSOid alloc] initWithValue:1061]; // typ 'STR'
+//  MSTypINTId= [[MSOid alloc] initWithValue:1062]; // typ 'INT'
+//  MSTypDATId= [[MSOid alloc] initWithValue:1063]; // typ 'DAT'
+//  MSTypDTRId= [[MSOid alloc] initWithValue:1064]; // typ 'DTR'
+//  MSTypDURId= [[MSOid alloc] initWithValue:1065]; // typ 'DUR'
+    MSObiDatabaseId=        [[MSOid alloc] initWithValue:10000]; // 'database'
     MSObiDatabaseLib=       MSCreateString("database");           // lib de l'obi 'database'
-    MSCarNextOidId=         [[MSOid alloc] initWithValue:401];    // id  de la car 'next oid'
+    MSCarNextOidId=         [[MSOid alloc] initWithValue:401];    // car 'next oid'
     MSCarNextOidLib=        MSCreateString("next oid");           // lib de la car 'next oid'
 
     MSCarLabelLib=              MSCreateString("label");
