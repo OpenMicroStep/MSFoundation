@@ -127,35 +127,37 @@ typedef id        uid; // union id: vid | MSUid*
 - (void)addUid:(uid)u;
 @end
 
-extern MSOid    *MSEntEntId;    // id  de l'entité 'ENT'
-extern MSOid    *MSEntCarId;    // id  de l'entité 'Car'
-extern MSOid    *MSEntTypId;    // id  de l'entité 'Typ'
-extern MSOid    *MSCarEntityId;         // id  de la car 'entity'
-extern MSOid    *MSCarSystemNameId;     // id  de la car 'system name'
-extern MSString *MSCarSystemNameLib;    // lib de la car 'system name'
-extern MSOid    *MSCarCharacteristicId; // id  de la car 'caract.'
-extern MSOid    *MSCarTypeId;           // id  de la car 'type'
-extern MSOid    *MSCarTableId;          // id  de la car 'table'
-extern MSOid    *MSCarPatternId;        // id  de la car 'pattern'
-//extern MSOid  *MSCarDomainEntityId;   // id  de la car 'domain entity'
-extern MSOid  *MSCarCardinalityId;      // id  de la car 'cardinality'
-//extern MSOid  *MSCarClassNameId;      // id  de la car 'class name'
-extern MSOid    *MSCarDateId;           // id  de la car 'date'
-//extern MSOid  *MSCarLabelId;          // id  de la car 'label'
-extern MSOid    *MSCarURNId;            // id  de la car 'urn'
-extern MSOid    *MSCarLoginId;          // id  de la car 'login'
-//extern MSOid  *MSTypIDId;  // id  du Type 'ID'
-//extern MSOid  *MSTypSIDId; // id  du Type 'SID'
-//extern MSOid  *MSTypSTRId; // id  du Type 'STR'
-//extern MSOid  *MSTypINTId; // id  du Type 'INT'
-//extern MSOid  *MSTypDATId; // id  du Type 'DAT'
-//extern MSOid  *MSTypDTRId; // id  du Type 'DTR'
-//extern MSOid  *MSTypDURId; // id  du Type 'DUR'
+extern MSOid    *MSEntEntId;    // ent 'ENT'
+extern MSOid    *MSEntCarId;    // ent 'Car'
+extern MSOid    *MSEntTypId;    // ent 'Typ'
+extern MSOid    *MSCarEntityId;         // car 'entity'
+extern MSOid    *MSCarSystemNameId;     // car 'system name'
+extern MSString *MSCarSystemNameLib;
+extern MSOid    *MSCarCharacteristicId; // car 'characteristique'
+extern MSOid    *MSCarTypeId;           // car 'type'
+extern MSString *MSCarTypeLib;
+extern MSOid    *MSCarTableId;          // car 'table'
+extern MSOid    *MSCarPatternId;        // 'pattern'
+//extern MSOid  *MSCarDomainEntityId;   // 'domain entity'
+extern MSOid    *MSCarCardinalityId;    // car 'cardinality'
+extern MSString *MSCarCardinalityLib;
+//extern MSOid  *MSCarClassNameId;      // car 'class name'
+extern MSOid    *MSCarDateId;           // car 'date'
+//extern MSOid  *MSCarLabelId;          // car 'label'
+extern MSOid    *MSCarURNId;            // car 'urn'
+extern MSOid    *MSCarLoginId;          // car 'login'
+//extern MSOid  *MSTypIDId;  // typ 'ID'
+//extern MSOid  *MSTypSIDId; // typ 'SID'
+//extern MSOid  *MSTypSTRId; // typ 'STR'
+//extern MSOid  *MSTypINTId; // typ 'INT'
+//extern MSOid  *MSTypDATId; // typ 'DAT'
+//extern MSOid  *MSTypDTRId; // typ 'DTR'
+//extern MSOid  *MSTypDURId; // typ 'DUR'
 
-extern MSOid    *MSObiDatabaseId;           // id  de la 'database'
-extern MSString *MSObiDatabaseLib;          // lib de l'obi 'database'
-extern MSOid    *MSCarNextOidId;            // id  de la car 'next oid'
-extern MSString *MSCarNextOidLib;           // lib de la car 'next oid'
+extern MSOid    *MSObiDatabaseId;  // obi 'database'
+extern MSString *MSObiDatabaseLib;
+extern MSOid    *MSCarNextOidId;   // car 'next oid'
+extern MSString *MSCarNextOidLib;
 
 extern MSString *MSCarLabelLib;
 extern MSString *MSCarURNLib;
