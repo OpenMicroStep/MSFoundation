@@ -36,7 +36,7 @@ static inline int tst_rep_nu(id dbParams, id x, BOOL save)
     if (!ISEQUAL(x,nx)) {
       prefix= [x commonPrefixWithString:nx options:NSLiteralSearch];
       NSLog(@"C5: not the same at index (%lu +) %lu",nextLineBeg,(l= [prefix length]));
-      NSLog(@"prefix:\n %@",prefix);
+      NSLog(@"prefix:\n%@",prefix);
       rg= l>1 ? NSMakeRange(l-1, 2) : NSMakeRange(l, 1);
       if (l<[x length]) {
         [x getLineStart:&lineBeg end:NULL contentsEnd:&lineEnd forRange:rg];
@@ -44,6 +44,8 @@ static inline int tst_rep_nu(id dbParams, id x, BOOL save)
       if (l<[nx length]) {
         [nx getLineStart:&lineBeg end:NULL contentsEnd:&lineEnd forRange:rg];
         NSLog(@"new:      %@",[nx substringWithRange:NSMakeRange(lineBeg, lineEnd-lineBeg)]);}
+      NSLog(@"sufix old:\n%@",[x substringFromIndex:l]);
+      NSLog(@"sufix new:\n%@",[nx substringFromIndex:l]);
       err++;}}
   dbObi= [db systemObiWithOid:MSObiDatabaseId];
   tv.t= RETAIN([MSString UUIDString]);
@@ -58,90 +60,205 @@ static inline int tst_rep_nu(id dbParams, id x, BOOL save)
 static inline int tst_rep(id dbParams)
 {
   int err= 0;
-  MSUShort dbNo; id servUrn,persUrn; MSDictionary *dos;
+  MSUShort dbNo; id servURN,persURN,appURN,autURN,rightID; MSDictionary *dos,*dret;
   id rep;
   if (!(dbNo= [MHRepository openRepositoryDatabaseWithParameters:dbParams])) {
     NSLog(@"D1: no open %@",dbParams); err++;}
   if (!err) {
     id c,cpwd,login;
-    login= @"repository"; c= @"challenge";
-    cpwd= @"ECED7DD19C30EEE2B26E3B673DAA4A9FDFB5F7D99F4B2DD0FBBDE4B5EC935367"
-           "BF4CC37315587B9BE940CF00315EAB3A05D8ECF397D447FE478332568256F1F9";
+    login= @"admin"; c= @"challenge";
+    // printf "challengehpwd" | openssl sha512 |  tr '[:lower:]' '[:upper:]'
+    cpwd= @"51038EA994EF520B32963015499C4E0DBA500833BED9F47186AE0EFA4F9B2A68"
+           "122F85C875E33CCB5F296B95411E2DB8DF8E0B82F0EDE3724148B809DD90DD85";
     rep= [[MHRepository alloc] initWithChallenge:c challengedPassword:cpwd forLogin:login];
     if (!rep) {
       NSLog(@"D2: not logged %@",login); err++;}}
-  persUrn= @"an urn";
-  servUrn= @"Service 861 urn";
-  if (!err) {
-    id cars,refs,infos;
-    cars= [MSArray arrayWithObjects:@"first name",@"last name",nil];
-    refs= [MSArray arrayWithObjects:persUrn,nil]; // 10451 an urn
-    infos= [rep informationsWithKeys:cars forRefs:refs];
-//NSLog(@"infos %@",infos);
+  persURN= nil;
+  if (!err && !(persURN= [rep urn])) {
+    NSLog(@"D3 no URN for connected login %@",rep); err++;
     }
+  if (!err) {
+    id cars,n; MSDictionary *infos,*info;
+    cars= [MSArray arrayWithObjects:MSCarFirstNameLib,MSCarLastNameLib,nil];
+    infos= [rep informationsWithKeys:cars forRefs:persURN];
+    info= [infos objectForKey:persURN];
+    n= [[info objectForKey:MSCarFirstNameLib] objectAtIndex:0];
+    if (!ISEQUAL(@"repository", n)) {
+      NSLog(@"D4 bad first name %@",n); err++;}
+    n= [[info objectForKey:MSCarLastNameLib] objectAtIndex:0];
+    if (!ISEQUAL(@"administrator", n)) {
+      NSLog(@"D5 bad last name %@",n); err++;}}
+  // QUERY SERVICE
+  servURN= nil;
   if (!err) {
     id servs= [rep managedServices:NO];
-NSLog(@"managedServices %@",servs);
-    }
+    if (![servs count]) {
+      NSLog(@"D10 managedServices %@",servs); err++;}
+    else servURN= [servs objectAtIndex:0];}
+  if (!err) {
+    id os= [rep queryInstancesOfEntity:MSREntServiceLib withCars:nil];
+    if (![os containsObject:servURN]) {
+      NSLog(@"D11 queryInstancesOfEntity Service: %@",os); err++;}}
   if (!err) {
     id os,x,cars;
-    os= [rep queryInstancesOfEntity:MSREntServiceLib withCars:nil];
-NSLog(@"queryInstancesOfEntity Service: %@",os);
-    cars= [MSDictionary dictionaryWithKey:MSRCarAdministratorLib andObject:(x= persUrn)];
+    cars= [MSDictionary dictionaryWithKey:MSRCarAdministratorLib andObject:(x= persURN)];
     os= [rep queryInstancesOfEntity:MSREntServiceLib withCars:cars];
-NSLog(@"queryInstancesOfEntity Service of %@: %@",x,os);
-    os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:nil];
-NSLog(@"queryInstancesOfEntity Person: %@",os);
-    cars= [MSDictionary dictionaryWithKey:MSCarLastNameLib andObject:(x= @"last 462")];
+    if (![os containsObject:servURN]) {
+      NSLog(@"D12 queryInstancesOfEntity Service of %@: %@",x,os); err++;}}
+  // QUERY PERSON
+  if (!err) {
+    id os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:nil];
+    if (![os containsObject:persURN]) {
+      NSLog(@"D20 queryInstancesOfEntity Person: %@",os); err++;}}
+  if (!err) {
+    id os,x,cars;
+    cars= [MSDictionary dictionaryWithKey:MSCarLastNameLib andObject:(x= @"administrator")];
     os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:cars];
-NSLog(@"queryInstancesOfEntity Person with last name %@: %@",x,os);
-    }
+    if (![os containsObject:persURN]) {
+      NSLog(@"D21 queryInstancesOfEntity Person with last name %@: %@",x,os); err++;}}
+  // ADD / REMOVE PERSONNE AS MEMBER
   if (!err) {
-    id as= [rep authorizationUrnsForSoftwareContextOrApplicationUrns:@"Application 1261 urn"];
-NSLog(@"authorizations %@",as);
-    }
+    id error,x; BOOL inAtBeg= NO;
+    dos= [rep informationsWithKeys:MSRCarMemberLib forRefs:servURN];
+    if (![[(MSDictionary*)[dos objectForKey:servURN] objectForKey:MSRCarMemberLib] containsObject:persURN]) {
+      if ((error= [rep addValue:persURN forKey:MSRCarMemberLib onObject:servURN])) {
+        NSLog(@"D30 add error:%@",error); err++;}}
+    else inAtBeg= YES;
+    if (!err) {
+      if ((error= [rep removeValue:persURN forKey:MSRCarMemberLib onObject:servURN])) {
+        NSLog(@"D31 remove error:%@",error); err++;}}
+    if (!err && inAtBeg) {
+      if ((error= [rep addValue:persURN forKey:MSRCarMemberLib onObject:servURN])) {
+        NSLog(@"D32 add error:%@",error); err++;}}
+    if (!err && !ISEQUAL(dos, (x= [rep informationsWithKeys:MSRCarMemberLib forRefs:servURN]))) {
+      NSLog(@"D14 add + remove != identity !\n%@\n%@",dos,x); err++;}}
+  // CREATE PERSON (AND DELETE but TODO: not disabled)
   if (!err) {
-    id as= [rep rightsForApplicationUrn:@"Application 1261 urn"];
-NSLog(@"rightsForApplicationUrn %@",[(MSDictionary*)as allKeys]);
-    }
-  if (!err) {
-    id os,error= [rep changeValues:[MSDictionary dictionaryWithKey:persUrn andObject:@"Delete"]];
-NSLog(@"delete error:%@",error);
-    os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:nil];
-NSLog(@"deleted ? Person: %@",os);
-    }
-  if (!err) {
-    id error;
-    dos= [rep informationsWithKeys:MSRCarAdministratorLib forRefs:servUrn];
-NSLog(@"before Service: %@",[dos objectForKey:servUrn]);
-    error= [rep removeValue:persUrn forKey:MSRCarAdministratorLib onObject:servUrn];
-NSLog(@"remove error:%@",error);
-    dos= [rep informationsWithKeys:MSRCarAdministratorLib forRefs:servUrn];
-NSLog(@"removed ? Service: %@",[dos objectForKey:servUrn]);
-    }
-  if (!err) {
-    id error;
-    error= [rep addValue:persUrn forKey:MSRCarAdministratorLib onObject:servUrn];
-NSLog(@"add error:%@",error);
-    dos= [rep informationsWithKeys:MSRCarAdministratorLib forRefs:servUrn];
-NSLog(@"added ? Service: %@",[dos objectForKey:servUrn]);
-    }
-  // CREATE PERSON
-  if (!err) {
-    id person= [MSDictionary dictionaryWithKeysAndObjects:
-      MSCarURNLib,            @"new Urn 7",
+    id pURN,x,person= [MSDictionary dictionaryWithKeysAndObjects:
+      //MSCarURNLib,          @"new URN 8",
       MSCarFirstNameLib,      @"first",
       MSCarMiddleNameLib,     @"middle",
       MSCarLastNameLib,       @"last",
-      MSCarLoginLib,          @"lêkg",
+      MSCarLoginLib,          @"new login",
       MSCarHashedPasswordLib, @"pwd",
       MSCarResetPasswordLib,  @"YES",
+      //MSCarEntityLib,       MSREntServiceLib,
+      //MSCarLabelLib,        @"non authorisée sur Person",
+      //@"a bad car",         @"a value",
       nil];
-    id error= [rep createPerson:person inService:servUrn]; // servUrn
-NSLog(@"create error:%@",error);
-    dos= [rep informationsWithKeys:MSRCarMemberLib forRefs:servUrn];
-NSLog(@"created ? members: %@",[dos objectForKey:servUrn]);
-    }
+     dret= [rep createPerson:person inService:servURN]; // servURN
+    if (!(pURN= [dret objectForKey:MSCarURNLib])) {
+      NSLog(@"40 create error:%@",dret); err++;}
+    dos= [rep informationsWithKeys:MSRCarMemberLib forRefs:servURN];
+    if (![(x= [(MSDictionary*)[dos objectForKey:servURN] objectForKey:MSRCarMemberLib]) containsObject:pURN]) {
+      NSLog(@"41 not in members: %@",x); err++;}
+    if (!err && (dret= [rep removeValue:pURN forKey:MSRCarMemberLib onObject:servURN])) {
+      NSLog(@"D42 remove error:%@",dret); err++;}
+    if (!err && (dret= [rep changeValues:[MSDictionary dictionaryWithKey:pURN andObject:@"Delete"]])) {
+      NSLog(@"D43 delete error:%@",dret); err++;}}
+  // CREATE APPLICATION
+  appURN= nil;
+  if (!err) {
+    id app= [MSDictionary dictionaryWithKeysAndObjects:
+      MSCarEntityLib, MSREntApplicationLib,
+      MSCarLabelLib, @"my beautifull application",
+      nil];
+     dret= [rep createObject:app];
+    if (!(appURN= [dret objectForKey:MSCarURNLib])) {
+      NSLog(@"D50 create error:%@",dret); err++;}}
+//NSLog(@"+++++ app:%@",appURN);
+  // CREATE AUTHORIZATION
+  autURN= nil;
+  if (!err) {
+    id aut= [MSDictionary dictionaryWithKeysAndObjects:
+      MSCarEntityLib, MSREntAuthorizationLib,
+      MSCarLabelLib, @"my beautifull autorization",
+      nil];
+     dret= [rep createObject:aut]; // servURN
+    if (!(autURN= [dret objectForKey:MSCarURNLib])) {
+      NSLog(@"D51 create error:%@",dret); err++;}}
+//NSLog(@"+++++ auth:%@",autURN);
+  // CREATE RIGHT
+  rightID= nil;
+  if (!err) {
+    id right= [MSDictionary dictionaryWithKeysAndObjects:
+      MSCarEntityLib, MSREntRightLib,
+      MSCarLabelLib, @"my beautifull right",
+      MSRCarApplicationLib, appURN,
+      nil];
+     dret= [rep createSubobject:right forObject:autURN andLink:MSRCarRightLib];
+    if (!(rightID= [dret objectForKey:MSCarURNLib])) {
+      NSLog(@"D52 create error:%@",dret); err++;}}
+//NSLog(@"+++++ right:%@ %@",[rightID class],rightID);
+  // FIND APPLICATION
+  if (!err) {
+    id cars= [MSDictionary dictionaryWithKey:MSCarURNLib andObject:appURN];
+    id os= [rep queryInstancesOfEntity:MSREntApplicationLib withCars:cars];
+    if (![os containsObject:appURN]) {
+      NSLog(@"D60 queryInstancesOfEntity App: %@",os); err++;}}
+  // FIND AUTHORIZATION
+  if (!err) {
+    id cars= [MSDictionary dictionaryWithKey:MSCarURNLib andObject:autURN];
+    id os= [rep queryInstancesOfEntity:MSREntAuthorizationLib withCars:cars];
+    if (![os containsObject:autURN]) {
+      NSLog(@"D61 queryInstancesOfEntity Auth: %@",os); err++;}}
+  // FIND RIGHT
+  if (!err) {
+    id cars= [MSDictionary dictionaryWithKey:MSRCarRightLib andObject:rightID];
+    id os= [rep queryInstancesOfEntity:MSREntAuthorizationLib withCars:cars];
+    id aut= ![os count]?nil:[os objectAtIndex:0];
+    if (!ISEQUAL(autURN,aut)) {
+      NSLog(@"D62 queryInstancesOfEntity Right: %@",aut); err++;}}
+  // ADD ADMINISTRATOR TO autURN AUTHORIZATION
+  if (!err) {
+    id error;
+    if ((error= [rep addAuthenticables:appURN onAuthorization:autURN])) {
+      NSLog(@"D70 add member to authorization, error %@",error); err++;}
+    else if ((error= [rep removeAuthenticables:appURN ofAuthorization:autURN])) {
+      NSLog(@"D71 remove member to authorization, error %@",error); err++;}
+    else if ((error= [rep addAuthenticables:[NSArray arrayWithObjects:appURN,persURN,nil]
+                          onAuthorization:autURN])) {
+      NSLog(@"D72 add member to authorization, error %@",error); err++;}}
+  // AUTHORIZATION
+  if (!err) {
+    id as= [rep authorizationURNsForSoftwareContextOrApplicationURNs:appURN];
+    if (![as containsObject:autURN]) {
+      NSLog(@"D73 authorizations %@ ne contient pas %@",as,autURN); err++;}}
+  if (!err) {
+    NSDictionary *as= [rep rightsForApplicationURN:appURN];
+    if (![[(NSDictionary*)[as objectForKey:rightID] objectForKey:MSRCarApplicationLib] containsObject:appURN]) {
+      NSLog(@"D74 rightsForApplicationURN %@ %@",appURN,[(NSDictionary*)[as objectForKey:rightID] objectForKey:MSRCarApplicationLib]); err++;}}
+  // DELETE ADMINISTRATOR TO autURN AUTHORIZATION
+  if (!err) {
+    id error;
+    if ((error= [rep removeAuthenticables:[NSArray arrayWithObjects:appURN,persURN,nil]
+                          ofAuthorization:autURN])) {
+      NSLog(@"D75 remove member to authorization, error %@",error); err++;}}
+  // DELETE APPLICATION autURN -(right)-> rightID -(application)-> appURN
+  if (appURN) {
+    if (rightID && (dret= [rep changeValues:[MSDictionary dictionaryWithKey:rightID andObject:
+          [MSDictionary dictionaryWithKey:MSRCarApplicationLib andObject:
+          [MSCouple coupleWithFirstMember:@"Remove" secondMember:appURN]]]])) {
+      NSLog(@"D80 delete error:%@",dret); err++;}
+    if ((dret= [rep changeValues:[MSDictionary dictionaryWithKey:appURN andObject:@"Delete"]])) {
+      NSLog(@"D81 delete error:%@",dret); err++;}}
+  // DELETE RIGHT
+  if (rightID) {
+    if (autURN && (dret= [rep changeValues:[MSDictionary dictionaryWithKey:autURN andObject:
+          [MSDictionary dictionaryWithKey:MSRCarRightLib andObject:
+          [MSCouple coupleWithFirstMember:@"Remove" secondMember:rightID]]]])) {
+      NSLog(@"D82 delete error:%@",dret); err++;}
+    if ((dret= [rep changeValues:[MSDictionary dictionaryWithKey:rightID andObject:@"Delete"]])) {
+      NSLog(@"D83 delete error:%@",dret); err++;}}
+  // DELETE AUTORIZATION
+  if (autURN) {
+    if ((dret= [rep changeValues:[MSDictionary dictionaryWithKey:autURN andObject:@"Delete"]])) {
+      NSLog(@"D84 delete error:%@",dret); err++;}}
+  // DELETE LINKED PERSON NOT POSSIBLE
+  if (!err) {
+    id error= [rep changeValues:[MSDictionary dictionaryWithKey:persURN andObject:@"Delete"]];
+    if (!error) {
+      NSLog(@"D90 %@ a été supprimé alors qu'il était lié à son service delete error:%@",persURN,error); err++;}}
   if (dbNo && ![MHRepository closeRepositoryDatabase:dbNo]) {
     NSLog(@"D99: no close %d",dbNo); err++;}
   return err;

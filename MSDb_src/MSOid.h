@@ -131,6 +131,7 @@ extern MSOid    *MSEntEntId;    // ent 'ENT'
 extern MSOid    *MSEntCarId;    // ent 'Car'
 extern MSOid    *MSEntTypId;    // ent 'Typ'
 extern MSOid    *MSCarEntityId;         // car 'entity'
+extern MSString *MSCarEntityLib;
 extern MSOid    *MSCarSystemNameId;     // car 'system name'
 extern MSString *MSCarSystemNameLib;
 extern MSOid    *MSCarCharacteristicId; // car 'characteristique'
@@ -142,12 +143,12 @@ extern MSOid    *MSCarPatternId;        // 'pattern'
 extern MSOid    *MSCarCardinalityId;    // car 'cardinality'
 extern MSString *MSCarCardinalityLib;
 //extern MSOid  *MSCarClassNameId;      // car 'class name'
-extern MSOid    *MSCarDateId;           // car 'date'
 //extern MSOid  *MSCarLabelId;          // car 'label'
+extern MSOid    *MSCarSubobjectId;      // car 'subobject'
 extern MSOid    *MSCarURNId;            // car 'urn'
 extern MSOid    *MSCarLoginId;          // car 'login'
+extern MSOid    *MSCarDateId;           // car 'date'
 //extern MSOid  *MSTypIDId;  // typ 'ID'
-//extern MSOid  *MSTypSIDId; // typ 'SID'
 //extern MSOid  *MSTypSTRId; // typ 'STR'
 //extern MSOid  *MSTypINTId; // typ 'INT'
 //extern MSOid  *MSTypDATId; // typ 'DAT'
@@ -159,6 +160,7 @@ extern MSString *MSObiDatabaseLib;
 extern MSOid    *MSCarNextOidId;   // car 'next oid'
 extern MSString *MSCarNextOidLib;
 
+extern MSString *MSEntParameterLib;
 extern MSString *MSCarLabelLib;
 extern MSString *MSCarURNLib;
 extern MSString *MSCarParameterLib;

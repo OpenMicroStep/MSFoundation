@@ -518,6 +518,11 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 {
   return [[self subValueForCid:MSCarTypeId] typTable];
 }
+- (MSByte)carTableType
+{
+  id tb= [self carTable];
+  return ISEQUAL(tb,@"ID") ? B8 : ISEQUAL(tb,@"STR") ? T8 : ISEQUAL(tb,@"INT") ? S8 : 0;
+}
 - (NSString*)typTable
 {
   id t= [self stringValueForCid:MSCarTableId];
