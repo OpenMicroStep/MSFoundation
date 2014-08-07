@@ -184,7 +184,7 @@ NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 
 //challenge generation
 - (NSString *)publicKeyForURN:(NSString *)urn ; //can be overridden, not implemented
-- (NSString *)generatePlainChallenge ;
+- (NSString *)generatePlainChallengeWithParameters:(NSDictionary *)challengeParameters storeInSession:(NSDictionary **)sessionParameters ;
 - (NSString *)generatePKChallengeURN:(NSString *)urn storedPlainChallenge:(NSString **)plainChallenge ;
 
 //tickets management

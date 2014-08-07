@@ -52,6 +52,10 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
     return [[[self alloc] initWithServerParameters:parameters] autorelease] ;
 }
 
++ (id)clientWithServerParameters:(NSDictionary *)parameters sessionID:(NSString *)sessionID
+{
+  return [[[self alloc] initWithServerParameters:parameters sessionID:sessionID] autorelease] ;
+}
 
 + (id)clientWithServerParameters:(NSDictionary *)parameters
                           ticket:(NSString *)ticket
@@ -86,6 +90,12 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
                        secretKey:(NSData *)sk ;
 {
     return [[[self alloc] initWithServerParameters:parameters urn:urn secretKey:sk] autorelease] ;
+}
+
+- (id)initWithServerParameters:(NSDictionary *)parameters sessionID:(NSString *)sessionID
+{
+    ASSIGN(_sessionID, sessionID) ;
+    return [self initWithServerParameters:parameters] ;
 }
 
 - (id)initWithServerParameters:(NSDictionary *)parameters
@@ -191,19 +201,6 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
 
 - (MSHTTPResponse *)challengeResponse { return _challengeResponse ; }
 
-- (NSString *)_sessionIDFromHTTPResponseCookie:(MSHTTPResponse *)response
-{
-    NSString *sessionID = nil ;
-    NSString *setCookieLine = [response headerValueForKey:@"Set-Cookie"] ;
-    
-    if([setCookieLine length] && ![setCookieLine containsString:@"deleted"])
-    {
-        NSArray * components = [setCookieLine componentsSeparatedByString:@";"] ;
-        sessionID = ([components count]) ? [components objectAtIndex:0] : nil ;
-    }
-    return sessionID ;
-}
-
 - (MSHTTPRequest *)request:(MSHTTPMethod)method onSubURL:(NSString *)subURL
 {
     NSString *url = (subURL) ? [_baseURL stringByAppendingURLComponent:subURL] : _baseURL ;
@@ -258,7 +255,7 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
         //get session id
         if (response)
         {
-            [self setSessionID:[self _sessionIDFromHTTPResponseCookie:response]] ;
+            [self setSessionID:[response mashSessionID]] ;
         }
     }
     return response ;
@@ -283,16 +280,22 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
         int i ;
         response = nil ;
 
-        for (i=0; i<3; i++)
+        if (!_authenticationLevel) {
+             response = [self _performRequest:request errorString:errorString] ;
+        }
+        else
         {
+          for (i=0; i<3; i++)
+          {
             if ((auth = [self authenticate]))
             {
-                response = [self _performRequest:request errorString:errorString] ;
-                if ([response HTTPStatus] == HTTPUnauthorized) { response = nil ; }
-                break ;
+              response = [self _performRequest:request errorString:errorString] ;
+              if ([response HTTPStatus] == HTTPUnauthorized) { response = nil ; }
+              break ;
             }
+          }
+          if (!auth && error) { *errorString = @"performRequest : failed to authentcate trice" ; }
         }
-        if (!auth && error) { *errorString = @"performRequest : failed to authentcate trice" ; }
     }
 
     return response ;

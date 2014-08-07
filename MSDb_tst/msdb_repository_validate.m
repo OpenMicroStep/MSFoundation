@@ -270,12 +270,13 @@ int msdb_repository_validate(void)
 
   id dbParams= [MSDictionary dictionaryWithKeysAndObjects:
     @"host",     @"localhost",
-    @"port",     [NSNumber numberWithInt:8889],
+    @"port",     [NSNumber numberWithInt:3306],
     @"user",     @"root",
     @"pwd",      @"root",
-    @"socket",   @"/Applications/MAMP/tmp/mysql/mysql.sock",
     @"adaptor",  @"mysql",
-    @"database", @"Repository",
+    @"database", @"repository",
+    @"socket",   @"/var/mysql/mysql.sock",
+
   //@"database", @"Spaf-Prod-11",
     nil];
 
