@@ -154,7 +154,7 @@ static inline int tst_rep(id dbParams)
       NSLog(@"41 not in members: %@",x); err++;}
     if (!err && (dret= [rep removeValue:pURN forKey:MSRCarMemberLib onObject:servURN])) {
       NSLog(@"D42 remove error:%@",dret); err++;}
-    if (!err && (dret= [rep changeValues:[MSDictionary dictionaryWithKey:pURN andObject:@"Delete"]])) {
+    if (!err && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:pURN andObject:@"Delete"]])) {
       NSLog(@"D43 delete error:%@",dret); err++;}}
   // CREATE APPLICATION
   appURN= nil;
@@ -236,27 +236,27 @@ static inline int tst_rep(id dbParams)
       NSLog(@"D75 remove member to authorization, error %@",error); err++;}}
   // DELETE APPLICATION autURN -(right)-> rightID -(application)-> appURN
   if (appURN) {
-    if (rightID && (dret= [rep changeValues:[MSDictionary dictionaryWithKey:rightID andObject:
+    if (rightID && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:rightID andObject:
           [MSDictionary dictionaryWithKey:MSRCarApplicationLib andObject:
           [MSCouple coupleWithFirstMember:@"Remove" secondMember:appURN]]]])) {
       NSLog(@"D80 delete error:%@",dret); err++;}
-    if ((dret= [rep changeValues:[MSDictionary dictionaryWithKey:appURN andObject:@"Delete"]])) {
+    if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:appURN andObject:@"Delete"]])) {
       NSLog(@"D81 delete error:%@",dret); err++;}}
   // DELETE RIGHT
   if (rightID) {
-    if (autURN && (dret= [rep changeValues:[MSDictionary dictionaryWithKey:autURN andObject:
+    if (autURN && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:autURN andObject:
           [MSDictionary dictionaryWithKey:MSRCarRightLib andObject:
           [MSCouple coupleWithFirstMember:@"Remove" secondMember:rightID]]]])) {
       NSLog(@"D82 delete error:%@",dret); err++;}
-    if ((dret= [rep changeValues:[MSDictionary dictionaryWithKey:rightID andObject:@"Delete"]])) {
+    if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:rightID andObject:@"Delete"]])) {
       NSLog(@"D83 delete error:%@",dret); err++;}}
   // DELETE AUTORIZATION
   if (autURN) {
-    if ((dret= [rep changeValues:[MSDictionary dictionaryWithKey:autURN andObject:@"Delete"]])) {
+    if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:autURN andObject:@"Delete"]])) {
       NSLog(@"D84 delete error:%@",dret); err++;}}
   // DELETE LINKED PERSON NOT POSSIBLE
   if (!err) {
-    id error= [rep changeValues:[MSDictionary dictionaryWithKey:persURN andObject:@"Delete"]];
+    id error= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:persURN andObject:@"Delete"]];
     if (!error) {
       NSLog(@"D90 %@ a été supprimé alors qu'il était lié à son service delete error:%@",persURN,error); err++;}}
   if (dbNo && ![MHRepository closeRepositoryDatabase:dbNo]) {
