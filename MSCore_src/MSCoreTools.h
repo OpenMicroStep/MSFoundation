@@ -49,13 +49,13 @@
 
 #pragma mark ***** Checksum
 
-MSExport MSUShort MSBytesShortCRC    (const void *sbytes, NSUInteger slen);
-MSExport MSUInt   MSBytesLongCRC     (const void *sbytes, NSUInteger slen);
-MSExport MSUInt   MSBytesELF         (const void *sbytes, NSUInteger slen);
-MSExport MSUInt   MSBytesUppercaseELF(const void *sbytes, NSUInteger slen);
-MSExport MSUInt   MSBytesAdlerHash(MSULong adler, const void *sbytes, NSUInteger slen);
+MSCoreExport MSUShort MSBytesShortCRC    (const void *sbytes, NSUInteger slen);
+MSCoreExport MSUInt   MSBytesLongCRC     (const void *sbytes, NSUInteger slen);
+MSCoreExport MSUInt   MSBytesELF         (const void *sbytes, NSUInteger slen);
+MSCoreExport MSUInt   MSBytesUppercaseELF(const void *sbytes, NSUInteger slen);
+MSCoreExport MSUInt   MSBytesAdlerHash(MSULong adler, const void *sbytes, NSUInteger slen);
 
-MSExport NSUInteger  MSPointerHash(void *pointer);
+MSCoreExport NSUInteger  MSPointerHash(void *pointer);
 
 #pragma mark ***** Compress
 
@@ -65,12 +65,12 @@ typedef enum {
   MSBufferOverflow= 1}
 MSCompressResult;
 
-MSExport NSUInteger        MSCompressBound(NSUInteger sourceLen);
-MSExport MSCompressResult  MSCompress  (void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
-MSExport MSCompressResult  MSUncompress(void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
+MSCoreExport NSUInteger        MSCompressBound(NSUInteger sourceLen);
+MSCoreExport MSCompressResult  MSCompress  (void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
+MSCoreExport MSCompressResult  MSUncompress(void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
 
 #pragma mark ***** Sort
 
-MSExport void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compareFunction)(void*, void*, void*), void *context);
+MSCoreExport void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compareFunction)(void*, void*, void*), void *context);
 
 #endif // MS_CORE_TOOLS_H

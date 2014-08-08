@@ -59,78 +59,78 @@ CDate;
 
 
 // Constants
-MSExport CDate *CDateDistantPast;
-MSExport CDate *CDateDistantFuture;
-MSExport CDate *CDate19700101;
-MSExport CDate *CDate20010101;
-MSExport MSTimeInterval CDateSecondsFrom19700101To20010101; // 978307200
+MSCoreExport CDate *CDateDistantPast;
+MSCoreExport CDate *CDateDistantFuture;
+MSCoreExport CDate *CDate19700101;
+MSCoreExport CDate *CDate20010101;
+MSCoreExport MSTimeInterval CDateSecondsFrom19700101To20010101; // 978307200
 
-  MSExport void CDateFreeInside(id self);
+  MSCoreExport void CDateFreeInside(id self);
 //Already defined in MSCObject.h
-//MSExport void       CDateFree(id self);
-//MSExport BOOL       CDateIsEqual(id self, id other);
-//MSExport NSUInteger CDateHash(id self, unsigned depth);
-//MSExport id         CDateCopy(id self);
+//MSCoreExport void       CDateFree(id self);
+//MSCoreExport BOOL       CDateIsEqual(id self, id other);
+//MSCoreExport NSUInteger CDateHash(id self, unsigned depth);
+//MSCoreExport id         CDateCopy(id self);
 
-MSExport BOOL CDateEquals(const CDate *self, const CDate *other);
+MSCoreExport BOOL CDateEquals(const CDate *self, const CDate *other);
 
 #pragma mark Creation
 
-MSExport BOOL CVerifyYMD(unsigned year, unsigned month , unsigned day   );
-MSExport BOOL CVerifyHMS(unsigned hour, unsigned minute, unsigned second);
-MSExport CDate *CCreateDateFromYMD(
+MSCoreExport BOOL CVerifyYMD(unsigned year, unsigned month , unsigned day   );
+MSCoreExport BOOL CVerifyHMS(unsigned hour, unsigned minute, unsigned second);
+MSCoreExport CDate *CCreateDateFromYMD(
   unsigned year, unsigned month,  unsigned day);
-MSExport CDate *CCreateDateFromYMDHMS(
+MSCoreExport CDate *CCreateDateFromYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second);
-MSExport CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s);
+MSCoreExport CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s);
 
-MSExport CDate *CCreateDateNow  (void);        // With time
-MSExport CDate *CCreateDateToday(void);        // No time
-MSExport CDate *CCreateDayDate  (CDate *self); // No time
+MSCoreExport CDate *CCreateDateNow  (void);        // With time
+MSCoreExport CDate *CCreateDateToday(void);        // No time
+MSCoreExport CDate *CCreateDayDate  (CDate *self); // No time
 
 #pragma mark Informations
 
-MSExport unsigned CDateDayOfWeek      (CDate *self);
-MSExport unsigned CDateDayOfMonth     (CDate *self);
-MSExport unsigned CDateLastDayOfMonth (CDate *self);
-MSExport unsigned CDateDayOfYear      (CDate *self);
-MSExport unsigned CDateDayOfCommonEra (CDate *self); // 1/1/1 is day 1
-MSExport unsigned CDateWeekOfYear     (CDate *self);
-MSExport unsigned CDateMonthOfYear    (CDate *self);
-MSExport unsigned CDateYearOfCommonEra(CDate *self);
-MSExport BOOL     CDateIsLeapYear     (CDate *self);
+MSCoreExport unsigned CDateDayOfWeek      (CDate *self);
+MSCoreExport unsigned CDateDayOfMonth     (CDate *self);
+MSCoreExport unsigned CDateLastDayOfMonth (CDate *self);
+MSCoreExport unsigned CDateDayOfYear      (CDate *self);
+MSCoreExport unsigned CDateDayOfCommonEra (CDate *self); // 1/1/1 is day 1
+MSCoreExport unsigned CDateWeekOfYear     (CDate *self);
+MSCoreExport unsigned CDateMonthOfYear    (CDate *self);
+MSCoreExport unsigned CDateYearOfCommonEra(CDate *self);
+MSCoreExport BOOL     CDateIsLeapYear     (CDate *self);
 
 // If week not begins on monday. See again offset values with #defines.
-//MSExport unsigned CDateDayOfWeekWithOffset (CDate *self, unsigned offset);
-//MSExport unsigned CDateWeekOfYearWithOffset(CDate *self, unsigned offset);
+//MSCoreExport unsigned CDateDayOfWeekWithOffset (CDate *self, unsigned offset);
+//MSCoreExport unsigned CDateWeekOfYearWithOffset(CDate *self, unsigned offset);
 
-MSExport unsigned CDateHourOfDay     (CDate *self);
-MSExport unsigned CDateMinuteOfHour  (CDate *self);
-MSExport unsigned CDateSecondOfMinute(CDate *self);
-MSExport unsigned CDateSecondOfDay   (CDate *self);
+MSCoreExport unsigned CDateHourOfDay     (CDate *self);
+MSCoreExport unsigned CDateMinuteOfHour  (CDate *self);
+MSCoreExport unsigned CDateSecondOfMinute(CDate *self);
+MSCoreExport unsigned CDateSecondOfDay   (CDate *self);
 
-MSExport int CDateYearsBetweenDates (CDate *first, CDate *last, BOOL usesTime);
-MSExport int CDateMonthsBetweenDates(CDate *first, CDate *last, BOOL usesTime);
-MSExport int CDateDaysBetweenDates  (CDate *first, CDate *last, BOOL usesTime);
-MSExport MSTimeInterval CDateSecondsBetweenDates(CDate *first, CDate *last);
+MSCoreExport int CDateYearsBetweenDates (CDate *first, CDate *last, BOOL usesTime);
+MSCoreExport int CDateMonthsBetweenDates(CDate *first, CDate *last, BOOL usesTime);
+MSCoreExport int CDateDaysBetweenDates  (CDate *first, CDate *last, BOOL usesTime);
+MSCoreExport MSTimeInterval CDateSecondsBetweenDates(CDate *first, CDate *last);
 
 #pragma mark Setters
 
-MSExport void CDateAddYMD      (CDate *self, int years, int months , int days);
-MSExport void CDateAddYMDHMS   (CDate *self, int years, int months , int days,
+MSCoreExport void CDateAddYMD      (CDate *self, int years, int months , int days);
+MSCoreExport void CDateAddYMDHMS   (CDate *self, int years, int months , int days,
                                              int hours, int minutes, int secs);
-MSExport void CDateSetYMDHMS   (CDate *self, unsigned y,unsigned m,unsigned d,
+MSCoreExport void CDateSetYMDHMS   (CDate *self, unsigned y,unsigned m,unsigned d,
                                              unsigned h,unsigned n,unsigned s);
-MSExport void CDateSetYear     (CDate *self, unsigned year);
-MSExport void CDateSetMonth    (CDate *self, unsigned month);
-MSExport void CDateSetWeek     (CDate *self, unsigned week);
-MSExport void CDateSetDay      (CDate *self, unsigned day);
-MSExport void CDateSetDayOfYear(CDate *self, unsigned doy);
+MSCoreExport void CDateSetYear     (CDate *self, unsigned year);
+MSCoreExport void CDateSetMonth    (CDate *self, unsigned month);
+MSCoreExport void CDateSetWeek     (CDate *self, unsigned week);
+MSCoreExport void CDateSetDay      (CDate *self, unsigned day);
+MSCoreExport void CDateSetDayOfYear(CDate *self, unsigned doy);
 
 // GMT
-MSExport NSTimeInterval GMTNow(void);
-MSExport NSTimeInterval GMTFromYMDHMS(
+MSCoreExport NSTimeInterval GMTNow(void);
+MSCoreExport NSTimeInterval GMTFromYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second);
   // The date is supposed valid. If you're not sure, use the CVerify... fcts.
@@ -142,10 +142,10 @@ MSExport NSTimeInterval GMTFromYMDHMS(
   //   or
   //   dgmt= GMTFromLocal(d->interval);
 // Changement de référentiel Local <-> GMT
-MSExport NSTimeInterval GMTFromLocal(MSTimeInterval t); // TODO: How on windows ?
-MSExport MSTimeInterval GMTToLocal(NSTimeInterval t);
+MSCoreExport NSTimeInterval GMTFromLocal(MSTimeInterval t); // TODO: How on windows ?
+MSCoreExport MSTimeInterval GMTToLocal(NSTimeInterval t);
 
 // TODO: description functions
-MSExport CString *CCreateDateDescription(CDate *self); // %Y/%m/%d-%H:%M:%S
+MSCoreExport CString *CCreateDateDescription(CDate *self); // %Y/%m/%d-%H:%M:%S
 
 #endif

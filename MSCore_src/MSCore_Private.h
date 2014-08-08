@@ -48,7 +48,6 @@
 #ifndef MSCORE_PRIVATE_H
 #define MSCORE_PRIVATE_H
 
-#define MSCORE_INCLUDES_FOR_EXPORT_H
 #include "MSCoreIncludes.h"
 
 // On ne peut pas inclure le Foundation quand on compile un .c
@@ -66,6 +65,11 @@
 //      de MSCArray) utilisent directement les fonctions du MSCore.
 #if !defined(MSCORE_STANDALONE) && !defined(_OBJC_OBJC_H_)
 #define MSCORE_FORFOUNDATION 1
+#endif
+#ifdef MSCORE_PRIVATE_LINKING
+#define MSCoreExport MSImport
+#else
+#define MSCoreExport MSExport
 #endif
 
 #include "MSCoreTypes.h"

@@ -60,37 +60,37 @@ typedef struct CDecimalStruct {
 CDecimal;
 
 
-  MSExport void CDecimalFreeInside(id self);
+  MSCoreExport void CDecimalFreeInside(id self);
 //Already defined in MSCObject.h
-//MSExport void       CDecimalFree(id self);
-//MSExport BOOL       CDecimalIsEqual(id self, id other);
-//MSExport NSUInteger CDecimalHash(id self, unsigned depth);
-//MSExport id         CDecimalCopy(id self);
+//MSCoreExport void       CDecimalFree(id self);
+//MSCoreExport BOOL       CDecimalIsEqual(id self, id other);
+//MSCoreExport NSUInteger CDecimalHash(id self, unsigned depth);
+//MSCoreExport id         CDecimalCopy(id self);
 
-MSExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
+MSCoreExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
 
 #pragma mark Creation
 
-//TODO: MSExport CDecimal *CCreateDecimalFromString(MSString *x);
-MSExport CDecimal *CCreateDecimalFromUTF8String(const char *x);
-MSExport CDecimal *CCreateDecimalFromDouble(double x);
-MSExport CDecimal *CCreateDecimalFromLong  (long   x);
-MSExport CDecimal *CCreateDecimalFromMantissaExponentSign(
+//TODO: MSCoreExport CDecimal *CCreateDecimalFromString(MSString *x);
+MSCoreExport CDecimal *CCreateDecimalFromUTF8String(const char *x);
+MSCoreExport CDecimal *CCreateDecimalFromDouble(double x);
+MSCoreExport CDecimal *CCreateDecimalFromLong  (long   x);
+MSCoreExport CDecimal *CCreateDecimalFromMantissaExponentSign(
   unsigned long long mm, int exponent, int sign);
 
 #pragma mark Calculation
 
-MSExport CDecimal *CDecimalFloor   (CDecimal *a);
-MSExport CDecimal *CDecimalCeil    (CDecimal *a);
-MSExport CDecimal *CDecimalAdd     (CDecimal *a, CDecimal *b);
-MSExport CDecimal *CDecimalSubtract(CDecimal *a, CDecimal *b);
-MSExport CDecimal *CDecimalMultiply(CDecimal *a, CDecimal *b);
-MSExport CDecimal *CDecimalDivide  (CDecimal *a, CDecimal *b,int decimalPlaces);
+MSCoreExport CDecimal *CDecimalFloor   (CDecimal *a);
+MSCoreExport CDecimal *CDecimalCeil    (CDecimal *a);
+MSCoreExport CDecimal *CDecimalAdd     (CDecimal *a, CDecimal *b);
+MSCoreExport CDecimal *CDecimalSubtract(CDecimal *a, CDecimal *b);
+MSCoreExport CDecimal *CDecimalMultiply(CDecimal *a, CDecimal *b);
+MSCoreExport CDecimal *CDecimalDivide  (CDecimal *a, CDecimal *b,int decimalPlaces);
 
 #pragma mark Value
 
-MSExport MSLong CDecimalIntegerValue(CDecimal *a);
-//MSExport double    CDecimalDoubleValue (CDecimal *a);
+MSCoreExport MSLong CDecimalIntegerValue(CDecimal *a);
+//MSCoreExport double    CDecimalDoubleValue (CDecimal *a);
 
 // TODO: description functions
 

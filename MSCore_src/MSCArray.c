@@ -529,8 +529,8 @@ NSUInteger CSortedArrayAddObject(CArray *self, id obj, MSObjectComparator cmp, v
 
 /* TODO:
  // these 2 function should be replaced by "MSCString" functions :
- MSExport NSString *CArrayToString(CArray *self);
- MSExport NSString *CArrayJsonRepresentation(CArray *self);
+ MSCoreExport NSString *CArrayToString(CArray *self);
+ MSCoreExport NSString *CArrayJsonRepresentation(CArray *self);
 NSString *CArrayToString(CArray *self)
   {
   if (self) {

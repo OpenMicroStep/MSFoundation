@@ -313,7 +313,7 @@ NSTimeInterval GMTFromLocal(MSTimeInterval t)
   return (NSTimeInterval)t;
 }
 
-MSExport NSTimeInterval GMTFromYMDHMS(
+MSCoreExport NSTimeInterval GMTFromYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second)
 {
@@ -693,7 +693,7 @@ MSTimeInterval timeIntervalForLastDayOfYear(MSTimeInterval timeInterval)
 */
 #pragma mark Description
 
-MSExport CString *CCreateDateDescription(CDate *self)
+MSCoreExport CString *CCreateDateDescription(CDate *self)
 {
   _dtm dt= _dtmCast(self->interval);
   char buf[20];

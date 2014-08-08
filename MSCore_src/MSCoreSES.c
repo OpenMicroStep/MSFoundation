@@ -77,7 +77,7 @@ static inline unichar _aSimpleChaiN(const void *src, NSUInteger *pos, NSStringEn
 
 // TODO: à revoir pour les NSString -stringEnumeratorStructure
 typedef unichar (*BasicCHAI)(const void *, NSUInteger);
-MSExport unichar chaiN4BasicChai(BasicCHAI c, const void *src, NSUInteger *pos);
+MSCoreExport unichar chaiN4BasicChai(BasicCHAI c, const void *src, NSUInteger *pos);
 unichar chaiN4BasicChai(BasicCHAI c, const void *src, NSUInteger *pos)
 {
   return c(src,(*pos)++);

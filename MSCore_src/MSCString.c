@@ -218,7 +218,7 @@ void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const 
     va_start(args,fmt); CStringAppendEncodedFormatArguments(self, encoding, fmt, args); va_end(args);}
 }
 
-MSExport void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args)
+MSCoreExport void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args)
 {
   if (fmt) {
     char *x= NULL; vasprintf(&x, fmt, args);

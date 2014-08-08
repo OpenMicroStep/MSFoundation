@@ -65,28 +65,28 @@ typedef struct CColorStruct {
 CColor;
 
 //Already defined in MSCObject.h
-//MSExport void       CColorFree(id self);
-//MSExport BOOL       CColorIsEqual(id self, id other);
-//MSExport NSUInteger CColorHash(id self, unsigned depth);
-//MSExport id         CColorCopy(id self);
+//MSCoreExport void       CColorFree(id self);
+//MSCoreExport BOOL       CColorIsEqual(id self, id other);
+//MSCoreExport NSUInteger CColorHash(id self, unsigned depth);
+//MSCoreExport id         CColorCopy(id self);
 
-MSExport BOOL CColorEquals(const CColor *self, const CColor *other);
-MSExport NSComparisonResult CColorsCompare(CColor *self, CColor *other);
+MSCoreExport BOOL CColorEquals(const CColor *self, const CColor *other);
+MSCoreExport NSComparisonResult CColorsCompare(CColor *self, CColor *other);
 
-MSExport CColor *CCreateColor(MSByte r, MSByte g, MSByte b, MSByte a);
+MSCoreExport CColor *CCreateColor(MSByte r, MSByte g, MSByte b, MSByte a);
 
-MSExport BOOL  CColorIsPale(CColor *self);
-MSExport float CColorLuminance(CColor *self);
+MSCoreExport BOOL  CColorIsPale(CColor *self);
+MSCoreExport float CColorLuminance(CColor *self);
 
-MSExport MSByte CColorRedValue         (CColor *self);
-MSExport MSByte CColorGreenValue       (CColor *self);
-MSExport MSByte CColorBlueValue        (CColor *self);
-MSExport MSByte CColorOpacityValue     (CColor *self);
-MSExport MSByte CColorTransparencyValue(CColor *self);
+MSCoreExport MSByte CColorRedValue         (CColor *self);
+MSCoreExport MSByte CColorGreenValue       (CColor *self);
+MSCoreExport MSByte CColorBlueValue        (CColor *self);
+MSCoreExport MSByte CColorOpacityValue     (CColor *self);
+MSCoreExport MSByte CColorTransparencyValue(CColor *self);
 
-MSExport MSUInt CColorRGBAValue(CColor *self);
-MSExport MSUInt CColorCSSValue (CColor *self);
+MSCoreExport MSUInt CColorRGBAValue(CColor *self);
+MSCoreExport MSUInt CColorCSSValue (CColor *self);
 
-MSExport void CColorGetCMYKValues(CColor *self, float *Cptr, float *Mptr, float *Yptr, float *Kptr);
+MSCoreExport void CColorGetCMYKValues(CColor *self, float *Cptr, float *Mptr, float *Yptr, float *Kptr);
 
 #endif /* MSCORE_COLOR_H */

@@ -63,43 +63,43 @@ typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
   void *jnode;}
 CDictionaryEnumerator;
 
-MSExport CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self);
-MSExport void CDictionaryEnumeratorFree(CDictionaryEnumerator *de);
+MSCoreExport CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self);
+MSCoreExport void CDictionaryEnumeratorFree(CDictionaryEnumerator *de);
 
-MSExport id CDictionaryEnumeratorNextObject   (CDictionaryEnumerator *de);
-MSExport id CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
-MSExport id CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
-MSExport id CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
+MSCoreExport id CDictionaryEnumeratorNextObject   (CDictionaryEnumerator *de);
+MSCoreExport id CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
+MSCoreExport id CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
+MSCoreExport id CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
 
-MSExport CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
-MSExport CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
+MSCoreExport CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
+MSCoreExport CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
 
-  MSExport void       CDictionaryFreeInside(id self);
-  MSExport id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied);
+  MSCoreExport void       CDictionaryFreeInside(id self);
+  MSCoreExport id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied);
 //Already defined in MSCObject.h
-//MSExport void       CDictionaryFree(id self);
-//MSExport BOOL       CDictionaryIsEqual(id self, id other);
-//MSExport NSUInteger CDictionaryHash(id self, unsigned depth);
-//MSExport id         CDictionaryCopy(id self);
+//MSCoreExport void       CDictionaryFree(id self);
+//MSCoreExport BOOL       CDictionaryIsEqual(id self, id other);
+//MSCoreExport NSUInteger CDictionaryHash(id self, unsigned depth);
+//MSCoreExport id         CDictionaryCopy(id self);
 // CDictionaryCopy: As keys already come from a dictionary, they are not re-copied.
 
-MSExport BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other);
+MSCoreExport BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other);
 
 #pragma mark Creation
 
-MSExport CDictionary *CCreateDictionary(NSUInteger capacity);
-MSExport CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSUInteger count);
+MSCoreExport CDictionary *CCreateDictionary(NSUInteger capacity);
+MSCoreExport CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSUInteger count);
 
-MSExport void CDictionaryGrow(CDictionary *self, NSUInteger n);
+MSCoreExport void CDictionaryGrow(CDictionary *self, NSUInteger n);
 
 #pragma mark Informations
 
-MSExport NSUInteger CDictionaryCount(const CDictionary *self);
-MSExport id CDictionaryObjectForKey(const CDictionary *self, id k);
+MSCoreExport NSUInteger CDictionaryCount(const CDictionary *self);
+MSCoreExport id CDictionaryObjectForKey(const CDictionary *self, id k);
 
 #pragma mark Setters
 
-MSExport void CDictionarySetObjectForKey(CDictionary *self, id o, id k);
+MSCoreExport void CDictionarySetObjectForKey(CDictionary *self, id o, id k);
 // k!=nil, o=nil => remove
 
 // TODO: description functions

@@ -49,6 +49,9 @@
 #define MSCORE_H
 
 #include <MSCore/MSCoreIncludes.h>
+
+#define MSCoreExport MSImport
+
 #include <MSCore/MSCoreTypes.h>
 #include <MSCore/MSCoreSystem.h>
 #include <MSCore/MSCoreTools.h>

@@ -231,10 +231,10 @@ MSLong MSCurrentHostID(void)
 }
 */
 #ifdef WIN32
-MSExport int vsnprintf(char *str, size_t size, const char *format, va_list ap)
+MSCoreExport int vsnprintf(char *str, size_t size, const char *format, va_list ap)
 { return _vsnprintf(str, size, format, ap); }
 
-MSExport int snprintf(char *str, size_t size, const char *format, ...)
+MSCoreExport int snprintf(char *str, size_t size, const char *format, ...)
 {
   int ret;
   va_list ap;

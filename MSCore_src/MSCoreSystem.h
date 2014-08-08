@@ -50,21 +50,21 @@
 #pragma mark ***** System
 
 // TODO: MHInitSSL
-MSExport void MSSystemInitialize(int argc, const char **argv);
+MSCoreExport void MSSystemInitialize(int argc, const char **argv);
 #ifndef MSCORE_STANDALONE
-MSExport void _MSFoundationCoreSystemInitialize(void);
+MSCoreExport void _MSFoundationCoreSystemInitialize(void);
 #endif
 
 //#define MSMacAddressLength 6
 //typedef struct {MSByte component[MSMacAddressLength];} MSMacAddress;
-//MSExport MSLong MSCurrentHostID(void);
+//MSCoreExport MSLong MSCurrentHostID(void);
 
-MSExport MSInt  MSCurrentProcessID(void);
-MSExport MSInt  MSCurrentThreadID(void);
+MSCoreExport MSInt  MSCurrentProcessID(void);
+MSCoreExport MSInt  MSCurrentThreadID(void);
 
-MSExport MSInt      MSCurrentTimezoneOffset(void);
+MSCoreExport MSInt      MSCurrentTimezoneOffset(void);
 
-MSExport NSUInteger MSCapacityForCount(NSUInteger count);
+MSCoreExport NSUInteger MSCapacityForCount(NSUInteger count);
 
 #pragma mark ***** Memory
 
@@ -84,9 +84,9 @@ typedef enum {
   MSUnknownLanguage= 37}
 MSLanguage;
 
-MSExport MSLanguage       MSCurrentLanguage(void);
-MSExport NSStringEncoding MSCurrentCStringEncoding(void);
-MSExport const char *     MSCStringEncodingName(NSStringEncoding encoding);
+MSCoreExport MSLanguage       MSCurrentLanguage(void);
+MSCoreExport NSStringEncoding MSCurrentCStringEncoding(void);
+MSCoreExport const char *     MSCStringEncodingName(NSStringEncoding encoding);
 
 #pragma mark ***** Error reporting
 
@@ -130,14 +130,14 @@ MSErrorDomain;
 
 typedef void (*MSErrorCallback)(MSErrorDomain, MSErrorLevel, MSInt, const char *);
 
-MSExport void MSReportError( MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, ...);
-MSExport void MSReportErrorV(MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, va_list argList);
-MSExport void MSSetErrorCallBack(MSErrorCallback fn);
+MSCoreExport void MSReportError( MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, ...);
+MSCoreExport void MSReportErrorV(MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, va_list argList);
+MSCoreExport void MSSetErrorCallBack(MSErrorCallback fn);
   // not thread safe. use once.
 
 #ifdef WIN32
-MSExport int snprintf(char *, size_t, const char *, ...);
-MSExport int vsnprintf(char *, size_t, const char *, va_list);
+MSCoreExport int snprintf(char *, size_t, const char *, ...);
+MSCoreExport int vsnprintf(char *, size_t, const char *, va_list);
 #endif
 
 #pragma mark ***** Swap

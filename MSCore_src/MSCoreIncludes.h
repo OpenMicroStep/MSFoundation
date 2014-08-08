@@ -72,14 +72,6 @@
 #include <fcntl.h>
 #include <math.h>
 
-/* Pour une exécution directe (tests)
-#define MSExport  extern
-#define MSImport  extern
-#define MSPrivate extern
-*/
-
-#ifdef MSCORE_INCLUDES_FOR_EXPORT_H //------------- Compilation du framework (3)
-
 #ifdef __cplusplus
 #define MSExport  extern "C" __declspec(dllexport)
 #define MSImport  extern "C" __declspec(dllimport)
@@ -89,20 +81,6 @@
 #define MSImport  __declspec(dllimport) extern
 #define MSPrivate extern
 #endif // __cplusplus
-
-#else //----------- !MSCORE_INCLUDES_FOR_EXPORT_H : Utilisation du framework (3)
-
-#ifdef __cplusplus
-#define MSExport  extern "C" __declspec(dllimport)
-#define MSImport  extern "C" __declspec(dllimport)
-#define MSPrivate extern
-#else
-#define MSExport  __declspec(dllimport) extern
-#define MSImport  __declspec(dllimport) extern
-#define MSPrivate extern
-#endif
-
-#endif //-------------------------------------- MSCORE_INCLUDES_FOR_EXPORT_H (3)
 
 #else //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: !WIN32 (2)
 

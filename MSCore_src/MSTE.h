@@ -74,14 +74,14 @@
 
 // MSTE constants as objects. Can be compared with ==
 // Warning: Follow the retain/release rule.
-MSExport id MSTENull;
-MSExport id MSTETrue;
-MSExport id MSTEFalse;
-MSExport id MSTEDistantPast;
-MSExport id MSTEDistantFuture;
-MSExport id MSTEEmptyString;
+MSCoreExport id MSTENull;
+MSCoreExport id MSTETrue;
+MSCoreExport id MSTEFalse;
+MSCoreExport id MSTEDistantPast;
+MSCoreExport id MSTEDistantFuture;
+MSCoreExport id MSTEEmptyString;
 
-MSExport id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictionary **error);
+MSCoreExport id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictionary **error);
 // The MSTE decoder
 // If an error occurs, an error dictionary is created and returned in 'error', with 2 keys: 'code' and 'description'. The caller is responsible for its release.
 // On critical error (header, crc... witch may occurs with communication failure), the returned root objet is nil and the value of the 'code' key is always 1
