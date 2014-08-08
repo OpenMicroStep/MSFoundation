@@ -39,11 +39,11 @@
  */
 
 #define SESFromString(X)    ({ __typeof__(X) __x = (X) ; (__x ? [__x stringEnumeratorStructure] : MSInvalidSES) ; })
-MSExport BOOL MSStringIsTrue(NSString *s);
-MSExport BOOL MSEqualStrings(NSString *s1, NSString *s2);
-MSExport BOOL MSInsensitiveEqualStrings(NSString *s1, NSString *s2);
-MSExport NSRange MSStringFind(NSString *source, NSString *searched) ;
-MSExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger length, CUnicharChecker matchingSolidChar) ;
+MSFoundationExport BOOL MSStringIsTrue(NSString *s);
+MSFoundationExport BOOL MSEqualStrings(NSString *s1, NSString *s2);
+MSFoundationExport BOOL MSInsensitiveEqualStrings(NSString *s1, NSString *s2);
+MSFoundationExport NSRange MSStringFind(NSString *source, NSString *searched) ;
+MSFoundationExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger length, CUnicharChecker matchingSolidChar) ;
 
 @interface NSString (MSAddendum)
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file;

@@ -43,11 +43,11 @@
 
  */
 
-MSExport unichar __MSAnsiToUnicode[256] ;
-MSExport unichar __MSMacRomanToUnicode[256] ;
-MSExport unichar __MSNextstepToUnicode[256] ;
-MSExport unichar __MSDOSToUnicode[256] ;
+MSFoundationExport unichar __MSAnsiToUnicode[256] ;
+MSFoundationExport unichar __MSMacRomanToUnicode[256] ;
+MSFoundationExport unichar __MSNextstepToUnicode[256] ;
+MSFoundationExport unichar __MSDOSToUnicode[256] ;
 
-MSExport void _MSFillCBufferFromString(CBuffer *buf, SES ses) ;
-MSExport NSString *_MSUnicodeToASCIIString(NSString *self) ;
-MSExport const char *_MSUnicodeToASCIICString(NSString *self) ;
+MSFoundationExport void _MSFillCBufferFromString(CBuffer *buf, SES ses) ;
+MSFoundationExport NSString *_MSUnicodeToASCIIString(NSString *self) ;
+MSFoundationExport const char *_MSUnicodeToASCIICString(NSString *self) ;

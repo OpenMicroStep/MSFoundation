@@ -45,6 +45,6 @@
 
 
 //OpenSSl related functions
-MSExport NSString *MSGetOpenSSLErrStr(void);
-MSExport NSString *MSGetOpenSSL_SSLErrStr(void *ssl, int ret);
-MSExport void MSRaiseCryptoOpenSSLException(void);
+MSFoundationExport NSString *MSGetOpenSSLErrStr(void);
+MSFoundationExport NSString *MSGetOpenSSL_SSLErrStr(void *ssl, int ret);
+MSFoundationExport void MSRaiseCryptoOpenSSLException(void);

@@ -388,7 +388,7 @@ static Class __MSBufferClass= Nil;
 
 @end
 /*
-MSExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length)
+MSFoundationExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length)
 {
   MSBuffer *b= MSCreateBuffer(0);
   CBufferBase64EncodeAndAppendBytes((CBuffer*)b, bytes, length);

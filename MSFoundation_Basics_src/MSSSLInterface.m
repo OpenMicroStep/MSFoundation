@@ -60,7 +60,7 @@ NSString *MSGetOpenSSLErrStr()
 #endif
 }
 
-MSExport NSString *MSGetOpenSSL_SSLErrStr(void *ssl, int ret)
+MSFoundationExport NSString *MSGetOpenSSL_SSLErrStr(void *ssl, int ret)
 {
     NSString *errorStr ;
     int errnum = OPENSSL_SSL_get_error(ssl, ret) ;

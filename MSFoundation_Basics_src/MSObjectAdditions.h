@@ -85,4 +85,4 @@ Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
 @end
 
 // just to avoid [NSNull null], we use a global variable for our singleton
-MSExport NSNull *MSNull;
+MSFoundationExport NSNull *MSNull;

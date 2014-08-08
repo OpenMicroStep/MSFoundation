@@ -131,5 +131,5 @@
 
 @end
 
-MSExport MSNaturalArray *MSCreateNaturalArray(NSUInteger capacity) ; // returns a retained object
-MSExport MSMutableNaturalArray *MSCreateMutableNaturalArray(NSUInteger capacity) ; // returns a retained object 
+MSFoundationExport MSNaturalArray *MSCreateNaturalArray(NSUInteger capacity) ; // returns a retained object
+MSFoundationExport MSMutableNaturalArray *MSCreateMutableNaturalArray(NSUInteger capacity) ; // returns a retained object 

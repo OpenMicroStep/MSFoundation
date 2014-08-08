@@ -66,7 +66,7 @@
 // keys in dictionary are always strings.
 
 // MSCreate prefix means its a retained version of the property list
-MSExport id MSCreatePropertyListFromString(NSString *aString,
+MSFoundationExport id MSCreatePropertyListFromString(NSString *aString,
 										   unsigned mask,
 										   NSDictionary *classes,
 										   unichar (*escapeFn)(MSByte),

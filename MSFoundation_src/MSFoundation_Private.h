@@ -41,6 +41,12 @@
 #import <Foundation/Foundation.h>
 #import "MSCore_Private.h"
 
+#ifdef MSFOUNDATION_PRIVATE_LINKING
+#define MSFoundationExport MSImport
+#else
+#define MSFoundationExport MSExport
+#endif
+
 #import "MSFoundationDefines.h"
 #import "MSCoderAdditions.h"
 #import "MSExceptionAdditions.h"

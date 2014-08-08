@@ -41,6 +41,10 @@
 #import <Foundation/Foundation.h>
 
 #import <MSFoundation/MSCoreIncludes.h>
+
+#define MSCoreExport MSImport
+#define MSFoundationExport MSImport
+
 #import <MSFoundation/MSCoreTypes.h>
 #import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>

@@ -56,4 +56,4 @@
 
 @end
 
-MSExport MSMutableArray *MSCreateMutableArray(NSUInteger capacity);
+MSFoundationExport MSMutableArray *MSCreateMutableArray(NSUInteger capacity);
