@@ -270,7 +270,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
 
 - (void)_buildSystemObis
   {
-  id cars,tcars,ids,os,de,oid,o,n;
+  id cars,tcars,ids,os,de,oid,o,n,ctx;
   cars= [MSDictionary dictionaryWithKey:MSCarSystemNameId andObject:[MSArray array]];
   tcars= [MSDictionary dictionaryWithKey:@"STR" andObject:cars];
   ids= [self _oidsWithTabledCars:tcars];
@@ -288,7 +288,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
       [_entByOid setObject:o forKey:oid];
 */
     }
-id ctx= [MSDictionary dictionaryWithObjectsAndKeys:self,MSContextOdb,
+ctx= [MSDictionary dictionaryWithObjectsAndKeys:self,MSContextOdb,
 [NSNumber numberWithBool:YES],MSContextSystemNames,
 [NSNumber numberWithBool:YES],MSContextCompleteness,
 nil];

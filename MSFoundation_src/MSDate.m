@@ -368,13 +368,15 @@ NSString *GMTdescriptionRfc1123(NSTimeInterval t)
 // ou alors rfc 850 mais le weekday est long
 {
   static NSDictionary *localeDict;
+  id d;
   if (!localeDict) localeDict= [[NSDictionary alloc] initWithObjectsAndKeys:
     [NSArray arrayWithObjects:@"Sun",@"Mon",@"Tue",@"Wed",@"Thu",@"Fri",@"Sat", nil],
     @"NSShortWeekDayNameArray",
     [NSArray arrayWithObjects:@"Jan",@"Feb",@"Mar",@"Apr",@"May",@"Jun",@"Jul",
       @"Aug",@"Sep",@"Oct",@"Nov",@"Dec", nil],
     @"NSShortMonthNameArray",nil];
-  id d= [NSDate dateWithTimeIntervalSinceReferenceDate:t];
+    return nil;
+  d= [NSDate dateWithTimeIntervalSinceReferenceDate:t];
   return [d descriptionWithCalendarFormat:@"%a, %d-%b-%Y %H:%M:%S GMT"
     timeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]
     locale:localeDict];

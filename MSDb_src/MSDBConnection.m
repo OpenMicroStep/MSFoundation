@@ -138,14 +138,17 @@ static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
 + (id)uniqueConnectionWithDictionary:(NSDictionary *)connectionDictionary
 {
   id cnx= nil;
+  NSMutableDictionary *tDict;
+  MSMutableArray *tConnections;
+  id ae,c;
+    
   if ([connectionDictionary count] <= 1) RELEAZEN(self);
   else {
     [__connectionsLock lock] ;
 
     // protected code here
-    NSMutableDictionary *tDict= [[NSThread currentThread] threadDictionary];
-    MSMutableArray *tConnections= [tDict objectForKey:@"_MSDBConnectionArray_"];
-    id ae,c;
+    tDict= [[NSThread currentThread] threadDictionary];
+    tConnections= [tDict objectForKey:@"_MSDBConnectionArray_"];
 
     for (ae=[tConnections objectEnumerator]; !cnx && (c= [ae nextObject]);) {
       if ([[c connectionDictionary] isEqualToDictionary:connectionDictionary]) {

@@ -263,8 +263,8 @@ void MSSystemInitialize(int argc, const char **argv)
 {
   static BOOL done= NO;
   if (!done) {
-    done= YES;
     M_apm_free_fn freeFct;
+    done= YES;
     argc= 0; argv= NULL; // Unused parameters
 #ifdef MSCORE_STANDALONE
     freeFct= (M_apm_free_fn)_CRelease;
