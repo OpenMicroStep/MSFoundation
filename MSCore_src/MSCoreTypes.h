@@ -66,6 +66,7 @@ static inline unsigned long WLU(NSUInteger u) {return (unsigned long)u;}
 #if defined(WIN32)
 #define intptr_t  MSInt
 #define uintptr_t MSUInt
+#define NS_REQUIRES_NIL_TERMINATION
 #endif
 
 #if defined(WIN32) || defined(MSCORE_STANDALONE) // ------------- defining types
