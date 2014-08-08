@@ -47,6 +47,10 @@
 
 #import <MSFoundation/MSCoreTypes.h>
 #import <MSFoundation/MSCoreSystem.h>
+#ifdef WIN32
+#import <MSFoundation/MSCoreSystemWin32.h>
+#import <MSFoundation/MSFoundationSystemWin32.h>
+#endif
 #import <MSFoundation/MSCoreTools.h>
 #import <MSFoundation/MSCObject.h>
 

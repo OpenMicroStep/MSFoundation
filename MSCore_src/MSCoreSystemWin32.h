@@ -1,4 +1,4 @@
-/*   MSFoundation_Private.h
+/* MSCoreSystemWin32.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -6,6 +6,8 @@
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
  Herve Malaingre : herve@malaingre.com
+ Eric Baradat :  k18rt@free.fr
+ Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -36,54 +38,21 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : outside the MSFoundation framework or the MSCore library,
+ this header file cannot be included alone, please direclty include
+ MSCore.h or MSFoundation.h
+ 
  */
 
-#import <Foundation/Foundation.h>
-#import "MSCore_Private.h"
-
-#ifdef MSFOUNDATION_PRIVATE_LINKING
-#define MSFoundationExport MSImport
-#else
-#define MSFoundationExport MSExport
-#endif
-
+#ifndef MS_CORE_SYSTEM_WIN32_H
+#define MS_CORE_SYSTEM_WIN32_H
 #ifdef WIN32
-#import "MSFoundationSystemWin32.h"
+
+MSCoreExport MSULong strtoull(const char *string, char **endPtr, int base) ;
+MSCoreExport MSLong strtoll(const char *string, char **endPtr, int base) ;
+MSCoreExport float strtof(const char *string, char **endPtr) ;
+MSCoreExport char *ulltostr(MSLong value, char *ptr, int base) ;
+MSCoreExport int vasprintf( char **, char *, va_list );
+
 #endif
-
-#import "MSFoundationDefines.h"
-#import "MSCoderAdditions.h"
-#import "MSExceptionAdditions.h"
-#import "MSLanguage.h"
-#import "MSObjectAdditions.h"
-
-#import "MSBool.h"
-#import "MSCharsets_Private.h"
-#import "MSASCIIString.h"
-#import "MSMutex.h"
-#import "MSCNaturalArray.h"
-#import "MSNaturalArray.h"
-#import "MSNaturalArrayEnumerator.h"
-#import "MSNaturalArrayEnumerator_Private.h"
-#import "MSFileManipulation.h"
-
-#import "MSCSSLInterface.h"
-#import "MSSSLInterface.h" // Dans MSNet ?
-
-#import "MSArray.h"
-#import "MSMutableArray.h"
-#import "MSBuffer.h"
-#import "MSColor.h"
-#import "MSCouple.h"
-#import "MSDate.h"
-#import "MSDecimal.h"
-#import "MSDictionary.h"
-#import "MSString.h"
-
-#import "MSTDecoder.h"
-#import "MSTEncoder.h"
-
-#import "MSStringParsing.h"
-#import "MSStringParsing_Private.h"
-
-#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
+#endif // MS_CORE_SYSTEM_WIN32_H
