@@ -40,8 +40,7 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  */
 
-#import "MSCore_Private.h"
-#import "MSCSSLInterface.h"
+#import "MSFoundation_Private.h"
 #import <openssl/ssl.h>
 //#import <openssl/crypto.h>
 #import <openssl/err.h>
@@ -50,6 +49,8 @@
 
 
 #ifdef WIN32
+
+#warning Was in ".c" before targetting wo451, MUST BE checked
 
 #define APPLINK_STDIN	1
 #define APPLINK_STDOUT	2
