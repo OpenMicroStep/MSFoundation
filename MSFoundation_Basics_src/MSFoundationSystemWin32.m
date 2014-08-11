@@ -223,6 +223,32 @@ static NSNull *__defaultNull = nil ;
     return [super replacementObjectForPortCoder:encoder];
 }
 @end
+
+static NSNull *__defaultUuid = nil ;
+
+@implementation NSUUID
+
++ (void)load { if (!__defaultUuid) __defaultUuid = MSCreateObject(self) ; }
++ (id)new { return __defaultUuid ; }
++ (id)allocWithZone:(NSZone *)zone { return __defaultUuid ; }
++ (id)alloc { return __defaultUuid ; }
++ (NSUUID *)UUID { return __defaultUuid ; }
+
+- (id)copyWithZone:(NSZone *)zone { return __defaultUuid ; }
+- (id)copy { return __defaultUuid ; }
+- (id)init { return __defaultUuid ; }
+- (void)encodeWithCoder:(NSCoder *)aCoder {}
+- (id)initWithCoder:(NSCoder *)aDecoder { return __defaultUuid ; }
+
+- (BOOL)isEqual: (id)other { return other == __defaultUuid ? YES : NO ; }
+
+- (void)dealloc {}
+- (void)release {}
+- (id)autorelease { return __defaultUuid ;}
+- (id)retain { return __defaultUuid ; }
+
+- (NSString *)UUIDString { return [[NSProcessInfo processInfo] globallyUniqueString]; }
+@end
 #endif
 
 #endif
