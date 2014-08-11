@@ -186,7 +186,7 @@ NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 - (NSString *)generatePKChallengeURN:(NSString *)urn storedPlainChallenge:(NSString **)plainChallenge ;
 
 //tickets management
- - (NSString *)ticketForValidity:(MSTimeInterval)duration ;
+- (NSString *)ticketForValidity:(MSTimeInterval)duration ;
 - (NSMutableDictionary *)tickets ;
 - (void)setTickets:(NSDictionary *)tickets ;
 - (id)objectForTicket:(NSString *)ticket ;

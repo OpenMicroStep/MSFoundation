@@ -433,8 +433,9 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     if (ticketFound)
     {
         MSTimeInterval ticketValidityEnd = [[ticketFound objectForKey:MHAPP_TICKET_VALIDITY] longLongValue] ;
-      //if (!ticketValidityEnd || GMTNow() < ticketValidityEnd) En master on avait ça ecb 140623
-        if (GMTNow() < ticketValidityEnd)
+
+        //ticketValidityEnd == 0 means unlimited validity
+        if (!ticketValidityEnd || GMTNow() < ticketValidityEnd)
         {
             [self logWithLevel:MHAppDebug log:@"Ticket Authentication success"] ;
             MHVALIDATE_AUTHENTICATION(YES, nil) ;
@@ -492,10 +493,10 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 - (NSString *)ticketForValidity:(MSTimeInterval)duration { return ticketForValidity(self, duration) ; }
 - (NSMutableDictionary *)tickets { return ticketsForApplication(self) ; }
 - (void)setTickets:(NSDictionary *)tickets { setTicketsForApplication(self, tickets) ; }
-- (id)objectForTicket:(NSString *)ticket { objectForTicket(self, ticket) ; }
+- (id)objectForTicket:(NSString *)ticket { return objectForTicket(self, ticket) ; }
 - (void)setObject:(id)object forTicket:(NSString *)ticket { setObjectForTicket(self, object, ticket) ; }
-- (NSNumber *)validityForTicket:(NSString *)ticket { validityForTicket(self, ticket) ; }
-- (NSNumber *)creationDateForTicket:(NSString *)ticket { creationDateForTicket(self, ticket) ; }
+- (NSNumber *)validityForTicket:(NSString *)ticket { return validityForTicket(self, ticket) ; }
+- (NSNumber *)creationDateForTicket:(NSString *)ticket { return creationDateForTicket(self, ticket) ; }
 - (void)removeTicket:(NSString *)ticket { removeTicket(self, ticket) ; }
 
 - (NSDictionary *)netRepositoryConnectionDictionary
