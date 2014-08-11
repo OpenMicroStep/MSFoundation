@@ -146,6 +146,20 @@ void removeResourceForKey(NSString *key) ;
 void lock_resources_mutex(void) ;
 void unlock_resources_mutex(void) ;
 
+//tickets
+NSArray *allApplicationsTickets(void) ;
+NSString *ticketForValidity(MHApplication *application, MSTimeInterval duration) ;
+NSMutableDictionary *getTicket(MHApplication *application, NSString *ticket) ;
+NSMutableDictionary *ticketsForApplication(MHApplication *application) ;
+void setTicketsForApplication(MHApplication *application, NSDictionary *tickets) ;
+id objectForTicket(MHApplication *application, NSString *ticket) ;
+void setObjectForTicket(MHApplication *application, id object, NSString *ticket) ;
+NSNumber *validityForTicket(MHApplication *application, NSString *ticket) ;
+NSNumber *creationDateForTicket(MHApplication *application, NSString *ticket) ;
+void removeTicket(MHApplication *application, NSString *ticket) ;
+void lock_authentication_tickets_mutex(void) ;
+void unlock_authentication_tickets_mutex(void) ;
+
 void lock_blacklist_mutex(void) ;
 void unlock_blacklist_mutex(void) ;
 void delete_blacklist_mutex(void) ;

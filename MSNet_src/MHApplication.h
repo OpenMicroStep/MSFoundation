@@ -90,8 +90,6 @@ NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
     //authentication members
     MSBuffer *_loginInterface ;
     MSUInt _authenticationMethods ;
-    NSMutableDictionary *_tickets ;
-    MSMutex *_ticketsMutex ;
     
     //repository connection dictionary
     NSDictionary *_netRepositoryServerParameters ;
@@ -188,7 +186,7 @@ NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 - (NSString *)generatePKChallengeURN:(NSString *)urn storedPlainChallenge:(NSString **)plainChallenge ;
 
 //tickets management
-- (NSString *)ticketForValidity:(MSTimeInterval)duration ;
+ - (NSString *)ticketForValidity:(MSTimeInterval)duration ;
 - (NSMutableDictionary *)tickets ;
 - (void)setTickets:(NSDictionary *)tickets ;
 - (id)objectForTicket:(NSString *)ticket ;
@@ -196,7 +194,7 @@ NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 - (NSNumber *)validityForTicket:(NSString *)ticket ;
 - (NSNumber *)creationDateForTicket:(NSString *)ticket ;
 - (void)removeTicket:(NSString *)ticket ;
-
+ 
 // net repository parameters
 - (NSDictionary *)netRepositoryConnectionDictionary ;
 - (NSDictionary *)netRepositoryParameters ;

@@ -98,25 +98,6 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file)
     }
 }
 
-- (void)deleteExpiredTickets
-{
-    NSEnumerator *ticketEnum = [_tickets keyEnumerator] ;
-    NSString *ticket = nil ;
-    NSMutableArray *ticketsArray = [NSMutableArray array];
-    
-    while ((ticket = [ticketEnum nextObject]))
-    {
-        MSTimeInterval ticketValidityEnd = [[[_tickets objectForKey:ticket] objectForKey:MHAPP_TICKET_VALIDITY] longLongValue] ;
-        if (GMTNow() > ticketValidityEnd)
-        {
-            if(ticketValidityEnd!=0){
-                [ticketsArray addObject:ticket];
-            }
-        }
-    }
-    [_tickets removeObjectsForKeys:ticketsArray] ;
-}
-
 - (BOOL)isGUIApplication { return NO ; }
 - (BOOL)isAdminApplication {return NO ; }
 
@@ -143,7 +124,6 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file)
     
     file = [[NSBundle bundleForClass:[MHApplication class]]  pathForResource:fileName ofType:@"html"] ;
     
- NSLog(@"%@ %@",file, fileName);
     if (MSFileExistsAtPath(file, &isDir) && !isDir)
     {
         void *bytes ;

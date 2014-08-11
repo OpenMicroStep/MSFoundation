@@ -105,8 +105,6 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     ASSIGN(_parameters, parameters) ;
     ASSIGN(_baseURL, url) ;
     ASSIGN(_instanceName, instanceName) ;
-    ASSIGN(_tickets, [NSMutableDictionary dictionary]) ;
-    ASSIGN(_ticketsMutex, [MSMutex mutex]) ;
     ASSIGN(_netRepositoryServerParameters, [parameters objectForKey:@"netRepository"]) ;
     
     _authenticationMethods = [ISA(self) defaultAuthenticationMethods] ;
@@ -127,8 +125,6 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     DESTROY(_logoutURL) ;
     
     DESTROY(_loginInterface) ;
-    DESTROY(_tickets) ;
-    DESTROY(_ticketsMutex) ;
     DESTROY(_netRepositoryServerParameters) ;
     
     [super dealloc] ;
@@ -186,13 +182,8 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 
 - (void)sessionWillExpire:(MHNotification *)notification { RELEASE(notification) ; }
 
-- (void)clean
-{
-    if ([self canAuthenticateWithTicket])
-    {
-        [self deleteExpiredTickets] ;
-    }
-}
+- (void)clean {}
+
 
 + (NSString *)applicationName { [self notImplemented:_cmd] ; return nil ; }
 + (NSString *)applicationFullName { [self notImplemented:_cmd] ; return nil ; }
@@ -435,23 +426,6 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[b64Buf bytes], [b64Buf length], YES, YES)) ;
 }
 
-- (NSString *)_generateNewTicketID
-{
-    MSUInt newID = fabs(floor(GMTNow())) ;
-    MSUInt addrID = (MSUInt)rand() ;
-    return [NSString stringWithFormat:@"TKT%04X%08X%04X", addrID & 0x0000FFFF, newID, (addrID >> 16)  & 0x0000FFFF] ;
-}
-
-- (NSString *)_uniqueTicketID
-{
-    NSString *ticket = nil ;
-    do {
-        ticket = [self _generateNewTicketID] ;
-    } while ([_tickets objectForKey:ticket]) ;
-    
-    return ticket ;
-}
-
 - (void)validateAuthentication:(MHNotification *)notification ticket:(NSString *)ticket certificate:(MSCertificate *)certificate
 {
     NSDictionary *ticketFound = [[self tickets] objectForKey:ticket] ;
@@ -500,10 +474,6 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 
 + (MSUInt)authentifiedSessionTimeout { return SESSION_DEFAULT_AUTHENTICATED_TIMEOUT ; }
 
-- (NSMutableDictionary *)tickets { return _tickets ; }
-
-- (void)setTickets:(NSDictionary *)tickets { ASSIGN(_tickets, tickets) ; }
-
 - (BOOL)canHaveNoAuthentication { return _authenticationMethods & MHAuthNone ; }
 - (BOOL)canAuthenticateWithSimpleGUILoginPassword { return _authenticationMethods & MHAuthSimpleGUIPasswordAndLogin ; }
 - (BOOL)canAuthenticateWithChallengedPasswordLogin { return _authenticationMethods & MHAuthChallengedPasswordLogin ; }
@@ -519,83 +489,14 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 - (void)setAuthenticationMethod:(MHAppAuthentication)authenticationMethod { _authenticationMethods |= authenticationMethod ; }
 - (void)unsetAuthenticationMethod:(MHAppAuthentication)authenticationMethod { _authenticationMethods &= ~authenticationMethod ; }
 
-
-- (NSString *)ticketForValidity:(MSTimeInterval)duration
-{
-    NSString *newTicket ;
-    MSTimeInterval ticketEndValidity ;
-    NSMutableDictionary *ticketDictionary ;
-    
-    [_ticketsMutex lock] ;
-    
-    newTicket = [self _uniqueTicketID] ;
-    if(duration != 0){ 
-        ticketEndValidity = GMTNow() + duration ;
-    }
-    else{ //validité permanente : duration = 0
-        ticketEndValidity = 0 ;        
-    }
-    ticketDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithLongLong:ticketEndValidity], MHAPP_TICKET_VALIDITY,[NSNumber numberWithLongLong:GMTNow()] , MHAPP_TICKET_CREATIONDATE, nil] ;
-    [_tickets setObject:ticketDictionary forKey:newTicket] ;
-    
-    [_ticketsMutex unlock] ;
-    
-    return newTicket ;
-}
-
-- (void)setObject:(id)object forTicket:(NSString *)ticket
-{
-    if ([ticket length])
-    {
-        NSMutableDictionary *ticketDictionary  = [_tickets objectForKey:ticket] ;
-        
-        if (ticketDictionary)
-        {
-            [ticketDictionary setObject:object forKey:MHAPP_TICKET_PARAMETERS] ;
-        }
-    }
-}
-
-- (id)_objectForTicket:(NSString *)ticket key:(NSString *)key
-{
-    id ret = nil ;
-    
-    if ([ticket length])
-    {
-        NSDictionary *ticketDictionary = [_tickets objectForKey:ticket] ;
-        if (ticketDictionary)
-        {
-            ret = [ticketDictionary objectForKey:key] ;
-        }
-    }
-    
-    return ret ;
-}
-
-- (id)objectForTicket:(NSString *)ticket
-{
-    return [self _objectForTicket:ticket key:MHAPP_TICKET_PARAMETERS] ;
-}
-
-- (NSNumber *)validityForTicket:(NSString *)ticket
-{
-    return [self _objectForTicket:ticket key:MHAPP_TICKET_VALIDITY] ;
-}
-
-- (NSNumber *)creationDateForTicket:(NSString *)ticket
-{
-    return [self _objectForTicket:ticket key:MHAPP_TICKET_CREATIONDATE] ;
-}
-
-- (void)removeTicket:(NSString *)ticket
-{
-    [_ticketsMutex lock] ;
-    if ([ticket length])
-    {
-        [_tickets removeObjectForKey:ticket] ;
-    }
-    [_ticketsMutex unlock] ;
-}
+- (NSString *)ticketForValidity:(MSTimeInterval)duration { return ticketForValidity(self, duration) ; }
+- (NSMutableDictionary *)tickets { return ticketsForApplication(self) ; }
+- (void)setTickets:(NSDictionary *)tickets { setTicketsForApplication(self, tickets) ; }
+- (id)objectForTicket:(NSString *)ticket { objectForTicket(self, ticket) ; }
+- (void)setObject:(id)object forTicket:(NSString *)ticket { setObjectForTicket(self, object, ticket) ; }
+- (NSNumber *)validityForTicket:(NSString *)ticket { validityForTicket(self, ticket) ; }
+- (NSNumber *)creationDateForTicket:(NSString *)ticket { creationDateForTicket(self, ticket) ; }
+- (void)removeTicket:(NSString *)ticket { removeTicket(self, ticket) ; }
 
 - (NSDictionary *)netRepositoryConnectionDictionary
 {

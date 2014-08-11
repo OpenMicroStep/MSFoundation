@@ -28,7 +28,6 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file) ;
 @interface MHApplication (Private)
 
 - (void)validateAuthentication:(MHNotification *)notification ;
-- (void)deleteExpiredTickets ;
 - (BOOL)isGUIApplication ;
 - (BOOL)isAdminApplication ;
 

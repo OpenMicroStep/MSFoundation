@@ -110,6 +110,9 @@ static mutex_t __sessionContextsMutex ;
 static NSMapTable *__resourcesCache = NULL ;
 static mutex_t __resourcesCacheMutex ;
 
+static NSMapTable *__authenticationTickets = NULL ;
+static mutex_t __authenticationTicketsMutex ;
+
 static unsigned int __currentUploadId = 0 ;
 
 //administration application configuration
@@ -2628,11 +2631,13 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     __sessions = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 32, defaultZone) ;
     __sessionContexts = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 64, defaultZone) ;
     __resourcesCache = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 128, defaultZone) ;
+    __authenticationTickets = NSCreateMapTableWithZone(NSIntegerMapKeyCallBacks, NSObjectMapValueCallBacks, 32, defaultZone) ;
     
     mutex_init(__sessionsMutex) ;
     mutex_init(__applicationsMutex) ;
     mutex_init(__sessionContextsMutex) ;
     mutex_init(__resourcesCacheMutex) ;
+    mutex_init(__authenticationTicketsMutex) ;
     mutex_init(__blacklist_mutex) ; // mutex to access the IP blacklist
     
     /* SERVER INIT FOR CLIENTS */
@@ -2902,6 +2907,39 @@ static void _MHServerCacheClean()
     mutex_unlock(__resourcesCacheMutex) ;
 }
 
+
+static void _MHTicketsClean()
+{
+    
+    NSEnumerator *appTicketEnum = [allApplicationsTickets() objectEnumerator] ;
+    MHApplication *application = nil ;
+    
+    while (application = (MHApplication *)[appTicketEnum nextObject])
+    {
+        NSMutableDictionary *tickets = ticketsForApplication(application) ;
+        NSEnumerator *ticketsEnum = [tickets keyEnumerator] ;
+        NSString *ticket = nil ;
+        NSMutableArray *removableTickets = [NSMutableArray array] ;
+        
+        // search for tickets that are not valid anymore
+        while ((ticket = [ticketsEnum nextObject]))
+        {
+            MSTimeInterval ticketValidityEnd = [validityForTicket(application, ticket) longLongValue] ;
+            if (GMTNow() > ticketValidityEnd)
+            {
+                if(ticketValidityEnd!=0){
+                    [removableTickets addObject:ticket] ;
+                }
+            }
+        }
+        
+        // delete removable tickets for application
+        lock_authentication_tickets_mutex() ;
+        [tickets removeObjectsForKeys:removableTickets] ;
+        unlock_authentication_tickets_mutex() ;
+    }
+}
+
 static void _MHServerClean()
 {
     NSEnumerator *applicationsEnum = nil ;
@@ -2913,6 +2951,8 @@ static void _MHServerClean()
     
     // Clean cache
     _MHServerCacheClean() ;
+    
+    _MHTicketsClean() ;
     
     // Clean each loaded loaded application
     applicationsEnum = [__applications objectEnumerator] ;
@@ -3372,6 +3412,150 @@ void setResourceForKey(MHResource *resource, NSString *key) { if (key && resourc
 void removeResourceForKey(NSString *key) { NSMapRemove(__resourcesCache, (const void *)key) ; }
 void lock_resources_mutex() { mutex_lock(__resourcesCacheMutex) ; }
 void unlock_resources_mutex() { mutex_unlock(__resourcesCacheMutex) ; }
+
+NSMutableDictionary *ticketsForApplication(MHApplication *application)
+{
+    NSMutableDictionary *tickets = (NSMutableDictionary *)NSMapGet((NSMapTable *)__authenticationTickets, (const void *)(intptr_t)application) ;
+    
+    if (!tickets)
+    {
+        NSMapInsertKnownAbsent(__authenticationTickets, (const void *)application, (const void *)[NSMutableDictionary dictionary]) ;
+    }
+    
+    return tickets ;
+}
+
+NSString *_generateNewTicketID()
+{
+    MSUInt newID = fabs(floor(GMTNow())) ;
+    MSUInt addrID = (MSUInt)rand() ;
+    return [NSString stringWithFormat:@"TKT%04X%08X%04X", addrID & 0x0000FFFF, newID, (addrID >> 16)  & 0x0000FFFF] ;
+}
+
+NSString *_uniqueTicketID(MHApplication *application)
+{
+    NSString *ticket = nil ;
+    do {
+        ticket = _generateNewTicketID() ;
+    } while (getTicket(application, ticket)) ;
+    
+    return ticket ;
+}
+
+NSArray *allApplicationsTickets(void) { return NSAllMapTableValues((NSMapTable *)__authenticationTickets) ; }
+
+NSString *ticketForValidity(MHApplication *application, MSTimeInterval duration)
+{
+    NSString *newTicket ;
+    MSTimeInterval ticketEndValidity ;
+    NSMutableDictionary *ticketDictionary ;
+    NSMutableDictionary *tickets ;
+    
+    lock_authentication_tickets_mutex() ;
+    
+    tickets = ticketsForApplication(application) ;
+    newTicket = _uniqueTicketID(application) ;
+    
+    ticketEndValidity = duration ? GMTNow() + duration : 0 ; //validité permanente : duration = 0
+
+    ticketDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                        [NSNumber numberWithLongLong:ticketEndValidity],
+                        MHAPP_TICKET_VALIDITY,[NSNumber numberWithLongLong:GMTNow()] ,
+                        MHAPP_TICKET_CREATIONDATE,
+                        nil] ;
+    
+    [tickets setObject:ticketDictionary forKey:newTicket] ;
+    
+    unlock_authentication_tickets_mutex() ;
+    
+    return newTicket ;
+}
+
+NSMutableDictionary *getTicket(MHApplication *application, NSString *ticket)
+{
+    NSMutableDictionary *ticketDict = nil ;
+    
+    if ([ticket length])
+    {
+        ticketDict = [ticketsForApplication(application) objectForKey:ticket] ;
+    }
+    
+    return ticketDict ;
+}
+
+
+void setTicketsForApplication(MHApplication *application, NSDictionary *tickets)
+{
+    NSMutableDictionary *applicationTickets = (tickets) ? [tickets mutableCopy] : [NSMutableDictionary dictionary] ;
+    
+    lock_authentication_tickets_mutex() ;
+    NSMapInsertKnownAbsent(__authenticationTickets, (const void *)application, (const void *)applicationTickets) ;
+    unlock_authentication_tickets_mutex() ;
+}
+
+
+id _valueForTicketKey(MHApplication *application, NSString *ticket, NSString *key)
+{
+    id value = nil ;
+    
+    if ([ticket length] && [key length])
+    {
+        lock_authentication_tickets_mutex() ;
+        value = [getTicket(application, ticket) objectForKey:key] ;
+        unlock_authentication_tickets_mutex() ;
+    }
+    
+    return value ;
+}
+
+void _setValueForTicketKey(MHApplication *application, NSString *ticket, id value, NSString *key)
+{
+    
+    if ([ticket length] && [key length] && value)
+    {
+        NSMutableDictionary *ticketDictionary = getTicket(application, ticket) ;
+        
+        if (ticketDictionary)
+        {
+            lock_authentication_tickets_mutex() ;
+            [ticketDictionary setObject:value forKey:key] ;
+            unlock_authentication_tickets_mutex() ;
+        }
+    }
+}
+
+
+id objectForTicket(MHApplication *application, NSString *ticket)
+{
+    return _valueForTicketKey(application, ticket, MHAPP_TICKET_PARAMETERS) ;
+}
+
+void setObjectForTicket(MHApplication *application, id object, NSString *ticket)
+{
+    _setValueForTicketKey(application, ticket, object, MHAPP_TICKET_PARAMETERS) ;
+}
+ 
+NSNumber *validityForTicket(MHApplication *application, NSString *ticket)
+{
+    return _valueForTicketKey(application, ticket, MHAPP_TICKET_VALIDITY) ;
+}
+
+NSNumber *creationDateForTicket(MHApplication *application, NSString *ticket)
+{
+    return _valueForTicketKey(application, ticket, MHAPP_TICKET_CREATIONDATE) ;
+}
+
+void removeTicket(MHApplication *application, NSString *ticket)
+{
+    NSMutableDictionary *tickets = ticketsForApplication(application) ;
+    
+    lock_authentication_tickets_mutex() ;
+    [tickets removeObjectForKey:ticket] ;
+    unlock_authentication_tickets_mutex() ;
+}
+
+void lock_authentication_tickets_mutex(void) { mutex_lock(__authenticationTicketsMutex) ; }
+void unlock_authentication_tickets_mutex(void) { mutex_unlock(__authenticationTicketsMutex) ; }
 
 static void increaseCurrentClientProcessingRequestCount()
 {
