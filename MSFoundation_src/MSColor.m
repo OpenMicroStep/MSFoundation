@@ -527,6 +527,8 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
     [_MSIndexedColor setVersion:MS_INDEXEDCOLOR_LAST_VERSION];
 
     if (!__namedColors) {
+      // TODO: initialize called before releasepool is setup
+      NSAutoreleasePool *pool= [NSAutoreleasePool new];
       struct _MSColorDefinition entry;
       _MSIndexedColor *c;
       NSString *s;
@@ -549,7 +551,10 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
         *entry.color= c;
         [__namedColors setObject:c forKey:[s lowercaseString]];
         [__namedColors setObject:c forKey:s];
-        CArrayAddObject(&__colorsList, c);}}}
+        CArrayAddObject(&__colorsList, c);
+        }
+    [pool release];
+    }}
 }
 - (oneway void)release {}
 - (id)retain { return self;}
