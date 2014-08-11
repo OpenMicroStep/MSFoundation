@@ -581,7 +581,7 @@ static inline MSByte _valueTypeFromTable(id table)
         for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
           if ([v state]==MSRemove) {
             q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%lld "
-                    "AND VAL_CAR=%@ AND VAL=%@",
+                   @"AND VAL_CAR=%@ AND VAL=%@",
                    tStr,oidv,cid,[v sqlDescription:self]);
             if ([_db executeRawSQL:q]) ok= NO; else done= YES;
 //NSLog(@"REMOVE %d %@",ok,q);
@@ -589,7 +589,7 @@ static inline MSByte _valueTypeFromTable(id table)
         for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
           if ([v state]==MSAdd) {
             q= FMT(@"INSERT INTO TJ_VAL_%@ (VAL_INST,VAL_CAR,VAL) VALUES "
-                    "(%lld,%@,%@)",
+                   @"(%lld,%@,%@)",
                    tStr,oidv,cid,[v sqlDescription:self]);
             if ([_db executeRawSQL:q]) ok= NO; else done= YES;
 //NSLog(@"ADD %d %@",ok,q);

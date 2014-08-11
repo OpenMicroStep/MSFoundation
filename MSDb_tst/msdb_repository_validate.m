@@ -69,7 +69,7 @@ static inline int tst_rep(id dbParams)
     login= @"admin"; c= @"challenge";
     // printf "challengehpwd" | openssl sha512 |  tr '[:lower:]' '[:upper:]'
     cpwd= @"51038EA994EF520B32963015499C4E0DBA500833BED9F47186AE0EFA4F9B2A68"
-           "122F85C875E33CCB5F296B95411E2DB8DF8E0B82F0EDE3724148B809DD90DD85";
+          @"122F85C875E33CCB5F296B95411E2DB8DF8E0B82F0EDE3724148B809DD90DD85";
     rep= [[MHRepository alloc] initWithChallenge:c challengedPassword:cpwd forLogin:login];
     if (!rep) {
       NSLog(@"D2: not logged %@",login); err++;}}
