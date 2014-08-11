@@ -58,4 +58,4 @@ typedef enum
 	MS_RIPEMD160
 } MSDigest ;
 
-MSExport NSString *MSDigestData(MSDigest digest, const void *bytes, NSUInteger length) ;
+MSNetExport NSString *MSDigestData(MSDigest digest, const void *bytes, NSUInteger length) ;

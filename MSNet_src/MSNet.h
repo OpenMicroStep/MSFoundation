@@ -47,6 +47,8 @@
 
 #import <MSFoundation/MSFoundation.h>
 
+#define MSNetExport MSImport
+
 #import <MSNet/MSJSONEncoder.h>
 #import <MSNet/MSHTTPRequest.h>
 #import <MSNet/MSHTTPResponse.h>

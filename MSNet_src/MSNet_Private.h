@@ -40,6 +40,12 @@
 
 #import <MSFoundation/MSFoundation.h>
 
+#ifdef MSNET_PRIVATE_LINKING
+#define MSNetExport MSImport
+#else
+#define MSNetExport MSExport
+#endif
+
 #import "MSJSONEncoder.h"
 #import "MSHTTPRequest.h"
 #import "MSHTTPResponse.h"
