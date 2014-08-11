@@ -595,14 +595,14 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 #pragma mark init
 
 // NEEDED
-- (instancetype)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)flag
+- (id)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)flag
 {
   CStringAppendBytes((CString*)self, NSUnicodeStringEncoding, characters, length);
   if (flag) free(characters);
   return self;
 }
 
-- (instancetype)initWithBytes:(const void *)bytes length:(NSUInteger)length encoding:(NSStringEncoding)encoding
+- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length encoding:(NSStringEncoding)encoding
 {
   CStringAppendBytes((CString*)self, encoding, bytes, length);
   return self;
