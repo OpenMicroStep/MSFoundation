@@ -234,7 +234,7 @@
     
     generalizedTime = OPENSSL_ASN1_TIME_to_generalizedtime(asn1Time, NULL) ;
     strDate = [MSASCIIString stringWithBytes:generalizedTime->data length:generalizedTime->length] ;
-#warning TODO A revoir c'est GMT ou non ?
+#warning TODO A revoir c est GMT ou non ?
     date = [NSCalendarDate dateWithString:strDate calendarFormat:@"%Y%m%d%H%M%SZ"] ;
 
     //return [MSDate dateWithDate:date] ;
