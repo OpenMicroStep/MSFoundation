@@ -251,19 +251,44 @@ CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s)
   return d;
 }
 
-#define _MSTimeIntervalSince1601 12622780800.0
+
+#ifdef WIN32
+// this **!@** structure count by 100 nanoseconds steps since 1st january 1601
+#define _MSTimeIntervalSince1601 12622780800ull
+
+static inline void FileTimeToMSTimeInterval(FILETIME ft, MSTimeInterval *t)
+{
+  MSULong d;
+  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
+  d /= 10000000;
+  *t = (MSTimeInterval)(d) - _MSTimeIntervalSince1601;
+}
+
+static inline void MSTimeIntervalToFileTime(MSTimeInterval t, FILETIME * ft)
+{
+  MSULong d;
+  d = t + _MSTimeIntervalSince1601;
+  d *= 10000000;
+  ft->dwLowDateTime  = (MSUInt) (d & 0xFFFFFFFF );
+  ft->dwHighDateTime = (MSUInt) (d >> 32 );
+}
+#endif
+
+#ifdef WO451 
+// Apple System headers doesn't provide this method because it was introduced in WinXP/WinServer2003
+// Linking with Apple won't work either, one workaround is to link with a newer version of libKernel32.a
+// A version compatible with the old wo451 linker can be found in the MinGW package.
+// The name of the lib for linker can't be Kernel32 due to linker not looking at libKernel32.a with such name.
+BOOL WINAPI TzSpecificLocalTimeToSystemTime(void* lpTimeZoneInformation,void* lpLocalTime,void* lpUniversalTime);
+#endif
 
 static MSTimeInterval _GMTNow(void)
 {
   MSTimeInterval t;
 #ifdef WIN32
-  // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
-  // NOT Win64 compatible
-  // Do not cast a pointer to a FILETIME structure to either a ULARGE_INTEGER*
-  // or __int64* value because it can cause alignment faults on 64-bit Windows.
-  FILETIME fts, ft;
+  FILETIME fts;
   GetSystemTimeAsFileTime(&fts);
-  t= (*((MSTimeInterval*)(&ft)))/100/100000 - _MSTimeIntervalSince1601;
+  FileTimeToMSTimeInterval(fts, &t);
 #else
   time_t timet= time(NULL);
   t= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101;
@@ -274,11 +299,14 @@ static MSTimeInterval _GMTToLocal(MSTimeInterval tIn)
 {
   MSTimeInterval tOut;
 #ifdef WIN32
-  // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
   FILETIME fts, ftl;
-  fts= (tIn + _MSTimeIntervalSince1601) *100 * 100000;
-  if (FileTimeToLocalFileTime(&fts, &ftl))
-    tOut= (*((MSTimeInterval*)(&ftl))) / 100 / 100000 - _MSTimeIntervalSince1601;
+  SYSTEMTIME sts, stl;
+  MSTimeIntervalToFileTime(tIn, &fts);
+  if (FileTimeToSystemTime(&fts, &sts) && // According to MSDN, this is a necessary conversion to take daylight into account
+      SystemTimeToTzSpecificLocalTime(NULL /* uses the currently active time zone */, &sts, &stl) &&
+      SystemTimeToFileTime(&stl, &ftl))
+    FileTimeToMSTimeInterval(ftl, &tOut);
+  else tOut = tIn;
 #else
   struct tm tm;
   time_t timet= tIn + CDateSecondsFrom19700101To20010101;
@@ -294,15 +322,15 @@ NSTimeInterval GMTNow(void)
   return (NSTimeInterval)_GMTNow();
 }
 NSTimeInterval GMTFromLocal(MSTimeInterval t)
-// TODO: How on windows ?
 {
 #ifdef WIN32
-  // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
   FILETIME fts, ftl;
-  ftl= (t + _MSTimeIntervalSince1601) *100 * 100000;
-  // LocalFileTimeToFileTime n'existe pas comment on fait ?
-  if (LocalFileTimeToFileTime(&ftl, &fts))
-    t= (*((MSTimeInterval*)(&fts))) / 100 / 100000 - _MSTimeIntervalSince1601;
+  SYSTEMTIME sts, stl;
+  MSTimeIntervalToFileTime(t, &ftl);
+  if (FileTimeToSystemTime(&ftl, &stl) && // According to MSDN, this is a necessary conversion to take daylight into account
+      TzSpecificLocalTimeToSystemTime(NULL /* uses the currently active time zone */, &stl, &sts) &&
+      SystemTimeToFileTime(&sts, &fts))
+    FileTimeToMSTimeInterval(fts, &t);
 #else
   _dtm dtm= _dtmCast(t);
   struct tm tm= {dtm.second,dtm.minute,dtm.hour,
