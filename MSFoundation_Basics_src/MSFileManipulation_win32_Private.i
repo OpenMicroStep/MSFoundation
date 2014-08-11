@@ -1,6 +1,5 @@
 #ifdef WIN32
 #import "MSFoundation_Private.h"
-#import "MSStringAdditions.h"
 #import <windows.h>
 #import <lm.h>
 
