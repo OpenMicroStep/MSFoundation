@@ -80,7 +80,9 @@ NSLog(@"_valTables %@",_valTables);
 - (void)dealloc
   {
   // Fermeture de la connexion.
+  [_tr           release]; // abort la transaction si en cours
   [_db disconnect];
+  [_db           release];
   [_valTables    release];
   [_entByOid     release];
   [_sysObiByOid  release];
@@ -348,67 +350,33 @@ ctx= nil;
   static MSLong freeOidv= 500001;
   MSLong r= 0; MSObi *car,*db; _btypedValue tv; MSOValue *v; BOOL ok, unsetTr;
   if (nb<=0) return 0;
-  //Car
-  //_id: 401
-  //system name: next oid
-  //type: INT
-  //_end:
   car= [self systemObiWithOid:MSCarNextOidId];
-  if (!car) {
-    car= [MSObi obiWithOid:MSCarNextOidId :self];
-    tv.b= RETAIN(MSEntCarId);
-    v= [MSOValue valueWithCid:MSCarEntityId state:MSAdd type:B8 value:tv];
-    [car setValue:v];
-    tv.t= RETAIN(MSCarNextOidLib);
-    v= [MSOValue valueWithCid:MSCarSystemNameId state:MSAdd type:T8 value:tv];
-    [car setValue:v];
-    tv.b= RETAIN([[self systemObiWithName:@"INT"] oid]);
-    v= [MSOValue valueWithCid:MSCarTypeId state:MSAdd type:B8 value:tv];
-    [car setValue:v];
-    ok= [self changeObi:car];
-NSLog(@"newOidValue car ret change %d",ok);
-    car= [self systemObiWithOid:MSCarNextOidId];}
-  //Element
-  //_id: 10000
-  //system name: database
-  //next oid: 500001
-  //_end:
   db= [self systemObiWithOid:MSObiDatabaseId];
-  if (car && !db) {
-    db= [MSObi obiWithOid:MSObiDatabaseId :self];
-    tv.t= RETAIN(MSObiDatabaseLib);
-    v= [MSOValue valueWithCid:MSCarSystemNameId state:MSAdd type:T8 value:tv];
-    [db setValue:v];
-    tv.s= freeOidv;
-    v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 value:tv];
-    [db setValue:v];
-    ok= [self changeObi:db];
-NSLog(@"newOidValue db1 ret change %d",ok);
-    db= [self systemObiWithOid:MSObiDatabaseId];}
-  // On va chercher en base pour avoir le dernier.
-  // BEGIN TRANSACTION
-  if (_tr) unsetTr= NO;
-  else {unsetTr= YES; _tr= [[_db openTransaction] retain];}
-  db= [[self fillIds:MSObiDatabaseId withCars:nil] objectForKey:MSObiDatabaseId];
-  ok= NO;
-  //next oid: old oid + nb
-  if (db && car) {
-    r= [db longValueForCid:[car oid]];
-//NSLog(@"db2 r %lld freeOidv %lld %@",r,freeOidv,db);
-    if (r<freeOidv) r= freeOidv; // Si on est sorti en rollback TODO: Si roolback, le no n'a pas été enreg. Est-on sûr que les no n'ont pas été retenus ?
+  if ((ok= (car && db))) {
+    // TODO: test si la transaction échoue next oid n'est pas enregistré.
+    //       Est-on sûr que les no n'ont pas été retenus ?
+    //       Alternative: autoincrémemt, vérrou ?
+    // On va chercher en base pour avoir le dernier.
+    // BEGIN TRANSACTION
+    if (_tr) unsetTr= NO;
+    else {unsetTr= YES; _tr= [[_db openTransaction] retain];}
+    db= [[self fillIds:MSObiDatabaseId withCars:nil] objectForKey:MSObiDatabaseId];
+    //next oid: old oid + nb
     v= [db valueForCid:[car oid]];
+    r= [v longValue];
+//NSLog(@"db2 r %lld freeOidv %lld %@",r,freeOidv,db);
+    if (r<freeOidv) r= freeOidv;
     [v setState:MSRemove];
     tv.s= r+nb;
     v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 value:tv];
     [db setValue:v];
     ok= [self changeObi:db];
 //NSLog(@"db3 ret change %lld %lld %d",r,tv.s,ok);
-    }
-  // END TRANSACTION
-  if (unsetTr) {
-    if (ok) ok= [_tr saveWithError:NULL];
-    else [_tr terminateOperation];
-    RELEAZEN(_tr);}
+    // END TRANSACTION
+    if (unsetTr) {
+      if (ok) ok= [_tr saveWithError:NULL];
+      else [_tr terminateOperation];
+      RELEAZEN(_tr);}}
   return ok ? r : 0;
 }
 
@@ -559,7 +527,7 @@ static inline MSByte _valueTypeFromTable(id table)
 // TODO: revoir executeRawSQL
 // TODO: transaction et faire un roolback si echec
 // TODO: pas execute mais appendSQL
-// TODO: traiter les sub sid automatiquement
+// TODO: traiter la destruction des subobjects automatiquement
 // Pour Add et Remove, on vérifie d'abord que l'entité existe et n'est pas disabled.
 // On fait les Remove avant les Add au cas où on ferait un Add et Remove de la même valeur.
 // Les deletes à la fin pour vérifier qu'on n'a plus de lien externe sur la grappe
@@ -581,24 +549,23 @@ static inline MSByte _valueTypeFromTable(id table)
     done= NO;
     if ((status= [(MSObi*)obi status])==MSDelete) {
       // Vérif suppression
-      // Il ne doit être lié à aucun autre obi
-      // TODO: on pourrait aussi vérifier que ceux auxquels il est lié ne sont pas
+      // Il ne doit être lié à aucun autre obi et ses sous-objets également
+      // TODO: on doit aussi vérifier que ceux auxquels il est lié ne sont pas
       // dans x et marqué à détruire.
       // TODO: On fait les delete à la fin, ie après les remove et add
       q= FMT(@"SELECT VAL_INST FROM TJ_VAL_ID WHERE VAL=%@ OR VAL_CAR=%@",oid,oid);
       result= [_db fetchWithRequest:q];
       if ([result nextRow]) {
         [result getLongAt:&bid column:0];
-NSLog(@"SUPPR NON AUTORISÉE (lié à %lld) %@",bid,obi);
+//NSLog(@"SUPPR NON AUTORISÉE (%lld lié à) %@",bid,oid);
         ok= NO;}
       [result terminateOperation];
       // TODO: Supprimer aussi tous les sous-objets de type SID
       for (e= [_valTables objectEnumerator]; ok && (t= [e nextObject]); ) {
         q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%@",t,oid);
         if ([_db executeRawSQL:q]) ok= NO; else done= YES;
-//NSLog(@"%d %@",ok,q);
-        }
-      }
+//NSLog(@"DELETE %d %@",ok,q);
+        }}
     else {
       // TODO: Si pas creat pour Add et Remove, l'objet doit exister et ne pas être disabled
       // TODO: Si un remove n'existe pas, c'est une erreur, c'est que la car a été changée entre temps par quelqu'un d'autre.
@@ -616,15 +583,17 @@ NSLog(@"SUPPR NON AUTORISÉE (lié à %lld) %@",bid,obi);
             q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%lld "
                     "AND VAL_CAR=%@ AND VAL=%@",
                    tStr,oidv,cid,[v sqlDescription:self]);
-//NSLog(@"REMOVE %@ %@",v,q);
-            if ([_db executeRawSQL:q]) ok= NO; else done= YES;}}
+            if ([_db executeRawSQL:q]) ok= NO; else done= YES;
+//NSLog(@"REMOVE %d %@",ok,q);
+            }}
         for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
           if ([v state]==MSAdd) {
             q= FMT(@"INSERT INTO TJ_VAL_%@ (VAL_INST,VAL_CAR,VAL) VALUES "
                     "(%lld,%@,%@)",
                    tStr,oidv,cid,[v sqlDescription:self]);
-//NSLog(@"ADD %@ %@",v,q);
-            if ([_db executeRawSQL:q]) ok= NO; else done= YES;}}}
+            if ([_db executeRawSQL:q]) ok= NO; else done= YES;
+//NSLog(@"ADD %d %@",ok,q);
+            }}}
       //if (ok && creat) [obi setOid:[MSOid oidWithValue:oidv]];
       if (ok && creat) [[obi oid] replaceLocalValue:oidv]; // TODO: que quand tout est ok.
       }

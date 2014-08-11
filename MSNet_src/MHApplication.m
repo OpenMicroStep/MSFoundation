@@ -379,7 +379,7 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 {
     NSData *encryptedChallengeData = nil ;
     NSString *encryptedChallenge = nil ;
-    NSString *challenge = [self generatePlainChallenge] ;
+    NSString *challenge = [self generatePlainChallengeWithParameters:nil storeInSession:nil] ;
     MSBuffer *base64Buf = nil ;
     
     if ([challenge length])
@@ -418,7 +418,7 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     return encryptedChallenge ;
 }
 
-- (NSString *)generatePlainChallenge
+- (NSString *)generatePlainChallengeWithParameters:(NSDictionary *)challengeParameters storeInSession:(NSDictionary **)sessionParameters
 {
     MSBuffer *randBuff = AUTORELEASE(MSCreateRandomBuffer(8)) ;
     MSBuffer *b64Buf = [randBuff encodedToBase64] ;

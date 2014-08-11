@@ -907,13 +907,22 @@ static void _MHRunApplicationWithNoSessionGetRequest(MHApplication *application,
             NSMutableDictionary *headers = nil ;
             MSBuffer *response = nil ;
             void *bytes = NULL ;
-            
+            NSDictionary *parametersToStoreInSession = nil ;
+          
             //store plain challenge in session
-            NSString *challengeSent = [application generatePlainChallenge] ;
+            NSString *challengeSent = [application generatePlainChallengeWithParameters:[NSDictionary dictionaryWithObjectsAndKeys:headerLogin, MHGUI_AUTH_FORM_LOGIN, nil] storeInSession:&parametersToStoreInSession] ;
             
             MHContext *context = MHCreateInitialContextAndSession(application, authType) ;
             MHSession *session = [context session] ;
             [session storeMember:[context contextID] named:@"contextID"] ;
+            if (parametersToStoreInSession) {
+              //we store in session optionnal values returned at challenge generation, in order to finally re-use them in application
+              NSEnumerator *keyEnum = [parametersToStoreInSession keyEnumerator] ;
+              NSString *key ;
+              while ((key = [keyEnum nextObject])) {
+                [session storeMember:[parametersToStoreInSession objectForKey:key] named:key] ;
+              }
+            }
             
             if (headerTarget) { [session storeMember:headerTarget named:SESSION_PARAM_TARGET] ; }
             [session storeMember:headerLogin named:SESSION_PARAM_LOGIN] ;
@@ -4440,8 +4449,8 @@ void MHValidateAuthentication(MHNotification *notification, BOOL isAuthenticated
         {
             loginPage = AUTORELEASE(MSCreateBufferWithBytes((void *)[errorMessage UTF8String], [errorMessage length])) ;
         }
-        
-        MHRESPOND_TO_CLIENT(loginPage , HTTPUnauthorized, headers) ;
+      
+        MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(loginPage , HTTPUnauthorized, headers) ;
     }
     else //auth ok, send session_id context_id and auth_success
     {

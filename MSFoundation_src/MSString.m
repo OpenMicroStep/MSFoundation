@@ -581,11 +581,6 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   {
   return self;
   }
-- (id)initWithFormat:(NSString *)fmt locale:(id)locale arguments:(va_list)args
-  {
-  RELEASE(self);
-  return (MSString*)[[NSString alloc] initWithFormat:fmt locale:locale arguments:args];
-  }
 + (id)UUIDString
   {
   CString *x= CCreateStringWithSES([[[NSUUID UUID] UUIDString] stringEnumeratorStructure]);
@@ -597,13 +592,29 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   [super dealloc];
   }
 
-#pragma mark Primitives
+#pragma mark init
 
-- (BOOL)getFileSystemRepresentation:(char *)buffer maxLength:(NSUInteger)maxLength
-// TODO: something else ?
+// NEEDED
+- (instancetype)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)flag
 {
-  return [[NSString stringWithString:self] getFileSystemRepresentation:buffer maxLength:maxLength];
+  CStringAppendBytes((CString*)self, NSUnicodeStringEncoding, characters, length);
+  if (flag) free(characters);
+  return self;
 }
+
+- (instancetype)initWithBytes:(const void *)bytes length:(NSUInteger)length encoding:(NSStringEncoding)encoding
+{
+  CStringAppendBytes((CString*)self, encoding, bytes, length);
+  return self;
+}
+
+- (id)initWithFormat:(NSString *)fmt locale:(id)locale arguments:(va_list)args
+  {
+  RELEASE(self);
+  return (MSString*)[[NSString alloc] initWithFormat:fmt locale:locale arguments:args];
+  }
+
+#pragma mark Primitives
 
 - (NSUInteger)length
 {
@@ -656,10 +667,15 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   if (!object) return NO;
   if ([object isKindOfClass:[MSString class]]) {
     return CStringEquals((CString*)self, (CString*)object);}
-  else if ([object isKindOfClass:[NSString class]]) { // TODO: a revoir. Quid dans l'autre sens ?
-    BOOL eq; NSUInteger i,n= [object length]; unichar b[n?n:1];
-    [object getCharacters:b range:NSMakeRange(0, n)];
-    for (eq= YES, i= 0; eq && i<n; i++) eq= (_buf[i]==b[i]);
+  else if ([object isKindOfClass:[NSString class]]) {
+    NSUInteger n= [object length];
+    BOOL eq= (n == [self length]);
+    if (eq) {
+      unichar b[n?n:1];
+      NSUInteger i;
+      [object getCharacters:b range:NSMakeRange(0, n)];
+      for (i= 0; eq && i<n; i++) eq= (_buf[i]==b[i]);
+    }
 //NSLog(@"MSString isEqual %@ %@= %@ %@\n",self,(eq?@"=":@"!"),[object class],object);
     return eq;}
   return NO;
@@ -672,17 +688,105 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   return self;
 }
 
+#pragma mark encoding
+
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding
 {
   CBuffer *b= CCreateBufferWithString((CString*)self, encoding);
   AUTORELEASE((MSBuffer*)b);
+//NSLog(@"cStringUsingEncoding %lu",encoding);
   return (const char *)CBufferCString(b);
 }
+
 - (const char *)UTF8String
 {
   return [self cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
+/* DEBUG
+
+#define WHO super // [NSString stringWithString:self] // super
+#define _logAndDo(M)    {NSLog(@#M); return [WHO M];}
+#define _logAndDoA(M,A) {NSLog(@#M); return [WHO M:A];}
+
+
++ (const NSStringEncoding *)availableStringEncodings _logAndDo(availableStringEncodings)
++ (NSStringEncoding)defaultCStringEncoding           _logAndDo(defaultCStringEncoding)
+- (NSStringEncoding)fastestEncoding                  _logAndDo(fastestEncoding)
+- (NSStringEncoding)smallestEncoding                 _logAndDo(smallestEncoding)
+- (const char *)cString                              _logAndDo(cString)       // deprecated
+- (NSUInteger)cStringLength                          _logAndDo(cStringLength) // deprecated
+- (const char *)lossyCString                         _logAndDo(lossyCString)  // deprecated
+- (void)getCString:(char *)buffer                               _logAndDoA(getCString,buffer) // deprecated
++ (NSString *)localizedNameOfStringEncoding:(NSStringEncoding)e _logAndDoA(localizedNameOfStringEncoding,e)
+- (BOOL)canBeConvertedToEncoding:(NSStringEncoding)e            _logAndDoA(canBeConvertedToEncoding,e)
+- (NSData *)dataUsingEncoding:(NSStringEncoding)e               _logAndDoA(dataUsingEncoding,e)
+- (void)getCharacters:(unichar *)buffer                         _logAndDoA(getCharacters,buffer) // deprecated
+- (NSData *)dataUsingEncoding:(NSStringEncoding)e allowLossyConversion:(BOOL)flag
+{
+  NSLog(@"dataUsingEncoding:allowLossyConversion:");
+  return [WHO dataUsingEncoding:e allowLossyConversion:flag];
+}
+- (BOOL)getCString:(char *)buffer maxLength:(NSUInteger)maxBufferCount encoding:(NSStringEncoding)encoding
+{
+  NSLog(@"getCString");
+  return [WHO getCString:buffer maxLength:maxBufferCount encoding:encoding];
+}
+- (BOOL)getBytes:(void *)buffer maxLength:(NSUInteger)maxBufferCount usedLength:(NSUInteger *)usedBufferCount
+  encoding:(NSStringEncoding)encoding options:(NSStringEncodingConversionOptions)options range:(NSRange)range
+  remainingRange:(NSRangePointer)leftover
+{
+  NSLog(@"getBytes");
+  return [WHO getBytes:buffer maxLength:maxBufferCount usedLength:usedBufferCount encoding:encoding options:options range:range remainingRange:leftover];
+}
+- (void)getCString:(char *)buffer maxLength:(NSUInteger)maxLength // deprecated
+{
+  NSLog(@"getCString");
+  return [WHO getCString:buffer maxLength:maxLength];
+}
+- (void)getCString:(char *)buffer maxLength:(NSUInteger)maxLength range:(NSRange)aRange
+  remainingRange:(NSRangePointer)leftoverRange // deprecated
+{
+  NSLog(@"getCString:...");
+  return [WHO getCString:buffer maxLength:maxLength range:aRange remainingRange:leftoverRange];
+}
+- (id)initWithCStringNoCopy:(char *)cString length:(NSUInteger)length freeWhenDone:(BOOL)flag
+{
+  NSLog(@"initWithCStringNoCopy:");
+  return [WHO initWithCStringNoCopy:cString length:length freeWhenDone:flag];
+}
+*/
+#pragma mark Path
+
+/* DEBUG
+- (NSArray *)pathComponents                           _logAndDo(pathComponents)
+- (const char *)fileSystemRepresentation              _logAndDo(fileSystemRepresentation)
+- (BOOL)isAbsolutePath                                _logAndDo(isAbsolutePath)
+- (NSString *)lastPathComponent                       _logAndDo(lastPathComponent)
+- (NSString *)pathExtension                           _logAndDo(pathExtension)
+- (NSString *)stringByAbbreviatingWithTildeInPath     _logAndDo(stringByAbbreviatingWithTildeInPath)
+- (NSString *)stringByDeletingLastPathComponent       _logAndDo(stringByDeletingLastPathComponent)
+- (NSString *)stringByDeletingPathExtension           _logAndDo(stringByDeletingPathExtension)
+- (NSString *)stringByExpandingTildeInPath            _logAndDo(stringByExpandingTildeInPath)
+- (NSString *)stringByResolvingSymlinksInPath         _logAndDo(stringByResolvingSymlinksInPath)
+- (NSString *)stringByStandardizingPath               _logAndDo(stringByStandardizingPath)
++ (NSString *)pathWithComponents:(NSArray *)a                    _logAndDoA(pathWithComponents,a)
+- (NSString *)stringByAppendingPathComponent:(NSString *)aString _logAndDoA(stringByAppendingPathComponent,aString)
+- (NSString *)stringByAppendingPathExtension:(NSString *)ext     _logAndDoA(stringByAppendingPathExtension,ext)
+- (NSArray *)stringsByAppendingPaths:(NSArray *)paths            _logAndDoA(stringsByAppendingPaths,paths)
+- (NSUInteger)completePathIntoString:(NSString **)outputName caseSensitive:(BOOL)flag
+  matchesIntoArray:(NSArray **)outputArray filterTypes:(NSArray *)filterTypes
+{
+  NSLog(@"completePathIntoString");
+  return [WHO completePathIntoString:outputName caseSensitive:flag
+              matchesIntoArray:outputArray filterTypes:filterTypes];
+}
+- (BOOL)getFileSystemRepresentation:(char *)buffer maxLength:(NSUInteger)maxLength
+{
+  NSLog(@"getFileSystemRepresentation");
+  return [WHO getFileSystemRepresentation:buffer maxLength:maxLength];
+}
+*/
 @end
 
 @implementation MSMutableString

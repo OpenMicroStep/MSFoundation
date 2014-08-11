@@ -163,6 +163,7 @@ _btypedValue;
 - (MSObi*)entPatternOfCid:(MSOid*)cid;
 - (NSString*)carType;
 - (NSString*)carTable;
+- (MSByte)carTableType;
 - (NSString*)typTable;
 @end
 

@@ -40,3 +40,9 @@
 
 @end
 
+@interface MSHTTPResponse (MASHAdditions)
+
+- (NSString *)mashSessionID ;
+
+@end
+
