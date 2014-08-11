@@ -144,7 +144,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 
 - (MSArray *)_operationsOfClass:(Class)searchedClass
 {
-  NSUInteger i, count = _operations.count ;
+  NSUInteger i, count = [_operations count] ;
   MSArray *array = MSCreateArray(count) ;
   
   for (i = 0 ; i < count ; i++) {
@@ -164,7 +164,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 
 - (NSUInteger)openedTransactionsCount
 {
-  NSUInteger i, count = _operations.count, total = 0 ;
+  NSUInteger i, count = [_operations count], total = 0 ;
   Class searchedClass = [MSDBTransaction class] ;
   for (i = 0 ; i < count ; i++) {
     MSDBOperation *o = [_operations objectAtIndex:i] ;
