@@ -40,6 +40,12 @@
 
 #import <MSFoundation/MSFoundation.h>
 
+#ifdef MSDB_PRIVATE_LINKING
+#define MSDBExport MSImport
+#else
+#define MSDBExport MSExport
+#endif
+
 #import "MSDBConnection.h"
 #import "MSDBOperation.h"
 #import "MSDBRow.h"
