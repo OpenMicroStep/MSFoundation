@@ -77,6 +77,8 @@ MSFoundationExport HINSTANCE MSLoadDLL(NSString *dllName) ;
 MSFoundationExport NSUInteger MSOperatingSystem(void) ;
 
 #ifdef WO451
+#define NSLocaleDecimalSeparator NSDecimalSeparator
+
 @interface NSNull : NSObject <NSCopying, NSCoding>
 + (NSNull *)null;
 @end
