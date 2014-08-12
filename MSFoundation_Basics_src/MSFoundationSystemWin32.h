@@ -87,6 +87,12 @@ MSFoundationExport NSUInteger MSOperatingSystem(void) ;
 @interface NSNull : NSObject <NSCopying, NSCoding>
 + (NSNull *)null;
 @end
+
+@interface NSString (MSCompatibilityLayer)
++ (id)stringWithCString:(const char *)cString encoding:(NSStringEncoding)enc;
+- (id)initWithCString:(const char *)nullTerminatedCString encoding:(NSStringEncoding)encoding;
+@end
+
 #endif
 
 #define setenv(X, V, Y)        getenv(X) ? ( Y ? : SetEnvironmentVariable(X, V)) : SetEnvironmentVariable(X, V);
