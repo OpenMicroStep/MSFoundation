@@ -7,7 +7,6 @@
 //
 
 #import "MSNet_Private.h"
-#import "MHApplicationClient.h"
 
 #define BUFF_SIZE 2048
 
@@ -20,30 +19,6 @@ typedef enum
     appClosing,
     appAuthFailStop
 } MHAppClientAuthStatus ;
-
-static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
-{
-    MSInt level = 0 ;
-    
-    switch (authenticationType) {
-        case MHAuthCustom:
-        case MHAuthSimpleGUIPasswordAndLogin:
-            level = 1 ;
-            break;
-            
-        case MHAuthChallengedPasswordLogin:
-        case MHAuthChallengedPasswordLoginOnTarget:
-        case MHAuthPKChallengeAndURN:
-            level = 2 ;
-            break ;
-            
-        default:
-            level = 0 ;
-            break;
-    }
-    
-    return level ;
-}
 
 @implementation MHApplicationClient
 
@@ -116,7 +91,6 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
     ASSIGN(_baseURL, applicationBaseURL) ;
     
     _authenticationType = MHAuthNone ;
-    _authenticationLevel = 0 ;
     
     return self ;
 }
@@ -124,6 +98,13 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
 - (id)initWithServerParameters:(NSDictionary *)parameters
                         ticket:(NSString *)ticket
 {
+    if ([self initWithServerParameters:parameters])
+    {
+        ASSIGN(_ticket, ticket) ;
+        _authenticationType = MHAuthTicket ;
+        return self ;
+    }
+    
     return nil ;
 }
 
@@ -280,7 +261,7 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
         int i ;
         response = nil ;
 
-        if (!_authenticationLevel) {
+        if ([self authenticationLevel] == AUTH_0_STEP) {
              response = [self _performRequest:request errorString:errorString] ;
         }
         else
@@ -424,20 +405,23 @@ static MSInt authenticationLevelForType(MHAppAuthentication authenticationType)
 {
     BOOL auth = NO ;
     MHInitSSL();
-    _authenticationLevel = authenticationLevelForType(_authenticationType) ;
+
     [self setSessionID:nil] ;
     
-    switch (_authenticationLevel) {
-        case 1:
+    switch ([self authenticationLevel]) {
+        case AUTH_0_STEP:
+            auth = YES ;
+            break ;
+        case AUTH_1_STEP:
             auth = [self _performSimpleAuthentication] ;
             break;
             
-        case 2:
+        case AUTH_2_STEPS:
             auth = [self _performChallengedAuthentication] ;
             break ;
             
         default:
-            MSRaise(NSInternalInconsistencyException, @"Authentication level not supported yet : %d", _authenticationLevel) ;
+            MSRaise(NSInternalInconsistencyException, @"Authentication level not supported yet : %d", [self authenticationLevel]) ;
             break;
     }
     return auth ;

@@ -17,7 +17,6 @@
     MSHTTPResponse *_challengeResponse ;
     
     MHAppAuthentication _authenticationType ;
-    MSInt _authenticationLevel ; //None, Ticket -->0  Custom, Simple GUI -->1, Challenge --> 2
     
     NSString *_urn ;
     NSData *_sk ;
@@ -36,6 +35,11 @@
                        sessionID:(NSString *)sessionID ;
 - (id)initWithServerParameters:(NSDictionary *)parameters
                      sessionID:(NSString *)sessionID ;
+
++ (id)clientWithServerParameters:(NSDictionary *)parameters
+                          ticket:(NSString *)ticket ;
+- (id)initWithServerParameters:(NSDictionary *)parameters
+                        ticket:(NSString *)ticket ;
 
 + (id)clientWithServerParameters:(NSDictionary *)parameters
               challengedPassword:(NSString *)password

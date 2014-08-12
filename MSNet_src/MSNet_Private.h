@@ -88,3 +88,4 @@
 
 #import "_MHAdminApplication.h"
 #import "MHApplicationClient.h"
+#import "MHApplicationClientPrivate.h"
