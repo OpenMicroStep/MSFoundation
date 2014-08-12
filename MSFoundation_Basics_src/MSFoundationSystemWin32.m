@@ -224,7 +224,7 @@ static NSNull *__defaultNull = nil ;
 }
 @end
 
-static NSNull *__defaultUuid = nil ;
+static NSUUID *__defaultUuid = nil ;
 
 @implementation NSUUID
 
