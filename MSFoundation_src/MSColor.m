@@ -299,17 +299,19 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 @interface _MSRGBAColor : MSColor
 { 
 @protected
+  struct {
 #ifdef __BIG_ENDIAN__
-  MSUInt _r:8;
-  MSUInt _g:8;
-  MSUInt _b:8;
-  MSUInt _a:8;
+  MSUInt r:8;
+  MSUInt g:8;
+  MSUInt b:8;
+  MSUInt a:8;
 #else
-  MSUInt _a:8;
-  MSUInt _b:8;
-  MSUInt _g:8;
-  MSUInt _r:8;
+  MSUInt a:8;
+  MSUInt b:8;
+  MSUInt g:8;
+  MSUInt r:8;
 #endif
+  } _rgba;
 }
 @end
 @interface _MSIndexedColor : _MSRGBAColor
@@ -343,10 +345,10 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
   else {
     [aDecoder decodeValueOfObjCType:@encode(MSUInt) at:&value];
   }
-  _r= (MSByte)((value >> 24) & 0xff);
-  _g= (MSByte)((value >> 16) & 0xff);
-  _b= (MSByte)((value >>  8) & 0xff);
-  _a= (MSByte)((value      ) & 0xff);
+  _rgba.r= (MSByte)((value >> 24) & 0xff);
+  _rgba.g= (MSByte)((value >> 16) & 0xff);
+  _rgba.b= (MSByte)((value >>  8) & 0xff);
+  _rgba.a= (MSByte)((value      ) & 0xff);
   return self;
 }
 
@@ -542,10 +544,10 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
         s= [NSString stringWithUTF8String:entry.name];
         // load is done after initialize !
         c= (_MSIndexedColor*)MSCreateObject([_MSIndexedColor class]);
-        c->_r= (MSByte)((entry.value >> 24) & 0xff);
-        c->_g= (MSByte)((entry.value >> 16) & 0xff);
-        c->_b= (MSByte)((entry.value >>  8) & 0xff);
-        c->_a= (MSByte)((entry.value      ) & 0xff);
+        c->_rgba.r= (MSByte)((entry.value >> 24) & 0xff);
+        c->_rgba.g= (MSByte)((entry.value >> 16) & 0xff);
+        c->_rgba.b= (MSByte)((entry.value >>  8) & 0xff);
+        c->_rgba.a= (MSByte)((entry.value      ) & 0xff);
         c->_name= RETAIN(s);
         c->_colorIndex= i;
         *entry.color= c;
