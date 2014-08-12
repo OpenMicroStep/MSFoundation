@@ -86,4 +86,4 @@
 #import "MSStringParsing.h"
 #import "MSStringParsing_Private.h"
 
-#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
+#define FMT(X,ARGS...)  [MSString stringWithFormat:(X),##ARGS]

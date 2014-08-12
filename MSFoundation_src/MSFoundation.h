@@ -99,4 +99,4 @@
 
 #import <MSFoundation/MSStringParsing.h>
 
-#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
+#define FMT(X,ARGS...)  [MSString stringWithFormat:(X),##ARGS]
