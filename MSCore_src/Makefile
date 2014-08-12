@@ -5,17 +5,13 @@ MAKEFILE = subproj.make
 
 SUBPROJECTS = MAPM_src
 
-HFILES = MSCore_Private.h MSCoreIncludes.h MSCoreTypes.h MSCoreSystem.h\
-         MSCoreTools.h MSCObject.h MSCArray.h MSCBuffer.h MSCColor.h\
-         MSCCouple.h MSCDate.h MSCDecimal.h MSCDictionary.h\
-         MSCoreUnichar_Private.c.h MSCoreUnichar.h MSCoreSES.h MSCString.h
+HFILES = MSCArray.h MSCBuffer.h MSCColor.h MSCCouple.h MSCDate.h MSCDecimal.h MSCDictionary.h MSCObject.h MSCString.h MSCore.h MSCoreIncludes.h MSCoreSES.h MSCoreSystem.h MSCoreSystemWin32.h MSCoreTools.h MSCoreTypes.h MSCoreUnichar.h MSCoreUnicharPrivate.h MSCore_Private.h MSTE.h
 
-CFILES = MSCoreSystem.c MSCoreTools.c MSCoreToolsCompress.c\
-         MSCObject.c MSCArray.c MSCBuffer.c MSCColor.c\
-         MSCCouple.c MSCDate.c MSCDecimal.c MSCDictionary.c\
-         MSCoreUnichar.c MSCoreSES.c MSCString.c
+CFILES = MSCArray.c MSCBuffer.c MSCColor.c MSCCouple.c MSCDate.c MSCDecimal.c MSCDictionary.c MSCObject.c MSCString.c MSCoreSES.c MSCoreSystem.c MSCoreSystemWin32.c MSCoreTools.c MSCoreToolsCompress.c MSCoreUnichar.c MSTE.c
 
-HEADER_PATHS = -IMAPM_src
+PUBLIC_HEADERS = MSCArray.h MSCBuffer.h MSCColor.h MSCCouple.h MSCDate.h MSCDecimal.h MSCDictionary.h MSCObject.h MSCString.h MSCore.h MSCoreIncludes.h MSCoreSES.h MSCoreSystem.h MSCoreSystemWin32.h MSCoreTools.h MSCoreTypes.h MSCoreUnichar.h MSTE.h
+
+HEADER_PATHS = -I../MSFoundation_Basics_src -IMAPM_src
 
 include $(MAKEFILEDIR)/platform.make
 include $(MAKEFILEDIR)/$(MAKEFILE)

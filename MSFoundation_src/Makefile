@@ -3,13 +3,13 @@ NAME = MSFoundation_src
 PROJECT_TYPE = Component
 MAKEFILE = subproj.make
 
-HFILES = MSFoundation_Private.h MSArray_.h MSArray.h MSMutableArray.h\
-         MSBuffer.h MSString.h
+HFILES = MSArray.h MSArray_.h MSBuffer.h MSColor.h MSCouple.h MSDate.h MSDecimal.h MSDictionary.h MSFoundation.h MSFoundation_Private.h MSMutableArray.h MSString.h
 
-MFILES = MSCObject.m MSArray.m MSMutableArray.m\
-         MSBuffer.m MSString.m
+MFILES = MSArray.m MSBuffer.m MSCObject.m MSColor.m MSCouple.m MSDate.m MSDecimal.m MSDictionary.m MSMutableArray.m MSString.m
 
-HEADER_PATHS = -I../MSCore_src -I../MSFoundation_Basics_src
+PUBLIC_HEADERS = MSArray.h MSArray_.h MSBuffer.h MSColor.h MSCouple.h MSDate.h MSDecimal.h MSDictionary.h MSFoundation.h MSMutableArray.h MSString.h
+
+HEADER_PATHS = -I../MSCore_src -I../MSCore_src/MAPM_src -I../MSFoundation_Basics_src
 
 include $(MAKEFILEDIR)/platform.make
 include $(MAKEFILEDIR)/$(MAKEFILE)
