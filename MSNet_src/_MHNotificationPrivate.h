@@ -59,6 +59,8 @@
 
 // Authentication private methods
 - (MHAppAuthentication)authenticationType ;
+- (void)setAuthenticationType:(MHAppAuthentication)authenticationType ;
+
 - (void)storeAuthenticationLogin:(NSString *)login andPassword:(NSString *)password authType:(MHAppAuthentication)authType ;
 - (NSString *)storedAuthenticationLogin ;
 - (NSString *)storedAuthenticationPassword ;

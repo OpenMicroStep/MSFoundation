@@ -428,16 +428,19 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 
 - (void)validateAuthentication:(MHNotification *)notification ticket:(NSString *)ticket certificate:(MSCertificate *)certificate
 {
-    NSDictionary *ticketFound = [[self tickets] objectForKey:ticket] ;
+    NSMutableDictionary *tickets = [self tickets] ;
+    NSDictionary *ticketFound = [tickets objectForKey:ticket] ;
     
     if (ticketFound)
     {
         MSTimeInterval ticketValidityEnd = [[ticketFound objectForKey:MHAPP_TICKET_VALIDITY] longLongValue] ;
+        BOOL useOnce = [[ticketFound objectForKey:MHAPP_TICKET_USE_ONCE] boolValue] ;
 
         //ticketValidityEnd == 0 means unlimited validity
         if (!ticketValidityEnd || GMTNow() < ticketValidityEnd)
         {
             [self logWithLevel:MHAppDebug log:@"Ticket Authentication success"] ;
+            if (useOnce) { [self removeTicket:ticket] ; }
             MHVALIDATE_AUTHENTICATION(YES, nil) ;
         } else
         {
@@ -491,6 +494,11 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 - (void)unsetAuthenticationMethod:(MHAppAuthentication)authenticationMethod { _authenticationMethods &= ~authenticationMethod ; }
 
 - (NSString *)ticketForValidity:(MSTimeInterval)duration { return ticketForValidity(self, duration) ; }
+- (NSString *)ticketForValidity:(MSTimeInterval)duration withCurrentSessionInNotification:(MHNotification *)notification useOnce:(BOOL)useOnce
+{
+    return ticketForValidityAndLinkedSession(self, duration, [[notification session] sessionID], useOnce) ;
+}
+
 - (NSMutableDictionary *)tickets { return ticketsForApplication(self) ; }
 - (void)setTickets:(NSDictionary *)tickets { setTicketsForApplication(self, tickets) ; }
 - (id)objectForTicket:(NSString *)ticket { return objectForTicket(self, ticket) ; }

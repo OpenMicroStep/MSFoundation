@@ -187,6 +187,7 @@ NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 
 //tickets management
 - (NSString *)ticketForValidity:(MSTimeInterval)duration ;
+- (NSString *)ticketForValidity:(MSTimeInterval)duration withCurrentSessionInNotification:(MHNotification *)notification useOnce:(BOOL)useOnce ;
 - (NSMutableDictionary *)tickets ;
 - (void)setTickets:(NSDictionary *)tickets ;
 - (id)objectForTicket:(NSString *)ticket ;

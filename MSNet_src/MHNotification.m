@@ -348,15 +348,14 @@
 
 - (void)validateAuthentication:(BOOL)isAuthenticated firstPageBody:(MSBuffer *)body
 {
-    MSBuffer *firstPage = body ;
+    MSBuffer *response = body ;
     
-    if (!firstPage)
+    if (isAuthenticated && !response)
     {
-        MHSession *session = [self session] ;
-        firstPage = [[session application] firstPage:self] ;
+        response = [[[self session] application] firstPage:self] ;
     }
     
-    MHValidateAuthentication(self, isAuthenticated, firstPage) ;
+    MHValidateAuthentication(self, isAuthenticated, response) ;
 }
 
 - (MSBuffer *)readBuffer

@@ -851,23 +851,53 @@ static void _MHRunApplicationWithNoSessionGetRequest(MHApplication *application,
             
             if([ticket length])
             {
-                MHNotification *notification ;
-                MHSession *session ;
-                MHContext *context = MHCreateInitialContextAndSession(application, MHAuthTicket) ;
-                session = [context session] ;
-                [session storeMember:[context contextID] named:@"contextID"] ;
-                [session storeMember:ticket named:@"ticket"] ;
+                MHNotification *notification = nil ;
+                MHSession *session = nil ;
+                NSString *linkedSession =  linkedSessionForTicket(application, ticket) ;
                 
-                notification = [MHNotification retainedNotificationWithMessage:message
-                                                                       session:session
-                                                                retainedTarget:application
-                                                                retainedAction:@"validateAuthentication:"
-                                                              notificationType:notificationType
-                                                           isAdminNotification:isAdmin] ;
-                
-                [notification storeAuthenticationTicket:ticket] ;
-                MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : TICKET APPLICATION AUTHENTICATION REQUEST MESSAGE on socket %d", [secureSocket socket]) ;
-                MHProcessingEnqueueNotificationOrSendError() ;
+                if ([linkedSession length]) //Ticket authentication with linked session
+                {
+                    session = sessionForKey(linkedSession) ;
+                    
+                    if (session)
+                    {
+                        notificationType = MHTicketWithLinkedSession ;
+                        [session storeMember:ticket named:@"ticket"] ;
+                        
+                        notification = [MHNotification retainedNotificationWithMessage:message
+                                                                               session:session
+                                                                        retainedTarget:application
+                                                                        retainedAction:@"validateAuthentication:"
+                                                                      notificationType:notificationType
+                                                                   isAdminNotification:isAdmin] ;
+                        
+                        [notification storeAuthenticationTicket:ticket] ;
+                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : TICKET APPLICATION AUTHENTICATION WITH LINKED SESSION : '%@' REQUEST MESSAGE on socket %d", linkedSession, [secureSocket socket]) ;
+                        MHProcessingEnqueueNotificationOrSendError() ;
+                    } else
+                    {
+                        MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : TICKET APPLICATION AUTHENTICATION FAILED : NO LINKED SESSION : '%@' on socket %d", linkedSession, [secureSocket socket]) ;
+                         _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED);
+                    }
+                    
+                } else //Ticket authentication with new session
+                {
+                    MHContext *context = MHCreateInitialContextAndSession(application, MHAuthTicket) ;
+                    session = [context session] ;
+                    [session storeMember:[context contextID] named:@"contextID"] ;
+                    [session storeMember:ticket named:@"ticket"] ;
+                    
+                    notification = [MHNotification retainedNotificationWithMessage:message
+                                                                           session:session
+                                                                    retainedTarget:application
+                                                                    retainedAction:@"validateAuthentication:"
+                                                                  notificationType:notificationType
+                                                               isAdminNotification:isAdmin] ;
+                    
+                    [notification storeAuthenticationTicket:ticket] ;
+                    MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : TICKET APPLICATION AUTHENTICATION REQUEST MESSAGE on socket %d", [secureSocket socket]) ;
+                    MHProcessingEnqueueNotificationOrSendError() ;
+                }
             }
             else {
                 _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED);
@@ -1268,7 +1298,10 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                                                                                         retainedTarget:application
                                                                                         retainedAction:@"validateAuthentication:"
                                                                                       notificationType:notificationType
-                                                                                   isAdminNotification:isAdmin] ; ;
+                                                                                   isAdminNotification:isAdmin] ;
+                        
+                        //session contains authentication challenge authentication type
+                        [notification setAuthenticationType:[session authenticationType]] ;
                         
                         if (headerPassword)         //password challenged authentication
                         {
@@ -3428,7 +3461,8 @@ NSMutableDictionary *ticketsForApplication(MHApplication *application)
     
     if (!tickets)
     {
-        NSMapInsertKnownAbsent(__authenticationTickets, (const void *)application, (const void *)[NSMutableDictionary dictionary]) ;
+        tickets = [NSMutableDictionary dictionary] ;
+        NSMapInsertKnownAbsent(__authenticationTickets, (const void *)application, (const void *)tickets) ;
     }
     
     return tickets ;
@@ -3453,7 +3487,7 @@ NSString *_uniqueTicketID(MHApplication *application)
 
 NSArray *allApplicationsTickets(void) { return NSAllMapTableValues((NSMapTable *)__authenticationTickets) ; }
 
-NSString *ticketForValidity(MHApplication *application, MSTimeInterval duration)
+NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeInterval duration, NSString *linkedSessionID, BOOL useOnce)
 {
     NSString *newTicket ;
     MSTimeInterval ticketEndValidity ;
@@ -3466,18 +3500,35 @@ NSString *ticketForValidity(MHApplication *application, MSTimeInterval duration)
     newTicket = _uniqueTicketID(application) ;
     
     ticketEndValidity = duration ? GMTNow() + duration : 0 ; //validité permanente : duration = 0
-
+    
     ticketDictionary = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                        [NSNumber numberWithLongLong:ticketEndValidity],
-                        MHAPP_TICKET_VALIDITY,[NSNumber numberWithLongLong:GMTNow()] ,
-                        MHAPP_TICKET_CREATIONDATE,
+                        [NSNumber numberWithLongLong:ticketEndValidity], MHAPP_TICKET_VALIDITY,
+                        [NSNumber numberWithLongLong:GMTNow()], MHAPP_TICKET_CREATIONDATE,
+                        (useOnce) ? MSTrue : MSFalse, MHAPP_TICKET_USE_ONCE,
                         nil] ;
+    
+    //link a session to a new ticket
+    if (linkedSessionID)
+    {
+        MHSession *session = nil ;
+        
+        lock_sessions_mutex() ;
+        session = sessionForKey(linkedSessionID) ;
+        unlock_sessions_mutex() ;
+        
+        if (session) { [ticketDictionary setObject:linkedSessionID forKey:MHAPP_TICKET_LINKED_SESSION] ; }
+    }
     
     [tickets setObject:ticketDictionary forKey:newTicket] ;
     
     unlock_authentication_tickets_mutex() ;
     
     return newTicket ;
+}
+
+NSString *ticketForValidity(MHApplication *application, MSTimeInterval duration)
+{
+    return ticketForValidityAndLinkedSession(application, duration, nil, NO) ;
 }
 
 NSMutableDictionary *getTicket(MHApplication *application, NSString *ticket)
@@ -3552,6 +3603,11 @@ NSNumber *validityForTicket(MHApplication *application, NSString *ticket)
 NSNumber *creationDateForTicket(MHApplication *application, NSString *ticket)
 {
     return _valueForTicketKey(application, ticket, MHAPP_TICKET_CREATIONDATE) ;
+}
+
+NSString *linkedSessionForTicket(MHApplication *application, NSString *ticket)
+{
+    return _valueForTicketKey(application, ticket, MHAPP_TICKET_LINKED_SESSION) ;
 }
 
 void removeTicket(MHApplication *application, NSString *ticket)

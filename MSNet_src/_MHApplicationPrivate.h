@@ -14,9 +14,12 @@
 #define MHNOTIF_PARAM_TICKET           @"__MHTICKET__"
 #define MHNOTIF_PARAM_CHALLENGE        @"__MHCHALLENGE__"
 
-#define MHAPP_TICKET_VALIDITY       @"ticketValidity"
-#define MHAPP_TICKET_CREATIONDATE   @"ticketCreationDate"
-#define MHAPP_TICKET_PARAMETERS     @"ticketParameters"
+#define MHAPP_TICKET_VALIDITY                   @"ticketValidity"
+#define MHAPP_TICKET_CREATIONDATE               @"ticketCreationDate"
+#define MHAPP_TICKET_PARAMETERS                 @"ticketParameters"
+#define MHAPP_TICKET_LINKED_SESSION             @"linkedSession"
+#define MHAPP_TICKET_USE_ONCE                   @"useOnce"
+
 
 #define SESSION_PARAM_URN           @"__MH_SESS_URN__"
 #define SESSION_PARAM_TARGET        @"__MH_SESS_TARGET__"

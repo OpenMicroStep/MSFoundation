@@ -60,7 +60,8 @@ typedef enum {
     MHAuthenticatedResourceDownload,
     MHPublicResourceDownload,
     MHUncResourceDownload,
-    MHResourceUpload
+    MHResourceUpload,
+    MHTicketWithLinkedSession
 } MHNotificationType ;
 
 typedef enum {

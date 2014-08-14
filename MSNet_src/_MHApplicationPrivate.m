@@ -25,7 +25,7 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file)
     MSCertificate *peerCertificate = [[[notification message] clientSecureSocket] getPeerCertificate] ;
     MHSession *session = [notification session] ;
     
-    if (session) { authType = [session authenticationType] ; }
+    //if (session) { authType = [session authenticationType] ; }
     
     if (peerCertificate) {
         [self logWithLevel:MHAppDebug log:@"SSL AUTH : received client certificate : %@",peerCertificate] ;

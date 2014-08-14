@@ -114,7 +114,7 @@ static mutex_t __waitingNotificationsMutex ;
 
 - (void)storeAuthenticationLogin:(NSString *)login andPassword:(NSString *)password authType:(MHAppAuthentication)authType
 {
-    [self storeMember:[NSNumber numberWithInt:authType] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
+    [self setAuthenticationType:authType] ;
     [self storeMember:login named:MHNOTIF_PARAM_MHLOGIN] ;
     [self storeMember:password ? password : @"" named:MHNOTIF_PARAM_MHPWD] ;
 }
@@ -131,12 +131,12 @@ static mutex_t __waitingNotificationsMutex ;
 
 - (void)storeAuthenticationTicket:(NSString *)ticket
 {
-    [self storeMember:[NSNumber numberWithInt:MHAuthTicket] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
+    [self setAuthenticationType:MHAuthTicket] ;
     [self storeMember:ticket named:MHNOTIF_PARAM_TICKET] ;
 }
 
 - (void)storeAuthenticationChallenge:(NSString *)challenge {
-    [self storeMember:[NSNumber numberWithInt:MHAuthPKChallengeAndURN] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
+    [self setAuthenticationType:MHAuthPKChallengeAndURN] ;
     [self storeMember:challenge named:MHNOTIF_PARAM_CHALLENGE] ;
 }
 
@@ -144,6 +144,12 @@ static mutex_t __waitingNotificationsMutex ;
 
 - (NSString *)storedAuthenticationTicket { return [self memberNamed:MHNOTIF_PARAM_TICKET] ; }
 
-- (void)storeAuthenticationCustomMode { [self storeMember:[NSNumber numberWithInt:MHAuthCustom] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ; }
+- (void)storeAuthenticationCustomMode { [self setAuthenticationType:MHAuthCustom] ; }
+
+- (void)setAuthenticationType:(MHAppAuthentication)authenticationType
+{
+    [self storeMember:[NSNumber numberWithInt:authenticationType] named:MHNOTIF_PARAM_MHAPP_AUTH_TYPE] ;
+}
+
 
 @end
