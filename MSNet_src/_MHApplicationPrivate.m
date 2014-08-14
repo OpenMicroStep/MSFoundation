@@ -23,8 +23,8 @@ NSMutableString *MHOpenFileForSubstitutions(NSString *file)
     
     MHAppAuthentication authType = [notification authenticationType] ;
     MSCertificate *peerCertificate = [[[notification message] clientSecureSocket] getPeerCertificate] ;
-    MHSession *session = [notification session] ;
     
+    //MHSession *session = [notification session] ;
     //if (session) { authType = [session authenticationType] ; }
     
     if (peerCertificate) {
