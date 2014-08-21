@@ -71,7 +71,7 @@
     for (te=[ts objectEnumerator]; (t= [te nextObject]); ) {
       if ([t rangeOfString:@"TJ_VAL_"].location!=NSNotFound) {
         [(id)_valTables addObject:[t substringFromIndex:7]];}}
-NSLog(@"_valTables %@",_valTables);
+//NSLog(@"_valTables %@",_valTables);
     }
   else RELEAZEN(self);
   return self;
