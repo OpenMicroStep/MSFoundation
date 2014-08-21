@@ -1117,7 +1117,16 @@ static void _MHRunApplicationWithNoSession(MHApplication *application,
             }
             else
             {
-                MHRespondToClientOnSocket(secureSocket, nil, HTTPForbidden, isAdmin) ;
+                MHContext *context = MHCreateInitialContextAndSession(application, MHAuthNone) ;
+                MHNotification *notification = notification = [MHNotification retainedNotificationWithMessage:message
+                                                                                                      session:[context session]
+                                                                                               retainedTarget:application
+                                                                                               retainedAction:@"awakeOnRequest:"
+                                                                                             notificationType:notificationType
+                                                                                          isAdminNotification:isAdmin] ;
+                
+                MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : AUTHENTICATED GET PUBLIC RESSOURCE WITH NO SESSION on socket %d", [secureSocket socket]) ;
+                MHProcessingEnqueueNotificationOrSendError() ;
             }
         } else //GET message, not on a resource
         {
