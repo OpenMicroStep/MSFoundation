@@ -197,7 +197,9 @@ enum {
   NSUTF16BigEndianStringEncoding=    0x90000100,  // NSUTF16StringEncoding encoding with explicit endianness specified
   NSUTF16LittleEndianStringEncoding= 0x94000100,  // NSUTF16StringEncoding encoding with explicit endianness specified
 };
-#endif // defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
+#elif defined(WO451)  // defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
+#define NSUTF16StringEncoding NSUnicodeStringEncoding
+#endif // defined(WO451)
 
 ///// For everybody
 
