@@ -72,6 +72,8 @@ typedef enum {
 NSString *MHChallengedPasswordHash(NSString *password, NSString *challenge) ;
 NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 
+typedef	NSString *(*MHTicketFormatterCallback) (MSUInt initializer, MSUShort minTicketSize);
+
 @interface MHApplication : NSObject <MHNotificationTargetAction>
 {
     id _logger ;
@@ -188,6 +190,7 @@ NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 //tickets management
 - (NSString *)ticketForValidity:(MSTimeInterval)duration ;
 - (NSString *)ticketForValidity:(MSTimeInterval)duration withCurrentSessionInNotification:(MHNotification *)notification useOnce:(BOOL)useOnce ;
+- (NSString *)ticketForValidity:(MSTimeInterval)duration withCurrentSessionInNotification:(MHNotification *)notification useOnce:(BOOL)useOnce ticketFormatterCallback:(MHTicketFormatterCallback)ticketFormatterCallback;
 - (NSMutableDictionary *)tickets ;
 - (void)setTickets:(NSDictionary *)tickets ;
 - (id)objectForTicket:(NSString *)ticket ;

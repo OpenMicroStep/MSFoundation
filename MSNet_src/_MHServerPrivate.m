@@ -3484,11 +3484,18 @@ NSString *_generateNewTicketID()
     return [NSString stringWithFormat:@"TKT%04X%08X%04X", addrID & 0x0000FFFF, newID, (addrID >> 16)  & 0x0000FFFF] ;
 }
 
-NSString *_uniqueTicketID(MHApplication *application)
+NSString *_uniqueTicketID(MHApplication *application, MHTicketFormatterCallback ticketFormatterCallback)
 {
     NSString *ticket = nil ;
     do {
-        ticket = _generateNewTicketID() ;
+        MSUShort minTicketSize = 4 ;
+        if (ticketFormatterCallback) {
+            ticket = ticketFormatterCallback((MSUInt)rand(), minTicketSize);
+            if ([ticket length]<minTicketSize) MSRaise(NSInternalInconsistencyException, @"Too short ticket") ;
+        }
+        else {
+            ticket = _generateNewTicketID() ;
+        }
     } while (getTicket(application, ticket)) ;
     
     return ticket ;
@@ -3496,7 +3503,7 @@ NSString *_uniqueTicketID(MHApplication *application)
 
 NSArray *allApplicationsTickets(void) { return NSAllMapTableValues((NSMapTable *)__authenticationTickets) ; }
 
-NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeInterval duration, NSString *linkedSessionID, BOOL useOnce)
+NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeInterval duration, NSString *linkedSessionID, BOOL useOnce, MHTicketFormatterCallback ticketFormatterCallback)
 {
     NSString *newTicket ;
     MSTimeInterval ticketEndValidity ;
@@ -3506,7 +3513,7 @@ NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeIn
     lock_authentication_tickets_mutex() ;
     
     tickets = ticketsForApplication(application) ;
-    newTicket = _uniqueTicketID(application) ;
+    newTicket = _uniqueTicketID(application, ticketFormatterCallback) ;
     
     ticketEndValidity = duration ? GMTNow() + duration : 0 ; //validité permanente : duration = 0
     
@@ -3537,7 +3544,7 @@ NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeIn
 
 NSString *ticketForValidity(MHApplication *application, MSTimeInterval duration)
 {
-    return ticketForValidityAndLinkedSession(application, duration, nil, NO) ;
+    return ticketForValidityAndLinkedSession(application, duration, nil, NO, NULL) ;
 }
 
 NSMutableDictionary *getTicket(MHApplication *application, NSString *ticket)

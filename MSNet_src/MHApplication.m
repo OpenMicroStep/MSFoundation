@@ -496,7 +496,11 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 - (NSString *)ticketForValidity:(MSTimeInterval)duration { return ticketForValidity(self, duration) ; }
 - (NSString *)ticketForValidity:(MSTimeInterval)duration withCurrentSessionInNotification:(MHNotification *)notification useOnce:(BOOL)useOnce
 {
-    return ticketForValidityAndLinkedSession(self, duration, [[notification session] sessionID], useOnce) ;
+    return ticketForValidityAndLinkedSession(self, duration, [[notification session] sessionID], useOnce, NULL) ;
+}
+- (NSString *)ticketForValidity:(MSTimeInterval)duration withCurrentSessionInNotification:(MHNotification *)notification useOnce:(BOOL)useOnce ticketFormatterCallback:(MHTicketFormatterCallback)ticketFormatterCallback
+{
+  return ticketForValidityAndLinkedSession(self, duration, [[notification session] sessionID], useOnce, ticketFormatterCallback) ;
 }
 
 - (NSMutableDictionary *)tickets { return ticketsForApplication(self) ; }

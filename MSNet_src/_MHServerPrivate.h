@@ -149,7 +149,7 @@ void unlock_resources_mutex(void) ;
 //tickets
 NSArray *allApplicationsTickets(void) ;
 NSString *ticketForValidity(MHApplication *application, MSTimeInterval duration) ;
-NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeInterval duration, NSString *linkedSessionID, BOOL useOnce) ;
+NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeInterval duration, NSString *linkedSessionID, BOOL useOnce, MHTicketFormatterCallback ticketFormatterCallback) ;
 NSMutableDictionary *getTicket(MHApplication *application, NSString *ticket) ;
 NSMutableDictionary *ticketsForApplication(MHApplication *application) ;
 void setTicketsForApplication(MHApplication *application, NSDictionary *tickets) ;
