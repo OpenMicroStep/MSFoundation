@@ -180,7 +180,11 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     }
 }
 
-- (void)sessionWillExpire:(MHNotification *)notification { RELEASE(notification) ; }
+- (void)sessionWillExpire:(MHNotification *)notification
+{
+  RELEASE(notification) ;
+  MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(nil, HTTPUnauthorized, nil) ;
+}
 
 - (void)clean {}
 
