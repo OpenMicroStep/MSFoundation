@@ -147,13 +147,13 @@ static _MSCipherAllocator *__cipherAllocatorSingleton = nil;
 
 #define KEY_GENERATION_TRIES_COUNT 16;
 
-MSNetExport MSCouple *MSCreateKeyPair(MSCipherKeyType type) // The return couple contains the public and the private key in that order.
+MSCouple *MSCreateKeyPair(MSCipherKeyType type) // The return couple contains the public and the private key in that order.
 {
     OPENSSL_initialize() ;
 	return [_RSACipher createKeyPairWithKeyType:type] ;
 }
 
-MSNetExport MSBuffer *MSCreateRandomBuffer(NSUInteger length) // The return MSBuffer is retained
+MSBuffer *MSCreateRandomBuffer(NSUInteger length) // The return MSBuffer is retained
 {
     unsigned int tries_count, max_tries = 0 ;
     unsigned char *buff = NULL ;

@@ -50,9 +50,7 @@
 
 #ifdef WIN32
 
-//#define MSHExport					__declspec(dllexport) extern
-
-MSExport void ** OPENSSL_Applink(void)
+void ** OPENSSL_Applink(void)
 {
   return _OPENSSL_Applink() ;
 }

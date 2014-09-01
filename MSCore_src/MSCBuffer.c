@@ -43,7 +43,7 @@
 
 #pragma mark c-like class methods
 
-MSCoreExport void CBufferFreeInside(id self)
+void CBufferFreeInside(id self)
 {
   if (self && !((CBuffer*)self)->flags.noFree) {
     MSFree(((CBuffer*)self)->buf, "CBufferFreeInside() [memory]");}
@@ -275,7 +275,7 @@ void CBufferAppendString(CBuffer *self, const CString *s, NSStringEncoding desti
 }
 
 /*
- MSCoreExport BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict)
+ BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict)
  {
  switch (destinationEncoding) {
  case NSUTF8StringEncoding:

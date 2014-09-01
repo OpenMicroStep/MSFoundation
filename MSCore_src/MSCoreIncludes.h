@@ -75,11 +75,9 @@
 #ifdef __cplusplus
 #define MSExport  extern "C" __declspec(dllexport)
 #define MSImport  extern "C" __declspec(dllimport)
-#define MSPrivate extern
 #else
 #define MSExport  __declspec(dllexport) extern
 #define MSImport  __declspec(dllimport) extern
-#define MSPrivate extern
 #endif // __cplusplus
 
 #else //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: !WIN32 (2)
@@ -107,15 +105,9 @@
 #ifdef __cplusplus
 #define MSExport  extern "C"
 #define MSImport  extern "C"
-#define MSPrivate extern "C"
 #else // !__cplusplus
 #define MSExport  extern
 #define MSImport  extern
-#ifdef __APPLE__
-#define MSPrivate extern
-#else
-#define MSPrivate __private_extern__
-#endif
 #endif // __cplusplus
 
 #endif //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: WIN32 (2)

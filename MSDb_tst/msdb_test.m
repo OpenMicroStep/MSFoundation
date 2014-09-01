@@ -1,6 +1,6 @@
 // msdb_test.m, ecb, 140101
 
-#import "MSDb_Private.h"
+#import "MSDatabase.h"
 #import "msdb_validate.h"
 
 int main(int argc, const char *argv[])

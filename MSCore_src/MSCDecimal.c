@@ -142,12 +142,12 @@ CDecimal *CDecimalDivide(CDecimal *a, CDecimal *b, int decimalPlaces)
 
 #pragma mark Value
 
-MSCoreExport MSLong CDecimalIntegerValue(CDecimal *a)
+MSLong CDecimalIntegerValue(CDecimal *a)
 {
   return !a?0:m_apm_to_longlong(a);
 }
 /*
-MSCoreExport double CDecimalDoubleValue (CDecimal *a)
+double CDecimalDoubleValue (CDecimal *a)
 {
   if (!a) return 0.;
   return 1.0;

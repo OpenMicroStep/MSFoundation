@@ -1,6 +1,6 @@
 // mscore_test.c, ecb, 130904
 
-#include "MSCore_Private.h"
+#include "MSCore.h"
 #include "mscore_validate.h"
 
 int main(int argc, const char *argv[])
