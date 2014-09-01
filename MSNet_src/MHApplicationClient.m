@@ -67,6 +67,12 @@ typedef enum
     return [[[self alloc] initWithServerParameters:parameters urn:urn secretKey:sk] autorelease] ;
 }
 
+- (id)init
+{
+  ASSIGN(_requestLock, [MSMutex mutex]) ;
+  return [super init] ;
+}
+
 - (id)initWithServerParameters:(NSDictionary *)parameters sessionID:(NSString *)sessionID
 {
     ASSIGN(_sessionID, sessionID) ;
@@ -92,7 +98,7 @@ typedef enum
     
     _authenticationType = MHAuthNone ;
     
-    return self ;
+    return [self init];
 }
 
 - (id)initWithServerParameters:(NSDictionary *)parameters
@@ -174,6 +180,7 @@ typedef enum
     DESTROY(_target) ;
     
     DESTROY(_ticket) ;
+    DESTROY(_requestLock) ;
     
     [super dealloc] ;
 }
@@ -246,7 +253,8 @@ typedef enum
 {
     MSHTTPResponse *response = nil ;
     NSString **errorString = (error) ? error : NULL ;
-    
+    [_requestLock lock] ;
+  
     if (_authenticationType == MHAuthTicket && ![_sessionID length])
     {
         [request addQueryParameter:_ticket forKey:MHAUTH_QUERY_PARAM_TICKET] ;
@@ -279,7 +287,8 @@ typedef enum
         }
     }
 
-    return response ;
+  [_requestLock unlock] ;
+  return response ;
 }
 
 - (BOOL)_performSimpleAuthentication
@@ -372,7 +381,8 @@ typedef enum
 - (BOOL)_authenticateWithChallenge:(NSString *)challenge
 {
     BOOL auth = NO ;
-    
+    [_requestLock lock] ;
+
     MSHTTPRequest *challengeAuth = [self _challengeAuthenticationRequestWithChallenge:challenge] ;
     MSHTTPResponse *challengeAuthResponse = [self _performRequest:challengeAuth errorString:NULL] ;
     
@@ -382,22 +392,28 @@ typedef enum
         auth = YES ;
     }
     
+    [_requestLock unlock] ;
     return auth ;
 }
 
 - (BOOL)_performChallengedAuthentication
 {
     BOOL auth = NO ;
-    MSHTTPRequest *challengeRequest = [self _challengeRequest] ;
-    MSHTTPResponse *challengeResponse = [self _performRequest:challengeRequest errorString:NULL] ;
+    MSHTTPRequest *challengeRequest = nil ;
+    MSHTTPResponse *challengeResponse = nil ;
+
+    [_requestLock lock] ;
+    challengeRequest = [self _challengeRequest] ;
+    challengeResponse = [self _performRequest:challengeRequest errorString:NULL] ;
 
     if ([challengeResponse HTTPStatus] == HTTPOK && [[challengeResponse content] length])
     {
         MSBuffer *contentBuf = [challengeResponse content] ;
         NSString *challenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[contentBuf bytes], [contentBuf length], NO, NO)) ;
         
-        return [self _authenticateWithChallenge:challenge] ;
+        auth = [self _authenticateWithChallenge:challenge] ;
     }
+    [_requestLock unlock] ;
     return auth ;
 }
 
