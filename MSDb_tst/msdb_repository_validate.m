@@ -146,16 +146,37 @@ static inline int tst_rep(id dbParams)
       //MSCarLabelLib,        @"non authorisée sur Person",
       //@"a bad car",         @"a value",
       nil];
-     dret= [rep createPerson:person inService:servURN]; // servURN
+    dret= [rep createPerson:person inService:servURN]; // servURN
     if (!(pURN= [dret objectForKey:MSCarURNLib])) {
       NSLog(@"40 create error:%@",dret); err++;}
     dos= [rep informationsWithKeys:MSRCarMemberLib forRefs:servURN];
     if (![(x= [(MSDictionary*)[dos objectForKey:servURN] objectForKey:MSRCarMemberLib]) containsObject:pURN]) {
       NSLog(@"41 not in members: %@",x); err++;}
+    // MATCHING
+    if (!err) {
+      MSMutableDictionary *ps= [MSMutableDictionary dictionaryWithKeysAndObjects:
+      //MSCarLoginLib,          @"admin",
+      //MSCarHashedPasswordLib, @"pwd",
+        MSCarFirstNameLib,      @"Répository",
+        MSCarLastNameLib,       @"not matching with last name", nil];
+      x= [rep matchingPersons:ps];
+      if ([x count]!=2) {
+        NSLog(@"D43 matching error:%@",x); err++;}
+      [ps removeObjectForKey:MSCarFirstNameLib];
+      [ps setObject:@"pwd" forKey:MSCarHashedPasswordLib];
+      x= [rep matchingPersons:ps];
+      if ([x count]!=2) {
+        NSLog(@"D44 matching error:%@",x); err++;}
+      [ps removeObjectForKey:MSCarHashedPasswordLib];
+      [ps setObject:@"admin" forKey:MSCarLoginLib];
+      x= [rep matchingPersons:ps];
+      if ([x count]!=2) {
+        NSLog(@"D45 matching error:%@",x); err++;}}
+    // REMOVE
     if (!err && (dret= [rep removeValue:pURN forKey:MSRCarMemberLib onObject:servURN])) {
-      NSLog(@"D42 remove error:%@",dret); err++;}
+      NSLog(@"D47 remove error:%@",dret); err++;}
     if (!err && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:pURN andObject:@"Delete"]])) {
-      NSLog(@"D43 delete error:%@",dret); err++;}}
+      NSLog(@"D48 delete error:%@",dret); err++;}}
   // CREATE APPLICATION
   appURN= nil;
   if (!err) {
@@ -264,26 +285,37 @@ static inline int tst_rep(id dbParams)
   return err;
 }
 
+id localParameters(void);
 int msdb_repository_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
-  id dbParams= [MSDictionary dictionaryWithKeysAndObjects:
-    @"host",     @"localhost",
-    @"port",     [NSNumber numberWithInt:3306],
-    @"user",     @"root",
-    @"pwd",      @"root",
-    @"adaptor",  @"mysql",
-    @"database", @"repository",
-    @"socket",   @"/var/mysql/mysql.sock",
-
-  //@"database", @"Spaf-Prod-11",
-    nil];
+  id dbParams= localParameters();
 
 //err+= tst_rep_nu(dbParams,THE_DEFAULT_REPOSITORY_DB,YES);
   err+= tst_rep(dbParams);
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSRepository",(err?"FAIL":"PASS"),seconds);
+  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MHRepository",(err?"FAIL":"PASS"),seconds);
   return err;
   }
+
+id localParameters()
+{
+  MSMutableDictionary *dbParams= [MSMutableDictionary dictionaryWithKeysAndObjects:
+    @"host",     @"localhost",
+    @"port",     [NSNumber numberWithInt:3306],
+    @"socket",   @"/var/mysql/mysql.sock",
+    @"user",     @"root",
+    @"pwd",      @"root",
+    @"adaptor",  @"mysql",
+    @"database", @"repository",
+    nil];
+  id host= [[NSHost currentHost] localizedName];
+  if ([host isEqualToString:@"EcbNewBook"]) { // Parameters for SQL MAMP
+    [dbParams setObject:[NSNumber numberWithInt:8889]              forKey:@"port"];
+    [dbParams setObject:@"/Applications/MAMP/tmp/mysql/mysql.sock" forKey:@"socket"];
+  //[dbParams setObject:@"Spaf-Prod-11"                            forKey:@"database"];
+    }
+  return dbParams;
+}
