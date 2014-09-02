@@ -375,7 +375,6 @@ NSString *GMTdescriptionRfc1123(NSTimeInterval t)
     [NSArray arrayWithObjects:@"Jan",@"Feb",@"Mar",@"Apr",@"May",@"Jun",@"Jul",
       @"Aug",@"Sep",@"Oct",@"Nov",@"Dec", nil],
     @"NSShortMonthNameArray",nil];
-    return nil;
   d= [NSDate dateWithTimeIntervalSinceReferenceDate:t];
   return [d descriptionWithCalendarFormat:@"%a, %d-%b-%Y %H:%M:%S GMT"
     timeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]
