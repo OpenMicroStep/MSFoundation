@@ -1,4 +1,4 @@
-/* MSFoundationSystemWin32.h
+/* MSFoundationWin32.h
  
  This file is is a part of the MicroStep Framework.
  

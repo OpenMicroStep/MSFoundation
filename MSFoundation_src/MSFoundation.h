@@ -42,7 +42,7 @@
 
 #import <MSFoundation/MSCoreIncludes.h>
 #import <MSFoundation/MSCoreTypes.h>
-#import <MSFoundation/MSCoreSystemWin32.h>
+#import <MSFoundation/MSCoreWin32.h>
 #import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>
 #import <MSFoundation/MSCObject.h>
