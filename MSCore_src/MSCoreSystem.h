@@ -135,11 +135,6 @@ MSCoreExport void MSReportErrorV(MSErrorDomain domain, MSErrorLevel level, MSInt
 MSCoreExport void MSSetErrorCallBack(MSErrorCallback fn);
   // not thread safe. use once.
 
-#ifdef WIN32
-MSCoreExport int snprintf(char *, size_t, const char *, ...);
-MSCoreExport int vsnprintf(char *, size_t, const char *, va_list);
-#endif
-
 #pragma mark ***** Swap
 
 static inline MSUShort MSSwap16(MSUShort s)

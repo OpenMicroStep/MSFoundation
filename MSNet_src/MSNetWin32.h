@@ -1,6 +1,4 @@
-/*
- 
- MSSystemLayer_private.h
+/* MSDatabaseWin32.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -46,54 +44,15 @@
  */
 
 #ifdef WIN32
-#import <windows.h>
 
-enum {
-    NSUnknownOperatingSystem = 0,
-    NSWindowsNT351OperatingSystem = 100,
-    NSWindowsNT4OperatingSystem = 101,
-    NSWindows98OperatingSystem = 102,
-    NSWindowsMeOperatingSystem = 103,
-    NSWindows2000OperatingSystem = 104,
-    NSWindowsXPOperatingSystem = 105,
-    NSWindowsServer2003OperatingSystem = 106,
-    NSWindowsVistaOperatingSystem = 107,
-    NSWindowsServer2008OperatingSystem = 108,
-    NSWindowsSevenOperatingSystem = 109,
-    NSWindowsServer2008R2OperatingSystem = 110,
-	NSLinuxOperatingSystem = 200,
-	NSCheetahOperatingSystem = 300, // 10.0
-    NSPumaOperatingSystem = 301, // 10.1
-    NSJaguarOperatingSystem = 302, // 10.2
-    NSPantherOperatingSystem = 303, // 10.3
-    NSTigerOperatingSystem = 304, // 10.4
-	NSLeopardOperatingSystem = 305, // 10.5
-	NSSnowLeopardOperatingSystem = 306, // 10.6
-	NSLionOperatingSystem = 307 // 10.7
-} ;
-
-MSFoundationExport NSString *MSFindDLL(NSString *dllName) ;
-MSFoundationExport HINSTANCE MSLoadDLL(NSString *dllName) ;
-MSFoundationExport NSUInteger MSOperatingSystem(void) ;
-
-#ifdef WO451
-#define NSLocaleDecimalSeparator NSDecimalSeparator
-
-@interface NSUUID : NSObject <NSCopying, NSCoding>
-+ (NSUUID *)UUID;
-- (NSString *)UUIDString;
-@end
-
-@interface NSNull : NSObject <NSCopying, NSCoding>
-+ (NSNull *)null;
-@end
-
-@interface NSString (MSCompatibilityLayer)
-+ (id)stringWithCString:(const char *)cString encoding:(NSStringEncoding)enc;
-- (id)initWithCString:(const char *)nullTerminatedCString encoding:(NSStringEncoding)encoding;
-@end
-
+#ifdef MSNET_PRIVATE_H
+#define MSNetExport MSExport
+#else
+#define MSNetExport MSImport
 #endif
 
-#define setenv(X, V, Y)        getenv(X) ? ( Y ? : SetEnvironmentVariable(X, V)) : SetEnvironmentVariable(X, V);
+#else
+
+#define MSNetExport extern
+
 #endif

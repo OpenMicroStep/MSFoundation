@@ -38,13 +38,12 @@
  
  */
 
+#ifndef MSNET_PRIVATE_H
+#define MSNET_PRIVATE_H
+
 #import <MSFoundation/MSFoundation.h>
 
-#ifdef MSNET_PRIVATE_LINKING
-#define MSNetExport MSImport
-#else
-#define MSNetExport MSExport
-#endif
+#import "MSNetWin32.h"
 
 #import "MSJSONEncoder.h"
 #import "MSHTTPRequest.h"
@@ -95,3 +94,5 @@
 #import "_MHAdminApplication.h"
 #import "MHApplicationClient.h"
 #import "MHApplicationClientPrivate.h"
+
+#endif // MSNET_PRIVATE_H

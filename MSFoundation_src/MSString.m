@@ -248,9 +248,9 @@ static char *__symbolHtmlTags[61] = {
     "\007&frasl;"
 } ;
 
-static char *__romanCentaines[10] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" } ;
-static char *__romanDizaines[10] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" } ;
-static char *__romanUnites[10] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" } ;
+//static char *__romanCentaines[10] = { "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM" } ;
+//static char *__romanDizaines[10] = { "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC" } ;
+//static char *__romanUnites[10] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" } ;
 
 BOOL MSStringIsTrue(NSString *s)
 { 
@@ -515,7 +515,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
  	SES ses = SESFromString(self) ;
     if (SESOK(ses)) {
 		NSUInteger sourceLen = ses.length ;
-        NSUInteger i, end, len = 0, size = MAX(sourceLen+16, sourceLen*1.25) ;
+        NSUInteger i, end, len = 0, size = MAX(sourceLen+16, (NSUInteger)(sourceLen*1.25)) ;
         unichar c ;
         char *buf = (char *)MSMalloc(size,"_HTMLFromString()") ;
         char *tag = NULL, clen = 0 ;
@@ -543,19 +543,19 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
             else if (c == 8364) { tag = "&euro;" ; clen = 6 ; }
             else if (c == 8482) { tag = "&trade;" ; clen = 7 ; }
             else {
-                clen = sprintf(sharp, "&#%d;", c) ;
+                clen = (char)sprintf(sharp, "&#%d;", c) ;
                 tag = sharp ;
                 //clen = strlen(sharp) ;
             }
             if (clen) {
-                if (len + clen > size) {
-                    NSUInteger newSize = MAX(len+clen+16, sourceLen*(clen+len)/i) ; // i will never be null because we allocate 16 at least
+                if (len + (NSUInteger)clen > size) {
+                    NSUInteger newSize = MAX(len+(NSUInteger)clen+16, (sourceLen*((NSUInteger)clen+len)/i)) ; // i will never be null because we allocate 16 at least
                     buf = (char *)MSRealloc(buf, newSize, "_HTMLFromString()") ;
                     if (!buf) MSRaiseFrom(NSMallocException, self, sourceMethod, @"string of %lu characters cannot be allocated", (unsigned long)newSize) ;
                     size = newSize ;
                 }
                 memcpy(buf+len, tag, clen) ;
-                len += clen ;
+                len += (NSUInteger)clen ;
             }
         }
         if (len) { return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)buf, len, NO, YES)) ; }

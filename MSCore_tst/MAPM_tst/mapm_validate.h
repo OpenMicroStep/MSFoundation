@@ -48,6 +48,6 @@
 #ifndef MSCODE_MAPM_VALIDATE_H
 #define MSCODE_MAPM_VALIDATE_H
 
-extern int mapm_validate();
+extern int mapm_validate(void);
 
 #endif /* MSCODE_MAPM_VALIDATE_H */

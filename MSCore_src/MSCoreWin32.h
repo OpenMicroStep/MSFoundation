@@ -1,4 +1,4 @@
-/* MSCore.h
+/* MSCoreWin32.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -8,7 +8,6 @@
  Herve Malaingre : herve@malaingre.com
  Eric Baradat :  k18rt@free.fr
  Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
- 
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -39,33 +38,40 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
- WARNING : this header file IS PRIVATE, don't use it directly
- AND NEVER INCLUDE IT IN MSFoundation framework, it is maint to
- be exclusively used in MSCore standalone mode
+ WARNING : outside the MSFoundation framework or the MSCore library,
+ this header file cannot be included alone, please direclty include
+ MSCore.h or MSFoundation.h
  
  */
 
-#ifndef MSCORE_H
-#define MSCORE_H
+#ifndef MS_CORE_WIN32_H
+#define MS_CORE_WIN32_H
 
-#include <MSCore/MSCoreIncludes.h>
-#include <MSCore/MSCoreTypes.h>
-#include <MSCore/MSCoreWin32.h>
-#include <MSCore/MSCoreSystem.h>
-#include <MSCore/MSCoreTools.h>
-#include <MSCore/MSCObject.h>
+#ifdef WIN32
 
-#include <MSCore/MSCoreUnichar.h>
-#include <MSCore/MSCoreSES.h>
-#include <MSCore/MSCString.h>
+#define MSExport  __declspec(dllexport) extern
+#define MSImport  __declspec(dllimport) extern
 
-#include <MSCore/MSCArray.h>
-#include <MSCore/MSCBuffer.h>
-#include <MSCore/MSCColor.h>
-#include <MSCore/MSCCouple.h>
-#include <MSCore/MSCDate.h>
-#include <MSCore/MSCDecimal.h>
-#include <MSCore/m_apm.h>
-#include <MSCore/MSCDictionary.h>
+#ifdef MSCORE_PRIVATE_H
+#define MSCoreExport MSExport
+#else
+#define MSCoreExport MSImport
+#endif
+
+
+MSCoreExport MSULong strtoull(const char *string, char **endPtr, int base) ;
+MSCoreExport MSLong strtoll(const char *string, char **endPtr, int base) ;
+MSCoreExport float strtof(const char *string, char **endPtr) ;
+MSCoreExport char *ulltostr(MSLong value, char *ptr, int base) ;
+
+MSCoreExport int vasprintf( char **, char *, va_list );
+MSCoreExport int snprintf(char *, size_t, const char *, ...);
+MSCoreExport int vsnprintf(char *, size_t, const char *, va_list);
+
+#else // !WIN32
+
+#define MSCoreExport extern
 
 #endif
+
+#endif // MS_CORE_WIN32_H

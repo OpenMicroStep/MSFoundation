@@ -41,16 +41,9 @@
 #import <Foundation/Foundation.h>
 
 #import <MSFoundation/MSCoreIncludes.h>
-
-#define MSCoreExport MSImport
-#define MSFoundationExport MSImport
-
 #import <MSFoundation/MSCoreTypes.h>
-#import <MSFoundation/MSCoreSystem.h>
-#ifdef WIN32
 #import <MSFoundation/MSCoreSystemWin32.h>
-#import <MSFoundation/MSFoundationSystemWin32.h>
-#endif
+#import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>
 #import <MSFoundation/MSCObject.h>
 
@@ -67,6 +60,7 @@
 #import <MSFoundation/m_apm.h>
 #import <MSFoundation/MSCDictionary.h>
 
+#import <MSFoundation/MSFoundationWin32.h>
 #import <MSFoundation/MSFoundationDefines.h>
 #import <MSFoundation/MSCoderAdditions.h>
 #import <MSFoundation/MSExceptionAdditions.h>

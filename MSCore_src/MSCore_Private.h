@@ -49,18 +49,9 @@
 #define MSCORE_PRIVATE_H
 
 #include "MSCoreIncludes.h"
-
-#ifdef MSCORE_PRIVATE_LINKING
-#define MSCoreExport MSImport
-#else
-#define MSCoreExport MSExport
-#endif
-
 #include "MSCoreTypes.h"
+#include "MSCoreWin32.h"
 #include "MSCoreSystem.h"
-#ifdef WIN32
-#include "MSCoreSystemWin32.h"
-#endif
 #include "MSCoreTools.h"
 #include "MSCObject.h"
 
@@ -88,4 +79,4 @@
 //#include "MSCMutex.h"
 //#include "MSCNaturalArray.h"
 
-#endif // MSCORE_H
+#endif // MSCORE_PRIVATE_H

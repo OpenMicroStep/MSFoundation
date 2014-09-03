@@ -38,18 +38,13 @@
  
  */
 
+#ifndef MSFOUNDATION_PRIVATE_H
+#define MSFOUNDATION_PRIVATE_H
+
 #import <Foundation/Foundation.h>
 #import "MSCore_Private.h"
 
-#ifdef MSFOUNDATION_PRIVATE_LINKING
-#define MSFoundationExport MSImport
-#else
-#define MSFoundationExport MSExport
-#endif
-
-#ifdef WIN32
-#import "MSFoundationSystemWin32.h"
-#endif
+#import "MSFoundationWin32.h"
 
 #import "MSFoundationDefines.h"
 #import "MSCoderAdditions.h"
@@ -87,3 +82,5 @@
 #import "MSStringParsing_Private.h"
 
 #define FMT(X,ARGS...)  [MSString stringWithFormat:(X),##ARGS]
+
+#endif // MSFOUNDATION_PRIVATE_H

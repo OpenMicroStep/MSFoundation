@@ -230,21 +230,6 @@ MSLong MSCurrentHostID(void)
 #endif
 }
 */
-#ifdef WIN32
-int vsnprintf(char *str, size_t size, const char *format, va_list ap)
-{ return _vsnprintf(str, size, format, ap); }
-
-int snprintf(char *str, size_t size, const char *format, ...)
-{
-  int ret;
-  va_list ap;
-  va_start(ap, format);
-  ret = (int)_vsnprintf(str, size, format, ap);
-  va_end(ap);
-  return ret;
-}
-#endif
-
 
 static void _MS_APM_Log_callback(int m_apm_error, const char *m_apm_log)
 {

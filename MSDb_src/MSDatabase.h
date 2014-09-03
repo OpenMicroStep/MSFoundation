@@ -40,8 +40,8 @@
 
 #import <MSFoundation/MSFoundation.h>
 
-#define MSDBExport MSImport
 
+#import <MSDatabase/MSDatabaseWin32.h>
 #import <MSDatabase/MSDBConnection.h>
 #import <MSDatabase/MSDBOperation.h>
 #import <MSDatabase/MSDBRow.h>

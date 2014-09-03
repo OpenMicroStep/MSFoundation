@@ -38,13 +38,12 @@
  
  */
 
+#ifndef MSDB_PRIVATE_H
+#define MSDB_PRIVATE_H
+
 #import <MSFoundation/MSFoundation.h>
 
-#ifdef MSDB_PRIVATE_LINKING
-#define MSDBExport MSImport
-#else
-#define MSDBExport MSExport
-#endif
+#import "MSDatabaseWin32.h"
 
 #import "MSDBConnection.h"
 #import "MSDBOperation.h"
@@ -57,3 +56,6 @@
 #import "MSOdb.h"
 
 #import "MSDBGenericConnection.h" // For adaptators
+
+#endif // MSDB_PRIVATE_H
+

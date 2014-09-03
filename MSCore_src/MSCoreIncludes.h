@@ -72,14 +72,6 @@
 #include <fcntl.h>
 #include <math.h>
 
-#ifdef __cplusplus
-#define MSExport  extern "C" __declspec(dllexport)
-#define MSImport  extern "C" __declspec(dllimport)
-#else
-#define MSExport  __declspec(dllexport) extern
-#define MSImport  __declspec(dllimport) extern
-#endif // __cplusplus
-
 #else //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: !WIN32 (2)
 
 #include <stdlib.h>
@@ -101,14 +93,6 @@
 #include <stdarg.h>
 #include <math.h>
 #include <pthread.h>
-
-#ifdef __cplusplus
-#define MSExport  extern "C"
-#define MSImport  extern "C"
-#else // !__cplusplus
-#define MSExport  extern
-#define MSImport  extern
-#endif // __cplusplus
 
 #endif //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: WIN32 (2)
 

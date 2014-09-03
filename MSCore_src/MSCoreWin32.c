@@ -1,4 +1,4 @@
-/* MSCoreSystemWin32.c
+/* MSCoreWin32.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -368,5 +368,18 @@ int vasprintf( char **sptr, char *fmt, va_list argv )
     
     return wanted;
 }
+
+int snprintf(char *str, size_t size, const char *format, ...)
+{
+  int ret;
+  va_list ap;
+  va_start(ap, format);
+  ret = (int)_vsnprintf(str, size, format, ap);
+  va_end(ap);
+  return ret;
+}
+
+int vsnprintf(char *str, size_t size, const char *format, va_list ap)
+{ return _vsnprintf(str, size, format, ap); }
 
 #endif

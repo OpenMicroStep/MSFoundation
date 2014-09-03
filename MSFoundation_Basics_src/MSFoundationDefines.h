@@ -52,7 +52,7 @@
 #if defined(WIN32)
 /************************ APPLE WO 451 ON WIN32 **********************/
 struct WOFakeClass { long isa; };
-MSImport          IMP class_lookupMethod(Class, SEL);
+MSImport IMP class_lookupMethod(Class, SEL);
 
 //#define ISA(X)     ((Class)(((struct WOFakeClass *)(X))->isa))
 #define LOOKUP(X, Y) class_lookupMethod(X, Y)
@@ -116,7 +116,7 @@ MSImport          IMP class_lookupMethod(Class, SEL);
 #define SELECTOR(X)  sel_getUid(X)
 
 #else
-MSImport          IMP class_lookupMethod(Class, SEL);
+MSImport IMP class_lookupMethod(Class, SEL);
 
 #define MSMethod      Method
 //#define ISA(X)     ((Class)(((Class)(X))->isa))

@@ -137,5 +137,5 @@
 - (MSULong)firstIdentifierOf:(NSUInteger)count forKey:(NSString *)key;
 @end
 
-MSDBExport NSString *MSConnectionDidConnectNotification ;
-MSDBExport NSString *MSConnectionDidDisconnectNotification ;
+MSDatabaseExport NSString *MSConnectionDidConnectNotification ;
+MSDatabaseExport NSString *MSConnectionDidDisconnectNotification ;
