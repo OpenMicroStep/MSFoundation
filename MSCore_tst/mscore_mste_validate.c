@@ -106,7 +106,7 @@ int mscore_mste_validate(void)
   err+= _decode("[\"MSTE0101\",7,\"CRCb8b8b932\",1,\"FirstClass\",0,1]",MSTETrue);
   err+= _decode("[\"MSTE0101\",8,\"CRC2fe08843\",1,\"FirstClass\",1,\"OneKey\",2]",MSTEFalse);
 
-  o1= (id)CCreateDecimalFromUTF8String("12.34");
+  o1= (id)CCreateDecimalWithUTF8String("12.34");
   err+= _decode("[\"MSTE0101\",9,\"CRCe52c2946\",1,\"FirstClass\",1,\"OneKey\",3,12.34]",o1);
   err+= _decode("[\"MSTE0101\",9,\"CRC63ee54c2\",1,\"FirstClass\",1,\"OneKey\",3,\"12.34\"]",o1);
   RELEAZEN(o1);
@@ -128,7 +128,7 @@ int mscore_mste_validate(void)
   err+= _decode("[\"MSTE0101\",7,\"CRC609231cb\",0,0,4,\"\\u00C6\\u\"]",o1);
   RELEAZEN(o1);
 
-  o1= (id)CCreateDateFromYMD(2001, 1, 1);
+  o1= (id)CCreateDateWithYMD(2001, 1, 1);
   err+= _decode("[\"MSTE0101\",9,\"CRCfa465229\",1,\"FirstClass\",1,\"OneKey\",5,978307200]",o1);
   RELEAZEN(o1);
 

@@ -879,5 +879,6 @@ if(knownObi)NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu"
 //NSLog(@"byName:%@",[byName allKeys]);
 if([unresolved count])NSLog(@"unresolved:%@",unresolved);
   return [all count]?all:nil;
+  ctx= nil;
 }
 @end

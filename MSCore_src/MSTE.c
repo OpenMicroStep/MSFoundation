@@ -104,7 +104,7 @@ id _MSTEBinaryObject(NSUInteger type, void *pValue)
   CBufferAppendBytes(b, pValue, sz[type-MSTE_CHAR_VALUE]);
   CDictionarySetObjectForKey(d, (id)b, k); RELEAZEN(b); RELEAZEN(k);
   k= (id)MCSCreate("MSTE-Type");
-  i= CCreateDecimalFromLong((long)type);
+  i= CCreateDecimalWithLong((long)type);
   CDictionarySetObjectForKey(d, (id)i, k); RELEAZEN(i); RELEAZEN(s);
   return (id)d;
 }
@@ -192,7 +192,7 @@ static inline CDictionary *_err(int num, char *fmt, ...)
   CDictionary *d; id k,v; va_list args;
   d= CCreateDictionary(0);
   k= (id)MCSCreate("error");
-  v= (id)CCreateDecimalFromLong(num);
+  v= (id)CCreateDecimalWithLong(num);
   CDictionarySetObjectForKey(d, v, k);
   RELEASE(k); RELEASE(v);
   if (fmt) {
@@ -362,7 +362,7 @@ if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,MSBPointer(sou
       case MSTE_NUMBER: {
         double x;
         _number(ses, MSTE_DOUBLE_VALUE, &x);
-        ref= (id)CCreateDecimalFromDouble(x);
+        ref= (id)CCreateDecimalWithDouble(x);
         break;}
       case MSTE_STRING: {
         SES s2= ses; s2.chai= utf8JsonStringChaiN;

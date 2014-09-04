@@ -48,9 +48,9 @@ static inline int cdate_create(void)
     fprintf(stdout, "A11-13/13/10 is valid !\n");  err++;}
   if (CVerifyYMD(2001,2,29)) {
     fprintf(stdout, "A12-29/2/2001 is valid !\n"); err++;}
-  c= CCreateDateFromYMD(1, 1, 1);
-  d= CCreateDateFromYMD(1, 2, 28);
-  f= CCreateDateFromYMDHMS(2000, 12, 31, 23,59,50);
+  c= CCreateDateWithYMD(1, 1, 1);
+  d= CCreateDateWithYMD(1, 2, 28);
+  f= CCreateDateWithYMDHMS(2000, 12, 31, 23,59,50);
   e= CCreateDayDate(f);
   g= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
 //fprintf(stdout, "1/1/1-0:0 %lld %lld %lld\n",d->interval,d->interval/86400,(d->interval/730485)*730485);
@@ -161,7 +161,7 @@ static inline int cdate_create(void)
   RELEASE(e);
   RELEASE(f);
   RELEASE(g);
-  c= CCreateDateFromYMD(2013, 10, 25);
+  c= CCreateDateWithYMD(2013, 10, 25);
   if (CDateDayOfWeek(c)!=4) {
     fprintf(stdout, "A70-%u\n",CDateDayOfWeek (c)); err++;}
   if (CDateWeekOfYear(c)!=43) {
@@ -192,7 +192,7 @@ static inline int cdate_create2(void)
       cdate_print(c[i]);
       err++;}
     else {
-      d= CCreateDateFromYMD(CDateYearOfCommonEra(c[i]), CDateMonthOfYear(c[i]), CDateDayOfMonth(c[i]));
+      d= CCreateDateWithYMD(CDateYearOfCommonEra(c[i]), CDateMonthOfYear(c[i]), CDateDayOfMonth(c[i]));
       e= CCreateDayDate(c[i]);
       if (!CDateEquals(d, e)) {
         fprintf(stdout, "B2-%d-d & e are not equals %lld %lld %lld\n",i,d->interval,e->interval,d->interval-e->interval);
@@ -211,8 +211,8 @@ static inline int cdate_week(void)
   MSTimeInterval t;
   CDate *c,*d;
   
-  c= CCreateDateFromYMD(1, 1, 1);
-  d= CCreateDateFromYMD(1, 1, 1);
+  c= CCreateDateWithYMD(1, 1, 1);
+  d= CCreateDateWithYMD(1, 1, 1);
   while (CDateDayOfWeek(c)!=0) {c->interval+= 86400LL; d->interval+= 86400LL;}
   w= CDateDayOfMonth(c)<=4 ? 1 : 2;
   for (t= c->interval, i= 0; i<M2; i++) {

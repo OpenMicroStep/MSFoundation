@@ -71,11 +71,11 @@ MSCoreExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
 
 #pragma mark Creation
 
-//TODO: MSCoreExport CDecimal *CCreateDecimalFromString(MSString *x);
-MSCoreExport CDecimal *CCreateDecimalFromUTF8String(const char *x);
-MSCoreExport CDecimal *CCreateDecimalFromDouble(double x);
-MSCoreExport CDecimal *CCreateDecimalFromLong  (long   x);
-MSCoreExport CDecimal *CCreateDecimalFromMantissaExponentSign(
+//TODO: MSCoreExport CDecimal *CCreateDecimalWithString(MSString *x);
+MSCoreExport CDecimal *CCreateDecimalWithUTF8String(const char *x);
+MSCoreExport CDecimal *CCreateDecimalWithDouble(double x);
+MSCoreExport CDecimal *CCreateDecimalWithLong  (long   x);
+MSCoreExport CDecimal *CCreateDecimalWithMantissaExponentSign(
   unsigned long long mm, int exponent, int sign);
 
 #pragma mark Calculation

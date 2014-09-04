@@ -91,28 +91,28 @@ BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other)
 
 #pragma mark Creation
 
-CDecimal *CCreateDecimalFromUTF8String(const char *x)
+CDecimal *CCreateDecimalWithUTF8String(const char *x)
 {
   CDecimal *d= m_apm_new();
   m_apm_set_string(d, x);
   return d;
 }
 
-CDecimal *CCreateDecimalFromDouble(double x)
+CDecimal *CCreateDecimalWithDouble(double x)
 {
   CDecimal *d= m_apm_new();
   m_apm_set_double(d, x);
   return d;
 }
 
-CDecimal *CCreateDecimalFromLong(long x)
+CDecimal *CCreateDecimalWithLong(long x)
 {
   CDecimal *d= m_apm_new();
   m_apm_set_long(d, x);
   return d;
 }
 
-CDecimal *CCreateDecimalFromMantissaExponentSign(
+CDecimal *CCreateDecimalWithMantissaExponentSign(
   unsigned long long mm, int exponent, int sign)
 {
   CDecimal *d= m_apm_new();

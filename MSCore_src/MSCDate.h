@@ -78,9 +78,9 @@ MSCoreExport BOOL CDateEquals(const CDate *self, const CDate *other);
 
 MSCoreExport BOOL CVerifyYMD(unsigned year, unsigned month , unsigned day   );
 MSCoreExport BOOL CVerifyHMS(unsigned hour, unsigned minute, unsigned second);
-MSCoreExport CDate *CCreateDateFromYMD(
+MSCoreExport CDate *CCreateDateWithYMD(
   unsigned year, unsigned month,  unsigned day);
-MSCoreExport CDate *CCreateDateFromYMDHMS(
+MSCoreExport CDate *CCreateDateWithYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second);
 MSCoreExport CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s);
@@ -130,13 +130,13 @@ MSCoreExport void CDateSetDayOfYear(CDate *self, unsigned doy);
 
 // GMT
 MSCoreExport NSTimeInterval GMTNow(void);
-MSCoreExport NSTimeInterval GMTFromYMDHMS(
+MSCoreExport NSTimeInterval GMTWithYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second);
   // The date is supposed valid. If you're not sure, use the CVerify... fcts.
   // YMDHMS are expressed in GMT.
   // If YMDHMS are in Local, use:
-  //   CDate *d= CCreateDateFromYMDHMS();
+  //   CDate *d= CCreateDateWithYMDHMS();
   //   NSTimeInterval dgmt;
   //   dgmt= GMTFromLocal(CDateSecondsBetweenDates(CDate20010101,d));
   //   or

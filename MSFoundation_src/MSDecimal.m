@@ -62,53 +62,53 @@ static Class __MSDecimalClass= Nil;
 + (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
 + (id)new                         {return MSAllocateObject(self, 0, NULL);}
 
-+ (id)decimalFromUTF8String:(char*)d
++ (id)decimalWithUTF8String:(const char*)d
 {
   return DECIMALU(d);
 }
-+ (id)decimalFromString:(NSString*)d
++ (id)decimalWithString:(NSString*)d
 {
   return DECIMALS(d);
 }
-+ (id)decimalFromDouble:(double)d
++ (id)decimalWithDouble:(double)d
 {
   return DECIMALD(d);
 }
-+ (id)decimalFromLong:(long)d
++ (id)decimalWithLong:(long)d
 {
   return DECIMALL(d);
 }
-+ (id)decimalFromMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign
++ (id)decimalWithMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign
 {
-  MSDecimal *x= (id)CCreateDecimalFromMantissaExponentSign(m,e,sign);
+  MSDecimal *x= (id)CCreateDecimalWithMantissaExponentSign(m,e,sign);
   return AUTORELEASE(x);
 }
 
-- (id)initFromUTF8String:(char*)d
+- (id)initWithUTF8String:(const char*)d
 {
   self= (id)m_apm_init((CDecimal*)self);
   m_apm_set_string((CDecimal*)self, d);
   return self;
 }
-- (id)initFromString:(NSString*)d
+- (id)initWithString:(NSString*)d
 {
   self= (id)m_apm_init((CDecimal*)self);
   m_apm_set_string((CDecimal*)self, [d UTF8String]);
   return self;
 }
-- (id)initFromDouble:(double)d
+- (id)initWithDouble:(double)d
 {
   self= (id)m_apm_init((CDecimal*)self);
   m_apm_set_double((CDecimal*)self, d);
   return self;
 }
-- (id)initFromLong:(long)d
+- (id)initWithLong:(long)d
 {
   self= (id)m_apm_init((CDecimal*)self);
   m_apm_set_long((CDecimal*)self, d);
   return self;
 }
-- (id)initFromMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign
+- (id)initWithMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign
 {
   self= (id)m_apm_init((CDecimal*)self);
   set_mantissa_exponent_sign((CDecimal*)self, m, e, sign);

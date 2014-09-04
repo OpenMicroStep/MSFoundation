@@ -50,12 +50,12 @@ static Class __MSDateClass= Nil;
 
 MSDate *MSCreateYMD(unsigned year,  unsigned month,   unsigned day)
 {
-  return (MSDate*)CCreateDateFromYMD(year, month, day);
+  return (MSDate*)CCreateDateWithYMD(year, month, day);
 }
 MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
                        unsigned h,     unsigned mn,      unsigned sec)
 {
-  return (MSDate*)CCreateDateFromYMDHMS(year, month, day, h, mn, sec);
+  return (MSDate*)CCreateDateWithYMDHMS(year, month, day, h, mn, sec);
 }
 
 @implementation MSDate

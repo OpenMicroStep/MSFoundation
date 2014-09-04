@@ -330,7 +330,7 @@ static MSTimeInterval MHModifiedSinceTimeIntervalFromMessage(MHHTTPMessage *mess
                 else if ([@"NOV" isEqual:uppMonthStr]) month = 11 ;
                 else if ([@"DEC" isEqual:uppMonthStr]) month = 12 ;
                     
-                result= GMTFromYMDHMS(
+                result= GMTWithYMDHMS(
                   (unsigned)[[dateComponents objectAtIndex:2] intValue],
                   month,
                   (unsigned)[[dateComponents objectAtIndex:0] intValue],

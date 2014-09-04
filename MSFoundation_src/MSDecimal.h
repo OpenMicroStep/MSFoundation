@@ -77,17 +77,17 @@ Eric Baradat :  k18rt@free.fr
   int  _sign;
 }
 
-+ (id)decimalFromUTF8String:(char*)d;
-+ (id)decimalFromString:(NSString*)d; // TODO: (NS/MS)String !!!
-+ (id)decimalFromDouble:(double)d;
-+ (id)decimalFromLong:(long)d;
-+ (id)decimalFromMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign;
++ (id)decimalWithUTF8String:(const char*)d;
++ (id)decimalWithString:(NSString*)d; // TODO: (NS/MS)String !!!
++ (id)decimalWithDouble:(double)d;
++ (id)decimalWithLong:(long)d;
++ (id)decimalWithMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign;
   // sign: +1 | -1
-- (id)initFromUTF8String:(char*)d;
-- (id)initFromString:(NSString*)d; // TODO: (NS/MS)String !!!
-- (id)initFromDouble:(double)d;
-- (id)initFromLong:(long)d;
-- (id)initFromMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign;
+- (id)initWithUTF8String:(const char*)d;
+- (id)initWithString:(NSString*)d; // TODO: (NS/MS)String !!!
+- (id)initWithDouble:(double)d;
+- (id)initWithLong:(long)d;
+- (id)initWithMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign;
 
 - (BOOL)isEqualToDecimal:(MSDecimal*)o;
 
@@ -101,7 +101,7 @@ Eric Baradat :  k18rt@free.fr
 
 @end
 
-#define DECIMALU(U) AUTORELEASE((id)CCreateDecimalFromUTF8String(U))
-#define DECIMALS(S) AUTORELEASE((id)CCreateDecimalFromUTF8String([(S) UTF8String]))
-#define DECIMALD(D) AUTORELEASE((id)CCreateDecimalFromDouble(D))
-#define DECIMALL(L) AUTORELEASE((id)CCreateDecimalFromLong(L))
+#define DECIMALU(U) AUTORELEASE((id)CCreateDecimalWithUTF8String(U))
+#define DECIMALS(S) AUTORELEASE((id)CCreateDecimalWithUTF8String([(S) UTF8String]))
+#define DECIMALD(D) AUTORELEASE((id)CCreateDecimalWithDouble(D))
+#define DECIMALL(L) AUTORELEASE((id)CCreateDecimalWithLong(L))

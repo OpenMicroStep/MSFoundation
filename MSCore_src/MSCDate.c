@@ -56,7 +56,7 @@ void _CDateInitialize()
   CDateDistantPast->interval= MSLongMin;
   CDateDistantFuture= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
   CDateDistantFuture->interval= MSLongMax;
-  CDate19700101= CCreateDateFromYMD(1970, 1, 1);
+  CDate19700101= CCreateDateWithYMD(1970, 1, 1);
   CDate20010101= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
   CDateSecondsFrom19700101To20010101= CDateSecondsBetweenDates(CDate19700101, CDate20010101);
 //printf("CDateSecondsFrom19700101To20010101 %lld",CDateSecondsFrom19700101To20010101);
@@ -224,7 +224,7 @@ BOOL CVerifyHMS(unsigned hour, unsigned minute, unsigned second)
   return _verifyHMS(hour, minute, second, NO);
 }
 
-CDate *CCreateDateFromYMD(unsigned year, unsigned month, unsigned day)
+CDate *CCreateDateWithYMD(unsigned year, unsigned month, unsigned day)
 {
   CDate *d;
   (void)_verifyYMD(year, month, day, YES);
@@ -232,7 +232,7 @@ CDate *CCreateDateFromYMD(unsigned year, unsigned month, unsigned day)
   d->interval= _tmFromYMD(year, month, day);
   return d;
 }
-CDate *CCreateDateFromYMDHMS(unsigned year, unsigned month, unsigned day,
+CDate *CCreateDateWithYMDHMS(unsigned year, unsigned month, unsigned day,
   unsigned hour, unsigned minute, unsigned second)
 {
   CDate *d;
@@ -341,7 +341,7 @@ NSTimeInterval GMTFromLocal(MSTimeInterval t)
   return (NSTimeInterval)t;
 }
 
-NSTimeInterval GMTFromYMDHMS(
+NSTimeInterval GMTWithYMDHMS(
   unsigned year, unsigned month,  unsigned day,
   unsigned hour, unsigned minute, unsigned second)
 {
