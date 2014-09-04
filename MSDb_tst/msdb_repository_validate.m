@@ -141,7 +141,7 @@ static inline int tst_rep(id dbParams)
       MSCarLastNameLib,       @"last",
       MSCarLoginLib,          @"new login",
       MSCarHashedPasswordLib, @"pwd",
-      MSCarResetPasswordLib,  @"YES",
+      MSCarResetPasswordLib,  MSTrue, // @"YES",
       //MSCarEntityLib,       MSREntServiceLib,
       //MSCarLabelLib,        @"non authorisée sur Person",
       //@"a bad car",         @"a value",
