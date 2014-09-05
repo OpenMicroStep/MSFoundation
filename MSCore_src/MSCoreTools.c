@@ -248,3 +248,29 @@ void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compareFunction)(v
           d-= stride;}
         else found= YES;}}}
 }
+
+#pragma mark ***** Hexa
+
+static NSUInteger cvtIn[] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,               /* '0' - '9' */
+    100, 100, 100, 100, 100, 100, 100,          /* punctuation */
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,     /* 'A' - 'Z' */
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32, 33, 34, 35,
+    100, 100, 100, 100, 100, 100,               /* punctuation */
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,     /* 'a' - 'z' */
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+    30, 31, 32, 33, 34, 35};
+
+MSCoreExport MSULong MSHexaStringToLong(const char *src, NSUInteger srcLen)
+{
+  NSUInteger i,digit;
+  MSULong shifted, result= 0;
+  if (!srcLen) srcLen= strlen(src);
+  for (i= 0; i<srcLen; i++, src++) {
+    if ((digit= (NSUInteger)*src) < '0' || 'z' < digit || (digit= cvtIn[digit-'0']) > 15) {
+      i= srcLen;} // normal end
+    else if (((shifted= result << 4) >> 4) != result || (result= shifted + digit) < shifted) {
+      i= srcLen; result= (NSUInteger)-1;}} // overflow
+  return result;
+}

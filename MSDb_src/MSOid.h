@@ -173,6 +173,13 @@ extern MSString *MSCarResetPasswordLib;
 extern MSString *MSCarPublicKeyLib;
 extern MSString *MSCarPrivateKeyLib;
 extern MSString *MSCarCipheredPrivateKeyLib;
+extern MSString *MSCarStringLib;
+extern MSString *MSCarIntLib;
+extern MSString *MSCarBoolLib;
+extern MSString *MSCarGmtLib;
+extern MSString *MSCarDateLib;
+extern MSString *MSCarDtmLib;
+extern MSString *MSCarDurationLib;
 
 #pragma mark MSDictionary obis description
 

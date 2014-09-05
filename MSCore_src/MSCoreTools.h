@@ -73,4 +73,11 @@ MSCoreExport MSCompressResult  MSUncompress(void *destination, NSUInteger *desti
 
 MSCoreExport void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compareFunction)(void*, void*, void*), void *context);
 
+#pragma mark ***** Hexa
+
+MSCoreExport MSULong MSHexaStringToLong(const char *src, NSUInteger srcLen);
+// If srcLen is 0, it is calculated with strlen
+// Return the value of 'src' in base 16.
+// No space, no '-' or '0x' or 'u'.
+
 #endif // MS_CORE_TOOLS_H

@@ -1,7 +1,7 @@
 // mscore_mste_validate.c, ecb, 140222
 
-#include "MSCore_Private.h"
 #include "mscore_validate.h"
+#include "MSTE.h" // A supprimer quand intégré dans le Core
 
 static CString *_ke,*_kd;
 static inline int _testError(CBuffer *src_, char *errLoc_,int errNo_)

@@ -1,6 +1,5 @@
 // mscore_tools_validate.c, ecb, 130911
 
-#include "MSCore_Private.h"
 #include "mscore_validate.h"
 
 //http://www.fileformat.info/tool/hash.htm?text=A

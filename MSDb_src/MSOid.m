@@ -57,6 +57,8 @@ MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
          *MSCarFirstNameLib,*MSCarMiddleNameLib,*MSCarLastNameLib,
          *MSCarLoginLib,*MSCarHashedPasswordLib,*MSCarResetPasswordLib,
          *MSCarPublicKeyLib,*MSCarPrivateKeyLib,*MSCarCipheredPrivateKeyLib;
+MSString *MSCarStringLib,*MSCarIntLib,*MSCarBoolLib,
+         *MSCarGmtLib,*MSCarDateLib,*MSCarDtmLib,*MSCarDurationLib;
 
 @implementation MSOid
 
@@ -110,6 +112,13 @@ MSString *MSCarLabelLib,*MSCarURNLib,*MSCarParameterLib,
     MSCarPublicKeyLib=          MSCreateString("public key");
     MSCarPrivateKeyLib=         MSCreateString("private key");
     MSCarCipheredPrivateKeyLib= MSCreateString("ciphered private key ");
+    MSCarStringLib=             MSCreateString("string");
+    MSCarIntLib=                MSCreateString("int");
+    MSCarBoolLib=               MSCreateString("bool");
+    MSCarGmtLib=                MSCreateString("gmt");
+    MSCarDateLib=               MSCreateString("date");
+    MSCarDtmLib=                MSCreateString("date & time");
+    MSCarDurationLib=           MSCreateString("duration");
     }
 }
 

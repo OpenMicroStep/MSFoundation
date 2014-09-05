@@ -61,8 +61,8 @@
  *      Revision 2.0  2003/07/24 21:00:49  mike
  *      initial version
  */
-#include "m_apm_lc.h"
-#include "mapm_validate.h"
+
+#include "mscore_validate.h"
 
 static int __verbose= 0;
 

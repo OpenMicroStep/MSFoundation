@@ -200,7 +200,7 @@ unichar utf8ChaiN(const void *src, NSUInteger *pos)
 unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
 // Return 0xFFFF on begin or end of string ("), but return " on \"
 {
-  unichar u= utf8ChaiN(src, pos); unsigned char c,hex[5]; int i;
+  unichar u= utf8ChaiN(src, pos); unsigned char c,hex[4]; int i;
   if (u=='\"') u= 0xFFFF;
   else if (u=='\\') switch ((u= utf8ChaiN(src, pos))) {
     case '\"': u= '\"'; break;
@@ -215,9 +215,7 @@ unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
       for (c= 1, i= 0; c!=0x00 && i<4; i++) {
         hex[i]= c= ((unsigned char*)src)[(*pos)++];}
       if (!c) u= 0;
-      else {
-        hex[4]= 0x00;
-        u= (unichar)strtol((char*)hex, NULL, 16);}
+      else u= (unichar)MSHexaStringToLong((char*)hex, 4);
       break;
     default: u= u; break;} // invalid char ?
   return u;

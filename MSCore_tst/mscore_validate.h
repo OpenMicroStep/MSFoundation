@@ -1,5 +1,7 @@
 // mscore_validate.h, ecb, 130911
 
+#include "MSCore.h"
+
 int mscore_c_validate          (void);
 int mscore_tools_validate      (void);
 int mscore_carray_validate     (void);
