@@ -46,9 +46,9 @@
 #ifdef WIN32
 
 #ifdef MSFOUNDATION_PRIVATE_H
-#define MSCoreExport MSExport
+#define MSFoundationExport MSExport
 #else
-#define MSCoreExport MSImport
+#define MSFoundationExport MSImport
 #endif
 
 enum {
