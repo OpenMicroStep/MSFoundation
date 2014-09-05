@@ -381,10 +381,12 @@ typedef enum
 - (BOOL)_authenticateWithChallenge:(NSString *)challenge
 {
     BOOL auth = NO ;
+    MSHTTPRequest *challengeAuth;
+    MSHTTPResponse *challengeAuthResponse;
     [_requestLock lock] ;
 
-    MSHTTPRequest *challengeAuth = [self _challengeAuthenticationRequestWithChallenge:challenge] ;
-    MSHTTPResponse *challengeAuthResponse = [self _performRequest:challengeAuth errorString:NULL] ;
+    challengeAuth = [self _challengeAuthenticationRequestWithChallenge:challenge] ;
+    challengeAuthResponse = [self _performRequest:challengeAuth errorString:NULL] ;
     
     if ([challengeAuthResponse HTTPStatus] == HTTPOK &&
         [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[challengeAuthResponse headerValueForKey:MHAUTH_HEADER_RESPONSE]])
