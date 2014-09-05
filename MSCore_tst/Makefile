@@ -11,7 +11,7 @@ CFILES = mscore_c_validate.c mscore_carray_validate.c mscore_cbuffer_validate.c 
 
 PUBLIC_HEADERS = mscore_validate.h
 
-HEADER_PATHS = -I../MSCore_src -I../MSCore_src/MAPM_src -I../MSFoundation_Basics_src
+HEADER_PATHS = -I../MSCore_src -I../MSCore_src/MAPM_src
 
 include $(MAKEFILEDIR)/platform.make
 include $(MAKEFILEDIR)/$(MAKEFILE)
