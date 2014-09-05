@@ -1,5 +1,6 @@
 // msdb_validate.h, ecb, 140101
 
+#import "MSDatabase.h"
 #import "msfoundation_validate.h"
 
 int msdb_obi_validate(void);

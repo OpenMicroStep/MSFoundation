@@ -1,8 +1,7 @@
 // msdb_repository_validate.m, ecb, 140101
 
-#include "MSDb_Private.h"
-#include "MHRepositoryKit.h"
-#include "msdb_validate.h"
+#import "msdb_validate.h"
+#import "MHRepositoryKit.h"
 #import "MHRepository.i"
 
 static inline int tst_rep_nu(id dbParams, id x, BOOL save)

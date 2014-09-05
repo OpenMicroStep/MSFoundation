@@ -1,6 +1,5 @@
 // msfoundation_buffer_validate.m, ecb, 130911
 
-#include "MSFoundation_Private.h"
 #include "msfoundation_validate.h"
 
 static inline int buffer_create(void)

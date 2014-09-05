@@ -1,6 +1,5 @@
 // msdb_test.m, ecb, 140101
 
-#import "MSDatabase.h"
 #import "msdb_validate.h"
 
 int main(int argc, const char *argv[])

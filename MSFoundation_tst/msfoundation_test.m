@@ -1,6 +1,5 @@
 // msfoundation_test.m, ecb, 130904
 
-#import "MSFoundation.h"
 #import "msfoundation_validate.h"
 
 int main(int argc, const char *argv[])

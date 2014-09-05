@@ -1,5 +1,6 @@
 // msfoundation_validate.h, ecb, 130911
 
+#include "MSFoundation.h"
 #import "mscore_validate.h"
 
 int msfoundation_array_validate     (void);

@@ -1,6 +1,5 @@
 // msfoundation_decimal_validate.m, ecb, 130911
 
-#include "MSFoundation_Private.h"
 #include "msfoundation_validate.h"
 
 static inline void decimal_print(MSDecimal *d)
