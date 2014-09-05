@@ -67,6 +67,5 @@
 #include <MSCore/MSCDecimal.h>
 #include <MSCore/m_apm.h>
 #include <MSCore/MSCDictionary.h>
-#include <MSCore/MSTE.h>
 
 #endif
