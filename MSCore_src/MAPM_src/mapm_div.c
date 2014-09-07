@@ -149,7 +149,7 @@ void M_apm_sdivide(M_APM r, int places, const M_APM a, const M_APM b)
   else       /* 'normal' step D1 */
   {
     k = 100 / (b->m_apm_data[0] + 1);
-    m_apm_set_long(M_div_tmp9, (long)k);
+    m_apm_set_long(M_div_tmp9, (long long)k);
     
     m_apm_multiply(M_div_worka, M_div_tmp9, a);
     m_apm_multiply(M_div_workb, M_div_tmp9, b);
@@ -257,7 +257,7 @@ void M_apm_sdivide(M_APM r, int places, const M_APM a, const M_APM b)
       if (j == 100)     /* qhat == base ??      */
         j = 99;         /* if so, decrease by 1 */
       
-      m_apm_set_long(M_div_tmp8, (long)j);
+      m_apm_set_long(M_div_tmp8, (long long)j);
       m_apm_multiply(M_div_tmp7, M_div_tmp8, M_div_workb);
       
       /*

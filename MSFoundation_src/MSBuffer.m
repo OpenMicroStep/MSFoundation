@@ -296,8 +296,8 @@ static Class __MSBufferClass= Nil;
 // TODO: MSBytesToHexaString as CString
 //- (NSString *)toString       { return MSBytesToHexaString(_buf, _length, YES); }
 //- (NSString *)listItemString { return MSBytesToHexaString(_buf, _length, YES); }
-- (MSUShort)shortCRC         { return MSBytesShortCRC    ((void *)_buf, _length); }
-- (MSUInt  )longCRC          { return MSBytesLongCRC     ((void *)_buf, _length); }
+- (MSUShort)smallCRC         { return MSBytesSmallCRC    ((void *)_buf, _length); }
+- (MSUInt  )largeCRC         { return MSBytesLargeCRC    ((void *)_buf, _length); }
 - (MSUInt  )ELFHash          { return MSBytesELF         ((void *)_buf, _length); }
 - (MSUInt  )elfUppercaseHash { return MSBytesUppercaseELF((void *)_buf, _length); }
 
@@ -514,8 +514,8 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
 // TODO: MSBytesToHexaString as CString
 //- (NSString *)toString { return MSBytesToHexaString((void *)[self bytes], [self length], YES); }
 //- (NSString *)listItemString { return MSBytesToHexaString((void *)[self bytes], [self length], YES); }
-- (MSUShort)shortCRC         { return MSBytesShortCRC    ((void *)[self bytes], [self length]); }
-- (MSUInt  )longCRC          { return MSBytesLongCRC     ((void *)[self bytes], [self length]); }
+- (MSUShort)smallCRC         { return MSBytesSmallCRC    ((void *)[self bytes], [self length]); }
+- (MSUInt  )largeCRC         { return MSBytesLargeCRC    ((void *)[self bytes], [self length]); }
 - (MSUInt  )ELFHash          { return MSBytesELF         ((void *)[self bytes], [self length]); }
 - (MSUInt  )elfUppercaseHash { return MSBytesUppercaseELF((void *)[self bytes], [self length]); }
 

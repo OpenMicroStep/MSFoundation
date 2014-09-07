@@ -591,6 +591,7 @@ NSMutableDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char
    
     *pointer = s ;
     return AUTORELEASE(ret) ;
+    decodingUserClass= NO; // Unused parameter
 }
 
 NSMutableArray *_MSTDecodeArray(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL allowsUnknownUserClasses, NSZone *zone)
@@ -677,6 +678,7 @@ MSBuffer *_MSTDecodeBufferBase64String(unsigned char **pointer, unsigned char *e
 
     *pointer = s ;
     return ret ; //already autoreleased
+    zone= nil; // Unused parameter
 }
 
 MSBuffer *_MSTDecodeBufferHexaString(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSZone *zone)
@@ -707,6 +709,7 @@ MSBuffer *_MSTDecodeBufferHexaString(unsigned char **pointer, unsigned char *end
     
     *pointer = s ;
     return AUTORELEASE(ret) ;
+    zone= nil; // Unused parameter
 }
 
 MSColor *_MSTDecodeColor(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSZone *zone)
@@ -717,6 +720,7 @@ MSColor *_MSTDecodeColor(unsigned char **pointer, unsigned char *endPointer, NSS
     ret = MSCreateCSSColor(trgbValue) ;
     *pointer = s ;
     return AUTORELEASE(ret) ;
+    zone= nil; // Unused parameter
 }
 
 id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointer, NSString *operation, MSByte tokenType, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL allowsUnknownUserClasses, NSZone *zone)
@@ -875,6 +879,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
     
     *pointer = s ;
     return ret ;
+    operation= nil; // Unused parameter
 }
 
 id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allowsUnknownUserClasses)
@@ -1059,7 +1064,7 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
                     if (s==end) {
                         if (verifyCRC) {
                             crcPtr[0] = crcPtr[1] = crcPtr[2] = crcPtr[3] = crcPtr[4] = crcPtr[5] = crcPtr[6] = crcPtr[7] = (unichar)'0';
-                            if (crcInt != [data longCRC]) MSRaise(NSGenericException, @"MSTDecodeRetainedObject - CRC Verification failed") ;
+                            if (crcInt != [data largeCRC]) MSRaise(NSGenericException, @"MSTDecodeRetainedObject - CRC Verification failed") ;
                         }
                         
                         myTokenCount += 1 ;

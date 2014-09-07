@@ -262,15 +262,25 @@ MSCoreExport void  m_apm_set_callbacks(M_apm_alloc_fn fn1, M_apm_free_fn fn2, M_
 
 MSCoreExport void m_apm_set_string(M_APM, const char *);
 MSCoreExport void m_apm_set_double(M_APM, double);
-MSCoreExport void m_apm_set_long(M_APM, long);
-MSCoreExport void set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign);
+MSCoreExport void m_apm_set_long(M_APM, long long);
+MSCoreExport void m_apm_set_ulong(M_APM, unsigned long long);
+MSCoreExport void m_apm_set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign);
 
 MSCoreExport void  m_apm_to_string(char *, int, const M_APM);
 MSCoreExport void  m_apm_to_fixpt_string(char *, int, M_APM);
 MSCoreExport void  m_apm_to_fixpt_stringex(char *, int, M_APM, char, char, int);
 MSCoreExport char *m_apm_to_fixpt_stringexp(int, M_APM, char, char, int);
 MSCoreExport void  m_apm_to_integer_string(char *, M_APM);
-MSCoreExport long long m_apm_to_longlong(const M_APM mtmp);
+MSCoreExport MSChar     m_apm_to_char(    const M_APM);
+MSCoreExport MSByte     m_apm_to_byte(    const M_APM);
+MSCoreExport MSShort    m_apm_to_short(   const M_APM);
+MSCoreExport MSUShort   m_apm_to_ushort(  const M_APM);
+MSCoreExport MSInt      m_apm_to_int(     const M_APM);
+MSCoreExport MSUInt     m_apm_to_uint(    const M_APM);
+MSCoreExport MSLong     m_apm_to_long(    const M_APM);
+MSCoreExport MSULong    m_apm_to_ulong(   const M_APM);
+MSCoreExport NSInteger  m_apm_to_integer( const M_APM);
+MSCoreExport NSUInteger m_apm_to_uinteger(const M_APM);
 
 MSCoreExport void m_apm_absolute_value(M_APM, const M_APM);
 MSCoreExport void m_apm_negate(M_APM, const M_APM);

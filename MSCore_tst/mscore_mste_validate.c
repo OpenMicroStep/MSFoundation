@@ -17,12 +17,12 @@ static inline int _testError(CBuffer *src_, char *errLoc_,int errNo_)
   d= CDictionaryObjectForKey(error, (id)_kd);
   if (errLoc_) {
     ses1= MSMakeSESWithBytes(errLoc_, strlen(errLoc_), NSUTF8StringEncoding);
-    ses2= MSSSES(d);
+    ses2= CStringSES((CString*)d);
     ses3= SESCommonPrefix(ses1, ses2);}
   if ((!errLoc_ && error) ||
       (errLoc_ && (!CDecimalEquals((CDecimal*)v, MM_One) || ses1.length!=ses3.length))) {
     buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
-    printf("A%d: %ld %s\n",errNo_,(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
+    printf("A%d: %ld %s\n",errNo_,(long)CDecimalLongValue((CDecimal*)v), CBufferCString(buf)); err++;
     RELEAZEN(buf);}
   RELEAZEN(o); RELEAZEN(error);
   return err;
@@ -79,7 +79,7 @@ static inline int _decode(char *ssrc, id ret)
     v= CDictionaryObjectForKey(error, (id)ke);
     d= CDictionaryObjectForKey(error, (id)kd);
     buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
-    printf("B1: %ld %s\n",(long)CDecimalIntegerValue((CDecimal*)v), CBufferCString(buf)); err++;
+    printf("B1: %ld %s\n",(long)CDecimalLongValue((CDecimal*)v), CBufferCString(buf)); err++;
     RELEAZEN(ke); RELEAZEN(o); RELEAZEN(buf);}
   else if (!ISEQUAL(ret, o)) {
     s= (id)MCSCreate(NULL);

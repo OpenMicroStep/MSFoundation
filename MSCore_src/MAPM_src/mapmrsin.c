@@ -75,8 +75,8 @@
 void M_raw_sin(M_APM rr, int places, const M_APM xx)
 {
   M_APM sum, term, tmp2, tmp7, tmp8;
-  int     tolerance, flag, local_precision, dplaces;
-  long m1, m2;
+  int tolerance, flag, local_precision, dplaces;
+  long long m1, m2;
   
   sum  = m_apm_new();
   term = m_apm_new();
@@ -92,7 +92,7 @@ void M_raw_sin(M_APM rr, int places, const M_APM xx)
   dplaces   = (places + 8) - xx->m_apm_exponent;
   tolerance = xx->m_apm_exponent - (places + 4);
   
-  m1   = 2L;
+  m1   = 2LL;
   flag = 0;
   
   while (TRUE)

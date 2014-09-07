@@ -66,7 +66,7 @@ Eric Baradat :  k18rt@free.fr
 // TODO: if super class is NSNumber, we need to implement all the ..Value
 // methods and indeed decimalValue. Revoir aussi isEqualToDecimal
 
-@interface MSDecimal : NSObject // Not yet NSNumber
+@interface MSDecimal : NSObject // Not an NSNumber
 {
 @private
   unsigned char *_data;
@@ -77,19 +77,37 @@ Eric Baradat :  k18rt@free.fr
   int  _sign;
 }
 
-+ (id)decimalWithUTF8String:(const char*)d;
-+ (id)decimalWithString:(NSString*)d; // TODO: (NS/MS)String !!!
+// decimalWith[UTF8]String returns nil if no decimal found.
++ (id)decimalWithUTF8String:(const char*)s;
++ (id)decimalWithString:(NSString*)s;
+
 + (id)decimalWithDouble:(double)d;
-+ (id)decimalWithLong:(long)d;
-+ (id)decimalWithMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign;
++ (id)decimalWithLong:(MSLong)l;
++ (id)decimalWithULong:(MSULong)u;
++ (id)decimalWithMantissa:(MSULong)m exponent:(MSInt)e sign:(int)sign;
   // sign: +1 | -1
+
+// initWith[UTF8]String returns nil if no decimal found.
 - (id)initWithUTF8String:(const char*)d;
-- (id)initWithString:(NSString*)d; // TODO: (NS/MS)String !!!
+- (id)initWithString:(NSString*)d;
+
 - (id)initWithDouble:(double)d;
-- (id)initWithLong:(long)d;
-- (id)initWithMantissa:(unsigned long long)m exponent:(int)e sign:(int)sign;
+- (id)initWithLong:(MSLong)l;
+- (id)initWithULong:(MSULong)u;
+- (id)initWithMantissa:(MSULong)m exponent:(MSInt)e sign:(int)sign;
 
 - (BOOL)isEqualToDecimal:(MSDecimal*)o;
+
+- (MSChar)    charValue;
+- (MSByte)    byteValue;
+- (MSShort)   shortValue;
+- (MSUShort)  unsignedShortValue;
+- (MSInt)     intValue;
+- (MSUInt)    unsignedIntValue;
+- (MSLong)    longValue;
+- (MSULong)   unsignedLongValue;
+- (NSInteger) integerValue;
+- (NSUInteger)unsignedIntegerValue;
 
 - (MSDecimal*)floorDecimal;
 - (MSDecimal*)ceilDecimal;
@@ -101,7 +119,14 @@ Eric Baradat :  k18rt@free.fr
 
 @end
 
-#define DECIMALU(U) AUTORELEASE((id)CCreateDecimalWithUTF8String(U))
-#define DECIMALS(S) AUTORELEASE((id)CCreateDecimalWithUTF8String([(S) UTF8String]))
-#define DECIMALD(D) AUTORELEASE((id)CCreateDecimalWithDouble(D))
-#define DECIMALL(L) AUTORELEASE((id)CCreateDecimalWithLong(L))
+@interface NSObject (MSDecimal)
+- (MSDecimal*)toDecimal; // returns nil
+@end
+
+@interface NSNumber (MSDecimal)
+- (MSDecimal*)toDecimal;
+@end
+
+@interface NSString (MSDecimal)
+- (MSDecimal*)toDecimal;
+@end

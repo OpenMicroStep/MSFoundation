@@ -1527,7 +1527,7 @@ static inline int mapm_test_factorial(void)
   
   for (i=0; i <= 15; i++)
   {
-    m_apm_set_long(mapmi, (long)i);
+    m_apm_set_long(mapmi, (long long)i);
     
     factorial_local(mapm2, mapmi);
     m_apm_factorial(mapm1, mapmi);
@@ -1790,7 +1790,7 @@ static inline int mapm_test_PI(void)
     
     m_apm_atan(mapm1, (dplaces + 8), mapm2);
     
-    m_apm_set_long(mapm2, 12L);
+    m_apm_set_long(mapm2, 12LL);
     m_apm_multiply(mapmt, mapm1, mapm2);
     m_apm_round(mapm1, dplaces, mapmt);
     
@@ -2191,7 +2191,7 @@ static inline int mapm_test_floor_ceil(void)
   pass  = 0;
   
   m_apm_set_string(mapm0, "26.90253936868423");
-  m_apm_set_long(mapmr, 26L);
+  m_apm_set_long(mapmr, 26LL);
   
   ict = 50;
   
@@ -2734,7 +2734,7 @@ static inline int mapm_test_special_div(void)
   }
   
   m_apm_negate(mapm6, mapm3);
-  m_apm_set_long(mapm5, -1L);
+  m_apm_set_long(mapm5, -1LL);
   m_apm_divide(mapm2, (digits + 6), mapm6, mapm3);   /* n / n == 1 */
   
   if (m_apm_compare(mapm2, mapm5) != 0)

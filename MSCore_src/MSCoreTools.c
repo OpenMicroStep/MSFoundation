@@ -113,7 +113,7 @@ static const MSUInt __MSCRCTable32[]= {
   0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
   0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d};
 
-MSUShort MSBytesShortCRC(const void *bytes, NSUInteger length)
+MSUShort MSBytesSmallCRC(const void *bytes, NSUInteger length)
 {
   MSUShort crc= 0XFFFF;
   
@@ -126,7 +126,7 @@ MSUShort MSBytesShortCRC(const void *bytes, NSUInteger length)
   return crc;
 }
 
-MSUInt MSBytesLongCRC(const void *bytes, NSUInteger length)
+MSUInt MSBytesLargeCRC(const void *bytes, NSUInteger length)
 {
   MSUInt crc= 0XFFFFFFFF;
   
@@ -262,7 +262,7 @@ static NSUInteger cvtIn[] = {
     20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
     30, 31, 32, 33, 34, 35};
 
-MSCoreExport MSULong MSHexaStringToLong(const char *src, NSUInteger srcLen)
+MSCoreExport MSULong MSHexaStringToULong(const char *src, NSUInteger srcLen)
 {
   NSUInteger i,digit;
   MSULong shifted, result= 0;

@@ -327,7 +327,7 @@ int M_exp_compute_nn(int *n, const M_APM b, const M_APM a)
   m_apm_to_integer_string(cp, tmp1);
   if (n) *n = atoi(cp);
   
-  m_apm_set_long(b, (long)(*n));
+  m_apm_set_long(b, (long long)(*n));
   
   kk = m_apm_compare(b, tmp1);
   
@@ -347,9 +347,9 @@ int M_exp_compute_nn(int *n, const M_APM b, const M_APM a)
  */
 void M_raw_exp(M_APM rr, int places, const M_APM xx)
 {
-  M_APM   tmp0, digit, term;
-  int tolerance,  local_precision, prev_exp;
-  long    m1;
+  M_APM tmp0, digit, term;
+  int tolerance, local_precision, prev_exp;
+  long long m1;
   
   tmp0  = m_apm_new();
   term  = m_apm_new();
@@ -362,7 +362,7 @@ void M_raw_exp(M_APM rr, int places, const M_APM xx)
   m_apm_add(rr, MM_One, xx);
   m_apm_copy(term, xx);
   
-  m1 = 2L;
+  m1 = 2LL;
   
   while (TRUE)
   {
@@ -375,7 +375,7 @@ void M_raw_exp(M_APM rr, int places, const M_APM xx)
     if ((term->m_apm_exponent < tolerance) || (term->m_apm_sign == 0))
       break;
     
-    if (m1 != 2L)
+    if (m1 != 2LL)
     {
       local_precision = local_precision + term->m_apm_exponent - prev_exp;
       

@@ -186,6 +186,11 @@ NSUInteger CStringIndexOfCharacter(const CString *self, unichar c)
   return NSNotFound;
 }
 
+SES CStringSES(const CString *self)
+{
+  return !self ? MSInvalidSES : MSMakeSESWithBytes(self->buf, self->length, NSUnicodeStringEncoding);
+}
+
 #pragma mark Append
 
 void CStringAppendCharacter(CString *self, unichar c)
@@ -243,7 +248,7 @@ void CStringAppendSES(CString *self, SES ses)
 
 void CStringAppendString(CString *self, const CString *s)
 {
-  CStringAppendSES(self, MSSSES(s));
+  CStringAppendSES(self, CStringSES(s));
 }
 
 static inline unichar _CEncodingToUnicode(MSByte c, NSStringEncoding encoding)

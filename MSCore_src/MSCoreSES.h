@@ -117,12 +117,19 @@ MSCoreExport SES SESInsensitiveCommonPrefix(SES src, SES comparator);
 
 MSCoreExport SES SESExtractPart(SES src, CUnicharChecker matchingChar);
 // TODO: Need utf8 SESIndexP NOT TESTED
-MSCoreExport SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
+
 // Si 'leftSpaces' est NULL, il est remplacé par CUnicharIsSpace.
 // Retourne un SES de 'src' sans les 'leftSpaces', avec les caractères qui matchent
 // avec 'matchingChar'.
 // Ex: ('  123zehgf',CUnicharIsDigit,NULL) -> '123'
-SES SESExtractInteger(SES ses, MSLong min, MSLong max, CUnicharChecker leftSpaces, MSLong *valuePtr);
+MSCoreExport SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
+
+// Extrait un décimal, ou juste sa partie entière si intOnly=YES.
+// Le SES retourné est la chaine contenant le nombre sans les leftSpaces.
+// Si le nombre est bien formé, le décimal correspondant est retourné dans decimalPtr.
+// Il doit être libéré par l'appelant.
+// Déclaré dans CDecimal.h
+// MSCoreExport SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
 
 #define CAIOK(X)       ((X) != InvalidCHAI)
 #define SESOK(X)       ({SES __x__= (X);  \

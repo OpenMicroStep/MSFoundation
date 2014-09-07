@@ -72,9 +72,9 @@
  */
 void m_apm_gcd(M_APM r, const M_APM u, const M_APM v)
 {
-  M_APM   tmpM, tmpN, tmpT, tmpU, tmpV;
+  M_APM tmpM, tmpN, tmpT, tmpU, tmpV;
   int kk, kr, mm;
-  long    pow_2;
+  long long pow_2;
   
   /* 'is_integer' will return 0 || 1 */
   
@@ -185,7 +185,7 @@ B4:
     {
       mm = kk / 28;
       kr = kk % 28;
-      pow_2 = 1L << kr;
+      pow_2 = 1LL << kr;
       
       if (mm == 0)
       {
@@ -195,7 +195,7 @@ B4:
       else
       {
         m_apm_copy(tmpN, MM_One);
-        m_apm_set_long(tmpM, 0x10000000L);   /* 2 ^ 28 */
+        m_apm_set_long(tmpM, 0x10000000LL);   /* 2 ^ 28 */
         
         while (TRUE)
         {

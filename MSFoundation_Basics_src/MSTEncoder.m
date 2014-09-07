@@ -655,7 +655,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     CBufferAppendByte((CBuffer *)_global, (MSByte)']');
     
-    [self _encodeGlobalHexaUnsignedInt:[_global longCRC] at:crcPointer] ;
+    [self _encodeGlobalHexaUnsignedInt:[_global largeCRC] at:crcPointer] ;
     
     ret = [_global retain] ;
     [self _clean] ;

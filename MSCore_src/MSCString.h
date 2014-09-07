@@ -79,6 +79,7 @@ MSCoreExport void CStringAdjustSize(CString *self);
 MSCoreExport NSUInteger CStringLength(const CString *self);
 MSCoreExport unichar    CStringCharacterAtIndex(const CString *self, NSUInteger i);
 MSCoreExport NSUInteger CStringIndexOfCharacter(const CString *self, unichar c);
+MSCoreExport SES        CStringSES(const CString *self);
 
 
 MSCoreExport void CStringAppendCharacter(CString *self, unichar c);
@@ -108,8 +109,5 @@ MSCoreExport BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage la
 #define MSSAddUnichar(X, Y) CStringAppendCharacter((CString*)(X), Y)
 #define MSSLength(    X   ) CStringLength((const CString*)(X))
 #define MSSIndex(     X, Y) (((CString*)(X))->buf[(Y)])
-#define MSSSES(       X   ) ({ \
-  CString *__x__= (CString*)(X); !__x__? MSInvalidSES : \
-  MSMakeSESWithBytes(__x__->buf, __x__->length, NSUnicodeStringEncoding);})
 
 #endif

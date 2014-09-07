@@ -271,7 +271,7 @@ void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncodi
 
 void CBufferAppendString(CBuffer *self, const CString *s, NSStringEncoding destinationEncoding)
 {
-  if (s) CBufferAppendSES(self, MSSSES(s), destinationEncoding);
+  if (s) CBufferAppendSES(self, CStringSES(s), destinationEncoding);
 }
 
 /*

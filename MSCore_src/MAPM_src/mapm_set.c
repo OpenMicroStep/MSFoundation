@@ -104,10 +104,18 @@
 #define M_set_string_error_msg "\'M_restore_stack(3, context)\', Out of memory"
 
 /****************************************************************************/
-void m_apm_set_long(M_APM atmp, long mm) { set_mantissa_exponent_sign(atmp, (unsigned long long)(mm < 0 ? -mm : mm), 0, (mm < 0 ? -1 : 1)); }
+void m_apm_set_long(M_APM atmp, long long mm)
+{
+  m_apm_set_mantissa_exponent_sign(atmp, (unsigned long long)(mm < 0 ? -mm : mm), 0, (mm < 0 ? -1 : 1));
+}
+
+void m_apm_set_ulong(M_APM atmp, unsigned long long mm)
+{
+  m_apm_set_mantissa_exponent_sign(atmp, mm, 0, 1);
+}
 
 /****************************************************************************/
-void    set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign)
+void    m_apm_set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign)
 {
   int     len, ii, nbytes;
   char *p, *buf, ch, buf2[64];
@@ -161,6 +169,7 @@ void m_apm_set_string(M_APM ctmp, const char *s_in)
   void *vp;
   int i, j, zflag, exponent, sign;
   size_t len = strlen(s_in) + 32;
+  SES pSes; NSUInteger x, idx, end;
   
   if (!(s = (char *)MAPM_MALLOC(len))) {
     M_apm_log_error_msg(M_APM_MALLOC_ERROR, M_set_string_error_msg);
@@ -174,6 +183,11 @@ void m_apm_set_string(M_APM ctmp, const char *s_in)
   
   p = s;
   
+  // Il faut le même calcul de leftSpace que CCreateDecimalWithSES
+  pSes= MSMakeSESWithBytes(p, strlen(p), NSUTF8StringEncoding);
+  for (x= idx= SESStart(pSes), end= SESEnd(pSes); x < end && CUnicharIsSpace(SESIndexN(pSes, &x));) idx= x;
+  p+= idx;
+/*
   while (TRUE)
   {
     if (*p == ' ' || *p == '\t')
@@ -181,7 +195,7 @@ void m_apm_set_string(M_APM ctmp, const char *s_in)
     else
       break;
   }
-  
+*/
   if (*p == '\0')
     return;
   

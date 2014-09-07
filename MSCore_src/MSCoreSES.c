@@ -215,7 +215,7 @@ unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
       for (c= 1, i= 0; c!=0x00 && i<4; i++) {
         hex[i]= c= ((unsigned char*)src)[(*pos)++];}
       if (!c) u= 0;
-      else u= (unichar)MSHexaStringToLong((char*)hex, 4);
+      else u= (unichar)MSHexaStringToULong((char*)hex, 4);
       break;
     default: u= u; break;} // invalid char ?
   return u;
@@ -315,60 +315,11 @@ SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftS
   return ret;
 }
 
-// TODO: ???? For parsing
-SES SESExtractInteger(SES src, MSLong min, MSLong max, CUnicharChecker leftSpaces, MSLong *valuePtr)
+SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr)
 {
-  SES ret= MSInvalidSES;
-  const void *s= src.source;
-  if (SESOK(src) && s && min <= max) {
-    NSUInteger start, end= SESEnd(src);
-    if (!leftSpaces) leftSpaces= (CUnicharChecker)CUnicharIsSpace;
-    start= _go(src, leftSpaces  , SESStart(src));
-    if (start < end) {
-      BOOL negative= NO;
-      NSUInteger pos; unichar u;
-      if (min == 0 && max == 0) {
-        min= MSLongMin;
-        max= MSLongMax;}
-      pos= start; u= SESIndexN(src, &pos);
-      if (min < 0) {
-        if (u == '-') {negative= YES; start= pos;}
-        else if (u == '+') start= pos;
-        // TO DO : must we check for other blanks here (I mean before the digits)
-        }
-      pos= start; u= SESIndexN(src, &pos);
-      if (start < end && u >= (unichar)'0' && u <= (unichar)'9') {
-        NSUInteger i= start;
-        MSULong value= 0;
-        MSULong stop= 0;
-        MSULong minimum= 0;
-        BOOL worseCase= NO;
-        if (negative) {
-          if (min < 0) {
-            if (min == MSLongMin) {
-              stop= ((MSULong)MSLongMax)+1;
-              worseCase= YES;}
-            else {
-              stop= (MSULong)(-min);}
-            if (max < 0) {
-              minimum= (MSULong)-max;}}}
-        else if (max > 0) {
-          stop= (MSULong)max;
-          if (min > 0) minimum= (MSULong)min;}
-        while (i < end && value <= stop) {
-          pos= start; u= SESIndexN(src, &pos);
-					if (u < (unichar)'0' || u > (unichar)'9') break;
-          value*= 10;
-          value+= (u - (unichar)'0');
-          i++;}
-        if (i > start && value <= stop && value >= minimum) {
-          if (valuePtr) {
-            *valuePtr= (worseCase && value == stop ?
-                        MSLongMin :
-                        (negative ?
-                          -(MSLong)value :
-                           (MSLong)value));}
-            ret= MSMakeSES(s, src.chai, start, i - start, src.encoding);}}}}
+  SES ret; CDecimal *d;
+  d= CCreateDecimalWithSES(src, intOnly, leftSpaces, &ret);
+  if (decimalPtr) *decimalPtr= d;
   return ret;
 }
 

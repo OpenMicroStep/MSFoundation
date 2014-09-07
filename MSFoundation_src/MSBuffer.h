@@ -172,8 +172,8 @@ MSFoundationExport MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length); // 
 - (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)freeWhenDone;
 #endif
 
-- (MSUShort)shortCRC;
-- (MSUInt  )longCRC;
+- (MSUShort)smallCRC;
+- (MSUInt  )largeCRC;
 - (MSUInt  )elfHash;
 - (MSUInt  )elfUppercaseHash;
 - (BOOL)containsOnlyBase64Characters;

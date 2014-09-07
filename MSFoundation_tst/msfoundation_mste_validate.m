@@ -171,7 +171,7 @@
   _bool = [[values objectForKey:@"_bool"] boolValue] ;
   
   _byte = [[values objectForKey:@"_byte"] unsignedCharValue] ;
-  _char = [[values objectForKey:@"_char"] charValue] ;
+  _char = [(NSNumber*)[values objectForKey:@"_char"] charValue] ;
   _ushort = [[values objectForKey:@"_ushort"] unsignedShortValue] ;
   _short = [[values objectForKey:@"_short"] shortValue] ;
   _uint = [[values objectForKey:@"_uint"] unsignedIntValue] ;

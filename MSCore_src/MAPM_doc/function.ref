@@ -151,7 +151,7 @@ Example:    M_APM  apmvalue;
 
 -----------------------------------------------------------------------------
 
-Prototype:  void  m_apm_set_long(M_APM, long);
+Prototype:  void  m_apm_set_long(M_APM, long long);
 
 Example:    M_APM  apmvalue;
             long   longval;
@@ -160,9 +160,9 @@ Example:    M_APM  apmvalue;
             This function will set the MAPM value to the value specified
      by the long variable.
 
-            m_apm_set_long(apmvalue, -203L);
-            m_apm_set_long(apmvalue, 1964L);
-            m_apm_set_long(apmvalue, 5219954L);
+            m_apm_set_long(apmvalue, -203LL);
+            m_apm_set_long(apmvalue, 1964LL);
+            m_apm_set_long(apmvalue, 5219954LL);
 
 -----------------------------------------------------------------------------
 

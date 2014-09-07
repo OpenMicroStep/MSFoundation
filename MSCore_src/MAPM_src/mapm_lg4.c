@@ -64,9 +64,9 @@
  */
 void M_log_near_1(M_APM rr, int places, const M_APM xx)
 {
-  M_APM   tmp0, tmp1, tmp2, tmpS, term;
+  M_APM tmp0, tmp1, tmp2, tmpS, term;
   int tolerance, dplaces, local_precision;
-  long    m1;
+  long long m1;
   
   tmp0  = m_apm_new();
   tmp1  = m_apm_new();

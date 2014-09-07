@@ -8,7 +8,7 @@ static inline int crc(char *txt, MSUInt r)
   {
   int err= 0;
   MSUInt crc;
-  crc= MSBytesLongCRC(txt, strlen(txt));
+  crc= MSBytesLargeCRC(txt, strlen(txt));
   if (crc!=r) {
     fprintf(stdout, "A1-Bad crc. Expected:%u Calculated:%u %s\n",r,crc,txt);
     err++;}

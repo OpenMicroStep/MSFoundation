@@ -49,8 +49,8 @@
 
 #pragma mark ***** Checksum
 
-MSCoreExport MSUShort MSBytesShortCRC    (const void *sbytes, NSUInteger slen);
-MSCoreExport MSUInt   MSBytesLongCRC     (const void *sbytes, NSUInteger slen);
+MSCoreExport MSUShort MSBytesSmallCRC    (const void *sbytes, NSUInteger slen);
+MSCoreExport MSUInt   MSBytesLargeCRC    (const void *sbytes, NSUInteger slen);
 MSCoreExport MSUInt   MSBytesELF         (const void *sbytes, NSUInteger slen);
 MSCoreExport MSUInt   MSBytesUppercaseELF(const void *sbytes, NSUInteger slen);
 MSCoreExport MSUInt   MSBytesAdlerHash(MSULong adler, const void *sbytes, NSUInteger slen);
@@ -75,7 +75,7 @@ MSCoreExport void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compa
 
 #pragma mark ***** Hexa
 
-MSCoreExport MSULong MSHexaStringToLong(const char *src, NSUInteger srcLen);
+MSCoreExport MSULong MSHexaStringToULong(const char *src, NSUInteger srcLen);
 // If srcLen is 0, it is calculated with strlen
 // Return the value of 'src' in base 16.
 // No space, no '-' or '0x' or 'u'.

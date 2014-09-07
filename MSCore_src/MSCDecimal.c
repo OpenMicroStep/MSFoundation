@@ -91,6 +91,72 @@ BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other)
 
 #pragma mark Creation
 
+static inline NSUInteger _move(SES src, NSUInteger *start, NSUInteger end, unichar u1, unichar u2)
+// on avance d'un u1 ou u2 si présent (alors start avance de 1) et de tous les chiffres qui suivent
+// retourne l'index de fin
+{
+  NSUInteger idx,x; unichar u='r';
+  x= idx= *start;
+  if (x < end && ((u= SESIndexN(src, &x)) == u1 || (u2 && u == u2))) {*start= idx= x;}
+  for (x= idx; x < end && '0' <= (u= SESIndexN(src, &x)) && u <= '9';) idx= x;
+  return idx;
+}
+CDecimal *CCreateDecimalWithSES(SES src, BOOL intOnly, CUnicharChecker leftSpaces, SES *rSes)
+// Calcule le SES du nombre trouvé et le retourne par référence si rSes!=NULL.
+// Si le nombre est bien formé, retourne le décimal correspondant. Sinon NULL;
+{
+  SES ret= MSInvalidSES; CDecimal *d= NULL;
+  if (SESOK(src)) {
+    NSUInteger end= SESEnd(src), num0, num, pt0, pt, exp0, exp, idx, x, i; BOOL err= NO;
+    if (!leftSpaces) leftSpaces= CUnicharIsSpace;
+    for (x= idx= SESStart(src); x < end && leftSpaces(SESIndexN(src, &x));) idx= x;
+    num0= num= idx; idx= _move(src, &num, end, '+', '-');
+    if (!intOnly) { //.xxxE±yyy
+      pt0= pt= idx; idx= _move(src, &pt, end, '.', 0);
+      if (pt > pt0 && idx-num == pt-pt0) err=YES; // un point sans chiffre devant ou derrière
+      else if (idx > num) { // il faut quelque chose avant le e
+        exp0= exp= idx; idx= _move(src, &exp, end, 'e', 'E');
+        if (exp > exp0 && idx == exp) {
+          idx= _move(src, &exp, end, '+', '-');
+          if (idx == exp) err= YES;}}} // rien après le e
+    if (!err && idx == num) err= YES; // pas de chiffres
+    ret= MSMakeSES(src.source, src.chai, num0, idx - num0, src.encoding);
+    if (!err && idx > num0) {
+      char txt[idx-num0+1];
+      for (i=0, x= num0; x<idx; i++) txt[i]= (char)SESIndexN(src, &x);
+      txt[i]= 0x00;
+      d= CCreateDecimalWithUTF8String(txt);}}
+  if (rSes) *rSes= ret;
+  return d;
+}
+
+MSLong CStrToLong(const char *restrict str, char **restrict endptr)
+{
+  MSLong ret; SES src,rSes; CDecimal *d;
+  src= MSMakeSESWithBytes(str, strlen(str), NSUTF8StringEncoding);
+  d= CCreateDecimalWithSES(src, YES, NULL, &rSes);
+  if (endptr) *endptr= (char*)str+SESEnd(rSes);
+  ret= CDecimalLongValue(d);
+  RELEAZEN(d);
+  return ret;
+}
+
+MSULong CStrToULong(const char *restrict str, char **restrict endptr)
+{
+  MSULong ret; SES src,rSes; CDecimal *d;
+  src= MSMakeSESWithBytes(str, strlen(str), NSUTF8StringEncoding);
+  d= CCreateDecimalWithSES(src, YES, NULL, &rSes);
+  if (endptr) *endptr= (char*)str+SESEnd(rSes);
+  ret= CDecimalULongValue(d);
+  RELEAZEN(d);
+  return ret;
+}
+
+CDecimal *CCreateDecimalWithString(CString *x)
+{
+  return CCreateDecimalWithSES(CStringSES(x), NO, NULL, NULL);
+}
+
 CDecimal *CCreateDecimalWithUTF8String(const char *x)
 {
   CDecimal *d= m_apm_new();
@@ -105,47 +171,59 @@ CDecimal *CCreateDecimalWithDouble(double x)
   return d;
 }
 
-CDecimal *CCreateDecimalWithLong(long x)
+CDecimal *CCreateDecimalWithLong(MSLong x)
 {
   CDecimal *d= m_apm_new();
   m_apm_set_long(d, x);
   return d;
 }
 
-CDecimal *CCreateDecimalWithMantissaExponentSign(
-  unsigned long long mm, int exponent, int sign)
+CDecimal *CCreateDecimalWithULong(MSULong x)
 {
   CDecimal *d= m_apm_new();
-  set_mantissa_exponent_sign(d, mm, exponent, sign);
+  m_apm_set_ulong(d, x);
+  return d;
+}
+
+CDecimal *CCreateDecimalWithMantissaExponentSign(MSULong mm, MSInt exponent, int sign)
+{
+  CDecimal *d= m_apm_new();
+  m_apm_set_mantissa_exponent_sign(d, mm, exponent, sign);
   return d;
 }
 
 #pragma mark Calculation
 
-CDecimal *CDecimalFloor(CDecimal *a)
+CDecimal *CCreateDecimalFloor(CDecimal *a)
 {CDecimal *d= m_apm_new(); m_apm_floor(d, a); return d;}
 
-CDecimal *CDecimalCeil(CDecimal *a)
+CDecimal *CCreateDecimalCeil(CDecimal *a)
 {CDecimal *d= m_apm_new(); m_apm_ceil(d, a); return d;}
 
-CDecimal *CDecimalAdd(CDecimal *a, CDecimal *b)
+CDecimal *CCreateDecimalAdd(CDecimal *a, CDecimal *b)
 {CDecimal *d= m_apm_new(); m_apm_add(d, a, b); return d;}
 
-CDecimal *CDecimalSubtract(CDecimal *a, CDecimal *b)
+CDecimal *CCreateDecimalSubtract(CDecimal *a, CDecimal *b)
 {CDecimal *d= m_apm_new(); m_apm_subtract(d, a, b); return d;}
 
-CDecimal *CDecimalMultiply(CDecimal *a, CDecimal *b)
+CDecimal *CCreateDecimalMultiply(CDecimal *a, CDecimal *b)
 {CDecimal *d= m_apm_new(); m_apm_multiply(d, a, b); return d;}
 
-CDecimal *CDecimalDivide(CDecimal *a, CDecimal *b, int decimalPlaces)
+CDecimal *CCreateDecimalDivide(CDecimal *a, CDecimal *b, int decimalPlaces)
 {CDecimal *d= m_apm_new(); m_apm_divide(d, decimalPlaces, a, b); return d;}
 
 #pragma mark Value
 
-MSLong CDecimalIntegerValue(CDecimal *a)
-{
-  return !a?0:m_apm_to_longlong(a);
-}
+MSChar     CDecimalCharValue(    CDecimal *a) {return !a?0:m_apm_to_char(a);}
+MSByte     CDecimalByteValue(    CDecimal *a) {return !a?0:m_apm_to_byte(a);}
+MSShort    CDecimalShortValue(   CDecimal *a) {return !a?0:m_apm_to_short(a);}
+MSUShort   CDecimalUShortValue(  CDecimal *a) {return !a?0:m_apm_to_ushort(a);}
+MSInt      CDecimalIntValue(     CDecimal *a) {return !a?0:m_apm_to_int(a);}
+MSUInt     CDecimalUIntValue(    CDecimal *a) {return !a?0:m_apm_to_uint(a);}
+MSLong     CDecimalLongValue(    CDecimal *a) {return !a?0:m_apm_to_long(a);}
+MSULong    CDecimalULongValue(   CDecimal *a) {return !a?0:m_apm_to_ulong(a);}
+NSInteger  CDecimalIntegerValue( CDecimal *a) {return !a?0:m_apm_to_integer(a);}
+NSUInteger CDecimalUIntegerValue(CDecimal *a) {return !a?0:m_apm_to_uinteger(a);}
 /*
 double CDecimalDoubleValue (CDecimal *a)
 {
@@ -154,6 +232,18 @@ double CDecimalDoubleValue (CDecimal *a)
 }
 */
 #pragma mark Description
+
+MSCoreExport CString *CCreateDecimalDescription(CDecimal *d)
+{
+  int exp=   abs(d->m_apm_exponent - 1);
+  int expLg= exp==0 ? 1 : (int)(log(exp)+1.);
+  int rLg= d->m_apm_datalength+5+expLg+1; // 5 pour -.E± ou 0.0E+
+  char r[rLg];
+  m_apm_to_string(r,-1,d);
+if ((int)strlen(r)+1>rLg) fprintf(stderr, "Error CCreateDecimalDescription"
+" longueur attendue: %d réelle:%lu\n",rLg,strlen(r));
+  return CCreateStringWithBytes(NSASCIIStringEncoding, r, strlen(r));
+}
 
 // TODO: !!!
 /*

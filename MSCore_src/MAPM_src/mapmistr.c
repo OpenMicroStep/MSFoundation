@@ -146,6 +146,83 @@ void m_apm_to_integer_string(char *s, const M_APM mtmp)
   if (vp != NULL) MAPM_FREE(vp);
 }
 /****************************************************************************/
+static M_APM _m_apm_new_cast(const M_APM src, const M_APM min, const M_APM max)
+{
+  M_APM m= m_apm_new();
+  if (!m_apm_is_integer(src)) {
+    if (src->m_apm_sign >= 0) m_apm_add(     m, src, MM_0_5);
+    else                      m_apm_subtract(m, src, MM_0_5);}
+  else m_apm_copy(m, src);
+  if      (m_apm_compare(m, min) <= 0) m_apm_copy(m, min);
+  else if (m_apm_compare(max, m) <= 0) m_apm_copy(m, max);
+  return m;
+}
+static MSULong _m_apm_to_value(const M_APM src)
+{
+  MSULong ul;
+  int exp, dl, numb;
+  UCHAR *ucp, numdiv, numrem;
+  exp= src->m_apm_exponent;
+  dl=  src->m_apm_datalength;
+
+  // if |input| < 1, result is "0"
+  if (exp <= 0 || src->m_apm_sign == 0) return 0;
+  numb= MIN(exp,dl);
+  ucp= src->m_apm_data;
+  ul= 0;
+  while (numb > 0) {
+    M_get_div_rem_10((int)(*ucp++), &numdiv, &numrem);
+    ul= 10*ul + numdiv;
+    if (--numb > 0) {
+      ul= 10*ul + numrem;
+      --numb;}}
+  while (exp > dl) {ul*= 10; dl++;}
+  if (src->m_apm_sign == -1) { // neg
+    ul= (MSULong)(-ul);}
+  return ul;
+}
+
+/*
+Implémentation de:
+MSChar     m_apm_to_char(    const M_APM);
+MSByte     m_apm_to_uchar(   const M_APM);
+MSShort    m_apm_to_short(   const M_APM);
+MSUShort   m_apm_to_ushort(  const M_APM);
+MSInt      m_apm_to_int(     const M_APM);
+MSUInt     m_apm_to_uint(    const M_APM);
+MSLong     m_apm_to_long(    const M_APM);
+MSULong    m_apm_to_ulong(   const M_APM);
+NSInteger  m_apm_to_integer( const M_APM);
+NSUInteger m_apm_to_uinteger(const M_APM);
+Exemple:
+MSChar m_apm_to_char(const M_APM src)
+{
+  MSChar x; M_APM m;
+  m= _m_apm_new_cast(src, MM_CharMin, MM_CharMax);
+  x= (MSChar)_m_apm_to_value(m);
+  MAPM_FREE(m);
+  return x;
+}
+*/
+#define _m_apm_to_(PRE, TYPEM, TYPE) PRE ## TYPE m_apm_to_ ## TYPEM(const M_APM src) \
+{ \
+  PRE ## TYPE x; M_APM m; \
+  m= _m_apm_new_cast(src, MM_ ## TYPE ## Min, MM_ ## TYPE ## Max); \
+  x= (PRE ## TYPE)_m_apm_to_value(m); \
+  MAPM_FREE(m); \
+  return x; \
+}
+_m_apm_to_(MS, char,     Char)
+_m_apm_to_(MS, byte,     Byte)
+_m_apm_to_(MS, short,    Short)
+_m_apm_to_(MS, ushort,   UShort)
+_m_apm_to_(MS, int,      Int)
+_m_apm_to_(MS, uint,     UInt)
+_m_apm_to_(MS, long,     Long)
+_m_apm_to_(MS, ulong,    ULong)
+_m_apm_to_(NS, integer,  Integer)
+_m_apm_to_(NS, uinteger, UInteger)
+/*
 long long m_apm_to_longlong(const M_APM mtmp)
 {
   long long ll;
@@ -174,7 +251,7 @@ long long m_apm_to_longlong(const M_APM mtmp)
   
   if (ct > 112) {
     if ((vp = (void *)MAPM_MALLOC((size_t)(ct + 32) * sizeof(char))) == NULL) {
-      /* fatal, this does not return */
+      // fatal, this does not return
       
       M_apm_log_error_msg(M_APM_MALLOC_ERROR,
                           "\'m_apm_to_integer_string\', Out of memory");
@@ -207,7 +284,7 @@ long long m_apm_to_longlong(const M_APM mtmp)
       break;
   }
   
-  // pad with trailing zeros if the exponent > datalength */
+  // pad with trailing zeros if the exponent > datalength
   
   if (ct > dl)
     memset(p, '0', (ct + 1 - dl));
@@ -219,4 +296,5 @@ long long m_apm_to_longlong(const M_APM mtmp)
   if (freeCtmp) MAPM_FREE(ctmp);
   return neg?-ll:ll;
 }
+*/
 /****************************************************************************/

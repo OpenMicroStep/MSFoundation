@@ -119,9 +119,9 @@ void M_arccos_near_0(M_APM rr, int places, const M_APM aa)
  */
 void M_arctan_near_0(M_APM rr, int places, const M_APM aa)
 {
-  M_APM   tmp0, tmp2, tmpR, tmpS, digit, term;
+  M_APM tmp0, tmp2, tmpR, tmpS, digit, term;
   int tolerance, dplaces, local_precision;
-  long    m1;
+  long long m1;
   
   tmp0 = m_apm_new();
   tmp2 = m_apm_new();

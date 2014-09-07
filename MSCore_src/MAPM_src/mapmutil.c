@@ -174,6 +174,9 @@ BOOL m_apm_deallocate(M_APM atmp)
     MAPM_FREE(((M_APM)atmp)->m_apm_data);
     return YES;
   }
+  else if (((M_APM)atmp)->m_apm_id == 0) { // no init
+    return YES;
+  }
   M_apm_log_error_msg(M_APM_RETURN, "\'m_apm_free\', Invalid M_APM variable");
   return NO;
 }

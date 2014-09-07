@@ -168,22 +168,28 @@ static inline SES _readToken(_MSTEDecode *src, int *type)
 
 static inline void _number(SES sesTk, int type, void *res)
 {
-  char c,*end,*p; NSUInteger endTk; MSLong l; MSULong ul; double d;
+  char c,*end,*p; NSUInteger endTk; CDecimal *dec; BOOL intOnly; SES rSes;
+  double d;
   c= ((char*)SESSource(sesTk))[endTk= SESEnd(sesTk)];
   ((char*)SESSource(sesTk))[endTk]= 0x00;
   p= ((char*)SESSource(sesTk))+SESStart(sesTk);
+  intOnly= (type!=MSTE_FLOAT_VALUE && type!=MSTE_DOUBLE_VALUE);
+  dec= CCreateDecimalWithSES(sesTk, intOnly, NULL, &rSes);
+  if (!dec || endTk!=SESEnd(rSes)) { // badly-formed number (not critical)
+    }
   switch (type) {
-    case MSTE_CHAR_VALUE:   l=  strtoll(p, &end, 10); *(MSChar*)res=   (MSChar)l;    break;
-    case MSTE_UCHAR_VALUE:  ul= strtoul(p, &end, 10); *(MSByte*)res=   (MSByte)ul;   break;
-    case MSTE_SHORT_VALUE:  l=  strtoll(p, &end, 10); *(MSShort*)res=  (MSShort)l;   break;
-    case MSTE_USHORT_VALUE: ul= strtoul(p, &end, 10); *(MSUShort*)res= (MSUShort)ul; break;
-    case MSTE_INT_VALUE:    l=  strtoll(p, &end, 10); *(MSInt*)res=    (MSInt)l;     break;
-    case MSTE_UINT_VALUE:   ul= strtoul(p, &end, 10); *(MSUInt*)res=   (MSUInt)ul;   break;
-    case MSTE_LONG_VALUE:   l=  strtoll(p, &end, 10); *(MSLong*)res=   (MSLong)l;    break;
-    case MSTE_ULONG_VALUE:  ul= strtoul(p, &end, 10); *(MSULong*)res=  (MSULong)ul;  break;
-    case MSTE_FLOAT_VALUE:  d=  strtod( p, &end);     *(float*)res=    (float)d;     break;
-    case MSTE_DOUBLE_VALUE: d=  strtod( p, &end);     *(double*)res=   (double)d;    break;}
-  // TODO: If end==SESSource(src.ses)+SESStart(src.ses) or *end!=0x00 we may have a badly-formed number (not critical)
+    case MSTE_CHAR_VALUE:   *(MSChar*)res=   CDecimalCharValue(  dec); break;
+    case MSTE_UCHAR_VALUE:  *(MSByte*)res=   CDecimalByteValue(  dec); break;
+    case MSTE_SHORT_VALUE:  *(MSShort*)res=  CDecimalShortValue( dec); break;
+    case MSTE_USHORT_VALUE: *(MSUShort*)res= CDecimalUShortValue(dec); break;
+    case MSTE_INT_VALUE:    *(MSInt*)res=    CDecimalIntValue(   dec); break;
+    case MSTE_UINT_VALUE:   *(MSUInt*)res=   CDecimalUIntValue(  dec); break;
+    case MSTE_LONG_VALUE:   *(MSLong*)res=   CDecimalLongValue(  dec); break;
+    case MSTE_ULONG_VALUE:  *(MSULong*)res=  CDecimalULongValue( dec); break;
+    // TODO CDecimalDoubleValue
+    case MSTE_FLOAT_VALUE:  d=  strtod( p, &end); *(float*)res=  (float)d;  break;
+    case MSTE_DOUBLE_VALUE: d=  strtod( p, &end); *(double*)res= (double)d; break;}
+  RELEAZEN(dec);
   ((char*)SESSource(sesTk))[endTk]= c;
 }
 
@@ -280,7 +286,7 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
 {
   id ret= nil;
   NSStringEncoding srcEncoding;
-  SES ses,sesCmp,sesRes; int type,stop; NSUInteger i,delta,crc1,crc2; char crc[9],*crcend;
+  SES ses,sesCmp,sesRes; int type,stop; NSUInteger i,delta,crc1,crc2; char crc[9]; // *crcend;
   _MSTEDecode src;
   NSUInteger code;
   id o,ref;
@@ -326,8 +332,8 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
   for (i= 0; i < ses.length; i++) {
     crc[i]= ((char*)ses.source)[SESStart(ses)+i];
     ((char*)ses.source)[SESStart(ses)+i]= '0';}
-  crc[8]= 0x00; crc1= strtoul(crc, &crcend, 16);
-  crc2= MSBytesLongCRC(src.ses.source, src.ses.length);
+  crc[8]= 0x00; crc1= MSHexaStringToULong(crc, 8); // strtoul(crc, &crcend, 16);
+  crc2= MSBytesLargeCRC(src.ses.source, src.ses.length);
 if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,MSBPointer(source));
   if (crc1!=crc2)                           RETURN_NIL("MSTE-23","Bad CRC.");
   for (i= 0; i < ses.length; i++) {((char*)ses.source)[SESStart(ses)+i]= crc[i];}

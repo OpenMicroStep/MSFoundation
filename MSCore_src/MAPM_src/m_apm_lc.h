@@ -352,6 +352,28 @@ extern M_APM MM_RND_MM;
 extern M_APM MM_EXP_LOG2R;
 extern M_APM MM_EXP_512R;
 
+extern M_APM MM_CharMin;
+extern M_APM MM_CharMax;
+extern M_APM MM_ByteMax;
+extern M_APM MM_ShortMin;
+extern M_APM MM_ShortMax;
+extern M_APM MM_UShortMax;
+extern M_APM MM_IntMin;
+extern M_APM MM_IntMax;
+extern M_APM MM_UIntMax;
+extern M_APM MM_LongMin;
+extern M_APM MM_LongMax;
+extern M_APM MM_ULongMax;
+extern M_APM MM_IntegerMin;
+extern M_APM MM_IntegerMax;
+extern M_APM MM_UIntegerMax;
+
+#define MM_ByteMin     MM_Zero
+#define MM_UShortMin   MM_Zero
+#define MM_UIntMin     MM_Zero
+#define MM_ULongMin    MM_Zero
+#define MM_UIntegerMin MM_Zero
+
 extern UCHAR MM_MUL_DIV[10000];
 extern UCHAR MM_MUL_REM[10000];
 extern UCHAR MM_MUL_DIV_10[100];

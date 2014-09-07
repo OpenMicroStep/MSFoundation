@@ -166,30 +166,103 @@ static inline char *_MSDealWithNotKeyObject(_MSPlistContext *context, id object,
 }
 
 static id __nulParseValue = nil ;
-
+/*
+static inline NSUInteger _go(SES src, CUnicharChecker checkFct, NSUInteger b)
+{
+  NSUInteger pos,e= SESEnd(src);
+  for (pos= b; b < e && checkFct(SESIndexN(src, &pos)); b= pos);
+  return b;
+}
+SES SESExtractInteger(SES src, MSLong min, MSLong max, CUnicharChecker leftSpaces, MSLong *valuePtr);
+SES SESExtractInteger(SES src, MSLong min, MSLong max, CUnicharChecker leftSpaces, MSLong *valuePtr)
+{
+  SES ret= MSInvalidSES;
+  const void *s= src.source;
+  if (SESOK(src) && s && min <= max) {
+    NSUInteger start, end= SESEnd(src);
+    if (!leftSpaces) leftSpaces= (CUnicharChecker)CUnicharIsSpace;
+    start= _go(src, leftSpaces  , SESStart(src));
+    if (start < end) {
+      BOOL negative= NO;
+      NSUInteger pos; unichar u;
+      if (min == 0 && max == 0) {
+        min= MSLongMin;
+        max= MSLongMax;}
+      pos= start; u= SESIndexN(src, &pos);
+      if (min < 0) {
+        if (u == '-') {negative= YES; start= pos;}
+        else if (u == '+') start= pos;
+        // TO DO : must we check for other blanks here (I mean before the digits)
+      }
+      pos= start; u= SESIndexN(src, &pos);
+      if (start < end && u >= (unichar)'0' && u <= (unichar)'9') {
+        NSUInteger i= start;
+        MSULong value= 0;
+        MSULong stop= 0;
+        MSULong minimum= 0;
+        BOOL worseCase= NO;
+        if (negative) {
+          if (min < 0) {
+            if (min == MSLongMin) {
+              stop= ((MSULong)MSLongMax)+1;
+              worseCase= YES;}
+            else {
+              stop= (MSULong)(-min);}
+            if (max < 0) {
+              minimum= (MSULong)-max;}}}
+        else if (max > 0) {
+          stop= (MSULong)max;
+          if (min > 0) minimum= (MSULong)min;}
+        while (i < end && value <= stop) {
+          pos= start; u= SESIndexN(src, &pos);
+          if (u < (unichar)'0' || u > (unichar)'9') break;
+          value*= 10;
+          value+= (u - (unichar)'0');
+          i++;}
+        if (i > start && value <= stop && value >= minimum) {
+          if (valuePtr) {
+            *valuePtr= (worseCase && value == stop ?
+                        MSLongMin :
+                        (negative ?
+                         -(MSLong)value :
+                         (MSLong)value));}
+          ret= MSMakeSES(s, src.chai, start, i - start, src.encoding);}}}}
+  return ret;
+}
+*/
+// SESExtractInteger obsolete. Replaced by SESExtractDecimal or CCreateDecimalWithSES
 static inline BOOL _MSGetNumber(NSString *s, SES initialSES, NSUInteger position, NSUInteger length, BOOL acceptsNegative, long long stopValue,
 								long long *result, NSUInteger *endPosition)
 {
-    if (s && length) {
-        MSLong a ;
+  CDecimal *d;
+  if (s && length) {
+    //MSLong a ;
 		SES ses = initialSES, ret ;
 		ses.start = position ;
 		ses.length = length ;
-        
+    
+    if ((d= CCreateDecimalWithSES(ses, YES, CUnicharIsSpace, &ret))) {
+      if (result)
+        *result= (acceptsNegative ? CDecimalLongValue(d) : (long long)CDecimalULongValue(d));
+//NSLog(@"_MSGetNumber %d %lld %@", acceptsNegative,*result,d) ;
+      RELEAZEN(d);
+			if (endPosition) *endPosition= ret.start + ret.length;
+      return YES;}
+/*
 		ret = SESExtractInteger(ses, (acceptsNegative ? -stopValue : 0), stopValue, (CUnicharChecker)CUnicharIsSpace, &a) ;
 		if (SESOK(ret)) {
-            //NS?Log(@"interpretation on range %lld-%lld", (long long)ret.start, (long long)ret.length) ;
-            //NS?Log(@"result = %lld", a) ;
-            if (result) *result = (long long)a ;
+      //NS?Log(@"interpretation on range %lld-%lld", (long long)ret.start, (long long)ret.length) ;
+      //NS?Log(@"result = %lld", a) ;
+      if (result) *result = (long long)a ;
 			if (endPosition) { *endPosition = ret.start + ret.length ; }
 			return YES ;
 		}
 		//else { NSLog(@"Impossible to interpret %@ value as a number", s) ; }
+*/
 	}
 	return NO ;
+  stopValue= 0; // Unused parameter
 }
-
-
 
 static inline char *_MSDealWithNormalString(_MSPlistContext *context,
                                             unsigned mask,
@@ -204,7 +277,7 @@ static inline char *_MSDealWithNormalString(_MSPlistContext *context,
 	NSUInteger blen = initialSES.length ;
 	
 #define MSGetNumber(STR, POS, LEN, AN, SV, RES, ENP) _MSGetNumber(STR, initialSES, POS, LEN, AN, SV, RES, ENP)
-    
+  
     if (ANATURAL) {
         long long n = 0 ;
 		//NS?Log(@"Want to scan natural in buffer : <%@>", buf) ;
@@ -280,7 +353,7 @@ static inline char *_MSDealWithNormalString(_MSPlistContext *context,
         err = NULL ;
 
 	}
-    
+  
     return err ;
 }
 
@@ -354,4 +427,3 @@ static inline void STOP(char *msg, unsigned int pos, char **states, int state,SE
 		DESTROY(fin) ;\
 	}\
 }
-

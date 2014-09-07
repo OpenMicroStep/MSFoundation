@@ -157,10 +157,26 @@ M_APM MM_RND_MM=        NULL;
 M_APM MM_EXP_LOG2R=     NULL;
 M_APM MM_EXP_512R=      NULL;
 
+M_APM MM_CharMin=     NULL;
+M_APM MM_CharMax=     NULL;
+M_APM MM_ByteMax=     NULL;
+M_APM MM_ShortMin=    NULL;
+M_APM MM_ShortMax=    NULL;
+M_APM MM_UShortMax=   NULL;
+M_APM MM_IntMin=      NULL;
+M_APM MM_IntMax=      NULL;
+M_APM MM_UIntMax=     NULL;
+M_APM MM_LongMin=     NULL;
+M_APM MM_LongMax=     NULL;
+M_APM MM_ULongMax=    NULL;
+M_APM MM_IntegerMin=  NULL;
+M_APM MM_IntegerMax=  NULL;
+M_APM MM_UIntegerMax= NULL;
+
 UCHAR MM_MUL_DIV[10000];
 UCHAR MM_MUL_REM[10000];
-UCHAR   MM_MUL_DIV_10[100];
-UCHAR   MM_MUL_REM_10[100];
+UCHAR MM_MUL_DIV_10[100];
+UCHAR MM_MUL_REM_10[100];
 
 int  MM_BIT_LIMIT =  8 * sizeof(int) + 1;
 int  MM_SIZEOF_INT = sizeof(int);
@@ -272,14 +288,14 @@ char *m_apm_lib_short_version(char *v)
 void M_init_mapm_constants(void)
 {
   int i;
-  UCHAR   ndiv, nrem;
+  UCHAR ndiv, nrem;
   
   ndiv = 0;
   nrem = 0;
   for (i = 0; i < 100; i++) {
     MM_MUL_DIV_10[i] = ndiv;
     MM_MUL_REM_10[i] = nrem;
-    
+ 
     if (++nrem == 10) {
       nrem = 0;
       ndiv++;
@@ -336,6 +352,22 @@ void M_init_mapm_constants(void)
   MM_RND_MM        = m_apm_new();
   MM_EXP_LOG2R     = m_apm_new();
   MM_EXP_512R      = m_apm_new();
+
+  MM_CharMin       = m_apm_new();
+  MM_CharMax       = m_apm_new();
+  MM_ByteMax       = m_apm_new();
+  MM_ShortMin      = m_apm_new();
+  MM_ShortMax      = m_apm_new();
+  MM_UShortMax     = m_apm_new();
+  MM_IntMin        = m_apm_new();
+  MM_IntMax        = m_apm_new();
+  MM_UIntMax       = m_apm_new();
+  MM_LongMin       = m_apm_new();
+  MM_LongMax       = m_apm_new();
+  MM_ULongMax      = m_apm_new();
+  MM_IntegerMin    = m_apm_new();
+  MM_IntegerMax    = m_apm_new();
+  MM_UIntegerMax   = m_apm_new();
   
   m_apm_set_string(MM_One  ,  "1");
   m_apm_set_string(MM_Two  ,  "2");
@@ -370,6 +402,22 @@ void M_init_mapm_constants(void)
   m_apm_set_string(MM_EXP_LOG2R, "1.44269504089");   /* ~ 1 / log(2) */
   m_apm_set_string(MM_EXP_512R , "1.953125E-3");     /*   1 / 512    */
   
+  m_apm_set_long( MM_CharMin,     MSCharMin);
+  m_apm_set_long( MM_CharMax,     MSCharMax);
+  m_apm_set_long( MM_ByteMax,     MSByteMax);
+  m_apm_set_long( MM_ShortMin,    MSShortMin);
+  m_apm_set_long( MM_ShortMax,    MSShortMax);
+  m_apm_set_long( MM_UShortMax,   MSUShortMax);
+  m_apm_set_long( MM_IntMin,      MSIntMin);
+  m_apm_set_long( MM_IntMax,      MSIntMax);
+  m_apm_set_long( MM_UIntMax,     MSUIntMax);
+  m_apm_set_long( MM_LongMin,     MSLongMin);
+  m_apm_set_long( MM_LongMax,     MSLongMax);
+  m_apm_set_ulong(MM_ULongMax,    MSULongMax);
+  m_apm_set_long( MM_IntegerMin,  NSIntegerMin);
+  m_apm_set_long( MM_IntegerMax,  NSIntegerMax);
+  m_apm_set_ulong(MM_UIntegerMax, NSUIntegerMax);
+
   m_apm_multiply(MM_HALF_PI, MM_PI, MM_0_5);
   m_apm_multiply(MM_2_PI, MM_PI, MM_Two);
   

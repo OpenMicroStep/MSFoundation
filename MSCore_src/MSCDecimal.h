@@ -71,27 +71,56 @@ MSCoreExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
 
 #pragma mark Creation
 
-//TODO: MSCoreExport CDecimal *CCreateDecimalWithString(MSString *x);
+// Extrait un décimal, ou juste sa partie entière si intOnly=YES.
+// Le SES rSes retourné par référence est la chaine contenant le nombre sans les leftSpaces.
+// Si le nombre est bien formé, le décimal correspondant est créé et retourné.
+// Si le nombre est mal formé (par ex: " +.", nil est retourné mais rSes contient néanmoins ce qui a été lu
+// (dans l'exemple, SESStart(*rSes)==1, SESLength(*rSes)==1 si intOnly, 2 sinon)
+MSCoreExport CDecimal *CCreateDecimalWithSES(SES src, BOOL intOnly, CUnicharChecker leftSpaces, SES *rSes);
+
+MSCoreExport CDecimal *CCreateDecimalWithString(CString *x);
 MSCoreExport CDecimal *CCreateDecimalWithUTF8String(const char *x);
 MSCoreExport CDecimal *CCreateDecimalWithDouble(double x);
-MSCoreExport CDecimal *CCreateDecimalWithLong  (long   x);
-MSCoreExport CDecimal *CCreateDecimalWithMantissaExponentSign(
-  unsigned long long mm, int exponent, int sign);
+MSCoreExport CDecimal *CCreateDecimalWithLong  (MSLong x);
+MSCoreExport CDecimal *CCreateDecimalWithULong (MSULong x);
+MSCoreExport CDecimal *CCreateDecimalWithMantissaExponentSign(MSULong mm, MSInt exponent, int sign);
 
 #pragma mark Calculation
 
-MSCoreExport CDecimal *CDecimalFloor   (CDecimal *a);
-MSCoreExport CDecimal *CDecimalCeil    (CDecimal *a);
-MSCoreExport CDecimal *CDecimalAdd     (CDecimal *a, CDecimal *b);
-MSCoreExport CDecimal *CDecimalSubtract(CDecimal *a, CDecimal *b);
-MSCoreExport CDecimal *CDecimalMultiply(CDecimal *a, CDecimal *b);
-MSCoreExport CDecimal *CDecimalDivide  (CDecimal *a, CDecimal *b,int decimalPlaces);
+MSCoreExport CDecimal *CCreateDecimalFloor   (CDecimal *a);
+MSCoreExport CDecimal *CCreateDecimalCeil    (CDecimal *a);
+MSCoreExport CDecimal *CCreateDecimalAdd     (CDecimal *a, CDecimal *b);
+MSCoreExport CDecimal *CCreateDecimalSubtract(CDecimal *a, CDecimal *b);
+MSCoreExport CDecimal *CCreateDecimalMultiply(CDecimal *a, CDecimal *b);
+MSCoreExport CDecimal *CCreateDecimalDivide  (CDecimal *a, CDecimal *b, int decimalPlaces);
 
 #pragma mark Value
 
-MSCoreExport MSLong CDecimalIntegerValue(CDecimal *a);
-//MSCoreExport double    CDecimalDoubleValue (CDecimal *a);
+MSCoreExport MSChar     CDecimalCharValue(    CDecimal*);
+MSCoreExport MSByte     CDecimalByteValue(    CDecimal*);
+MSCoreExport MSShort    CDecimalShortValue(   CDecimal*);
+MSCoreExport MSUShort   CDecimalUShortValue(  CDecimal*);
+MSCoreExport MSInt      CDecimalIntValue(     CDecimal*);
+MSCoreExport MSUInt     CDecimalUIntValue(    CDecimal*);
+MSCoreExport MSLong     CDecimalLongValue(    CDecimal*);
+MSCoreExport MSULong    CDecimalULongValue(   CDecimal*);
+MSCoreExport NSInteger  CDecimalIntegerValue( CDecimal*);
+MSCoreExport NSUInteger CDecimalUIntegerValue(CDecimal*);
+// TODO: MSCoreExport double    CDecimalDoubleValue (CDecimal*);
+
+
+// Identique à CCreateDecimalWithSES mmais ecrite comme une SESEXtract... fonction.
+// Extrait un décimal, ou juste sa partie entière si intOnly=YES.
+// Le SES retourné est la chaine contenant le nombre sans les leftSpaces.
+// Si le nombre est bien formé, le décimal correspondant est retourné dans decimalPtr.
+// Il doit être libéré par l'appelant.
+// Déclaré ici car MSCoreSES.h est inclut avant MSCDecimal.h.
+MSCoreExport SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
 
 // TODO: description functions
+MSCoreExport CString *CCreateDecimalDescription(CDecimal*);
+
+MSCoreExport MSLong  CStrToLong( const char *restrict str, char **restrict endptr);
+MSCoreExport MSULong CStrToULong(const char *restrict str, char **restrict endptr);
 
 #endif

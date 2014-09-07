@@ -15,26 +15,26 @@ static inline int decimal_create(void)
   MSDecimal *c,*d,*e,*f;
   c= MSCreateObjectWithClassIndex(CDecimalClassIndex);
   m_apm_init((CDecimal*)c);
-  d= RETAIN(DECIMALL(0LL));
+  d= [[MSDecimal alloc] initWithLong:0LL];
   if (RETAINCOUNT(c)!=1) {
     fprintf(stdout, "A1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
-  if (RETAINCOUNT(d)!=2) {
+  if (RETAINCOUNT(d)!=1) {
     fprintf(stdout, "A2 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
   if (![c isEqualToDecimal:d]) {
     fprintf(stdout, "A3 c & d are not equals\n"); err++;}
   RELEASE(c);
   RELEASE(d);
-  c= RETAIN(DECIMALU("3.14"));
-  d= RETAIN(DECIMALD( 3.14 ));
+  c= [[MSDecimal alloc] initWithUTF8String:"3.14"];
+  d= [[MSDecimal alloc] initWithDouble:3.14];
 //decimal_print(c);
 //decimal_print(d);
-  if (RETAINCOUNT(c)!=2) {
+  if (RETAINCOUNT(c)!=1) {
     fprintf(stdout, "A5 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
-  if (RETAINCOUNT(d)!=2) {
+  if (RETAINCOUNT(d)!=1) {
     fprintf(stdout, "A6 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
   if (![c isEqualToDecimal:d]) {
     fprintf(stdout, "A7 c & d are not equals\n"); err++;}
-  e= RETAIN(DECIMALL(3LL));
+  e= [[MSDecimal alloc] initWithLong:3LL];
   if ([d isEqualToDecimal:e]) {
     fprintf(stdout, "A8 d & e are equals\n"); err++;}
   f= RETAIN([d floorDecimal]);
@@ -51,16 +51,16 @@ static inline int decimal_op(void)
   {
   int err= 0, i;
   MSDecimal *c[10],*d;
-  c[0]= RETAIN(DECIMALU("3."));
-  c[1]= RETAIN(DECIMALU("3.1"));
-  c[2]= RETAIN(DECIMALU("3.14"));
-  c[3]= RETAIN(DECIMALU("3.141"));
-  c[4]= RETAIN(DECIMALU("3.1415"));
-  c[5]= RETAIN(DECIMALU("3.14159"));
-  c[6]= RETAIN(DECIMALU("3.141592"));
-  c[7]= RETAIN(DECIMALU("3.1415926"));
-  c[8]= RETAIN(DECIMALU("3.14159265"));
-  c[9]= RETAIN(DECIMALU("3.141592653"));
+  c[0]= [[MSDecimal alloc] initWithUTF8String:"3."];
+  c[1]= [[MSDecimal alloc] initWithUTF8String:"3.1"];
+  c[2]= [[MSDecimal alloc] initWithUTF8String:"3.14"];
+  c[3]= [[MSDecimal alloc] initWithUTF8String:"3.141"];
+  c[4]= [[MSDecimal alloc] initWithUTF8String:"3.1415"];
+  c[5]= [[MSDecimal alloc] initWithUTF8String:"3.14159"];
+  c[6]= [[MSDecimal alloc] initWithUTF8String:"3.141592"];
+  c[7]= [[MSDecimal alloc] initWithUTF8String:"3.1415926"];
+  c[8]= [[MSDecimal alloc] initWithUTF8String:"3.14159265"];
+  c[9]= [[MSDecimal alloc] initWithUTF8String:"3.141592653"];
   for (i=1; i<10; i++) {
     d= [MSD_PI decimalByDividingBy:MSD_One decimalPlaces:i-1]; // TODO: look why -1
     if (![c[i] isEqual:d]) {
