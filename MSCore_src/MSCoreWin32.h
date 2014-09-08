@@ -47,6 +47,10 @@
 #ifndef MS_CORE_WIN32_H
 #define MS_CORE_WIN32_H
 
+#ifdef WO451
+#define restrict
+#endif
+
 #ifdef WIN32
 
 #define MSExport  __declspec(dllexport) extern
