@@ -46,7 +46,6 @@
  */
 
 #import <MSNet/MSNet.h>
-#import "MHServer.h"
 
 #ifdef WIN32
 
