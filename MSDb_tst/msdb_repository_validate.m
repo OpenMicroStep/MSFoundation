@@ -141,7 +141,7 @@ static inline int tst_rep(id dbParams)
       MSCarURNLib,          @"new URN 8",
       MSCarFirstNameLib,      @"first",
       MSCarMiddleNameLib,     @"middle",
-      MSCarLastNameLib,       @"last",
+      MSCarLastNameLib,       @"administrator",//@"last",
       MSCarLoginLib,          @"new login",
       MSCarHashedPasswordLib, @"pwd",
       MSCarResetPasswordLib,  MSTrue, // @"YES",
@@ -175,7 +175,11 @@ static inline int tst_rep(id dbParams)
       [ps setObject:@"admin" forKey:MSCarLoginLib];
       x= [rep matchingPersons:ps];
       if ([x count]!=2) {
-        NSLog(@"D45 matching error:%@",x); err++;}}
+        NSLog(@"D45 matching error:%@",x); err++;}
+      [ps setObject:@"administrator" forKey:MSCarLastNameLib];
+      x= [rep matchingPersons:ps];
+      if ([x count]!=3) {
+        NSLog(@"D46 matching error:%@",x); err++;}}
     // REMOVE
     if (!err && (dret= [rep removeValue:pURN forKey:MSRCarMemberLib onObject:servURN])) {
       NSLog(@"D47 remove error:%@",dret); err++;}
