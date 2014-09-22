@@ -101,6 +101,7 @@
 // Si cars est nil, remplit toutes les cars des instances.
 // La car 'entity' est toujours remplie même si elle n'est pas demandée.
 - (MSMutableDictionary*)fillIds:(uid)ids withCars:(uid)cars;
+- (MSMutableDictionary*)allFilledIds:(uid)ids withCars:(uid)cars;
 
 - (BOOL)changeObi:(MSObi*)x;
 - (BOOL)changeObis:(MSDictionary*)x;

@@ -72,6 +72,7 @@
       if ([t rangeOfString:@"TJ_VAL_"].location!=NSNotFound) {
         [(id)_valTables addObject:[t substringFromIndex:7]];}}
 //NSLog(@"_valTables %@",_valTables);
+//NSLog(@"database %@",dict);
     }
   else RELEAZEN(self);
   return self;
@@ -518,6 +519,10 @@ static inline MSByte _valueTypeFromTable(id table)
 {
   return [self _fillIds:ids withCars:cars returnAll:NO];
 }
+- (MSMutableDictionary*)allFilledIds:(uid)ids withCars:(uid)cars
+{
+  return [self _fillIds:ids withCars:cars returnAll:YES];
+}
 
 - (BOOL)changeObi:(MSObi*)obi
 {
@@ -575,9 +580,9 @@ static inline MSByte _valueTypeFromTable(id table)
       e= [[obi allValuesByCid] dictionaryEnumerator];
       while (ok && (cid= [e nextKey])) {
         if (ISEQUAL(cid, MSCarSystemNameId)) sys= YES;
-//NSLog(@"CID %@ %@",[cid class],cid);
         vs= [e currentObject];
         tStr= [self _table4Cid:cid];
+//NSLog(@"CID %@ %@ %@",[cid class],cid,tStr);
         for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
           if ([v state]==MSRemove) {
             q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%lld "

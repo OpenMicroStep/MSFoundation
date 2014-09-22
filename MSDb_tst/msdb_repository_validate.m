@@ -59,7 +59,7 @@ static inline int tst_rep_nu(id dbParams, id x, BOOL save)
 static inline int tst_rep(id dbParams)
 {
   int err= 0;
-  MSUShort dbNo; id servURN,persURN,appURN,autURN,rightID; MSDictionary *dos,*dret;
+  MSUShort dbNo; id servURN,persURN,devURN,appURN,autURN,rightID; MSDictionary *dos,*dret;
   id rep;
   if (!(dbNo= [MHRepository openRepositoryDatabaseWithParameters:dbParams])) {
     NSLog(@"D1: no open %@",dbParams); err++;}
@@ -90,20 +90,24 @@ static inline int tst_rep(id dbParams)
   // QUERY SERVICE
   servURN= nil;
   if (!err) {
-    id servs= [rep managedServices:NO];
-    if (![servs count]) {
+    id servs;
+    if      (![(servs= [rep managedServices:0]) count]) {
       NSLog(@"D10 managedServices %@",servs); err++;}
+    else if (![(servs= [rep managedServices:1]) count]) {
+      NSLog(@"D11 managedServices %@",servs); err++;}
+    else if (![(servs= [rep managedServices:2]) count]) {
+      NSLog(@"D12 managedServices %@",servs); err++;}
     else servURN= [servs objectAtIndex:0];}
   if (!err) {
     id os= [rep queryInstancesOfEntity:MSREntServiceLib withCars:nil];
     if (![os containsObject:servURN]) {
-      NSLog(@"D11 queryInstancesOfEntity Service: %@",os); err++;}}
+      NSLog(@"D13 queryInstancesOfEntity Service: %@",os); err++;}}
   if (!err) {
     id os,x,cars;
     cars= [MSDictionary dictionaryWithKey:MSRCarAdministratorLib andObject:(x= persURN)];
     os= [rep queryInstancesOfEntity:MSREntServiceLib withCars:cars];
     if (![os containsObject:servURN]) {
-      NSLog(@"D12 queryInstancesOfEntity Service of %@: %@",x,os); err++;}}
+      NSLog(@"D14 queryInstancesOfEntity Service of %@: %@",x,os); err++;}}
   // QUERY PERSON
   if (!err) {
     id os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:nil];
@@ -134,7 +138,7 @@ static inline int tst_rep(id dbParams)
   // CREATE PERSON (AND DELETE but TODO: not disabled)
   if (!err) {
     id pURN,x,person= [MSDictionary dictionaryWithKeysAndObjects:
-      //MSCarURNLib,          @"new URN 8",
+      MSCarURNLib,          @"new URN 8",
       MSCarFirstNameLib,      @"first",
       MSCarMiddleNameLib,     @"middle",
       MSCarLastNameLib,       @"last",
@@ -148,6 +152,7 @@ static inline int tst_rep(id dbParams)
     dret= [rep createPerson:person inService:servURN]; // servURN
     if (!(pURN= [dret objectForKey:MSCarURNLib])) {
       NSLog(@"40 create error:%@",dret); err++;}
+//NSLog(@"pers URN %@",pURN);
     dos= [rep informationsWithKeys:MSRCarMemberLib forRefs:servURN];
     if (![(x= [(MSDictionary*)[dos objectForKey:servURN] objectForKey:MSRCarMemberLib]) containsObject:pURN]) {
       NSLog(@"41 not in members: %@",x); err++;}
@@ -176,6 +181,18 @@ static inline int tst_rep(id dbParams)
       NSLog(@"D47 remove error:%@",dret); err++;}
     if (!err && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:pURN andObject:@"Delete"]])) {
       NSLog(@"D48 delete error:%@",dret); err++;}}
+  // CREATE DEVICE
+  devURN= nil;
+  if (!err) {
+    id dev= [MSDictionary dictionaryWithKeysAndObjects:
+      MSCarEntityLib, MSREntDeviceLib,
+      MSCarLabelLib, @"my beautifull device",
+      MSRCarSerialNumberLib, @"my beautifull serial",
+      MSRCarOutOfOrderLib, MSFalse,
+      nil];
+     dret= [rep createObject:dev];
+    if (!(devURN= [dret objectForKey:MSCarURNLib])) {
+      NSLog(@"D49 create error:%@",dret); err++;}}
   // CREATE APPLICATION
   appURN= nil;
   if (!err) {
@@ -209,6 +226,7 @@ static inline int tst_rep(id dbParams)
      dret= [rep createSubobject:right forObject:autURN andLink:MSRCarRightLib];
     if (!(rightID= [dret objectForKey:MSCarURNLib])) {
       NSLog(@"D52 create error:%@",dret); err++;}}
+//rightID= [MSDecimal decimalWithLong:[rightID longLongValue]];
 //NSLog(@"+++++ right:%@ %@",[rightID class],rightID);
   // FIND APPLICATION
   if (!err) {
@@ -274,6 +292,10 @@ static inline int tst_rep(id dbParams)
   if (autURN) {
     if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:autURN andObject:@"Delete"]])) {
       NSLog(@"D84 delete error:%@",dret); err++;}}
+  // DELETE DEVICE
+  if (devURN) {
+    if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:devURN andObject:@"Delete"]])) {
+      NSLog(@"D85 delete error:%@",dret); err++;}}
   // DELETE LINKED PERSON NOT POSSIBLE
   if (!err) {
     id error= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:persURN andObject:@"Delete"]];

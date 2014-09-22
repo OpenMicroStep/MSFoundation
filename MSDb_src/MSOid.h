@@ -125,6 +125,7 @@ typedef id        uid; // union id: vid | MSUid*
 - (BOOL)moveOidAtFirst:(MSOid*)u;
 - (void)removeFirstVid;
 - (void)addUid:(uid)u;
+- (void)removeOid:(MSOid*)o;
 @end
 
 extern MSOid    *MSEntEntId;    // ent 'ENT'

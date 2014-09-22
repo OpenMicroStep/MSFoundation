@@ -157,6 +157,10 @@ static Class __MSDecimalClass= Nil;
 - (NSInteger) integerValue         {return CDecimalIntegerValue ((CDecimal*)self);}
 - (NSUInteger)unsignedIntegerValue {return CDecimalUIntegerValue((CDecimal*)self);}
 
+
+// TODO : change MSLong to something else ?
+- (MSLong)    longLongValue        {return CDecimalLongValue    ((CDecimal*)self);}
+
 - (NSString*)description   {return [(id)CCreateDecimalDescription((CDecimal*)self) autorelease];}
 - (NSString*)toString      {return [self description];}
 - (NSString*)displayString {return [self description];}

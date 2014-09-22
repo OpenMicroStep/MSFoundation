@@ -377,6 +377,13 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
     _addReferedSystemName(n,&_txtsMore,&_txtsInOids);}
 }
 
+- (void)removeOid:(MSOid*)o
+{
+  NSUInteger idx= 0;
+  if (o && _oids && (idx= [_oids indexOfObject:o])!=NSNotFound)
+   [_oids removeObjectAtIndex:idx];
+}
+
 - (id)oids
 {
   return _oids;
