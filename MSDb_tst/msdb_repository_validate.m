@@ -135,14 +135,26 @@ static inline int tst_rep(id dbParams)
         NSLog(@"D32 add error:%@",error); err++;}}
     if (!err && !ISEQUAL(dos, (x= [rep informationsWithKeys:MSRCarMemberLib forRefs:servURN]))) {
       NSLog(@"D14 add + remove != identity !\n%@\n%@",dos,x); err++;}}
+  // accept reference==""
+  if (!err) {
+    dret= [rep removeValue:@"" forKey:MSRCarParentServiceLib onObject:servURN];
+    if (dret) {
+      NSLog(@"D15 removeValue:"" %@",dret); err++;}
+    dret= [rep addValue:@"" forKey:MSRCarParentServiceLib onObject:servURN];
+    if (dret) {
+      NSLog(@"D16 addValue:"" %@",dret); err++;}
+    dret= [rep addValue:[MSArray array] forKey:MSRCarParentServiceLib onObject:servURN];
+    if (dret) {
+      NSLog(@"D17 addValue:[] %@",dret); err++;}
+    }
   // CREATE PERSON (AND DELETE but TODO: not disabled)
   if (!err) {
     id pURN,x,person= [MSDictionary dictionaryWithKeysAndObjects:
-      MSCarURNLib,          @"new URN 8",
+      //MSCarURNLib,          @"new URN 8",
       MSCarFirstNameLib,      @"first",
       MSCarMiddleNameLib,     @"middle",
       MSCarLastNameLib,       @"administrator",//@"last",
-      MSCarLoginLib,          @"new login",
+      MSCarLoginLib,          @"new new login",
       MSCarHashedPasswordLib, @"pwd",
       MSCarResetPasswordLib,  MSTrue, // @"YES",
       //MSCarEntityLib,       MSREntServiceLib,
@@ -181,10 +193,14 @@ static inline int tst_rep(id dbParams)
       if ([x count]!=3) {
         NSLog(@"D46 matching error:%@",x); err++;}}
     // REMOVE
+    if (!err && (dret= [rep removeValue:NULL forKey:MSRCarMemberLib onObject:servURN])) {
+      NSLog(@"D47 remove NULL error:%@",dret); err++;}
+    if (!err && (dret= [rep removeValue:[MSArray array] forKey:MSRCarMemberLib onObject:servURN])) {
+      NSLog(@"D48 remove [] error:%@",dret); err++;}
     if (!err && (dret= [rep removeValue:pURN forKey:MSRCarMemberLib onObject:servURN])) {
-      NSLog(@"D47 remove error:%@",dret); err++;}
+      NSLog(@"D49 remove error:%@",dret); err++;}
     if (!err && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:pURN andObject:@"Delete"]])) {
-      NSLog(@"D48 delete error:%@",dret); err++;}}
+      NSLog(@"D50 delete error:%@",dret); err++;}}
   // CREATE DEVICE
   devURN= nil;
   if (!err) {
@@ -196,7 +212,7 @@ static inline int tst_rep(id dbParams)
       nil];
      dret= [rep createObject:dev];
     if (!(devURN= [dret objectForKey:MSCarURNLib])) {
-      NSLog(@"D49 create error:%@",dret); err++;}}
+      NSLog(@"D51 create error:%@",dret); err++;}}
   // CREATE APPLICATION
   appURN= nil;
   if (!err) {
@@ -206,7 +222,7 @@ static inline int tst_rep(id dbParams)
       nil];
      dret= [rep createObject:app];
     if (!(appURN= [dret objectForKey:MSCarURNLib])) {
-      NSLog(@"D50 create error:%@",dret); err++;}}
+      NSLog(@"D55 create error:%@",dret); err++;}}
 //NSLog(@"+++++ app:%@",appURN);
   // CREATE AUTHORIZATION
   autURN= nil;
@@ -217,7 +233,7 @@ static inline int tst_rep(id dbParams)
       nil];
      dret= [rep createObject:aut]; // servURN
     if (!(autURN= [dret objectForKey:MSCarURNLib])) {
-      NSLog(@"D51 create error:%@",dret); err++;}}
+      NSLog(@"D56 create error:%@",dret); err++;}}
 //NSLog(@"+++++ auth:%@",autURN);
   // CREATE RIGHT
   rightID= nil;
@@ -229,7 +245,7 @@ static inline int tst_rep(id dbParams)
       nil];
      dret= [rep createSubobject:right forObject:autURN andLink:MSRCarRightLib];
     if (!(rightID= [dret objectForKey:MSCarURNLib])) {
-      NSLog(@"D52 create error:%@",dret); err++;}}
+      NSLog(@"D57 create error:%@",dret); err++;}}
 //rightID= [MSDecimal decimalWithLong:[rightID longLongValue]];
 //NSLog(@"+++++ right:%@ %@",[rightID class],rightID);
   // FIND APPLICATION
