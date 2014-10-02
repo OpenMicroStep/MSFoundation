@@ -171,14 +171,14 @@ CDecimal *CCreateDecimalWithDouble(double x)
   return d;
 }
 
-CDecimal *CCreateDecimalWithLong(MSLong x)
+CDecimal *CCreateDecimalWithLongLong(MSLong x)
 {
   CDecimal *d= m_apm_new();
   m_apm_set_long(d, x);
   return d;
 }
 
-CDecimal *CCreateDecimalWithULong(MSULong x)
+CDecimal *CCreateDecimalWithULongLong(MSULong x)
 {
   CDecimal *d= m_apm_new();
   m_apm_set_ulong(d, x);

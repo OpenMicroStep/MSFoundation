@@ -74,13 +74,13 @@ static Class __MSDecimalClass= Nil;
 {
   return AUTORELEASE((id)CCreateDecimalWithDouble(x));
 }
-+ (id)decimalWithLong:(MSLong)x
++ (id)decimalWithLongLong:(MSLong)x
 {
-  return AUTORELEASE((id)CCreateDecimalWithLong(x));
+  return AUTORELEASE((id)CCreateDecimalWithLongLong(x));
 }
-+ (id)decimalWithULong:(MSULong)x
++ (id)decimalWithULongLong:(MSULong)x
 {
-  return AUTORELEASE((id)CCreateDecimalWithULong(x));
+  return AUTORELEASE((id)CCreateDecimalWithULongLong(x));
 }
 + (id)decimalWithMantissa:(MSULong)m exponent:(MSInt)e sign:(int)sign
 {
@@ -103,13 +103,13 @@ static Class __MSDecimalClass= Nil;
   m_apm_set_double((CDecimal*)self, x);
   return self;
 }
-- (id)initWithLong:(MSLong)x
+- (id)initWithLongLong:(MSLong)x
 {
   self= (id)m_apm_init((CDecimal*)self);
   m_apm_set_long((CDecimal*)self, x);
   return self;
 }
-- (id)initWithULong:(MSULong)x
+- (id)initWithULongLong:(MSULong)x
 {
   self= (id)m_apm_init((CDecimal*)self);
   m_apm_set_ulong((CDecimal*)self, x);
@@ -146,20 +146,16 @@ static Class __MSDecimalClass= Nil;
   return CDecimalEquals((CDecimal*)self, (CDecimal*)o);
 }
 
-- (MSChar)    charValue            {return CDecimalCharValue    ((CDecimal*)self);}
-- (MSByte)    byteValue            {return CDecimalByteValue    ((CDecimal*)self);}
-- (MSShort)   shortValue           {return CDecimalShortValue   ((CDecimal*)self);}
-- (MSUShort)  unsignedShortValue   {return CDecimalUShortValue  ((CDecimal*)self);}
-- (MSInt)     intValue             {return CDecimalIntValue     ((CDecimal*)self);}
-- (MSUInt)    unsignedIntValue     {return CDecimalUIntValue    ((CDecimal*)self);}
-- (MSLong)    longValue            {return CDecimalLongValue    ((CDecimal*)self);}
-- (MSULong)   unsignedLongValue    {return CDecimalULongValue   ((CDecimal*)self);}
-- (NSInteger) integerValue         {return CDecimalIntegerValue ((CDecimal*)self);}
-- (NSUInteger)unsignedIntegerValue {return CDecimalUIntegerValue((CDecimal*)self);}
-
-
-// TODO : change MSLong to something else ?
-- (MSLong)    longLongValue        {return CDecimalLongValue    ((CDecimal*)self);}
+- (MSChar)    charValue             {return CDecimalCharValue    ((CDecimal*)self);}
+- (MSByte)    byteValue             {return CDecimalByteValue    ((CDecimal*)self);}
+- (MSShort)   shortValue            {return CDecimalShortValue   ((CDecimal*)self);}
+- (MSUShort)  unsignedShortValue    {return CDecimalUShortValue  ((CDecimal*)self);}
+- (MSInt)     intValue              {return CDecimalIntValue     ((CDecimal*)self);}
+- (MSUInt)    unsignedIntValue      {return CDecimalUIntValue    ((CDecimal*)self);}
+- (MSLong)    longLongValue         {return CDecimalLongValue    ((CDecimal*)self);}
+- (MSULong)   unsignedLongLongValue {return CDecimalULongValue   ((CDecimal*)self);}
+- (NSInteger) integerValue          {return CDecimalIntegerValue ((CDecimal*)self);}
+- (NSUInteger)unsignedIntegerValue  {return CDecimalUIntegerValue((CDecimal*)self);}
 
 - (NSString*)description   {return [(id)CCreateDecimalDescription((CDecimal*)self) autorelease];}
 - (NSString*)toString      {return [self description];}
@@ -239,8 +235,8 @@ static Class __MSDecimalClass= Nil;
   const char *c= [self objCType];
   return strcmp(@encode(float  ),c)==0 ||
          strcmp(@encode(double ),c)==0 ? [MSDecimal decimalWithDouble:[self doubleValue]] :
-         strcmp(@encode(MSULong),c)==0 ? [MSDecimal decimalWithULong: [self unsignedLongLongValue]] :
-                                         [MSDecimal decimalWithLong:  [self longLongValue]];
+         strcmp(@encode(MSULong),c)==0 ? [MSDecimal decimalWithULongLong: [self unsignedLongLongValue]] :
+                                         [MSDecimal decimalWithLongLong:  [self longLongValue]];
 }
 @end
 

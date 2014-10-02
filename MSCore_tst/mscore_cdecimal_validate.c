@@ -15,7 +15,7 @@ static inline int cdecimal_create(void)
   CDecimal *c,*d,*e,*f;
   c= (CDecimal*)MSCreateObjectWithClassIndex(CDecimalClassIndex);
   m_apm_init(c);
-  d= CCreateDecimalWithLong(0LL);
+  d= CCreateDecimalWithLongLong(0LL);
   if (RETAINCOUNT(c)!=1) {
     fprintf(stdout, "A1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
   if (RETAINCOUNT(d)!=1) {
@@ -34,7 +34,7 @@ static inline int cdecimal_create(void)
     fprintf(stdout, "A6 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
   if (!CDecimalEquals(c, d)) {
     fprintf(stdout, "A7 c & d are not equals\n"); err++;}
-  e= CCreateDecimalWithLong(3LL);
+  e= CCreateDecimalWithLongLong(3LL);
   if (CDecimalEquals(d, e)) {
     fprintf(stdout, "A8 d & e are equals\n"); err++;}
   f= CCreateDecimalFloor(d);
@@ -172,9 +172,9 @@ static inline int cdecimal_cast(void)
   MSULong rulp1[12]= {       0     ,       0    ,         0  ,        0  , 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1UL,MSUIntMax+1UL,MSLongMax+1UL};
   CDecimal *c,*minus1,*cm1,*cp1;
   CString *s; CBuffer *b;
-  minus1= CCreateDecimalWithLong(-1);
+  minus1= CCreateDecimalWithLongLong(-1);
   for (i=0; i<12; i++) {
-    c= CCreateDecimalWithLong(val[i]);
+    c= CCreateDecimalWithLongLong(val[i]);
     cm1= CCreateDecimalAdd(c, minus1);
     cp1= CCreateDecimalAdd(c, MM_One);
     if ((MSLong)CDecimalCharValue(  cm1)!=rcm1 [i]) {err++; printf("E11-%d %hhd %lld\n",i,CDecimalCharValue(   cm1),rcm1 [i]);}

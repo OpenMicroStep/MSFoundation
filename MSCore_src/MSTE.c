@@ -104,7 +104,7 @@ id _MSTEBinaryObject(NSUInteger type, void *pValue)
   CBufferAppendBytes(b, pValue, sz[type-MSTE_CHAR_VALUE]);
   CDictionarySetObjectForKey(d, (id)b, k); RELEAZEN(b); RELEAZEN(k);
   k= (id)MCSCreate("MSTE-Type");
-  i= CCreateDecimalWithLong((long)type);
+  i= CCreateDecimalWithLongLong((MSLong)type);
   CDictionarySetObjectForKey(d, (id)i, k); RELEAZEN(i); RELEAZEN(s);
   return (id)d;
 }
@@ -198,7 +198,7 @@ static inline CDictionary *_err(int num, char *fmt, ...)
   CDictionary *d; id k,v; va_list args;
   d= CCreateDictionary(0);
   k= (id)MCSCreate("error");
-  v= (id)CCreateDecimalWithLong(num);
+  v= (id)CCreateDecimalWithLongLong(num);
   CDictionarySetObjectForKey(d, v, k);
   RELEASE(k); RELEASE(v);
   if (fmt) {

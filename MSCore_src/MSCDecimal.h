@@ -81,8 +81,8 @@ MSCoreExport CDecimal *CCreateDecimalWithSES(SES src, BOOL intOnly, CUnicharChec
 MSCoreExport CDecimal *CCreateDecimalWithString(CString *x);
 MSCoreExport CDecimal *CCreateDecimalWithUTF8String(const char *x);
 MSCoreExport CDecimal *CCreateDecimalWithDouble(double x);
-MSCoreExport CDecimal *CCreateDecimalWithLong  (MSLong x);
-MSCoreExport CDecimal *CCreateDecimalWithULong (MSULong x);
+MSCoreExport CDecimal *CCreateDecimalWithLongLong(MSLong x);
+MSCoreExport CDecimal *CCreateDecimalWithULongLong(MSULong x);
 MSCoreExport CDecimal *CCreateDecimalWithMantissaExponentSign(MSULong mm, MSInt exponent, int sign);
 
 #pragma mark Calculation

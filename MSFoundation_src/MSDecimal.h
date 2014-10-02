@@ -82,8 +82,8 @@ Eric Baradat :  k18rt@free.fr
 + (id)decimalWithString:(NSString*)s;
 
 + (id)decimalWithDouble:(double)d;
-+ (id)decimalWithLong:(MSLong)l;
-+ (id)decimalWithULong:(MSULong)u;
++ (id)decimalWithLongLong:(MSLong)l;
++ (id)decimalWithULongLong:(MSULong)u;
 + (id)decimalWithMantissa:(MSULong)m exponent:(MSInt)e sign:(int)sign;
   // sign: +1 | -1
 
@@ -92,8 +92,8 @@ Eric Baradat :  k18rt@free.fr
 - (id)initWithString:(NSString*)d;
 
 - (id)initWithDouble:(double)d;
-- (id)initWithLong:(MSLong)l;
-- (id)initWithULong:(MSULong)u;
+- (id)initWithLongLong:(MSLong)l;
+- (id)initWithULongLong:(MSULong)u;
 - (id)initWithMantissa:(MSULong)m exponent:(MSInt)e sign:(int)sign;
 
 - (BOOL)isEqualToDecimal:(MSDecimal*)o;
@@ -104,8 +104,8 @@ Eric Baradat :  k18rt@free.fr
 - (MSUShort)  unsignedShortValue;
 - (MSInt)     intValue;
 - (MSUInt)    unsignedIntValue;
-- (MSLong)    longValue;
-- (MSULong)   unsignedLongValue;
+- (MSLong)    longLongValue;
+- (MSULong)   unsignedLongLongValue;
 - (NSInteger) integerValue;
 - (NSUInteger)unsignedIntegerValue;
 

@@ -15,7 +15,7 @@ static inline int decimal_create(void)
   MSDecimal *c,*d,*e,*f;
   c= MSCreateObjectWithClassIndex(CDecimalClassIndex);
   m_apm_init((CDecimal*)c);
-  d= [[MSDecimal alloc] initWithLong:0LL];
+  d= [[MSDecimal alloc] initWithLongLong:0LL];
   if (RETAINCOUNT(c)!=1) {
     fprintf(stdout, "A1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
   if (RETAINCOUNT(d)!=1) {
@@ -34,7 +34,7 @@ static inline int decimal_create(void)
     fprintf(stdout, "A6 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
   if (![c isEqualToDecimal:d]) {
     fprintf(stdout, "A7 c & d are not equals\n"); err++;}
-  e= [[MSDecimal alloc] initWithLong:3LL];
+  e= [[MSDecimal alloc] initWithLongLong:3LL];
   if ([d isEqualToDecimal:e]) {
     fprintf(stdout, "A8 d & e are equals\n"); err++;}
   f= RETAIN([d floorDecimal]);

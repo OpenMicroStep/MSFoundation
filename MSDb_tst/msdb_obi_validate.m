@@ -13,12 +13,12 @@ static inline int tst_uid(void)
   {
   int err= 0;
   id o1,o2,u1,u2;
-  o1= [MSOid oidWithValue:1];  // 1 oid: obi id
+  o1= [MSOid oidWithLongLongValue:1];  // 1 oid: obi id
   u1= [MSUid uidWithUid:o1];       // uid: union d'oid. u1= (o1)
-  o2= [MSArray arrayWithObject:[MSOid oidWithValue:1]];
+  o2= [MSArray arrayWithObject:[MSOid oidWithLongLongValue:1]];
   u2= [MSUid uidWithUid:o2];       // u2= (o1)
   if (!_eq(1, YES, u1, u2)) err++; // [1]==[1]
-  u2= [MSUid uidWithUid:[MSOid oidWithValue:-1]];
+  u2= [MSUid uidWithUid:[MSOid oidWithLongLongValue:-1]];
   if (!_eq(2, NO, u1, u2)) err++;  // [1]!=[-1]
   [u1 addUid:u2];
   if (!_eq(3, NO, u1, u2)) err++;  // [1,-1]!=[-1]
@@ -68,7 +68,7 @@ NSLog(@"X0: %ld",[x count]);
 //theDb= [[db fillIds:MSObiDatabaseId withCars:nil] objectForKey:MSObiDatabaseId];
   if (!theDb) {
     NSLog(@"B4: no DB Obi %@",MSObiDatabaseId); err++;}
-NSLog(@"XA newOidValue: %lld",[db newOidValue:1234]);
+NSLog(@"XA newOidLongLongValue: %lld",[db newOidLongLongValue:1234]);
 //NSLog(@"XB car next oid: %@",[[db systemObiWithOid:MSCarNextOidId] descriptionInContext:ctx]);
 //NSLog(@"X1: %@",[theDb class]);
 //NSLog(@"X2 db: %@",[[db systemObiWithOid:MSObiDatabaseId] descriptionInContext:ctx]);
