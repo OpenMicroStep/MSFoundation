@@ -114,7 +114,7 @@
 - (NSString*)_inValues:(id)u
   {
   NSMutableString *r;
-  NSUInteger n; id ae, v; BOOL dict,first;
+  NSUInteger n,rn; id ae, v; BOOL dict,first;
   if ((n= [u count])==0) r= nil; // @"" ? recherche de l'existance
 //  r= [NSMutableString stringWithFormat:@"=%@", [self _escape:@""]];
   else if (n==1) r= [NSMutableString stringWithString:@"="];
@@ -123,11 +123,18 @@
     ae= [u dictionaryEnumerator]; dict= YES;}
   else {
     ae= [([u isKindOfClass:[MSUid class]]?[u oids]:u) objectEnumerator]; dict= NO;}
-  for (first= YES; (v= (dict?[ae nextKey]:[ae nextObject])); first= NO) {
+  for (rn= n, first= YES; (v= (dict?[ae nextKey]:[ae nextObject]));) { // first= NO
     id desc= [(MSOValue*)v sqlDescription:self];
-    if (![desc length]) desc= [_db escapeString:@"" withQuotes:YES];
-    [r appendFormat:@"%@%@",(first?@"":@","),desc];}
+    //if (![desc length]) desc= [_db escapeString:@"" withQuotes:YES];
+    //[r appendFormat:@"%@%@",(first?@"":@","),desc];
+//NSLog(@"_inValues '%@' '%@' %lu",v,desc,[desc length]);
+    if ([desc length]) {
+      [r appendFormat:@"%@%@",(first?@"":@","),desc];
+      if (first) first= NO;}
+    else rn--;}
   if (n>1) [r appendString:@")"];
+  if (rn!=n && rn==0) r= nil;
+  // Erreur si rn!=n ? u= ["a", "", "c"]
   return r;
   }
 
@@ -140,10 +147,10 @@
   else if ([x respondsToSelector:@selector(oid)]) r= [x oid];
   else if ([x isKindOfClass:[NSString class]]) {
     r= ((o= [self systemObiWithName:x]) ? [o oid] :
-        (o= [self systemObiWithOid:[MSOid oidWithValue:[x longLongValue]]]) ? [o oid] :
+        (o= [self systemObiWithOid:[MSOid oidWithLongLongValue:[x longLongValue]]]) ? [o oid] :
         nil);}
   else if ([x isKindOfClass:[NSNumber class]]) {
-    r= (o= [self systemObiWithOid:[MSOid oidWithValue:[x longLongValue]]]) ? [o oid] :
+    r= (o= [self systemObiWithOid:[MSOid oidWithLongLongValue:[x longLongValue]]]) ? [o oid] :
        nil;}
   else r= nil;
   return r;
@@ -160,7 +167,9 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
 // Une même car ne doit pas apparaître plusieurs fois, par exemple par son
 // oid et par son libellé. Sinon, une seule condition persiste.
 // TODO: Union des valeurs ?
-// Retourne : cid -> vals (tj un array même si au départ un seule valeur)
+// Retourne : cid -> null || vals (tj un array même si au départ une seule valeur)
+// Si null(= [NSNull null]) on recherchera, PARMI les oids trouvés sans cette cid, ceux qui
+// n'ont pas de valeurs pour cette cid.
 // vals peut être un array vide dans le cas où l'on accepte toutes les valeurs
 // pour cette car. Cela permet de sélectionner les instances qui ont une
 // valeur pour une car donnée (NomSystème par exemple).
@@ -177,24 +186,21 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
     nk= [self _vid2oid:k];
 //NSLog(@"2 %@",nk);
     o= [de currentObject]; newO= NO;
-    if (![o isKindOfClass:[NSArray class]] && ![o isKindOfClass:[MSUid class]]) {
-      o= [MSArray arrayWithObject:o]; newO= YES;}
+    if (!ISEQUAL([NSNull null], o) &&
+        ![o isKindOfClass:[NSArray class]] &&
+        ![o isKindOfClass:[MSUid class]]) {
+      o= ISEQUAL(@"", o)?[MSArray array]:[MSArray arrayWithObject:o]; newO= YES;}
     if (!nk) unknownKey= YES;
-    else if (newO || nk!=k) {
+    else if (newO || !ISEQUAL(k,nk)) {
       [_mutableDict(&d, &new) setObject:o forKey:nk];
-      if (nk!=k) [_mutableDict(&d, &new) removeObjectForKey:k];}}
+      // On remove après car o n'est a priori retenu que par le dico
+      if (!ISEQUAL(k,nk)) [_mutableDict(&d, &new) removeObjectForKey:k];}}
   return [d count]==0 || unknownKey ? nil : d;
   }
 
 - (NSString*)_table4Cid:(MSOid*)cid
   {
-  id typId,typ,t;
-  typId= [[self systemObiWithOid:cid] oidValueForCid:MSCarTypeId];
-  typ= [self systemObiWithOid:typId];
-  if (!(t= [typ stringValueForCid:MSCarTableId]))
-    t= [typ stringValueForCid:MSCarSystemNameId];
-//NSLog(@"_table4Cid %@ %@ %@ %@ %@",cid,[self systemObiWithOid:cid],typId,typ,t);
-  return t;
+  return [[self systemObiWithOid:cid] carTable];
   }
 
 //- (MSMutableDictionary*)_tabledCars:(id)cars
@@ -217,8 +223,8 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
       if (!(o= [search objectForKey:t])) {
         o= isDict ? [MSMutableDictionary dictionary] : [MSUid uid];
         [search setObject:o forKey:t];}
-      if (isDict) [(MSMutableDictionary*)o setObject:[ce currentObject] forKey:cid];
-      else        [o addUid:cid];}}
+      if (!isDict) [o addUid:cid];
+      else [(MSMutableDictionary*)o setObject:[ce currentObject] forKey:cid];}}
   return [search count]==0 ? nil : search;
   }
 #pragma mark Private Query
@@ -228,7 +234,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
 - (MSOid*)_oidsWithTabledCars:(MSDictionary*)tcars
   {
   MSMutableDictionary *search;
-  id ids,q,te,t, cs,ce,cid,vs, oi,oc,ocs,ie;
+  id ids,q,te,t, cs,ce,cid,vs,vsStr, oi,oc,ocs,ie;
   MSULong nc; MSLong i,c; MSDBResultSet *result;
   if (![tcars count]) return nil;
   ids= nil;
@@ -243,18 +249,20 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
     ce=  [cs dictionaryEnumerator];
     // on recherche tous les VAL_INST de TJ_VAL_.$table vérifiant car-i in val-i(s)
     while ((cid= [ce nextKey])) {
-      if (!q) q= [NSMutableString stringWithFormat:
-        @"SELECT VAL_INST,VAL_CAR FROM TJ_VAL_%@ WHERE ",t];
-      else [q appendString:@"OR"];
-      [q appendFormat:@"(VAL_CAR=%@",cid];
-      vs= [ce currentObject];
-      if (![vs count]) [q appendString:@")"];
-      else [q appendFormat:@" AND VAL%@)",[self _inValues:vs]];}
+      if (ISEQUAL([NSNull null], (vs= [ce currentObject]))) {}
+      else {
+        if (!q) q= [NSMutableString stringWithFormat:
+          @"SELECT VAL_INST,VAL_CAR FROM TJ_VAL_%@ WHERE ",t];
+        else [q appendString:@"OR"];
+        [q appendFormat:@"(VAL_CAR=%@",cid];
+//NSLog(@"Q4 %@ %@ %lu",vs,[vs class],(unsigned long)[vs count]);
+        if (![vs count] || !(vsStr= [self _inValues:vs])) [q appendString:@")"];
+        else [q appendFormat:@" AND VAL%@)",vsStr];}}
 //NSLog(@"Q5 %@",q);
     result= [_db fetchWithRequest:q];
     while ([result nextRow]) {
-      [result getLongAt:&i column:0]; oi= [MSOid oidWithValue:i];
-      [result getLongAt:&c column:1]; oc= [MSOid oidWithValue:c];
+      [result getLongAt:&i column:0]; oi= [MSOid oidWithLongLongValue:i];
+      [result getLongAt:&c column:1]; oc= [MSOid oidWithLongLongValue:c];
       if (!(ocs= [search objectForKey:oi]))
         [search setObject:[NSMutableArray arrayWithObject:oc] forKey:oi];
       else if (![ocs containsObject:oc])
@@ -346,7 +354,7 @@ ctx= nil;
   return [_sysObiByName allKeys];
   }
 
-- (MSLong)newOidValue:(MSLong)nb
+- (MSLong)newOidLongLongValue:(MSLong)nb
 {
   static MSLong freeOidv= 500001;
   MSLong r= 0; MSObi *car,*db; _btypedValue tv; MSOValue *v; BOOL ok, unsetTr;
@@ -364,14 +372,14 @@ ctx= nil;
     db= [[self fillIds:MSObiDatabaseId withCars:nil] objectForKey:MSObiDatabaseId];
     //next oid: old oid + nb
     v= [db valueForCid:[car oid]];
-    r= [v longValue];
+    r= [v longLongValue];
 //NSLog(@"db2 r %lld freeOidv %lld %@",r,freeOidv,db);
     if (r<freeOidv) r= freeOidv;
     [v setState:MSRemove];
     tv.s= r+nb;
     v= [MSOValue valueWithCid:[car oid] state:MSAdd type:S8 value:tv];
     [db setValue:v];
-    ok= [self changeObi:db];
+    ok= [self changeObi:db].ok;
 //NSLog(@"db3 ret change %lld %lld %d",r,tv.s,ok);
     // END TRANSACTION
     if (unsetTr) {
@@ -434,11 +442,11 @@ static inline MSByte _valueTypeFromTable(id table)
     result= [_db fetchWithRequest:q];
     while ([result nextRow]) {
       [result getLongAt:&bid column:0];
-      oid= [MSOid oidWithValue:bid];
+      oid= [MSOid oidWithLongLongValue:bid];
       inst= [all objectForKey:oid];
 //NSLog(@"X %@",inst);
       [result getLongAt:&bid  column:1];
-      cid= [MSOid oidWithValue:bid];
+      cid= [MSOid oidWithLongLongValue:bid];
 //NSLog(@"Y %@",cid);
       if      (tIsInt) [result getLongAt:  &(tv.s) column:2];
       else if (tIsFlt) [result getDoubleAt:&(tv.r) column:2];
@@ -451,7 +459,7 @@ static inline MSByte _valueTypeFromTable(id table)
       else if (tIsId) {
         MSLong b;
         [result getLongAt:&b column:2];
-        tv.b= [[MSOid alloc] initWithValue:b];} // retained
+        tv.b= [[MSOid alloc] initWithLongLongValue:b];} // retained
 //NSLog(@"X0 %@",tv.t);
       val= [MSOValue valueWithCid:cid state:MSUnchanged type:type value:tv];
 //NSLog(@"X1 %@.%@.%@   %@",oid,cid,val,inst);
@@ -480,7 +488,7 @@ static inline MSByte _valueTypeFromTable(id table)
   for (ie= [[is oids] objectEnumerator]; (i= [ie nextObject]);) {
     [ret setObject:(o= [MSObi obiWithOid:i :self]) forKey:i];
     [all setObject:o forKey:i];}
-//NSLog(@"3 %lu %@",[all count],[all objectForKey:[MSOid oidWithValue:1310]]);
+//NSLog(@"3 %lu %@",[all count],[all objectForKey:[MSOid oidWithLongLongValue:1310]]);
 //id de;
 //for (de=[all dictionaryEnumerator]; (i=[de nextKey]);) NSLog(@"%@ %@",i,[de currentObject]);
   tcids= [self _tabledCars:cars];
@@ -524,7 +532,7 @@ static inline MSByte _valueTypeFromTable(id table)
   return [self _fillIds:ids withCars:cars returnAll:YES];
 }
 
-- (BOOL)changeObi:(MSObi*)obi
+- (boolerr)changeObi:(MSObi*)obi
 {
   return [self changeObis:[MSDictionary dictionaryWithKeysAndObjects:
       [obi oid], obi, nil]];
@@ -538,19 +546,20 @@ static inline MSByte _valueTypeFromTable(id table)
 // Les deletes à la fin pour vérifier qu'on n'a plus de lien externe sur la grappe
 // (l'objet et ses sous-objets).
 // Enfin, on vérifie les uniques. Et les one ?
-- (BOOL)changeObis:(MSDictionary*)x
+- (boolerr)changeObis:(MSDictionary*)x
 // Faire les remove en dernier en ajoutant les sid remplacés ou retirés
   {
-  id de,obi,q,result,e,t,cid,vs,ve,tStr; MSOValue *v; NSUInteger n;
-  MSOid *oid; MSByte status; MSLong bid,oidv; BOOL unsetTr,ok,sys,done,creat;
+  NSString *err= nil; id de,obi,q,result,e,t,cid,vs,ve,tStr; MSOValue *v; NSUInteger n;
+  MSOid *oid; MSByte status; MSLong bid,oidv; BOOL unsetTr,sys,done,creat; MSInt r;
   sys= NO;
   // BEGIN TRANSACTION
   if (_tr) unsetTr= NO;
   else {unsetTr= YES; _tr= [[_db openTransaction] retain];}
-  for (ok= (_tr!=nil), de= [x dictionaryEnumerator]; ok && (oid= [de nextKey]);) {
+  if (_tr==nil) err= @"ouverture de la transaction impossible";
+  else for (de= [x dictionaryEnumerator]; !err && (oid= [de nextKey]);) {
     obi= [de currentObject];
 //NSLog(@"CHANGE %@",obi);
-//NSLog(@"CHANGE %@",[self systemObiWithOid:[MSOid oidWithValue:103]]);
+//NSLog(@"CHANGE %@",[self systemObiWithOid:[MSOid oidWithLongLongValue:103]]);
     done= NO;
     if ((status= [(MSObi*)obi status])==MSDelete) {
       // Vérif suppression
@@ -563,55 +572,58 @@ static inline MSByte _valueTypeFromTable(id table)
       if ([result nextRow]) {
         [result getLongAt:&bid column:0];
 //NSLog(@"SUPPR NON AUTORISÉE (%lld lié à) %@",bid,oid);
-        ok= NO;}
+        err= FMT(@"suppression non autorisée (%lld lié à) %@",bid,oid);}
       [result terminateOperation];
       // TODO: Supprimer aussi tous les sous-objets de type SID
-      for (e= [_valTables objectEnumerator]; ok && (t= [e nextObject]); ) {
+      for (e= [_valTables objectEnumerator]; !err && (t= [e nextObject]); ) {
         q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%@",t,oid);
-        if ([_db executeRawSQL:q]) ok= NO; else done= YES;
+        if ((r= [_db executeRawSQL:q])==0) done= YES;
+        else err= FMT(@"suppression impossible; erreur: %d; requête:%@",r,q);
 //NSLog(@"DELETE %d %@",ok,q);
         }}
     else {
       // TODO: Si pas creat pour Add et Remove, l'objet doit exister et ne pas être disabled
       // TODO: Si un remove n'existe pas, c'est une erreur, c'est que la car a été changée entre temps par quelqu'un d'autre.
       creat= NO;
-      if ((oidv= [oid value])<0) {
-        oidv= [self newOidValue:1]; creat= YES;}
+      if ((oidv= [oid longLongValue])<0) {
+        oidv= [self newOidLongLongValue:1]; creat= YES;}
       e= [[obi allValuesByCid] dictionaryEnumerator];
-      while (ok && (cid= [e nextKey])) {
+      while (!err && (cid= [e nextKey])) {
         if (ISEQUAL(cid, MSCarSystemNameId)) sys= YES;
         vs= [e currentObject];
         tStr= [self _table4Cid:cid];
 //NSLog(@"CID %@ %@ %@",[cid class],cid,tStr);
-        for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
+        for (ve= [vs objectEnumerator]; !err && (v= [ve nextObject]);) {
           if ([v state]==MSRemove) {
             q= FMT(@"DELETE FROM TJ_VAL_%@ WHERE VAL_INST=%lld "
                    @"AND VAL_CAR=%@ AND VAL=%@",
                    tStr,oidv,cid,[v sqlDescription:self]);
-            if ([_db executeRawSQL:q]) ok= NO; else done= YES;
+            if ((r= [_db executeRawSQL:q])==0) done= YES;
+            else err= FMT(@"retrait de la valeur impossible; erreur: %d; requête:%@",r,q);
 //NSLog(@"REMOVE %d %@",ok,q);
             }}
-        for (ve= [vs objectEnumerator]; ok && (v= [ve nextObject]);) {
+        for (ve= [vs objectEnumerator]; !err && (v= [ve nextObject]);) {
           if ([v state]==MSAdd) {
             q= FMT(@"INSERT INTO TJ_VAL_%@ (VAL_INST,VAL_CAR,VAL) VALUES "
                    @"(%lld,%@,%@)",
                    tStr,oidv,cid,[v sqlDescription:self]);
-            if ([_db executeRawSQL:q]) ok= NO; else done= YES;
+            if ((r= [_db executeRawSQL:q])==0) done= YES;
+            else err= FMT(@"ajout de la valeur impossible; erreur: %d; requête:%@",r,q);
 //NSLog(@"ADD %d %@",ok,q);
             }}}
-      //if (ok && creat) [obi setOid:[MSOid oidWithValue:oidv]];
-      if (ok && creat) [[obi oid] replaceLocalValue:oidv]; // TODO: que quand tout est ok.
+      //if (ok && creat) [obi setOid:[MSOid oidWithLongLongValue:oidv]];
+      if (!err && creat) [[obi oid] replaceLocalLongLongValue:oidv]; // TODO: que quand tout est ok.
       }
-    if (ok && done && [_sysObiByOid objectForKey:x]) sys= YES;}
+    if (!err && done && [_sysObiByOid objectForKey:x]) sys= YES;}
   // On remove les values MSRemove et les MSAdd passent MSUnchanged.
-  if (ok) {
-    for (ok= YES, de= [x dictionaryEnumerator]; ok && (oid= [de nextKey]);) {
+  if (!err) {
+    for (de= [x dictionaryEnumerator]; !err && (oid= [de nextKey]);) {
       if ((status= [(MSObi*)obi status])==MSDelete) {
         // Delete de toutes les values ?
         }
       else {
         e= [[obi allValuesByCid] dictionaryEnumerator];
-        while (ok && (cid= [e nextKey])) {
+        while (!err && (cid= [e nextKey])) {
           vs= [e currentObject];
           for (n= [vs count]; n>0; n--) {
             if ([(v= [vs objectAtIndex:n-1]) state]==MSRemove) {
@@ -621,16 +633,17 @@ static inline MSByte _valueTypeFromTable(id table)
   // TODO: Verif des unique (login, urn...)
   // Si un des obis est un obi system on les reload tous
   // TODO: attention on reload même pour next oid !!!
-  if (ok && sys) {
+  if (!err && sys) {
     RELEAZEN(_entByOid);
     RELEAZEN(_sysObiByOid);
     RELEAZEN(_sysObiByName);}
   // END TRANSACTION: COMMIT OU ROLLBACK
   if (unsetTr) {
-    if (ok) ok= [_tr saveWithError:NULL];
-    else [_tr terminateOperation];
+    if (err) [_tr terminateOperation];
+    else if (![_tr saveWithError:&r])
+      err= FMT(@"commit impossible; erreur: %d", r);
     RELEAZEN(_tr);}
-  return ok;
+  return RE(err);
   }
 
 - (BOOL)beginTransaction
@@ -673,7 +686,7 @@ static inline id _obi(id l, _DS d, BOOL creatFromName)
   else if (![l length]) oid= nil;
   else if ((u= [l characterAtIndex:0])==(unichar)'-' ||
            [[NSCharacterSet decimalDigitCharacterSet] characterIsMember:u]) {
-    oid= [MSOid oidWithValue:[l longLongValue]];}
+    oid= [MSOid oidWithLongLongValue:[l longLongValue]];}
   if (oid) {
     obi= [d.all objectForKey:oid];
     if (!obi) {
@@ -830,7 +843,7 @@ if(knownObi)NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu"
                   // mais [[knownObi oid] isLocal], il faut changer la valeur de
                   // l'oid de knownObi par celle de obi.
                   if ([[knownObi oid] isLocal] && ![[obi oid] isLocal])
-                    [[knownObi oid] replaceLocalValue:[[obi oid] value]];
+                    [[knownObi oid] replaceLocalLongLongValue:[[obi oid] longLongValue]];
                   obi= knownObi;
                   }}}}}}}}
   *plineBeg= lineBeg;

@@ -21,12 +21,12 @@ static inline int tst_rep_nu(id dbParams, id x, BOOL save)
     nil];
   if (save) {
 //NSLog(@"systems before:%@",[[db systemObisByOid] descriptionInContext:ctx]);
-//NSLog(@"system 103 %@",[db systemObiWithOid:[MSOid oidWithValue:103]]);
+//NSLog(@"system 103 %@",[db systemObiWithOid:[MSOid oidWithLongLongValue:103]]);
     [db changeObis:all];
 //NSLog(@"SAVED1: %@",root);
 //NSLog(@"all: %@",[all descriptionInContext:ctx]);
 //NSLog(@"systems:%@",[[db systemObisByOid] descriptionInContext:ctx]);
-//NSLog(@"oui:%@",[[db systemObiWithOid:[MSOid oidWithValue:2341]] descriptionInContext:ctx]);
+//NSLog(@"oui:%@",[[db systemObiWithOid:[MSOid oidWithLongLongValue:2341]] descriptionInContext:ctx]);
     nx= [[db systemObisByOid] descriptionInContext:ctx];
   //nx= [all descriptionInContext:ctx];
     [nx getLineStart:NULL end:&nextLineBeg contentsEnd:NULL forRange:NSMakeRange(0,1)];
@@ -110,7 +110,20 @@ static inline int tst_rep(id dbParams)
       NSLog(@"D14 queryInstancesOfEntity Service of %@: %@",x,os); err++;}}
   // QUERY PERSON
   if (!err) {
-    id os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:nil];
+    id os;
+/*
+os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:
+  [MSDictionary dictionaryWithKeysAndObjects:MSCarMiddleNameLib,[MSArray array], nil]];
+NSLog(@"Person []: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forRefs:os]);
+os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:
+  [MSDictionary dictionaryWithKeysAndObjects:MSCarMiddleNameLib,@"", nil]];
+NSLog(@"Person '': %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forRefs:os]);
+os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:
+  [MSDictionary dictionaryWithKeysAndObjects:MSCarMiddleNameLib,[NSNull null], nil]];
+NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forRefs:os]);
+*/
+    os= [rep queryInstancesOfEntity:MSREntPersonLib withCars:nil];
+//NSLog(@"Person all: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forRefs:os]);
     if (![os containsObject:persURN]) {
       NSLog(@"D20 queryInstancesOfEntity Person: %@",os); err++;}}
   if (!err) {
@@ -138,11 +151,11 @@ static inline int tst_rep(id dbParams)
   // accept reference==""
   if (!err) {
     dret= [rep removeValue:@"" forKey:MSRCarParentServiceLib onObject:servURN];
-    if (dret) {
-      NSLog(@"D15 removeValue:"" %@",dret); err++;}
+    if (!dret) {
+      NSLog(@"D15 removeValue:"" is not supposed to be ok %@",dret); err++;}
     dret= [rep addValue:@"" forKey:MSRCarParentServiceLib onObject:servURN];
-    if (dret) {
-      NSLog(@"D16 addValue:"" %@",dret); err++;}
+    if (!dret) {
+      NSLog(@"D16 addValue:"" is not supposed to be ok %@",dret); err++;}
     dret= [rep addValue:[MSArray array] forKey:MSRCarParentServiceLib onObject:servURN];
     if (dret) {
       NSLog(@"D17 addValue:[] %@",dret); err++;}
@@ -241,12 +254,13 @@ static inline int tst_rep(id dbParams)
     id right= [MSDictionary dictionaryWithKeysAndObjects:
       MSCarEntityLib, MSREntRightLib,
       MSCarLabelLib, @"my beautifull right",
+      MSRCarActionLib, MSRObiUseLib, // servURN pour error
       MSRCarApplicationLib, appURN,
       nil];
      dret= [rep createSubobject:right forObject:autURN andLink:MSRCarRightLib];
     if (!(rightID= [dret objectForKey:MSCarURNLib])) {
       NSLog(@"D57 create error:%@",dret); err++;}}
-//rightID= [MSDecimal decimalWithLong:[rightID longLongValue]];
+//rightID= [MSDecimal decimalWithLongLong:[rightID longLongValue]];
 //NSLog(@"+++++ right:%@ %@",[rightID class],rightID);
   // FIND APPLICATION
   if (!err) {

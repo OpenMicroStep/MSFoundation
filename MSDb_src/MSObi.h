@@ -88,7 +88,7 @@ _btypedValue;
 - (MSTimeInterval)timestamp;
 - (id)typedValue;
 // stringValue: Nil if the value is not of that type
-- (MSLong)longValue;
+- (MSLong)longLongValue;
 - (NSString*)stringValue;
 - (MSOid*)oidValue;
 - (MSObi*)subValue;
@@ -149,9 +149,9 @@ _btypedValue;
 // stringValueForCid:cid
 // Returns only the first (last ?) value (for the last timestamp)
 // Nil if the value is not of that type
-- (MSLong)longValueForCid:(MSOid*)cid;
+- (MSLong)longLongValueForCid:(MSOid*)cid;
 - (NSString*)stringValueForCid:(MSOid*)cid;
-- (MSArray*)oidValuesForCid:(MSOid*)cid;
+- (MSUid*)oidValuesForCid:(MSOid*)cid;
 - (MSOid*)oidValueForCid:(MSOid*)cid;
 - (MSObi*)subValueForCid:(MSOid*)cid;
 - (NSString*)systemName;

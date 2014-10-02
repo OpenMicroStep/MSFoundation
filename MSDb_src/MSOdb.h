@@ -41,6 +41,28 @@
 
 // TODO: Décrire un obi Database avec version, next id attribuable, uuid.
 
+//  ok && !err: the best !
+//  ok &&  err: warning
+// !ok && !err: bad without explanation
+// !ok &&  err: bad with explanation
+// err is not retained
+typedef struct CReturnStruct {
+  BOOL ok;
+  NSString *err;}
+boolerr;
+static inline boolerr RE(NSString *err)
+{
+  boolerr okr;
+  okr.ok= (err==nil); okr.err= err;
+  return okr;
+}
+static inline boolerr RBE(BOOL ok, NSString *err)
+{
+  boolerr okr;
+  okr.ok= ok; okr.err= err;
+  return okr;
+}
+
 @interface MSOdb : NSObject
 {
 @public
@@ -74,10 +96,10 @@
 - (MSDictionary*)systemObisByOid;
 - (MSArray*)systemNames;
 
-// newOidValue:nb
+// newOidLongLongValue:nb
 // The next oid long value enabled for the db. All the next nb value are
 // considered as consumed.
-- (MSLong)newOidValue:(MSLong)nb;
+- (MSLong)newOidLongLongValue:(MSLong)nb;
 
 // oidsWithCars:cars
 // Retourne les id des obis qui vérifient tous les car-i de cars.
@@ -103,8 +125,8 @@
 - (MSMutableDictionary*)fillIds:(uid)ids withCars:(uid)cars;
 - (MSMutableDictionary*)allFilledIds:(uid)ids withCars:(uid)cars;
 
-- (BOOL)changeObi:(MSObi*)x;
-- (BOOL)changeObis:(MSDictionary*)x;
+- (boolerr)changeObi:(MSObi*)x;
+- (boolerr)changeObis:(MSDictionary*)x;
 
 - (BOOL)beginTransaction;
 - (BOOL)endTransactionSuccessfully:(BOOL)commit;

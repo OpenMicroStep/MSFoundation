@@ -61,7 +61,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   else if (type==R8) ret= _cmp(a.r,b.r,NSOrderedSame);
   else if (type==T8) ret= (a.t==b.t) ? NSOrderedSame : !a.t ? NSOrderedAscending :
                           !b.t ? NSOrderedDescending : [a.t compare:b.t];
-  else if (type==B8) ret= _cmp([a.b value],[b.b value],NSOrderedSame);
+  else if (type==B8) ret= _cmp([a.b longLongValue],[b.b longLongValue],NSOrderedSame);
   return ret;
   }
 
@@ -167,7 +167,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
          _valueType==T8 ? (id)_value.t :
          nil;
   }
-- (MSLong)longValue
+- (MSLong)longLongValue
   {
   return _valueType!=S8 ? 0 : _value.s;
   }
@@ -201,7 +201,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   MSOValue* v;
   if ([x isKindOfClass:[MSOValue class]]) {
     v= x;
-    ret= _cmp([_cid value], [v->_cid value],
+    ret= _cmp([_cid longLongValue], [v->_cid longLongValue],
          _cmp(_timestamp, v->_timestamp,
          _btypedValuesCompare(_value,v->_value,_valueType)));}
   return ret;
@@ -246,7 +246,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   static MSLong _MSObiNewLocalOidValue= -1;
   MSOid *oid;
   // Lock
-  oid= [MSOid oidWithValue:_MSObiNewLocalOidValue--];
+  oid= [MSOid oidWithLongLongValue:_MSObiNewLocalOidValue--];
   // Si serveur qui ne s'arrête jamais ?
   if (_MSObiNewLocalOidValue>=0) _MSObiNewLocalOidValue= -1;
   // Unlock
@@ -424,11 +424,11 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
       CArrayAddObject((CArray*)ret, v);}}
   return ret;
   }
-- (MSLong)longValueForCid:(MSOid*)cid
+- (MSLong)longLongValueForCid:(MSOid*)cid
   {
   MSOValue *v; MSLong ret= 0;
   if ((v= [self valueForCid:cid])) {
-    ret= [v longValue];}
+    ret= [v longLongValue];}
   return ret;
   }
 - (NSString*)stringValueForCid:(MSOid*)cid
@@ -438,13 +438,12 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
     ret= [v stringValue];}
   return ret;
   }
-- (MSArray*)oidValuesForCid:(MSOid*)cid
+- (MSUid*)oidValuesForCid:(MSOid*)cid
   {
   MSArray* vs; NSUInteger n,i; id v,ret;
-  ret= [MSArray array];
+  ret= [MSUid uid];
   if ((vs= [self valuesForCid:cid]) && (n= [vs count])) {
-    for (i=0; i<n; i++) if ((v= [[vs objectAtIndex:i] oidValue])) {
-      CArrayAddObject((CArray*)ret, v);}}
+    for (i= 0; i<n; i++) if ((v= [[vs objectAtIndex:i] oidValue])) [ret addUid:v];}
   return ret;
   }
 - (MSOid*)oidValueForCid:(MSOid*)cid
@@ -510,13 +509,20 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
       if (ISEQUAL(cid, [p oidValueForCid:MSCarCharacteristicId])) pFd= p;}}
   return pFd;
 }
+- (MSObi*)_carObiType
+{
+  id r= [self subValueForCid:MSCarTypeId];
+  if (!r) // subValue may not be set.
+    r= [_db systemObiWithOid:[self oidValueForCid:MSCarTypeId]];
+  return r;
+}
 - (NSString*)carType
 {
-  return [[self subValueForCid:MSCarTypeId] systemName];
+  return [[self _carObiType] systemName];
 }
 - (NSString*)carTable
 {
-  return [[self subValueForCid:MSCarTypeId] typTable];
+  return [[self _carObiType] typTable];
 }
 - (MSByte)carTableType
 {
@@ -526,7 +532,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 - (NSString*)typTable
 {
   id t= [self stringValueForCid:MSCarTableId];
-  return t ? t : [self stringValueForCid:MSCarSystemNameId];
+  return t ? t : [self systemName];
 }
 @end
 

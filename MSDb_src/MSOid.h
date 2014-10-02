@@ -67,8 +67,8 @@
 @private
   MSLong _oid;
 }
-+ (id)oidWithValue:(MSLong)a;
-- (id)initWithValue:(MSLong)a;
++ (id)oidWithLongLongValue:(MSLong)a;
+- (id)initWithLongLongValue:(MSLong)a;
 
 - (NSComparisonResult)compare:(id)x;
 - (NSUInteger)hash:(unsigned)depth; // For MSDictionary
@@ -76,12 +76,12 @@
 - (NSString*)descriptionInContext:(id)ctx;
 
 - (MSOid*)oid;
-- (MSLong)value;
+- (MSLong)longLongValue;
 - (BOOL)isLocal;
 
-// replaceLocalValue:a
+// replaceLocalLongLongValue:a
 // Uniquement si _oid est local (négatif).
-- (void)replaceLocalValue:(MSLong)a;
+- (void)replaceLocalLongLongValue:(MSLong)a;
 @end
 
 // A oui-base object is called a 'obi'.
@@ -141,9 +141,11 @@ extern MSString *MSCarTypeLib;
 extern MSOid    *MSCarTableId;          // car 'table'
 extern MSOid    *MSCarPatternId;        // 'pattern'
 //extern MSOid  *MSCarDomainEntityId;   // 'domain entity'
+extern MSOid    *MSCarDomainListId;     // 'domain list'
 extern MSOid    *MSCarCardinalityId;    // car 'cardinality'
 extern MSString *MSCarCardinalityLib;
 //extern MSOid  *MSCarClassNameId;      // car 'class name'
+extern MSOid    *MSCarElementId;        // car 'element'
 //extern MSOid  *MSCarLabelId;          // car 'label'
 extern MSOid    *MSCarSubobjectId;      // car 'subobject'
 extern MSOid    *MSCarURNId;            // car 'urn'

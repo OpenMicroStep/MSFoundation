@@ -640,7 +640,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 
 - (NSUInteger)hash:(unsigned)depth {return CStringHash(self, depth);}
 
-- (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
+- (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ? just retain ?
   {
   CString *s= (CString*)MSAllocateObject([MSString class], 0, z);
   CStringAppendString(s, (const CString*)self);
