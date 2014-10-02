@@ -383,7 +383,6 @@ typedef enum
     BOOL auth = NO ;
     MSHTTPRequest *challengeAuth;
     MSHTTPResponse *challengeAuthResponse;
-    [_requestLock lock] ;
 
     challengeAuth = [self _challengeAuthenticationRequestWithChallenge:challenge] ;
     challengeAuthResponse = [self _performRequest:challengeAuth errorString:NULL] ;
@@ -394,7 +393,6 @@ typedef enum
         auth = YES ;
     }
     
-    [_requestLock unlock] ;
     return auth ;
 }
 
@@ -413,12 +411,9 @@ typedef enum
         MSBuffer *contentBuf = [challengeResponse content] ;
         NSString *challenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[contentBuf bytes], [contentBuf length], NO, NO)) ;
         
-        [_requestLock unlock] ;
         auth = [self _authenticateWithChallenge:challenge] ;
     }
-    else {
-        [_requestLock unlock] ;
-    }
+    [_requestLock unlock] ;
     return auth ;
 }
 
