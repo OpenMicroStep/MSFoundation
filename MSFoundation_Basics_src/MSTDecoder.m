@@ -569,7 +569,7 @@ NSMutableDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char
     NSMutableDictionary *ret = nil ;
     NSUInteger count = _MSTDecodeUnsignedLong(&s, endPointer, operation) ;
     
-    ret = [[NSMutableDictionary allocWithZone:zone] initWithCapacity:count] ;
+    ret = (NSMutableDictionary*)[[MSMutableDictionary allocWithZone:zone] initWithCapacity:count] ;
     if (manageReference) { [decodedObjects addObject:ret] ; }
 
     if (count) {
