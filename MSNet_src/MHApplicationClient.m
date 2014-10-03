@@ -413,9 +413,12 @@ typedef enum
         MSBuffer *contentBuf = [challengeResponse content] ;
         NSString *challenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[contentBuf bytes], [contentBuf length], NO, NO)) ;
         
+        [_requestLock unlock] ;
         auth = [self _authenticateWithChallenge:challenge] ;
     }
-    [_requestLock unlock] ;
+    else {
+        [_requestLock unlock] ;
+    }
     return auth ;
 }
 
