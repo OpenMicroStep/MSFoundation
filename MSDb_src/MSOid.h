@@ -128,61 +128,61 @@ typedef id        uid; // union id: vid | MSUid*
 - (void)removeOid:(MSOid*)o;
 @end
 
-extern MSOid    *MSEntEntId;    // ent 'ENT'
-extern MSOid    *MSEntCarId;    // ent 'Car'
-extern MSOid    *MSEntTypId;    // ent 'Typ'
-extern MSOid    *MSCarEntityId;         // car 'entity'
-extern MSString *MSCarEntityLib;
-extern MSOid    *MSCarSystemNameId;     // car 'system name'
-extern MSString *MSCarSystemNameLib;
-extern MSOid    *MSCarCharacteristicId; // car 'characteristique'
-extern MSOid    *MSCarTypeId;           // car 'type'
-extern MSString *MSCarTypeLib;
-extern MSOid    *MSCarTableId;          // car 'table'
-extern MSOid    *MSCarPatternId;        // 'pattern'
-//extern MSOid  *MSCarDomainEntityId;   // 'domain entity'
-extern MSOid    *MSCarDomainListId;     // 'domain list'
-extern MSOid    *MSCarCardinalityId;    // car 'cardinality'
-extern MSString *MSCarCardinalityLib;
-//extern MSOid  *MSCarClassNameId;      // car 'class name'
-extern MSOid    *MSCarElementId;        // car 'element'
-//extern MSOid  *MSCarLabelId;          // car 'label'
-extern MSOid    *MSCarSubobjectId;      // car 'subobject'
-extern MSOid    *MSCarURNId;            // car 'urn'
-extern MSOid    *MSCarLoginId;          // car 'login'
-extern MSOid    *MSCarDateId;           // car 'date'
-//extern MSOid  *MSTypIDId;  // typ 'ID'
-//extern MSOid  *MSTypSTRId; // typ 'STR'
-//extern MSOid  *MSTypINTId; // typ 'INT'
-//extern MSOid  *MSTypDATId; // typ 'DAT'
-//extern MSOid  *MSTypDTRId; // typ 'DTR'
-//extern MSOid  *MSTypDURId; // typ 'DUR'
+MSDatabaseExport MSOid    *MSEntEntId;    // ent 'ENT'
+MSDatabaseExport MSOid    *MSEntCarId;    // ent 'Car'
+MSDatabaseExport MSOid    *MSEntTypId;    // ent 'Typ'
+MSDatabaseExport MSOid    *MSCarEntityId;         // car 'entity'
+MSDatabaseExport MSString *MSCarEntityLib;
+MSDatabaseExport MSOid    *MSCarSystemNameId;     // car 'system name'
+MSDatabaseExport MSString *MSCarSystemNameLib;
+MSDatabaseExport MSOid    *MSCarCharacteristicId; // car 'characteristique'
+MSDatabaseExport MSOid    *MSCarTypeId;           // car 'type'
+MSDatabaseExport MSString *MSCarTypeLib;
+MSDatabaseExport MSOid    *MSCarTableId;          // car 'table'
+MSDatabaseExport MSOid    *MSCarPatternId;        // 'pattern'
+//MSDatabaseExport MSOid  *MSCarDomainEntityId;   // 'domain entity'
+MSDatabaseExport MSOid    *MSCarDomainListId;     // 'domain list'
+MSDatabaseExport MSOid    *MSCarCardinalityId;    // car 'cardinality'
+MSDatabaseExport MSString *MSCarCardinalityLib;
+//MSDatabaseExport MSOid  *MSCarClassNameId;      // car 'class name'
+MSDatabaseExport MSOid    *MSCarElementId;        // car 'element'
+//MSDatabaseExport MSOid  *MSCarLabelId;          // car 'label'
+MSDatabaseExport MSOid    *MSCarSubobjectId;      // car 'subobject'
+MSDatabaseExport MSOid    *MSCarURNId;            // car 'urn'
+MSDatabaseExport MSOid    *MSCarLoginId;          // car 'login'
+MSDatabaseExport MSOid    *MSCarDateId;           // car 'date'
+//MSDatabaseExport MSOid  *MSTypIDId;  // typ 'ID'
+//MSDatabaseExport MSOid  *MSTypSTRId; // typ 'STR'
+//MSDatabaseExport MSOid  *MSTypINTId; // typ 'INT'
+//MSDatabaseExport MSOid  *MSTypDATId; // typ 'DAT'
+//MSDatabaseExport MSOid  *MSTypDTRId; // typ 'DTR'
+//MSDatabaseExport MSOid  *MSTypDURId; // typ 'DUR'
 
-extern MSOid    *MSObiDatabaseId;  // obi 'database'
-extern MSString *MSObiDatabaseLib;
-extern MSOid    *MSCarNextOidId;   // car 'next oid'
-extern MSString *MSCarNextOidLib;
+MSDatabaseExport MSOid    *MSObiDatabaseId;  // obi 'database'
+MSDatabaseExport MSString *MSObiDatabaseLib;
+MSDatabaseExport MSOid    *MSCarNextOidId;   // car 'next oid'
+MSDatabaseExport MSString *MSCarNextOidLib;
 
-extern MSString *MSEntParameterLib;
-extern MSString *MSCarLabelLib;
-extern MSString *MSCarURNLib;
-extern MSString *MSCarParameterLib;
-extern MSString *MSCarFirstNameLib;
-extern MSString *MSCarMiddleNameLib;
-extern MSString *MSCarLastNameLib;
-extern MSString *MSCarLoginLib;
-extern MSString *MSCarHashedPasswordLib;
-extern MSString *MSCarResetPasswordLib;
-extern MSString *MSCarPublicKeyLib;
-extern MSString *MSCarPrivateKeyLib;
-extern MSString *MSCarCipheredPrivateKeyLib;
-extern MSString *MSCarStringLib;
-extern MSString *MSCarIntLib;
-extern MSString *MSCarBoolLib;
-extern MSString *MSCarGmtLib;
-extern MSString *MSCarDateLib;
-extern MSString *MSCarDtmLib;
-extern MSString *MSCarDurationLib;
+MSDatabaseExport MSString *MSEntParameterLib;
+MSDatabaseExport MSString *MSCarLabelLib;
+MSDatabaseExport MSString *MSCarURNLib;
+MSDatabaseExport MSString *MSCarParameterLib;
+MSDatabaseExport MSString *MSCarFirstNameLib;
+MSDatabaseExport MSString *MSCarMiddleNameLib;
+MSDatabaseExport MSString *MSCarLastNameLib;
+MSDatabaseExport MSString *MSCarLoginLib;
+MSDatabaseExport MSString *MSCarHashedPasswordLib;
+MSDatabaseExport MSString *MSCarResetPasswordLib;
+MSDatabaseExport MSString *MSCarPublicKeyLib;
+MSDatabaseExport MSString *MSCarPrivateKeyLib;
+MSDatabaseExport MSString *MSCarCipheredPrivateKeyLib;
+MSDatabaseExport MSString *MSCarStringLib;
+MSDatabaseExport MSString *MSCarIntLib;
+MSDatabaseExport MSString *MSCarBoolLib;
+MSDatabaseExport MSString *MSCarGmtLib;
+MSDatabaseExport MSString *MSCarDateLib;
+MSDatabaseExport MSString *MSCarDtmLib;
+MSDatabaseExport MSString *MSCarDurationLib;
 
 #pragma mark MSDictionary obis description
 
@@ -195,5 +195,5 @@ extern MSString *MSCarDurationLib;
 
 #pragma mark private
 
-extern NSString *_obiDesc(MSLong level, id ctx,
+MSDatabaseExport NSString *_obiDesc(MSLong level, id ctx,
                           MSUid *todoOrder, MSMutableDictionary *todo);
