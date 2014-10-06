@@ -105,7 +105,7 @@ static inline NSBundle *_loadAdaptorBundleNamed(NSString *name)
 //NSLog(@"_loadAdaptorBundleNamed %@ %@",path,bundle);
       }}
 
-  if (!bundle) NSLog(@"Unable to fin database adaptor named '%@'", name);
+  if (!bundle) NSLog(@"Unable to find database adaptor named '%@'", name);
   return bundle;
 }
 
