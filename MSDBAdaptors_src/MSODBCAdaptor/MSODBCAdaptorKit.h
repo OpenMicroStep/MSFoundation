@@ -44,11 +44,15 @@
 
 #import <MSDatabase/MSDatabase.h>
 
+#ifdef WIN32
+#import "_odbcWin32.h"
+#else
 #import <iODBC/isql.h>
 #import <iODBC/sql.h>
 #import <iODBC/sqlext.h>
 #import <iODBC/sqltypes.h>
 #import <iODBC/sqlucode.h>
+#endif
 
 #import "MSODBCTransaction.h"
 #import "MSODBCResultSet.h"
