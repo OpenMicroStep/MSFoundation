@@ -144,6 +144,13 @@ static inline int cdecimal_fromSES(void)
 
 static inline int cdecimal_cast(void)
   {
+#ifdef WO451
+// wo451 gcc version compute MSUIntMax + 1 UL = 4294967295U + 1UL = 0U
+// To help the compiler, with WO451, MSUIntMax must be an unsigned long
+#define __UIntMaxU ((MSULong)MSUIntMax)
+#else
+#define __UIntMaxU MSUIntMax
+#endif
   int err= 0, i;
   MSLong val  [12]=  {MSLongMin    ,MSIntMin    ,MSShortMin  ,MSCharMin  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,MSUIntMax    ,MSLongMax    };
   MSLong rcm1 [12]=  {MSCharMin    ,MSCharMin   ,MSCharMin   ,MSCharMin  ,-1,MSCharMax-1,MSCharMax  ,MSCharMax   ,MSCharMax    ,MSCharMax   ,MSCharMax    ,MSCharMax    };
@@ -167,9 +174,9 @@ static inline int cdecimal_cast(void)
   MSLong rlm1 [12]=  {MSLongMin    ,MSIntMin-1LL,MSShortMin-1,MSCharMin-1,-1,MSCharMax-1,MSByteMax-1,MSShortMax-1,MSUShortMax-1,MSIntMax-1LL,MSUIntMax-1LL,MSLongMax-1LL};
   MSLong rl   [12]=  {MSLongMin    ,MSIntMin    ,MSShortMin  ,MSCharMin  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,MSUIntMax    ,MSLongMax    };
   MSLong rlp1[ 12]=  {MSLongMin+1LL,MSIntMin+1LL,MSShortMin+1,MSCharMin+1, 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1LL,MSUIntMax+1LL,MSLongMax    };
-  MSULong rulm1[12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax-1,MSByteMax-1,MSShortMax-1,MSUShortMax-1,MSIntMax-1UL,MSUIntMax-1UL,MSLongMax-1UL};
-  MSULong rul  [12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,MSUIntMax    ,MSLongMax    };
-  MSULong rulp1[12]= {       0     ,       0    ,         0  ,        0  , 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1UL,MSUIntMax+1UL,MSLongMax+1UL};
+  MSULong rulm1[12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax-1,MSByteMax-1,MSShortMax-1,MSUShortMax-1,MSIntMax-1UL,__UIntMaxU-1UL,MSLongMax-1UL};
+  MSULong rul  [12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,__UIntMaxU    ,MSLongMax    };
+  MSULong rulp1[12]= {       0     ,       0    ,         0  ,        0  , 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1UL,__UIntMaxU+1UL,MSLongMax+1UL};
   CDecimal *c,*minus1,*cm1,*cp1;
   CString *s; CBuffer *b;
   minus1= CCreateDecimalWithLongLong(-1);
@@ -198,9 +205,9 @@ static inline int cdecimal_cast(void)
     if ((MSLong)CDecimalLongValue(  cm1)!=rlm1 [i]) {err++; printf("E71-%d %lld %lld\n",i,CDecimalLongValue(   cm1),rlm1 [i]);}
     if ((MSLong)CDecimalLongValue(  c  )!=rl   [i]) {err++; printf("E72-%d %lld %lld\n",i,CDecimalLongValue(   c  ),rl   [i]);}
     if ((MSLong)CDecimalLongValue(  cp1)!=rlp1 [i]) {err++; printf("E73-%d %lld %lld\n",i,CDecimalLongValue(   cp1),rlp1 [i]);}
-    if (        CDecimalULongValue( cm1)!=rulm1[i]) {err++; printf("E61-%d %llu %llu\n",i,CDecimalULongValue(  cm1),rulm1[i]);}
-    if (        CDecimalULongValue( c  )!=rul  [i]) {err++; printf("E62-%d %llu %llu\n",i,CDecimalULongValue(  c  ),rul  [i]);}
-    if (        CDecimalULongValue( cp1)!=rulp1[i]) {err++; printf("E63-%d %llu %llu\n",i,CDecimalULongValue(  cp1),rulp1[i]);}
+    if (        CDecimalULongValue( cm1)!=rulm1[i]) {err++; printf("E81-%d %llu %llu\n",i,CDecimalULongValue(  cm1),rulm1[i]);}
+    if (        CDecimalULongValue( c  )!=rul  [i]) {err++; printf("E82-%d %llu %llu\n",i,CDecimalULongValue(  c  ),rul  [i]);}
+    if (        CDecimalULongValue( cp1)!=rulp1[i]) {err++; printf("E83-%d %llu %llu\n",i,CDecimalULongValue(  cp1),rulp1[i]);}
     s= CCreateDecimalDescription(cp1);
     b= CCreateBufferWithString(s, NSUTF8StringEncoding);
   //printf("E99-%d %s\n",i,CBufferCString(b));
