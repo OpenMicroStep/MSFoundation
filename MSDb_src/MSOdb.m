@@ -665,7 +665,7 @@ static inline MSByte _valueTypeFromTable(id table)
 static inline id _subtrim(id l, NSRange rg) // sub to range and trim
 {
   if (rg.location!=NSNotFound) l= [l substringWithRange:rg];
-  return [l stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+  return [l trim];
 }
 
 typedef struct _DecodeStruct {
