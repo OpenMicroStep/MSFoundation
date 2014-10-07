@@ -254,6 +254,13 @@ static NSUUID *__defaultUuid = nil ;
 }
 @end
 
+@implementation NSNumber (MSCompatibilityLayer)
++ (NSNumber *)numberWithUnsignedInteger:(NSUInteger)value
+{
+  return [self numberWithUnsignedInt:value];
+}
+@end
+
 #endif
 
 #endif
