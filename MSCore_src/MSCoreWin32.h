@@ -48,7 +48,16 @@
 #define MS_CORE_WIN32_H
 
 #ifdef WO451
-#define restrict
+#  define restrict
+#  ifndef LLONG_MIN
+#    define LLONG_MIN MSLongMin
+#  endif
+#  ifndef LLONG_MAX
+#    define LLONG_MAX MSLongMax
+#  endif
+#  ifndef ULLONG_MAX
+#   define ULLONG_MAX MSULongMax
+#  endif
 #endif
 
 #ifdef WIN32

@@ -252,6 +252,81 @@ static NSUUID *__defaultUuid = nil ;
 - (id)initWithCString:(const char *)nullTerminatedCString encoding:(NSStringEncoding)encoding {
   return [self initWithData:[NSData dataWithBytes:nullTerminatedCString length:strlen(nullTerminatedCString)] encoding:encoding];
 }
+
+typedef id (*NSPlaceholderString_defimp_initWithFormatType)(id, SEL, NSString*, NSDictionary*, va_list);
+static NSPlaceholderString_defimp_initWithFormatType NSPlaceholderString_defimp_initWithFormat = NULL;
+static id NSPlaceholderString_myimp_initWithFormat(id self, SEL _cmd, NSString*format, NSDictionary* dict, va_list argList)
+{
+  id returnValue;
+  NSString *replacement;
+  NSMutableString *newFormat;
+  NSRange range;
+  unsigned int pos, length, markerCount;
+  unichar c;
+  
+  newFormat = nil;
+  length = [format length];
+  range = [format rangeOfString:@"%"];
+  while(range.length > 0) {
+    pos = range.location;
+    markerCount = 0;
+    while(++pos < length && [format characterAtIndex:pos] == '%')
+      ++markerCount;
+    if(markerCount % 2 == 0) {
+      c = '\0';
+      while(pos < length) {
+        c = [format characterAtIndex:pos];
+        if((c == '%') || ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z'))
+          break;
+        ++pos;
+      }
+      if(pos + 2 < length && c == 'l' && [format characterAtIndex:pos + 1] == 'l') {
+        c = [format characterAtIndex:pos + 2];
+        if(c == 'd' || c == 'i')
+          replacement = @"qd%.0s";
+        else if(c == 'u' || c == 'o' || c == 'x' || c == 'X')
+          replacement = @"qu%.0s";
+        else
+          replacement = nil;
+        if(replacement) {
+          if(!newFormat)
+            newFormat = [format mutableCopy];
+          range.location = pos;
+          range.length = 3;
+          [newFormat replaceCharactersInRange:range withString:replacement];
+          format = newFormat;
+          length += 3;
+        }
+      }
+    
+    }
+    range.length = length - ++range.location;
+    range = [format rangeOfString:@"%" options:0 range:range];
+  }
+  returnValue = NSPlaceholderString_defimp_initWithFormat(self, _cmd, format, dict, argList);
+  [newFormat release];
+  return returnValue;
+}
+
++ (void)load
+{
+  Method defMethod;
+  Class placeholderStringClass;
+  
+  placeholderStringClass = NSClassFromString(@"NSPlaceholderString");
+  if(placeholderStringClass) {
+    defMethod = class_getInstanceMethod(placeholderStringClass, @selector(initWithFormat:locale:arguments:));
+    if(!defMethod)
+      printf("-[NSPlaceholderString initWithFormat:locale:arguments:] isn't fixed, unexpected behavior may occur due to: -[NSPlaceholderString initWithFormat:locale:arguments:] not found\n");
+    else {
+      NSPlaceholderString_defimp_initWithFormat = (NSPlaceholderString_defimp_initWithFormatType)defMethod->method_imp;
+      defMethod->method_imp = (IMP)NSPlaceholderString_myimp_initWithFormat;
+    }
+  }
+  else {
+    printf("-[NSPlaceholderString initWithFormat:locale:arguments:] isn't fixed, unexpected behavior may occur due to: NSPlaceholderString not found\n");
+  }
+}
 @end
 
 @implementation NSNumber (MSCompatibilityLayer)

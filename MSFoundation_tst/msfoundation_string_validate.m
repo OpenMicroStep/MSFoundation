@@ -156,6 +156,61 @@ static inline int ms_cast(void)
   return err;
 }
 
+static inline int ms_formatlld(void)
+{
+  int err= 0;
+  int intValue = 2;
+  long long max = LLONG_MAX;
+  long long min = LLONG_MIN;
+  long long negvalue1 = -1LL;
+  long long posvalue1 = 1LL;
+  long long negvalue2 = -2332036854779808LL;
+  long long posvalue2 = 22337236854775808LL;
+  unsigned long long umax = ULLONG_MAX;
+  unsigned long long uposvalue1 = 1ULL;
+  unsigned long long uposvalue2 = 22337236854775808ULL;
+  NSString *f, *s;
+  
+  f = [ALLOC(NSString) initWithFormat:@"%lld", posvalue2];
+  s = @"22337236854775808";
+  if (!ISEQUAL(f, s)) {
+    NSLog(@"A41 not equal %@ != %@",f,s); err++;}
+  RELEASE(f);
+  
+  f = [ALLOC(NSString) initWithFormat:@"%s %lld %lld %lld", "start", min, negvalue2, negvalue1];
+  s = @"start -9223372036854775808 -2332036854779808 -1";
+  if (!ISEQUAL(f, s)) {
+    NSLog(@"A42 not equal %@ != %@",f,s); err++;}
+  RELEASE(f);
+  
+  f = [ALLOC(NSString) initWithFormat:@"%s %lld %lld %lld %d %lld %lld %lld %s", "start", min, negvalue2, negvalue1, intValue, posvalue1, posvalue2, max, "end"];
+  s = @"start -9223372036854775808 -2332036854779808 -1 2 1 22337236854775808 9223372036854775807 end";
+  if (!ISEQUAL(f, s)) {
+    NSLog(@"A43 not equal %@ != %@",f,s); err++;}
+  RELEASE(f);
+  
+  f = [ALLOC(NSString) initWithFormat:@"%llu", posvalue2];
+  s = @"22337236854775808";
+  if (!ISEQUAL(f, s)) {
+    NSLog(@"A44 not equal %@ != %@",f,s); err++;}
+  RELEASE(f);
+  
+  f = [ALLOC(NSString) initWithFormat:@"%s %llu %llu %llu", "start", umax, uposvalue2, uposvalue1];
+  s = @"start 18446744073709551615 22337236854775808 1";
+  if (!ISEQUAL(f, s)) {
+    NSLog(@"A45 not equal %@ != %@",f,s); err++;}
+  RELEASE(f);
+  
+  f = [ALLOC(NSString) initWithFormat:@"%s %llu %d %llu %llu %s", "start", umax, intValue, uposvalue1, uposvalue2, "end"];
+  s = @"start 18446744073709551615 2 1 22337236854775808 end";
+  if (!ISEQUAL(f, s)) {
+    NSLog(@"A46 not equal %@ != %@",f,s); err++;}
+  RELEASE(f);
+  
+  return err;
+}
+
+
 int msfoundation_string_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -165,6 +220,7 @@ int msfoundation_string_validate(void)
   err+= ms_toNs();
   err+= ms_eq();
   err+= ms_cast();
+  err+= ms_formatlld();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSString",(err?"FAIL":"PASS"),seconds);
