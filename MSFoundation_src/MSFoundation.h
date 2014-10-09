@@ -93,4 +93,8 @@
 
 #import <MSFoundation/MSStringParsing.h>
 
-#define FMT(X,ARGS...)  [MSString stringWithFormat:(X),##ARGS]
+#ifdef WO451
+#  define FMT(ARGS...)  [MSString stringWithFormat:##ARGS]
+#else
+#  define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
+#endif
