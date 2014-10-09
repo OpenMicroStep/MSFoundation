@@ -69,6 +69,13 @@ MSFoundationExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 
 - (NSString *)htmlRepresentation; // also converts HTML marks
 - (NSString *)htmlRepresentation:(BOOL)convertsHTMLMarks ;
+
+// TODO - (double)doubleValue;
+// TODO - (float)floatValue;
+// TODO - (BOOL)boolValue;
+- (int)intValue;
+- (NSInteger)integerValue;
+- (long long)longLongValue;
 @end
 
 @interface MSString : NSString

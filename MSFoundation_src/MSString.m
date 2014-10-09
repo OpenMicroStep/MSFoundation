@@ -567,7 +567,27 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 - (NSString *)htmlRepresentation { return _HTMLFromString(self, __fullHtmlTags, _cmd) ; }
 - (NSString *)htmlRepresentation:(BOOL)convertsHTMLMarks { return _HTMLFromString(self, (convertsHTMLMarks ? __fullHtmlTags: __htmlTags), _cmd) ; }
 
-
+// TODO - (double)doubleValue
+// TODO - (float)floatValue
+// TODO - (BOOL)boolValue
+- (int)intValue {
+  CDecimal *decimal = CCreateDecimalWithSES(SESFromString(self),NO,NULL,NULL);
+  int value = CDecimalIntValue(decimal);
+  RELEASE((id)decimal);
+  return value;
+}
+- (NSInteger)integerValue {
+  CDecimal *decimal = CCreateDecimalWithSES(SESFromString(self),NO,NULL,NULL);
+  NSInteger value = CDecimalIntegerValue(decimal);
+  RELEASE((id)decimal);
+  return value;
+}
+- (long long)longLongValue {
+  CDecimal *decimal = CCreateDecimalWithSES(SESFromString(self),NO,NULL,NULL);
+  long long value = CDecimalLongValue(decimal);
+  RELEASE((id)decimal);
+  return value;
+}
 @end
 
 @implementation MSString
