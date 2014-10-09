@@ -147,4 +147,4 @@ typedef struct _MSASCIIStringFlagsStruct {
 MSFoundationExport MSASCIIString *MSCreateASCIIString(NSUInteger capacity) ; // returns a retained object
 MSFoundationExport MSASCIIString *MSCreateASCIIStringWithBytes(void *bytes, NSUInteger length, BOOL takesACopy, BOOL freeWhenDone) ; // returns a retained object
 
-MSFoundationExport NSString *MSBytesToHexaString(void *_buf, NSUInteger _length, BOOL plistEncoded);
+MSFoundationExport NSString *MSBytesToHexaString(const void *_buf, NSUInteger _length, BOOL plistEncoded);

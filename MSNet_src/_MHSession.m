@@ -51,9 +51,8 @@
 
 static NSString *_generateNewSessionID(MSUShort size)
 {
-    MSUInt newID = fabs(floor(GMTNow())) ;
-    MSUInt addrID = (MSUInt)rand() ;
-    return [NSString stringWithFormat:@"S%04X%08X%04X", addrID & 0x0000FFFF, newID, (addrID >> 16)  & 0x0000FFFF] ;
+    MSBuffer *randBuff= AUTORELEASE(MSCreateRandomBuffer(size));
+    return [MSString stringWithFormat:@"S%@", MSBytesToHexaString([randBuff bytes], [randBuff length], NO)];
 }
 
 static NSString *_getUniqueNewSessionID(MSUShort size)

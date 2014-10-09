@@ -440,7 +440,7 @@ MSASCIIString *MSCreateASCIIStringWithBytes(void *bytes, NSUInteger length, BOOL
     return ret ;
 }
 
-NSString *MSBytesToHexaString(void *_buf, NSUInteger _length, BOOL plistEncoded)
+NSString *MSBytesToHexaString(const void *_buf, NSUInteger _length, BOOL plistEncoded)
 {
   static const char *__hexa= "0123456789ABCDEF";
   if (_buf && _length) {

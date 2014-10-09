@@ -72,7 +72,7 @@ typedef enum {
 NSString *MHChallengedPasswordHash(NSString *password, NSString *challenge) ;
 NSString *MHAuthenticationNameForType(MHAppAuthentication authType) ;
 
-typedef	NSString *(*MHTicketFormatterCallback) (MSUInt initializer, MSUShort minTicketSize);
+typedef	NSString *(*MHTicketFormatterCallback) (MSUShort minTicketSize);
 
 @interface MHApplication : NSObject <MHNotificationTargetAction>
 {

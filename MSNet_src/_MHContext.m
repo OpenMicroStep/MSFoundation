@@ -47,11 +47,10 @@
 
 #import "MSNet_Private.h"
 
-static NSString *_generateNewContextID()
+static inline NSString *_generateNewContextID()
 {
-    MSUInt newID = fabs(floor(GMTNow())) ;
-    MSUInt addrID = (MSUInt)rand() ;
-    return [NSString stringWithFormat:@"C%04X%08X%04X", addrID & 0x0000FFFF, newID, (addrID >> 16)  & 0x0000FFFF] ;
+    MSBuffer *randBuff= AUTORELEASE(MSCreateRandomBuffer(8));
+    return FMT(@"C%@", MSBytesToHexaString([randBuff bytes], [randBuff length], NO));
 }
 
 @implementation MHContext

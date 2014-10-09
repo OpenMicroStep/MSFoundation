@@ -3477,20 +3477,19 @@ NSMutableDictionary *ticketsForApplication(MHApplication *application)
     return tickets ;
 }
 
-NSString *_generateNewTicketID()
+static NSString *_generateNewTicketID()
 {
-    MSUInt newID = fabs(floor(GMTNow())) ;
-    MSUInt addrID = (MSUInt)rand() ;
-    return [NSString stringWithFormat:@"TKT%04X%08X%04X", addrID & 0x0000FFFF, newID, (addrID >> 16)  & 0x0000FFFF] ;
+    MSBuffer *randBuff= AUTORELEASE(MSCreateRandomBuffer(6));
+    return FMT(@"TKT%@", MSBytesToHexaString([randBuff bytes], [randBuff length], NO));
 }
 
-NSString *_uniqueTicketID(MHApplication *application, MHTicketFormatterCallback ticketFormatterCallback)
+static NSString *_uniqueTicketID(MHApplication *application, MHTicketFormatterCallback ticketFormatterCallback)
 {
     NSString *ticket = nil ;
     do {
         MSUShort minTicketSize = 4 ;
         if (ticketFormatterCallback) {
-            ticket = ticketFormatterCallback((MSUInt)rand(), minTicketSize);
+            ticket = ticketFormatterCallback(minTicketSize);
             if ([ticket length]<minTicketSize) MSRaise(NSInternalInconsistencyException, @"Too short ticket") ;
         }
         else {
