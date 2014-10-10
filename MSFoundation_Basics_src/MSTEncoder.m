@@ -560,7 +560,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
             //this is an already encoded object
             [self _encodeTokenSeparator] ;
             [self _encodeTokenType:MSTE_TOKEN_TYPE_REFERENCED_OBJECT] ;
-            [self encodeUnsignedInt:(objectReference-1) withTokenType:NO] ;
+            [self encodeUnsignedInt:objectReference withTokenType:NO] ;
         }
         else {
             MSByte tokenType = [anObject tokenTypeWithReference:referencing] ;
