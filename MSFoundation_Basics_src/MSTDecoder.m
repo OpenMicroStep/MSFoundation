@@ -745,7 +745,6 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
         }
         else if (allowsUnknownUserClasses) {
             ret = _MSTDecodeDictionary(&s, endPointer, @"_MSTDecodeUserDefinedObject", decodedObjects, classes, keys, tokenCount, YES, YES, allowsUnknownUserClasses, zone) ;
-            [decodedObjects addObject:ret] ;
         }
         else MSRaise(NSGenericException, @"_MSTDecodeUserDefinedObject - unable to find user class %@ in current system", className) ;
     }
