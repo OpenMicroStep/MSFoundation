@@ -740,7 +740,7 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
             
             dictionary = _MSTDecodeDictionary(&s, endPointer, operation, decodedObjects, classes, keys, tokenCount, NO, YES, allowsUnknownUserClasses, zone) ;
             
-            [ret initWithDictionary:dictionary] ;
+            ret = [ret initWithDictionary:dictionary] ;
             AUTORELEASE(ret) ;
         }
         else if (allowsUnknownUserClasses) {
@@ -752,6 +752,9 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
     else MSRaise(NSGenericException, @"_MSTDecodeUserDefinedObject - unable to find user class at index %llu",classIndex) ;
     
     *pointer = s ;
+    if (!ret) {
+        MSRaise(NSGenericException, @"_MSTDecodeUserDefinedObject - unable to instanciate user class at index %llu",classIndex) ;
+    }
     return ret ;
 }
 
