@@ -120,7 +120,7 @@ MSCoreExport SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSp
 // TODO: description functions
 MSCoreExport CString *CCreateDecimalDescription(CDecimal*);
 
-MSCoreExport MSLong  CStrToLong( const char *restrict str, char **restrict endptr);
-MSCoreExport MSULong CStrToULong(const char *restrict str, char **restrict endptr);
+MSCoreExport MSLong  CStrToLongLong( const char *restrict str, char **restrict endptr);
+MSCoreExport MSULong CStrToULongLong(const char *restrict str, char **restrict endptr);
 
 #endif

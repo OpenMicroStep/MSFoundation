@@ -469,7 +469,7 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
         {
             token += 2 ;
             if(!strncasecmp(token, "Content-Length: ", 16)) {
-                body_length = strtoull(token + 16, NULL, 10);
+                body_length = CStrToULongLong(token + 16, NULL);
             }
             // A file has been sent through an upload form
             else if(!strncasecmp(token, "Content-Type: multipart/form-data; boundary=", 44)) {

@@ -72,10 +72,14 @@
 #endif
 
 
-MSCoreExport MSULong strtoull(const char *string, char **endPtr, int base) ;
-MSCoreExport MSLong strtoll(const char *string, char **endPtr, int base) ;
-MSCoreExport float strtof(const char *string, char **endPtr) ;
+// No need anymore
+//MSCoreExport MSULong strtoull(const char *string, char **endPtr, int base) ;
+//MSCoreExport MSLong strtoll(const char *string, char **endPtr, int base) ;
+
+// TODO: To be removed when %lld will be fixed
 MSCoreExport char *ulltostr(MSLong value, char *ptr, int base) ;
+
+MSCoreExport float strtof(const char *string, char **endPtr) ;
 
 MSCoreExport int vasprintf( char **, char *, va_list );
 MSCoreExport int snprintf(char *, size_t, const char *, ...);

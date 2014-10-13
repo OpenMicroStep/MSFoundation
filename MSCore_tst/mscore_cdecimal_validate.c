@@ -221,12 +221,12 @@ static inline int cdecimal_strto(void)
   int err= 0,i; char t[256]; MSLong l; MSULong u;
   i= 0;
   sprintf(t,"\t %lld.89",(l= MSLongMax));
-  if (l!=CStrToLong(t, NULL)) {
+  if (l!=CStrToLongLong(t, NULL)) {
     err++; printf("F1-%d %lld %s\n",i,l,t);}
   sprintf(t,"  %llu+34d",(u= MSULongMax));
-  if (u!=CStrToULong(t, NULL)) {
+  if (u!=CStrToULongLong(t, NULL)) {
     err++; printf("F2-%d %llu %s\n",i,u,t);}
-  if (MSLongMax!=CStrToLong(t, NULL)) {
+  if (MSLongMax!=CStrToLongLong(t, NULL)) {
     err++; printf("F3-%d %llu %s\n",i,MSLongMax,t);}
   return err;
   }

@@ -74,6 +74,7 @@ static char cvtIn[] = {
  * "0x" means hex, "0" means octal, anything
  * else means decimal.
  */
+/*
 MSULong strtoull(const char *string, char **endPtr, int base)
 {
     register const char *p;
@@ -82,19 +83,15 @@ MSULong strtoull(const char *string, char **endPtr, int base)
     register MSULong shifted;
     int anyDigits = 0, negative = 0;
     
-    /*
-     * Skip any leading blanks.
-     */
-    
+    // Skip any leading blanks.
+ 
     p = string;
-    while (isspace((unsigned char)(*p))) {	/* INTL: locale-dependent */
+    while (isspace((unsigned char)(*p))) {	// INTL: locale-dependent
         p += 1;
     }
     
-    /*
-     * Check for a sign.
-     */
-    
+    // Check for a sign.
+
     if (*p == '-') {
         p += 1;
         negative = 1;
@@ -104,11 +101,8 @@ MSULong strtoull(const char *string, char **endPtr, int base)
         }
     }
     
-    /*
-     * If no base was provided, pick one from the leading characters
-     * of the string.
-     */
-    
+    // If no base was provided, pick one from the leading characters of the string.
+
     if (base == 0) {
         if (*p == '0') {
             p += 1;
@@ -117,11 +111,8 @@ MSULong strtoull(const char *string, char **endPtr, int base)
                 base = 16;
             } else {
                 
-                /*
-                 * Must set anyDigits here, otherwise "0" produces a
-                 * "no digits" error.
-                 */
-                
+                // Must set anyDigits here, otherwise "0" produces a "no digits" error.
+ 
                 anyDigits = 1;
                 base = 8;
             }
@@ -130,20 +121,16 @@ MSULong strtoull(const char *string, char **endPtr, int base)
         }
     } else if (base == 16) {
         
-        /*
-         * Skip a leading "0x" from hex numbers.
-         */
-        
+        // Skip a leading "0x" from hex numbers.
+ 
         if ((p[0] == '0') && (p[1] == 'x' || *p == 'X')) {
             p += 2;
         }
     }
     
-    /*
-     * Sorry this code is so messy, but speed seems important.  Do
-     * different things for base 8, 10, 16, and other.
-     */
-    
+    // Sorry this code is so messy, but speed seems important.  Do different things for
+    // base 8, 10, 16, and other.
+ 
     if (base == 8) {
         for ( ; ; p += 1) {
             digit = *p - '0';
@@ -218,18 +205,14 @@ MSULong strtoull(const char *string, char **endPtr, int base)
         }
     }
     
-    /*
-     * Negate if we found a '-' earlier.
-     */
-    
+    // Negate if we found a '-' earlier.
+ 
     if (negative) {
         result = (MSULong)(-((MSLong)result));
     }
     
-    /*
-     * See if there were any digits at all.
-     */
-    
+    // See if there were any digits at all.
+ 
     if (!anyDigits) {
         p = string;
     }
@@ -240,10 +223,8 @@ MSULong strtoull(const char *string, char **endPtr, int base)
     
     return result;
     
-    /*
-     * On overflow generate the right output
-     */
-    
+    // On overflow generate the right output
+ 
 overflow:
     __errno = ERANGE;
     if (endPtr != 0) {
@@ -268,19 +249,15 @@ MSLong strtoll(const char *string, char **endPtr, int base)
     MSLong result = (MSLong)0;
     MSULong uwResult;
     
-    /*
-     * Skip any leading blanks.
-     */
-    
+    // Skip any leading blanks.
+ 
     p = string;
     while (isspace((unsigned char)(*p))) {
         p += 1;
     }
     
-    /*
-     * Check for a sign.
-     */
-    
+    // Check for a sign.
+ 
     __errno = 0;
     if (*p == '-') {
         p += 1;
@@ -314,7 +291,7 @@ MSLong strtoll(const char *string, char **endPtr, int base)
     }
     return result;
 }
-
+*/
 
 float strtof(const char *string, char **endPtr)
 {

@@ -101,8 +101,8 @@ MSUShort _MSTDecodeUnsignedShort(unsigned char **pointer, unsigned char *endPoin
 MSShort _MSTDecodeShort(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
 MSUInt _MSTDecodeUnsignedInt(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
 MSInt _MSTDecodeInt(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
-MSULong _MSTDecodeUnsignedLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
-MSLong _MSTDecodeLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
+MSULong _MSTDecodeUnsignedLongLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
+MSLong _MSTDecodeLongLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
 float _MSTDecodeFloat(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
 double _MSTDecodeDouble(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
 
@@ -169,7 +169,7 @@ MSByte _MSTDecodeUnsignedChar(unsigned char **pointer, unsigned char *endPointer
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSULong result = strtoull((const char *)s, &stopCar, 10) ;
+    MSULong result = CStrToULongLong((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedChar - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
@@ -185,7 +185,7 @@ MSChar _MSTDecodeChar(unsigned char **pointer, unsigned char *endPointer, NSStri
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSLong result = strtoll((const char *)s, &stopCar, 10) ;
+    MSLong result = CStrToLongLong((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeChar - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
@@ -201,7 +201,7 @@ MSUShort _MSTDecodeUnsignedShort(unsigned char **pointer, unsigned char *endPoin
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSULong result = strtoull((const char *)s, &stopCar, 10) ;
+    MSULong result = CStrToULongLong((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedShort - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
@@ -217,7 +217,7 @@ MSShort _MSTDecodeShort(unsigned char **pointer, unsigned char *endPointer, NSSt
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSLong result = strtoll((const char *)s, &stopCar, 10) ;
+    MSLong result = CStrToLongLong((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeShort - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
@@ -233,7 +233,7 @@ MSUInt _MSTDecodeUnsignedInt(unsigned char **pointer, unsigned char *endPointer,
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSULong result = strtoull((const char *)s, &stopCar, 10) ;
+    MSULong result = CStrToULongLong((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedInt - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
@@ -249,7 +249,7 @@ MSInt _MSTDecodeInt(unsigned char **pointer, unsigned char *endPointer, NSString
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSLong result = strtoll((const char *)s, &stopCar, 10) ;
+    MSLong result = CStrToLongLong((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeInt - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
@@ -263,32 +263,32 @@ MSInt _MSTDecodeInt(unsigned char **pointer, unsigned char *endPointer, NSString
     return (MSInt)result ;
 }
 
-MSULong _MSTDecodeUnsignedLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation)
+MSULong _MSTDecodeUnsignedLongLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation)
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSULong result = strtoull((const char *)s, &stopCar, 10);
+    MSULong result = CStrToULongLong((const char *)s, &stopCar);
     
-    if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedLong - %@ (exceed buffer end)", operation) ;
+    if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedLongLong - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         *pointer = (unsigned char *)stopCar ;
     }
-    else MSRaise(NSGenericException, @"_MSTDecodeUnsignedLong - %@ (no termination)", operation) ;
+    else MSRaise(NSGenericException, @"_MSTDecodeUnsignedLongLong - %@ (no termination)", operation) ;
     
     return result ;
 }
 
-MSLong _MSTDecodeLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation)
+MSLong _MSTDecodeLongLong(unsigned char **pointer, unsigned char *endPointer, NSString *operation)
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
-    MSLong result = strtoll((const char *)s, &stopCar, 10);
+    MSLong result = CStrToLongLong((const char *)s, &stopCar);
     
-    if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeLong - %@ (exceed buffer end)", operation) ;
+    if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeLongLong - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         *pointer = (unsigned char *)stopCar ;
     }
-    else MSRaise(NSGenericException, @"_MSTDecodeLong - %@ (no termination)", operation) ;
+    else MSRaise(NSGenericException, @"_MSTDecodeLongLong - %@ (no termination)", operation) ;
     
     return result ;
 }
@@ -483,7 +483,7 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
 
     switch (tokenType) {
 /*        case MSTE_TOKEN_TYPE_INTEGER_VALUE : {
-            ret = [[NSNumber allocWithZone:zone] initWithLongLong:_MSTDecodeLong(&s, endPointer, @"_MSTDecodeNumber")] ;
+            ret = [[NSNumber allocWithZone:zone] initWithLongLong:_MSTDecodeLongLong(&s, endPointer, @"_MSTDecodeNumber")] ;
             break ;
         }
         case MSTE_TOKEN_TYPE_REAL_VALUE : 
@@ -537,11 +537,11 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
             break ;
         }
         case MSTE_TOKEN_TYPE_INT64 : {
-            ret = [[NSNumber allocWithZone:zone] initWithLongLong:_MSTDecodeLong(&s, endPointer, @"_MSTDecodeNumber")] ;
+            ret = [[NSNumber allocWithZone:zone] initWithLongLong:_MSTDecodeLongLong(&s, endPointer, @"_MSTDecodeNumber")] ;
             break ;
         }
         case MSTE_TOKEN_TYPE_UNSIGNED_INT64 : {
-            ret = [[NSNumber allocWithZone:zone] initWithUnsignedLongLong:_MSTDecodeUnsignedLong(&s, endPointer, @"_MSTDecodeNumber")] ;
+            ret = [[NSNumber allocWithZone:zone] initWithUnsignedLongLong:_MSTDecodeUnsignedLongLong(&s, endPointer, @"_MSTDecodeNumber")] ;
             break ;
         }
         case MSTE_TOKEN_TYPE_FLOAT : {
@@ -567,7 +567,7 @@ NSMutableDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char
 {
     unsigned char *s = (unsigned char *)*pointer ;
     NSMutableDictionary *ret = nil ;
-    NSUInteger count = _MSTDecodeUnsignedLong(&s, endPointer, operation) ;
+    NSUInteger count = _MSTDecodeUnsignedLongLong(&s, endPointer, operation) ;
     
     ret = (NSMutableDictionary*)[[MSMutableDictionary allocWithZone:zone] initWithCapacity:count] ;
     if (manageReference) { [decodedObjects addObject:ret] ; }
@@ -598,7 +598,7 @@ NSMutableArray *_MSTDecodeArray(unsigned char **pointer, unsigned char *endPoint
 {
     unsigned char *s = (unsigned char *)*pointer ;
     NSMutableArray *ret = nil ;
-    NSUInteger count = _MSTDecodeUnsignedLong(&s, endPointer, operation) ;
+    NSUInteger count = _MSTDecodeUnsignedLongLong(&s, endPointer, operation) ;
     
     ret = [[NSMutableArray allocWithZone:zone] initWithCapacity:count] ;
     [decodedObjects addObject:ret] ;
@@ -623,7 +623,7 @@ MSNaturalArray *_MSTDecodeNaturalArray(unsigned char **pointer, unsigned char *e
 {
     unsigned char *s = (unsigned char *)*pointer ;
     MSNaturalArray *ret = nil ;
-    NSUInteger count = _MSTDecodeUnsignedLong(&s, endPointer, operation) ;
+    NSUInteger count = _MSTDecodeUnsignedLongLong(&s, endPointer, operation) ;
 
     ret = [[MSMutableNaturalArray allocWithZone:zone] initWithCapacity:count] ;
     [decodedObjects addObject:ret] ;
@@ -634,7 +634,7 @@ MSNaturalArray *_MSTDecodeNaturalArray(unsigned char **pointer, unsigned char *e
         for (i = 0 ; i < count ; i++) {
             NSUInteger natural ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
-            natural = _MSTDecodeUnsignedLong(&s, endPointer, operation) ;
+            natural = _MSTDecodeUnsignedLongLong(&s, endPointer, operation) ;
             CAddNatural((CNaturalArray *)ret, natural) ;
         }
     }
@@ -787,7 +787,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
         case MSTE_TOKEN_TYPE_REFERENCED_OBJECT : {
             NSUInteger objectReference ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
-            objectReference = _MSTDecodeLong(&s, endPointer, @"_MSTDecodeObject") ;
+            objectReference = _MSTDecodeLongLong(&s, endPointer, @"_MSTDecodeObject") ;
             ret = [decodedObjects objectAtIndex:objectReference] ;
             break ;
         }
@@ -823,7 +823,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
         case MSTE_TOKEN_TYPE_DATE : {
             MSLong seconds ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
-            seconds = _MSTDecodeLong(&s, endPointer, @"_MSTDecodeObject") ;
+            seconds = _MSTDecodeLongLong(&s, endPointer, @"_MSTDecodeObject") ;
             ret = [[[MSDate allocWithZone:zone] initWithSecondsSinceLocalReferenceDate:seconds-CDateSecondsFrom19700101To20010101] autorelease] ;
             [decodedObjects addObject:ret] ;
             break ;
@@ -976,7 +976,7 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
                     break ;
                 }
                 case MSTE_DECODING_TOKEN_NUMBER_VALUE : {
-                    tokenNumber = _MSTDecodeUnsignedLong(&s, end, @"token number") ;
+                    tokenNumber = _MSTDecodeUnsignedLongLong(&s, end, @"token number") ;
                     state = MSTE_DECODING_TOKEN_NUMBER_NEXT_TOKEN ;
                     break ;
                 }
@@ -1014,7 +1014,7 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
                     break ;
                 }
                 case MSTE_DECODING_CLASSES_NUMBER_VALUE : {
-                    classesNumber = _MSTDecodeUnsignedLong(&s, end, @"classes number") ;
+                    classesNumber = _MSTDecodeUnsignedLongLong(&s, end, @"classes number") ;
                     if (classesNumber) decodedClasses = [ALLOC(NSMutableArray) initWithCapacity:classesNumber] ;
 
                     state = MSTE_DECODING_CLASSES_NUMBER_NEXT_TOKEN ;
@@ -1027,7 +1027,7 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
                     break ;
                 }
                 case MSTE_DECODING_KEYS_NUMBER_VALUE : {
-                    keysNumber = _MSTDecodeUnsignedLong(&s, end, @"keys number") ;
+                    keysNumber = _MSTDecodeUnsignedLongLong(&s, end, @"keys number") ;
                     if (keysNumber) decodedKeys = [ALLOC(NSMutableArray) initWithCapacity:keysNumber] ;
 
                     state = MSTE_DECODING_KEYS_NUMBER_NEXT_TOKEN ;

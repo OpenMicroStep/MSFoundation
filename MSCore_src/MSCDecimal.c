@@ -130,7 +130,7 @@ CDecimal *CCreateDecimalWithSES(SES src, BOOL intOnly, CUnicharChecker leftSpace
   return d;
 }
 
-MSLong CStrToLong(const char *restrict str, char **restrict endptr)
+MSLong CStrToLongLong(const char *restrict str, char **restrict endptr)
 {
   MSLong ret; SES src,rSes; CDecimal *d;
   src= MSMakeSESWithBytes(str, strlen(str), NSUTF8StringEncoding);
@@ -141,7 +141,7 @@ MSLong CStrToLong(const char *restrict str, char **restrict endptr)
   return ret;
 }
 
-MSULong CStrToULong(const char *restrict str, char **restrict endptr)
+MSULong CStrToULongLong(const char *restrict str, char **restrict endptr)
 {
   MSULong ret; SES src,rSes; CDecimal *d;
   src= MSMakeSESWithBytes(str, strlen(str), NSUTF8StringEncoding);

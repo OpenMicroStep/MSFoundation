@@ -131,9 +131,9 @@ MSCoreExport SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnichar
 // Déclaré dans CDecimal.h
 // MSCoreExport SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
 
-#define CAIOK(X)       ((X) != InvalidCHAI)
+#define CHAIOK(X)      ((X) != InvalidCHAI)
 #define SESOK(X)       ({SES __x__= (X);  \
-  (__x__.source != NULL) && CAIOK(__x__.chai) && \
+  (__x__.source != NULL) && CHAIOK(__x__.chai) && \
   (__x__.start != NSNotFound) && (__x__.length > 0);})
 #define SESSource(X)   ((X).source)
 #define SESCHAI(X)     ((X).chai)
