@@ -59,8 +59,9 @@ static inline int tst_rep_nu(id dbParams, id x, BOOL save)
 static inline int tst_rep(id dbParams)
 {
   int err= 0;
-  MSUShort dbNo; id servURN,persURN,devURN,appURN,autURN,rightID; MSDictionary *dos,*dret;
-  id rep;
+  MSUShort dbNo; id servURN,persURN,devURN,devProfileURN,appURN,autURN,rightID;
+  MSDictionary *dos,*dret;
+  id rep= nil;
   if (!(dbNo= [MHRepository openRepositoryDatabaseWithParameters:dbParams])) {
     NSLog(@"D1: no open %@",dbParams); err++;}
   if (!err) {
@@ -237,6 +238,17 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
     if (!(appURN= [dret objectForKey:MSCarURNLib])) {
       NSLog(@"D55 create error:%@",dret); err++;}}
 //NSLog(@"+++++ app:%@",appURN);
+  // CREATE DEVICE PROFILE
+  devProfileURN= nil;
+  if (!err) {
+    id devProfile= [MSDictionary dictionaryWithKeysAndObjects:
+      MSCarEntityLib, MSREntDeviceProfileLib,
+      MSCarLabelLib, @"my beautifull device profille",
+      MSRCarDeviceLib, devURN,
+      nil];
+     dret= [rep createSubobject:devProfile forObject:appURN andLink:MSRCarSubDeviceProfileLib];
+    if (!(devProfileURN= [dret objectForKey:MSCarURNLib])) {
+      NSLog(@"D56 create error:%@",dret); err++;}}
   // CREATE AUTHORIZATION
   autURN= nil;
   if (!err) {
@@ -246,7 +258,7 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
       nil];
      dret= [rep createObject:aut]; // servURN
     if (!(autURN= [dret objectForKey:MSCarURNLib])) {
-      NSLog(@"D56 create error:%@",dret); err++;}}
+      NSLog(@"D57 create error:%@",dret); err++;}}
 //NSLog(@"+++++ auth:%@",autURN);
   // CREATE RIGHT
   rightID= nil;
@@ -256,10 +268,11 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
       MSCarLabelLib, @"my beautifull right",
       MSRCarActionLib, MSRObiUseLib, // servURN pour error
       MSRCarApplicationLib, appURN,
+      MSRCarDeviceProfileLib, devProfileURN,
       nil];
-     dret= [rep createSubobject:right forObject:autURN andLink:MSRCarRightLib];
+     dret= [rep createSubobject:right forObject:autURN andLink:MSRCarSubRightLib];
     if (!(rightID= [dret objectForKey:MSCarURNLib])) {
-      NSLog(@"D57 create error:%@",dret); err++;}}
+      NSLog(@"D58 create error:%@\naut: %@\nright: %@",dret,autURN,right); err++;}}
 //rightID= [MSDecimal decimalWithLongLong:[rightID longLongValue]];
 //NSLog(@"+++++ right:%@ %@",[rightID class],rightID);
   // FIND APPLICATION
@@ -276,7 +289,7 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
       NSLog(@"D61 queryInstancesOfEntity Auth: %@",os); err++;}}
   // FIND RIGHT
   if (!err) {
-    id cars= [MSDictionary dictionaryWithKey:MSRCarRightLib andObject:rightID];
+    id cars= [MSDictionary dictionaryWithKey:MSRCarSubRightLib andObject:rightID];
     id os= [rep queryInstancesOfEntity:MSREntAuthorizationLib withCars:cars];
     id aut= ![os count]?nil:[os objectAtIndex:0];
     if (!ISEQUAL(autURN,aut)) {
@@ -300,12 +313,28 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
     NSDictionary *as= [rep rightsForApplicationURN:appURN];
     if (![[(NSDictionary*)[as objectForKey:rightID] objectForKey:MSRCarApplicationLib] containsObject:appURN]) {
       NSLog(@"D74 rightsForApplicationURN %@ %@",appURN,[(NSDictionary*)[as objectForKey:rightID] objectForKey:MSRCarApplicationLib]); err++;}}
+id b= [rep authorizationBunchsForDeviceURN:devURN];
+NSLog(@"authorizationBunchsForDeviceURN %@ %@",devURN,b);
   // DELETE ADMINISTRATOR TO autURN AUTHORIZATION
   if (!err) {
     id error;
     if ((error= [rep removeAuthenticables:[NSArray arrayWithObjects:appURN,persURN,nil]
                           ofAuthorization:autURN])) {
       NSLog(@"D75 remove member to authorization, error %@",error); err++;}}
+  // DELETE LINK FROM RIGHT TO DEVICE PROFILE
+  if (devProfileURN && rightID) {
+    if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:rightID  andObject:
+                 [MSDictionary dictionaryWithKey:MSRCarDeviceProfileLib andObject:
+                 [MSCouple coupleWithFirstMember:@"Remove" secondMember:devProfileURN]]]])) {
+      NSLog(@"D77 delete error:%@",dret); err++;}}
+  // DELETE DEVICE PROFILE
+  if (devProfileURN) {
+    if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:appURN andObject:
+                 [MSDictionary dictionaryWithKey:MSRCarSubDeviceProfileLib andObject:
+                 [MSCouple coupleWithFirstMember:@"Remove" secondMember:devProfileURN]]]])) {
+      NSLog(@"D77 delete error:%@",dret); err++;}
+    else if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:devProfileURN andObject:@"Delete"]])) {
+      NSLog(@"D78 delete error:%@",dret); err++;}}
   // DELETE APPLICATION autURN -(right)-> rightID -(application)-> appURN
   if (appURN) {
     if (rightID && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:rightID andObject:
@@ -317,7 +346,7 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
   // DELETE RIGHT
   if (rightID) {
     if (autURN && (dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:autURN andObject:
-          [MSDictionary dictionaryWithKey:MSRCarRightLib andObject:
+          [MSDictionary dictionaryWithKey:MSRCarSubRightLib andObject:
           [MSCouple coupleWithFirstMember:@"Remove" secondMember:rightID]]]])) {
       NSLog(@"D82 delete error:%@",dret); err++;}
     if ((dret= [rep changeObjectsAndValues:[MSDictionary dictionaryWithKey:rightID andObject:@"Delete"]])) {

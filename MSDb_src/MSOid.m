@@ -44,7 +44,8 @@
 MSOid *MSEntEntId,*MSEntCarId,*MSEntTypId;
 MSOid *MSCarEntityId,*MSCarSystemNameId,*MSCarCharacteristicId,*MSCarTypeId,
       *MSCarTableId,*MSCarPatternId,*MSCarDomainEntityId,*MSCarDomainListId,*MSCarCardinalityId,
-      *MSCarElementId,*MSCarLabelId,*MSCarSubobjectId,*MSCarURNId,*MSCarLoginId,*MSCarDateId;
+      *MSCarElementId,*MSCarLabelId,*MSCarURNId,*MSCarLoginId,*MSCarDateId;
+// MSCarSubobjectId
 MSOid *MSTypIDId,*MSTypSTRId,*MSTypINTId,
       *MSTypDATId,*MSTypDTRId,*MSTypDURId;
 MSOid *MSObiDatabaseId,*MSCarNextOidId;
@@ -85,16 +86,17 @@ MSString *MSCarStringLib,*MSCarIntLib,*MSCarBoolLib,
 //  MSCarClassNameId=      [[MSOid alloc] initWithLongLongValue:116]; // car 'class name'
     MSCarElementId=        [[MSOid alloc] initWithLongLongValue:155]; // car 'element'
 //  MSCarLabelId=          [[MSOid alloc] initWithLongLongValue:232]; // car 'label'
-    MSCarSubobjectId=      [[MSOid alloc] initWithLongLongValue:247]; // car 'subobject'
+//  MSCarSubobjectId=      [[MSOid alloc] initWithLongLongValue:247]; // car 'subobject'
     MSCarURNId=            [[MSOid alloc] initWithLongLongValue:301]; // car 'urn'
     MSCarLoginId=          [[MSOid alloc] initWithLongLongValue:321]; // car 'login'
     MSCarDateId=           [[MSOid alloc] initWithLongLongValue:533]; // car 'date'
-//  MSTypIDId=  [[MSOid alloc] initWithLongLongValue:1055]; // typ 'ID'
-//  MSTypSTRId= [[MSOid alloc] initWithLongLongValue:1061]; // typ 'STR'
-//  MSTypINTId= [[MSOid alloc] initWithLongLongValue:1062]; // typ 'INT'
-//  MSTypDATId= [[MSOid alloc] initWithLongLongValue:1063]; // typ 'DAT'
-//  MSTypDTRId= [[MSOid alloc] initWithLongLongValue:1064]; // typ 'DTR'
-//  MSTypDURId= [[MSOid alloc] initWithLongLongValue:1065]; // typ 'DUR'
+//  MSTypIDId=  [[MSOid alloc] initWithLongLongValue:2001]; // typ 'ID'
+//  MSTypSIDId= [[MSOid alloc] initWithLongLongValue:2003]; // typ 'SID'
+//  MSTypSTRId= [[MSOid alloc] initWithLongLongValue:2021]; // typ 'STR'
+//  MSTypINTId= [[MSOid alloc] initWithLongLongValue:2041]; // typ 'INT'
+//  MSTypDATId= [[MSOid alloc] initWithLongLongValue:2053]; // typ 'DAT'
+//  MSTypDTRId= [[MSOid alloc] initWithLongLongValue:2055]; // typ 'DTM'
+//  MSTypDURId= [[MSOid alloc] initWithLongLongValue:2057]; // typ 'DUR'
     MSObiDatabaseId=        [[MSOid alloc] initWithLongLongValue:9000]; // 'database'
     MSObiDatabaseLib=       MSCreateString("database");         // lib de l'obi 'database'
     MSCarNextOidId=         [[MSOid alloc] initWithLongLongValue:401];  // car 'next oid'
@@ -556,8 +558,9 @@ static NSString *_obiRecDesc(MSLong level0, MSLong level,
     isCarEnt= ISEQUAL(cid,MSCarEntityId);
     car= [db systemObiWithOid:cid];
     type= [car carType];
-    isId=  ISEQUAL(type,@"ID");
-    isSid= [[entObi entPatternOfCid:cid] longLongValueForCid:MSCarSubobjectId]!=0;
+    isId=   ISEQUAL(type,@"ID");
+    isSid=  ISEQUAL(type,@"SID");
+  //isSid= [[entObi entPatternOfCid:cid] longLongValueForCid:MSCarSubobjectId]!=0;
     values= [[o allValuesByCid] objectForKey:cid];
     if (names && (name= [car systemName])) cid= name;
     for (ve= [values objectEnumerator]; (value= [ve nextObject]);) {

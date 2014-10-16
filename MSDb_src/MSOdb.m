@@ -237,7 +237,6 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   id ids,q,te,t, cs,ce,cid,vs,vsStr, oi,oc,ocs,ie;
   MSULong nc; MSLong i,c; MSDBResultSet *result;
   if (![tcars count]) return nil;
-  ids= nil;
   search= [MSMutableDictionary dictionary];
   te= [tcars dictionaryEnumerator];
   nc= 0;
