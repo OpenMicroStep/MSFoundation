@@ -162,8 +162,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   }
 
 //- (MSDictionary*)_idsDict:(MSDictionary*)d
-// d: dict car-> values
-// car est un vid.
+// d: dict vid-> values
 // Une même car ne doit pas apparaître plusieurs fois, par exemple par son
 // oid et par son libellé. Sinon, une seule condition persiste.
 // TODO: Union des valeurs ?
@@ -204,7 +203,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   }
 
 //- (MSMutableDictionary*)_tabledCars:(id)cars
-// cars: uid ou dict car-> value(s) où car est un uuid.
+// cars: uid ou array de cid ou dict vid-> value(s).
 // Une même car ne doit pas apparaître plusieurs fois, par exemple par son
 // oid et par son libellé. Sinon, une seule car ou car-> value(s) persiste.
 // Retourne : tbl -> cids ou tbl -> cids -> values (tj array)
@@ -233,11 +232,12 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
 // On ne dit pas que les valeurs sont valides au temps t.
 - (MSOid*)_oidsWithTabledCars:(MSDictionary*)tcars
   {
-  MSMutableDictionary *search;
-  id ids,q,te,t, cs,ce,cid,vs,vsStr, oi,oc,ocs,ie;
+  MSMutableDictionary *search,*nullCids;
+  id ids,q,te,t, cs,ce,cid,vs,vsStr, oi,oc,ocs,ie, x;
   MSULong nc; MSLong i,c; MSDBResultSet *result;
   if (![tcars count]) return nil;
   search= [MSMutableDictionary dictionary];
+  nullCids= [MSMutableDictionary dictionary];
   te= [tcars dictionaryEnumerator];
   nc= 0;
 //NSLog(@"Q1 %@",tcars);
@@ -248,7 +248,10 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
     ce=  [cs dictionaryEnumerator];
     // on recherche tous les VAL_INST de TJ_VAL_.$table vérifiant car-i in val-i(s)
     while ((cid= [ce nextKey])) {
-      if (ISEQUAL([NSNull null], (vs= [ce currentObject]))) {}
+      if (ISEQUAL([NSNull null], (vs= [ce currentObject]))) {
+        nc--;
+        if (!(x= [nullCids objectForKey:t])) [nullCids setObject:(x= [MSUid uid]) forKey:t];
+        [x addUid:cid];}
       else {
         if (!q) q= [NSMutableString stringWithFormat:
           @"SELECT VAL_INST,VAL_CAR FROM TJ_VAL_%@ WHERE ",t];
@@ -270,7 +273,20 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   ids= [MSUid uid];
   for (ie= [search dictionaryEnumerator]; (oi= [ie nextKey]);) {
     if ([[search objectForKey:oi] count]==nc) [ids addUid:oi];}
+  if ([nullCids count]) {
+//NSLog(@"Q7 %@",ids);
+    for (te= [nullCids dictionaryEnumerator]; [ids count] && (t= [te nextKey]);) {
+      q= [NSMutableString stringWithFormat:
+        @"SELECT VAL_INST FROM TJ_VAL_%@ WHERE (VAL_INST%@) AND (VAL_CAR%@)",
+        t,[self _inValues:ids],[self _inValues:[te currentObject]]];
+//NSLog(@"Q8 %@",q);
+      result= [_db fetchWithRequest:q];
+      while ([result nextRow]) {
+        [result getLongAt:&i column:0]; oi= [MSOid oidWithLongLongValue:i];
+        [ids removeOid:oi];}}
 //NSLog(@"Q9 %@",ids);
+    }
+//NSLog(@"Q10 %@",ids);
   return ids;
   }
 

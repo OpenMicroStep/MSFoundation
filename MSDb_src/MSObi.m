@@ -495,6 +495,14 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   return [self _setValue:v :MSUnchanged];
   }
 
+- (void)removeIdenticalLocalValue:(MSOValue*)v
+  {
+  id cid,vs; NSUInteger idx;
+  if ((cid= [v cid]) && (vs= [_valuesByCid objectForKey:cid]) &&
+      (idx= [vs indexOfObjectIdenticalTo:v])!=NSNotFound) {
+    [vs removeObjectAtIndex:idx];}
+  }
+
 @end
 
 @implementation MSObi (Sys)

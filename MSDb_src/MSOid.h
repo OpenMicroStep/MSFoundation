@@ -115,6 +115,7 @@ typedef id        uid; // union id: vid | MSUid*
 - (id)initWithUid:(uid)u;
 - (BOOL)containsVid:(vid)v;
 - (id)oids;
+- (NSEnumerator*)oidEnumerator;
 - (id)otherSystemNames;
 - (MSUid*)resolvedUidForOdb:(MSOdb*)db;
 - (NSUInteger)count;

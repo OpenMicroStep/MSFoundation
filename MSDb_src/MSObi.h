@@ -157,6 +157,7 @@ _btypedValue;
 - (NSString*)systemName;
 // Set
 - (BOOL)setValue:(MSOValue*)v;
+- (void)removeIdenticalLocalValue:(MSOValue*)v;
 @end
 
 @interface MSObi (Sys)

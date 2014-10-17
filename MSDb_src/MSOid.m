@@ -391,6 +391,10 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
 {
   return _oids;
 }
+- (NSEnumerator*)oidEnumerator
+{
+  return [_oids objectEnumerator];
+}
 - (id)otherSystemNames
 {
   return _txtsMore;
