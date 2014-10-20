@@ -147,12 +147,12 @@ typedef int (__stdcall *DLL_OPENSSL_EVP_CipherUpdate) (EVP_CIPHER_CTX *, unsigne
 typedef int (__stdcall *DLL_OPENSSL_EVP_CipherFinal_ex) (EVP_CIPHER_CTX *, unsigned char *, int *);
 typedef int (__stdcall *DLL_OPENSSL_EVP_CIPHER_CTX_cleanup) (EVP_CIPHER_CTX *);
 typedef RSA * (__stdcall *DLL_OPENSSL_RSA_generate_key) (int , unsigned long , DLL_OPENSSL_RSA_generate_key_callback, void *);
-typedef RSA * (__stdcall *DLL_OPENSSL_PEM_read_bio_RSAPublicKey) (BIO *, RSA **, pem_password_cb *, void *);
+typedef RSA * (__stdcall *DLL_OPENSSL_PEM_read_bio_RSA_PUBKEY) (BIO *, RSA **, pem_password_cb *, void *);
 typedef RSA * (__stdcall *DLL_OPENSSL_PEM_read_bio_RSAPrivateKey) (BIO *, RSA **, pem_password_cb *, void *);
 typedef int (__stdcall *DLL_OPENSSL_RSA_public_encrypt) (int, unsigned char *, unsigned char *, RSA *, int);
 typedef int (__stdcall *DLL_OPENSSL_RSA_private_decrypt) (int , unsigned char *, unsigned char *, RSA *, int);
 typedef int (__stdcall *DLL_OPENSSL_PEM_write_bio_RSAPrivateKey) (BIO *, RSA *, const EVP_CIPHER *, unsigned char *, int ,	pem_password_cb *, void *);
-typedef int (__stdcall *DLL_OPENSSL_PEM_write_bio_RSAPublicKey) (BIO *, RSA *);
+typedef int (__stdcall *DLL_OPENSSL_PEM_write_bio_RSA_PUBKEY) (BIO *, RSA *);
 typedef void (__stdcall *DLL_OPENSSL_RSA_free) (RSA *);
 typedef BIO * (__stdcall *DLL_OPENSSL_BIO_new) (BIO_METHOD *);
 typedef BIO * (__stdcall *DLL_OPENSSL_BIO_new_mem_buf) (void *, int);
@@ -283,12 +283,12 @@ static DLL_OPENSSL_EVP_CipherUpdate				__openssl_evp_cipherupdate;
 static DLL_OPENSSL_EVP_CipherFinal_ex			__openssl_evp_cipherfinal_ex;
 static DLL_OPENSSL_EVP_CIPHER_CTX_cleanup		__openssl_evp_cipher_ctx_cleanup;
 static DLL_OPENSSL_RSA_generate_key				__openssl_rsa_generate_key;
-static DLL_OPENSSL_PEM_read_bio_RSAPublicKey	__openssl_pem_read_bio_rsapublickey;
+static DLL_OPENSSL_PEM_read_bio_RSA_PUBKEY      __openssl_pem_read_bio_rsa_pubkey;
 static DLL_OPENSSL_PEM_read_bio_RSAPrivateKey	__openssl_pem_read_bio_rsaprivatekey;
 static DLL_OPENSSL_RSA_public_encrypt			__openssl_rsa_public_encrypt;
 static DLL_OPENSSL_RSA_private_decrypt			__openssl_rsa_private_decrypt;
 static DLL_OPENSSL_PEM_write_bio_RSAPrivateKey	__openssl_pem_write_bio_rsaprivatekey;
-static DLL_OPENSSL_PEM_write_bio_RSAPublicKey	__openssl_pem_write_bio_rsapublickey;
+static DLL_OPENSSL_PEM_write_bio_RSA_PUBKEY     __openssl_pem_write_bio_rsa_pubkey;
 static DLL_OPENSSL_RSA_free						__openssl_rsa_free;
 static DLL_OPENSSL_BIO_new						__openssl_bio_new;
 static DLL_OPENSSL_BIO_new_mem_buf				__openssl_bio_new_mem_buf;
@@ -423,12 +423,12 @@ void OPENSSL_initialize()
             __openssl_evp_cipherfinal_ex			= (DLL_OPENSSL_EVP_CipherFinal_ex)			GetProcAddress(__libeay_DLL, "EVP_CipherFinal_ex") ;
             __openssl_evp_cipher_ctx_cleanup		= (DLL_OPENSSL_EVP_CIPHER_CTX_cleanup)		GetProcAddress(__libeay_DLL, "EVP_CIPHER_CTX_cleanup") ;
             __openssl_rsa_generate_key              = (DLL_OPENSSL_RSA_generate_key)            GetProcAddress(__libeay_DLL, "RSA_generate_key") ;
-            __openssl_pem_read_bio_rsapublickey     = (DLL_OPENSSL_PEM_read_bio_RSAPublicKey)	GetProcAddress(__libeay_DLL, "PEM_read_bio_RSAPublicKey") ;
+            __openssl_pem_read_bio_rsa_pubkey       = (OPENSSL_PEM_read_bio_RSA_PUBKEY)         GetProcAddress(__libeay_DLL, "PEM_read_bio_RSA_PUBKEY") ;
             __openssl_pem_read_bio_rsaprivatekey	= (DLL_OPENSSL_PEM_read_bio_RSAPrivateKey)	GetProcAddress(__libeay_DLL, "PEM_read_bio_RSAPrivateKey") ;
             __openssl_rsa_public_encrypt			= (DLL_OPENSSL_RSA_public_encrypt)			GetProcAddress(__libeay_DLL, "RSA_public_encrypt") ;
             __openssl_rsa_private_decrypt			= (DLL_OPENSSL_RSA_private_decrypt)			GetProcAddress(__libeay_DLL, "RSA_private_decrypt") ;
             __openssl_pem_write_bio_rsaprivatekey	= (DLL_OPENSSL_PEM_write_bio_RSAPrivateKey)	GetProcAddress(__libeay_DLL, "PEM_write_bio_RSAPrivateKey") ;
-            __openssl_pem_write_bio_rsapublickey	= (DLL_OPENSSL_PEM_write_bio_RSAPublicKey)	GetProcAddress(__libeay_DLL, "PEM_write_bio_RSAPublicKey") ;
+            __openssl_pem_write_bio_rsa_pubkey      = (DLL_OPENSSL_PEM_write_bio_RSA_PUBKEY)	GetProcAddress(__libeay_DLL, "PEM_write_bio_RSA_PUBKEY") ;
             __openssl_rsa_free						= (DLL_OPENSSL_RSA_free)					GetProcAddress(__libeay_DLL, "RSA_free") ;
             __openssl_bio_new						= (DLL_OPENSSL_BIO_new)						GetProcAddress(__libeay_DLL, "BIO_new") ;
             __openssl_bio_new_mem_buf				= (DLL_OPENSSL_BIO_new_mem_buf)				GetProcAddress(__libeay_DLL, "BIO_new_mem_buf") ;
@@ -526,12 +526,12 @@ void OPENSSL_initialize()
                   __openssl_evp_cipherfinal_ex &&
                   __openssl_evp_cipher_ctx_cleanup &&
                   __openssl_rsa_generate_key &&
-                  __openssl_pem_read_bio_rsapublickey &&
+                  __openssl_pem_read_bio_rsa_pubkey &&
                   __openssl_pem_read_bio_rsaprivatekey &&
                   __openssl_rsa_public_encrypt &&
                   __openssl_rsa_private_decrypt &&
                   __openssl_pem_write_bio_rsaprivatekey &&
-                  __openssl_pem_write_bio_rsapublickey &&
+                  __openssl_pem_write_bio_rsa_pubkey &&
                   __openssl_rsa_free &&
                   __openssl_bio_new &&
                   __openssl_bio_new_mem_buf &&
@@ -624,12 +624,12 @@ void OPENSSL_initialize()
                 if(!__openssl_evp_cipherfinal_ex)           NSLog(@"__openssl_evp_cipherfinal_ex NULL");
                 if(!__openssl_evp_cipher_ctx_cleanup)       NSLog(@"__openssl_evp_cipher_ctx_cleanup NULL");
                 if(!__openssl_rsa_generate_key)             NSLog(@"__openssl_rsa_generate_key NULL");
-                if(!__openssl_pem_read_bio_rsapublickey)	NSLog(@"__openssl_pem_read_bio_rsapublickey NULL");
+                if(!__openssl_pem_read_bio_rsa_pubkey)      NSLog(@"__openssl_pem_read_bio_rsa_pubkey NULL");
                 if(!__openssl_pem_read_bio_rsaprivatekey)	NSLog(@"__openssl_pem_read_bio_rsaprivatekey NULL");
                 if(!__openssl_rsa_public_encrypt)           NSLog(@"__openssl_rsa_public_encrypt NULL");
                 if(!__openssl_rsa_private_decrypt)          NSLog(@"__openssl_rsa_private_decrypt NULL");
                 if(!__openssl_pem_write_bio_rsaprivatekey)	NSLog(@"__openssl_pem_write_bio_rsaprivatekey NULL");
-                if(!__openssl_pem_write_bio_rsapublickey)	NSLog(@"__openssl_pem_write_bio_rsapublickey NULL");
+                if(!__openssl_pem_write_bio_rsa_pubkey)     NSLog(@"__openssl_pem_write_bio_rsa_pubkey NULL");
                 if(!__openssl_rsa_free)                     NSLog(@"__openssl_rsa_free NULL");
                 if(!__openssl_bio_new)                      NSLog(@"__openssl_bio_new NULL");
                 if(!__openssl_bio_new_mem_buf)              NSLog(@"__openssl_bio_new_mem_buf NULL");
@@ -859,12 +859,12 @@ void OPENSSL_initialize() { }
 #define __openssl_evp_cipherfinal_ex(X, Y, Z) EVP_CipherFinal_ex(X, Y, Z)
 #define __openssl_evp_cipher_ctx_cleanup(X) EVP_CIPHER_CTX_cleanup(X)
 #define __openssl_rsa_generate_key(X, Y, Z, A) RSA_generate_key(X, Y, Z, A)
-#define __openssl_pem_read_bio_rsapublickey(X, Y, Z, A) PEM_read_bio_RSAPublicKey(X, Y, Z, A)
+#define __openssl_pem_read_bio_rsa_pubkey(X, Y, Z, A) PEM_read_bio_RSA_PUBKEY(X, Y, Z, A)
 #define __openssl_pem_read_bio_rsaprivatekey(X, Y, Z, A) PEM_read_bio_RSAPrivateKey(X, Y, Z, A)
 #define __openssl_rsa_public_encrypt(X, Y, Z, A, B) RSA_public_encrypt(X, Y, Z, A, B)
 #define __openssl_rsa_private_decrypt(X, Y, Z, A, B) RSA_private_decrypt(X, Y, Z, A, B)
 #define __openssl_pem_write_bio_rsaprivatekey(X, Y, Z, A, B, C, D) PEM_write_bio_RSAPrivateKey(X, Y, Z, A, B, C, D)
-#define __openssl_pem_write_bio_rsapublickey(X, Y) PEM_write_bio_RSAPublicKey(X, Y)
+#define __openssl_pem_write_bio_rsa_pubkey(X, Y) PEM_write_bio_RSA_PUBKEY(X, Y)
 #define __openssl_rsa_free(X) RSA_free(X)
 #define __openssl_bio_new(X) BIO_new(X)
 #define __openssl_bio_new_mem_buf(X, Y) BIO_new_mem_buf(X, Y)
@@ -992,12 +992,12 @@ int				OPENSSL_EVP_CipherUpdate(void *ctx, unsigned char *out, int *outl, unsign
 int				OPENSSL_EVP_CipherFinal_ex(void *ctx, unsigned char *outm, int *outl) { return __openssl_evp_cipherfinal_ex( (EVP_CIPHER_CTX *)ctx, outm, outl) ; }
 int				OPENSSL_EVP_CIPHER_CTX_cleanup(void *a) { return __openssl_evp_cipher_ctx_cleanup(a) ; }
 void *			OPENSSL_RSA_generate_key(int num, unsigned long e, void (*callback)(int,int,void *), void *cb_arg) { return (void *)__openssl_rsa_generate_key(num, e, callback, cb_arg) ; }
-void *			OPENSSL_PEM_read_bio_RSAPublicKey(void *bp, void **x, void *cb, void *u) { return (void *)__openssl_pem_read_bio_rsapublickey((BIO *)bp, (RSA **)x, (pem_password_cb *)cb, u) ; }
+void *			OPENSSL_PEM_read_bio_RSA_PUBKEY(void *bp, void **x, void *cb, void *u) { return (void *)__openssl_pem_read_bio_rsa_pubkey((BIO *)bp, (RSA **)x, (pem_password_cb *)cb, u) ; }
 void *			OPENSSL_PEM_read_bio_RSAPrivateKey(void *bp, void **x, void *cb, void *u) { return (void *)__openssl_pem_read_bio_rsaprivatekey((BIO *)bp, (RSA **)x, (pem_password_cb *)cb, u) ; }
 int				OPENSSL_RSA_public_encrypt(int flen, unsigned char *from, unsigned char *to, void *rsa, int padding) { return __openssl_rsa_public_encrypt(flen, from, to, (RSA *)rsa, padding) ; }
 int				OPENSSL_RSA_private_decrypt(int flen, unsigned char *from, unsigned char *to, void *rsa, int padding) { return __openssl_rsa_private_decrypt(flen, from, to, (RSA *)rsa, padding) ; }
 int				OPENSSL_PEM_write_bio_RSAPrivateKey(void *bp, void *x, const void *enc, unsigned char *kstr, int klen, void *cb, void *u) { return __openssl_pem_write_bio_rsaprivatekey((BIO *)bp, (RSA *)x, (const EVP_CIPHER *)enc, kstr, klen, (pem_password_cb *)cb, u) ; }
-int				OPENSSL_PEM_write_bio_RSAPublicKey(void *bp, void *x) { return __openssl_pem_write_bio_rsapublickey((BIO *)bp, (RSA *)x) ; }
+int				OPENSSL_PEM_write_bio_RSA_PUBKEY(void *bp, void *x) { return __openssl_pem_write_bio_rsa_pubkey((BIO *)bp, (RSA *)x) ; }
 void			OPENSSL_RSA_free(void *rsa) { __openssl_rsa_free((RSA *)rsa) ; }
 void *			OPENSSL_BIO_new(void *type) { return (void *)__openssl_bio_new((BIO_METHOD *)type) ; }
 void *			OPENSSL_BIO_new_mem_buf(void *buf, int len) { return (void *)__openssl_bio_new_mem_buf(buf,len) ; }

@@ -55,7 +55,7 @@
 	void *bioKey;
 	[self _initMembers];
 
-	bioKey = OPENSSL_BIO_new_mem_buf((void *)[key bytes], -1);
+	bioKey = OPENSSL_BIO_new_mem_buf((void *)[key bytes], (int)[key length]);
 
 	if(!bioKey)
 	{
@@ -64,7 +64,7 @@
 	
 	switch (type) {
 		case RSAEncoder:
-			_rsaKey = (RSA *) OPENSSL_PEM_read_bio_RSAPublicKey(bioKey, NULL, NULL, NULL);
+			_rsaKey = (RSA *) OPENSSL_PEM_read_bio_RSA_PUBKEY(bioKey, NULL, NULL, NULL);
 			break;
 		case RSADecoder:
 			_rsaKey = (RSA *) OPENSSL_PEM_read_bio_RSAPrivateKey(bioKey, NULL, NULL, NULL);
@@ -191,7 +191,7 @@
 	char *buff = NULL;
 
 	bio = (BIO *)OPENSSL_BIO_new(OPENSSL_BIO_s_mem());
-	res = OPENSSL_PEM_write_bio_RSAPublicKey(bio, rsa);
+	res = OPENSSL_PEM_write_bio_RSA_PUBKEY(bio, rsa);
 
 	if(res == 0)
 	{

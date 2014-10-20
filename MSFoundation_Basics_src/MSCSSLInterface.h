@@ -114,10 +114,10 @@ MSFoundationExport const void *   OPENSSL_EVP_get_cipherbyname(const char *name)
 MSFoundationExport int            OPENSSL_EVP_CIPHER_nid(const void *cipher);
 
 //PEM section
-MSFoundationExport void *			OPENSSL_PEM_read_bio_RSAPublicKey(void *bp, void **x, void *cb, void *u) ;
+MSFoundationExport void *			OPENSSL_PEM_read_bio_RSA_PUBKEY(void *bp, void **x, void *cb, void *u) ;
 MSFoundationExport void *			OPENSSL_PEM_read_bio_RSAPrivateKey(void *bp, void **x, void *cb, void *u) ;
 MSFoundationExport int			OPENSSL_PEM_write_bio_RSAPrivateKey(void *bp, void *x, const void *enc, unsigned char *kstr, int klen, void *cb, void *u) ;
-MSFoundationExport int			OPENSSL_PEM_write_bio_RSAPublicKey(void *bp, void *x) ;
+MSFoundationExport int			OPENSSL_PEM_write_bio_RSA_PUBKEY(void *bp, void *x) ;
 MSFoundationExport void *         OPENSSL_PEM_read_bio_X509(void *bp, void **x, void *cb, void *u) ;
 
 //RAND section
