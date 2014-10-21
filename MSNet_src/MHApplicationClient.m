@@ -338,7 +338,7 @@ typedef enum
     NSString *decodedChallenge = nil ;
 
     challengeBytes = [challenge UTF8String] ;
-    challengeBuf = [[MSBuffer bufferWithBytesNoCopyNoFree:(void*)challengeBytes length:strlen(challengeBytes)] encodedToBase64] ;
+    challengeBuf = [[MSBuffer bufferWithBytesNoCopyNoFree:(void*)challengeBytes length:strlen(challengeBytes)] decodedFromBase64] ;
     decoder = [MSCipher cipherWithKey:_sk type:RSADecoder] ;
     decryptedData = [decoder decryptData:challengeBuf] ;
 
