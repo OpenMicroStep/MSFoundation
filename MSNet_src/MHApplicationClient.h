@@ -26,8 +26,6 @@
     NSString *_target ;
     
     NSString *_ticket ;
-  
-    MSMutex *_requestLock ;
 }
 
 + (id)clientWithServerParameters:(NSDictionary *)parameters ;

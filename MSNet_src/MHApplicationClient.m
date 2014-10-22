@@ -69,7 +69,6 @@ typedef enum
 
 - (id)init
 {
-  ASSIGN(_requestLock, [MSMutex mutex]) ;
   return [super init] ;
 }
 
@@ -180,7 +179,6 @@ typedef enum
     DESTROY(_target) ;
     
     DESTROY(_ticket) ;
-    DESTROY(_requestLock) ;
     
     [super dealloc] ;
 }
@@ -253,7 +251,6 @@ typedef enum
 {
     MSHTTPResponse *response = nil ;
     NSString **errorString = (error) ? error : NULL ;
-    [_requestLock lock] ;
   
     if (_authenticationType == MHAuthTicket && ![_sessionID length])
     {
@@ -287,7 +284,6 @@ typedef enum
         }
     }
 
-  [_requestLock unlock] ;
   return response ;
 }
 
@@ -402,7 +398,6 @@ typedef enum
     MSHTTPRequest *challengeRequest = nil ;
     MSHTTPResponse *challengeResponse = nil ;
 
-    [_requestLock lock] ;
     challengeRequest = [self _challengeRequest] ;
     challengeResponse = [self _performRequest:challengeRequest errorString:NULL] ;
 
@@ -413,14 +408,12 @@ typedef enum
         
         auth = [self _authenticateWithChallenge:challenge] ;
     }
-    [_requestLock unlock] ;
     return auth ;
 }
 
 - (BOOL)authenticate
 {
     BOOL auth = NO ;
-    MHInitSSL();
 
     [self setSessionID:nil] ;
     
