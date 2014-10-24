@@ -376,20 +376,14 @@ typedef enum
 
 - (BOOL)_authenticateWithChallenge:(NSString *)challenge
 {
-    BOOL auth = NO ;
     MSHTTPRequest *challengeAuth;
     MSHTTPResponse *challengeAuthResponse;
 
     challengeAuth = [self _challengeAuthenticationRequestWithChallenge:challenge] ;
     challengeAuthResponse = [self _performRequest:challengeAuth errorString:NULL] ;
     
-    if ([challengeAuthResponse HTTPStatus] == HTTPOK &&
-        [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[challengeAuthResponse headerValueForKey:MHAUTH_HEADER_RESPONSE]])
-    {
-        auth = YES ;
-    }
-    
-    return auth ;
+    return [challengeAuthResponse HTTPStatus] == HTTPOK
+        && [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[challengeAuthResponse headerValueForKey:MHAUTH_HEADER_RESPONSE]] ;
 }
 
 - (BOOL)_performChallengedAuthentication
@@ -410,6 +404,43 @@ typedef enum
     }
     return auth ;
 }
+
+- (NSString*)guiAuthenticationChallengeForLogin:(NSString *)login
+{
+    NSString *error = nil ;
+    MSHTTPResponse *response ;
+    MSHTTPRequest *request = [self request:GET onSubURL:nil] ;
+    MSBuffer *responseContent ;
+    
+    [request addAdditionalHeaderValue:login forKey:MHGUI_AUTH_FORM_LOGIN] ;
+    response = [self _performRequest:request errorString:&error] ;
+    responseContent = [response content] ;
+    if ([response HTTPStatus] == HTTPOK && !error && [responseContent length] && [_sessionID length]) {
+        return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[responseContent bytes], [responseContent length], YES, YES)) ;
+    }
+    
+    return nil ;
+}
+
+- (BOOL)guiAuthenticationWithChallengedPassword:(NSString *)password
+                                       forLogin:(NSString *)login
+                                   andChallenge:(NSString *)challenge
+{
+    //GEO TODO #define hard-coded values
+    MSHTTPResponse *response  ;
+    MSHTTPRequest *request ;
+    NSString *error ;
+    
+    request = [self request:GET onSubURL:nil] ;
+    [request addAdditionalHeaderValue:login forKey:@"MH-LOGIN"] ;
+    [request addAdditionalHeaderValue:password forKey:@"MH-PASSWORD"] ;
+    [request addAdditionalHeaderValue:challenge forKey:@"MH-CHALLENGE"] ;
+    
+    response = [self _performRequest:request errorString:&error] ;
+    return [response HTTPStatus] == HTTPOK
+        && [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[response headerValueForKey:MHAUTH_HEADER_RESPONSE]] ;
+}
+
 
 - (BOOL)authenticate
 {

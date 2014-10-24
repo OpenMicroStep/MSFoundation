@@ -68,6 +68,10 @@
                            urn:(NSString *)urn
                      secretKey:(NSData *)sk ;
 
+- (NSString*)guiAuthenticationChallengeForLogin:(NSString *)login ;
+- (BOOL)guiAuthenticationWithChallengedPassword:(NSString *)password
+                                       forLogin:(NSString *)login
+                                   andChallenge:(NSString *)challenge;
 - (BOOL)authenticate ;
 - (oneway void)close ;
 - (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorString:(NSString **)error ;
