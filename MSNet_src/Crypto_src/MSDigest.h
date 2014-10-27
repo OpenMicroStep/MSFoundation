@@ -9,7 +9,7 @@
  
  Herve Malaingre : herve@malaingre.com
  Geoffrey Guilbon : gguilbon@gmail.com
- 
+ Vincent Rouillé : v-rouille@logitud.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -41,7 +41,7 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  WARNING : this header file cannot be included alone, please direclty
- include <MSFoundation/MSFoundation.h>
+ include <MSNet/MSNet>
  
  A call to the MSFoundation initialize function must be done before using
  these functions.
@@ -56,6 +56,19 @@ typedef enum
 	MS_DSS1,
 	MS_MDC2,
 	MS_RIPEMD160
-} MSDigest ;
+} MSDigestType ;
 
-MSNetExport NSString *MSDigestData(MSDigest digest, const void *bytes, NSUInteger length) ;
+@interface MSDigest : NSObject
+
++ (id)digestWithType:(MSDigestType)type;
+- (id)initWithType:(MSDigestType)type;
+
+- (void)updateWithBytes:(const void *)bytes length:(NSUInteger)length;
+- (void)updateWithData:(NSData *)data;
+- (void)reset;
+
+- (MSBuffer*)digest;
+- (NSString*)hexEncodedDigest;
+@end
+
+MSNetExport NSString *MSDigestData(MSDigestType digest, const void *bytes, NSUInteger length) ;

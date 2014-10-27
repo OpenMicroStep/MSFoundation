@@ -49,67 +49,94 @@
 
 #define WORKING_BLOCK_SIZE 1024
 
-NSString *MSDigestData(MSDigest digest, const void *bytes, NSUInteger length)
+@implementation MSDigest {
+    EVP_MD_CTX _mdctx ;
+    MSDigestType _type;
+}
+
++ (id)digestWithType:(MSDigestType)type
 {
-	EVP_MD_CTX mdctx ;
-	const EVP_MD *md = NULL ;
-	unsigned char inBuff[WORKING_BLOCK_SIZE], *outBuff ;
-	int outLen ;
-	NSUInteger remainingData = length ;
-	NSRange range ;
-    NSString *hash ;
-	MSBuffer *data = nil ;
-    
+    return AUTORELEASE([ALLOC(self) initWithType:type]);
+}
+
+- (id)initWithType:(MSDigestType)type
+{
     OPENSSL_initialize() ;
-    
-    if(length < 1)
+    _type = type;
+    OPENSSL_EVP_MD_CTX_init(&_mdctx) ;
+    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
     {
-        return nil ;
+        MSRaiseCryptoOpenSSLException();
     }
-	
-    md = MSDigestToEVP_MD(digest) ;
-	
-	// Initialisations
-	OPENSSL_EVP_MD_CTX_init(&mdctx) ;
-  data = AUTORELEASE(MSCreateBufferWithBytes((void *)bytes, length)) ;
-	outBuff = (unsigned char *)malloc(EVP_MAX_MD_SIZE * sizeof(unsigned char)) ;
-	range.location = 0;
-	range.length = WORKING_BLOCK_SIZE ;
-	
-	if(!OPENSSL_EVP_DigestInit_ex(&mdctx, md, NULL))
-	{
-		MSRaiseCryptoOpenSSLException();
-	}
-	
-	// Digest loop
-	while(remainingData > 0)
-	{
-		if(remainingData < WORKING_BLOCK_SIZE)
-		{
-			range.length = remainingData;
-		}
-		
-		[data getBytes:inBuff range:range];
-		
-		if(!OPENSSL_EVP_DigestUpdate(&mdctx, inBuff, range.length))
-		{
-			MSRaiseCryptoOpenSSLException();
-		}
-		
-		range.location += range.length;
-		remainingData  -= range.length;
-	}
-	
-	// Digest endings
-	if(!OPENSSL_EVP_DigestFinal_ex(&mdctx, outBuff, &outLen))
-	{
-		MSRaiseCryptoOpenSSLException();
-	}
-	
-	hash = MSBytesToHexaString(outBuff, (NSUInteger)outLen, NO) ;
     
-	free(outBuff);
-	OPENSSL_EVP_MD_CTX_cleanup(&mdctx);
-	
-	return hash ; 
+    return self ;
+}
+
+- (void)dealloc
+{
+    OPENSSL_EVP_MD_CTX_cleanup(&_mdctx);
+    [super dealloc];
+}
+
+- (void)updateWithBytes:(const void *)bytes length:(NSUInteger)length
+{
+    if(!OPENSSL_EVP_DigestUpdate(&_mdctx, bytes, length))
+    {
+        MSRaiseCryptoOpenSSLException();
+    }
+}
+
+- (void)updateWithData:(NSData *)data
+{
+    [self updateWithBytes:[data bytes] length:[data length]];
+}
+
+- (void)reset
+{
+    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
+        MSRaiseCryptoOpenSSLException();
+}
+
+- (MSBuffer*)digest
+{
+    unsigned char *outBuff;
+    int outLen ;
+    
+    outBuff = (unsigned char *)malloc(EVP_MAX_MD_SIZE * sizeof(unsigned char)) ;
+    if(!outBuff)
+        return nil;
+    if(!OPENSSL_EVP_DigestFinal_ex(&_mdctx, outBuff, &outLen))
+        MSRaiseCryptoOpenSSLException();
+    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
+        MSRaiseCryptoOpenSSLException();
+    
+    return [MSBuffer bufferWithBytesNoCopy:outBuff length:(NSUInteger)outLen] ;
+}
+
+- (NSString*)hexEncodedDigest
+{
+    int outLen ;
+    unsigned char outBuff[EVP_MAX_MD_SIZE];
+    
+    if(!OPENSSL_EVP_DigestFinal_ex(&_mdctx, outBuff, &outLen))
+        MSRaiseCryptoOpenSSLException();
+    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
+        MSRaiseCryptoOpenSSLException();
+    
+    return MSBytesToHexaString(outBuff, (NSUInteger)outLen, NO) ;
+}
+
+@end
+
+NSString *MSDigestData(MSDigestType type, const void *bytes, NSUInteger length)
+{
+    MSDigest *digest ;
+    NSString *hexDigest ;
+    
+    digest = [[MSDigest alloc] initWithType:type] ;
+    [digest updateWithBytes:bytes length:length] ;
+    hexDigest = [digest hexEncodedDigest] ;
+    RELEASE(digest) ;
+    
+    return hexDigest ;
 }

@@ -383,7 +383,7 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 {
     NSData *encryptedChallengeData = nil ;
     NSString *encryptedChallenge = nil ;
-    NSString *challenge = [self generatePlainChallengeWithParameters:nil storeInSession:nil] ;
+    MSBuffer *challenge = [MSSecureHash generateRawChallenge] ;
     MSBuffer *base64Buf = nil ;
     
     if ([challenge length])
@@ -394,23 +394,21 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
         {
             NSData *challengeData = nil ;
             MSCipher *cypher = nil ;
+            MSBuffer *b64Challenge ;
             MSBuffer *pkBuf = AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree((void *)[publicKey UTF8String], [publicKey length])) ;
-            
-            //convert challenge to data
-            challengeData = [NSData dataWithBytes:(void *)[challenge UTF8String] length:[challenge length]] ;
-            
-            //encrypt challenge
             cypher = [MSCipher cipherWithKey:pkBuf type:RSAEncoder] ;
-            encryptedChallengeData = [cypher encryptData:challengeData] ;
-            
-            *plainChallenge = challenge ; //store plain challenge
+            encryptedChallengeData = [cypher encryptData:challenge] ;
+          
+            b64Challenge= [challenge encodedToBase64];
+            *plainChallenge = [MSSecureHash plainChallenge:challenge] ;
         }
         else // do not store challenge
         {
             *plainChallenge = nil ;
-            encryptedChallengeData = [challenge dataUsingEncoding:NSUTF8StringEncoding] ;
+            encryptedChallengeData = challenge ;
         }
-    } else
+    }
+    else
     {
         MSRaise(NSInternalInconsistencyException, @"generatePKChallengeURN : Challenge generation failed") ;
     }
@@ -422,12 +420,10 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     return encryptedChallenge ;
 }
 
-- (NSString *)generatePlainChallengeWithParameters:(NSDictionary *)challengeParameters storeInSession:(NSDictionary **)sessionParameters
+- (NSString *)generateChallengeInfoForLogin:(NSString *)login storedPlainChallenge:(NSString **)plainChallenge
 {
-    MSBuffer *randBuff = AUTORELEASE(MSCreateRandomBuffer(8)) ;
-    MSBuffer *b64Buf = [randBuff encodedToBase64] ;
-    
-    return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[b64Buf bytes], [b64Buf length], YES, YES)) ;
+    *plainChallenge = nil;
+    return [MSSecureHash fakeChallengeInfo] ;
 }
 
 - (void)validateAuthentication:(MHNotification *)notification ticket:(NSString *)ticket certificate:(MSCertificate *)certificate

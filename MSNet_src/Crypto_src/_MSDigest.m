@@ -50,7 +50,7 @@
 #import "MSNet_Private.h"
 //#import <openssl/evp.h>
 
-const EVP_MD *MSDigestToEVP_MD(MSDigest digest)
+const EVP_MD *MSDigestToEVP_MD(MSDigestType digest)
 {
 	switch (digest) {
             

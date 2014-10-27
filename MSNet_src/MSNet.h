@@ -58,6 +58,7 @@
 #import <MSNet/MSCipher.h>
 
 #import <MSNet/MSDigest.h>
+#import <MSNet/MSSecureHash.h>
 
 #import <MSNet/MSCertificate.h>
 

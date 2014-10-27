@@ -75,7 +75,7 @@
 - (MSDate *)notValidAfter ;
 - (MSDate *)notValidBefore ;
 
-- (NSString *)fingerPrint:(MSDigest)digest ;
+- (NSString *)fingerPrint:(MSDigestType)digest ;
 
 - (BOOL)isEqual:(MSCertificate *)certificate ;
 

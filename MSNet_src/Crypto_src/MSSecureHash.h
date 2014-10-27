@@ -1,11 +1,13 @@
-/*   MSNet_Private.h
+/*
+ 
+ MSSecureHash.h
  
  This file is is a part of the MicroStep Framework.
  
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
- Herve Malaingre : herve@malaingre.com
+ Vincent Rouillé : v-rouille@logitud.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -36,64 +38,46 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSNet/MSNet>
+ 
+ A call to the MSFoundation initialize function must be done before using
+ these functions.
  */
 
-#ifndef MSNET_PRIVATE_H
-#define MSNET_PRIVATE_H
 
-#import <MSFoundation/MSFoundation.h>
+@interface MSSecureHash : NSObject {
+    MSUInt _algorithm;
+    MSUInt _hardness;
+    NSString *_salt;
+    NSString *_hash;
+}
 
-#import "MSNetWin32.h"
++ (MSUInt)defaultAlgorithm;
++ (MSUInt)defaultHardness;
++ (NSString *)generateSalt;
 
-#import "MSJSONEncoder.h"
-#import "MSHTTPRequest.h"
-#import "MSHTTPResponse.h"
-#import "MSCurlInterface_Private.h"
-#import "MSCurlHandler.h"
-#import "MSCurlSendMail.h"
++ (id)secureHashWithContent:(NSString *)content;
++ (id)secureHashWithContent:(NSString *)content algorithm:(MSUInt)algorithm hardness:(MSUInt)hardness salt:(NSString *)salt;
++ (id)secureHashWithSecureHash:(NSString *)secureHash;
 
-#import "MSCipher.h"
-#import "MSDigest.h"
-#import "_MSDigest.h"
-#import "_MSCipherPrivate.h"
-#import "_SymmetricCipher.h"
-#import "_SymmetricRSACipher.h"
-#import "_RSACipher.h"
+- (id)initWithContent:(NSString *)content;
+- (id)initWithContent:(NSString *)content algorithm:(MSUInt)algorithm hardness:(MSUInt)hardness salt:(NSString *)salt;
+- (id)initWithSecureHash:(NSString *)secureHash;
 
-#import "MSCertificate.h"
+- (MSUInt)algorithm;
+- (MSUInt)hardness;
+- (NSString *)salt;
+- (NSString *)hash;
 
-#import "_MHThreadPrivate.h"
-#import "_MHOpenSSLPrivate.h"
-#import "MHSSLSocket.h"
-#import "_MHSSLSocketPrivate.h"
-#import "_MHQueuePrivate.h"
-#import "MHLogging.h"
-#import "_MHBunchAllocatorPrivate.h"
-#import "_MHBunchRegisterPrivate.h"
+- (NSString *)secureHash;
 
-#import "MHPublicProtocols.h"
++ (MSBuffer *)generateRawChallenge;
++ (NSString *)plainChallenge:(MSBuffer *)rawChallenge;
++ (NSString *)fakeChallengeInfo;
+- (NSString *)challengeInfo;
+- (BOOL)isValidChallengedResult:(NSString *)result withChallengeInfo:(NSString *)challengeInfo;
 
-#import "MSSecureHash.h"
-#import "MHBunchableObject.h"
-#import "MHHTTPMessage.h"
-#import "_MHHTTPMessagePrivate.h"
-#import "_CHTTPMessagePrivate.h"
-#import "MHApplication.h"
-#import "_MHApplicationPrivate.h"
-#import "MHNotification.h"
-#import "_MHNotificationPrivate.h"
-#import "_MHContext.h"
-#import "_MHSession.h"
-#import "_MHServerPrivate.h"
-#import "MHServer.h"
-
-#import "_CNotificationPrivate.h"
-#import "MHResource.h"
-#import "_MHResourcePrivate.h"
-#import "_MHPostProcessingDelegate.h"
-
-#import "_MHAdminApplication.h"
-#import "MHApplicationClient.h"
-#import "MHApplicationClientPrivate.h"
-
-#endif // MSNET_PRIVATE_H
+// TODO: - (BOOL)isWeak;
+// TODO: - (id)secureWeakHash; (ie. level up hardness if the algorithm isn't in cause)
+@end

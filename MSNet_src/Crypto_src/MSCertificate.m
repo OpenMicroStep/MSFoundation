@@ -188,7 +188,7 @@
 - (NSString *)subjectOrganizationName { return [self _subjectValueForKey:@"organizationName"] ; }
 - (NSString *)subjectOrganizationalUnitName { return [self _subjectValueForKey:@"organizationalUnitName"] ; }
 
-- (NSString *)fingerPrint:(MSDigest)digest
+- (NSString *)fingerPrint:(MSDigestType)digest
 {
     unsigned int fprint_size;
     unsigned char fprint[EVP_MAX_MD_SIZE];

@@ -184,7 +184,7 @@ typedef	NSString *(*MHTicketFormatterCallback) (MSUShort minTicketSize);
 
 //challenge generation
 - (NSString *)publicKeyForURN:(NSString *)urn ; //can be overridden, not implemented
-- (NSString *)generatePlainChallengeWithParameters:(NSDictionary *)challengeParameters storeInSession:(NSDictionary **)sessionParameters ;
+- (NSString *)generateChallengeInfoForLogin:(NSString *)login storedPlainChallenge:(NSString **)plainChallenge ;
 - (NSString *)generatePKChallengeURN:(NSString *)urn storedPlainChallenge:(NSString **)plainChallenge ;
 
 //tickets management
