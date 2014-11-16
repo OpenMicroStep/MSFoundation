@@ -521,22 +521,21 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
 
 - (BOOL)containsOnlyBase64Characters
 {
-  NSUInteger i = 0 ;
-  NSUInteger len = [self length] ;
   unsigned char *c = (unsigned char *)[self bytes] ;
+  unsigned char *e = c + [self length];
 
-  for (i = 0 ; i < len ; i++)
-    {
+  while(c < e) {
     if (   !(*c >= 65 && *c <=  90) //'A' to 'Z'
         && !(*c >= 97 && *c <= 122) //'a' to 'z'
         && !(*c >= 48 && *c <=  57) //'0' to '9'
         && (*c != 43)  // '+'
         && (*c != 47)  // '/'
         && (*c != 61)) // '/'
-      {
+    {
       return NO ;
-      }
     }
+    ++c;
+  }
   return YES ;
 }
 @end
