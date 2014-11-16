@@ -216,7 +216,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 
 - (void)addSQLBuffer:(MSBuffer *)sqlBuffer toString:(MSString *)unicodebuffer
 {
-  CStringAppendBytes((CString*)unicodebuffer, _readEncoding, sqlBuffer, [sqlBuffer length]);
+  CStringAppendBytes((CString*)unicodebuffer, _readEncoding, [sqlBuffer bytes], [sqlBuffer length]);
 }
 
 @end
