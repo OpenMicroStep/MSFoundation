@@ -608,7 +608,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 {
     NSZone *zone = [self zone] ;
     MSBuffer *ret = nil ;
-    MSByte *crcPointer ;
+    NSUInteger crcPos;
     NSEnumerator *ec, *ek ;
     NSString *aClassName, *aKey ;
     
@@ -629,7 +629,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
   
     [self _encodeGlobalUnsignedLongLong:(5+_lastKeyIndex+_lastClassIndex+_tokenCount)] ;
     CBufferAppendCString((CBuffer *)_global, ",\"CRC");
-    crcPointer = ((CBuffer*)_global)->buf+((CBuffer*)_global)->length ;
+    crcPos = ((CBuffer*)_global)->length ;
     CBufferAppendCString((CBuffer *)_global, "00000000\",");
     
     //Classes list
@@ -655,7 +655,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     CBufferAppendByte((CBuffer *)_global, (MSByte)']');
     
-    [self _encodeGlobalHexaUnsignedInt:[_global largeCRC] at:crcPointer] ;
+    [self _encodeGlobalHexaUnsignedInt:[_global largeCRC] at:((CBuffer*)_global)->buf+crcPos] ;
     
     ret = [_global retain] ;
     [self _clean] ;
