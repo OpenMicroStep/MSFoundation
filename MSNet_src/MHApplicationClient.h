@@ -69,9 +69,7 @@
                      secretKey:(NSData *)sk ;
 
 - (NSString*)authenticationChallengeForLogin:(NSString *)login ;
-- (BOOL)authenticationWithChallengedPassword:(NSString *)password
-                                       forLogin:(NSString *)login
-                                   andChallenge:(NSString *)challenge;
+- (BOOL)authenticationWithChallengedPassword:(NSString *)password ;
 - (BOOL)authenticate ;
 - (oneway void)close ;
 - (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorString:(NSString **)error ;

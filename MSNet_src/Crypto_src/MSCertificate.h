@@ -77,6 +77,6 @@
 
 - (NSString *)fingerPrint:(MSDigestType)digest ;
 
-- (BOOL)isEqual:(MSCertificate *)certificate ;
+- (BOOL)isEqual:(id)object ;
 
 @end

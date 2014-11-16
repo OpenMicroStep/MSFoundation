@@ -325,24 +325,12 @@ typedef enum
     return request ;
 }
 
-- (NSString *)_decryptRSAChallenge:(NSString *)challenge
+- (NSString *)_signChallenge:(NSString *)challenge
 {
-    const void *challengeBytes = NULL ;
-    MSBuffer *challengeBuf = nil ;   //b64 decode
-    MSCipher *decoder = nil ;
-    NSData *decryptedData = nil ;
-    NSString *decodedChallenge = nil ;
-
-    challengeBytes = [challenge UTF8String] ;
-    challengeBuf = [[MSBuffer bufferWithBytesNoCopyNoFree:(void*)challengeBytes length:strlen(challengeBytes)] decodedFromBase64] ;
-    decoder = [MSCipher cipherWithKey:_sk type:RSADecoder] ;
-    decryptedData = [decoder decryptData:challengeBuf] ;
-    decryptedData = [[MSBuffer bufferWithData:decryptedData] encodedToBase64] ;
-    decodedChallenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[decryptedData bytes],
-                                                                [decryptedData length],
-                                                                NO, NO)) ;
-    
-    return decodedChallenge ;
+    MSCipher *cipher = [MSCipher cipherWithKey:_sk type:RSADecoder] ;
+    NSData *signature = [cipher sign:[challenge dataUsingEncoding:NSUTF8StringEncoding]] ;
+    MSBuffer *signatureInB64 = [[MSBuffer bufferWithData:signature] encodedToBase64];
+    return [MSASCIIString stringWithBuffer:signatureInB64] ;
 }
 
 - (MSHTTPRequest *)_challengeAuthenticationRequestWithChallenge:(NSString *)challenge
@@ -354,7 +342,7 @@ typedef enum
     {
         case MHAuthPKChallengeAndURN:
         {
-            outgoingChallenge = [self _decryptRSAChallenge:challenge] ;
+            outgoingChallenge = [self _signChallenge:challenge] ;
             [request addAdditionalHeaderValue:outgoingChallenge forKey:@"MH-CHALLENGE"] ;
             break ;
         }
@@ -362,7 +350,7 @@ typedef enum
         case MHAuthChallengedPasswordLogin :
         case MHAuthChallengedPasswordLoginOnTarget:
         {
-            outgoingChallenge = MHChallengedPasswordHash(_password, challenge) ;
+            outgoingChallenge = [MSSecureHash challengeResultFor:_password withChallengeInfo:challenge];
             [request addAdditionalHeaderValue:outgoingChallenge forKey:@"MH-PASSWORD"] ;
             break ;
         }

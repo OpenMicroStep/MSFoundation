@@ -129,6 +129,8 @@ MSFoundationExport void *			OPENSSL_RSA_generate_key(int num, unsigned long e, v
 MSFoundationExport int			OPENSSL_RSA_size(const void *x) ;
 MSFoundationExport int			OPENSSL_RSA_public_encrypt(int flen, unsigned char *from, unsigned char *to, void *rsa, int padding) ;
 MSFoundationExport int			OPENSSL_RSA_private_decrypt(int flen, unsigned char *from, unsigned char *to, void *rsa, int padding) ;
+MSFoundationExport int          OPENSSL_RSA_sign(int type, const unsigned char *m, unsigned int m_len, unsigned char *sigret, unsigned int *siglen, void *rsa);
+MSFoundationExport int          OPENSSL_RSA_verify(int type, const unsigned char *m, unsigned int m_len, unsigned char *sigbuf, unsigned int siglen, void *rsa);
 MSFoundationExport void			OPENSSL_RSA_free(void *rsa) ;
 
 //SSL sections

@@ -45,7 +45,6 @@
  these functions.
  */
 
-
 @interface MSSecureHash : NSObject {
     MSUInt _algorithm;
     MSUInt _hardness;
@@ -56,7 +55,9 @@
 + (MSUInt)defaultAlgorithm;
 + (MSUInt)defaultHardness;
 + (NSString *)generateSalt;
++ (NSString *)generatePasswordRequest;
 
+// Init
 + (id)secureHashWithContent:(NSString *)content;
 + (id)secureHashWithContent:(NSString *)content algorithm:(MSUInt)algorithm hardness:(MSUInt)hardness salt:(NSString *)salt;
 + (id)secureHashWithSecureHash:(NSString *)secureHash;
@@ -65,18 +66,25 @@
 - (id)initWithContent:(NSString *)content algorithm:(MSUInt)algorithm hardness:(MSUInt)hardness salt:(NSString *)salt;
 - (id)initWithSecureHash:(NSString *)secureHash;
 
+// Getters
 - (MSUInt)algorithm;
 - (MSUInt)hardness;
 - (NSString *)salt;
 - (NSString *)hash;
-
 - (NSString *)secureHash;
 
+// Challenge
 + (MSBuffer *)generateRawChallenge;
 + (NSString *)plainChallenge:(MSBuffer *)rawChallenge;
 + (NSString *)fakeChallengeInfo;
++ (NSString *)challengeResultFor:(NSString *)content withChallengeInfo:(NSString *)challengeInfo;
 - (NSString *)challengeInfo;
 - (BOOL)isValidChallengedResult:(NSString *)result withChallengeInfo:(NSString *)challengeInfo;
+
+// RSA
++ (MSUInt)defaultSecureKeyHardness;
++ (NSString *)generateSecureKeyRequest;
+- (MSCouple *)generateSecuredKeyPair;
 
 // TODO: - (BOOL)isWeak;
 // TODO: - (id)secureWeakHash; (ie. level up hardness if the algorithm isn't in cause)

@@ -151,6 +151,8 @@ typedef RSA * (__stdcall *DLL_OPENSSL_PEM_read_bio_RSA_PUBKEY) (BIO *, RSA **, p
 typedef RSA * (__stdcall *DLL_OPENSSL_PEM_read_bio_RSAPrivateKey) (BIO *, RSA **, pem_password_cb *, void *);
 typedef int (__stdcall *DLL_OPENSSL_RSA_public_encrypt) (int, unsigned char *, unsigned char *, RSA *, int);
 typedef int (__stdcall *DLL_OPENSSL_RSA_private_decrypt) (int , unsigned char *, unsigned char *, RSA *, int);
+typedef int (__stdcall *DLL_OPENSSL_RSA_sign) (int, const unsigned char *, unsigned int, unsigned char *, unsigned int *, RSA *);
+typedef int (__stdcall *DLL_OPENSSL_RSA_verify) (int, const unsigned char *, unsigned int, unsigned char *, unsigned int , RSA *);
 typedef int (__stdcall *DLL_OPENSSL_PEM_write_bio_RSAPrivateKey) (BIO *, RSA *, const EVP_CIPHER *, unsigned char *, int ,	pem_password_cb *, void *);
 typedef int (__stdcall *DLL_OPENSSL_PEM_write_bio_RSA_PUBKEY) (BIO *, RSA *);
 typedef void (__stdcall *DLL_OPENSSL_RSA_free) (RSA *);
@@ -287,6 +289,8 @@ static DLL_OPENSSL_PEM_read_bio_RSA_PUBKEY      __openssl_pem_read_bio_rsa_pubke
 static DLL_OPENSSL_PEM_read_bio_RSAPrivateKey	__openssl_pem_read_bio_rsaprivatekey;
 static DLL_OPENSSL_RSA_public_encrypt			__openssl_rsa_public_encrypt;
 static DLL_OPENSSL_RSA_private_decrypt			__openssl_rsa_private_decrypt;
+static DLL_OPENSSL_RSA_sign                     __openssl_rsa_sign;
+static DLL_OPENSSL_RSA_verify                   __openssl_rsa_verify;
 static DLL_OPENSSL_PEM_write_bio_RSAPrivateKey	__openssl_pem_write_bio_rsaprivatekey;
 static DLL_OPENSSL_PEM_write_bio_RSA_PUBKEY     __openssl_pem_write_bio_rsa_pubkey;
 static DLL_OPENSSL_RSA_free						__openssl_rsa_free;
@@ -423,10 +427,12 @@ void OPENSSL_initialize()
             __openssl_evp_cipherfinal_ex			= (DLL_OPENSSL_EVP_CipherFinal_ex)			GetProcAddress(__libeay_DLL, "EVP_CipherFinal_ex") ;
             __openssl_evp_cipher_ctx_cleanup		= (DLL_OPENSSL_EVP_CIPHER_CTX_cleanup)		GetProcAddress(__libeay_DLL, "EVP_CIPHER_CTX_cleanup") ;
             __openssl_rsa_generate_key              = (DLL_OPENSSL_RSA_generate_key)            GetProcAddress(__libeay_DLL, "RSA_generate_key") ;
-            __openssl_pem_read_bio_rsa_pubkey       = (OPENSSL_PEM_read_bio_RSA_PUBKEY)         GetProcAddress(__libeay_DLL, "PEM_read_bio_RSA_PUBKEY") ;
+            __openssl_pem_read_bio_rsa_pubkey       = (DLL_OPENSSL_PEM_read_bio_RSA_PUBKEY)     GetProcAddress(__libeay_DLL, "PEM_read_bio_RSA_PUBKEY") ;
             __openssl_pem_read_bio_rsaprivatekey	= (DLL_OPENSSL_PEM_read_bio_RSAPrivateKey)	GetProcAddress(__libeay_DLL, "PEM_read_bio_RSAPrivateKey") ;
             __openssl_rsa_public_encrypt			= (DLL_OPENSSL_RSA_public_encrypt)			GetProcAddress(__libeay_DLL, "RSA_public_encrypt") ;
             __openssl_rsa_private_decrypt			= (DLL_OPENSSL_RSA_private_decrypt)			GetProcAddress(__libeay_DLL, "RSA_private_decrypt") ;
+            __openssl_rsa_sign                      = (DLL_OPENSSL_RSA_sign)                    GetProcAddress(__libeay_DLL, "RSA_sign") ;
+            __openssl_rsa_verify                    = (DLL_OPENSSL_RSA_verify)                  GetProcAddress(__libeay_DLL, "RSA_verify") ;
             __openssl_pem_write_bio_rsaprivatekey	= (DLL_OPENSSL_PEM_write_bio_RSAPrivateKey)	GetProcAddress(__libeay_DLL, "PEM_write_bio_RSAPrivateKey") ;
             __openssl_pem_write_bio_rsa_pubkey      = (DLL_OPENSSL_PEM_write_bio_RSA_PUBKEY)	GetProcAddress(__libeay_DLL, "PEM_write_bio_RSA_PUBKEY") ;
             __openssl_rsa_free						= (DLL_OPENSSL_RSA_free)					GetProcAddress(__libeay_DLL, "RSA_free") ;
@@ -628,6 +634,8 @@ void OPENSSL_initialize()
                 if(!__openssl_pem_read_bio_rsaprivatekey)	NSLog(@"__openssl_pem_read_bio_rsaprivatekey NULL");
                 if(!__openssl_rsa_public_encrypt)           NSLog(@"__openssl_rsa_public_encrypt NULL");
                 if(!__openssl_rsa_private_decrypt)          NSLog(@"__openssl_rsa_private_decrypt NULL");
+                if(!__openssl_rsa_sign)                     NSLog(@"__openssl_rsa_sign NULL");
+                if(!__openssl_rsa_verify)                   NSLog(@"__openssl_rsa_verify NULL");
                 if(!__openssl_pem_write_bio_rsaprivatekey)	NSLog(@"__openssl_pem_write_bio_rsaprivatekey NULL");
                 if(!__openssl_pem_write_bio_rsa_pubkey)     NSLog(@"__openssl_pem_write_bio_rsa_pubkey NULL");
                 if(!__openssl_rsa_free)                     NSLog(@"__openssl_rsa_free NULL");
@@ -863,6 +871,8 @@ void OPENSSL_initialize() { }
 #define __openssl_pem_read_bio_rsaprivatekey(X, Y, Z, A) PEM_read_bio_RSAPrivateKey(X, Y, Z, A)
 #define __openssl_rsa_public_encrypt(X, Y, Z, A, B) RSA_public_encrypt(X, Y, Z, A, B)
 #define __openssl_rsa_private_decrypt(X, Y, Z, A, B) RSA_private_decrypt(X, Y, Z, A, B)
+#define __openssl_rsa_sign(X, Y, Z, A, B, C) RSA_sign(X, Y, Z, A, B, C)
+#define __openssl_rsa_verify(X, Y, Z, A, B, C) RSA_verify(X, Y, Z, A, B, C)
 #define __openssl_pem_write_bio_rsaprivatekey(X, Y, Z, A, B, C, D) PEM_write_bio_RSAPrivateKey(X, Y, Z, A, B, C, D)
 #define __openssl_pem_write_bio_rsa_pubkey(X, Y) PEM_write_bio_RSA_PUBKEY(X, Y)
 #define __openssl_rsa_free(X) RSA_free(X)
@@ -996,6 +1006,8 @@ void *			OPENSSL_PEM_read_bio_RSA_PUBKEY(void *bp, void **x, void *cb, void *u) 
 void *			OPENSSL_PEM_read_bio_RSAPrivateKey(void *bp, void **x, void *cb, void *u) { return (void *)__openssl_pem_read_bio_rsaprivatekey((BIO *)bp, (RSA **)x, (pem_password_cb *)cb, u) ; }
 int				OPENSSL_RSA_public_encrypt(int flen, unsigned char *from, unsigned char *to, void *rsa, int padding) { return __openssl_rsa_public_encrypt(flen, from, to, (RSA *)rsa, padding) ; }
 int				OPENSSL_RSA_private_decrypt(int flen, unsigned char *from, unsigned char *to, void *rsa, int padding) { return __openssl_rsa_private_decrypt(flen, from, to, (RSA *)rsa, padding) ; }
+int             OPENSSL_RSA_sign(int type, const unsigned char *m, unsigned int m_len, unsigned char *sigret, unsigned int *siglen, void *rsa) { return __openssl_rsa_sign(type, m, m_len, sigret, siglen, (RSA *)rsa) ; }
+int             OPENSSL_RSA_verify(int type, const unsigned char *m, unsigned int m_len, unsigned char *sigbuf, unsigned int siglen, void *rsa) { return __openssl_rsa_verify(type, m, m_len, sigbuf, siglen, (RSA *)rsa) ; }
 int				OPENSSL_PEM_write_bio_RSAPrivateKey(void *bp, void *x, const void *enc, unsigned char *kstr, int klen, void *cb, void *u) { return __openssl_pem_write_bio_rsaprivatekey((BIO *)bp, (RSA *)x, (const EVP_CIPHER *)enc, kstr, klen, (pem_password_cb *)cb, u) ; }
 int				OPENSSL_PEM_write_bio_RSA_PUBKEY(void *bp, void *x) { return __openssl_pem_write_bio_rsa_pubkey((BIO *)bp, (RSA *)x) ; }
 void			OPENSSL_RSA_free(void *rsa) { __openssl_rsa_free((RSA *)rsa) ; }

@@ -116,6 +116,16 @@
 	return symetricRSAPlainData;
 }
 
+- (BOOL)verify:(NSData *)signature ofMessage:(NSData*)message
+{
+  return [_rsaCipher verify:signature ofMessage:message];
+}
+
+- (NSData *)sign:(NSData *)message
+{
+  return [_rsaCipher sign:message];
+}
+
 - (MSCipherType)cipherType
 {
 	return [_rsaCipher cipherType];

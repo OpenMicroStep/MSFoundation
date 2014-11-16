@@ -937,16 +937,12 @@ static void _MHRunApplicationWithNoSessionGetRequest(MHApplication *application,
             NSMutableDictionary *headers = nil ;
             MSBuffer *response = nil ;
             void *bytes = NULL ;
-            NSString *challengeStored = nil ;
           
             //store plain challenge in session
-            NSString *challengeSent = [application generateChallengeInfoForLogin:headerLogin storedPlainChallenge:&challengeStored] ;
-            
             MHContext *context = MHCreateInitialContextAndSession(application, authType) ;
             MHSession *session = [context session] ;
+            NSString *challengeSent = [application generateChallengeInfoForLogin:headerLogin withSession:session] ;
             [session storeMember:[context contextID] named:@"contextID"] ;
-            if (challengeStored) { [session storeMember:challengeStored named:SESSION_PARAM_CHALLENGE] ; }
-            
             if (headerTarget) { [session storeMember:headerTarget named:SESSION_PARAM_TARGET] ; }
             [session storeMember:headerLogin named:SESSION_PARAM_LOGIN] ;
             [session storeMember:challengeSent named:SESSION_PARAM_CHALLENGE] ;
@@ -3005,11 +3001,6 @@ static void _MHServerClean()
     MH_LOG_LEAVE(@"_MHServerClean") ;
 }
 
-static void _MHServerAdminClean()
-{
-    
-}
-
 static SOCKET _MHMakeListeningSocket(MSInt listeningPort)
 {
     SOCKET srv_sock ;
@@ -3097,7 +3088,7 @@ static BOOL _MHBlacklistManagement(MSInt clientSocket, SOCKADDR_IN csin)
     {
         if(__whitelist[0]) // If a whitelist have been defined
         {
-            int i = 0;
+            i = 0;
             while((i < WHITELIST_SIZE) && __whitelist[i])
             {
                 // Is the IP addr in an allowed range ?
@@ -3389,9 +3380,6 @@ void setApplicationForPortAndKey(MSInt listeningPort, MHApplication *application
         }
     }
 }
-static void removeApplicationForPortAndKey(NSString *key)  { }
-void lock_applications_mutex()  { }
-void unlock_applications_mutex()  { }
 
 NSArray *allSessions() { return NSAllMapTableValues((NSMapTable *)__sessions) ; }
 MHSession *sessionForKey(NSString *key) { return (MHSession *)NSMapGet((NSMapTable *)__sessions, (const void *)key) ; }
@@ -3562,7 +3550,7 @@ void setTicketsForApplication(MHApplication *application, NSDictionary *tickets)
 }
 
 
-id _valueForTicketKey(MHApplication *application, NSString *ticket, NSString *key)
+static id _valueForTicketKey(MHApplication *application, NSString *ticket, NSString *key)
 {
     id value = nil ;
     
@@ -3576,7 +3564,7 @@ id _valueForTicketKey(MHApplication *application, NSString *ticket, NSString *ke
     return value ;
 }
 
-void _setValueForTicketKey(MHApplication *application, NSString *ticket, id value, NSString *key)
+static void _setValueForTicketKey(MHApplication *application, NSString *ticket, id value, NSString *key)
 {
     
     if ([ticket length] && [key length] && value)
@@ -4007,7 +3995,7 @@ BOOL MHSendResourceToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResourc
                 ok = (MSFileOperationSuccess == MSReadFromFile(handle, readBuf, MHDONWLOAD_RESOURCE_CHUNK_SIZE, &readBytes) && (readBytes > 0)) ;
                 if (ok)
                 {
-                    buf = MSCreateBufferWithBytes(readBuf, readBytes) ;
+                    buf = MSCreateBufferWithBytesNoCopyNoFree(readBuf, readBytes) ;
                     
                     ok = MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(secureSocket, buf, HTTPOK, isAdmin, headersDict, session, NO, YES , chunkPos, fileSize) ;
                     remainingBytesToSend -= readBytes ;
@@ -4113,8 +4101,11 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
             }
             
             [finalHeaders setObject:@"close" forKey:@"Connection"] ;
-            if(![finalHeaders objectForKey:@"Content-Type"])
-                [finalHeaders setObject:@"text/html; charset=utf-8" forKey:@"Content-type"];
+            if(![finalHeaders objectForKey:@"Content-Type"])  [finalHeaders setObject:@"text/html; charset=utf-8" forKey:@"Content-type"];
+            if(![finalHeaders objectForKey:@"Cache-Control"]) [finalHeaders setObject:@"no-cache, no-store, must-revalidate" forKey:@"Cache-Control"];
+            if(![finalHeaders objectForKey:@"Pragma"])        [finalHeaders setObject:@"no-cache" forKey:@"Pragma"];
+            if(![finalHeaders objectForKey:@"Expires"])       [finalHeaders setObject:@"0" forKey:@"Expires"];
+          
             if ([session isValid]) [finalHeaders setObject:[session cookieHeader] forKey:__header_mash_session_id] ;
             
             [finalHeaders setObject:GMTdescriptionRfc1123(GMTNow())
@@ -4132,7 +4123,7 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
             
             if([stringHeaders length])
             {
-#ifdef WIN32
+#ifdef WO451
                 CBufferAppendBytes((CBuffer *)data, (void *)[stringHeaders cString], strlen([stringHeaders cString])) ;
 #else
                 CBufferAppendBytes((CBuffer *)data, (void *)[stringHeaders UTF8String], strlen([stringHeaders UTF8String])) ;
@@ -4155,7 +4146,7 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
                 str = "Content-Length: " ;
                 CBufferAppendBytes((CBuffer *)data, (void *)str, strlen(str)) ;
                 
-#ifdef WIN32
+#ifdef WO451
                 ulltostr(contentLength, tmp, 10) ;
                 
                 CBufferAppendBytes((CBuffer *)data,

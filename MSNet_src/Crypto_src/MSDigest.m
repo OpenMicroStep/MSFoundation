@@ -45,14 +45,10 @@
  */
 
 #import "MSNet_Private.h"
-#import <openssl/evp.h>
 
 #define WORKING_BLOCK_SIZE 1024
 
-@implementation MSDigest {
-    EVP_MD_CTX _mdctx ;
-    MSDigestType _type;
-}
+@implementation MSDigest
 
 + (id)digestWithType:(MSDigestType)type
 {
@@ -133,7 +129,7 @@ NSString *MSDigestData(MSDigestType type, const void *bytes, NSUInteger length)
     MSDigest *digest ;
     NSString *hexDigest ;
     
-    digest = [[MSDigest alloc] initWithType:type] ;
+    digest = [ALLOC(MSDigest) initWithType:type] ;
     [digest updateWithBytes:bytes length:length] ;
     hexDigest = [digest hexEncodedDigest] ;
     RELEASE(digest) ;
