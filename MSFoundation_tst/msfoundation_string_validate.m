@@ -210,7 +210,37 @@ static inline int ms_formatlld(void)
   return err;
 }
 
+@interface NSString (HashPrivate)
+- (NSUInteger)hash:(unsigned)depth;
+@end
 
+static inline int ms_hash(void)
+{
+  int err= 0;
+  NSString *nsStr;
+  MSString *msStr;
+  NSUInteger nsHash, msHash;
+  
+  nsStr = [[NSString alloc] initWithString:@"AgentVerbalisateur"];
+  msStr = [[MSString alloc] initWithString:@"AgentVerbalisateur"];
+  nsHash = [nsStr hash:0];
+  msHash = [msStr hash:0];
+  if(nsHash != msHash) {
+    NSLog(@"A47 not equal %lu != %lu",(unsigned long)nsHash,(unsigned long)msHash); err++;}
+  RELEASE(nsStr);
+  RELEASE(msStr);
+  
+  nsStr = [[NSString alloc] initWithString:@"CasInfraction"];
+  msStr = [[MSString alloc] initWithString:@"CasInfraction"];
+  nsHash = [nsStr hash:0];
+  msHash = [msStr hash:0];
+  if(nsHash != msHash) {
+    NSLog(@"A48 not equal %lu != %lu",(unsigned long)nsHash,(unsigned long)msHash); err++;}
+  RELEASE(nsStr);
+  RELEASE(msStr);
+  
+  return err;
+}
 int msfoundation_string_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -221,6 +251,7 @@ int msfoundation_string_validate(void)
   err+= ms_eq();
   err+= ms_cast();
   err+= ms_formatlld();
+  err+= ms_hash();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSString",(err?"FAIL":"PASS"),seconds);

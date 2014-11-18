@@ -588,6 +588,14 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   RELEASE((id)decimal);
   return value;
 }
+
+// TODO: This is very inefficient
+- (NSUInteger)hash:(unsigned)depth {
+  MSString *str= [[MSString alloc] initWithString:self];
+  NSUInteger hash = [str hash:depth];
+  [str release];
+  return hash;
+}
 @end
 
 @implementation MSString
