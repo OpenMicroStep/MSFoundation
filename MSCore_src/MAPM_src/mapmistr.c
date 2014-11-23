@@ -209,7 +209,7 @@ MSChar m_apm_to_char(const M_APM src)
   PRE ## TYPE x; M_APM m; \
   m= _m_apm_new_cast(src, MM_ ## TYPE ## Min, MM_ ## TYPE ## Max); \
   x= (PRE ## TYPE)_m_apm_to_value(m); \
-  MAPM_FREE(m); \
+  m_apm_free(m); \
   return x; \
 }
 _m_apm_to_(MS, char,     Char)
