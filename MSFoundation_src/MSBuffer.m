@@ -132,7 +132,7 @@ static Class __MSBufferClass= Nil;
     return nil;}
   fread(buf, 1, length, f);
   fclose (f);
-  return AUTORELEASE((id)CCreateBufferWithBytes(buf, length));
+  return AUTORELEASE((id)CCreateBufferWithBytesNoCopy(buf, length));
 }
 
 #pragma mark Init
