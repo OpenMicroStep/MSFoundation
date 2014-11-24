@@ -121,8 +121,6 @@ MHApplication *applicationForPortAndKey(MSInt listeningPort, NSString *key) ;
 void setApplicationForPortAndKey(MSInt listeningPort, MHApplication *application, NSString *key) ;
 void removeApplicationForKeyAndPort(NSString *key) ;
 MSCouple *listeningPortsSortedBySSLAuthMode(void) ;
-void lock_applications_mutex(void) ;
-void unlock_applications_mutex(void) ;
 
 NSArray *allSessions(void) ;
 MHSession *sessionForKey(NSString *key) ;
