@@ -1597,6 +1597,7 @@ static callback_t _MHApplicationRun(void *arg)
                                         _send_error_message(secureSocket, HTTP_404_RESPONSE) ;
                                     }
                                 }
+                                RELEASE(urlComponents) ;
                                 RELEASE(message) ;
                             }
                             else {
