@@ -132,12 +132,6 @@ static inline BOOL freeBunch(CBunch *bunch) //protected by mutex lock in [parent
         CBunch *nextBunch = bunch->nextBunch ;
         CBunch *previousBunch = bunch->previousBunch ;
 
-        char *memory = ((char *)bunch) + S_BUNCH ;
-        while (memory < bunch->nextFree) {
-            [((id)memory) dealloc] ;
-            memory += bunch->instanceSize ;
-        }
-
         [bunch->parentBunchAllocator removeBunch:bunch] ;
         if (nextBunch) {
             nextBunch->previousBunch = previousBunch ;
@@ -154,6 +148,7 @@ static inline BOOL freeBunch(CBunch *bunch) //protected by mutex lock in [parent
 static inline void removeObjectFromBunch(CBunch *bunch, id object)
 {
     if (bunch && object) {
+        [object dealloc];
         [bunch->parentBunchAllocator removeObjectFromBunch:bunch] ; //locks the mutex on parentBunchAllocator
     }
 }
