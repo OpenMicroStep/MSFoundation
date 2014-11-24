@@ -63,7 +63,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
     id ansi=     [NSNumber numberWithInt:NSWindowsCP1252StringEncoding] ;
     id next=     [NSNumber numberWithInt:NSNEXTSTEPStringEncoding] ;
     id utf16=    [NSNumber numberWithInt:NSUTF16StringEncoding] ;
-    __knownEncodings= [NSDictionary dictionaryWithObjectsAndKeys:
+    __knownEncodings= [ALLOC(NSDictionary) initWithObjectsAndKeys:
       utf8, @"UTF8", utf8, @"UTF-8", utf8, utf8,
       isolatin, @"ISOLATIN", isolatin, @"ISOLATIN1", isolatin, @"ISO-LATIN",
       isolatin, @"ISO-LATIN-1", isolatin, isolatin,
