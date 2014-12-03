@@ -215,9 +215,12 @@
   if ([src respondsToSelector:@selector(dictionaryEnumerator)]) {
     id de,k,o;
     CDictionaryGrow((CDictionary*)self, [src count]);
-    for (de= [(MSDictionary*)src dictionaryEnumerator]; (k= [de nextKey]);) {
-      if ((o= [de currentObject]) && cpy) o= COPY(o);
-      if (o) CDictionarySetObjectForKey((CDictionary*)self,o,k);}}
+    for (de= [(MSDictionary*)src dictionaryEnumerator]; (k= [de nextKey]) && (o= [de currentObject]);) {
+      if (cpy) o= COPY(o);
+      CDictionarySetObjectForKey((CDictionary*)self,o,k);
+      if (cpy) RELEASE(o);
+    }
+  }
   else self= [super initWithDictionary:src copyItems:cpy];
   return self;
 }
