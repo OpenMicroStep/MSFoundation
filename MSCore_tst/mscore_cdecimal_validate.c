@@ -67,7 +67,7 @@ static inline int cdecimal_op(void)
       cdecimal_print(c[i]); cdecimal_print(d);
       fprintf(stdout, "B1-%d c & d are not equals\n",i); err++;}
     RELEASE(d);}
-  for (i=1; i<10; i++) RELEASE(c[i]);
+  for (i=0; i<10; i++) RELEASE(c[i]);
   return err;
   }
 
@@ -90,7 +90,7 @@ static inline int cdecimal_value(void)
     if (CDecimalLongValue(c[i])!=l[i]) {
       cdecimal_print(c[i]);
       fprintf(stdout, "B2-%d bad %lld\n",i,(MSLong)l[i]); err++;}}
-  for (i=1; i<10; i++) RELEASE(c[i]);
+  for (i=0; i<10; i++) RELEASE(c[i]);
   return err;
   }
 
@@ -120,6 +120,7 @@ static inline int cdecimal_fromSES(void)
     else {
       if (c) {
         fprintf(stdout, "D2-%d-%lld\n",i,CDecimalLongValue(c)); err++;}}
+    RELEASE(c);
     c= CCreateDecimalWithSES(sesIn, NO, NULL, &sesOut);
     if (SESStart(sesOut)!=start[i] || SESLength(sesOut)!=lgd[i]) {
       fprintf(stdout, "D3-%d-%lu %lu\n",i,SESStart(sesOut),SESLength(sesOut)); err++;}
@@ -133,6 +134,7 @@ static inline int cdecimal_fromSES(void)
       fprintf(stdout, "D11-%d-%lu %lu\n",i,SESStart(sesOut),SESLength(sesOut)); err++;}
     if (i!=2 && c) {
       fprintf(stdout, "D12-%d-%lld\n",i,CDecimalLongValue(c)); err++;}
+    RELEASE(c);
     c= CCreateDecimalWithSES(sesIn, NO, NULL, &sesOut);
     if (SESStart(sesOut)!=estart[i] || SESLength(sesOut)!=elgd[i]) {
       fprintf(stdout, "D13-%d-%lu %lu %s\n",i,SESStart(sesOut),SESLength(sesOut),terr[i]); err++;}
@@ -213,6 +215,7 @@ static inline int cdecimal_cast(void)
   //printf("E99-%d %s\n",i,CBufferCString(b));
     RELEASE(b); RELEASE(s);
     RELEASE(c); RELEASE(cm1); RELEASE(cp1);}
+  RELEASE(minus1);
   return err;
   }
 

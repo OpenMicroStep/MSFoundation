@@ -342,7 +342,6 @@ static inline int _decode(char *ssrc, id ret)
     err++; }
   RELEAZEN(src);
   RELEAZEN(error);
-  RELEAZEN(o);
   return err;
 }
 

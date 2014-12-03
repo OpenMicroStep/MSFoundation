@@ -51,6 +51,7 @@ static inline int unichar_test(void)
       fprintf(stdout, "A8 Bad index: %hhu %hhu\n",c1,c2); err++;}}
   if ((r= strncmp(s, (char*)(b->buf), l))!=0) {
     fprintf(stdout, "A9 Bad equal: %s %s %d\n",s,CBufferCString(b),r); err++;}
+  RELEASE(b);
   RELEASE(a);
   return err;
   }

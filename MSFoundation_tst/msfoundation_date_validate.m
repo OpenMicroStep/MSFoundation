@@ -186,6 +186,9 @@ static inline int date_create2(void)
         date_print(e);
         err++;}}
     RELEASE(d); RELEASE(e);}
+    for (i= 0; i<M1; i++) {
+        RELEASE(c[i]);
+    }
   return err;
   }
 
