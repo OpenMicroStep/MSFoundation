@@ -52,45 +52,48 @@ typedef struct MSDBGenericConnectionFlagsStruct {
 #ifdef __BIG_ENDIAN__
   MSUInt connected:1;
   MSUInt readOnly:1;
+  MSUInt inTransaction:1;
   MSUInt usr1:1;
-  MSUInt usr2:1;
   MSUInt _pad:28;
 #else
   MSUInt _pad:28;
-  MSUInt usr2:1;
   MSUInt usr1:1;
+  MSUInt inTransaction:1;
   MSUInt readOnly:1;
   MSUInt connected:1;
 #endif
 } MSDBGenericConnectionFlags ;
 
+#define MSDB_RETURN_ERROR(return_value, description) \
+  { [self error:_cmd desc:description]; return return_value; }
+
+#define MSDB_ERROR(description) [self error:_cmd desc:description]
+#define MSDB_ERROR_ARGS(description, args...) [self error:_cmd desc:[NSString stringWithFormat:description, ##args]]
+
 @interface MSDBGenericConnection : MSDBConnection
 {
 @protected
   NSMutableDictionary *_currentDictionary ;
-  NSMutableDictionary *_identifiersStore ;
   NSStringEncoding _readEncoding ;
   NSStringEncoding _writeEncoding ;
   
   MSArray *_operations ;
-  
-  NSUInteger _requestSizeLimit ;
-  NSUInteger _inClauseMaxElements ;
-  
+    
   MSDBGenericConnectionFlags _cFlags ;
 }
 
 - (id)initWithConnectionDictionary:(NSDictionary *)dictionary ;
+- (BOOL)isConnected;
+- (BOOL)preDisconnect;
+- (BOOL)postDisconnect:(BOOL)succeeded;
+- (void)error:(SEL)inMethod desc:(NSString *)desc;
 
-- (NSUInteger)openedTransactionsCount ;
+#pragma mark SQLString <-> NSString
 
-- (void)resetOperationsArray ;
-- (void)terminateAllOperations ;
-- (void)unregisterOperation:(MSDBOperation *)anOperation ;
-
-- (const char *)sqlCStringWithString:(NSString *)aString ;
-- (NSString *)stringWithSQLCString:(const char *)cString ;
-- (NSString *)stringWithSQLBuffer:(MSBuffer *)buffer ;
-- (void)addSQLString:(const char *)cString toString:(MSString *)buffer ;
-- (void)addSQLBuffer:(MSBuffer *)sqlBuffer toString:(MSString *)unicodebuffer ;
+- (const char*)sqlCStringWithString:(NSString *)string;
+- (NSData *)sqlDataFromString:(NSString *)string;
+- (NSString*)stringFromSQLString:(const char *)sqlString;
+- (NSString*)stringFromSQLString:(const char *)sqlString length:(NSUInteger)length;
+- (NSString*)stringFromSQLData:(NSData *)data;
+- (void)addSQLBuffer:(MSBuffer *)sqlBuffer toString:(MSString *)unicodebuffer;
 @end

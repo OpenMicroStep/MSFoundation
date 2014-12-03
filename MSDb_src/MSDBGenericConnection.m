@@ -87,7 +87,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
   return (res ? (NSStringEncoding)[res intValue] : 0) ;
 }
 
-#pragma mark init
+#pragma mark Init
 
 - (id)initWithConnectionDictionary:(NSDictionary *)dictionary
 {
@@ -96,44 +96,63 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
     NSZone *zone = [self zone] ;
     
     _currentDictionary = [dictionary mutableCopyWithZone:zone] ;
-    _identifiersStore = [[NSMutableDictionary allocWithZone:zone] initWithCapacity:31] ;
     
     _writeEncoding = _readEncoding = NSUTF8StringEncoding ;
     
     _operations = [[MSArray alloc] mutableInitWithCapacity:0 noRetainRelease:YES nilItems:NO] ;
 
     // WARNING : you can get NSNEXTSTEPStringEncoding and NSUTF16StringEncoding
-     if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"encoding"]))) {
-       _readEncoding= _writeEncoding= encoding ; }
-     if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"read-encoding"]))) {
-       _readEncoding= encoding ; }
-     if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"write-encoding"]))) {
-       _writeEncoding= encoding ; }}
-
+    if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"encoding"]))) {
+      _readEncoding= _writeEncoding= encoding ; }
+    if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"read-encoding"]))) {
+      _readEncoding= encoding ; }
+    if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"write-encoding"]))) {
+      _writeEncoding= encoding ; }
+    _cFlags.connected= NO;
+    _cFlags.inTransaction= NO;
+    _cFlags.readOnly= (MSUInt)[[dictionary objectForLazyKeys:@"read-only",@"readonly", nil] isTrue];}
   return self ;
 }
 
 - (void)dealloc
 {
-  // if we dealloc, that means that we have no operations pending (if pending operations remain, we are retain by these operations)
-  [self disconnect] ;
-  [self resetOperationsArray] ;
-  
+  [self disconnect] ;  
   RELEASE(_currentDictionary) ;
-  RELEASE(_identifiersStore) ;
   RELEASE(_operations) ;
   [super dealloc] ;
 }
 
-#pragma mark super
+
+
+- (BOOL)preDisconnect
+{
+    if (_cFlags.connected) {
+        // since the terminateAllOperations can release us, we must keep that object
+        // alive until we decide to release it
+        RETAIN(self) ;
+        [self terminateAllOperations] ;
+    }
+    return _cFlags.connected;
+}
+
+- (BOOL)postDisconnect:(BOOL)succeeded
+{
+  RELEASE(self) ;
+  if(succeeded) {
+    _cFlags.connected = NO ;
+    [[NSNotificationCenter defaultCenter] postNotificationName:MSConnectionDidDisconnectNotification object:self] ;
+  }
+  return succeeded;
+}
 
 //- (BOOL)connect ;
 //- (BOOL)disconnect ;
 
 - (BOOL)isConnected { return _cFlags.connected ; }
 
-- (NSUInteger)requestSizeLimit { (void)[self connect] ; return _requestSizeLimit ; }
-- (NSUInteger)inClauseElementsCountLimit { (void)[self connect] ; return _inClauseMaxElements ; }
+#pragma mark Transaction
+
+- (BOOL)isInTransaction { return _cFlags.inTransaction ; }
 
 //- (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes ;
 //- (NSString *)escapeString:(NSString *)aString ; // no quotes
@@ -156,28 +175,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
   return array ;
 }
 
-- (MSArray *)allOperations      { return AUTORELEASE(COPY(_operations)) ; }
-- (MSArray *)pendingRequests    { return [self _operationsOfClass:[MSDBResultSet class]] ; }
-- (MSArray *)openedTransactions { return [self _operationsOfClass:[MSDBTransaction class]] ; }
-
-#pragma mark methods
-
-- (NSUInteger)openedTransactionsCount
-{
-  NSUInteger i, count = [_operations count], total = 0 ;
-  Class searchedClass = [MSDBTransaction class] ;
-  for (i = 0 ; i < count ; i++) {
-    MSDBOperation *o = [_operations objectAtIndex:i] ;
-    if ([o isKindOfClass:searchedClass]) { total ++ ; }
-  }
-  return total ;
-}
-
-- (void)resetOperationsArray
-{
-  [_operations removeAllObjects];
-  CArrayAdjustSize((CArray*)_operations) ;
-}
+#pragma mark Manage operations
 
 - (void)terminateAllOperations
 {
@@ -187,31 +185,40 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
   while (i-- > 0) {[[_operations objectAtIndex:i] terminateOperation] ;}
 }
 
+- (void)registerOperation:(MSDBOperation *)anOperation
+{
+  [_operations addObject:anOperation];
+}
+
 - (void)unregisterOperation:(MSDBOperation *)anOperation
 {
   [_operations removeObjectIdenticalTo:anOperation];
 }
 
-#pragma mark sql string methods
+#pragma mark SQLString <-> NSString
 
-- (const char *)sqlCStringWithString:(NSString *)aString
+- (const char*)sqlCStringWithString:(NSString *)string
 {
-  return [aString cStringUsingEncoding:_writeEncoding allowLossyConversion:YES] ;
+  return [string cStringUsingEncoding:_writeEncoding allowLossyConversion:YES] ;
+}
+- (NSData *)sqlDataFromString:(NSString *)string
+{
+  return [string dataUsingEncoding:_writeEncoding allowLossyConversion:YES] ;
 }
 
-- (NSString *)stringWithSQLCString:(const char *)cString ;
+- (NSString*)stringFromSQLString:(const char *)sqlString
 {
-  return cString ? [NSString stringWithCString:(const char *)cString encoding:_readEncoding] : nil ;
+  return sqlString ? [NSString stringWithCString:sqlString encoding:_readEncoding] : nil;
 }
 
-- (NSString *)stringWithSQLBuffer:(MSBuffer *)buffer
+- (NSString*)stringFromSQLString:(const char *)sqlString length:(NSUInteger)length
 {
-  return buffer ? AUTORELEASE([ALLOC(NSString) initWithData:buffer encoding:_readEncoding]) : nil ;
+  return sqlString ? [[[NSString alloc] initWithBytes:sqlString length:length encoding:_readEncoding] autorelease] : nil;
 }
 
-- (void)addSQLString:(const char *)cString toString:(MSString *)buffer
+- (NSString*)stringFromSQLData:(NSData *)data
 {
-  if (cString) { CStringAppendBytes((CString*)buffer, _readEncoding, cString, strlen(cString)); }
+  return data ? [[[NSString alloc] initWithData:data encoding:_readEncoding] autorelease] : nil;
 }
 
 - (void)addSQLBuffer:(MSBuffer *)sqlBuffer toString:(MSString *)unicodebuffer

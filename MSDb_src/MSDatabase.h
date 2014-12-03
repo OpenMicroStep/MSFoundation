@@ -47,6 +47,7 @@
 #import <MSDatabase/MSDBRow.h>
 #import <MSDatabase/MSDBResultSet.h>
 #import <MSDatabase/MSDBTransaction.h>
+#import <MSDatabase/MSDBStatement.h>
 
 #import <MSDatabase/MSOid.h>
 #import <MSDatabase/MSObi.h>

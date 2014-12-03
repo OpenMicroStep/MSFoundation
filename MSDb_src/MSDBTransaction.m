@@ -11,14 +11,28 @@
 @implementation MSDBTransaction
 
 - (BOOL)appendSQLCommand:(NSString *)sql { return [self appendSQLCommand:sql error:NULL] ; }
-- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr { return [self notImplemented:_cmd] ? YES : NO ; sql= nil; errorPtr= nil;}
+- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr { if(errorPtr) *errorPtr= 0; return [[self databaseConnection] executeRawSQL:sql];}
 
-- (void)cancel { return [self terminateOperation] ; }
+- (void)cancel { [self terminateOperation] ; }
 - (BOOL)save { return [self saveWithError:NULL] ; }
-- (BOOL)saveWithError:(MSInt *)error { return [self notImplemented:_cmd] ? YES : NO ; error= nil;}
+- (BOOL)saveWithError:(MSInt *)error
+{
+  BOOL ret;
+  if(error) *error= 0;
+  ret= [_connection commit];
+  [super terminateOperation];
+  return ret;
+}
 
 - (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes { return [_connection escapeString:aString withQuotes:withQuotes] ; }
 - (NSString *)escapeString:(NSString *)aString { return [_connection escapeString:aString] ; }
+
+- (void)terminateOperation
+{
+  if([_connection isInTransaction])
+    [_connection rollback];
+  [super terminateOperation];
+}
 
 @end
 

@@ -81,8 +81,25 @@
 }
 
 - (id)objectAtColumn:(NSUInteger)idx { return [self notImplemented:_cmd] ; idx= 0; }
-- (MSRow *)rowDictionary             { return [self notImplemented:_cmd] ; }
-- (MSArray *)allValues               { return [self notImplemented:_cmd] ; }
+- (MSArray *)allValues
+{
+	NSUInteger columnsCount = [self columnsCount] ;
+    MSArray *values = MSCreateArray(columnsCount) ;
+    if (columnsCount && values) {
+        NSUInteger i ;
+		for (i = 0; i < columnsCount ; i++) {
+            id o = [self objectAtColumn:i] ;
+			if (!o) { o = MSNull ; }
+			MSAAdd(values, o) ;
+        }
+    }
+	return AUTORELEASE(values) ;
+}
+
+- (MSRow *)rowDictionary
+{
+	return AUTORELEASE([ALLOC(MSRow) initWithRowKeys:_columnsDescription values:[self allValues]]) ;
+}
 
 - (BOOL)getCharAt:           (MSChar *)aValue column:(NSUInteger)column { return [self getCharAt:         aValue column:column error:NULL]; }
 - (BOOL)getByteAt:           (MSByte *)aValue column:(NSUInteger)column { return [self getByteAt:         aValue column:column error:NULL]; }

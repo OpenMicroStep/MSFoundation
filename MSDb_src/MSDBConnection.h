@@ -56,14 +56,19 @@
  have no connection any more...
  
  */
-@class MSDBTransaction, MSDBResultSet ;
 
+#define MSSQL_ERROR -1
+
+@class MSDBTransaction, MSDBResultSet, MSDBStatement, MSDBScheme, MSDBOperation ;
 
 @interface MSDBConnection : NSObject
 {
 @protected
   NSDictionary *_originalDictionary ;
+  NSString *_lastError ;
 }
+
+#pragma mark Connection
 
 + (NSUInteger)maximumConnections;
 
@@ -80,40 +85,68 @@
 - (id)initWithConnectionDictionary:(NSDictionary *)dictionary;
 
 - (NSDictionary *)connectionDictionary;
-
-// a shortcut. returns 0 on error.
-- (NSUInteger)countRowsFrom:(NSString *)tableName query:(NSString *)whereClause ;
-
-- (MSInt)lastError; // Not implemented in all Adaptor ???
-
-#pragma mark Implemented in generic
-
-- (NSUInteger)requestSizeLimit ;           // default
-- (NSUInteger)inClauseElementsCountLimit ; // default
-
-- (MSArray *)allOperations ;
-- (MSArray *)pendingRequests ;
-- (MSArray *)openedTransactions ;
-
-- (BOOL)isConnected ;
-
-#pragma mark Implemented by adaptors
-
-// In adaptors, needs to begin with a call to super
-//- (id)initWithConnectionDictionary:(NSDictionary *)dictionary;
-
+- (BOOL)isConnected;
 - (BOOL)connect ;
 - (BOOL)disconnect ;
 
-// list of the tables of the connected database
-- (MSArray *)tableNames ;
+#pragma mark Errors
 
-- (MSDBResultSet *)fetchWithRequest:(NSString *)sqlRequest ;
+- (NSString *)lastError;
+
+#pragma mark Manage operations
+
+- (void)terminateAllOperations ;
+- (void)registerOperation:(MSDBOperation *)anOperation ;
+- (void)unregisterOperation:(MSDBOperation *)anOperation ;
+
+#pragma mark Transaction
+
+- (BOOL)beginTransaction;
+- (BOOL)endTransactionSuccessfully:(BOOL)commit;
+- (BOOL)commit;
+- (BOOL)rollback;
+- (BOOL)isInTransaction;
 
 // gives us an new opened transaction for new modification scheme
 - (MSDBTransaction *)openTransaction ;
 
-#define MSSQL_OK 0 // Successful result
+#pragma mark Requests high level API
+
+// Run a 'SELECT columns FROM table WHERE where' query and returns the result set, if an error occurs returns nil
+- (MSDBResultSet *)select:(NSArray *)columns from:(NSString *)table where:(NSString *)where ;
+- (MSDBResultSet *)select:(NSArray *)columns from:(NSString *)table where:(NSString *)where withBindings:(NSArray *)bindings ;
+- (MSDBResultSet *)select:(NSArray *)columns from:(NSString *)table where:(NSString *)where withBindings:(NSArray *)bindings orderBy:(NSString *)orderBy limit:(MSCouple *)limit ;
+- (MSDBResultSet *)select:(NSArray *)columns from:(NSString *)table where:(NSString *)where withBindings:(NSArray *)bindings groupBy:(NSString *)groupby having:(NSString *)having orderBy:(NSString *)orderBy limit:(MSCouple *)limit ;
+
+// Count the number of row that a 'SELECT columns FROM table WHERE where' without limits would returns, if an error occurs returns -1
+- (NSInteger)countRowsFrom:(NSString *)table where:(NSString *)where withBindings:(NSArray *)bindings ;
+- (NSInteger)countRowsFrom:(NSString *)table where:(NSString *)where withBindings:(NSArray *)bindings groupBy:(NSString *)groupby having:(NSString *)having ;
+
+// INSERT/UPDATE a row into the given table
+- (BOOL)insert:(NSDictionary *)values into:(NSString *)table ;
+- (BOOL)insertOrUpdate:(NSDictionary *)values into:(NSString *)table ;
+- (MSInt)update:(NSString *)table set:(NSDictionary *)values where:(NSString *)where ;
+- (MSInt)update:(NSString *)table set:(NSDictionary *)values where:(NSString *)where withBindings:(NSArray *)bindings ;
+
+// DELETE rows according to the filter
+- (MSInt)deleteFrom:(NSString *)table where:(NSString *)where ;
+- (MSInt)deleteFrom:(NSString *)table where:(NSString *)where withBindings:(NSArray *)bindings ;
+
+#pragma mark Requests mid level API
+
+- (MSDBStatement *)statementForSelect:(NSArray *)columns from:(NSString *)table where:(NSString *)where groupBy:(NSString *)groupby having:(NSString *)having orderBy:(NSString *)orderBy limit:(MSCouple *)limit ;
+- (MSDBStatement *)statementForCountRowsFrom:(NSString *)table query:(NSString *)where groupBy:(NSString *)groupby having:(NSString *)having ;
+- (MSDBStatement *)statementForInsert:(NSArray *)columns into:(NSString *)table ;
+- (MSDBStatement *)statementForInsertOrUpdate:(NSArray *)columns into:(NSString *)table ;
+- (MSDBStatement *)statementForUpdate:(NSString *)table set:(NSArray *)columns where:(NSString *)where ;
+- (MSDBStatement *)statementForDeleteFrom:(NSString *)table where:(NSString *)where ;
+
+#pragma mark Requests low level API
+
+- (MSDBStatement *)statementWithRequest:(NSString *)request ;
+- (MSDBResultSet *)fetchWithRequest:(NSString *)sqlRequest ;
+
+#define MSSQL_OK 0
 // executeRawSQL is to be used when no other return than ok or error is espected.
 // Do NOT use it for DELETE INSERT etc. because theses operations are to be done
 // inside a transaction.
@@ -121,6 +154,16 @@
 // or other.
 - (MSInt)executeRawSQL:(NSString *)sqlRequest ;
 
+#pragma mark Other
+
+- (MSArray *)tableNames ;
+
+// a shortcut. returns 0 on error.
+- (NSUInteger)countRowsFrom:(NSString *)tableName query:(NSString *)whereClause ;
+
+// TODO: Remove the two following method as they lead to bad and potentially insecure usage of raw query
+// Prepared statement are there to handle the security of data that comes from an unknown source.
+// Statement are also faster with custom non static data
 - (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes ;
 - (NSString *)escapeString:(NSString *)aString ; // no quotes
 

@@ -49,11 +49,12 @@
 
 - (id)initWithDatabaseConnection:(MSDBConnection *)connection
 {
-  if (!connection || (![connection isConnected] && [connection connect])) {
+  if (!connection || (![connection isConnected] && ![connection connect])) {
     RELEAZEN(self) ;
     return nil ;
   }
-  _connection = RETAIN(connection) ;
+  [connection registerOperation:self];
+  ASSIGN(_connection, connection) ;
   return self ;
 }
 
@@ -63,9 +64,8 @@
 
 - (void)terminateOperation
 {
-  if (_connection) {
-    RELEAZEN(_connection) ;
-  }
+  [_connection unregisterOperation:self];
+  RELEAZEN(_connection);
 }
 
 - (void)dealloc

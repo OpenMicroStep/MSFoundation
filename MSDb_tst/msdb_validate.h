@@ -4,6 +4,7 @@
 #import "msfoundation_validate.h"
 
 int msdb_obi_validate(void);
+int msdb_adaptor_validate(void);
 int msdb_repository_validate(void);
 
 static inline int testDb(BOOL alone)
@@ -13,6 +14,7 @@ static inline int testDb(BOOL alone)
     printf("**********    Test of the  Microstep MSObi Library    **********\n\n");
   err= //testFoundation(NO)           +
        //msdb_obi_validate()          +
+       msdb_adaptor_validate()   +
        msdb_repository_validate()   +
        0;
   if (alone) {

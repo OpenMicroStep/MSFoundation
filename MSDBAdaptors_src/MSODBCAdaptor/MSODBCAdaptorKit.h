@@ -45,7 +45,9 @@
 #import <MSDatabase/MSDatabase.h>
 
 #ifdef WIN32
-#import "_odbcWin32.h"
+#include <windows.h> 
+#include <sql.h> 
+#include <sqlext.h>
 #else
 #import <iODBC/isql.h>
 #import <iODBC/sql.h>
@@ -54,7 +56,7 @@
 #import <iODBC/sqlucode.h>
 #endif
 
-#import "MSODBCTransaction.h"
+#import "MSODBCStatement.h"
 #import "MSODBCResultSet.h"
 #import "MSODBCConnection.h"
 

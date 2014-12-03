@@ -1,4 +1,6 @@
-/*   MSDb_Private.h
+/*
+ 
+ MSMySQLStatement.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -6,6 +8,7 @@
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
  Herve Malaingre : herve@malaingre.com
+ Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -38,25 +41,31 @@
  
  */
 
-#ifndef MSDB_PRIVATE_H
-#define MSDB_PRIVATE_H
+typedef struct  {
+    my_bool is_null;
+    unsigned long length;
+    union {
+        id _id;
+        MYSQL_TIME *_time;
+        MSChar _MSChar;
+        MSByte _MSByte;
+        MSShort _MSShort;
+        MSUShort _MSUShort;
+        MSInt _MSInt;
+        MSUInt _MSUInt;
+        MSLong _MSLong;
+        MSULong _MSULong;
+        float _float;
+        double _double;
+    } u;
+} MSMysqlBindParamInfo;
 
-#import <MSFoundation/MSFoundation.h>
+@interface MSMySQLStatement : MSDBStatement {
+  MYSQL_STMT *_stmt;
+  MYSQL_BIND *_bind;
+  MSMysqlBindParamInfo *_bindInfos;
+  size_t _bindSize;
+}
 
-#import "MSDatabaseWin32.h"
-
-#import "MSDBConnection.h"
-#import "MSDBOperation.h"
-#import "MSDBRow.h"
-#import "MSDBResultSet.h"
-#import "MSDBTransaction.h"
-#import "MSDBStatement.h"
-
-#import "MSOid.h"
-#import "MSObi.h"
-#import "MSOdb.h"
-
-#import "MSDBGenericConnection.h" // For adaptators
-
-#endif // MSDB_PRIVATE_H
-
+- (id)initWithDatabaseConnection:(MSDBConnection *)connection withRequest:(NSData *)request withMYSQL:(MYSQL *)mysql;
+@end
