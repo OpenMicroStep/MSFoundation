@@ -298,7 +298,7 @@ static inline void _CClassAdjustSize(id self, NSUInteger count, NSUInteger unitS
         MSReportError(MSMallocError, MSFatalError, MSReallocErrorCode, "CAdjustSize() reallocation error");
         return;}
       else *size= count;}
-    else {MSFree(ptr, "CAdjustSize()"); *ptr= NULL; *size= 0;}}
+    else {MSFree(*ptr, "CAdjustSize()"); *ptr= NULL; *size= 0;}}
 }
 
 #endif // MSCORE_OBJECT_H
