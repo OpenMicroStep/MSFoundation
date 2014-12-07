@@ -67,7 +67,7 @@ static inline int decimal_op(void)
       decimal_print(c[i]); decimal_print(d);
       fprintf(stdout, "B1-%d c & d are not equals\n",i); err++;}
     }
-  for (i=1; i<10; i++) RELEASE(c[i]);
+  for (i=0; i<10; i++) RELEASE(c[i]);
   return err;
   }
 

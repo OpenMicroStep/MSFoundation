@@ -41,6 +41,7 @@
  */
 
 #import "MSNet_Private.h"
+#include <openssl/hmac.h>
 //#import <openssl/evp.h>
 
 #define BINKEY_ROUND_COUNT 5
@@ -216,6 +217,36 @@
 - (NSData *)decryptData:(NSData *)cipherData
 {
 	return [self _cryptData:cipherData doCrypt:NO];
+}
+
+static void computeHMAC(unsigned char *key, int key_sz, unsigned char *msg, int msg_sz, unsigned char *out, unsigned int *out_sz)
+{
+  HMAC_CTX hctx;
+  unsigned int outlen;
+  OPENSSL_HMAC_CTX_init(&hctx);
+  if(!OPENSSL_HMAC_Init_ex(&hctx, key, key_sz, OPENSSL_EVP_sha1(), NULL) ||
+     !OPENSSL_HMAC_Update(&hctx, msg, msg_sz) ||
+     !OPENSSL_HMAC_Final(&hctx, out, &outlen)) {
+    MSRaiseCryptoOpenSSLException();
+  }
+  OPENSSL_HMAC_CTX_cleanup(&hctx);
+}
+
+- (BOOL)verify:(NSData *)signature ofMessage:(NSData*)message
+{
+  unsigned char expected[EVP_MAX_MD_SIZE];
+  unsigned int expectedLength;
+  computeHMAC((unsigned char*)[_key bytes], [_key length], (unsigned char*)[message bytes], [message length], expected, &expectedLength);
+  return expectedLength == [signature length]
+      && memcmp([signature bytes], expected, expectedLength) == 0;
+}
+
+- (NSData *)sign:(NSData *)message
+{
+  unsigned char expected[EVP_MAX_MD_SIZE];
+  unsigned int expectedLength;
+  computeHMAC((unsigned char*)[_key bytes], [_key length], (unsigned char*)[message bytes], [message length], expected, &expectedLength);
+  return [NSData dataWithBytes:expected length:expectedLength];
 }
 
 - (MSCipherType)cipherType

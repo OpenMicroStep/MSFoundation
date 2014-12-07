@@ -1042,7 +1042,7 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
                 case MSTE_DECODING_ROOT_OBJECT : {
                     NS_DURING
                         decodedObjects = [[NSMutableArray alloc] initWithCapacity:32] ;
-                        object = [_MSTDecodeObject(&s, end, @"root object", decodedObjects, decodedClasses, decodedKeys, &myTokenCount, allowsUnknownUserClasses, zone) retain];
+                        object = _MSTDecodeObject(&s, end, @"root object", decodedObjects, decodedClasses, decodedKeys, &myTokenCount, allowsUnknownUserClasses, zone);
                         DESTROY(decodedClasses) ;
                         DESTROY(decodedKeys) ;
                         DESTROY(decodedObjects) ;

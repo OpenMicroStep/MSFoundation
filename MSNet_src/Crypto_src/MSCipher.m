@@ -83,6 +83,16 @@
 	return [self notImplemented:_cmd] ;
 }
 
+- (BOOL)verify:(NSData *)signature ofMessage:(NSData*)message
+{
+  return [self notImplemented:_cmd] ;
+}
+
+- (NSData *)sign:(NSData *)data
+{
+  return [self notImplemented:_cmd] ;
+}
+
 - (MSCipherType)cipherType
 {
 	(void)[self notImplemented:_cmd] ;

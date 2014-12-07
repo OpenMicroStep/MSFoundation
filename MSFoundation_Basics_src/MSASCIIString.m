@@ -447,12 +447,16 @@ NSString *MSBytesToHexaString(const void *_buf, NSUInteger _length, BOOL plistEn
     NSUInteger i, len= _length*2 + (plistEncoded ? 7 : 0);
 		char *s= (char *)malloc(len);
 		char *str= s;
-		if (plistEncoded) {strcpy(s, "<hexa:"); s+= 6;}
-		for (i= 0 ; i < _length ; i++) {
-			unsigned char c= ((unsigned char *)_buf)[i];
-			*s++= __hexa[c>>4];
-			*s++= __hexa[c&0x0f];}
-		if (plistEncoded) *s++= '>';
-    return AUTORELEASE(MSCreateASCIIStringWithBytes((void*)str, len, NO, YES));}
-	return @"<>";
+    if(s) {
+      if (plistEncoded) {strcpy(s, "<hexa:"); s+= 6;}
+      for (i= 0 ; i < _length ; i++) {
+        unsigned char c= ((unsigned char *)_buf)[i];
+        *s++= __hexa[c>>4];
+        *s++= __hexa[c&0x0f];
+      }
+      if (plistEncoded) *s++= '>';
+      return AUTORELEASE(MSCreateASCIIStringWithBytes((void*)str, len, NO, YES));
+    }
+  }
+  return plistEncoded ? @"<>" : @"";
 }

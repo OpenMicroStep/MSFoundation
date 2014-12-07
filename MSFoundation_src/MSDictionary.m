@@ -191,7 +191,8 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
     CDictionaryGrow((CDictionary*)d, [src count]);
     for (ke= [(NSDictionary*)src keyEnumerator]; (k= [ke nextObject]);) {
       if ((o= [(NSDictionary*)src objectForKey:k]) && cpy) o= COPY(o);
-      if (o) CDictionarySetObjectForKey((CDictionary*)d,o,k);}}
+      if (o) CDictionarySetObjectForKey((CDictionary*)d,o,k);
+      if (cpy) RELEASE(o);}}
   if (!m) FIXE(d);
   return d;
 }

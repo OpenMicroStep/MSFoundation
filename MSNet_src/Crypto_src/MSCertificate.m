@@ -188,7 +188,7 @@
 - (NSString *)subjectOrganizationName { return [self _subjectValueForKey:@"organizationName"] ; }
 - (NSString *)subjectOrganizationalUnitName { return [self _subjectValueForKey:@"organizationalUnitName"] ; }
 
-- (NSString *)fingerPrint:(MSDigest)digest
+- (NSString *)fingerPrint:(MSDigestType)digest
 {
     unsigned int fprint_size;
     unsigned char fprint[EVP_MAX_MD_SIZE];
@@ -251,9 +251,9 @@
     return [self _dateFromASN1_TIME:OPENSSL_X509_get_notBefore(_cert)] ;
 }
 
-- (BOOL)isEqual:(MSCertificate *)certificate
+- (BOOL)isEqual:(id)object
 {
-    return [[self fingerPrint:MS_SHA1] isEqual:[certificate fingerPrint:MS_SHA1]] ;
+    return [object isKindOfClass:[self class]] && [[self fingerPrint:MS_SHA1] isEqual:[object fingerPrint:MS_SHA1]] ;
 }
 
 @end

@@ -227,6 +227,36 @@
 	return keyPairCouple;
 }
 
+static inline NSData *digestMessage(NSData*message)
+{
+    MSDigest *md= [MSDigest digestWithType:MS_SHA1] ;
+    [md updateWithData:message];
+    return [md digest];
+}
+
+- (BOOL)verify:(NSData *)signature ofMessage:(NSData*)message
+{
+    if([self _isPrivate])
+        MSRaise(NSGenericException, @"Error : trying to verify message with private key") ;
+    message= digestMessage(message);
+    return OPENSSL_RSA_verify(NID_sha1, [message bytes], [message length], (unsigned char*)[signature bytes], [signature length], (RSA*)_rsaKey);
+}
+
+- (NSData *)sign:(NSData *)message
+{
+    RSA *rsa= (RSA*)_rsaKey;
+    unsigned char signBytes[OPENSSL_RSA_size(rsa)];
+    unsigned int signLen;
+    
+    if(![self _isPrivate])
+        MSRaise(NSGenericException, @"Error : trying to sign message with public key") ;
+    message= digestMessage(message);
+    if(!OPENSSL_RSA_sign(NID_sha1, [message bytes], [message length], signBytes, &signLen, rsa))
+        MSRaiseCryptoOpenSSLException();
+    
+    return [NSData dataWithBytes:signBytes length:signLen];
+}
+
 - (MSCipherType)cipherType
 {
 	return _cipherType;

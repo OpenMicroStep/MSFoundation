@@ -381,53 +381,12 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 
 - (NSString *)generatePKChallengeURN:(NSString *)urn storedPlainChallenge:(NSString **)plainChallenge
 {
-    NSData *encryptedChallengeData = nil ;
-    NSString *encryptedChallenge = nil ;
-    NSString *challenge = [self generatePlainChallengeWithParameters:nil storeInSession:nil] ;
-    MSBuffer *base64Buf = nil ;
-    
-    if ([challenge length])
-    {
-        NSString *publicKey = [self publicKeyForURN:urn] ;
-        
-        if ([publicKey length])
-        {
-            NSData *challengeData = nil ;
-            MSCipher *cypher = nil ;
-            MSBuffer *pkBuf = AUTORELEASE(MSCreateBufferWithBytesNoCopyNoFree((void *)[publicKey UTF8String], [publicKey length])) ;
-            
-            //convert challenge to data
-            challengeData = [NSData dataWithBytes:(void *)[challenge UTF8String] length:[challenge length]] ;
-            
-            //encrypt challenge
-            cypher = [MSCipher cipherWithKey:pkBuf type:RSAEncoder] ;
-            encryptedChallengeData = [cypher encryptData:challengeData] ;
-            
-            *plainChallenge = challenge ; //store plain challenge
-        }
-        else // do not store challenge
-        {
-            *plainChallenge = nil ;
-            encryptedChallengeData = [challenge dataUsingEncoding:NSUTF8StringEncoding] ;
-        }
-    } else
-    {
-        MSRaise(NSInternalInconsistencyException, @"generatePKChallengeURN : Challenge generation failed") ;
-    }
-
-    //always return a challenge, even is no public key was found
-    base64Buf = [[MSBuffer bufferWithBytesNoCopyNoFree:(void*)[encryptedChallengeData bytes] length:[encryptedChallengeData length]] encodedToBase64] ;
-    encryptedChallenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[base64Buf bytes], [base64Buf length], YES, YES)) ;
-    
-    return encryptedChallenge ;
+    return *plainChallenge = [MSSecureHash plainChallenge:[MSSecureHash generateRawChallenge]] ;
 }
 
-- (NSString *)generatePlainChallengeWithParameters:(NSDictionary *)challengeParameters storeInSession:(NSDictionary **)sessionParameters
+- (NSString *)generateChallengeInfoForLogin:(NSString *)login withSession:(MHSession*)session
 {
-    MSBuffer *randBuff = AUTORELEASE(MSCreateRandomBuffer(8)) ;
-    MSBuffer *b64Buf = [randBuff encodedToBase64] ;
-    
-    return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[b64Buf bytes], [b64Buf length], YES, YES)) ;
+    return [MSSecureHash fakeChallengeInfo] ;
 }
 
 - (void)validateAuthentication:(MHNotification *)notification ticket:(NSString *)ticket certificate:(MSCertificate *)certificate
@@ -463,10 +422,16 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
                            urn:(NSString *)urn
                    certificate:(MSCertificate *)certificate
 {
-    if ([challenge length] && [storedChallenge length] && [challenge isEqualToString:storedChallenge])
+    NSString *publicKey = [self publicKeyForURN:urn] ;
+    if ([publicKey length])
     {
-        [self logWithLevel:MHAppDebug log:@"Challenge Authentication success for URN '%@'",urn] ;
-        MHVALIDATE_AUTHENTICATION(YES, nil) ;
+        MSBuffer *providedSignatureInB64 = [MSBuffer bufferWithData:[challenge dataUsingEncoding:NSUTF8StringEncoding]] ;
+        MSBuffer *providedSignature = [providedSignatureInB64 decodedFromBase64] ;
+        MSCipher *cypher = [MSCipher cipherWithKey:[publicKey dataUsingEncoding:NSUTF8StringEncoding] type:RSAEncoder] ;
+        if([cypher verify:providedSignature ofMessage:[storedChallenge dataUsingEncoding:NSUTF8StringEncoding]]) {
+            [self logWithLevel:MHAppDebug log:@"Challenge Authentication success for URN '%@'",urn] ;
+            MHVALIDATE_AUTHENTICATION(YES, nil) ;
+        }
     }
     
     [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for URN '%@' : stored challenge not found", urn] ;

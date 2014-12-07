@@ -325,24 +325,12 @@ typedef enum
     return request ;
 }
 
-- (NSString *)_decryptRSAChallenge:(NSString *)challenge
+- (NSString *)_signChallenge:(NSString *)challenge
 {
-    const void *challengeBytes = NULL ;
-    MSBuffer *challengeBuf = nil ;   //b64 decode
-    MSCipher *decoder = nil ;
-    NSData *decryptedData = nil ;
-    NSString *decodedChallenge = nil ;
-
-    challengeBytes = [challenge UTF8String] ;
-    challengeBuf = [[MSBuffer bufferWithBytesNoCopyNoFree:(void*)challengeBytes length:strlen(challengeBytes)] decodedFromBase64] ;
-    decoder = [MSCipher cipherWithKey:_sk type:RSADecoder] ;
-    decryptedData = [decoder decryptData:challengeBuf] ;
-
-    decodedChallenge = AUTORELEASE(MSCreateASCIIStringWithBytes((void *)[decryptedData bytes],
-                                                                [decryptedData length],
-                                                                NO, NO)) ;
-    
-    return decodedChallenge ;
+    MSCipher *cipher = [MSCipher cipherWithKey:_sk type:RSADecoder] ;
+    NSData *signature = [cipher sign:[challenge dataUsingEncoding:NSUTF8StringEncoding]] ;
+    MSBuffer *signatureInB64 = [[MSBuffer bufferWithData:signature] encodedToBase64];
+    return [MSASCIIString stringWithBuffer:signatureInB64] ;
 }
 
 - (MSHTTPRequest *)_challengeAuthenticationRequestWithChallenge:(NSString *)challenge
@@ -354,7 +342,7 @@ typedef enum
     {
         case MHAuthPKChallengeAndURN:
         {
-            outgoingChallenge = [self _decryptRSAChallenge:challenge] ;
+            outgoingChallenge = [self _signChallenge:challenge] ;
             [request addAdditionalHeaderValue:outgoingChallenge forKey:@"MH-CHALLENGE"] ;
             break ;
         }
@@ -362,7 +350,7 @@ typedef enum
         case MHAuthChallengedPasswordLogin :
         case MHAuthChallengedPasswordLoginOnTarget:
         {
-            outgoingChallenge = MHChallengedPasswordHash(_password, challenge) ;
+            outgoingChallenge = [MSSecureHash challengeResultFor:_password withChallengeInfo:challenge];
             [request addAdditionalHeaderValue:outgoingChallenge forKey:@"MH-PASSWORD"] ;
             break ;
         }
@@ -405,14 +393,14 @@ typedef enum
     return auth ;
 }
 
-- (NSString*)guiAuthenticationChallengeForLogin:(NSString *)login
+- (NSString*)authenticationChallengeForLogin:(NSString *)login
 {
     NSString *error = nil ;
     MSHTTPResponse *response ;
     MSHTTPRequest *request = [self request:GET onSubURL:nil] ;
     MSBuffer *responseContent ;
     
-    [request addAdditionalHeaderValue:login forKey:MHGUI_AUTH_FORM_LOGIN] ;
+    [request addAdditionalHeaderValue:login forKey:@"MH-LOGIN"] ;
     response = [self _performRequest:request errorString:&error] ;
     responseContent = [response content] ;
     if ([response HTTPStatus] == HTTPOK && !error && [responseContent length] && [_sessionID length]) {
@@ -422,25 +410,17 @@ typedef enum
     return nil ;
 }
 
-- (BOOL)guiAuthenticationWithChallengedPassword:(NSString *)password
-                                       forLogin:(NSString *)login
-                                   andChallenge:(NSString *)challenge
+- (BOOL)authenticationWithChallengedPassword:(NSString *)password
 {
-    //GEO TODO #define hard-coded values
     MSHTTPResponse *response  ;
-    MSHTTPRequest *request ;
+    MSHTTPRequest *request = [self request:GET onSubURL:nil] ;
     NSString *error ;
     
-    request = [self request:GET onSubURL:nil] ;
-    [request addAdditionalHeaderValue:login forKey:@"MH-LOGIN"] ;
     [request addAdditionalHeaderValue:password forKey:@"MH-PASSWORD"] ;
-    [request addAdditionalHeaderValue:challenge forKey:@"MH-CHALLENGE"] ;
-    
     response = [self _performRequest:request errorString:&error] ;
     return [response HTTPStatus] == HTTPOK
         && [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[response headerValueForKey:MHAUTH_HEADER_RESPONSE]] ;
 }
-
 
 - (BOOL)authenticate
 {

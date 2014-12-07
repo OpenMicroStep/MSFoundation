@@ -559,7 +559,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
             }
         }
         if (len) { return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)buf, len, NO, YES)) ; }
-        
+        MSFree(buf, "_HTMLFromString()");
     }
     return @"" ;
 }
@@ -587,6 +587,14 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   long long value = CDecimalLongValue(decimal);
   RELEASE((id)decimal);
   return value;
+}
+
+// TODO: This is very inefficient
+- (NSUInteger)hash:(unsigned)depth {
+  MSString *str= [[MSString alloc] initWithString:self];
+  NSUInteger hash = [str hash:depth];
+  [str release];
+  return hash;
 }
 @end
 

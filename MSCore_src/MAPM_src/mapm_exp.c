@@ -161,15 +161,15 @@ void m_apm_exp(M_APM r, int places, const M_APM x)
   M_APM   tmp7, tmp8, tmp9;
   int dplaces, nn, ii;
   
-  tmp7 = m_apm_new();
-  tmp8 = m_apm_new();
-  tmp9 = m_apm_new();
-  
   if (x->m_apm_sign == 0)  /* if input == 0, return '1' */
   {
     m_apm_copy(r, MM_One);
     return;
   }
+  
+  tmp7 = m_apm_new();
+  tmp8 = m_apm_new();
+  tmp9 = m_apm_new();
   
   if (x->m_apm_exponent <= -3)  /* already small enough so call _raw directly */
   {

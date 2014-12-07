@@ -76,6 +76,9 @@ typedef enum {
 - (NSData *)encryptData:(NSData *)plainData ;
 - (NSData *)decryptData:(NSData *)cipherData ;
 
+- (BOOL)verify:(NSData *)signature ofMessage:(NSData*)message ;
+- (NSData *)sign:(NSData *)message ;
+
 - (MSCipherType)cipherType ;
 
 @end

@@ -53,7 +53,7 @@
 #import "MSCurlSendMail.h"
 
 #import "MSCipher.h"
-#import "MSDigest.h"
+//#import "MSDigest.h"
 #import "_MSDigest.h"
 #import "_MSCipherPrivate.h"
 #import "_SymmetricCipher.h"
@@ -73,6 +73,7 @@
 
 #import "MHPublicProtocols.h"
 
+#import "MSSecureHash.h"
 #import "MHBunchableObject.h"
 #import "MHHTTPMessage.h"
 #import "_MHHTTPMessagePrivate.h"

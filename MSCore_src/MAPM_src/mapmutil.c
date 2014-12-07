@@ -197,9 +197,8 @@ void M_get_div_rem_10(int tbl_lookup, UCHAR *ndiv, UCHAR *nrem)
 void m_apm_round(M_APM btmp, int places, M_APM atmp)
 {
   int ii;
-  M_APM M_work_0_5 = m_apm_new();
+  M_APM M_work_0_5;
   
-  m_apm_copy(M_work_0_5, MM_Five);
   ii = places + 1;
   
   if (atmp->m_apm_datalength <= ii)
@@ -208,6 +207,8 @@ void m_apm_round(M_APM btmp, int places, M_APM atmp)
     return;
   }
   
+  M_work_0_5 = m_apm_new();
+  m_apm_copy(M_work_0_5, MM_Five);
   M_work_0_5->m_apm_exponent = atmp->m_apm_exponent - ii;
   
   if (atmp->m_apm_sign > 0)

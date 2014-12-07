@@ -51,7 +51,6 @@ int MHCheckSocketState(int sock_fd, int writing)
 
 - (BOOL)writeBytes:(const void *)bytes length:(MSUInt)length
 {
-#warning TODO WRITE SPLIT
     int write = 0 ;
     int err = 0;
     int sockstate;
@@ -108,7 +107,6 @@ int MHCheckSocketState(int sock_fd, int writing)
 
 - (MSUInt)readIn:(void *)buf length:(MSUInt)length
 {
-#warning TODO READ SPLIT
     MSInt len = 0 ;
     int err, sockstate;
     

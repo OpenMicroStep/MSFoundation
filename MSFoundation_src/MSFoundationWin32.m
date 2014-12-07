@@ -245,6 +245,13 @@ static NSUUID *__defaultUuid = nil ;
 - (NSString *)UUIDString { return [[NSProcessInfo processInfo] globallyUniqueString]; }
 @end
 
+@implementation NSArray (MSCompatibilityLayer)
+- (id)firstObject
+{
+  return [self count] ? [self objectAtIndex:0] : nil;
+}
+@end
+
 @implementation NSString (MSCompatibilityLayer)
 + (id)stringWithCString:(const char *)cString encoding:(NSStringEncoding)enc {
   return [[self alloc] initWithCString:cString encoding:enc];
