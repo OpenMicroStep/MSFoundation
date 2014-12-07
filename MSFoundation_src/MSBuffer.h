@@ -70,7 +70,6 @@ Herve Malaingre : herve@malaingre.com
  
  */
 
-#define MSBAddData(X, Y) CBufferAppendData((CBuffer*)(X), (NSData*)(Y))
 static inline void CBufferAppendData(CBuffer *self, NSData *d)
 {
   NSUInteger length= [d length];
@@ -84,8 +83,8 @@ static inline void CBufferAppendData(CBuffer *self, NSData *d)
 {
 @private
   MSByte      *_buf;
-  NSUInteger   _length;
   NSUInteger   _size;
+  NSUInteger   _length;
   CBufferFlags _flags;
 }
 

@@ -66,13 +66,6 @@ MSCoreExport MSInt      MSCurrentTimezoneOffset(void);
 
 MSCoreExport NSUInteger MSCapacityForCount(NSUInteger count);
 
-#pragma mark ***** Memory
-
-#define MSMalloc( X   , C) malloc(X)
-#define MSRealloc(X, Y, C) realloc(X, Y)
-#define MSCalloc( X, Y, C) calloc(X, Y) // allocated and filled with zeros
-#define MSFree(   X   , C) free(X)      // free is ok with NULL
-
 #pragma mark ***** Language
 
 typedef enum {
@@ -127,6 +120,7 @@ MSErrorDomain;
 #define MSTryToInsertNilError  -10000
 #define MSIndexOutOfRangeError -20000
 #define MSNULLPointerError     -30000
+#define MSNotMutableError      -40000
 
 typedef void (*MSErrorCallback)(MSErrorDomain, MSErrorLevel, MSInt, const char *);
 
@@ -134,6 +128,27 @@ MSCoreExport void MSReportError( MSErrorDomain domain, MSErrorLevel level, MSInt
 MSCoreExport void MSReportErrorV(MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, const char *format, va_list argList);
 MSCoreExport void MSSetErrorCallBack(MSErrorCallback fn);
   // not thread safe. use once.
+
+#pragma mark ***** Memory
+
+#define MSMalloc(    SZ, C) malloc(SZ)
+#define MSRealloc(Z, SZ, C) realloc(Z, SZ)
+#define MSCalloc( X, Y, C) calloc(X, Y) // allocated and filled with zeros
+#define MSFree(   X   , C) free(X)      // free is ok with NULL
+
+static inline void *MSMallocFatal(size_t sz, char *fct)
+{
+  void *p= MSMalloc(sz, NULL);
+  if (!p) MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode, fct);
+  return p;
+}
+
+static inline void *MSReallocFatal(void *zone, size_t sz, char *fct)
+{
+  void *p= MSRealloc(zone, sz, NULL);
+  if (!p) MSReportError(MSMallocError, MSFatalError, MSReallocErrorCode, fct);
+  return p;
+}
 
 #pragma mark ***** Swap
 

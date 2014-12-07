@@ -82,13 +82,17 @@ MSFoundationExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 {
 @private
   unichar*   _buf;
-  NSUInteger _length;
   NSUInteger _size;
+  NSUInteger _length;
+  CGrowFlags _flag;
 }
 + (id)UUIDString;
 - (SES)stringEnumeratorStructure;
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;
+
+#pragma mark init
+
 @end
 
 @interface MSMutableString : MSString

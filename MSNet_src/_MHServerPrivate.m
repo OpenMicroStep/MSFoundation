@@ -96,7 +96,7 @@ static NSString *__serverLogFile = nil ;
 static NSDictionary *__netRepositoryConfigurations = nil ;
 
 static NSMapTable *__applicationsByPort = NULL ;
-static MSMutableArray *__applications = nil ;
+static MSArray *__applications = nil ;
 
 static NSMutableArray *__applicationsInfos = nil ;
 static mutex_t __applicationsMutex ;
@@ -2678,7 +2678,7 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     __staticApplication = staticApplication ;
     __baseUrlComponentsCount = (__staticApplication) ? BASE_URL_COMPONENT_COUNT_STATIC_MODE : BASE_URL_COMPONENT_COUNT_BUNDLE_MODE ;
     __applicationsByPort = NSCreateMapTableWithZone(NSIntegerMapKeyCallBacks, NSIntegerMapValueCallBacks, 32, defaultZone) ;
-    __applications = [MSMutableArray array] ;
+    __applications = [MSArray mutableArray] ;
     __sessions = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 32, defaultZone) ;
     __sessionContexts = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 64, defaultZone) ;
     __resourcesCache = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 128, defaultZone) ;
@@ -3364,8 +3364,8 @@ MHApplication *applicationForPortAndKey(MSInt listeningPort, NSString *key) {
 
 MSCouple *listeningPortsSortedBySSLAuthMode()
 {
-    MSMutableArray *oneWayAuth = [MSCreateMutableArray(5) autorelease] ;
-    MSMutableArray *twoWayAuth = [MSCreateMutableArray(5) autorelease] ;
+    MSArray *oneWayAuth = [MSArray mutableArray] ;
+    MSArray *twoWayAuth = [MSArray mutableArray] ;
     
     NSEnumerator *portEnum = [allApplicationPorts() objectEnumerator] ;
     NSNumber *listeningPort ;

@@ -66,7 +66,7 @@
 #import "MSSSLInterface.h" // Dans MSNet ?
 
 #import "MSArray.h"
-#import "MSMutableArray.h"
+//#import "MSMutableArray.h"
 #import "MSBuffer.h"
 #import "MSColor.h"
 #import "MSCouple.h"

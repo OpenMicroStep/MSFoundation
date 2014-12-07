@@ -100,7 +100,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
     
     _writeEncoding = _readEncoding = NSUTF8StringEncoding ;
     
-    _operations = [[MSMutableArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:NO] ;
+    _operations = [[MSArray alloc] mutableInitWithCapacity:0 noRetainRelease:YES nilItems:NO] ;
 
     // WARNING : you can get NSNEXTSTEPStringEncoding and NSUTF16StringEncoding
      if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"encoding"]))) {

@@ -106,9 +106,9 @@ typedef id        uid; // union id: vid | MSUid*
 @interface MSUid : NSObject
 {
 @private
-  MSMutableArray *_txtsInOids; // refere to one in _oids
-  MSMutableArray *_txtsMore;   // may refer or not to one in _oids (not in previous array)
-  MSMutableArray *_oids;
+  MSArray *_txtsInOids; // refere to one in _oids
+  MSArray *_txtsMore;   // may refer or not to one in _oids (not in previous array)
+  MSArray *_oids;
 }
 + (id)uid;
 + (id)uidWithUid:(uid)u;
@@ -197,5 +197,4 @@ MSDatabaseExport MSString *MSCarDurationLib;
 
 #pragma mark private
 
-MSDatabaseExport NSString *_obiDesc(MSLong level, id ctx,
-                          MSUid *todoOrder, MSMutableDictionary *todo);
+MSDatabaseExport NSString *_obiDesc(MSLong level, id ctx, MSUid *todoOrder, MSDictionary *todo);

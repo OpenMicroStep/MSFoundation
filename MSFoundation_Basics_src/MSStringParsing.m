@@ -70,7 +70,7 @@ id MSCreatePropertyListFromString(NSString *str,
         unsigned short state, lastState ;
         unichar c, delimitor = 0, c1 = 0, c2 = 0 ;
         MSString *buf = nil ;
-        MSMutableArray *array = [[MSMutableArray alloc]initWithCapacity:32 noRetainRelease:YES nilItems:NO] ;
+        MSArray *array = [[MSArray alloc] mutableInitWithCapacity:32 noRetainRelease:YES nilItems:NO] ;
         char *error = NULL ;
         BOOL startingCommentaryWasTested = NO ;
         NSString *futureClassName = nil ;

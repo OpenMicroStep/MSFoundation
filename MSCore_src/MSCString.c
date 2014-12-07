@@ -160,12 +160,12 @@ CString *CCreateStringWithSES(SES ses)
 
 void CStringGrow(CString *self, NSUInteger n)
 {
-  _CClassGrow((id)self, n, self->length, sizeof(unichar), &self->size, (void**)&self->buf);
+  CGrowGrow((id)self,n);
 }
 
 void CStringAdjustSize(CString *self)
 {
-  _CClassAdjustSize((id)self, self->length, sizeof(unichar), &self->size, (void**)&self->buf);
+  CGrowAdjustSize((id)self);
 }
 
 NSUInteger CStringLength(const CString *self)

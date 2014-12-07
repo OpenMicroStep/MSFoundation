@@ -63,32 +63,71 @@
 - (id)currentKey;
 @end
 
-@interface MSDictionary : NSDictionary
+@interface MSDictionary : NSObject
 {
 @private
-  NSUInteger _count;
-  NSUInteger _nBuckets;
   void **_buckets;
+  NSUInteger _nBuckets;
+  NSUInteger _count;
+  CGrowFlags _flag;
 }
-+ (id)dictionary;
-- (id)init;
-+ (id)dictionaryWithObject:(id)object forKey:(id <NSCopying>)key;
-- (id)      initWithObject:(id)object forKey:(id <NSCopying>)key;
-+ (id)dictionaryWithKey:(id <NSCopying>)k andObject:(id)o;
-- (id)      initWithKey:(id <NSCopying>)k andObject:(id)o;
-#if WIN32
-+ (id)dictionaryWithObjects:(const id [])objects forKeys:(const id [])keys count:(NSUInteger)cnt;
-- (id)      initWithObjects:(const id [])objects forKeys:(const id [])keys count:(NSUInteger)cnt;
-#else
-+ (id)dictionaryWithObjects:(const id [])os forKeys:(const id <NSCopying> [])ks count:(NSUInteger)n;
-- (id)      initWithObjects:(const id [])os forKeys:(const id <NSCopying> [])ks count:(NSUInteger)n;
-#endif
-+ (id)dictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
-- (id)      initWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
-+ (id)dictionaryWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
-- (id)      initWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
 
-- (id)initWithDictionary:(NSDictionary*)otherDictionary copyItems:(BOOL)flag;
+// Attention, alloc et new retourne des instances mutables.
++ (id)allocWithZone:(NSZone*)zone;
++ (id)alloc;
++ (id)new;
+
+#if WIN32
+#define COPY_PT
+#else
+#define COPY_PT <NSCopying>
+#endif
+
+#pragma mark init
+
++ (id)dictionary;
++ (id)dictionaryWithObject:(id)o forKey:(id <NSCopying>)k;
++ (id)dictionaryWithKey:(id <NSCopying>)k andObject:(id)o;
++ (id)dictionaryWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
++ (id)dictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
++ (id)dictionaryWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+
+- (id)init;
+- (id)initWithObject:(id)o forKey:(id <NSCopying>)k;
+- (id)initWithKey:(id <NSCopying>)k andObject:(id)o;
+- (id)initWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
+- (id)initWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+
+#pragma mark mutable init
+
++ (id)mutableDictionary;
++ (id)mutableDictionaryWithObject:(id)o forKey:(id <NSCopying>)k;
++ (id)mutableDictionaryWithKey:(id <NSCopying>)k andObject:(id)o;
++ (id)mutableDictionaryWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
++ (id)mutableDictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
++ (id)mutableDictionaryWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+
+- (id)mutableInit;
+- (id)mutableInitWithObject:(id)o forKey:(id <NSCopying>)k;
+- (id)mutableInitWithKey:(id <NSCopying>)k andObject:(id)o;
+- (id)mutableInitWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
+- (id)mutableInitWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)mutableInitWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+
+#pragma mark Other inits
+
++ (id)dictionaryWithDictionary:(id)otherDictionary;
++ (id)mutableDictionaryWithDictionary:(id)otherDictionary;
+- (id)initWithDictionary:(id)otherDictionary;
+- (id)mutableInitWithDictionary:(id)otherDictionary;
+
++ (id)dictionaryWithDictionary:(id)otherDictionary copyItems:(BOOL)flag;
++ (id)mutableDictionaryWithDictionary:(id)otherDictionary copyItems:(BOOL)flag;
+- (id)initWithDictionary:(id)otherDictionary copyItems:(BOOL)flag;
+- (id)mutableInitWithDictionary:(id)otherDictionary copyItems:(BOOL)flag;
+
+#pragma mark Standard methods
 
 - (NSUInteger)count;
 - (id)objectForKey:(id)aKey;
@@ -99,14 +138,11 @@
 //- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict; // ???
 
 - (MSDictionaryEnumerator*)dictionaryEnumerator;
-@end
 
-@interface MSMutableDictionary : MSDictionary
-{
-@private
-}
-+ (id)dictionaryWithCapacity:(NSUInteger)numItems;
-- (id)initWithCapacity:(NSUInteger)numItems;
+#pragma mark Mutability
+
++ (id)mutableDictionaryWithCapacity:(NSUInteger)numItems;
+- (id)mutableInitWithCapacity:(NSUInteger)numItems;
 
 - (void)removeObjectForKey:(id)aKey;
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;

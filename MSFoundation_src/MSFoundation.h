@@ -46,6 +46,7 @@
 #import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>
 #import <MSFoundation/MSCObject.h>
+#import <MSFoundation/MSCGrow.h>
 
 #import <MSFoundation/MSCoreUnichar.h>
 #import <MSFoundation/MSCoreSES.h>
@@ -79,7 +80,7 @@
 #import <MSFoundation/MSSSLInterface.h> // Dans MSNet ?
 
 #import <MSFoundation/MSArray.h>
-#import <MSFoundation/MSMutableArray.h>
+//#import <MSFoundation/MSMutableArray.h>
 #import <MSFoundation/MSBuffer.h>
 #import <MSFoundation/MSColor.h>
 #import <MSFoundation/MSCouple.h>

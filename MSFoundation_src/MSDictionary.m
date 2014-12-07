@@ -100,127 +100,109 @@
 
 #pragma mark alloc / init
 
+#define FIXE(X) CGrowSetImmutable((id)X)
+
 + (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
 + (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
 + (id)new                         {return MSAllocateObject(self, 0, NULL);}
-+ (id)dictionary     {return AUTORELEASE(MSAllocateObject(self, 0, NULL));}
-+ (id)dictionaryWithObject:(id)object forKey:(id <NSCopying>)key
+
+static inline id _dict(Class cl, id d, BOOL m)
   {
-  id d= MSAllocateObject(self, 0, NULL); // self may be a MSMutableDictionary
-  CDictionarySetObjectForKey((CDictionary*)d, object, key);
-  return AUTORELEASE(d);
+  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!m) FIXE(d);
+  return d;
   }
-+ (id)dictionaryWithKey:(id <NSCopying>)k andObject:(id)o
++ (id)dictionary        {return _dict(self, nil,  NO);}
++ (id)mutableDictionary {return _dict(self, nil, YES);}
+- (id)init              {return _dict(nil ,self,  NO);}
+- (id)mutableInit       {return _dict(nil ,self, YES);}
+
+static inline id _dictWithObject(Class cl, id d, BOOL m, id o, id k)
   {
-  id d= MSAllocateObject(self, 0, NULL); // self may be a MSMutableDictionary
+  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
   CDictionarySetObjectForKey((CDictionary*)d, o, k);
-  return AUTORELEASE(d);
+  if (!m) FIXE(d);
+  return d;
   }
++ (id)dictionaryWithObject:       (id)o forKey:(id <NSCopying>)k {return _dictWithObject(self, nil,  NO, o, k);}
++ (id)mutableDictionaryWithObject:(id)o forKey:(id <NSCopying>)k {return _dictWithObject(self, nil, YES, o, k);}
+- (id)initWithObject:             (id)o forKey:(id <NSCopying>)k {return _dictWithObject(nil ,self,  NO, o, k);}
+- (id)mutableInitWithObject:      (id)o forKey:(id <NSCopying>)k {return _dictWithObject(nil ,self, YES, o, k);}
 
-#if WIN32
-+ (id)dictionaryWithObjects:(const id [])os forKeys:(const id             [])ks count:(NSUInteger)n
-#else
-+ (id)dictionaryWithObjects:(const id [])os forKeys:(const id <NSCopying> [])ks count:(NSUInteger)n
-#endif
-  {
-  id d= MSAllocateObject(self, 0, NULL);
-  return AUTORELEASE([d initWithObjects:os forKeys:ks count:n]);
-  }
-- (id)_initWithFirstObject:(id)o arguments:(va_list)ap
-  {
-  id k;
-  if (o) while ((k= va_arg (ap, id))) {
-    if (o==nil) {o= k;}
-    else {
-      CDictionarySetObjectForKey((CDictionary*)self, o, k);
-      o= nil;}}
-  return self;
-  }
-- (id)_initWithFirstKey:(id)k arguments:(va_list)ap
-  {
-  id o;
-  if (k) while ((o= va_arg (ap, id))) {
-    if (k==nil) {k= o;}
-    else {
-      CDictionarySetObjectForKey((CDictionary*)self, o, k);
-      k= nil;}}
-  return self;
-  }
-+ (id)dictionaryWithObjectsAndKeys:(id)firstObject, ...
-  {
-  id d= MSAllocateObject(self, 0, NULL);
-  va_list ap;
-  va_start(ap, firstObject);
-  d= [d _initWithFirstObject:firstObject arguments:ap];
-  va_end(ap);
-  return AUTORELEASE(d);
-  }
-+ (id)dictionaryWithKeysAndObjects:(id)firstKey, ...
-  {
-  id d= MSAllocateObject(self, 0, NULL);
-  va_list ap;
-  va_start(ap, firstKey);
-  d= [d _initWithFirstKey:firstKey arguments:ap];
-  va_end(ap);
-  return AUTORELEASE(d);
-  }
++ (id)dictionaryWithKey:       (id <NSCopying>)k andObject:(id)o {return _dictWithObject(self, nil,  NO, o, k);}
++ (id)mutableDictionaryWithKey:(id <NSCopying>)k andObject:(id)o {return _dictWithObject(self, nil, YES, o, k);}
+- (id)initWithKey:             (id <NSCopying>)k andObject:(id)o {return _dictWithObject(nil ,self,  NO, o, k);}
+- (id)mutableInitWithKey:      (id <NSCopying>)k andObject:(id)o {return _dictWithObject(nil ,self, YES, o, k);}
 
-- (id)init
-  {
-  return self;
-  }
-- (id)initWithObject:(id)object forKey:(id <NSCopying>)key
-  {
-  CDictionarySetObjectForKey((CDictionary*)self, object, key);
-  return self;
-  }
-- (id)initWithKey:(id <NSCopying>)k andObject:(id)o
-  {
-  CDictionarySetObjectForKey((CDictionary*)self, o, k);
-  return self;
-  }
-
-#if WIN32
-- (id)initWithObjects:(const id [])os forKeys:(const id             [])ks count:(NSUInteger)n
-#else
-- (id)initWithObjects:(const id [])os forKeys:(const id <NSCopying> [])ks count:(NSUInteger)n
-#endif
+static inline id _dictWithOsKsN(Class cl, id d, BOOL m, const id* os, const id COPY_PT *ks, NSUInteger n)
   {
   NSUInteger i;
-  CDictionaryGrow((CDictionary*)self, n);
+  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  CDictionaryGrow((CDictionary*)d, n);
   for (i= 0; i<n; i++) {
-    CDictionarySetObjectForKey((CDictionary*)self,os[i],ks[i]);}
-  return self;
+    CDictionarySetObjectForKey((CDictionary*)d,os[i],ks[i]);}
+  if (!m) FIXE(d);
+  return d;
   }
++ (id)dictionaryWithObjects:       (const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n {return _dictWithOsKsN(self, nil,  NO, os, ks, n);}
++ (id)mutableDictionaryWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n {return _dictWithOsKsN(self, nil, YES, os, ks, n);}
+- (id)initWithObjects:             (const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n {return _dictWithOsKsN(nil, self,  NO, os, ks, n);}
+- (id)mutableInitWithObjects:      (const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n {return _dictWithOsKsN(nil, self, YES, os, ks, n);}
 
-- (id)initWithObjectsAndKeys:(id)firstObject, ...
-{
-  va_list ap;
-  va_start(ap, firstObject);
-  self= [self _initWithFirstObject:firstObject arguments:ap];
-  va_end(ap);
-  return self;
-}
-- initWithKeysAndObjects:(id)firstKey, ...
-{
-  va_list ap;
-  va_start(ap, firstKey);
-  self= [self _initWithFirstKey:firstKey arguments:ap];
-  va_end(ap);
-  return self;
-}
+static inline id _dictWithArgs(Class cl, id d, BOOL m, BOOL kFirst, id a, va_list l)
+  {
+  id b;
+  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (a) while ((b= va_arg (l, id))) {
+    if (a==nil) {a= b;}
+    else {
+      CDictionarySetObjectForKey((CDictionary*)d, kFirst?b:a, kFirst?a:b);
+      a= nil;}}
+  if (!m) FIXE(d);
+  return d;
+  }
+#define _dictOs(CL,D,M,KFIRST,X) \
+  id ret; \
+  va_list ap; \
+  va_start(ap, X); \
+  ret= _dictWithArgs(CL,D,M, KFIRST,X,ap); \
+  va_end(ap); \
+  return ret
 
-- (id)initWithDictionary:(NSDictionary*)src copyItems:(BOOL)cpy
++ (id)dictionaryWithObjectsAndKeys:       (id)o, ... {_dictOs(self, nil,  NO,  NO, o);}
++ (id)mutableDictionaryWithObjectsAndKeys:(id)o, ... {_dictOs(self, nil, YES,  NO, o);}
+- (id)initWithObjectsAndKeys:             (id)o, ... {_dictOs(nil ,self,  NO,  NO, o);}
+- (id)mutableInitWithObjectsAndKeys:      (id)o, ... {_dictOs(nil ,self, YES,  NO, o);}
+
++ (id)dictionaryWithKeysAndObjects:       (id)k, ... {_dictOs(self, nil,  NO, YES, k);}
++ (id)mutableDictionaryWithKeysAndObjects:(id)k, ... {_dictOs(self, nil, YES, YES, k);}
+- (id)initWithKeysAndObjects:             (id)k, ... {_dictOs(nil ,self,  NO, YES, k);}
+- (id)mutableInitWithKeysAndObjects:      (id)k, ... {_dictOs(nil ,self, YES, YES, k);}
+
+#pragma mark Other inits
+
+static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 {
+  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
   if ([src respondsToSelector:@selector(dictionaryEnumerator)]) {
-    id de,k,o;
-    CDictionaryGrow((CDictionary*)self, [src count]);
-    for (de= [(MSDictionary*)src dictionaryEnumerator]; (k= [de nextKey]);) {
-      if ((o= [de currentObject]) && cpy) o= COPY(o);
-      if (o) CDictionarySetObjectForKey((CDictionary*)self,o,k);}}
-  else self= [super initWithDictionary:src copyItems:cpy];
-  return self;
+    CCreateDictionaryWithDictionaryCopyItems((CDictionary*)src, cpy);}
+  else if ([src respondsToSelector:@selector(keyEnumerator)]) {
+    id ke,k,o;
+    CDictionaryGrow((CDictionary*)d, [src count]);
+    for (ke= [(NSDictionary*)src keyEnumerator]; (k= [ke nextObject]);) {
+      if ((o= [(NSDictionary*)src objectForKey:k]) && cpy) o= COPY(o);
+      if (o) CDictionarySetObjectForKey((CDictionary*)d,o,k);}}
+  if (!m) FIXE(d);
+  return d;
 }
++ (id)dictionaryWithDictionary:       (id)src {return _dictWithDictCpy(self, nil,  NO, src, NO);}
++ (id)mutableDictionaryWithDictionary:(id)src {return _dictWithDictCpy(self, nil, YES, src, NO);}
+- (id)initWithDictionary:             (id)src {return _dictWithDictCpy(nil ,self,  NO, src, NO);}
+- (id)mutableInitWithDictionary:      (id)src {return _dictWithDictCpy(nil ,self, YES, src, NO);}
++ (id)dictionaryWithDictionary:       (id)src copyItems:(BOOL)cpy {return _dictWithDictCpy(self, nil,  NO, src, cpy);}
++ (id)mutableDictionaryWithDictionary:(id)src copyItems:(BOOL)cpy {return _dictWithDictCpy(self, nil, YES, src, cpy);}
+- (id)initWithDictionary:             (id)src copyItems:(BOOL)cpy {return _dictWithDictCpy(nil ,self,  NO, src, cpy);}
+- (id)mutableInitWithDictionary:      (id)src copyItems:(BOOL)cpy {return _dictWithDictCpy(nil ,self, YES, src, cpy);}
 
 - (void)dealloc
   {
@@ -229,6 +211,9 @@
   }
 
 #pragma mark Primitives
+
+- (BOOL)isMutable    {return CDictionaryIsMutable((CDictionary*)self);}
+- (void)setImmutable {FIXE(self);}
 
 - (NSUInteger)count {return _count;}
 
@@ -267,12 +252,14 @@
 - (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
   {
   CDictionary *d= (CDictionary*)MSAllocateObject([MSDictionary class], 0, z);
-  return CDictionaryInitCopy(d, (CDictionary*)self);
+  CDictionaryInitCopy(d, (CDictionary*)self, NO);
+  FIXE(d);
+  return (id)d;
   }
 - (id)mutableCopyWithZone:(NSZone*)z
   {
-  CDictionary *d= (CDictionary*)MSAllocateObject([MSMutableDictionary class], 0, z);
-  return CDictionaryInitCopy(d, (CDictionary*)self);
+  CDictionary *d= (CDictionary*)MSAllocateObject([MSDictionary class], 0, z);
+  return CDictionaryInitCopy(d, (CDictionary*)self, NO);
   }
 /*
 - (BOOL)isEqualToDictionary:(NSDictionary*)otherDict
@@ -294,18 +281,16 @@
   return NO;
   }
 
-@end
+#pragma mark Mutability
 
-@implementation MSMutableDictionary
-
-+ (id)dictionaryWithCapacity:(NSUInteger)numItems
++ (id)mutableDictionaryWithCapacity:(NSUInteger)numItems
   {
-  id d= MSAllocateObject(self, 0, NULL);
+  id d= AUTORELEASE(MSAllocateObject(self, 0, NULL));
   CDictionaryGrow((CDictionary*)d, numItems);
   return AUTORELEASE(d);
   }
 
-- (id)initWithCapacity:(NSUInteger)numItems
+- (id)mutableInitWithCapacity:(NSUInteger)numItems
   {
   CDictionaryGrow((CDictionary*)self, numItems);
   return self;

@@ -54,6 +54,7 @@
 #include <MSCore/MSCoreSystem.h>
 #include <MSCore/MSCoreTools.h>
 #include <MSCore/MSCObject.h>
+#include <MSCore/MSCGrow.h>
 
 #include <MSCore/MSCoreUnichar.h>
 #include <MSCore/MSCoreSES.h>

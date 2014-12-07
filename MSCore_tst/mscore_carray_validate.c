@@ -9,9 +9,9 @@ static inline int carray_create(void)
   CArray *a,*x,*b;
   a= CCreateArray(10);
   x= CCreateArrayWithOptions(0,YES,NO);
-  for (i=0; i<10; i++) {
+  for (i= 0; i<10; i++) {
     b= CCreateArray(i+1);
-    for (j=0; j<i+1; j++) CArrayAddObject(b, (id)x);
+    for (j= 0; j<i+1; j++) CArrayAddObject(b, (id)x);
     CArrayAddObject(a, (id)b);
     RELEASE(b);}
   if (RETAINCOUNT(x)!=56) {
@@ -188,6 +188,24 @@ static inline int carray_retainrelease(void)
   return err;
   }
 
+static inline int carray_immutable(void)
+  {
+  int err= 0;
+  CArray *a; id o;
+  o= (id)CCreateArray(0);
+  a= CCreateArrayWithObject(o);
+  CArraySetImmutable(a);
+  if (CArrayIsMutable(a)) {
+    fprintf(stdout, "array is mutable\n");
+    err++;}
+//CArrayAddObject(a, o);               // -> crash
+//CArrayReplaceObjectAtIndex(a, o, 0); // -> crash
+//CArrayRemoveLastObject(a);           // -> crash
+  RELEASE(o);
+  RELEASE(a);
+  return err;
+  }
+
 int mscore_carray_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -196,6 +214,7 @@ int mscore_carray_validate(void)
   err+= carray_ptr();
   err+= carray_subarray();
   err+= carray_retainrelease();
+  err+= carray_immutable();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CArray",(err?"FAIL":"PASS"),seconds);

@@ -72,7 +72,7 @@ typedef struct MSDBGenericConnectionFlagsStruct {
   NSStringEncoding _readEncoding ;
   NSStringEncoding _writeEncoding ;
   
-  MSMutableArray *_operations ;
+  MSArray *_operations ;
   
   NSUInteger _requestSizeLimit ;
   NSUInteger _inClauseMaxElements ;

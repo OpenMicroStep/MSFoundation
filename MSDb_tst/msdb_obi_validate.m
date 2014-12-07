@@ -142,7 +142,7 @@ static id d3= @""
 static inline int tst_obi_decode(id dbParams, id x, BOOL save)
 {
   int err= 0;
-  id db; MSMutableDictionary *all; MSObi *root= NULL;
+  id db; MSDictionary *all; MSObi *root= NULL;
   if (!(db= [[MSOdb alloc] initWithParameters:dbParams])) {
     NSLog(@"C1: no db %@",[dbParams objectForLazyKey:@"database"]); err++;}
   all= [db decodeObis:x root:&root];

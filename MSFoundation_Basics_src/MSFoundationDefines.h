@@ -173,7 +173,7 @@ if (__x__ != __y__) { X =  (__y__ ? COPY(__y__) : nil); if (__x__) RELEASE(__x__
 #define KILL_POOL      RELEASE(_localPool_)
 
 #define ARRAY  [MSArray arrayWithObjects:
-#define MARRAY [MSMutableArray arrayWithObjects:
+#define MARRAY [MSArray mutableArrayWithObjects:
 
 #define END    , nil]
 

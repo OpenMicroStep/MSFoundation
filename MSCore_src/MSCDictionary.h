@@ -52,9 +52,10 @@ typedef struct CDictionaryStruct {
 #ifdef MSCORE_STANDALONE
   NSUInteger refCount;
 #endif
-  NSUInteger count;
+  void **buckets;
   NSUInteger nBuckets;
-  void **buckets;}
+  NSUInteger count;
+  CGrowFlags flag;}
 CDictionary;
 
 typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
@@ -75,7 +76,9 @@ MSCoreExport CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
 MSCoreExport CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
 
   MSCoreExport void       CDictionaryFreeInside(id self);
-  MSCoreExport id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied);
+// TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
+// Attention Dnas le Core le COPY copie la mutability et pas dans le .m: pas cohérent. Réécrire un COPY avec un arg ?)
+  MSCoreExport id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems);
 //Already defined in MSCObject.h
 //MSCoreExport void       CDictionaryFree(id self);
 //MSCoreExport BOOL       CDictionaryIsEqual(id self, id other);
@@ -90,7 +93,15 @@ MSCoreExport BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *
 MSCoreExport CDictionary *CCreateDictionary(NSUInteger capacity);
 MSCoreExport CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSUInteger count);
 
+// TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
+MSCoreExport CDictionary *CCreateDictionaryWithDictionaryCopyItems(const CDictionary *src, BOOL cpy);
+
+// No more mutable
+MSCoreExport BOOL CDictionaryIsMutable(CDictionary *self);
+MSCoreExport void CDictionarySetImmutable(CDictionary *self);
+
 MSCoreExport void CDictionaryGrow(CDictionary *self, NSUInteger n);
+MSCoreExport void CDictionaryAdjustSize(CDictionary *self);
 
 #pragma mark Informations
 

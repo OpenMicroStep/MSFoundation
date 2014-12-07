@@ -320,13 +320,13 @@ static inline BOOL _ISEQUALSET(id a, id b)
 
 static inline BOOL _addAtFirstToArray(id o, id *pArray)
 {
-  if (!*pArray) *pArray= [[MSMutableArray alloc] init];
+  if (!*pArray) *pArray= [[MSArray alloc] mutableInit];
   [*pArray insertObject:o atIndex:0];
   return YES;
 }
 static inline void _addToArray(id o, id *pArray)
 {
-  if (!*pArray) *pArray= [[MSMutableArray alloc] init];
+  if (!*pArray) *pArray= [[MSArray alloc] mutableInit];
   [*pArray addObject:o];
 }
 static inline BOOL _addReferedSystemName(id n, id *ptxtsMore, id *ptxtsInOids)
@@ -363,9 +363,9 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
   if ([u_ isKindOfClass:[MSUid class]]) {
     MSUid *uu= (MSUid*)u_;
     if (!_txtsInOids && !_txtsMore && !_oids) {
-      _txtsInOids= [[MSMutableArray alloc] initWithArray:uu->_txtsInOids];
-      _txtsMore=   [[MSMutableArray alloc] initWithArray:uu->_txtsMore];
-      _oids=       [[MSMutableArray alloc] initWithArray:uu->_oids];}
+      _txtsInOids= [[MSArray alloc] mutableInitWithArray:uu->_txtsInOids];
+      _txtsMore=   [[MSArray alloc] mutableInitWithArray:uu->_txtsMore];
+      _oids=       [[MSArray alloc] mutableInitWithArray:uu->_oids];}
     else {
       u1= uu->_oids;
       u2= uu->_txtsMore;
@@ -405,8 +405,8 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
   MSUid *ret; id ne,n,oid;
   if (![_txtsMore count]) return self;
   ret= [[self class] uidWithUid:nil];
-  ret->_oids=       [[MSMutableArray alloc] initWithArray:_oids];
-  ret->_txtsInOids= [[MSMutableArray alloc] initWithArray:_txtsInOids];
+  ret->_oids=       [[MSArray alloc] mutableInitWithArray:_oids];
+  ret->_txtsInOids= [[MSArray alloc] mutableInitWithArray:_txtsInOids];
   for (ne= [_txtsMore objectEnumerator]; (n= [ne nextObject]);) {
     oid= [[db systemObiWithName:n] oid];
     if (oid) {
@@ -478,7 +478,7 @@ static inline void _addUid(uid o, id self, id *ptxtsMore, id *ptxtsInOids, id *p
   if (!db) ret= [self description];
   else {
     ids= [MSUid uidWithUid:[self allKeys]];
-    todo= [MSMutableDictionary dictionaryWithDictionary:self];
+    todo= [MSDictionary mutableDictionaryWithDictionary:self];
     ret= _obiDesc(level, ctx, ids, todo);}
   return ret;
 }
@@ -525,10 +525,10 @@ static NSComparisonResult _oidOrderCmp(MSOid* oid1, MSOid *oid2, void *ctx)
 static NSString *_obiRecDesc(MSLong level0, MSLong level,
   BOOL names, BOOL complet, MSOdb *db,
   MSUid *todoOrder,
-  MSMutableDictionary *todo, MSMutableDictionary *done)
+  MSDictionary *todo, MSDictionary *done)
 {
   vid vid; id o,entObi,ent,order,x,e,cids,cid,car,name,values,ve,value,type,oidValue,sub,sobi;
-  MSMutableDictionary *dict; MSLong i; BOOL isId,isSid,isCarEnt;
+  MSDictionary *dict; MSLong i; BOOL isId,isSid,isCarEnt;
   if (![todoOrder count]) return nil;
   vid= [todoOrder firstVid]; o= RETAIN([todo objectForKey:vid]);
   [todoOrder removeFirstVid];
@@ -536,7 +536,7 @@ static NSString *_obiRecDesc(MSLong level0, MSLong level,
   ent= [o oidValueForCid:MSCarEntityId];
   entObi= [db systemObiWithOid:ent];
   if (YES) { // level==level0 on remplit même quand c'est un sous-objet pour savoir qu'on l'a traité
-    dict= [MSMutableDictionary dictionary];
+    dict= [MSDictionary mutableDictionary];
     e= ent ? ent :[MSOid oidWithLongLongValue:0];
     order= [MSArray arrayWithObjects:e,vid, nil];
     [dict setObject:order forKey:@"_order"];
@@ -582,7 +582,7 @@ static NSString *_obiRecDesc(MSLong level0, MSLong level,
         // Qu'il ait déjà été fait ou non on indique dans done qu'il ne faut pas l'inclure à la fin.
         // Rem: Si on le supprime simplement, il peut être rajouté par un lien externe (par complétude).
         // Rem: on ne peut pas prendre directement celui de done à cause du level (sauf à le ré-indenter).
-        [(MSMutableDictionary*)[done objectForKey:oidValue] removeObjectForKey:@"txt"];
+        [(MSDictionary*)[done objectForKey:oidValue] removeObjectForKey:@"txt"];
 //NSLog(@"----- done %@ %@ %@",oidValue,[done objectForKey:oidValue],[done allKeys]);
         }
       else if (complet && oidValue &&
@@ -612,7 +612,7 @@ else NSLog(@"ADDING SYSTEM OBI FOR COMPLETUDE %@ %@",oidValue,[done objectForKey
   return x;
 }
 
-NSString *_obiDesc(MSLong level, id ctx, MSUid *todoOrder, MSMutableDictionary *todo)
+NSString *_obiDesc(MSLong level, id ctx, MSUid *todoOrder, MSDictionary *todo)
 {
   MSOdb *db; BOOL names,complet;
   id done,x,y,e,ds;
@@ -625,7 +625,7 @@ NSString *_obiDesc(MSLong level, id ctx, MSUid *todoOrder, MSMutableDictionary *
   
   x= [NSMutableString string];
   [x appendFormat:@"// Description of: %@",[todoOrder description]];
-  done= [MSMutableDictionary dictionary];
+  done= [MSDictionary mutableDictionary];
 //level++;
   while ([todoOrder count])
     _obiRecDesc(level, level, names, complet, db, todoOrder, todo, done);

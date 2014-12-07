@@ -127,7 +127,17 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
     MSReportError(MSInvalidArgumentError, MSFatalError, MSNULLPointerError,
                   "%s(): try to allocate object with classIndex %lu.",
                   "MSCreateObjectWithClassIndex",(unsigned long)classIndex);}
-  else {obj= [MSAllocateObject(aClass, 0, NULL) init];}
+//else {obj= [MSAllocateObject(aClass, 0, NULL) coreInit];}
+  else {obj= MSAllocateObject(aClass, 0, NULL);}
   return obj;
 }
 
+NSUInteger CGrowElementSize(id self)
+{
+  NSUInteger r= 0;
+  if      ([self isKindOfClass:[MSArray      class]]) r= sizeof(id);
+  else if ([self isKindOfClass:[MSBuffer     class]]) r= sizeof(MSByte);
+  else if ([self isKindOfClass:[MSDictionary class]]) r= sizeof(void*);
+  else if ([self isKindOfClass:[MSString     class]]) r= sizeof(unichar);
+  return r;
+}

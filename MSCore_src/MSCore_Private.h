@@ -54,6 +54,7 @@
 #include "MSCoreSystem.h"
 #include "MSCoreTools.h"
 #include "MSCObject.h"
+#include "MSCGrow.h"
 
 //#include "MSCoreNetwork.h"
 //#include "MSCoreEntropy.h"

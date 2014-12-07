@@ -9,10 +9,10 @@
 #import "MSNet_Private.h"
 //#import <MSFoundation/MSSystemLayer.h>
 
-#define STR2UTF8BUF(X,Y) MSBAddData(X, [Y dataUsingEncoding:NSUTF8StringEncoding])
+#define STR2UTF8BUF(X,Y) CBufferAppendData((CBuffer*)(X), [Y dataUsingEncoding:NSUTF8StringEncoding])
 
 #ifdef WIN32
-#define STR2INIBUF(X,Y) MSBAddData(X, [Y dataUsingEncoding:NSISOLatin1StringEncoding])
+#define STR2INIBUF(X,Y) CBufferAppendData((CBuffer*)(X), [Y dataUsingEncoding:NSISOLatin1StringEncoding])
 #else
 #define STR2INIBUF(X,Y) STR2UTF8BUF(X,Y)
 #endif

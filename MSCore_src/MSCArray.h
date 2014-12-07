@@ -45,15 +45,21 @@
 #ifndef MSCORE_ARRAY_H
 #define MSCORE_ARRAY_H
 
+// Un objet est mutable tant qu'il n'est pas fixed
+// CArrayCopy préserve la mutabilité (mais pas la méthode copy)
+
+// On veut que la structure à 0 soit le default (mutable, retain/release, no nils).
 typedef struct CArrayFlagsStruct {
 #ifdef __BIG_ENDIAN__
+  MSUInt fixed:1;           // mutability
+  MSUInt _pad:29;
   MSUInt noRetainRelease:1; // no retain / release
   MSUInt nilItems:1;        // accepting NULL or nil items
-  MSUInt _pad:30;
 #else
-  MSUInt _pad:31;
   MSUInt nilItems:1;
   MSUInt noRetainRelease:1;
+  MSUInt _pad:29;
+  MSUInt fixed:1;
 #endif
   }
 CArrayFlags;
@@ -64,15 +70,15 @@ typedef struct CArrayStruct {
   NSUInteger refCount;
 #endif
   id *pointers;
-  NSUInteger  count;
   NSUInteger  size;
+  NSUInteger  count;
   CArrayFlags flag;}
 CArray;
 
 // HM: 27/08/13 void return and report error to be conform to ObjC error reporting
 
-  MSCoreExport void       CArrayFreeInside(id self); // for MSArray dealloc
-  MSCoreExport id         CArrayInitCopy(CArray *self, const CArray *copied);
+  MSCoreExport void CArrayFreeInside(id self); // for MSArray dealloc
+  MSCoreExport id   CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutable);
 //Already defined in MSCObject.h
 //MSCoreExport void       CArrayFree(id self);
 //MSCoreExport BOOL       CArrayIsEqual(id self, id other);
@@ -92,6 +98,10 @@ MSCoreExport CArray *CCreateArray(NSUInteger capacity);
 MSCoreExport CArray *CCreateArrayWithObject(id o);
 MSCoreExport CArray *CCreateArrayWithObjects(const id *os, NSUInteger count, BOOL copyItems);
 MSCoreExport CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg);
+
+// No more mutable
+MSCoreExport BOOL CArrayIsMutable(CArray *self);
+MSCoreExport void CArraySetImmutable(CArray *self);
 
 MSCoreExport void CArrayGrow(CArray *self, NSUInteger n);
 MSCoreExport void CArrayAdjustSize(CArray *self);
@@ -167,11 +177,11 @@ MSCoreExport NSUInteger CSortedArrayAddObject(CArray *self, id object,
 MSCoreExport CString *CArrayToString(CArray *self);
 
 #define MSAAdd(  X, Y) CArrayAddObject((CArray*)(X), (Y))
-#define MSAPush( X, Y) MSAAdd(X, Y)
+//#define MSAPush( X, Y) MSAAdd(X, Y)
 #define MSAIndex(X, Y) ((CArray*)(X))->pointers[(Y)]
 #define MSACount(X) CArrayCount((CArray*)(X))
-#define MSAFirst(X) CArrayFirstObject((CArray*)(X))
-#define MSALast( X) CArrayLastObject((CArray*)(X))
-#define MSAPull( X) CArrayRemoveLastObject((CArray*)(X))
+//#define MSAFirst(X) CArrayFirstObject((CArray*)(X))
+//#define MSALast( X) CArrayLastObject((CArray*)(X))
+//#define MSAPull( X) CArrayRemoveLastObject((CArray*)(X))
 
 #endif // MSCORE_ARRAY_H

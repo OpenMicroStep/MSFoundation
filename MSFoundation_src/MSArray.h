@@ -38,31 +38,205 @@
  
  */
 
+// Le principe est: l'array est mutable jusqu'au momment où il est rendu immutable,
+// Pour parer toute ambiguïté, toutes les méthodes d'initialisation de classe ou
+// d'instance existent en version immutable (array, init) et mutable ().
+
+// Attention toutefois pour les méthodes de classe alloc et new.
+// Sans initialisation, alloc retourne une instance mutable.
+// Et de même pour new car la version mutable a plus de sens que l'immutable.
+// (Donc new= alloc mutableInit)
+
+// La seule logique aurait sans doute préféré que les init... standards soient les
+// versions mutables mais c'est trop confusant avec l'existant. En effet, on aurait
+// [MSArray array] pour la version mutable et quelque chose comme
+// [MSArray immutableArray] pour la version statique.
+
+// TODO: à revoir ? La copie ne préserve pas la mutablility.
+// Donc la seule façon de copier avec la mutabilité est subarrayWithRange:.
+
 @interface MSArray : NSArray
 {
 @private
   id *_pointers;
-  NSUInteger  _count;
   NSUInteger  _size;
+  NSUInteger  _count;
   CArrayFlags _flags;
 }
 
+// Attention, alloc et new retourne des instances mutables.
++ (id)allocWithZone:(NSZone*)zone;
++ (id)alloc;
++ (id)new;
+
+#pragma mark init
+
++ (id)array;
++ (id)arrayWithObject:(id)anObject;
++ (id)arrayWithObjects:(const id*)objs count:(NSUInteger)n;
++ (id)arrayWithFirstObject:(id)firstObject arguments:(va_list)ap;
++ (id)arrayWithObjects:(id)firstObject, ...;
+// arrayWithArray:
+// The returned array is immutable.
+// The methode may be used to convert NSArray to MSArray.
++ (id)arrayWithArray:(NSArray*)array;
+
+- (id)init;
 - (id)initWithObject:(id)o;
+- (id)initWithObjects:(const id*)objects count:(NSUInteger)n;
+- (id)initWithObjects:(id)firstObject, ...;
+- (id)initWithFirstObject:(id)o arguments:(va_list)ap;
+- (id)initWithArray:(NSArray*)array;
+
+#pragma mark mutable init
+
++ (id)mutableArray;
++ (id)mutableArrayWithObject:(id)anObject;
++ (id)mutableArrayWithObjects:(const id*)objs count:(NSUInteger)n;
++ (id)mutableArrayWithFirstObject:(id)firstObject arguments:(va_list)ap;
++ (id)mutableArrayWithObjects:(id)firstObject, ...;
+// mutableArrayWithArray:
+// The returned array is mutable.
+// The methode may be used to convert NSArray to MSArray.
++ (id)mutableArrayWithArray:(NSArray*)array;
+
+- (id)mutableInit;
+- (id)mutableInitWithObject:(id)o;
+- (id)mutableInitWithObjects:(const id*)objects count:(NSUInteger)n;
+- (id)mutableInitWithObjects:(id)firstObject, ...;
+- (id)mutableInitWithFirstObject:(id)o arguments:(va_list)ap;
+- (id)mutableInitWithArray:(NSArray*)array;
+
+#pragma mark Other inits
+
 - (id)initWithObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
-- (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
+- (id)initWithArray:(NSArray*)array copyItems:(BOOL)copy;
+- (id)mutableInitWithObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
+- (id)mutableInitWithArray:(NSArray*)array copyItems:(BOOL)copy;
 
+- (id)mutableInitWithCapacity:(NSUInteger)capacity;
+- (id)mutableInitWithCapacity:(NSUInteger)cap noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
+
+// TODO: to be removed
+- (id)initWithCapacity:(NSUInteger)capacity;
+- (id)initWithCapacity:(NSUInteger)cap noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
+
+#pragma mark Standard methods
+
+- (BOOL)isMutable;
+- (void)setImmutable;
 - (NSUInteger)capacity;
+- (NSUInteger)count;
+- (id)objectAtIndex:(NSUInteger)i;
 
-- (BOOL)containsIdenticalObject:(id)anObject;
-- (id)firstIdenticalObjectCommonWithArray:(NSArray*)otherArray;
+#pragma mark Global methods
 
+- (NSUInteger)hash:(unsigned)depth;
+- (id)copyWithZone:(NSZone*)z;        // immutable copy ???
+- (id)mutableCopyWithZone:(NSZone*)z; //   mutable copy
+//- (id)immutableCopyWithZone:(NSZone*)z; //   ???
+- (BOOL)isTrue; // YES if not emty and all the objects are true.
+- (BOOL)isEqualToArray:(NSArray*)otherArray;
+- (BOOL)isEqual:(id)object;
+
+#pragma mark Common methods (fixed or mutable instance)
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector;
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)o;
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)o1 withObject:(id)o2;
+
+// The mutability is preserved.
+- (NSArray*)arrayByAddingObject:(id)anObject;
+- (NSArray*)arrayByAddingObjectsFromArray:(NSArray*)a;
 - (NSArray*)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator context:(void*)context;
 - (NSArray*)sortedArrayUsingSelector:(SEL)comparator;
+- (NSArray*)subarrayWithRange:(NSRange)rg;
 
-- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2;
+#pragma mark Access
 
-- (MSArray*)microstepArray; // returns self
+- (MSArray*)microstepArray; // TODO: usefull ???
+- (id)lastObject;
+- (NSEnumerator*)objectEnumerator;
+- (NSEnumerator*)reverseObjectEnumerator;
+- (void)getObjects:(id*)objects;
+- (void)getObjects:(id*)objects range:(NSRange)rg;
+
+#pragma mark Search
+
+- (BOOL)containsObject:(id)o;
+- (BOOL)containsIdenticalObject:(id)o;
+- (NSUInteger)indexOfObject:(id)o;
+- (NSUInteger)indexOfObject:(id)o inRange:(NSRange)range;
+- (NSUInteger)indexOfObjectIdenticalTo:(id)o;
+- (NSUInteger)indexOfObjectIdenticalTo:(id)o inRange:(NSRange)rg;
+
+// TODO: The actual implementation does not respond to the spec of the NSArray method.
+- (id)firstObjectCommonWithArray:(NSArray*)a;
+- (id)firstIdenticalObjectCommonWithArray:(NSArray*)a;
+
+#pragma mark Description
+
+- (NSString*)toString;
+- (NSString*)description;
+- (NSString*)descriptionWithLocale:(NSDictionary*)locale;
+- (NSString*)descriptionWithLocale:(NSDictionary*)locale indent:(NSUInteger)level;
+
+#pragma mark NSCoding protocol
+
+- (Class)classForAchiver;
+- (Class)classForCoder;
+- (Class)classForPortCoder;
+- (id)replacementObjectForPortCoder:(NSPortCoder*)encoder;
+- (void)encodeWithCoder:(NSCoder*)aCoder;
+- (id)initWithCoder:(NSCoder*)aCoder;
+
+#pragma mark Mutability
+
+/************************** TO DO IN THIS FILE  ****************
+ 
+ (1)  an implementation for methods :
+ 
+ - (void)replaceObjectsInRange:(NSRange)range withObjectsFromArray:(NSArray *)otherArray range:(NSRange)otherRange;
+ - (void)replaceObjectsInRange:(NSRange)range withObjectsFromArray:(NSArray *)otherArray;
+ 
+ - (void)insertObjects:(NSArray *)objects atIndexes:(NSIndexSet *)indexes AVAILABLE_MAC_OS_X_VERSION_10_4_AND_LATER;
+ - (void)removeObjectsAtIndexes:(NSIndexSet *)indexes AVAILABLE_MAC_OS_X_VERSION_10_4_AND_LATER;
+ - (void)replaceObjectsAtIndexes:(NSIndexSet *)indexes withObjects:(NSArray *)objects AVAILABLE_MAC_OS_X_VERSION_10_4_AND_LATER;
+ 
+ 
+ *************************************************************/
+
+- (void)addObject:(id)anObject;
+- (void)addObjects:(const id*)objects count:(NSUInteger)n copyItems:(BOOL)copy;
+- (void)addObjectsFromArray:(NSArray*)otherArray;
+
+- (void)insertObject:(id)anObject atIndex:(NSUInteger)i;
+
+- (BOOL)conditionalAddObject:(id)anObject;
+- (BOOL)conditionalAddObjectIdenticalTo:(id)anObject;
+
+- (void)replaceObjectAtIndex:(NSUInteger)i withObject:(id)anObject;
+- (void)replaceObjectsInRange:(NSRange)rg withObjects:(const id*)objects copyItems:(BOOL)copy;
+
+- (void)removeObject:(id)anObject;
+- (void)removeObjectAtIndex:(NSUInteger)i;
+- (void)removeObjectIdenticalTo:(id)anObject;
+- (void)removeLastObject;
+
+- (void)removeObjectsInRange:(NSRange)range;
+- (void)removeObjectsInArray:(NSArray*)otherArray;
+- (void)removeAllObjects;
+
+- (void)setArray:(NSArray *)otherArray;
+/*
+- (void)removeObjectsFromIndices:(NSUInteger *)indices numIndices:(NSUInteger)count;
+*/
+
+- (void)sortUsingFunction:(NSInteger (*)(id, id, void *))comparator context:(void *)context;
+- (void)sortUsingSelector:(SEL)comparator;
 
 @end
 
+// TODO: To be removed
 #define MSCreateArray(C) (MSArray*)CCreateArray(C)
+//MSMutableArray *MSCreateMutableArray(NSUInteger capacity);

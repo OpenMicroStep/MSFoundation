@@ -70,9 +70,9 @@ static inline boolerr RBE(BOOL ok, NSString *err)
   MSDBConnection* _db;
   MSDBTransaction *_tr;
   MSArray* _valTables;
-  MSMutableDictionary* _entByOid;
-  MSMutableDictionary* _sysObiByOid;
-  MSMutableDictionary* _sysObiByName;
+  MSDictionary* _entByOid;
+  MSDictionary* _sysObiByOid;
+  MSDictionary* _sysObiByName;
 }
 
 // databaseWithParameters:dict
@@ -122,8 +122,8 @@ static inline boolerr RBE(BOOL ok, NSString *err)
 // Retourne les ids remplis avec les cars.
 // Si cars est nil, remplit toutes les cars des instances.
 // La car 'entity' est toujours remplie même si elle n'est pas demandée.
-- (MSMutableDictionary*)fillIds:(uid)ids withCars:(uid)cars;
-- (MSMutableDictionary*)allFilledIds:(uid)ids withCars:(uid)cars;
+- (MSDictionary*)fillIds:(uid)ids withCars:(uid)cars;
+- (MSDictionary*)allFilledIds:(uid)ids withCars:(uid)cars;
 
 - (boolerr)changeObi:(MSObi*)x;
 - (boolerr)changeObis:(MSDictionary*)x;
@@ -131,7 +131,7 @@ static inline boolerr RBE(BOOL ok, NSString *err)
 - (BOOL)beginTransaction;
 - (BOOL)endTransactionSuccessfully:(BOOL)commit;
 
-- (MSMutableDictionary*)decodeObis:(MSString*)x root:(MSObi**)pRoot;
+- (MSDictionary*)decodeObis:(MSString*)x root:(MSObi**)pRoot;
 
 // Redirected on _db
 - (NSString*)escapeString:(NSString*)aString withQuotes:(BOOL)withQuotes;

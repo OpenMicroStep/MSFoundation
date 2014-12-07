@@ -7,11 +7,11 @@ static inline int array_create(void)
   int err= 0;
   NSUInteger i,j;
   MSArray *x;
-  MSMutableArray *a,*b;
-  a= MSCreateMutableArray(10);
-  x= [[MSArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:NO];
+  MSArray *a,*b;
+  a= [[MSArray alloc] mutableInit];
+  x= [[MSArray alloc] init];
   for (i=0; i<10; i++) {
-    b= MSCreateMutableArray(i+1);
+    b= [[MSArray alloc] mutableInitWithCapacity:i+1];
     for (j=0; j<i+1; j++) [b addObject:x];
     [a addObject:b];
     RELEASE(b);}
@@ -30,8 +30,8 @@ static inline int carray_ptr(void)
   {
   int err= 0;
   NSUInteger i, p[200], *q[100], *x;
-  MSMutableArray *a;
-  a= [[MSMutableArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:YES];
+  MSArray *a;
+  a= [[MSArray alloc] mutableInitWithCapacity:0 noRetainRelease:YES nilItems:YES];
   for (i=0; i<100; i++) p[i]= 2*i;
   // Array of int
   [a addObjects:(id*)p count:100 copyItems:NO];
@@ -94,17 +94,17 @@ static inline int carray_subarray(void)
   {
   int err= 0;
   NSUInteger i,j, n= 2*3*256;
-  MSMutableArray *a,*b,*d;
+  MSArray *a,*b,*d;
   NSArray *c;
   id o;
-  a= MSCreateMutableArray(n);
-  o= [[MSMutableArray alloc] initWithCapacity:0 noRetainRelease:YES nilItems:YES];
+  a= [[MSArray alloc] mutableInitWithCapacity:n];
+  o= [[MSArray alloc] mutableInitWithCapacity:0 noRetainRelease:YES nilItems:YES];
   [o addObject:nil];
   if ([o count]!=1) {
     fprintf(stdout, "Bad count(30): %lu\n",WLU(((CArray*)o)->count));
     err++;}
   for (i=0; i<n; i++) {
-    b= MSCreateMutableArray(i+1);
+    b= [[MSArray alloc] mutableInitWithCapacity:i+1];
     for (j=0; j<i+1; j++) [b addObject:o];
     [a addObject:b];
     RELEASE(b);}
@@ -119,7 +119,7 @@ static inline int carray_subarray(void)
   if (RETAINCOUNT(o)!=n*(n+1)/2) {
     fprintf(stdout, "Bad retain count(33): %lu %lu\n",WLU(RETAINCOUNT(o)),n*(n+1)/2);
     err++;}
-  d= MSCreateMutableArray(n/3);
+  d= [[MSArray alloc] mutableInitWithCapacity:n/3];
   CArrayAddArray((CArray*)d, (CArray*)c, YES);
   if (RETAINCOUNT(o)!=n*(n+1)/2+(4*n+3)*n/18) {
     fprintf(stdout, "Bad retain count(34): %lu %lu\n",WLU(RETAINCOUNT(o)),n*(n+1)/2+(4*n+3)*n/18);

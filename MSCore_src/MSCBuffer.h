@@ -47,11 +47,13 @@
 
 typedef struct CBufferFlagsStruct {
 #ifdef __BIG_ENDIAN__
+  MSUInt fixed:1;  // mutability
+  MSUInt _pad:30;
   MSUInt noFree:1; // 'buf' not freed at end. Append fcts forbidden.
-  MSUInt _pad:31;
 #else
-  MSUInt _pad:31;
   MSUInt noFree:1;
+  MSUInt _pad:30;
+  MSUInt fixed:1;
 #endif
   }
 CBufferFlags;
@@ -62,8 +64,8 @@ typedef struct CBufferStruct {
   NSUInteger refCount;
 #endif
   MSByte *buf;
-  NSUInteger   length;
   NSUInteger   size;
+  NSUInteger   length;
   CBufferFlags flags;}
 CBuffer;
 
@@ -133,7 +135,5 @@ MSCoreExport BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *byt
 #define MSBPointer(X)      (((CBuffer*)(X))->buf)
 #define MSBLength(X)       CBufferLength((const CBuffer*)(X))
 #define MSBIndex(X,Y)                         ((CBuffer*)(X))->buf[(Y)]
-
-//#define MSBAddData(X, Y)   CBufferAppendData  ((CBuffer*)(X), (NSData*)(Y))
 
 #endif

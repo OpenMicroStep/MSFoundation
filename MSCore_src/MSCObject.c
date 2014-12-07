@@ -57,23 +57,24 @@ typedef struct CClassStruct {
   CObjectTest          isEqual;
   CObjectHashier       hashier;
   CObjectAccessor      copier;
-  NSUInteger           instancesSize;}
+  NSUInteger           instanceSize;
+  NSUInteger           elementSize;} // For growable instance
 CClass;
 
 static struct CClassStruct metaclass=
-  {NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)        };
+  {NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)     , 0              };
 static CClass __allClasses[CClassIndexMax+1]=
-{ //           className         deallocator         isEqual                hashier             copier              instancesSize
-  {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)        },
-  {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)       },
-  {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)        },
-  {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)       },
-  {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)         },
-  {&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)      },
-  {&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary)   },
-  {&metaclass, "CMutex"        , NULL              , NULL                 , NULL              , NULL              , 0                     },
-//{&metaclass, "CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)        },
-  {&metaclass, "CString", CStringFree, CStringIsEqual, CStringHash, CStringCopy, sizeof(CString)}
+{ //           className         deallocator         isEqual                hashier             copier              instanceSize        elementSize
+  {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)     , sizeof(id)     },
+  {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)    , sizeof(MSByte) },
+  {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)     , 0              },
+  {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)    , 0              },
+  {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)      , 0              },
+  {&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)   , 0              },
+  {&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary), sizeof(void*)  },
+  {&metaclass, "CMutex"        , NULL              , NULL                 , NULL              , NULL              , 0                  , 0              },
+//{&metaclass, "CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)     , 0              },
+  {&metaclass, "CString"       , CStringFree       , CStringIsEqual       , CStringHash       , CStringCopy       , sizeof(CString)    , sizeof(unichar)}
 };
 
 #define CISA(obj) ((CClass*)((obj)->isa))
@@ -140,14 +141,17 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 {
   CClass *aClass= __allClasses+classIndex;
   if (aClass) {
-    if (aClass->instancesSize) {
-      id newObject= (id)MSCalloc(1, aClass->instancesSize,
+    if (aClass->instanceSize) {
+      id newObject= (id)MSCalloc(1, aClass->instanceSize,
         "MSCreateObjectWithClassIndex() allocation");
       newObject->isa= (Class)aClass;
-      return (id)newObject;
-    }
-  }
+      return (id)newObject;}}
   return nil;
+}
+
+NSUInteger CGrowElementSize(id self)
+{
+  return self && self->isa ? CISA(self)->elementSize : 0;
 }
 
 #endif

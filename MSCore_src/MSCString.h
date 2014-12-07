@@ -50,8 +50,9 @@ typedef struct CStringStruct {
   NSUInteger refCount;
 #endif
   unichar*   buf;
+  NSUInteger size;
   NSUInteger length;
-  NSUInteger size;}
+  CGrowFlags flag;}
 CString;
 
 

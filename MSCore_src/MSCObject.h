@@ -276,29 +276,5 @@ static inline BOOL _CClassIsEqual(id a, id b, CObjectEq classEqualFct)
   return (a == b) ? YES : !classEqualFct ? NO :
     (a && b  && ISA(a) == ISA(b)) ? classEqualFct(a, b) : NO;
   }
-static inline void _CClassGrow(id self, NSUInteger n, NSUInteger count, NSUInteger unitSize, NSUInteger *size, void **ptr)
-  {
-  if (self && n && count + n > *size) {
-    NSUInteger newSize= MSCapacityForCount(count + n);
-    if (!*ptr) {
-      if (!(*ptr= MSMalloc(newSize * unitSize, "CGrow()"))) {
-        MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode, "CGrow() allocation error");
-        return;}}
-    else if (!(*ptr= MSRealloc(*ptr, newSize * unitSize, "CGrow()"))) {
-      MSReportError(MSMallocError, MSFatalError, MSReallocErrorCode, "CGrow() reallocation error");
-      return;}
-    *size= newSize;}
-  }
-
-static inline void _CClassAdjustSize(id self, NSUInteger count, NSUInteger unitSize, NSUInteger *size, void **ptr)
-{
-  if (self && count < *size) {
-    if (count) {
-      if (!(*ptr= MSRealloc(*ptr, count * unitSize, "CAdjustSize()"))) {
-        MSReportError(MSMallocError, MSFatalError, MSReallocErrorCode, "CAdjustSize() reallocation error");
-        return;}
-      else *size= count;}
-    else {MSFree(ptr, "CAdjustSize()"); *ptr= NULL; *size= 0;}}
-}
 
 #endif // MSCORE_OBJECT_H

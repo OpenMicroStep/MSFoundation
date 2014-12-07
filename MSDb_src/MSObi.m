@@ -259,7 +259,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   _oid=         RETAIN(oid);
   _entOid=      nil;
   _ent=         nil;
-  _valuesByCid= [MSMutableDictionary new];
+  _valuesByCid= [MSDictionary new];
   return self;
   }
 
@@ -277,7 +277,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 //id e,ce,c,z,vs,ve,v,x= [NSMutableString string]; BOOL first;
   MSUid *ids; id todo;
   ids= [MSUid uidWithUid:_oid];
-  todo= [MSMutableDictionary dictionaryWithObject:self forKey:_oid];
+  todo= [MSDictionary dictionaryWithObject:self forKey:_oid];
 /*
   e= [self oidValueForCid:MSCarEntiteId];
   if (OID_EQUALS(e, OID_FROM_BID(100015))) { // CPE_Révision
@@ -475,7 +475,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
   id vs;
   if (_status!=MSDelete && cid) {
       if (!(vs= [_valuesByCid objectForKey:cid])) {
-        [_valuesByCid setObject:(vs= [MSMutableArray array]) forKey:cid];
+        [_valuesByCid setObject:(vs= [MSArray mutableArray]) forKey:cid];
         ret= YES;}
       else ret= ([vs indexOfObject:v]==NSNotFound);
       if (ret) {

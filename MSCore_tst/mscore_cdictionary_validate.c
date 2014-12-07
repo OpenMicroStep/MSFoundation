@@ -41,7 +41,7 @@ static inline int cdictionary_create(void)
     fprintf(stdout, "A16 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
   if (!CDictionaryEquals(c, d)) {
     fprintf(stdout, "A17 c & d are not equals\n"); err++;}
-  m= (CDictionary*)COPY(d);
+  m= CCreateDictionaryWithDictionaryCopyItems(c, NO);
   RELEASE(d); d= m;
   x= (id)CCreateBufferWithBytes("a key", 5);
   CDictionarySetObjectForKey(d, o, x);

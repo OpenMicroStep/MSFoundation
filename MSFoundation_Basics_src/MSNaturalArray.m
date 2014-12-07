@@ -434,7 +434,7 @@ static inline _MSNaturalConcreteEnumerator *_naturalArrayEnumerator(MSNaturalArr
 - (id)initWithCapacity:(NSUInteger)capacity
 {
     if (capacity) {
-        _naturals = MSMalloc(capacity * sizeof(NSUInteger), "-[MSMutableArray initWithCapacity:]") ;
+        _naturals = MSMalloc(capacity * sizeof(NSUInteger), "-[MSMutableNaturalArray initWithCapacity:]") ;
         if (!_naturals) {
             RELEASE(self) ;
             MSRaiseFrom(NSMallocException, self, _cmd, @"unable to allocate enougth memory for %u element(s)", capacity) ;

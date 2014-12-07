@@ -139,7 +139,7 @@ static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
 {
   id cnx= nil;
   NSMutableDictionary *tDict;
-  MSMutableArray *tConnections;
+  MSArray *tConnections;
   id ae,c;
     
   if ([connectionDictionary count] <= 1) RELEAZEN(self);
@@ -157,7 +157,7 @@ static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
     if (!cnx) {
       if ((cnx= _retainedCnxWithConnectionDictionary(connectionDictionary))) {
         if (!tConnections) {
-          tConnections= MSCreateMutableArray(7);
+          tConnections= [[MSArray alloc] mutableInitWithCapacity:7];
           [tDict setObject:tConnections forKey:@"_MSDBConnectionArray_"];
           RELEASE(tConnections);}
         [tConnections addObject:cnx];

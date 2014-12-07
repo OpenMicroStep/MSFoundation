@@ -10,8 +10,8 @@ static inline void cdictionary_print(MSDictionary *d)
 static inline int cdictionary_create(void)
   {
   int err= 0;
-  MSMutableDictionary *c,*m; MSDictionary *d; id k,o,x; int i;
-  c= [MSMutableDictionary new];
+  MSDictionary *c,*m; MSDictionary *d; id k,o,x; int i;
+  c= [MSDictionary new];
   d= [[MSDictionary alloc] init];
   if (RETAINCOUNT(c)!=1) {
     fprintf(stdout, "A1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
@@ -27,6 +27,8 @@ static inline int cdictionary_create(void)
     fprintf(stdout, "A10 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
   if (RETAINCOUNT(o)!=2) {
     fprintf(stdout, "A11 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
+//d= [MSDictionary new]; [d setObject:k forKey:k];
+//d= [[MSDictionary alloc] initWithObject:k forKey:k];
   d= [[MSDictionary alloc] initWithObjects:&k forKeys:&k count:1];
   if (RETAINCOUNT(d)!=1) {
     fprintf(stdout, "A12 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}

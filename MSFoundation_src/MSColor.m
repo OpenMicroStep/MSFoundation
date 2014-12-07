@@ -361,7 +361,7 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 @end
 
 static NSMutableDictionary *__namedColors= nil;
-static CArray __colorsList;
+static MSArray *__colorsList= nil;
 #define COLOR_LIST_COUNT 139
 
 MSColor *MSColorNamed(NSString *name)
@@ -536,9 +536,7 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
       NSString *s;
       int i;
       __namedColors= [ALLOC(NSMutableDictionary) initWithCapacity:COLOR_LIST_COUNT*2];
-      __colorsList.isa= Nil;
-      __colorsList.pointers= NULL;
-      __colorsList.size= __colorsList.count= 0;
+      __colorsList= [[MSArray alloc] mutableInit];
       for (i= 0; i < COLOR_LIST_COUNT; i++) {
         entry= __colorTable[i];
         s= [NSString stringWithUTF8String:entry.name];
@@ -553,7 +551,7 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
         *entry.color= c;
         [__namedColors setObject:c forKey:[s lowercaseString]];
         [__namedColors setObject:c forKey:s];
-        CArrayAddObject(&__colorsList, c);
+        [__colorsList addObject:c];
         }
     [pool release];
     }}
@@ -575,8 +573,8 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
     [aDecoder decodeValueOfObjCType:@encode(int) at:&i];
   }
   RELEASE(self);
-  if (i >= 0 && i < COLOR_LIST_COUNT) {
-    return MSAIndex(&__colorsList, i);
+  if (0 <= i && i < COLOR_LIST_COUNT) {
+    return [__colorsList objectAtIndex:(NSUInteger)i];
   }
   return nil;
 }

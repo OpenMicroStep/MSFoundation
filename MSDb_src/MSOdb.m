@@ -60,13 +60,13 @@
   {
   // Ouverture de la connexion.
   BOOL connected= NO; id db;
-  if ((db= [MSDBConnection uniqueConnectionWithDictionary:dict])) {
+  if ((db= [MSDBConnection uniqueConnectionWithDictionary:(NSDictionary*)dict])) {
     _db= RETAIN(db);
     connected= [_db connect];}
 //NSLog(@"connected: %d error: %lu",connected,[_db lastError]);
   if (connected) {
     id ts,te,t;
-    _valTables= (id)[[MSMutableArray alloc] init];
+    _valTables= (id)[[MSArray alloc] mutableInit];
     ts= [_db tableNames];
     for (te=[ts objectEnumerator]; (t= [te nextObject]); ) {
       if ([t rangeOfString:@"TJ_VAL_"].location!=NSNotFound) {
@@ -155,9 +155,9 @@
   else r= nil;
   return r;
   }
-static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
+static __inline__ MSDictionary *_mutableDict(id* d, BOOL* new)
   {
-  if (!*new) {*d= [MSMutableDictionary dictionaryWithDictionary:*d]; *new= YES;}
+  if (!*new) {*d= [MSDictionary mutableDictionaryWithDictionary:*d]; *new= YES;}
   return *d;
   }
 
@@ -202,7 +202,7 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   return [[self systemObiWithOid:cid] carTable];
   }
 
-//- (MSMutableDictionary*)_tabledCars:(id)cars
+//- (MSDictionary*)_tabledCars:(id)cars
 // cars: uid ou array de cid ou dict vid-> value(s).
 // Une même car ne doit pas apparaître plusieurs fois, par exemple par son
 // oid et par son libellé. Sinon, une seule car ou car-> value(s) persiste.
@@ -210,20 +210,20 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
 // (pour les seules tables nécessaires)
 // TODO: Et si une car n'existe pas ? retourner nil car quand on cherche via
 // oidsWithCars, TOUTES les cars doivent être égales (login, pwd)
-- (MSMutableDictionary*)_tabledCars:(id)cars
+- (MSDictionary*)_tabledCars:(id)cars
   {
-  BOOL isDict; MSMutableDictionary *search; id ce, cid, t, o;
+  BOOL isDict; MSDictionary *search; id ce, cid, t, o;
   isDict= [cars respondsToSelector:@selector(dictionaryEnumerator)];
-  search= [MSMutableDictionary dictionary];
+  search= [MSDictionary mutableDictionary];
   if (isDict) {cars= [self _idsDict:cars ]; ce= [cars dictionaryEnumerator];}
   else        {cars= [[[MSUid uidWithUid:cars] resolvedUidForOdb:self] oids]; ce= [cars objectEnumerator];}
   while ((cid= (isDict?[ce nextKey]:[ce nextObject]))) {
     if ((t= [self _table4Cid:cid])) {
       if (!(o= [search objectForKey:t])) {
-        o= isDict ? [MSMutableDictionary dictionary] : [MSUid uid];
+        o= isDict ? [MSDictionary mutableDictionary] : [MSUid uid];
         [search setObject:o forKey:t];}
       if (!isDict) [o addUid:cid];
-      else [(MSMutableDictionary*)o setObject:[ce currentObject] forKey:cid];}}
+      else [(MSDictionary*)o setObject:[ce currentObject] forKey:cid];}}
   return [search count]==0 ? nil : search;
   }
 #pragma mark Private Query
@@ -232,12 +232,12 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
 // On ne dit pas que les valeurs sont valides au temps t.
 - (MSOid*)_oidsWithTabledCars:(MSDictionary*)tcars
   {
-  MSMutableDictionary *search,*nullCids;
+  MSDictionary *search,*nullCids;
   id ids,q,te,t, cs,ce,cid,vs,vsStr, oi,oc,ocs,ie, x;
   MSULong nc; MSLong i,c; MSDBResultSet *result;
   if (![tcars count]) return nil;
-  search= [MSMutableDictionary dictionary];
-  nullCids= [MSMutableDictionary dictionary];
+  search= [MSDictionary mutableDictionary];
+  nullCids= [MSDictionary mutableDictionary];
   te= [tcars dictionaryEnumerator];
   nc= 0;
 //NSLog(@"Q1 %@",tcars);
@@ -298,10 +298,10 @@ static __inline__ MSMutableDictionary *_mutableDict(id* d, BOOL* new)
   cars= [MSDictionary dictionaryWithKey:MSCarSystemNameId andObject:[MSArray array]];
   tcars= [MSDictionary dictionaryWithKey:@"STR" andObject:cars];
   ids= [self _oidsWithTabledCars:tcars];
-  if (!(os= [self _fillIds:ids withCars:nil returnAll:YES])) os= [MSMutableDictionary dictionary];
+  if (!(os= [self _fillIds:ids withCars:nil returnAll:YES])) os= [MSDictionary mutableDictionary];
   ASSIGN(_sysObiByOid, os);
-  ASSIGN(_entByOid, [MSMutableDictionary dictionary]);
-  ASSIGN(_sysObiByName, [MSMutableDictionary dictionary]);
+  ASSIGN(_entByOid, [MSDictionary mutableDictionary]);
+  ASSIGN(_sysObiByName, [MSDictionary mutableDictionary]);
   for (de= [os dictionaryEnumerator]; (oid= [de nextKey]);) {
     o= [de currentObject];
     n= [o stringValueForCid:MSCarSystemNameId];
@@ -353,12 +353,12 @@ ctx= nil;
   vid= [self _vid2oid:vid];
   return !vid?nil:[_sysObiByOid objectForKey:vid];
   }
-- (NSDictionary*)systemEntsByOid
+- (MSDictionary*)systemEntsByOid
   {
   if (!_entByOid) [self _buildSystemObis];
   return _entByOid;
   }
-- (NSDictionary*)systemObisByOid
+- (MSDictionary*)systemObisByOid
   {
   if (!_sysObiByOid) [self _buildSystemObis];
   return _sysObiByOid;
@@ -421,7 +421,7 @@ static inline MSByte _valueTypeFromTable(id table)
          [table isEqualToString:@"FLT"] ? R8 :
          [table isEqualToString:@"STR"] ? T8 : 0x00;
 }
-// - (MSUid*)_fillAllIds:(MSMutableDictionary*)all :inVals :table :inCids4Table
+// - (MSUid*)_fillAllIds:(MSDictionary*)all :inVals :table :inCids4Table
 // TODO: table -> type pour redescendre les types au niveau des values
 // Ex:
 // SELECT VAL_INST,VAL_CAR,VAL FROM TJ_VAL_STR WHERE
@@ -438,7 +438,7 @@ static inline MSByte _valueTypeFromTable(id table)
 // TODO: timestamp: VAL_INST,VAL_CAR,VAL_TMP,VAL
 // TODO: comment je change un obi de classe ? Quand je connais la classe,
 // je fais un [class obiWithObi ?]
-- (MSUid*)_fillAllIds:(MSMutableDictionary*)all :inVals :table :inCids4Table
+- (MSUid*)_fillAllIds:(MSDictionary*)all :inVals :table :inCids4Table
   {
   id ret,q,result,inst,oid,cid,val,o; MSLong bid;
   BOOL tIsId,tIsInt,tIsFlt,tIsStr; _btypedValue tv; MSByte type;
@@ -491,14 +491,14 @@ static inline MSByte _valueTypeFromTable(id table)
   return ret;
   }
 
-- (MSMutableDictionary*)_fillIds:(uid)ids withCars:(uid)cars returnAll:(BOOL)returnAll
+- (MSDictionary*)_fillIds:(uid)ids withCars:(uid)cars returnAll:(BOOL)returnAll
 {
-  MSMutableDictionary *ret,*all,*tcids; MSUid *is,*is2;
+  MSDictionary *ret,*all,*tcids; MSUid *is,*is2;
   id o,ie,i,inIds,ts,te,t,cids4t,inCids4t;
   if (ids && ![ids isKindOfClass:[MSUid class]]) ids= [MSUid uidWithUid:ids];
   if (![ids count]) return nil;
-  ret= [MSMutableDictionary dictionary];
-  all= [MSMutableDictionary dictionary];
+  ret= [MSDictionary mutableDictionary];
+  all= [MSDictionary mutableDictionary];
   is= [ids resolvedUidForOdb:self];
   for (ie= [[is oids] objectEnumerator]; (i= [ie nextObject]);) {
     [ret setObject:(o= [MSObi obiWithOid:i :self]) forKey:i];
@@ -508,7 +508,7 @@ static inline MSByte _valueTypeFromTable(id table)
 //for (de=[all dictionaryEnumerator]; (i=[de nextKey]);) NSLog(@"%@ %@",i,[de currentObject]);
   tcids= [self _tabledCars:cars];
   if (!tcids) { // on recherche toutes les cars
-    tcids= [MSMutableDictionary dictionary];
+    tcids= [MSDictionary mutableDictionary];
     ts= _valTables;
     for (te= [ts objectEnumerator]; (t= [te nextObject]); ) {
       [tcids setObject:[MSArray array] forKey:t];}}
@@ -538,11 +538,11 @@ static inline MSByte _valueTypeFromTable(id table)
   return returnAll ? all : ret;
 }
 
-- (MSMutableDictionary*)fillIds:(uid)ids withCars:(uid)cars
+- (MSDictionary*)fillIds:(uid)ids withCars:(uid)cars
 {
   return [self _fillIds:ids withCars:cars returnAll:NO];
 }
-- (MSMutableDictionary*)allFilledIds:(uid)ids withCars:(uid)cars
+- (MSDictionary*)allFilledIds:(uid)ids withCars:(uid)cars
 {
   return [self _fillIds:ids withCars:cars returnAll:YES];
 }
@@ -685,9 +685,9 @@ static inline id _subtrim(id l, NSRange rg) // sub to range and trim
 
 typedef struct _DecodeStruct {
   id db;
-  MSMutableDictionary *all;
-  MSMutableDictionary *byName;
-  MSMutableDictionary *unresolved;}
+  MSDictionary *all;
+  MSDictionary *byName;
+  MSDictionary *unresolved;}
 _DS;
 
 // _obi(l, db, all, byName)
@@ -746,13 +746,13 @@ static inline void _addIfNeeded(id obi, id cid, MSByte type, id v)
 static inline void _addUnresolved(id obi, id car, id v, _DS d)
 // in resolved, car is a string or an oid, v is a string or MSObi
 {
-  id oid; MSMutableDictionary *dict; MSMutableArray *vs;
+  id oid; MSDictionary *dict; MSArray *vs;
   if (!(dict= [d.unresolved objectForKey:(oid=[obi oid])])) {
-    dict= [MSMutableDictionary dictionary];
+    dict= [MSDictionary mutableDictionary];
     [d.unresolved setObject:dict forKey:oid];}
   if ([car isKindOfClass:[MSObi class]]) car= [car oid];
   if (!(vs= [dict objectForKey:car])) {
-    vs= [MSMutableArray array];
+    vs= [MSArray mutableArray];
     [dict setObject:vs forKey:car];}
   [vs addObject:v];
 }
@@ -868,11 +868,11 @@ if(knownObi)NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu"
 // decodeObis:x
 // Référence locale négative ou référence externe system name ou #id ?
 // Retourne tous les obis décodés, le dernier étant le root.
-- (MSMutableDictionary*)decodeObis:(MSString*)x root:(MSObi**)pRoot
+- (MSDictionary*)decodeObis:(MSString*)x root:(MSObi**)pRoot
 {
   id db= self;
 //db= nil;
-  MSMutableDictionary *all,*byName,*unresolved; _DS d;
+  MSDictionary *all,*byName,*unresolved; _DS d;
   BOOL ok,fd; NSUInteger lineBeg,xEnd; id obi;
   id ctx= [MSDictionary dictionaryWithObjectsAndKeys:db,MSContextOdb,
     [NSNumber numberWithBool:YES],MSContextSystemNames,
@@ -880,15 +880,15 @@ if(knownObi)NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu"
     //[NSNumber numberWithBool:YES],@"Strict",
     //[NSNumber numberWithBool:YES],@"Small" ,
     nil];
-  all= [MSMutableDictionary new];
-  byName= [MSMutableDictionary new];
-  unresolved= [MSMutableDictionary new];
+  all= [MSDictionary new];
+  byName= [MSDictionary new];
+  unresolved= [MSDictionary new];
   d.db= db; d.all= all; d.byName= byName; d.unresolved= unresolved;
   lineBeg= 0;
   xEnd= [x length];
   obi= _readObiCidValue(x,&lineBeg,xEnd, d, NO,&ok);
   for (fd=YES; fd;) {
-    id ks,ke,k,cs,ce,c,o,car,vs; MSMutableDictionary *ocvs; NSUInteger n;
+    id ks,ke,k,cs,ce,c,o,car,vs; MSDictionary *ocvs; NSUInteger n;
 //NSLog(@"unresolved count: %ld",[unresolved count]);
     fd= NO;
     ks= [unresolved allKeys];

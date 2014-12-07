@@ -108,7 +108,7 @@ _btypedValue;
   MSOid  *_oid;    // référence de l'instance. Négative si non enregistré ?
   MSOid  *_entOid; // référence de l'entité
   MSObi  *_ent;
-  MSMutableDictionary *_valuesByCid;
+  MSDictionary *_valuesByCid;
 }
 
 + (id)obiWithLocalId:(id)db;

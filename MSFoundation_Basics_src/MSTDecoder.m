@@ -109,7 +109,7 @@ double _MSTDecodeDouble(unsigned char **pointer, unsigned char *endPointer, NSSt
 /* Primitives to use for decoding simple objects */
 NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, NSString *operation) ;
 NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, MSShort tokenType, NSZone *zone) ;
-NSMutableDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL manageReference, BOOL decodingUserClass, BOOL allowsUnknownUserClasses, NSZone *zone) ;
+MSDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL manageReference, BOOL decodingUserClass, BOOL allowsUnknownUserClasses, NSZone *zone) ;
 NSMutableArray *_MSTDecodeArray(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL allowsUnknownUserClasses, NSZone *zone) ;
 MSNaturalArray *_MSTDecodeNaturalArray(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, MSULong *tokenCount, NSZone *zone) ;
 MSMutableCouple *_MSTDecodeCouple(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL allowsUnknownUserClasses, NSZone *zone) ;
@@ -563,13 +563,13 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
     return AUTORELEASE(ret) ;
 }
 
-NSMutableDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL manageReference, BOOL decodingUserClass, BOOL allowsUnknownUserClasses, NSZone *zone)
+MSDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL manageReference, BOOL decodingUserClass, BOOL allowsUnknownUserClasses, NSZone *zone)
 {
     unsigned char *s = (unsigned char *)*pointer ;
-    NSMutableDictionary *ret = nil ;
+    MSDictionary *ret = nil ;
     NSUInteger count = _MSTDecodeUnsignedLongLong(&s, endPointer, operation) ;
     
-    ret = (NSMutableDictionary*)[[MSMutableDictionary allocWithZone:zone] initWithCapacity:count] ;
+    ret = [[MSDictionary allocWithZone:zone] mutableInitWithCapacity:count] ;
     if (manageReference) { [decodedObjects addObject:ret] ; }
 
     if (count) {
@@ -734,13 +734,13 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
         Class aClass = NSClassFromString(className) ;
 
         if (aClass) {
-            NSDictionary *dictionary ;
+            MSDictionary *dictionary ;
             ret = [(id)aClass allocWithZone:zone] ;
             [decodedObjects addObject:ret] ;
             
             dictionary = _MSTDecodeDictionary(&s, endPointer, operation, decodedObjects, classes, keys, tokenCount, NO, YES, allowsUnknownUserClasses, zone) ;
             
-            ret = [ret initWithDictionary:dictionary] ;
+            ret = [ret initWithDictionary:(id)dictionary] ;
             AUTORELEASE(ret) ;
         }
         else if (allowsUnknownUserClasses) {

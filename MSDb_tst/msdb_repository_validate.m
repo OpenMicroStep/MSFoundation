@@ -7,7 +7,7 @@
 static inline int tst_rep_nu(id dbParams, id x, BOOL save)
 {
   int err= 0;
-  id db; MSMutableDictionary *all; MSObi *root= NULL;
+  id db; MSDictionary *all; MSObi *root= NULL;
   id ctx,nx,prefix; NSUInteger lineBeg,nextLineBeg, lineEnd,l; NSRange rg;
   id dbObi; _btypedValue tv; MSOValue *v;
   if (!(db= [[MSOdb alloc] initWithParameters:dbParams])) {
@@ -184,7 +184,7 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
       NSLog(@"41 not in members: %@",x); err++;}
     // MATCHING
     if (!err) {
-      MSMutableDictionary *ps= [MSMutableDictionary dictionaryWithKeysAndObjects:
+      MSDictionary *ps= [MSDictionary mutableDictionaryWithKeysAndObjects:
       //MSCarLoginLib,          @"admin",
       //MSCarHashedPasswordLib, @"pwd",
         MSCarFirstNameLib,      @"Répository",
@@ -322,7 +322,7 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
     if (![as containsObject:autURN]) {
       NSLog(@"D73 authorizations %@ ne contient pas %@",as,autURN); err++;}}
   if (!err) {
-    NSDictionary *as= [rep rightsForApplicationURN:appURN];
+    MSDictionary *as= [rep rightsForApplicationURN:appURN];
     if (![[(NSDictionary*)[as objectForKey:rightID] objectForKey:MSRCarApplicationLib] containsObject:appURN]) {
       NSLog(@"D74 rightsForApplicationURN %@ %@",appURN,[(NSDictionary*)[as objectForKey:rightID] objectForKey:MSRCarApplicationLib]); err++;}}
 //id b= [rep authorizationBunchsForDeviceURN:devURN];
@@ -411,7 +411,7 @@ int msdb_repository_validate(void)
 
 id localParameters()
 {
-  MSMutableDictionary *dbParams= [MSMutableDictionary dictionaryWithKeysAndObjects:
+  MSDictionary *dbParams= [MSDictionary mutableDictionaryWithKeysAndObjects:
     @"host",     @"localhost",
     @"port",     [NSNumber numberWithInt:3306],
     @"socket",   @"/var/mysql/mysql.sock",

@@ -75,6 +75,7 @@ static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict
   BOOL fd;
 
   if (!self || !k) return;
+  CGrowMutVerif((id)self, 0, 0, "CDictionarySetObjectForKey");
   h= HASH(k);
   fd= NO;
   if (self->nBuckets && !fromDict) {
@@ -161,7 +162,7 @@ NSUInteger CDictionaryHash(id self, unsigned depth)
 */
 }
 
-id CDictionaryInitCopy(CDictionary *self, const CDictionary *copied)
+id CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems)
 {
   CDictionaryEnumerator *de; id k,o;
   if (!self) return nil;
@@ -169,7 +170,7 @@ id CDictionaryInitCopy(CDictionary *self, const CDictionary *copied)
     CDictionaryGrow(self, copied->count);
     de= CDictionaryEnumeratorAlloc(copied);
     while ((k= CDictionaryEnumeratorNextKey(de))) {
-      o= CDictionaryEnumeratorCurrentObject(de);
+      if ((o= CDictionaryEnumeratorCurrentObject(de)) && copyItems) o= COPY(o);
       _setObjectForKey(self,o,k,YES);}
     CDictionaryEnumeratorFree(de);}
   return (id)self;
@@ -179,7 +180,7 @@ id CDictionaryCopy(id self)
   CDictionary *d;
   if (!self) return nil;
   d= CCreateDictionary(((CDictionary*)self)->count);
-  return CDictionaryInitCopy(d, (CDictionary*)self);
+  return CDictionaryInitCopy(d, (CDictionary*)self, NO);
 }
 
 #pragma mark Equality
@@ -218,11 +219,35 @@ CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSU
   return d;
 }
 
+CDictionary *CCreateDictionaryWithDictionaryCopyItems(const CDictionary *src, BOOL cpy)
+{
+  CDictionary *d;
+  d= CCreateDictionary(CDictionaryCount(src));
+  if (!d) return NULL;
+  CDictionaryInitCopy(d, src, cpy);
+  return d;
+}
+
 #pragma mark Management
+
+BOOL CDictionaryIsMutable(CDictionary *self)
+{
+  return CGrowIsMutable((id)self);
+}
+
+void CDictionarySetImmutable(CDictionary *self)
+{
+  CGrowSetImmutable((id)self);
+}
 
 void CDictionaryGrow(CDictionary *self, NSUInteger n)
 {
   _grow((id)self, n, self->count, sizeof(_node*), &self->nBuckets, (_node***)&self->buckets);
+}
+
+void CDictionaryAdjustSize(CDictionary *self)
+{
+  self= nil; // no warning
 }
 
 #pragma mark Informations

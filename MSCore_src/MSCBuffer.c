@@ -129,12 +129,12 @@ CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationE
 
 void CBufferGrow(CBuffer *self, NSUInteger n)
 {
-  _CClassGrow((id)self, n, self->length, sizeof(MSByte), &self->size, (void**)&self->buf);
+  CGrowGrow((id)self,n);
 }
 
 void CBufferAdjustSize(CBuffer *self)
 {
-  _CClassAdjustSize((id)self, self->length, sizeof(MSByte), &self->size, (void**)&self->buf);
+  CGrowAdjustSize((id)self);
 }
 
 MSByte *CBufferCString(CBuffer *self)
