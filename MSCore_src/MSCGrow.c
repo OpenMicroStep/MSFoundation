@@ -132,10 +132,11 @@ void CGrowMutExpand(id self, NSUInteger idxStart, NSUInteger idxCount)
 void CGrowMutFill(id self, NSUInteger idxStart, NSUInteger idxCount, const void *data)
 // Supposed: self != null, idxStart+idxCount <= self->count, data != null. No verif
 {
-  CGrow *g= (CGrow*)self;
-  if (!idxCount || !data) return;
-  char *p= g->zone; NSUInteger esz= CGrowElementSize(self);
-  memmove(p+(esz*idxStart), data, esz*idxCount);
+  if (idxCount && data) {
+    CGrow *g= (CGrow*)self;
+    char *p= g->zone; NSUInteger esz= CGrowElementSize(self);
+    memmove(p+(esz*idxStart), data, esz*idxCount);
+  }
 }
 
 void CGrowMutInsert(id self, NSUInteger idxStart, NSUInteger idxCount, const void *data)
