@@ -89,7 +89,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 
 #pragma mark Init
 
-- (id)initWithConnectionDictionary:(NSDictionary *)dictionary
+- (id)initWithConnectionDictionary:(MSDictionary *)dictionary
 {
   if ((self= [super initWithConnectionDictionary:dictionary])) {
     NSStringEncoding encoding ;
@@ -123,30 +123,23 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 }
 
 
-
-- (BOOL)preDisconnect
+//- (BOOL)connect ;
+- (BOOL)disconnect
 {
     if (_cFlags.connected) {
         // since the terminateAllOperations can release us, we must keep that object
         // alive until we decide to release it
         RETAIN(self) ;
         [self terminateAllOperations] ;
+        if([self _disconnect]) {
+            _cFlags.connected = NO ;
+            [[NSNotificationCenter defaultCenter] postNotificationName:MSConnectionDidDisconnectNotification object:self] ;
+        }
+        RELEASE(self) ;
     }
-    return _cFlags.connected;
+    return !_cFlags.connected;
 }
-
-- (BOOL)postDisconnect:(BOOL)succeeded
-{
-  RELEASE(self) ;
-  if(succeeded) {
-    _cFlags.connected = NO ;
-    [[NSNotificationCenter defaultCenter] postNotificationName:MSConnectionDidDisconnectNotification object:self] ;
-  }
-  return succeeded;
-}
-
-//- (BOOL)connect ;
-//- (BOOL)disconnect ;
+- (BOOL)_disconnect { [self notImplemented:_cmd]; return NO; }
 
 - (BOOL)isConnected { return _cFlags.connected ; }
 

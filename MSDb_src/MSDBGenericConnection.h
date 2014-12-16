@@ -82,10 +82,9 @@ typedef struct MSDBGenericConnectionFlagsStruct {
   MSDBGenericConnectionFlags _cFlags ;
 }
 
-- (id)initWithConnectionDictionary:(NSDictionary *)dictionary ;
+- (id)initWithConnectionDictionary:(MSDictionary *)dictionary ;
 - (BOOL)isConnected;
-- (BOOL)preDisconnect;
-- (BOOL)postDisconnect:(BOOL)succeeded;
+- (BOOL)_disconnect;
 - (void)error:(SEL)inMethod desc:(NSString *)desc;
 
 #pragma mark SQLString <-> NSString

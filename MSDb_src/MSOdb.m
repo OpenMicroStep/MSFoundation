@@ -60,7 +60,7 @@
   {
   // Ouverture de la connexion.
   BOOL connected= NO; id db;
-  if ((db= [MSDBConnection uniqueConnectionWithDictionary:(NSDictionary*)dict])) {
+  if ((db= [MSDBConnection uniqueConnectionWithDictionary:dict])) {
     _db= RETAIN(db);
     connected= [_db connect];}
 //NSLog(@"connected: %d error: %lu",connected,[_db lastError]);

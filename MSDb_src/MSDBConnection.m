@@ -125,7 +125,7 @@ static inline id _adaptorWithConnectionDictionary(MSDictionary *dictionary)
     return adaptor;
 }
 
-static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
+static inline id _retainedCnxWithConnectionDictionary(MSDictionary *dictionary)
 {
     id cnx= nil, adaptor, c;
     MSDictionary *d= [[MSDictionary alloc] initWithDictionary:dictionary];
@@ -138,7 +138,7 @@ static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
     return cnx;
 }
 
-+ (id)uniqueConnectionWithDictionary:(NSDictionary *)connectionDictionary
++ (id)uniqueConnectionWithDictionary:(MSDictionary *)connectionDictionary
 {
     id cnx= nil;
     NSMutableDictionary *tDict;
@@ -154,7 +154,7 @@ static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
         tConnections= [tDict objectForKey:@"_MSDBConnectionArray_"];
         
         for (ae=[tConnections objectEnumerator]; !cnx && (c= [ae nextObject]);) {
-            if ([[c connectionDictionary] isEqualToDictionary:connectionDictionary]) {
+            if ([[c connectionDictionary] isEqual:connectionDictionary]) {
                 //NSLog(@"uniqueConnectionWithDictionary %@ REUSED",c);
                 cnx= c;}}
         if (!cnx) {
@@ -171,12 +171,12 @@ static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
     return cnx;
 }
 
-+ (id)connectionWithDictionary:(NSDictionary *)params
++ (id)connectionWithDictionary:(MSDictionary *)params
 {
     return [[[self alloc] initWithConnectionDictionary:params] autorelease];
 }
 
-- (id)initWithConnectionDictionary:(NSDictionary *)connectionDictionary
+- (id)initWithConnectionDictionary:(MSDictionary *)connectionDictionary
 {
     
     // Not from subclass, we first need to load the bundle and return a subclass
@@ -193,7 +193,7 @@ static inline id _retainedCnxWithConnectionDictionary(NSDictionary *dictionary)
     return self;
 }
 
-- (NSDictionary *)connectionDictionary { return _originalDictionary ; }
+- (MSDictionary *)connectionDictionary { return _originalDictionary ; }
 
 - (BOOL)isConnected { return [self notImplemented:_cmd] ? YES : NO ; }
 - (BOOL)connect     { return [self notImplemented:_cmd] ? YES : NO ; }

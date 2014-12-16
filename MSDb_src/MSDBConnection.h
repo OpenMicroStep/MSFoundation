@@ -64,7 +64,7 @@
 @interface MSDBConnection : NSObject
 {
 @protected
-  NSDictionary *_originalDictionary ;
+  MSDictionary *_originalDictionary ;
   NSString *_lastError ;
 }
 
@@ -77,14 +77,14 @@
 // The class of the returned object is the principal class of the adaptor
 // declared in the dictionary.
 // TODO: A remove method ?
-+ (id)uniqueConnectionWithDictionary:(NSDictionary *)dictionary;
++ (id)uniqueConnectionWithDictionary:(MSDictionary *)dictionary;
 
 // The instance returned by the two following methods are not cached on contrary
 // to the previous one.
-+ (id)connectionWithDictionary:(NSDictionary *)connectionDictionary;
-- (id)initWithConnectionDictionary:(NSDictionary *)dictionary;
++ (id)connectionWithDictionary:(MSDictionary *)connectionDictionary;
+- (id)initWithConnectionDictionary:(MSDictionary *)dictionary;
 
-- (NSDictionary *)connectionDictionary;
+- (MSDictionary *)connectionDictionary;
 - (BOOL)isConnected;
 - (BOOL)connect ;
 - (BOOL)disconnect ;
