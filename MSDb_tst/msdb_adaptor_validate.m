@@ -15,7 +15,7 @@ enum AdaptorType {
     ODBCAdaptorAccess,
 };
 
-static int tst_connection(NSDictionary *params, MSDBConnection **outDB)
+static int tst_connection(MSDictionary *params, MSDBConnection **outDB)
 {
     int err= 0;
     MSDBConnection *connection;
@@ -383,6 +383,13 @@ int msdb_adaptor_validate(void)
                   @"adaptor",  @"MSSQLCipherAdaptor",
                   nil];
     err+= _msdb_adaptor_validate(dbParams, SQLiteAdaptor, "SQLiteAdaptor");
+    
+    dbParams= [MSDictionary dictionaryWithKeysAndObjects:
+                  @"path",     @"msdb_test_sqlite_key.db",
+                  @"adaptor",  @"MSSQLCipherAdaptor",
+                  @"key",      @"this is a secure passphrase ;)",
+                  nil];
+    err+= _msdb_adaptor_validate(dbParams, SQLiteAdaptor, "SQLiteCipherAdaptor");
     
     dbParams= [MSDictionary dictionaryWithKeysAndObjects:
                   @"connectionString", @"DSN=msdb_test_access;Uid=;Pwd=;",

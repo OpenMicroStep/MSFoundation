@@ -161,9 +161,6 @@ void MHInitSSL()
 {
   if (!__MHSSLInitialized) {
     OPENSSL_initialize() ; //load openssl functions
-    OPENSSL_SSL_library_init() ; //initializes open ssl
-    OPENSSL__add_all_algorithms();  /* load & register all cryptos, etc. */
-    OPENSSL_SSL_load_error_strings();   /* load all error messages */
     
     _thread_setup();
     __MHSSLInitialized = YES ;

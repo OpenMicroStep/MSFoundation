@@ -407,9 +407,11 @@ static DLL_OPENSSL_EVP_CIPHER_nid               __openssl_evp_cipher_nid ;
 static DLL_OPENSSL_ASN1_INTEGER_to_BN           __openssl_asn1_integer_to_bn ;
 static DLL_OPENSSL_BN_bn2hex                    __openssl_bn_bn2hex ;
 
+static int OPENSSL_initialize_done = 0;
 void OPENSSL_initialize()
 {
-    //OPENSSL_Applink();
+    if(OPENSSL_initialize_done)
+        return;
     
     if(!__libeay_DLL)
     {
@@ -850,11 +852,25 @@ void OPENSSL_initialize()
     
     //must be called prior openssl calls
     OPENSSL_CRYPTO_set_mem_functions(malloc, realloc, free) ; // == OPENSSL_CRYPTO_malloc_init()
+    
+    OPENSSL_SSL_library_init() ; //initializes open ssl
+    OPENSSL__add_all_algorithms();  /* load & register all cryptos, etc. */
+    OPENSSL_SSL_load_error_strings();   /* load all error messages */
+    OPENSSL_initialize_done = 1;
 }
 
 #else
 
-void OPENSSL_initialize() { }
+static int OPENSSL_initialize_done = 0;
+void OPENSSL_initialize()
+{
+    if(OPENSSL_initialize_done)
+        return;
+    OPENSSL_SSL_library_init() ; //initializes open ssl
+    OPENSSL__add_all_algorithms();  /* load & register all cryptos, etc. */
+    OPENSSL_SSL_load_error_strings();   /* load all error messages */
+    OPENSSL_initialize_done = 1;
+}
 
 #define __openssl_err_load_crypto_strings() ERR_load_crypto_strings()
 #define __openssl_err_error_string_n(X,Y,Z) ERR_error_string_n(X, Y, Z)
