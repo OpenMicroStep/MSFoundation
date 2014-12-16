@@ -40,42 +40,6 @@
 
 #import "MSFoundation_Private.h"
 
-@implementation NSDictionary (MSAddendum)
-- (id)objectForLazyKey:(id)aKey
-{
-	id o= nil;
-	if (aKey) {
-		o= [self objectForKey:aKey];
-		if (!o) {
-			if (![aKey isKindOfClass:[NSString class]]) {
-				aKey= [aKey toString];
-				o= [self objectForKey:aKey];}
-			if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
-	return o;
-}
-- (id)objectForLazyKeys:(id)aKey, ...
-{
-  id ret= nil;
-  if (aKey && !(ret= [self objectForLazyKey:aKey])) {
-    va_list args; id k= aKey;
-    va_start(args, aKey);
-    while (!ret && (k= va_arg(args, id))) {
-      ret= [self objectForLazyKey:k];}
-    va_end(args);}
-  return ret;
-}
-@end
-
-@implementation NSMutableDictionary (MSAddendum)
-- (void)setObject:(id)o forLazyKey:(id)k
-{
-	if (k) k= [[k toString] lowercaseString];
-	if ([k length]) {
-		if (o) [self setObject:o forKey:k];
-		else [self removeObjectForKey:k];}
-}
-@end
-
 @implementation MSDictionaryEnumerator
 - (id)initWithDictionary:(MSDictionary*)d forKeys:(BOOL)forKeys
 {
@@ -184,8 +148,8 @@ static inline id _dictWithArgs(Class cl, id d, BOOL m, BOOL kFirst, id a, va_lis
 static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 {
   if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
-  if ([src respondsToSelector:@selector(dictionaryEnumerator)]) {
-    CCreateDictionaryWithDictionaryCopyItems((CDictionary*)src, cpy);}
+  if ([src isKindOfClass:[MSDictionary class]]) {
+    d= CDictionaryInitCopy((CDictionary*)d, (CDictionary*)src, cpy);}
   else if ([src respondsToSelector:@selector(keyEnumerator)]) {
     id ke,k,o;
     CDictionaryGrow((CDictionary*)d, [src count]);
@@ -250,6 +214,27 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 
 - (NSUInteger)hash:(unsigned)depth {return CDictionaryHash(self, depth);}
 
+- (NSString *)description {
+    id k, o;
+    CDictionaryEnumerator *e= CDictionaryEnumeratorAlloc((CDictionary*)self);
+    CString *s= CCreateString(0);
+    CStringAppendCharacter(s, '{');
+    CStringAppendCharacter(s, '\n');
+    while ((k= CDictionaryEnumeratorNextKey(e)) && (o= CDictionaryEnumeratorCurrentObject(e))) {
+        CStringAppendCharacter(s, ' ');
+        CStringAppendCharacter(s, ' ');
+        CStringAppendSES(s, SESFromString([k description]));
+        CStringAppendCharacter(s, ' ');
+        CStringAppendCharacter(s, '=');
+        CStringAppendCharacter(s, ' ');
+        CStringAppendSES(s, SESFromString([[o description] replaceOccurrencesOfString:@"\n" withString:@"\n  "]));
+        CStringAppendCharacter(s, '\n');
+    }
+    CDictionaryEnumeratorFree(e);
+    CStringAppendCharacter(s, '}');
+    return AUTORELEASE((id)s);
+}
+
 - (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
   {
   CDictionary *d= (CDictionary*)MSAllocateObject([MSDictionary class], 0, z);
@@ -305,6 +290,69 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 - (void)setObject:(id)o forKey:(id <NSCopying>)k
 {
   if (o && k) CDictionarySetObjectForKey((CDictionary*)self, o, k);
+}
+
+#pragma mark Lazy keys
+
+- (id)objectForLazyKey:(id)aKey
+{
+	id o= nil;
+	if (aKey) {
+		o= [self objectForKey:aKey];
+		if (!o) {
+			if (![aKey isKindOfClass:[NSString class]]) {
+				aKey= [aKey toString];
+				o= [self objectForKey:aKey];}
+			if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
+	return o;
+}
+
+- (id)objectForLazyKeys:(id)aKey, ...
+{
+  id ret= nil;
+  if (aKey && !(ret= [self objectForLazyKey:aKey])) {
+    va_list args; id k= aKey;
+    va_start(args, aKey);
+    while (!ret && (k= va_arg(args, id))) {
+      ret= [self objectForLazyKey:k];}
+    va_end(args);}
+  return ret;
+}
+
+- (void)setObject:(id)o forLazyKey:(id)k
+{
+	if (k) k= [[k toString] lowercaseString];
+	if ([k length]) {
+		if (o) [self setObject:o forKey:k];
+		else [self removeObjectForKey:k];}
+}
+
+@end
+
+@implementation NSDictionary (MSDictionary)
+
+- (BOOL)isEqual:(id)object
+{
+    return ([object isKindOfClass:[NSDictionary class]] || [object isKindOfClass:[MSDictionary class]])
+        && [self isEqualToDictionary:object];
+}
+
+- (BOOL)isEqualToDictionary:(NSDictionary *)otherDictionary
+{
+    id k, o1, o2;
+    NSEnumerator *e;
+    if([otherDictionary count] != [self count])
+        return NO;
+    
+    e= [self keyEnumerator];
+    while ((k= [e nextObject])) {
+        o1= [otherDictionary objectForKey:k];
+        o2= [self objectForKey:k];
+        if(![o1 isEqual:o2])
+            return NO;
+    }
+    
+    return YES;
 }
 
 @end

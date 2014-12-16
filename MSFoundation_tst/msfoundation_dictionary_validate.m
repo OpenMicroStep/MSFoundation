@@ -120,12 +120,44 @@ static inline int cdictionary_enum(void)
   return err;
   }
 
+static int cdictionary_init(void)
+  {
+  int err= 0;
+  NSDictionary *o;
+  MSDictionary *d, *d2;
+  
+  o= [NSDictionary dictionaryWithObjectsAndKeys:@"obj1", @"key1", @"obj2", @"key2", nil];
+  if([o count] != 2) {
+    fprintf(stdout, "C1: %d != 2\n",(int)[o count]); err++;}
+  d= [MSDictionary dictionaryWithDictionary:o];
+  if([d count] != 2) {
+    fprintf(stdout, "C2: %d != 2\n",(int)[o count]); err++;}
+  if(![d isEqual:o]) {
+    fprintf(stdout, "C3: dictionary missmatch\n"); err++;}
+  if(![o isEqual:d]) {
+    fprintf(stdout, "C4: dictionary missmatch\n"); err++;}
+    
+  d2= [MSDictionary dictionaryWithDictionary:d];
+  if([d2 count] != 2) {
+    fprintf(stdout, "C5: %d != 2\n",(int)[o count]); err++;}
+  if(![d2 isEqual:o]) {
+    fprintf(stdout, "C6: dictionary missmatch\n"); err++;}
+  if(![o isEqual:d2]) {
+    fprintf(stdout, "C7: dictionary missmatch\n"); err++;}
+  if(![d2 isEqual:d]) {
+    fprintf(stdout, "C8: dictionary missmatch\n"); err++;}
+  if(![d isEqual:d2]) {
+    fprintf(stdout, "C9: dictionary missmatch\n"); err++;}
+  return err;
+  }
+
 int msfoundation_dictionary_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
   err+= cdictionary_create();
   err+= cdictionary_enum();
+  err+= cdictionary_init();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSDictionary",(err?"FAIL":"PASS"),seconds);

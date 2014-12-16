@@ -38,16 +38,6 @@
  
  */
 
-@interface NSDictionary (MSAddendum)
-- (id)objectForLazyKey: (id)aKey;
-- (id)objectForLazyKeys:(id)aKey, ...; // nil terminated
-@end
-
-@interface NSMutableDictionary (MSAddendum)
-- (void)setObject:(id)anObject forLazyKey:(id <NSCopying>)aKey;
-  // set the object to the lowercase aKey.
-  // TODO: Good ? If no aKey, remove the object to the lowercase aKey.
-@end
 
 @class MSDictionary;
 @interface MSDictionaryEnumerator : NSEnumerator
@@ -131,6 +121,8 @@
 
 - (NSUInteger)count;
 - (id)objectForKey:(id)aKey;
+- (id)objectForLazyKey: (id)aKey;
+- (id)objectForLazyKeys:(id)aKey, ...; // nil terminated
 
 - (MSArray*)allKeys;
 - (MSArray*)allObjects;
@@ -146,4 +138,7 @@
 
 - (void)removeObjectForKey:(id)aKey;
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
+// set the object to the lowercase aKey.
+// TODO: Good ? If no aKey, remove the object to the lowercase aKey.
+- (void)setObject:(id)anObject forLazyKey:(id <NSCopying>)aKey;
 @end
