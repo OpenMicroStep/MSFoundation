@@ -176,9 +176,9 @@ static inline int cdecimal_cast(void)
   MSLong rlm1 [12]=  {MSLongMin    ,MSIntMin-1LL,MSShortMin-1,MSCharMin-1,-1,MSCharMax-1,MSByteMax-1,MSShortMax-1,MSUShortMax-1,MSIntMax-1LL,MSUIntMax-1LL,MSLongMax-1LL};
   MSLong rl   [12]=  {MSLongMin    ,MSIntMin    ,MSShortMin  ,MSCharMin  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,MSUIntMax    ,MSLongMax    };
   MSLong rlp1[ 12]=  {MSLongMin+1LL,MSIntMin+1LL,MSShortMin+1,MSCharMin+1, 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1LL,MSUIntMax+1LL,MSLongMax    };
-  MSULong rulm1[12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax-1,MSByteMax-1,MSShortMax-1,MSUShortMax-1,MSIntMax-1UL,__UIntMaxU-1UL,MSLongMax-1UL};
+  MSULong rulm1[12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax-1,MSByteMax-1,MSShortMax-1,MSUShortMax-1,MSIntMax-1ULL,__UIntMaxU-1ULL,MSLongMax-1ULL};
   MSULong rul  [12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,__UIntMaxU    ,MSLongMax    };
-  MSULong rulp1[12]= {       0     ,       0    ,         0  ,        0  , 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1UL,__UIntMaxU+1UL,MSLongMax+1UL};
+  MSULong rulp1[12]= {       0     ,       0    ,         0  ,        0  , 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1ULL,__UIntMaxU+1ULL,MSLongMax+1ULL};
   CDecimal *c,*minus1,*cm1,*cp1;
   CString *s; CBuffer *b;
   minus1= CCreateDecimalWithLongLong(-1);
