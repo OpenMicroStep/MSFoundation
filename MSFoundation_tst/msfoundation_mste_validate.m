@@ -321,7 +321,7 @@ static inline int _decode(char *ssrc, id ret)
 {
   int err= 0;
   NSString *error = nil;
-  MSBuffer *src;
+  MSBuffer *src, *enc;
   id o = nil;
 //printf("B0: %s\n",ssrc);
   src= MSCreateBufferWithBytes(ssrc, strlen(ssrc));
@@ -340,6 +340,31 @@ static inline int _decode(char *ssrc, id ret)
   else if (!ISEQUAL(ret, o)) {
     printf("B3: Bad result for %s -> %s (expected : %s)\n",ssrc, [[o description] UTF8String], [[ret description] UTF8String]);
     err++; }
+  
+  error= nil;
+  NS_DURING
+    enc= [ret MSTEncodedBuffer];
+    o = [enc MSTDecodedObject] ;
+  NS_HANDLER
+    error = [localException reason];
+    if (!error) {
+      error = @"unkown error" ;
+    }
+  NS_ENDHANDLER
+  
+  if (error) {
+    printf("E1: %s\n", [error UTF8String]); err++;
+  }
+  else if (ret && !ISEQUAL(ret, o)) {
+    printf("E3: Bad result for %s -> %s -> %s (expected : %s)\n",
+           [[ret description] UTF8String],
+           [[[[NSString alloc] initWithData:enc encoding:NSUTF8StringEncoding] autorelease] UTF8String],
+           [[o description] UTF8String],
+           [[ret description] UTF8String]);
+    err++;
+  }
+  
+    
   RELEAZEN(src);
   RELEAZEN(error);
   return err;
@@ -428,6 +453,7 @@ int msfoundation_mste_validate(void)
   err += _decode("[\"MSTE0102\",8,\"CRCD6330919\",0,0,26,1,256]", [MSNaturalArray naturalArrayWithNatural:256]);
   //dictionary (code 30)
   err += _decode("[\"MSTE0102\",15,\"CRC891261B3\",0,2,\"key1\",\"key2\",30,2,0,21,\"First object\",1,21,\"Second object\"]", [NSDictionary dictionaryWithObjectsAndKeys:@"First object", @"key1", @"Second object", @"key2", nil]);
+  err += _decode("[\"MSTE0102\",15,\"CRC891261B3\",0,2,\"key1\",\"key2\",30,2,0,21,\"First object\",1,21,\"Second object\"]", [MSDictionary dictionaryWithObjectsAndKeys:@"First object", @"key1", @"Second object", @"key2", nil]);
   //array (code 31)
   err += _decode("[\"MSTE0102\",11,\"CRC1258D06E\",0,0,31,2,21,\"First object\",21,\"Second object\"]", [NSArray arrayWithObjects:@"First object", @"Second object", nil]);
   //couple (code 32)

@@ -968,6 +968,14 @@ static NSNumber *__aBool = nil ;
 - (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { [encoder encodeDictionary:self] ; }
 @end
 
+@implementation MSDictionary (MSTEncoding)
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_DICTIONARY ; }
+@end
+
+@implementation MSDictionary (MSTEncodingPricate)
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { [encoder encodeDictionary:(NSDictionary*)self] ; }
+@end
+
 @implementation NSArray (MSTEncoding)
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_ARRAY ; }
 @end
@@ -1025,7 +1033,7 @@ static NSNumber *__aBool = nil ;
 - (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
 {
   if (![[MSDate distantPast] isEqual:self] && ![[MSDate distantFuture] isEqual:self]) {
-    [encoder encodeLongLong:(MSLong)[self timeIntervalSince1970] withTokenType:NO] ;
+    [encoder encodeLongLong:[self secondsSinceLocalReferenceDate]+CDateSecondsFrom19700101To20010101 withTokenType:NO] ;
   }
   else {
     [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for MSDate class!"] ;
@@ -1046,11 +1054,11 @@ static NSNumber *__aBool = nil ;
 @end
 
 @implementation NSData (MSTEncoding)
-- (MSByte)tokenType { return MSTE_TOKEN_TYPE_BASE64_DATA ; }
+- (MSByte)tokenType { return [self length] ? MSTE_TOKEN_TYPE_BASE64_DATA : MSTE_TOKEN_TYPE_EMPTY_DATA; }
 @end
 
 @implementation NSData (MSTEncodingPrivate)
-- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { [encoder encodeBytes:(void *)[self bytes] length:[self length] withTokenType:NO] ; }
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { if([self length]) [encoder encodeBytes:(void *)[self bytes] length:[self length] withTokenType:NO] ; }
 @end
 
 @implementation MSColor (MSTEncoding)
