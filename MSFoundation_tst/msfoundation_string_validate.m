@@ -241,6 +241,32 @@ static inline int ms_hash(void)
   
   return err;
 }
+
+static int ms_ascii(void)
+{
+  int err= 0;
+  const char *ascii, *expected;
+  NEW_POOL;
+  ascii= [@"test" asciiCString];
+  expected= "test";
+  if(strcmp(expected, ascii) != 0){
+    NSLog(@"B1 ascii string '%s' not equals to '%s'",ascii, expected); err++;}
+  ascii= [[MSString stringWithString:@"test"] asciiCString];
+  if(strcmp(expected, ascii) != 0){
+    NSLog(@"B2 ascii string '%s' not equals to '%s'",ascii, expected); err++;}
+    
+  ascii= [@"testé\"'(§è!çà" asciiCString];
+  expected= "teste\"'(e!ca";
+  if(strcmp(expected, ascii) != 0){
+    NSLog(@"B3 ascii string '%s' not equals to '%s'",ascii, expected); err++;}
+  ascii= [[MSString stringWithString:@"testé\"'(§è!çà"] asciiCString];
+  if(strcmp(expected, ascii) != 0){
+    NSLog(@"B3 ascii string '%s' not equals to '%s'",ascii, expected); err++;}
+    
+  KILL_POOL;
+  return err;
+}
+
 int msfoundation_string_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -252,6 +278,7 @@ int msfoundation_string_validate(void)
   err+= ms_cast();
   err+= ms_formatlld();
   err+= ms_hash();
+  err+= ms_ascii();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSString",(err?"FAIL":"PASS"),seconds);

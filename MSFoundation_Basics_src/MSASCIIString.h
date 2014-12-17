@@ -99,11 +99,13 @@
  */
 typedef struct _MSASCIIStringFlagsStruct {
 #ifdef __BIG_ENDIAN__
+    MSUInt fixed:1;
+    MSUInt _pad:30;
     MSUInt leak:1;
-    MSUInt _pad:31;
 #else
-    MSUInt _pad:31;
     MSUInt leak:1;
+    MSUInt _pad:30;
+    MSUInt fixed:1;
 #endif
 } _MSASCIIStringFlags ;
 
@@ -113,8 +115,8 @@ typedef struct _MSASCIIStringFlagsStruct {
 {
 @public
     MSByte                  *_buf ;
-    NSUInteger              _length ;
     NSUInteger              _size ;
+    NSUInteger              _length ;
 	_MSASCIIStringFlags     _flags;
 }
 
