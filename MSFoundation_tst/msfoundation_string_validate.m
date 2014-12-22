@@ -246,6 +246,8 @@ static int ms_ascii(void)
 {
   int err= 0;
   const char *ascii, *expected;
+  NSString *expectedStr;
+  MSASCIIString *asciiStr;
   NEW_POOL;
   ascii= [@"test" asciiCString];
   expected= "test";
@@ -261,8 +263,19 @@ static int ms_ascii(void)
     NSLog(@"B3 ascii string '%s' not equals to '%s'",ascii, expected); err++;}
   ascii= [[MSString stringWithString:@"testé\"'(§è!çà"] asciiCString];
   if(strcmp(expected, ascii) != 0){
-    NSLog(@"B3 ascii string '%s' not equals to '%s'",ascii, expected); err++;}
+    NSLog(@"B4 ascii string '%s' not equals to '%s'",ascii, expected); err++;}
     
+  expected= "test";
+  asciiStr= [MSASCIIString stringWithBytes:expected length:strlen(expected)];
+  expectedStr= @"test";
+  if(![expectedStr isEqual:asciiStr]){
+    NSLog(@"B5 ascii string '%@' not equals to '%@'",asciiStr, expectedStr); err++;}
+    
+  expectedStr=asciiStr;
+  asciiStr= [expectedStr copy];
+  if(![expectedStr isEqual:asciiStr]){
+    NSLog(@"B6 ascii string '%@' not equals to '%@'",asciiStr, expectedStr); err++;}
+  
   KILL_POOL;
   return err;
 }

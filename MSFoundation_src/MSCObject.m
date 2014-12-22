@@ -135,9 +135,11 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 NSUInteger CGrowElementSize(id self)
 {
   NSUInteger r= 0;
-  if      ([self isKindOfClass:[MSArray      class]]) r= sizeof(id);
-  else if ([self isKindOfClass:[MSBuffer     class]]) r= sizeof(MSByte);
-  else if ([self isKindOfClass:[MSDictionary class]]) r= sizeof(void*);
-  else if ([self isKindOfClass:[MSString     class]]) r= sizeof(unichar);
+  if      ([self isKindOfClass:[MSArray       class]]) r= sizeof(id);
+  else if ([self isKindOfClass:[MSBuffer      class]]) r= sizeof(MSByte);
+  else if ([self isKindOfClass:[MSDictionary  class]]) r= sizeof(void*);
+  else if ([self isKindOfClass:[MSString      class]]) r= sizeof(unichar);
+  else if ([self isKindOfClass:[MSASCIIString class]]) r= sizeof(char);
+  else MSRaise(@"CGrowElementSize", @"unknown class %@", [self class]);
   return r;
 }
