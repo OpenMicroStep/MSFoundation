@@ -44,7 +44,7 @@
 
 #import "MSSQLCipherAdaptorKit.h"
 
-#define SQLCIPHER_SUCCESS(X) ({ int __x__ = _lastError = (X); (BOOL)(__x__ == SQLITE_OK || __x__ == SQLITE_DONE); })
+#define SQLCIPHER_SUCCESS(X) ({ int __x__ = (X); BOOL __r__ = (__x__ == SQLITE_OK || __x__ == SQLITE_DONE); if(!__r__) ASSIGN(_lastError, [NSString stringWithUTF8String:sqlite3_errstr(__x__)]); __r__; })
 
 @implementation MSSQLCipherStatement
 
@@ -122,8 +122,4 @@
     [super terminateOperation] ;
 }
 
-- (NSString *)lastError
-{
-    return [NSString stringWithUTF8String:sqlite3_errstr(_lastError)];
-}
 @end

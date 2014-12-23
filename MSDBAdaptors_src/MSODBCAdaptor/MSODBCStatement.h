@@ -29,7 +29,6 @@ typedef struct  {
 
 @interface MSODBCStatement : MSDBStatement {
     SQLHSTMT _stmt;
-    NSString *_lastError;
     MSODBCBindParamInfo *_bindInfos;
     size_t _bindSize;
 }

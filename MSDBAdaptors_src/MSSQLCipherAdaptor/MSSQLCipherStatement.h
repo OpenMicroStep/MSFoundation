@@ -45,7 +45,6 @@
 
 @interface MSSQLCipherStatement : MSDBStatement {
   sqlite3_stmt *_stmt;
-  int _lastError;
 }
 
 - (id)initWithSQLiteStatement:(sqlite3_stmt *)stmt withConnection:(MSSQLCipherConnection *)connection;

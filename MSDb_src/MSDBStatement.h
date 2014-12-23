@@ -6,7 +6,9 @@
 //
 //
 
-@interface MSDBStatement : MSDBOperation
+@interface MSDBStatement : MSDBOperation {
+    NSString *_lastError;
+}
 - (BOOL)bindObjects:(NSArray *)bindings;
 - (BOOL)bindChar:           (MSChar)value at:(MSUInt)parameterIndex ;
 - (BOOL)bindByte:           (MSByte)value at:(MSUInt)parameterIndex ;

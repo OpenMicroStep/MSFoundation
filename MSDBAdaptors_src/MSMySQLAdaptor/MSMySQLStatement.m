@@ -43,7 +43,7 @@
 
 #import "MSMySQLAdaptorKit.h"
 
-#define MYSQL_SUCCEEDED(code)  (code == 0)
+#define MYSQL_SUCCEEDED(X) ({ BOOL __r__ = (X == 0); if(!__r__) ASSIGN(_lastError, [NSString stringWithUTF8String:mysql_stmt_error(_stmt)]); __r__; })
 
 static inline void _bind_param(char * buffer, MYSQL_BIND *bind, MSMysqlBindParamInfo *bindInfos, enum enum_field_types mysql_type, my_bool is_null, unsigned long length, my_bool is_unsigned)
 {
@@ -206,8 +206,4 @@ BIND_PARAM_COMPLEX_END
     return MSSQL_ERROR;
 }
 
-- (NSString *)lastError
-{
-    return _stmt ? [NSString stringWithUTF8String:mysql_stmt_error(_stmt)] : 0;
-}
 @end

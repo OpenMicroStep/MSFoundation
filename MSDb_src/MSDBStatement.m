@@ -21,7 +21,7 @@
             ret= [self bindNullAt:parameterIndex];
         } else if([binding isKindOfClass:[NSString class]]) {
             ret= [self bindString:binding at:parameterIndex];
-        } else if([binding isKindOfClass:[NSString class]]) {
+        } else if([binding isKindOfClass:[MSBuffer class]]) {
             ret= [self bindBuffer:binding at:parameterIndex];
         } else if([binding isKindOfClass:[MSDecimal class]]) {
             ret= [self bindString:[binding description] at:parameterIndex];
@@ -30,6 +30,7 @@
         } else if([binding isKindOfClass:[MSDate class]]) {
             ret= [self bindDate:binding at:parameterIndex];
         } else {
+            ASSIGN(_lastError, ([NSString stringWithFormat:@"bindObjects failed, unknown class %@", [binding class]]));
             ret= NO;
         }
         ++parameterIndex;
@@ -47,7 +48,7 @@
 - (BOOL)bindFloat:           (float)value at:(MSUInt)parameterIndex { (void)value; (void)parameterIndex; return NO; }
 - (BOOL)bindDouble:         (double)value at:(MSUInt)parameterIndex { (void)value; (void)parameterIndex; return NO; }
 - (BOOL)bindDate:          (MSDate *)date at:(MSUInt)parameterIndex { (void)date;  (void)parameterIndex; return NO; }
-- (BOOL)bindNumber:     (NSNumber*)value at:(MSUInt)parameterIndex
+- (BOOL)bindNumber:      (NSNumber*)value at:(MSUInt)parameterIndex
 {
     MSChar type = *[value objCType] ;
     switch (type) {
@@ -73,5 +74,5 @@
 - (MSDBResultSet *)fetch { return [self notImplemented:_cmd]; }
 - (MSInt)execute { [self notImplemented:_cmd]; return NO; }
 
-- (NSString *)lastError { return [self notImplemented:_cmd]; }
+- (NSString *)lastError { return _lastError; }
 @end
