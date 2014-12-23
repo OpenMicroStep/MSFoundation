@@ -43,6 +43,7 @@
 
 #import <MSDatabase/MSDatabaseWin32.h>
 #import <MSDatabase/MSDBConnection.h>
+#import <MSDatabase/MSDBConnectionPool.h>
 #import <MSDatabase/MSDBOperation.h>
 #import <MSDatabase/MSDBRow.h>
 #import <MSDatabase/MSDBResultSet.h>

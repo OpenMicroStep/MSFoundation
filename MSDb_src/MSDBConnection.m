@@ -48,7 +48,6 @@
 
 #import "MSDb_Private.h"
 
-static NSLock *__connectionsLock = nil ;
 static MSDictionary *__adaptors = nil ;
 
 NSString *MSConnectionDidConnectNotification=    @"MSConnectionDidConnectNotification" ;
@@ -58,15 +57,10 @@ NSString *MSConnectionDidDisconnectNotification= @"MSConnectionDidDisconnectNoti
 
 #pragma mark Connection
 
-+ (void)initialize
++ (void)load
 {
-    if (!__connectionsLock) {
-        __connectionsLock = NEW(NSLock) ;
-        __adaptors = [ALLOC(MSDictionary) mutableInitWithCapacity:31] ;
-    }
+    __adaptors = [ALLOC(MSDictionary) mutableInitWithCapacity:31] ;
 }
-
-+ (NSUInteger)maximumConnections { return NSUIntegerMax ; }
 
 static inline NSBundle *_loadBundleAtPath(id path)
 {
@@ -76,6 +70,7 @@ static inline NSBundle *_loadBundleAtPath(id path)
             [bundle load]) ?
     bundle : nil;
 }
+
 static inline NSBundle *_loadAdaptorBundleNamed(NSString *name)
 {
     NSBundle *upBundle,*bundle; NSString *path; NSEnumerator *e;
@@ -135,39 +130,6 @@ static inline id _retainedCnxWithConnectionDictionary(MSDictionary *dictionary)
             c= MSCreateObject(connectionClass);
             cnx= [c initWithConnectionDictionary:dictionary];}}
     [d release];
-    return cnx;
-}
-
-+ (id)uniqueConnectionWithDictionary:(MSDictionary *)connectionDictionary
-{
-    id cnx= nil;
-    NSMutableDictionary *tDict;
-    MSArray *tConnections;
-    id ae,c;
-    
-    if ([connectionDictionary count] <= 1) RELEAZEN(self);
-    else {
-        [__connectionsLock lock] ;
-        
-        // protected code here
-        tDict= [[NSThread currentThread] threadDictionary];
-        tConnections= [tDict objectForKey:@"_MSDBConnectionArray_"];
-        
-        for (ae=[tConnections objectEnumerator]; !cnx && (c= [ae nextObject]);) {
-            if ([[c connectionDictionary] isEqual:connectionDictionary]) {
-                //NSLog(@"uniqueConnectionWithDictionary %@ REUSED",c);
-                cnx= c;}}
-        if (!cnx) {
-            
-            if ((cnx= _retainedCnxWithConnectionDictionary(connectionDictionary))) {
-                if (!tConnections) {
-                    tConnections= [[MSArray alloc] mutableInitWithCapacity:7];
-                    [tDict setObject:tConnections forKey:@"_MSDBConnectionArray_"];
-                    RELEASE(tConnections);}
-                [tConnections addObject:cnx];
-                AUTORELEASE(cnx);}}
-        
-        [__connectionsLock unlock];}
     return cnx;
 }
 

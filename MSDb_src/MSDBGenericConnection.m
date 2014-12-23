@@ -152,22 +152,6 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 
 //- (MSArray *)tableNames ;
 
-//- (MSDBTransaction *)openTransaction ;
-
-- (MSArray *)_operationsOfClass:(Class)searchedClass
-{
-  NSUInteger i, count = [_operations count] ;
-  MSArray *array = MSCreateArray(count) ;
-  
-  for (i = 0 ; i < count ; i++) {
-    MSDBOperation *o = [_operations objectAtIndex:i] ;
-    if ([o isKindOfClass:searchedClass]) {
-      MSAAdd(array, o) ;
-    }
-  }
-  return array ;
-}
-
 #pragma mark Manage operations
 
 - (void)terminateAllOperations
@@ -176,6 +160,9 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
   // leave this loop in that order if you don't want to destroy the element of your array
   // before the end of the loop
   while (i-- > 0) {[[_operations objectAtIndex:i] terminateOperation] ;}
+  
+  if([self isInTransaction])
+    [self rollback];
 }
 
 - (void)registerOperation:(MSDBOperation *)anOperation

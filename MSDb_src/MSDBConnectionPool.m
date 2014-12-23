@@ -1,17 +1,13 @@
 /*
  
- MSDBOperation.m
+ MSDBConnectionPool.m
  
  This file is is a part of the MicroStep Framework.
  
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
- Herve Malaingre : herve@malaingre.com
- Frederic Olivi : fred.olivi@free.fr
- Eric Baradat :  k18rt@free.fr
- Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
- 
+ Vincent Rouillé : v-rouille@logitud.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -41,38 +37,61 @@
  
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
+ 
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSDatabase/MSDatabase.h>
  */
 
 #import "MSDb_Private.h"
 
-@implementation MSDBOperation
+@implementation MSDBConnectionPool
 
-- (id)initWithDatabaseConnection:(MSDBConnection *)connection
++ (id)connectionPoolWithDictionnary:(MSDictionary *)dictionary
 {
-  if (![connection connect]) {
-    RELEAZEN(self) ;
-    return nil ;
-  }
-  [connection registerOperation:self];
-  ASSIGN(_connection, connection) ;
-  return self ;
+    return [[[MSDBConnectionPool alloc] initWithDictionnary:dictionary] autorelease];
 }
 
-- (MSDBConnection *)databaseConnection { return _connection ; }
-
-- (BOOL)isActive { return _connection ? YES : NO ; }
-
-- (void)terminateOperation
+- (id)initWithDictionnary:(MSDictionary *)dictionary
 {
-  [_connection unregisterOperation:self];
-  RELEAZEN(_connection);
+    if((self= [super init])) {
+        _connectionDictionary= [dictionary retain];
+        mutex_init(_connectionLock);
+    }
+    return self;
 }
 
 - (void)dealloc
 {
-  [self terminateOperation] ;
-  [super dealloc] ;
+    mutex_delete(_connectionLock);
+    [_connectionDictionary release];
+    [super dealloc];
+}
+
+// Thread safe
+- (MSDBConnection *)requireConnection
+{
+    MSDBConnection *ret;
+    NSUInteger p;
+    
+    mutex_lock(_connectionLock);
+    if((p= [_idleConnections count])) {
+        --p;
+        ret= [[[_idleConnections objectAtIndex:p] retain] autorelease];
+        [_idleConnections removeObjectAtIndex:p];
+    } else {
+        ret= [MSDBConnection connectionWithDictionary:_connectionDictionary];
+    }
+    mutex_unlock(_connectionLock);
+    return ret;
+}
+
+// Thread safe
+- (void)releaseConnection:(MSDBConnection *)connection
+{
+    mutex_lock(_connectionLock);
+    [connection terminateAllOperations];
+    [_idleConnections addObject:connection];
+    mutex_unlock(_connectionLock);
 }
 
 @end
-

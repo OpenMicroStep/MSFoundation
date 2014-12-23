@@ -70,14 +70,6 @@
 
 #pragma mark Connection
 
-+ (NSUInteger)maximumConnections;
-
-// The class method uniqueConnectionWithDictionary: re-serve the same connection
-// if used twice with the same (equal) dictionary.
-// The class of the returned object is the principal class of the adaptor
-// declared in the dictionary.
-// TODO: A remove method ?
-+ (id)uniqueConnectionWithDictionary:(MSDictionary *)dictionary;
 
 // The instance returned by the two following methods are not cached on contrary
 // to the previous one.

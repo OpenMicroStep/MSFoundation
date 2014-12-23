@@ -1,17 +1,13 @@
 /*
  
- MSDBOperation.m
+ MSDBConnectionPool.h
  
  This file is is a part of the MicroStep Framework.
  
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
- Herve Malaingre : herve@malaingre.com
- Frederic Olivi : fred.olivi@free.fr
- Eric Baradat :  k18rt@free.fr
- Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
- 
+ Vincent Rouillé : v-rouille@logitud.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -41,38 +37,30 @@
  
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
+ 
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSDatabase/MSDatabase.h>
  */
 
-#import "MSDb_Private.h"
-
-@implementation MSDBOperation
-
-- (id)initWithDatabaseConnection:(MSDBConnection *)connection
-{
-  if (![connection connect]) {
-    RELEAZEN(self) ;
-    return nil ;
-  }
-  [connection registerOperation:self];
-  ASSIGN(_connection, connection) ;
-  return self ;
+@interface MSDBConnectionPool : NSObject {
+  MSDictionary *_connectionDictionary ;
+  MSArray *_idleConnections;
+  mutex_t _connectionLock;
+  
+/* TODO
+  NSUInteger _maxCapacity;
+  NSUInteger _minCapacity;
+  NSUInteger _idleTimeout;
+*/
 }
 
-- (MSDBConnection *)databaseConnection { return _connection ; }
++ (id)connectionPoolWithDictionnary:(MSDictionary *)dictionary;
+- (id)initWithDictionnary:(MSDictionary *)dictionary;
 
-- (BOOL)isActive { return _connection ? YES : NO ; }
+// Thread safe
+- (MSDBConnection *)requireConnection;
 
-- (void)terminateOperation
-{
-  [_connection unregisterOperation:self];
-  RELEAZEN(_connection);
-}
-
-- (void)dealloc
-{
-  [self terminateOperation] ;
-  [super dealloc] ;
-}
+// Thread safe
+- (void)releaseConnection:(MSDBConnection *)connection;
 
 @end
-
