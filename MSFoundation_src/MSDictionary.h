@@ -105,7 +105,7 @@
 - (id)mutableInitWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 - (id)mutableInitWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
 
-#pragma mark Other inits
+#pragma mark Other inits 
 
 + (id)dictionaryWithDictionary:(id)otherDictionary;
 + (id)mutableDictionaryWithDictionary:(id)otherDictionary;
@@ -119,6 +119,8 @@
 
 #pragma mark Standard methods
 
+- (BOOL)isMutable;
+- (void)setImmutable;
 - (NSUInteger)count;
 - (id)objectForKey:(id)aKey;
 - (id)objectForLazyKey: (id)aKey;
@@ -137,6 +139,7 @@
 - (id)mutableInitWithCapacity:(NSUInteger)numItems;
 
 - (void)removeObjectForKey:(id)aKey;
+- (void)removeObjectsForKeys:(NSArray *)keyArray;
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
 // set the object to the lowercase aKey.
 // TODO: Good ? If no aKey, remove the object to the lowercase aKey.

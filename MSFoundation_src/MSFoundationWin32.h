@@ -99,6 +99,10 @@ MSFoundationExport NSUInteger MSOperatingSystem(void) ;
 - (id)initWithCString:(const char *)nullTerminatedCString encoding:(NSStringEncoding)encoding;
 @end
 
+@interface NSArray (MSCompatibilityLayer)
+- (id)firstObject;
+@end
+
 @interface NSNumber (MSCompatibilityLayer)
 + (NSNumber *)numberWithUnsignedInteger:(NSUInteger)value;
 @end

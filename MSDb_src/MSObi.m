@@ -402,10 +402,11 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 - (NSArray*)typedValuesForCid:(MSOid*)cid
   {
   MSArray* vs; NSUInteger n,i; id v,ret;
-  ret= [MSArray array];
+  ret= [MSArray mutableArray];
   if ((vs= [self valuesForCid:cid]) && (n= [vs count])) {
     for (i=0; i<n; i++) if ((v= [[vs objectAtIndex:i] typedValue])) {
       CArrayAddObject((CArray*)ret, v);}}
+  [ret setImmutable];
   return ret;
   }
 - (id)typedValueForCid:(MSOid*)cid
@@ -418,10 +419,11 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 - (MSArray*)stringValuesForCid:(MSOid*)cid
   {
   MSArray* vs; NSUInteger n,i; id v,ret;
-  ret= [MSArray array];
+  ret= [MSArray mutableArray];
   if ((vs= [self valuesForCid:cid]) && (n= [vs count])) {
     for (i=0; i<n; i++) if ((v= [[vs objectAtIndex:i] stringValue])) {
       CArrayAddObject((CArray*)ret, v);}}
+  [ret setImmutable];
   return ret;
   }
 - (MSLong)longLongValueForCid:(MSOid*)cid

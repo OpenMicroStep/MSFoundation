@@ -287,6 +287,15 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
   CDictionarySetObjectForKey((CDictionary*)self, nil, k);
 }
 
+- (void)removeObjectsForKeys:(NSArray *)keyArray
+{
+  NSEnumerator *e= [keyArray objectEnumerator];
+  id o;
+  while((o= [e nextObject])) {
+    [self removeObjectForKey:o];
+  }
+}
+
 - (void)setObject:(id)o forKey:(id <NSCopying>)k
 {
   if (o && k) CDictionarySetObjectForKey((CDictionary*)self, o, k);
@@ -330,6 +339,31 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 @end
 
 @implementation NSDictionary (MSDictionary)
+
+- (id)objectForLazyKey:(id)aKey
+{
+	id o= nil;
+	if (aKey) {
+		o= [self objectForKey:aKey];
+		if (!o) {
+			if (![aKey isKindOfClass:[NSString class]]) {
+				aKey= [aKey toString];
+				o= [self objectForKey:aKey];}
+			if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
+	return o;
+}
+
+- (id)objectForLazyKeys:(id)aKey, ...
+{
+  id ret= nil;
+  if (aKey && !(ret= [self objectForLazyKey:aKey])) {
+    va_list args; id k= aKey;
+    va_start(args, aKey);
+    while (!ret && (k= va_arg(args, id))) {
+      ret= [self objectForLazyKey:k];}
+    va_end(args);}
+  return ret;
+}
 
 - (BOOL)isEqual:(id)object
 {
