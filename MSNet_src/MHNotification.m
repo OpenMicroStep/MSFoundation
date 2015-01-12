@@ -293,15 +293,22 @@
 - (BOOL)respondsToMessageWithBody:(MSBuffer *)body httpStatus:(MSUInt)status headers:(NSDictionary *)headers closeSession:(BOOL)closeSession
 {
     BOOL result = NO ;
-    if (closeSession) {
-        result = MHCloseBrowserSession([_message clientSecureSocket], _session, status) ;
-        [self closeSession] ;
+    if(_message) {
+        if (closeSession) {
+            result = MHCloseBrowserSession([_message clientSecureSocket], _session, status) ;
+            [self closeSession] ;
+        }
+        else {
+            NSMutableDictionary * hdrs = [NSMutableDictionary dictionaryWithDictionary:headers];
+            
+            if (! [headers objectForKey:@"Content-Type"]) { [hdrs setObject:[[self message] contentType] forKey:@"Content-Type"] ; }
+            result = MHRespondToClientOnSocketWithAdditionalHeaders([_message clientSecureSocket], body, status, _isAdminNotification, hdrs, _session, NO) ;
+        }
     }
     else {
-        NSMutableDictionary * hdrs = [NSMutableDictionary dictionaryWithDictionary:headers];
-
-        if (! [headers objectForKey:@"Content-Type"]) { [hdrs setObject:[[self message] contentType] forKey:@"Content-Type"] ; }
-        result = MHRespondToClientOnSocketWithAdditionalHeaders([_message clientSecureSocket], body, status, _isAdminNotification, hdrs, _session, NO) ;
+        if(closeSession)
+            [self closeSession];
+        result= YES;
     }
     
     return result ;
@@ -499,6 +506,7 @@
 - (void)closeSession
 {
     lock_sessions_mutex() ;
+    NSLog(@"closeSession %@ %@", _session, [_session sessionID]);
     removeSessionForKey([_session sessionID]) ;
     unlock_sessions_mutex() ;
 }

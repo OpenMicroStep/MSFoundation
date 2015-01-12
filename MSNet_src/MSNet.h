@@ -49,6 +49,8 @@
 
 #import <MSNet/MSNetWin32.h>
 
+#import <MSNet/MSThreadSafeProxy.h>
+
 #import <MSNet/MSJSONEncoder.h>
 #import <MSNet/MSHTTPRequest.h>
 #import <MSNet/MSHTTPResponse.h>

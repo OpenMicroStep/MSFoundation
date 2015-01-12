@@ -43,7 +43,7 @@ typedef enum
 - (void)setContentType:(NSString *)contentType ;
 
 - (MSBuffer *)content ;
-- (void)addBytes:(void *)bytes length:(MSULong)length ;
+- (void)addBytes:(const void *)bytes length:(MSULong)length ;
 
 - (NSDictionary *)additionalHeaders ;
 - (void)addAdditionalHeaderValue:(id)value forKey:(NSString *)key ;

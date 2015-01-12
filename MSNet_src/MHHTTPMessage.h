@@ -55,40 +55,49 @@
 "Content-length: 0\r\n"\
 "\r\n"*/
 
-#define HTTP_400_RESPONSE "HTTP/1.1 400 Malformed\r\n"\
+#define HTTP_400_RESPONSE "HTTP/1.1 400 Bad Request\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Length: 137\r\n"\
+"Content-Length: 141\r\n"\
 "\r\n"\
 "<html><head><title>Malformed request</title></head>"\
-"<body><p>You sent a malformed request that the server did not understand"\
+"<body><p>You sent a malformed request that the server did not understand</p>"\
 "</body></html>" 
+
+#define HTTP_401_RESPONSE "HTTP/1.1 401 Unauthorized\r\n"\
+"Connection: close\r\n"\
+"Content-Type: text/html\r\n"\
+"Content-Length: 122\r\n"\
+"\r\n"\
+"<html><head><title>Unauthorized request</title></head>"\
+"<body><p>The request requires user authentication.</p>"\
+"</body></html>"
 
 #define HTTP_403_RESPONSE "HTTP/1.1 403 Forbidden\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Length: 100\r\n"\
+"Content-Length: 104\r\n"\
 "\r\n"\
 "<html><head><title>Forbidden</title></head>"\
-"<body><p>Access to this object is forbidden"\
+"<body><p>Access to this object is forbidden</p>"\
 "</body></html>" 
 
 #define HTTP_404_RESPONSE "HTTP/1.1 404 Not found\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Length: 111\r\n"\
+"Content-Length: 115\r\n"\
 "\r\n"\
 "<html><head><title>Not Found</title></head>"\
-"<body><p>Sorry, the object you requested was not found"\
+"<body><p>Sorry, the object you requested was not found</p>"\
 "</body></html>" 
 
 #define HTTP_408_RESPONSE "HTTP/1.1 408 Request Time-out\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Length: 95\r\n"\
+"Content-Length: 99\r\n"\
 "\r\n"\
 "<html><head><title>Request Time-out</title></head>"\
-"<body><p>The request timed-out."\
+"<body><p>The request timed-out.</p>"\
 "</body></html>" 
 
 #define HTTP_418_RESPONSE "HTTP/1.1 418 I'm a teapot\r\n"\
@@ -103,28 +112,28 @@
 #define HTTP_500_RESPONSE "HTTP/1.1 500 Internal Server Error\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Length: 178\r\n"\
+"Content-Length: 182\r\n"\
 "\r\n"\
 "<html><head><title>Internal Server Error</title></head>"\
 "<body><p>The server encountered an internal error or misconfiguration "\
-"and was unable to complete your request</body></html>" 
+"and was unable to complete your request</p></body></html>"
 
 #define HTTP_501_RESPONSE "HTTP/1.1 501 Not Implemented\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Length: 116\r\n"\
+"Content-Length: 120\r\n"\
 "\r\n"\
 "<html><head><title>Not Implemented</title></head>"\
-"<body><p>This method is not implemented by the server"\
+"<body><p>This method is not implemented by the server</p>"\
 "</body></html>" 
 
 #define HTTP_503_RESPONSE "HTTP/1.1 503 Service Unavailable\r\n"\
 "Connection: close\r\n"\
 "Content-Type: text/html\r\n"\
-"Content-Length: 96\r\n"\
+"Content-Length: 100\r\n"\
 "\r\n"\
 "<html><head><title>Service Unavailable</title></head>"\
-"<body><p>Server is overloaded"\
+"<body><p>Server is overloaded</p>"\
 "</body></html>" 
 
 

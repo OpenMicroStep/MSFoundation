@@ -153,10 +153,10 @@ NSLog(@"Person null: %@ %@",os,[rep informationsWithKeys:MSCarMiddleNameLib forR
   if (!err) {
     dret= [rep removeValue:@"" forKey:MSRCarParentServiceLib onObject:servURN];
     if (!dret) {
-      NSLog(@"D15 removeValue:"" is not supposed to be ok %@",dret); err++;}
+      NSLog(@"D15 removeValue: is not supposed to be ok %@",dret); err++;}
     dret= [rep addValue:@"" forKey:MSRCarParentServiceLib onObject:servURN];
     if (!dret) {
-      NSLog(@"D16 addValue:"" is not supposed to be ok %@",dret); err++;}
+      NSLog(@"D16 addValue: is not supposed to be ok %@",dret); err++;}
     dret= [rep addValue:[MSArray array] forKey:MSRCarParentServiceLib onObject:servURN];
     if (dret) {
       NSLog(@"D17 addValue:[] %@",dret); err++;}
@@ -420,7 +420,7 @@ id localParameters()
     @"adaptor",  @"mysql",
     @"database", @"repository",
     nil];
-  id host= [[NSHost currentHost] localizedName];
+  id host= [[NSHost currentHost] name];
   if ([host isEqualToString:@"EcbNewBook"]) { // Parameters for SQL MAMP
     [dbParams setObject:[NSNumber numberWithInt:8889]              forKey:@"port"];
     [dbParams setObject:@"/Applications/MAMP/tmp/mysql/mysql.sock" forKey:@"socket"];

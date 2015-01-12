@@ -572,7 +572,7 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
                     if(!upResourceFromCache)
                     {
                         MHServerLogWithLevel(MHLogError, @"Invalid upload submission : no resource found in cache for url :'%@'", upResourceURL) ;
-                        _send_error_message(secureSocket, HTTP_500_INTERNAL_SERVER_ERROR);
+                        _send_error_message(secureSocket, HTTP_500_RESPONSE);
                         MH_LOG_LEAVE(@"_receive_http_message") ;
                         return nil ;
                     }
@@ -689,7 +689,7 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
                                                 if(! [upResourceFromCache addBytes:AB length:MH_HTTP_MAX_HEADERS_SIZE boundaryLength:0])
                                                 {
                                                     MHServerLogWithLevel(MHLogError, @"Unable to write to temporary file %@ (%lu bytes to write)", [upResourceFromCache resourcePathOndisk], MH_HTTP_MAX_HEADERS_SIZE) ;
-                                                    _send_error_message(secureSocket, HTTP_500_INTERNAL_SERVER_ERROR);
+                                                    _send_error_message(secureSocket, HTTP_500_RESPONSE);
                                                     MH_LOG_LEAVE(@"_receive_http_message") ;
                                                     return nil ;
                                                 }                                              
@@ -712,7 +712,7 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
                                             if(![upResourceFromCache addBytes:AB length:position - AB boundaryLength:(boundaryLength-2)])
                                             {
                                                 MHServerLogWithLevel(MHLogError, @"Unable to write to temporary file %@ (%lu bytes to write)", [upResourceFromCache resourcePathOndisk], position - AB) ;
-                                                _send_error_message(secureSocket, HTTP_500_INTERNAL_SERVER_ERROR);
+                                                _send_error_message(secureSocket, HTTP_500_RESPONSE);
                                                 MH_LOG_LEAVE(@"_receive_http_message") ;
                                                 return nil ;
                                             }
@@ -733,8 +733,10 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
                                     {
                                         [upResourceFromCache setStatus:UPLOAD_COMPLETED] ;
                                         // We reuse buf to create a smaller MHMessage with POST method and two headers with filenames
+                                        // TODO: [SECURITY] A well crafted request can cause SEGV
                                         ptr = strstr(buf, "\r\n\r\n") + 2;
                                         memcpy(buf, "POST ", 5);
+                                        // TODO: This is not a way to pass information (text > string > text > string...) :(
                                         sprintf(ptr, "MASH_UPLD_FILE_NAME: %s\r\nMASH_UPLD_RSRC_URL: %s\r\n\r\n", filename, [[upResourceFromCache url] UTF8String]);
                                         message = [MHHTTPMessage retainedMessageFromSocket:secureSocket
                                                                                  withBytes:buf
@@ -747,7 +749,7 @@ static MHHTTPMessage *_receive_http_message(MHSSLSocket *secureSocket)
                                 }
                             }
                             MHServerLogWithLevel(MHLogError, @"No filename specified for upload") ;
-                            _send_error_message(secureSocket, HTTP_400_MALFORMED);
+                            _send_error_message(secureSocket, HTTP_400_RESPONSE);
                             MH_LOG_LEAVE(@"_receive_http_message") ;
                             return nil ;
                         }
@@ -877,7 +879,7 @@ static void _MHRunApplicationWithNoSessionGetRequest(MHApplication *application,
                     } else
                     {
                         MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : TICKET APPLICATION AUTHENTICATION FAILED : NO LINKED SESSION : '%@' on socket %d", linkedSession, [secureSocket socket]) ;
-                         _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED);
+                         _send_error_message(secureSocket, HTTP_401_RESPONSE);
                     }
                     
                 } else //Ticket authentication with new session
@@ -900,7 +902,7 @@ static void _MHRunApplicationWithNoSessionGetRequest(MHApplication *application,
                 }
             }
             else {
-                _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED);
+                _send_error_message(secureSocket, HTTP_401_RESPONSE);
             }
         } else if ([application canAuthenticateWithPKChallenge] && headerURN) // PK CHALLENGE AUTHENTICATION
         {
@@ -992,12 +994,12 @@ static void _MHRunApplicationWithNoSessionGetRequest(MHApplication *application,
         }
         else {
             MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED GET MESSAGE WITH NO SESSION : could not find a valid authentication method on socket %d", [secureSocket socket]) ;
-            _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+            _send_error_message(secureSocket, HTTP_401_RESPONSE) ;
         }
     }
     else {
         MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED GET MESSAGE WITH NO SESSION : wrong url for authentication on socket %d", [secureSocket socket]) ;
-        _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+        _send_error_message(secureSocket, HTTP_401_RESPONSE) ;
     }
     MH_LOG_LEAVE(@"_MHRunApplicationWithNoSessionGetRequest") ;
 }
@@ -1070,13 +1072,13 @@ static void _MHRunApplicationWithNoSessionPostRequest(MHApplication *application
         else
         {
             MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED POST MESSAGE WITH NO SESSION : could not find a valid authentication method on socket %d", [secureSocket socket]) ;
-            _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+            _send_error_message(secureSocket, HTTP_401_RESPONSE) ;
         }
         
     } else
     {
         MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : NOT AUTHENTIFIED POST MESSAGE WITH NO SESSION : wrong url for authentication on socket %d", [secureSocket socket]) ;
-        _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+        _send_error_message(secureSocket, HTTP_401_RESPONSE) ;
     }
     
     MH_LOG_LEAVE(@"_MHRunApplicationWithNoSessionPostRequest") ;
@@ -1216,7 +1218,6 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                 case MHSessionStatusAuthenticated :
                 {
                     NSString *sessionTicket = [session memberNamed:@"ticket"] ;
-                    MHDownloadResource *resource ;
                     BOOL isStandardResourceDownload = _MHIsStandardResourceDownload(notificationType) ;
                     
                     if ([application isGUIApplication] &&
@@ -1240,8 +1241,9 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                         MHDestroySession(session) ;
                         MHRedirectToURL(secureSocket, [@"/" stringByAppendingURLComponent:[message getHeader:MHHTTPUrl]], NO) ;
                     }
-                    else if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
+                    else if(isStandardResourceDownload)
                     {
+                        MHDownloadResource *resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType);
                         MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, session, message, nil) ;
                     }
                     else {
@@ -1328,7 +1330,7 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                     {
                         MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : CHALLENGE APPLICATION AUTHENTICATION REQUEST MESSAGE : wrong parameters on socket %d") ;
                         MHDestroySession(session) ;
-                        _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ;
+                        _send_error_message(secureSocket, HTTP_401_RESPONSE) ;
                     }
                     break ;
                 }
@@ -1346,7 +1348,7 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                                                                isAdminNotification:isAdmin] ;
                     
                     if (!MHProcessingEnqueueNotification(notification)) {
-                        _send_error_message(secureSocket, HTTP_503_NOT_AVAILABLE) ;
+                        _send_error_message(secureSocket, HTTP_503_RESPONSE) ;
                         [notification end] ;
                     }
                     MHDestroySession(session) ;
@@ -1573,7 +1575,7 @@ static callback_t _MHApplicationRun(void *arg)
                                         } else
                                         {
                                             MHServerLogWithLevel(MHLogDebug, @"_MHApplicationRun : wrong application for session on socket %d", [secureSocket socket]) ;
-                                            _send_error_message(secureSocket, HTTP_401_UNAUTHORIZED) ; //wrong application for session
+                                            _send_error_message(secureSocket, HTTP_401_RESPONSE) ; //wrong application for session
                                         }
                                         
                                     } else { //application && !session
@@ -2040,31 +2042,31 @@ static BOOL _MHCheckNetRepositoryParameters(NSDictionary *netRepositoryParameter
     
     if (![serverAddress length])
     {
-        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'serverAddress' for repository configuration '%@'", name) ;
+        MHServerLogWithLevel((MHLogLevel)MHAppError, @"Parameter not found : 'serverAddress' for repository configuration '%@'", name) ;
         return NO ;
     }
     
     if (!serverPort)
     {
-        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'serverPort' for repository configuration '%@'", name) ;
+        MHServerLogWithLevel((MHLogLevel)MHAppError, @"Parameter not found : 'serverPort' for repository configuration '%@'", name) ;
         return NO ;
     }
     
     if (![applicationBaseURL length])
     {
-        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'url' for repository configuration '%@'", name) ;
+        MHServerLogWithLevel((MHLogLevel)MHAppError, @"Parameter not found : 'url' for repository configuration '%@'", name) ;
         return NO ;
     }
     
     if (![CAFile length])
     {
-        MHServerLogWithLevel(MHAppError, @"Parameter not found : 'CAFile' for repository configuration '%@'", name) ;
+        MHServerLogWithLevel((MHLogLevel)MHAppError, @"Parameter not found : 'CAFile' for repository configuration '%@'", name) ;
         return NO ;
     }
     
     if (! MSFileExistsAtPath(CAFile, &isDir) && !isDir)
     {
-        MHServerLogWithLevel(MHAppError, @"CAFile not found at path %@ for repository configuration '%@'", CAFile , name) ;
+        MHServerLogWithLevel((MHLogLevel)MHAppError, @"CAFile not found at path %@ for repository configuration '%@'", CAFile , name) ;
         return NO ;
     }
     
@@ -2455,7 +2457,7 @@ static MSInt _MHServerLoadConfigurationFile(NSArray *params)
         __maxClientProcessingThreads = DEFAULT_MAX_CLIENT_PROCESSING_THREADS ;
     
     //init logger
-    _MHServerInitLogger([[httpServerParams objectForKey:@"logLevel"] intValue], [[httpServerParams objectForKey:@"logStardardOutput"] intValue]);
+    _MHServerInitLogger([[httpServerParams objectForKey:@"logLevel"] intValue]/* MHLogDevel */, [[httpServerParams objectForKey:@"logStardardOutput"] intValue]);
     MHServerLogWithLevel(MHLogInfo, @"**************************************************************") ;
     MHServerLogWithLevel(MHLogInfo, @"*") ;
 
@@ -3264,9 +3266,9 @@ MSInt MHMainThread()
                     // increment valid accept count
                     acceptCount++ ;
                         
-                    MHServerLogWithLevel(MHLogDevel, @"acceptCount = %d/%d processingQueue size=%d", acceptCount, MAX_ACCEPT_COUNT_BEFORE_CLEAN, [__clientProcessingQueue count]) ;
+                    MHServerLogWithLevel(MHLogDevel, @"acceptCount = %d/%d processingQueue size=%d", acceptCount, MAX_ACCEPT_COUNT_BEFORE_CLEAN, [processingQueue count]) ;
                     // Attempt to clean sessions and cache if max of consecutive accepts is reached
-                    if(acceptCount >= MAX_ACCEPT_COUNT_BEFORE_CLEAN && ![__clientProcessingQueue count])
+                    if(acceptCount >= MAX_ACCEPT_COUNT_BEFORE_CLEAN && ![processingQueue count])
                     {
                         _MHServerClean();
                         acceptCount = 0 ;
@@ -3296,7 +3298,7 @@ MSInt MHMainThread()
                         }
                     }
                     else {
-                        MHServerLogWithLevel(MHLogWarning, @"Connection refused : too many connections waiting on client readind thead (max = %u)", 2*__maxClientProcessingRequests) ;
+                        MHServerLogWithLevel(MHLogWarning, @"Connection refused : too many connections waiting on client readind thead (max = %u)", 2*maxProcessingRequests) ;
                         MHCloseSocket(clientSocket) ;
                     }
                     mutex_unlock(acceptMutex);
@@ -3751,7 +3753,6 @@ MHDownloadResource *MHGetResourceFromCacheOrApplication(NSString *url, MHApplica
             MHPutResourceInCache(resource) ;
             RETAIN(resource) ;
         }
-        return resource ;
     }
     
     if ([resource useOnce]) {
@@ -3948,8 +3949,11 @@ NSString *MHGetUploadResourceURLForID(MHApplication *application, NSString *uplo
 
 void MHSendResourceOrHTTPNotModifiedToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResource *resource, BOOL isAdmin, MHSession *session, MHHTTPMessage *message, NSDictionary *headers)
 {
-    if ([resource firstActivity] > MHModifiedSinceTimeIntervalFromMessage(message))
-    {
+    if(!resource) {
+        MHServerLogWithLevel(MHLogDebug, @"Replying with not found");
+        MHRespondToClientOnSocket(secureSocket, nil, HTTPNotFound, isAdmin);
+    }
+    else if ([resource firstActivity] > MHModifiedSinceTimeIntervalFromMessage(message)) {
         MHServerLogWithLevel(MHLogDebug, @"Replying with cached data");
         MHSendResourceToClientOnSocket(secureSocket, resource, isAdmin, session, message, nil) ;
     }

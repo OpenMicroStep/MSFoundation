@@ -222,17 +222,12 @@ static NSDictionary *__mimeTypes = nil ;
             }
         }else
         {
-            MSBuffer *buffer = nil ;
-            NSData *data = [NSData dataWithContentsOfFile:path] ;
-            if(!data) MSRaise(NSGenericException, @"cannot create MHResource from data with file '%@'", path) ;
-            
-            buffer = MSCreateBufferWithBytes((void *)[data bytes], [data length]);
-            
-            if(buffer) {
-                id ret = [self initWithBuffer:buffer name:name mimeType:mimeType forApplication:application] ;
-                RELEASE(buffer) ;
-                return ret ;
-            }
+            id ret;
+            MSBuffer *buffer = [ALLOC(MSBuffer) initWithContentsOfFile:path] ;
+            if(!buffer) MSRaise(NSGenericException, @"cannot create MHResource from data with file '%@'", path) ;
+            ret = [self initWithBuffer:buffer name:name mimeType:mimeType forApplication:application] ;
+            RELEASE(buffer) ;
+            return ret ;
         }
     }
     return nil ;

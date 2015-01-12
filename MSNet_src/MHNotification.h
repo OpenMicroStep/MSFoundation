@@ -179,39 +179,38 @@ if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"postprocess: 
 BOOL res = [notification redirectToURL:U isPermanent:P] ; \
 [notification end] ; \
 if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"redirectToURL: Error while responding on client socket [%s:%d]",__FILE__,__LINE__]) ; \
-} \
-return ;
+return ; \
+}
 
 #define MHRESPOND_TO_CLIENT(B, S, H)  { \
 BOOL res = [notification respondsToMessageWithBody:B httpStatus:S headers:H closeSession:NO] ; \
 [notification end] ; \
 if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"respondsToMessageWithBody:httpStatus:headers:closeSession:NO Error while responding on client socket [%s:%d]",__FILE__,__LINE__]) ; \
-} \
-return ;
+return ; \
+}
 
 #define MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(B, S, H)  { \
 BOOL res = [notification respondsToMessageWithBody:B httpStatus:S headers:H closeSession:YES] ; \
 [notification end] ; \
 if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"respondsToMessageWithBody:httpStatus:headers:closeSession:YES Error while responding on client socket [%s:%d]",__FILE__,__LINE__]) ; \
-} \
-return ;
+return ; \
+}
 
 #define MHSEND_RESOURCE_TO_CLIENT_WITH_HEADERS(R,O,L,M,H)  { \
 BOOL res = [notification respondsToMessageWithResource:R useOnce:O lifetime:L forMessage:M additionalHeaders:H] ; \
 [notification end] ; \
 if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"respondsToMessageWithResource:useOnce:lifetime:forMessage:additionalHeaders: Error while responding on client socket [%s:%d]",__FILE__,__LINE__]) ; \
-} \
-return ;
+return ; \
+}
 
 #define MHSEND_RESOURCE_TO_CLIENT(R,O,L,M)  { \
 BOOL res = [notification respondsToMessageWithResource:R useOnce:O lifetime:L forMessage:M] ; \
 [notification end] ; \
 if (!res) MSRaise(NSGenericException, [NSString stringWithFormat:@"respondsToMessageWithResource:useOnce:lifetime:forMessage: Error while responding on client socket [%s:%d]",__FILE__,__LINE__]) ; \
-} \
-return ;
+return ; \
+}
 
-#define MHVALIDATE_AUTHENTICATION(I, B) [notification validateAuthentication:I firstPageBody:B] ; \
-return ;
+#define MHVALIDATE_AUTHENTICATION(I, B) { [notification validateAuthentication:I firstPageBody:B] ; return ; }
 
 - (void)storeMember:(id)o named:(NSString *)name ;
 - (id)memberNamed:(NSString *)name ;

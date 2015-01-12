@@ -140,50 +140,66 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 + (MSUInt)defaultSessionInitTimeout { return SESSION_DEFAULT_INIT_TIMEOUT ; }
 - (BOOL)mustUpdateLastActivity { return YES ; }
 
-- (SEL)_actionFromURL:(NSString *)URL
+- (NSString *)_actionFromURL:(MHHTTPMessage *)message
 {
-    NSString *baseURL = [self baseURL] ;
-    NSString *subURL ;
-    NSRange rangeOfSubstring = [URL rangeOfString:baseURL];
+    NSString *ret= nil;
+    NSString *URL, *subURL, *httpMethod;
+    NSRange rangeOfSubstring;
     
-    //remove baseURL
-    if(rangeOfSubstring.location == NSNotFound) { return NULL ; }
-    subURL =  [URL substringFromIndex:rangeOfSubstring.location+rangeOfSubstring.length] ;
+    URL= [message getHeader:MHHTTPUrl];
+    httpMethod= [message httpMethod];
     
-    //remove parameters
-    rangeOfSubstring = [subURL rangeOfString:@"?"];
-    if(rangeOfSubstring.location != NSNotFound) {
-        subURL =  [subURL substringToIndex:rangeOfSubstring.location] ;
+    if([MHHTTPMethodGET isEqual:httpMethod] || [MHHTTPMethodPOST isEqual:httpMethod]) {
+        //remove baseURL
+        rangeOfSubstring = [URL rangeOfString:[self baseURL]];
+        if(rangeOfSubstring.location != NSNotFound) {
+            subURL =  [URL substringFromIndex:rangeOfSubstring.location+rangeOfSubstring.length] ;
+            
+            //remove parameters
+            rangeOfSubstring = [subURL rangeOfString:@"?"];
+            if(rangeOfSubstring.location != NSNotFound) {
+                subURL =  [subURL substringToIndex:rangeOfSubstring.location] ;
+            }
+            
+            ret= [NSString stringWithFormat:@"%@_%@:", httpMethod, subURL] ;
+        }
     }
     
-    return NSSelectorFromString([subURL stringByAppendingString:@":"]) ;
+    return ret;
 }
 
 - (void)awakeOnRequest:(MHNotification *)notification {
-    
-    SEL action = [self _actionFromURL:[[notification message] getHeader:MHHTTPUrl]] ;
+    BOOL badRequest= YES;
+    NSString* action = [self _actionFromURL:[notification message]] ;
+    SEL sel= NSSelectorFromString(action);
     
     if(!action) {
-        [self logWithLevel:MHAppError log:@"awakeOnRequest: cannot create action selector from URL : %@",[[notification message] getHeader:MHHTTPUrl]] ;
-        MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(nil, HTTPBadRequest, nil) ;
+        [self logWithLevel:MHAppError log:@"awakeOnRequest: cannot create action selector from URL : %@", [[notification message] getHeader:MHHTTPUrl]] ;
+    }
+    else if(!sel) {
+        [self logWithLevel:MHAppError log:@"awakeOnRequest: cannot create action selector from action : %@", action] ;
+    }
+    else if([self respondsToSelector:sel]) {
+        [self logWithLevel:MHAppDebug log:@"awakeOnRequest: perform action on %@", action] ;
+        [self performSelector:sel withObject:notification] ;
+        badRequest= NO;
     }
     else {
-        if([self respondsToSelector:action])
-        {
-            [self logWithLevel:MHAppDebug log:@"awakeOnRequest: perform action on %@", NSStringFromSelector(action)] ;
-            [self performSelector:action withObject:notification] ;
-        } else
-        {
-            [self logWithLevel:MHAppError log:@"awakeOnRequest: action not supported : %@", NSStringFromSelector(action)] ;
-            MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(nil, HTTPBadRequest, nil) ;
-        }
+        [self logWithLevel:MHAppError log:@"awakeOnRequest: action not supported : %@", action] ;
+    }
+    if(badRequest) {
+        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
     }
 }
 
 - (void)sessionWillExpire:(MHNotification *)notification
 {
-  RELEASE(notification) ;
-  MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(nil, HTTPUnauthorized, nil) ;
+    MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(nil, HTTPUnauthorized, nil) ;
+}
+
+- (void)GET_close:(MHNotification *)notification
+{
+    MHRESPOND_TO_CLIENT_AND_CLOSE_SESSION(nil, HTTPOK, nil) ;
 }
 
 - (void)clean {}
@@ -308,7 +324,7 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 
 - (MHAppLogLevel)logLevel
 {
-    return [_logger logLevel] ;
+    return (MHAppLogLevel)[_logger logLevel] ;
 }
 
 - (NSDictionary *)bundleParameterForKey:(NSString *)key

@@ -265,11 +265,9 @@ typedef enum
         BOOL auth = NO ;
         int i ;
         response = nil ;
+        _isAuthenticated = NO;
 
-        if ([self authenticationLevel] == AUTH_0_STEP) {
-             response = [self _performRequest:request errorString:errorString] ;
-        }
-        else
+        if ([self authenticationLevel] != AUTH_0_STEP)
         {
           for (i=0; i<3; i++)
           {
@@ -280,7 +278,7 @@ typedef enum
               break ;
             }
           }
-          if (!auth && error) { *errorString = @"performRequest : failed to authentcate trice" ; }
+          if (!auth && error) { *errorString = @"performRequest : failed to authenticate" ; }
         }
     }
 
@@ -418,33 +416,38 @@ typedef enum
     
     [request addAdditionalHeaderValue:password forKey:@"MH-PASSWORD"] ;
     response = [self _performRequest:request errorString:&error] ;
-    return [response HTTPStatus] == HTTPOK
-        && [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[response headerValueForKey:MHAUTH_HEADER_RESPONSE]] ;
+    _isAuthenticated = [response HTTPStatus] == HTTPOK
+                    && [MHAUTH_HEADER_RESPONSE_OK isEqualToString:[response headerValueForKey:MHAUTH_HEADER_RESPONSE]] ;
+    return _isAuthenticated;
 }
 
 - (BOOL)authenticate
 {
-    BOOL auth = NO ;
-
     [self setSessionID:nil] ;
     
     switch ([self authenticationLevel]) {
         case AUTH_0_STEP:
-            auth = YES ;
+            _isAuthenticated = YES ;
             break ;
         case AUTH_1_STEP:
-            auth = [self _performSimpleAuthentication] ;
+            _isAuthenticated = [self _performSimpleAuthentication] ;
             break;
             
         case AUTH_2_STEPS:
-            auth = [self _performChallengedAuthentication] ;
+            _isAuthenticated = [self _performChallengedAuthentication] ;
             break ;
             
         default:
             MSRaise(NSInternalInconsistencyException, @"Authentication level not supported yet : %d", [self authenticationLevel]) ;
             break;
     }
-    return auth ;
+    return _isAuthenticated;
+}
+
+
+- (BOOL)isAuthenticated
+{
+  return _isAuthenticated;
 }
 
 - (oneway void)close

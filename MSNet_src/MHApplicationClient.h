@@ -26,6 +26,8 @@
     NSString *_target ;
     
     NSString *_ticket ;
+  
+    BOOL _isAuthenticated;
 }
 
 + (id)clientWithServerParameters:(NSDictionary *)parameters ;
@@ -71,6 +73,7 @@
 - (NSString*)authenticationChallengeForLogin:(NSString *)login ;
 - (BOOL)authenticationWithChallengedPassword:(NSString *)password ;
 - (BOOL)authenticate ;
+- (BOOL)isAuthenticated ;
 - (oneway void)close ;
 - (MSHTTPResponse *)performRequest:(MSHTTPRequest *)request errorString:(NSString **)error ;
 

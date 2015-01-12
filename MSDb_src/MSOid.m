@@ -43,14 +43,16 @@
 
 MSOid *MSEntEntId,*MSEntCarId,*MSEntTypId;
 MSOid *MSCarEntityId,*MSCarSystemNameId,*MSCarCharacteristicId,*MSCarTypeId,
-      *MSCarTableId,*MSCarPatternId,*MSCarDomainEntityId,*MSCarDomainListId,*MSCarCardinalityId,
+      *MSCarTableId,*MSCarPatternId,*MSCarDomainEntityId,*MSCarDomainListId,
+      *MSCarCardinalityId,*MSCarMandatoryId,*MSCarUniqueId,
       *MSCarElementId,*MSCarLabelId,*MSCarURNId,*MSCarLoginId,*MSCarDateId;
 // MSCarSubobjectId
 MSOid *MSTypIDId,*MSTypSTRId,*MSTypINTId,
       *MSTypDATId,*MSTypDTRId,*MSTypDURId;
 MSOid *MSObiDatabaseId,*MSCarNextOidId;
 
-MSString *MSCarEntityLib,*MSCarSystemNameLib,*MSCarTypeLib,*MSCarCardinalityLib,
+MSString *MSCarEntityLib,*MSCarSystemNameLib,*MSCarTypeLib,
+         *MSCarCardinalityLib,*MSCarMandatoryLib,*MSCarUniqueLib,
          *MSObiDatabaseLib,*MSCarNextOidLib;
 
 MSString *MSEntParameterLib;
@@ -83,6 +85,10 @@ MSString *MSCarStringLib,*MSCarIntLib,*MSCarBoolLib,
     MSCarDomainListId=     [[MSOid alloc] initWithLongLongValue:110]; // car 'domain list'
     MSCarCardinalityId=    [[MSOid alloc] initWithLongLongValue:115]; // car 'cardinality'
     MSCarCardinalityLib=   MSCreateString("cardinality");
+    MSCarMandatoryId=      [[MSOid alloc] initWithLongLongValue:243]; // car 'mandatory'
+    MSCarMandatoryLib=     MSCreateString("mandatory");
+    MSCarUniqueId=         [[MSOid alloc] initWithLongLongValue:245]; // car 'unique'
+    MSCarUniqueLib=        MSCreateString("unique");
 //  MSCarClassNameId=      [[MSOid alloc] initWithLongLongValue:116]; // car 'class name'
     MSCarElementId=        [[MSOid alloc] initWithLongLongValue:155]; // car 'element'
 //  MSCarLabelId=          [[MSOid alloc] initWithLongLongValue:232]; // car 'label'

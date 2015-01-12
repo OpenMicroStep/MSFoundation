@@ -12,4 +12,4 @@ int main(int argc, const char *argv[])
   err= testDb(YES);
   [pool release];
   return err;
-  }
+}

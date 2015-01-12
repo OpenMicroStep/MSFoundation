@@ -145,6 +145,10 @@ MSDatabaseExport MSOid    *MSCarPatternId;        // 'pattern'
 MSDatabaseExport MSOid    *MSCarDomainListId;     // 'domain list'
 MSDatabaseExport MSOid    *MSCarCardinalityId;    // car 'cardinality'
 MSDatabaseExport MSString *MSCarCardinalityLib;
+MSDatabaseExport MSOid    *MSCarMandatoryId;    // car 'mandatory'
+MSDatabaseExport MSString *MSCarMandatoryLib;
+MSDatabaseExport MSOid    *MSCarUniqueId;    // car 'unique'
+MSDatabaseExport MSString *MSCarUniqueLib;
 //MSDatabaseExport MSOid  *MSCarClassNameId;      // car 'class name'
 MSDatabaseExport MSOid    *MSCarElementId;        // car 'element'
 //MSDatabaseExport MSOid  *MSCarLabelId;          // car 'label'

@@ -69,7 +69,7 @@
 - (void)setContentType:(NSString *)contentType { ASSIGN(_contentType, contentType) ; }
 
 - (MSBuffer *)content { return _content ; }
-- (void)addBytes:(void *)bytes length:(MSULong)length { if(bytes && length) CBufferAppendBytes((CBuffer *)_content, bytes, length) ; }
+- (void)addBytes:(const void *)bytes length:(MSULong)length { if(bytes && length) CBufferAppendBytes((CBuffer *)_content, bytes, length) ; }
 
 - (NSDictionary *)additionalHeaders { return _additionalHeaders ; }
 - (void)addAdditionalHeaderValue:(id)value forKey:(NSString *)key { if(value && [key length]) [_additionalHeaders setObject:value forKey:key] ; }
@@ -109,9 +109,10 @@
 
     [headers setObject:_host forKey:@"Host"] ; //set host
     
-    if(_method == POST && [_content length] && [_contentType length])
+    if(_method == POST && [_content length])
     {
-        [headers setObject:_contentType forKey:@"Content-Type"] ;
+        if([_contentType length])
+            [headers setObject:_contentType forKey:@"Content-Type"] ;
         [headers setObject:[[NSNumber numberWithUnsignedLong:[_content length]] stringValue] forKey:@"Content-Length"] ;
     }
     

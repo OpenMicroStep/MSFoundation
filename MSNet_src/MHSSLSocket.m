@@ -51,18 +51,21 @@ int MHCheckSocketState(int sock_fd, int writing)
 
 - (BOOL)writeBytes:(const void *)bytes length:(MSUInt)length
 {
+    BOOL res;
     int write = 0 ;
     int err = 0;
-    int sockstate;
+    //int sockstate= SOCKET_OPERATION_OK;
     
-    if (!_secureSocket) { return NO; }
+    if (!_secureSocket) {
+        MHServerLogWithLevel(MHLogWarning, @"MHSSLSocket writeBytes:length: failed (socket is already closed)") ;
+        return NO;
+    }
     
-    if(_isBlockingIO)
-    {
+    if(_isBlockingIO) {
         write = OPENSSL_SSL_write(_secureSocket, bytes, length) ;
         err = OPENSSL_SSL_get_error(_secureSocket, write);
-    } else
-    {
+    }
+    else {
         do {
             write = OPENSSL_SSL_write(_secureSocket, bytes, length) ;
             err = OPENSSL_SSL_get_error(_secureSocket, write);
@@ -83,42 +86,40 @@ int MHCheckSocketState(int sock_fd, int writing)
                     [self close];
                     return NO;
                 default:
-                    sockstate = SOCKET_OPERATION_OK;
+                    // sockstate = SOCKET_OPERATION_OK;
                     break;
             }
-            if (sockstate == SOCKET_HAS_TIMED_OUT ||
+            /*if (sockstate == SOCKET_HAS_TIMED_OUT ||
                 sockstate == SOCKET_IS_NONBLOCKING ||
                 sockstate == SOCKET_HAS_BEEN_CLOSED) {
                 // Connection timed out
                 [self close];
                 return NO ;
-            }
+            }*/
         } while (write < 0 && (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE));
     }
-    
-    if (write <= 0) {
+    if(!(res= (write == length))) {
         MHServerLogWithLevel(MHLogWarning, @"MHSSLSocket writeBytes:length: failed (%@)", MSGetOpenSSL_SSLErrStr(_secureSocket, err)) ;
-        [self close] ;
-        return NO;
+        [self close];
     }
     
-    return (write == length) ;
+    return res ;
 }
 
 - (MSUInt)readIn:(void *)buf length:(MSUInt)length
 {
     MSInt len = 0 ;
-    int err, sockstate;
+    int err;
+    //int sockstate;
     
     if (!_secureSocket) return 0;
     
     
-    if(_isBlockingIO)
-    {
+    if(_isBlockingIO) {
         len = OPENSSL_SSL_read(_secureSocket, buf, length);
         err = OPENSSL_SSL_get_error(_secureSocket, len);
-    } else
-    {
+    }
+    else {
         do {
             len = OPENSSL_SSL_read(_secureSocket, buf, length);
             err = OPENSSL_SSL_get_error(_secureSocket, len);
@@ -139,17 +140,17 @@ int MHCheckSocketState(int sock_fd, int writing)
                     [self close];
                     return -1;
                 default:
-                    sockstate = SOCKET_OPERATION_OK;
+                    //sockstate = SOCKET_OPERATION_OK;
                     break;
             }
             
-            if (sockstate == SOCKET_HAS_TIMED_OUT ||
+            /*if (sockstate == SOCKET_HAS_TIMED_OUT ||
                 sockstate == SOCKET_IS_NONBLOCKING ||
                 sockstate == SOCKET_HAS_BEEN_CLOSED) {
                 // Connection timed out
                 [self close];
                 return -1 ;
-            }
+            }*/
         } while (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) ;
         
     }
