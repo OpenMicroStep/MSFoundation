@@ -567,9 +567,41 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 - (NSString *)htmlRepresentation { return _HTMLFromString(self, __fullHtmlTags, _cmd) ; }
 - (NSString *)htmlRepresentation:(BOOL)convertsHTMLMarks { return _HTMLFromString(self, (convertsHTMLMarks ? __fullHtmlTags: __htmlTags), _cmd) ; }
 
-// TODO - (double)doubleValue
-// TODO - (float)floatValue
-// TODO - (BOOL)boolValue
+- (float)floatValue
+{
+  return strtof([self UTF8String], NULL);
+}
+
+- (double)doubleValue
+{
+  return strtod([self UTF8String], NULL);
+}
+
+-(BOOL)boolValue
+{
+  BOOL ret= NO;
+  SES ses;
+  ses= SESFromString(self);
+  if(SESOK(ses)) {
+    NSUInteger i,end; unichar u; BOOL c= YES;
+    for (i= SESStart(ses), end= SESEnd(ses); c && i < end;) {
+      u= SESIndexN(ses, &i);
+      c= (u == 0x0020 || u == 0x0009); }
+    if(i < end) {
+      if(u=='Y' || u=='y' || u=='T' || u=='t')
+        ret= YES;
+      else {
+        if(u=='-' || u=='+')
+          u= SESIndexN(ses, &i);
+        while(u == '0' && i < end){
+          u= SESIndexN(ses, &i);}
+        ret= (i < end && '1' <= 'u' && u <= '9');}
+    }
+  }
+  
+  return ret;
+}
+
 - (int)intValue {
   CDecimal *decimal = CCreateDecimalWithSES(SESFromString(self),NO,NULL,NULL);
   int value = CDecimalIntValue(decimal);
