@@ -61,7 +61,7 @@ static NSDictionary *__decimalLocale = nil ;
 
 static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 {
-    if (c < 16) return __hexa[c] ;
+    if (c < 16) return (MSByte)__hexa[c] ;
     MSRaise(NSGenericException, @"_ShortValueToHexaCharacter - not an hexadecimal value %u", c) ;
     return 0 ;
 }
@@ -671,13 +671,8 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 - (void)_encodeTokenType:(MSByte)tokenType
 {
     char toAscii[4] = "";
-    NSUInteger len, i ;
-
-    sprintf(toAscii, "%u", tokenType);
-    len = (MSUInt)strlen(toAscii) ;
-    for (i=0 ; i<len ; i++) {
-        CBufferAppendByte((CBuffer *)_content, toAscii[i]);
-    }
+    sprintf(toAscii, "%u", (unsigned int)tokenType);
+    CBufferAppendBytes((CBuffer *)_content, toAscii, strlen(toAscii));
 }
 
 - (void)_encodeGlobalUnicodeString:(const char *)str // encodes an UTF8 string
@@ -784,11 +779,11 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 @implementation NSObject (MSTEncoding)
 
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_USER_CLASS ; } //must be overriden by subclasse to be encoded if tokenTypeWithReference: method is not overriden
-- (MSByte)tokenTypeWithReference:(BOOL)isReferenced { return [self tokenType] ; } //must be overriden by subclasse to be encoded if tokenType method is not overriden
+- (MSByte)tokenTypeWithReference:(BOOL)isReferenced { return [self tokenType] ; (void)isReferenced; } //must be overriden by subclasse to be encoded if tokenType method is not overriden
 
 - (NSDictionary *)MSTESnapshot { [self notImplemented:_cmd] ; return nil ; } //must be overriden by subclasse to be encoded as a dictionary. keys of snapshot are member names, values are MSCouple with the member in firstMember and in secondMember : nil if member is strongly referenced, or not nil if member is weakly referenced.
 
-- (MSInt)singleEncodingCode:(MSTEncoder *)encoder {return MSTE_TOKEN_MUST_ENCODE ; }
+- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return MSTE_TOKEN_MUST_ENCODE ; (void)encoder; }
 - (MSBuffer *)MSTEncodedBuffer
 {
     MSTEncoder *encoder = NEW(MSTEncoder) ;
@@ -801,13 +796,13 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 @implementation NSObject (MSTEncodingPrivate)
 
-- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { (void)[self notImplemented:_cmd] ; } //must be overriden by subclasse to be encoded
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { [self notImplemented:_cmd] ; (void)encoder; } //must be overriden by subclasse to be encoded
 
 @end
 
 @implementation NSNull (MSTEncoding)
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_NULL ; }
-- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return MSTE_TOKEN_TYPE_NULL ; }
+- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return MSTE_TOKEN_TYPE_NULL ; (void)encoder;  }
 @end
 
 @implementation MSBool (MSTEncoding)
@@ -815,6 +810,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 {
     if ([self isTrue]) return MSTE_TOKEN_TYPE_TRUE ;
     else return MSTE_TOKEN_TYPE_FALSE ;
+    (void)encoder;
 }
 - (MSByte)tokenType
 {
@@ -827,6 +823,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder
 {
     return [self length] ? MSTE_TOKEN_MUST_ENCODE : MSTE_TOKEN_TYPE_EMPTY_STRING ;
+    (void)encoder;
 }
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_STRING ; }
 @end
@@ -843,7 +840,7 @@ static NSNumber *__aBool = nil ;
 @implementation NSNumber (MSTEncoding)
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder
 {
-  unsigned char type = *[self objCType] ;
+  char type = *[self objCType] ;
   if (type == 'c') {
     if(!__aBool) __aBool = [NSNumber numberWithBool:YES] ;
     if([self isKindOfClass:[__aBool class]]) {
@@ -852,6 +849,7 @@ static NSNumber *__aBool = nil ;
     }
   }
   return MSTE_TOKEN_MUST_ENCODE ;
+  (void)encoder;
 }
 
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_DECIMAL_VALUE ; }
@@ -861,7 +859,7 @@ static NSNumber *__aBool = nil ;
     return [self tokenType] ;
   }
   else {
-    unsigned char type = *[self objCType] ;
+    char type = *[self objCType] ;
     switch (type) {
       case 'c':
       {
@@ -929,7 +927,7 @@ static NSNumber *__aBool = nil ;
 @implementation NSNumber (MSTEncodingPrivate)
 - (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
 {
-  unsigned char type = *[self objCType] ;
+  char type = *[self objCType] ;
   switch (type) {
     case 'c': [encoder encodeChar:[self charValue] withTokenType:NO] ; break;
     case 'C': [encoder encodeUnsignedChar:[self unsignedCharValue] withTokenType:NO] ; break;
@@ -943,11 +941,7 @@ static NSNumber *__aBool = nil ;
     case 'Q': [encoder encodeUnsignedLongLong:[self unsignedLongLongValue] withTokenType:NO] ; break;
     case 'f': [encoder encodeFloat:[self floatValue] withTokenType:NO] ; break;
     case 'd': [encoder encodeDouble:[self doubleValue] withTokenType:NO] ; break;
-#ifdef WO451
-    default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%s'", type] ; break;
-#else
     default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%hhu'", type] ; break;
-#endif
   }
 }
 @end

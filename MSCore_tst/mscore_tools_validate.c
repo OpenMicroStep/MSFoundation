@@ -19,8 +19,8 @@ int mscore_tools_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
-  err+= crc("A",3554254475);
-  err+= crc("[\"MSTE0101\",5,\"CRC00000000\",0,0]",945492452);
+  err+= crc("A",3554254475U);
+  err+= crc("[\"MSTE0101\",5,\"CRC00000000\",0,0]",945492452U);
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","Tools",(err?"FAIL":"PASS"),seconds);

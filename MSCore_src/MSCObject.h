@@ -177,15 +177,12 @@ MSCoreExport id          _MObjectCopy     (id obj);
 
 #include <objc/objc-runtime.h>
 #if defined(WIN32)
-  #warning --WIN--
   #define ISA(X)         (((id)(X))->isa)
   #define NAMEOFCLASS(X) object_getClassName((id)(X))
 #elif defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
-  #warning --MACOSX--
   #define ISA(X)         object_getClass(X)
   #define NAMEOFCLASS(X) object_getClassName(X)
 #else
-  #warning --NOT MAC OS--
   #define ISA(X)         object_get_class(X)
   #define NAMEOFCLASS(X) object_get_class_name(X)
 #endif

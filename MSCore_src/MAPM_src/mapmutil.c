@@ -158,12 +158,7 @@ M_APM m_apm_init(M_APM atmp)
 /****************************************************************************/
 M_APM m_apm_new()
 {
-  M_APM atmp;
-  if ((atmp = m_apm_allocate()) == NULL) {
-    /* fatal, this does not return */
-    M_apm_log_error_msg(M_APM_INIT_ERROR, M_init_error_msg);
-    return NULL;}
-  else return m_apm_init(atmp);
+  return m_apm_init(m_apm_allocate());
 }
 /****************************************************************************/
 

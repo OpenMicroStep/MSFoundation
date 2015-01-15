@@ -188,7 +188,7 @@ static unichar _asciiStringCharacterAtIndex(id self, NSUInteger i) { return ((MS
     if (_buf && _length) {
         MSASCIIString *keeper = MSCreateASCIIStringWithBytes(_buf, _length, YES, YES) ;
         if (keeper) {
-            CBufferAppendByte((CBuffer *)keeper, '\0');
+            CBufferAppendByte((CBuffer *)keeper, (MSByte)'\0');
             ret = (char *)(keeper->_buf) ;
             AUTORELEASE(keeper) ; // the constitutional buffer holding our string will be released later
         }

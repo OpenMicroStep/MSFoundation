@@ -62,7 +62,7 @@ typedef struct CClassStruct {
 CClass;
 
 static struct CClassStruct metaclass=
-  {NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)     , 0              };
+{  NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)     , 0              };
 static CClass __allClasses[CClassIndexMax+1]=
 { //           className         deallocator         isEqual                hashier             copier              instanceSize        elementSize
   {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)     , sizeof(id)     },

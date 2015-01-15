@@ -496,7 +496,7 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
             NSUInteger strLen = 0 ;
         
             _MSTDecodeDouble(&s, endPointer, @"_MSTDecodeNumber") ;
-            strLen = (endPointer-startPointer) ;
+            strLen = (NSUInteger)(endPointer-startPointer) ;
         
             if (strLen) {
                 NSData *decimalData = nil ;
@@ -699,7 +699,7 @@ MSBuffer *_MSTDecodeBufferHexaString(unsigned char **pointer, unsigned char *end
         c0 = &utf8String[0] ;
         c1 = &utf8String[1] ;
         for (i = 0 ; i < bufferLen ; i++) {
-            MSByte b0 = ((MSByte)_hexaCharacterToShortValue((unichar)*c0))<<4 ;
+            MSByte b0 = (MSByte)(_hexaCharacterToShortValue((unichar)*c0) << 4) ;
             MSByte b1 = (MSByte)_hexaCharacterToShortValue((unichar) *c1) ;
             CBufferAppendByte((CBuffer *)ret, b0 + b1) ;
             c0 += 2 ;
@@ -726,11 +726,11 @@ MSColor *_MSTDecodeColor(unsigned char **pointer, unsigned char *endPointer, NSS
 id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointer, NSString *operation, MSByte tokenType, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL allowsUnknownUserClasses, NSZone *zone)
 {
     unsigned char *s = (unsigned char *)*pointer ;
-    id ret = nil ;
+    MSDictionary* ret = nil ;
     MSInt classIndex = tokenType - MSTE_TOKEN_TYPE_USER_CLASS ;
     
     if (classIndex >=0 && classIndex < (MSInt)[classes count]) {
-        NSString *className = [classes objectAtIndex:classIndex] ;
+        NSString *className = [classes objectAtIndex:(NSUInteger)classIndex] ;
         Class aClass = NSClassFromString(className) ;
 
         if (aClass) {
@@ -884,6 +884,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
     operation= nil; // Unused parameter
 }
 
+// TODO : This method name does not reflect it's usage (autorelease), plus the method isn't exported (MSFoundationExport)
 id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allowsUnknownUserClasses)
 {
     NSUInteger len = [data length] ;
