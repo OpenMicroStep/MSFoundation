@@ -33,6 +33,6 @@ typedef struct  {
     size_t _bindSize;
 }
 
-- (id)initWithStatement:(SQLHSTMT)stmt withConnection:(MSODBCConnection *)connection;
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSODBCConnection *)connection withStmt:(SQLHSTMT)stmt;
 
 @end

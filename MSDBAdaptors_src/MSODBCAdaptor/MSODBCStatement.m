@@ -8,8 +8,8 @@
 
 #import "MSODBCAdaptorKit.h"
 
-#define ODBC_SUCCEEDED_RET(METHOD, RET) ({ BOOL __b__ = SQL_SUCCEEDED(RET); if(!__b__) [self error:_cmd desc:@#METHOD @" failed" ret:RET]; __b__; })
-#define ODBC_SUCCEEDED(METHOD, ARGS...) ({ SQLRETURN __r__ = METHOD(ARGS); BOOL __b__ = SQL_SUCCEEDED(__r__); if(!__b__) [self error:_cmd desc:@#METHOD @" failed" ret:__r__]; __b__; })
+#define ODBC_SUCCEEDED_RET(METHOD, RET) ({ BOOL __b__ = SQL_SUCCEEDED(RET); if(!__b__) [self error:_cmd method:@#METHOD ret:RET]; __b__; })
+#define ODBC_SUCCEEDED(METHOD, ARGS...) ({ SQLRETURN __r__ = METHOD(ARGS); BOOL __b__ = SQL_SUCCEEDED(__r__); if(!__b__) [self error:_cmd method:@#METHOD ret:__r__]; __b__; })
 
 #define BIND_PARAM(name, type, c_type, sql_type, sql_size) \
 -(BOOL)name:(type)value at:(MSUInt)parameterIndex { \
@@ -25,7 +25,7 @@ const SQLLEN indNULL = SQL_NULL_DATA;
 
 @implementation MSODBCStatement
 
-- (void)error:(SEL)inMethod desc:(NSString *)desc ret:(SQLRETURN)returnedValue
+- (void)error:(SEL)inMethod method:(NSString *)method ret:(SQLRETURN)returnedValue
 {
     SQLSMALLINT i = 0;
     SQLINTEGER native;
@@ -35,31 +35,31 @@ const SQLLEN indNULL = SQL_NULL_DATA;
     SQLRETURN ret;
     NSMutableString *error;
     
-    error= [NSMutableString stringWithFormat:@"%@-> %@:%lld ", NSStringFromSelector(inMethod), desc, (MSLong)returnedValue];
+    error= [NSMutableString stringWithFormat:@"ODBC error on method=%@, return value=%lld", method, (MSLong)returnedValue];
     do
     {
         ret = SQLGetDiagRec(SQL_HANDLE_STMT, _stmt, ++i, state, &native, text,sizeof(text), &len );
         if(ret == SQL_SUCCESS_WITH_INFO && len) {
             SQLCHAR *longText= MSMalloc(sizeof(SQLCHAR) * len, "error:desc:handleType:handle:");
             ret= SQLGetDiagRec(SQL_HANDLE_STMT, _stmt, ++i, state, &native, longText,len, &len);
-            [error appendFormat:@"%s:%d:%d:%s;", state, (int)i, (int)native, longText];
+            [error appendFormat:@"\n%s:%d:%d:%s;", state, (int)i, (int)native, longText];
             MSFree(longText, "error:desc:handleType:handle:");
         } else if (SQL_SUCCEEDED(ret)) {
-            [error appendFormat:@"%s:%d:%d:%s;", state, (int)i, (int)native, text];
+            [error appendFormat:@"\n%s:%d:%d:%s;", state, (int)i, (int)native, text];
         }
     }
     while( ret == SQL_SUCCESS );
-    
-    ASSIGN(_lastError, error);
+  
+    [self error:inMethod desc:error];
 }
 
-- (id)initWithStatement:(SQLHSTMT)stmt withConnection:(MSODBCConnection *)connection
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSODBCConnection *)connection withStmt:(SQLHSTMT)stmt
 {
     SQLSMALLINT numParams;
     if(!SQL_SUCCEEDED(SQLNumParams(stmt, &numParams))) {
         RELEAZEN(self);
     }
-    else if((self = [super initWithDatabaseConnection:connection])) {
+    else if((self = [super initWithRequest:request withDatabaseConnection:connection])) {
         _stmt= stmt;
         _bindSize= (MSUInt)numParams;
         _bindInfos= MSCalloc(_bindSize, sizeof(MSODBCBindParamInfo), "Alloc ODBCStatement bind infos");
@@ -133,7 +133,7 @@ BIND_PARAM(bindDouble, double, SQL_C_DOUBLE, SQL_DOUBLE, 15);
         MSODBCBindParamInfo *bindInfo= _bindInfos + parameterIndex;
         bindInfo->u._id= [data retain];
         bindInfo->len= (SQLLEN)length;
-        return ODBC_SUCCEEDED(SQLBindParameter, _stmt, (SQLUSMALLINT)(parameterIndex + 1), SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, length, 0, (SQLPOINTER)[data bytes], bindInfo->len, &bindInfo->len);
+        return ODBC_SUCCEEDED(SQLBindParameter, _stmt, (SQLUSMALLINT)(parameterIndex + 1), SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, length ? length : 1, 0, (SQLPOINTER)[data bytes], bindInfo->len, &bindInfo->len);
     }
     return NO;
 }
@@ -145,7 +145,7 @@ BIND_PARAM(bindDouble, double, SQL_C_DOUBLE, SQL_DOUBLE, 15);
         MSODBCBindParamInfo *bindInfo= _bindInfos + parameterIndex;
         bindInfo->u._id= [buffer retain];
         bindInfo->len= (SQLLEN)length;
-        return ODBC_SUCCEEDED(SQLBindParameter, _stmt, (SQLUSMALLINT)(parameterIndex + 1), SQL_PARAM_INPUT, SQL_C_BINARY, SQL_BINARY, length, 0, (SQLPOINTER)[buffer bytes], bindInfo->len, &bindInfo->len);
+        return ODBC_SUCCEEDED(SQLBindParameter, _stmt, (SQLUSMALLINT)(parameterIndex + 1), SQL_PARAM_INPUT, SQL_C_BINARY, SQL_LONGVARBINARY, length, 0, (SQLPOINTER)[buffer bytes], bindInfo->len, &bindInfo->len);
     }
     return NO;
 }
@@ -175,8 +175,4 @@ BIND_PARAM(bindDouble, double, SQL_C_DOUBLE, SQL_DOUBLE, 15);
     return MSSQL_ERROR;
 }
 
-- (NSString *)lastError
-{
-    return _lastError;
-}
 @end

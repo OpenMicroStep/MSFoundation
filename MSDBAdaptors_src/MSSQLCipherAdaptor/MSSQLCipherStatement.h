@@ -47,5 +47,5 @@
   sqlite3_stmt *_stmt;
 }
 
-- (id)initWithSQLiteStatement:(sqlite3_stmt *)stmt withConnection:(MSSQLCipherConnection *)connection;
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSSQLCipherConnection *)connection withStmt:(sqlite3_stmt *)stmt;
 @end

@@ -43,7 +43,7 @@
 
 #import "MSMySQLAdaptorKit.h"
 
-#define MYSQL_SUCCEEDED(X) ({ BOOL __r__ = (X == 0); if(!__r__) ASSIGN(_lastError, [NSString stringWithUTF8String:mysql_stmt_error(_stmt)]); __r__; })
+#define MYSQL_SUCCEEDED(X) ({ BOOL __r__ = (X == 0); if(!__r__) [self error:_cmd desc:[NSString stringWithUTF8String:mysql_stmt_error(_stmt)]]; __r__; })
 
 static inline void _bind_param(char * buffer, MYSQL_BIND *bind, MSMysqlBindParamInfo *bindInfos, enum enum_field_types mysql_type, my_bool is_null, unsigned long length, my_bool is_unsigned)
 {
@@ -92,17 +92,13 @@ static inline void _bind_param_no_copy(MYSQL_BIND *bind, MSMysqlBindParamInfo *b
 
 @implementation MSMySQLStatement
 
-
-- (id)initWithDatabaseConnection:(MSDBConnection *)connection withRequest:(NSData *)request withMYSQL:(MYSQL *)mysql
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSSQLCipherConnection *)connection withStmt:(MYSQL_STMT *)stmt
 {
-    if((self= [super initWithDatabaseConnection:connection])) {
-        _stmt= mysql_stmt_init(mysql);
-        if(mysql_stmt_prepare(_stmt, [request bytes], [request length]) == MYSQL_RET_OK) {
-            _bindSize= mysql_stmt_param_count(_stmt);
-            _bindInfos= (MSMysqlBindParamInfo *)calloc(_bindSize, sizeof(MSMysqlBindParamInfo));
-            _bind= (MYSQL_BIND *)calloc(_bindSize, sizeof(MYSQL_BIND));
-        }
-        else RELEAZEN(self);
+    if((self= [super initWithRequest:request withDatabaseConnection:connection])) {
+        _stmt= stmt;
+        _bindSize= mysql_stmt_param_count(_stmt);
+        _bindInfos= (MSMysqlBindParamInfo *)calloc(_bindSize, sizeof(MSMysqlBindParamInfo));
+        _bind= (MYSQL_BIND *)calloc(_bindSize, sizeof(MYSQL_BIND));
     }
     return self;
 }

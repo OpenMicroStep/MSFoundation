@@ -186,8 +186,8 @@ static inline id _retainedCnxWithConnectionDictionary(MSDictionary *dictionary)
 #pragma mark Manage operations
 
 - (void)terminateAllOperations { [self notImplemented:_cmd]; }
-- (void)registerOperation:(MSDBOperation *)anOperation { [self notImplemented:_cmd]; }
-- (void)unregisterOperation:(MSDBOperation *)anOperation { [self notImplemented:_cmd]; }
+- (void)registerOperation:(MSDBOperation *)anOperation { [self notImplemented:_cmd]; (void)anOperation; }
+- (void)unregisterOperation:(MSDBOperation *)anOperation { [self notImplemented:_cmd]; (void)anOperation; }
 
 #pragma mark Transaction
 
@@ -252,7 +252,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
     MSInt ret= MSSQL_ERROR;
     if(stmt) {
         if(![stmt bindObjects:bindings])
-            MSDB_ERROR_ARGS(@"Unable to bind objects: %@", [stmt lastError]);
+            MSDB_ERROR_ARGS(@"Unable to bind objects:%@", [stmt lastError]);
         else if((ret= [stmt execute]) == MSSQL_ERROR)
             MSDB_ERROR_ARGS(@"Error while executing statement: %@", [stmt lastError]);
     }
@@ -365,8 +365,9 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
     NSUInteger i, count;
     NSMutableString *query;
     count= [columns count];
-    if(!count)
-        return nil;
+    if(!count) {
+        [self error:_cmd desc:@"columns is empty, nothing to update"];
+        return nil; }
     
     query= [NSMutableString stringWithFormat:@"UPDATE %@ SET ", table];
     [query appendFormat:@"%@ = ?", [columns objectAtIndex:0]];
@@ -401,7 +402,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
 - (MSDBResultSet *)fetchWithRequest:(NSString *)sqlRequest
 { (void)sqlRequest ; return [self notImplemented:_cmd] ; }
 - (MSInt)executeRawSQL:(NSString *)sqlRequest
-{ (void)sqlRequest ; [self notImplemented:_cmd] ; return NO ; }
+{ (void)sqlRequest ; [self notImplemented:_cmd] ; return MSSQL_ERROR ; }
 
 #pragma mark Deprecated / Dangerous
 

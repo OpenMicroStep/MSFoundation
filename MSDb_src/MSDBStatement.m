@@ -9,34 +9,61 @@
 #import "MSDb_Private.h"
 
 @implementation MSDBStatement
+
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSDBConnection *)connection
+{
+  if((self= [super initWithDatabaseConnection:connection])) {
+    ASSIGN(_request, request);
+  }
+  return self;
+}
+
+- (void)dealloc
+{
+  RELEASE(_request);
+  [super dealloc];
+}
+
 - (BOOL)bindObjects:(NSArray *)bindings
 {
     BOOL ret= YES;
-    id binding;
+    NSEnumerator *e; id obj;
     MSUInt parameterIndex= 0;
-    NSEnumerator *e= [bindings objectEnumerator];
-    while(ret && (binding= [e nextObject])) {
-        // TODO: Extend object with MSDBBinding category to do the binding
-        if(binding == MSNull) {
-            ret= [self bindNullAt:parameterIndex];
-        } else if([binding isKindOfClass:[NSString class]]) {
-            ret= [self bindString:binding at:parameterIndex];
-        } else if([binding isKindOfClass:[MSBuffer class]]) {
-            ret= [self bindBuffer:binding at:parameterIndex];
-        } else if([binding isKindOfClass:[MSDecimal class]]) {
-            ret= [self bindString:[binding description] at:parameterIndex];
-        } else if([binding isKindOfClass:[NSNumber class]]) {
-            ret= [self bindNumber:binding at:parameterIndex];
-        } else if([binding isKindOfClass:[MSDate class]]) {
-            ret= [self bindDate:binding at:parameterIndex];
-        } else {
-            ASSIGN(_lastError, ([NSString stringWithFormat:@"bindObjects failed, unknown class %@", [binding class]]));
-            ret= NO;
-        }
+    for(e= [bindings objectEnumerator]; (ret && (obj= [e nextObject]));) {
+        ret= [self bindObject:obj at:parameterIndex];
         ++parameterIndex;
     }
     return ret;
 }
+
+- (BOOL)bindObject:               (id)obj at:(MSUInt)parameterIndex
+{
+    BOOL ret;
+    // TODO: Extend object with MSDBBinding category to do the binding
+    if(obj == MSNull) {
+        ret= [self bindNullAt:parameterIndex];
+    } else if([obj isKindOfClass:[NSString class]]) {
+        ret= [self bindString:obj at:parameterIndex];
+    } else if([obj isKindOfClass:[MSBuffer class]]) {
+        ret= [self bindBuffer:obj at:parameterIndex];
+    } else if([obj isKindOfClass:[MSDecimal class]]) {
+        ret= [self bindString:[obj description] at:parameterIndex];
+    } else if([obj isKindOfClass:[NSNumber class]]) {
+        ret= [self bindNumber:obj at:parameterIndex];
+    } else if([obj isKindOfClass:[MSDate class]]) {
+        ret= [self bindDate:obj at:parameterIndex];
+    } else {
+        ASSIGN(_lastError, [NSString stringWithFormat:@"Unknown class"]);
+        ret= NO;
+    }
+    //NSLog(@"bindObject:(%@*)%@ at:%u", [obj class], obj, parameterIndex);
+    if(!ret) {
+        if(!_lastError) ASSIGN(_lastError, @"Unknown error");
+        [self error:_cmd desc:[NSString stringWithFormat:@"bindObject:(%@*)obj at:%u failed -> %@", [obj class], parameterIndex, _lastError]];
+    }
+    return ret;
+}
+
 - (BOOL)bindChar:           (MSChar)value at:(MSUInt)parameterIndex { (void)value; (void)parameterIndex; return NO; }
 - (BOOL)bindByte:           (MSByte)value at:(MSUInt)parameterIndex { (void)value; (void)parameterIndex; return NO; }
 - (BOOL)bindShort:         (MSShort)value at:(MSUInt)parameterIndex { (void)value; (void)parameterIndex; return NO; }
@@ -74,5 +101,11 @@
 - (MSDBResultSet *)fetch { return [self notImplemented:_cmd]; }
 - (MSInt)execute { [self notImplemented:_cmd]; return NO; }
 
-- (NSString *)lastError { return _lastError; }
+- (void)error:(SEL)inMethod desc:(NSString *)desc
+{
+    desc= [NSString stringWithFormat:@"%@-> %@", NSStringFromSelector(inMethod), desc];
+    ASSIGN(_lastError, desc);
+}
+
+- (NSString *)lastError { return [NSString stringWithFormat:@"%@\nrequest = %@", _lastError, _request]; }
 @end

@@ -67,5 +67,5 @@ typedef struct  {
   size_t _bindSize;
 }
 
-- (id)initWithDatabaseConnection:(MSDBConnection *)connection withRequest:(NSData *)request withMYSQL:(MYSQL *)mysql;
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSSQLCipherConnection *)connection withStmt:(MYSQL_STMT *)stmt
 @end

@@ -11,7 +11,7 @@
 @implementation MSDBTransaction
 
 - (BOOL)appendSQLCommand:(NSString *)sql { return [self appendSQLCommand:sql error:NULL] ; }
-- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr { if(errorPtr) *errorPtr= 0; return [[self databaseConnection] executeRawSQL:sql];}
+- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr { if(errorPtr) *errorPtr= 0; return [[self databaseConnection] executeRawSQL:sql] == MSSQL_OK;}
 
 - (void)cancel { [self terminateOperation] ; }
 - (BOOL)save { return [self saveWithError:NULL] ; }

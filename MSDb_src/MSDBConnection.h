@@ -61,9 +61,8 @@
 
 @class MSDBTransaction, MSDBResultSet, MSDBStatement, MSDBScheme, MSDBOperation ;
 
-@interface MSDBConnection : NSObject
-{
-@protected
+@interface MSDBConnection : NSObject {
+@private
   MSDictionary *_originalDictionary ;
   NSString *_lastError ;
 }
@@ -88,8 +87,6 @@
 #pragma mark Manage operations
 
 - (void)terminateAllOperations ;
-- (void)registerOperation:(MSDBOperation *)anOperation ;
-- (void)unregisterOperation:(MSDBOperation *)anOperation ;
 
 #pragma mark Transaction
 
@@ -159,6 +156,13 @@
 - (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes ;
 - (NSString *)escapeString:(NSString *)aString ; // no quotes
 
+@end
+
+@interface MSDBConnection (ForImplementations)
+- (void)error:(SEL)inMethod desc:(NSString *)desc;
+
+- (void)registerOperation:(MSDBOperation *)anOperation ;
+- (void)unregisterOperation:(MSDBOperation *)anOperation ;
 @end
 
 @interface MSDBConnection (IdentifiersManagement)

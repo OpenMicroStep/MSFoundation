@@ -44,13 +44,13 @@
 
 #import "MSSQLCipherAdaptorKit.h"
 
-#define SQLCIPHER_SUCCESS(X) ({ int __x__ = (X); BOOL __r__ = (__x__ == SQLITE_OK || __x__ == SQLITE_DONE); if(!__r__) ASSIGN(_lastError, [NSString stringWithUTF8String:sqlite3_errstr(__x__)]); __r__; })
+#define SQLCIPHER_SUCCESS(X) ({ int __ret__ = (X); BOOL __r__ = (__ret__ == SQLITE_OK || __ret__ == SQLITE_DONE); if(!__r__) [self error:_cmd desc:[NSString stringWithUTF8String:sqlite3_errstr(__ret__)]]; __r__; })
 
 @implementation MSSQLCipherStatement
 
-- (id)initWithSQLiteStatement:(sqlite3_stmt *)stmt withConnection:(MSSQLCipherConnection *)connection
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSSQLCipherConnection *)connection withStmt:(sqlite3_stmt *)stmt
 {
-    if((self = [super initWithDatabaseConnection:connection])) {
+    if((self= [super initWithRequest:request withDatabaseConnection:connection])) {
         _stmt= stmt;
     }
     return self;

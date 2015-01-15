@@ -7,9 +7,14 @@
 //
 
 @interface MSDBStatement : MSDBOperation {
-    NSString *_lastError;
+@private
+  NSString *_request;
+  NSString *_lastError;
 }
+
+- (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSDBConnection *)connection ;
 - (BOOL)bindObjects:(NSArray *)bindings;
+- (BOOL)bindObject:               (id)obj at:(MSUInt)parameterIndex ;
 - (BOOL)bindChar:           (MSChar)value at:(MSUInt)parameterIndex ;
 - (BOOL)bindByte:           (MSByte)value at:(MSUInt)parameterIndex ;
 - (BOOL)bindShort:         (MSShort)value at:(MSUInt)parameterIndex ;
@@ -30,4 +35,8 @@
 - (MSInt)execute;
 
 - (NSString *)lastError;
+@end
+
+@interface MSDBStatement (ForImplementations)
+- (void)error:(SEL)inMethod desc:(NSString *)desc;
 @end
