@@ -365,29 +365,18 @@ static inline char *_MSDealWithNormalString(_MSPlistContext *context,
 }
 
 //
-#define STOP(X)		{ \
-	const char *converted ; \
-	NSUInteger p = pos, pc , ppi ; \
-	printf("Plist parsing error in %s : %s\n", _states[state], (X)) ; \
-	while (p-- > 0) { ppi= p; if (CUnicharIsEOL(SESIndexN(sourceSES, &ppi))) { p++ ; break ; } } \
-	pc = p ; \
-	while (pc < pos) {\
-    ppi= pc;\
-		if (SESIndexN(sourceSES, &ppi) == (unichar)'\t') { printf("\t") ; } else { printf(" ") ; }\
-		pc++ ;\
-	} ;\
-	printf("v---- error is here\n") ; \
-	converted = [[str mid:p :256] asciiCString]; \
-	printf("%s\n", converted) ; fflush(stdout) ; \
+#define STOP(X)	{ \
+  _stop(X, pos, _states, state, sourceSES, str); \
 	DESTROY(array) ; DESTROY(buf) ; \
 	KILL_POOL ; \
 	return nil ; \
 }
-/*
-static inline void STOP(char *msg, unsigned int pos, char **states, int state,SES sourceSES,id str)		{
+
+
+static inline void _stop(char *msg, unsigned int pos, char **states, int state,SES sourceSES,id str)	{
 	const char *converted ;
 	NSUInteger p = pos, pc , ppi ;
-	printf("Plist parsing error in %s : %s\n", states[state], msg) ;
+	printf("Plist parsing error in %s : %s\n", _states[state], msg) ;
 	while (p-- > 0) { ppi= p; if (CUnicharIsEOL(SESIndexN(sourceSES, &ppi))) { p++ ; break ; } }
 	pc = p ;
 	while (pc < pos) {
@@ -398,11 +387,8 @@ static inline void STOP(char *msg, unsigned int pos, char **states, int state,SE
 	printf("v---- error is here\n") ;
 	converted = [[str mid:p :256] asciiCString];
 	printf("%s\n", converted) ; fflush(stdout) ;
-	DESTROY(array) ; DESTROY(buf) ;
-	KILL_POOL ;
-	return nil ;
 }
-*/
+
 #define INVALID_CHARACTER(NB)   { char msg[64] ; sprintf(msg, "Invalid character 0x%04x ('%c') found - #%d", c, (CUnicharIsPrintable(c) && c <= 255 ? (char)c : (char)'_'), NB) ; STOP(msg) ; }
 //STOP(msg,pos,_states, state,sourceSES)
 // dans le pull on retire le dernier objet de l'array en mettant uniquement sont pointeur a nil

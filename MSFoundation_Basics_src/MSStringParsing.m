@@ -125,11 +125,11 @@ id MSCreatePropertyListFromString(NSString *str,
 							else INVALID_CHARACTER(5) ;
                             break ;
                         case (unichar)')':
-                            if ((APHASE(1) || (APHASE(0) && [context->object count] == 0) || ACOUPLE) && !ANATURAL) PULL
+                            if ((APHASE(1) || APHASE(0) || ACOUPLE) && !ANATURAL) PULL
 							else INVALID_CHARACTER(6) ;
                             break ;
                         case (unichar)']':
-                            if ((APHASE(1) || (APHASE(0) && [context->object count] == 0)) && ANATURAL) PULL
+                            if ((APHASE(1) || APHASE(0)) && ANATURAL) PULL
 							else INVALID_CHARACTER(7) ;
                             break ;
                         case (unichar)',':
@@ -185,7 +185,7 @@ id MSCreatePropertyListFromString(NSString *str,
                     break ;
                 case MCOMMENTARY2:
                     if (c == (unichar)'/') { state = lastState ; startingCommentaryWasTested = NO ; }
-                    else { state = MCOMMENTARY ; }
+                    else if(c != (unichar)'*') { state = MCOMMENTARY ; }
                     break ;
                 case COMMENTARY:
                     if (CUnicharIsEOL(c)) { pos-- ; state = lastState ; startingCommentaryWasTested = NO ; }
