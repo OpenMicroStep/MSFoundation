@@ -53,7 +53,7 @@
 - (id)currentKey;
 @end
 
-@interface MSDictionary : NSObject
+@interface MSDictionary : NSDictionary
 {
 @private
   void **_buckets;

@@ -303,17 +303,25 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 
 #pragma mark Lazy keys
 
+- (void)setObject:(id)o forLazyKey:(id)k
+{
+  if (k) k= [[k toString] lowercaseString];
+  if ([k length]) {
+    if (o) [self setObject:o forKey:k];
+    else [self removeObjectForKey:k];}
+}
+
 - (id)objectForLazyKey:(id)aKey
 {
-	id o= nil;
-	if (aKey) {
-		o= [self objectForKey:aKey];
-		if (!o) {
-			if (![aKey isKindOfClass:[NSString class]]) {
-				aKey= [aKey toString];
-				o= [self objectForKey:aKey];}
-			if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
-	return o;
+  id o= nil;
+  if (aKey) {
+    o= [self objectForKey:aKey];
+    if (!o) {
+      if (![aKey isKindOfClass:[NSString class]]) {
+        aKey= [aKey toString];
+        o= [self objectForKey:aKey];}
+      if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
+  return o;
 }
 
 - (id)objectForLazyKeys:(id)aKey, ...
@@ -326,31 +334,23 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
       ret= [self objectForLazyKey:k];}
     va_end(args);}
   return ret;
-}
-
-- (void)setObject:(id)o forLazyKey:(id)k
-{
-	if (k) k= [[k toString] lowercaseString];
-	if ([k length]) {
-		if (o) [self setObject:o forKey:k];
-		else [self removeObjectForKey:k];}
 }
 
 @end
 
-@implementation NSDictionary (MSDictionary)
+@implementation NSDictionary (LazyKeys)
 
 - (id)objectForLazyKey:(id)aKey
 {
-	id o= nil;
-	if (aKey) {
-		o= [self objectForKey:aKey];
-		if (!o) {
-			if (![aKey isKindOfClass:[NSString class]]) {
-				aKey= [aKey toString];
-				o= [self objectForKey:aKey];}
-			if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
-	return o;
+  id o= nil;
+  if (aKey) {
+    o= [self objectForKey:aKey];
+    if (!o) {
+      if (![aKey isKindOfClass:[NSString class]]) {
+        aKey= [aKey toString];
+        o= [self objectForKey:aKey];}
+      if (!o && [aKey length]) o= [self objectForKey:[aKey lowercaseString]];}}
+  return o;
 }
 
 - (id)objectForLazyKeys:(id)aKey, ...
@@ -363,30 +363,6 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
       ret= [self objectForLazyKey:k];}
     va_end(args);}
   return ret;
-}
-
-- (BOOL)isEqual:(id)object
-{
-    return ([object isKindOfClass:[NSDictionary class]] || [object isKindOfClass:[MSDictionary class]])
-        && [self isEqualToDictionary:object];
-}
-
-- (BOOL)isEqualToDictionary:(NSDictionary *)otherDictionary
-{
-    id k, o1, o2;
-    NSEnumerator *e;
-    if([otherDictionary count] != [self count])
-        return NO;
-    
-    e= [self keyEnumerator];
-    while ((k= [e nextObject])) {
-        o1= [otherDictionary objectForKey:k];
-        o2= [self objectForKey:k];
-        if(![o1 isEqual:o2])
-            return NO;
-    }
-    
-    return YES;
 }
 
 @end
