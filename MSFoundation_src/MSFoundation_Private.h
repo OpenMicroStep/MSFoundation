@@ -62,6 +62,7 @@
 #import "MSNaturalArrayEnumerator_Private.h"
 #import "MSFileManipulation.h"
 
+#import "MSRow.h"
 #import "MSCSSLInterface.h"
 #import "MSSSLInterface.h" // Dans MSNet ?
 

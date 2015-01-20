@@ -48,7 +48,7 @@
  MSRow is an hybrid object between dictionary and array.
  */
 
-@class MSRowKeys ;
+@class MSRowKeys, MSArray ;
 
 @interface MSRow : NSDictionary <NSCopying, NSMutableCopying /*, NSCoding TO DO*/ >
 {

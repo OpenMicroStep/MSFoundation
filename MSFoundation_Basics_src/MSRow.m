@@ -40,7 +40,7 @@
  
  */
 
-#import "MSDb_Private.h"
+#import "MSFoundation_Private.h"
 
 @implementation MSRow
 

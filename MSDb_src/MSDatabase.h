@@ -45,7 +45,6 @@
 #import <MSDatabase/MSDBConnection.h>
 #import <MSDatabase/MSDBConnectionPool.h>
 #import <MSDatabase/MSDBOperation.h>
-#import <MSDatabase/MSDBRow.h>
 #import <MSDatabase/MSDBResultSet.h>
 #import <MSDatabase/MSDBTransaction.h>
 #import <MSDatabase/MSDBStatement.h>

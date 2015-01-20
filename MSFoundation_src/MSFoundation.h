@@ -76,6 +76,7 @@
 #import <MSFoundation/MSNaturalArrayEnumerator.h>
 #import <MSFoundation/MSFileManipulation.h>
 
+#import <MSFoundation/MSRow.h>
 #import <MSFoundation/MSCSSLInterface.h>
 #import <MSFoundation/MSSSLInterface.h> // Dans MSNet ?
 

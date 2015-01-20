@@ -48,7 +48,6 @@
 #import "MSDBConnection.h"
 #import "MSDBConnectionPool.h"
 #import "MSDBOperation.h"
-#import "MSDBRow.h"
 #import "MSDBResultSet.h"
 #import "MSDBTransaction.h"
 #import "MSDBStatement.h"
