@@ -43,11 +43,13 @@
 
 #ifdef FOUNDATION_NOT_INCLUDED
 #import <Foundation/Foundation.h>
-#else
-#import "Foundation_Protected.h"
 #endif
 
 #import "MSCore_Private.h"
+
+#ifndef FOUNDATION_NOT_INCLUDED
+#import "Foundation_Protected.h"
+#endif
 
 #import "MSFoundationWin32.h"
 
