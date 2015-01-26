@@ -177,6 +177,39 @@ enum {
   NSDOSStringEncoding= 0x20000 // we add a string encoding for DOS
 };
 
+///// Definition of atomics
+#if defined(__APPLE__)
+#include <libkern/OSAtomic.h>
+typedef volatile int32_t atomic_int32_t;
+#define atomic_int32_increment(V) OSAtomicIncrement32(V)
+#define atomic_int32_decrement(V) OSAtomicDecrement32(V)
+#define atomic_int32_fetch(V) (*V)
+#elif defined(_WIN32)
+#include <Winnt.h>
+typedef volatile int32_t atomic_int32_t;
+#define atomic_int32_increment(V) InterlockedIncrementNoFence(V)
+#define atomic_int32_decrement(V) InterlockedDecrementNoFence(V)
+#define atomic_int32_fetch(V) (*V)
+#else 
+// Use GCC & Clang builtins, in case OSs doesn't provide faster implementation
+typedef volatile int32_t atomic_int32_t;
+inline int32_t atomic_int32_increment(atomic_int32_t *value)
+{
+    int32_t ret;
+    ret= __sync_fetch_and_add(value, 1);
+    ++ret;
+    return ret;
+}
+inline int32_t atomic_int32_decrement(atomic_int32_t *value)
+{
+    int32_t ret;
+    ret= __sync_fetch_and_sub(value, 1);
+    --ret;
+    return ret;
+}
+#define atomic_int32_fetch(V) (*V)
+#endif
+
 ///// Definition of mutexes
 #ifdef WIN32
 

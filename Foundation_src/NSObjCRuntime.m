@@ -55,3 +55,8 @@ id NSAllocateObject(Class cls, NSUInteger extraBytes, NSZone *zone)
     // TODO: C++ constructor calling
     return ret;
 }
+
+void NSDeallocateObject(id object)
+{
+    free(object);
+}

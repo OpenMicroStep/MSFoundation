@@ -69,3 +69,13 @@ static inline void drain(CArray *objects)
     return nil;
 }
 @end
+
+@implementation NSObject (NSAutoreleasePool)
+
+- (instancetype)autorelease
+{
+    [__currentPool addObject:self];
+    return self;
+}
+
+@end
