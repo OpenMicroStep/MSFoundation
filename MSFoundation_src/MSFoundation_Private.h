@@ -41,7 +41,12 @@
 #ifndef MSFOUNDATION_PRIVATE_H
 #define MSFOUNDATION_PRIVATE_H
 
+#ifdef FOUNDATION_NOT_INCLUDED
 #import <Foundation/Foundation.h>
+#else
+#import "Foundation_Protected.h"
+#endif
+
 #import "MSCore_Private.h"
 
 #import "MSFoundationWin32.h"
@@ -80,7 +85,6 @@
 #import "MSTEncoder.h"
 
 #import "MSStringParsing.h"
-#import "MSStringParsing_Private.h"
 
 #ifdef WO451
 #  define FMT(ARGS...)  [MSString stringWithFormat:##ARGS]

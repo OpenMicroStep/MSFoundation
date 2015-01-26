@@ -1,0 +1,4 @@
+
+@interface NSEnumerator : NSObject
+
+@end

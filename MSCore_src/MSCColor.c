@@ -57,8 +57,8 @@ BOOL CColorIsEqual(id self, id other)
 // lower places.
 NSUInteger CColorHash(id self, unsigned depth)
 {
+  MSUnused(depth);
   return CColorCSSValue((CColor*)self);
-  depth= 0; //unused parameter
 }
 
 id CColorCopy(id self)
@@ -113,7 +113,7 @@ CColor *CCreateColor(MSByte r, MSByte g, MSByte b, MSByte a)
 static inline float CLuminance(MSByte r, MSByte g, MSByte b, MSByte a)
 {
   return (float)((0.3*r + 0.59*g +0.11*b)/255.0);
-  a= 0; // no warning
+  MSUnused(a);
 }
 static inline BOOL CIsPale(MSByte r, MSByte g, MSByte b, MSByte a)
 {

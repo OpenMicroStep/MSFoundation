@@ -587,7 +587,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
     for (i= SESStart(ses), end= SESEnd(ses); c && i < end;) {
       u= SESIndexN(ses, &i);
       c= (u == 0x0020 || u == 0x0009); }
-    if(i < end) {
+    if(i <= end) {
       if(u=='Y' || u=='y' || u=='T' || u=='t')
         ret= YES;
       else {
@@ -595,10 +595,9 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
           u= SESIndexN(ses, &i);
         while(u == '0' && i < end){
           u= SESIndexN(ses, &i);}
-        ret= (i < end && '1' <= 'u' && u <= '9');}
+        ret= (i <= end && '1' <= 'u' && u <= '9');}
     }
   }
-  
   return ret;
 }
 
@@ -643,8 +642,10 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   }
 + (id)UUIDString
   {
-  CString *x= CCreateStringWithSES([[[NSUUID UUID] UUIDString] stringEnumeratorStructure]);
-  return AUTORELEASE((id)x);
+  // TODO: Reimplement
+  //CString *x= CCreateStringWithSES([[[NSUUID UUID] UUIDString] stringEnumeratorStructure]);
+  //return AUTORELEASE((id)x);
+  return nil;
   }
 - (void)dealloc
   {

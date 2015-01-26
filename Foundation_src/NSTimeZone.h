@@ -1,0 +1,4 @@
+
+@interface NSTimeZone : NSObject
+
+@end

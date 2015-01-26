@@ -66,7 +66,7 @@ NSUInteger CDecimalHash(id self, unsigned depth)
   
   // THIS VALUE IS BAD : MUST BE DONE CORRECTLY BEFORE TO BE USED IN CDICTIONARIES
   return self ? (NSUInteger)self : 0;
-  depth= 0; // unused parameter
+  MSUnused(depth); // unused parameter
 }
 
 id CDecimalCopy(id self)

@@ -41,333 +41,330 @@
  */
 #import "MSFoundation_Private.h"
 
-//#import "MSBool.h"
-//#import "MSStringAdditions.h"
-//#import "MSStringEnumeration.h"
-//#import "MSUnicodeString.h"
-//#import "MSArray.h"
-//#import "MSCouple.h"
-//#import "MSNaturalArray.h"
-//#import "MSStringParsing.h"
-//#import "_MSStringParsingPrivate.h"
+// values for decodingMask and acceptanceMask
+#define MSPPLParseArray				0x00000001
+#define MSPPLParseDict				0x00000002
+#define MSPPLParseData              0x00000004
+#define MSPPLParseString            0x00000008
+#define MSPPLParseAll				0x0000000f
 
-id MSCreatePropertyListFromString(NSString *str,
-								  unsigned mask,
-								  NSDictionary *classCorrespondances,
-								  unichar (*escapeTransformationFn)(MSByte),
-								  id (*analyseFn)(MSString *, unsigned, void *),
-								  void *analyseContext
-								  )
+#define MSPPLParseSubArray			0x00000010
+#define MSPPLParseSubDict			0x00000020
+#define MSPPLParseSubData           0x00000040
+#define MSPPLParseSubString         0x00000080
+#define MSPPLParseSubAll			0x000000f0
+
+typedef struct _ParseContext
 {
-	SES sourceSES = SESFromString(str) ;
-	//NS?Log(@"entering MSCreatePropertyListFromString()") ;
-    if (SESOK(sourceSES)) {
-		NSUInteger len = sourceSES.length;
-		
-        NEW_POOL ;
-        unsigned int pool = 0 ;
-        NSUInteger count, pos = 0, ppos, unicodeLength = 0 ;
-        unsigned short state, lastState ;
-        unichar c, delimitor = 0, c1 = 0, c2 = 0 ;
-        MSString *buf = nil ;
-        MSArray *array = [[MSArray alloc] mutableInitWithCapacity:32 noRetainRelease:YES nilItems:NO] ;
-        char *error = NULL ;
-        BOOL startingCommentaryWasTested = NO ;
-        NSString *futureClassName = nil ;
-        _MSPlistContext *context = nil ;
-		id retour ;
-        
-//        if (!escapeTransformationFn) escapeTransformationFn = MSNextstepToUnicode ;
-        
-        if (!__nulParseValue) { __nulParseValue = RETAIN([NSNull null]) ; }
-		
-		//NS?Log(@"MSCreatePropertyListFromString() == initialisation done") ;
-        //NS?Log(@"source SES.start = %lu", sourceSES.start) ;
-        //NS?Log(@"source SES.length = %lu", len) ;
-		
-        state = lastState = NORMAL ;
-        
-        while (pos < len) {
-            ppos= pos; c = SESIndexN(sourceSES, &ppos) ;
-            /*NSLog(@"%08d:==> ppl phase is %d %s Entering state = %s , character is %d ('%@')",
-			 (int)pos,
-			 (context ? context->phase : 999),
-			 (context ? (context->dico ? "[dictionary]" : (context->isNatural ? "[naturals]" : "[array]")) : ""),
-			 _states[state],
-			 c,
-			 [NSString stringWithCharacters:&c length:1]) ;*/
-            
-            switch (state) {
-                case NORMAL:
-                    switch (c) {
-                        case (unichar)'@':
-                            if (ACCEPTS_FIRST(MSPPLParseUserClass /* | MSPPLParseCouple*/) || OBJECT_NOT_KEY) {
-                                buf = (MSString*)CCreateString(4) ;
-                                if (buf) { state = CLASS_DEFINITION_START ; }
-								else STOP_BUF ;
-                            }
-                            else INVALID_CHARACTER(1) ;
-                            break ;
-                        case (unichar)'{':
-                            if (ACCEPTS_FIRST(MSPPLParseDict) || OBJECT_NOT_KEY) PUSH(NSMutableDictionary)
-							else INVALID_CHARACTER(2) ;
-                            break ;
-                        case (unichar)'(':
-                            if (ACCEPTS_FIRST(MSPPLParseArray) || OBJECT_NOT_KEY) PUSH(NSMutableArray)
-							else INVALID_CHARACTER(3) ;
-                            break ;
-                        case (unichar)'[':
-							if (ACCEPTS_FIRST(MSPPLParseNaturals) || OBJECT_NOT_KEY) PUSH(MSMutableNaturalArray)
-							else INVALID_CHARACTER(4) ;
-                            break ;
-                        case (unichar)'}':
-                            if (SPHASE(0)) PULL
-							else INVALID_CHARACTER(5) ;
-                            break ;
-                        case (unichar)')':
-                            if ((APHASE(1) || APHASE(0) || ACOUPLE) && !ANATURAL) PULL
-							else INVALID_CHARACTER(6) ;
-                            break ;
-                        case (unichar)']':
-                            if ((APHASE(1) || APHASE(0)) && ANATURAL) PULL
-							else INVALID_CHARACTER(7) ;
-                            break ;
-                        case (unichar)',':
-                            if (APHASE(1)) { context->phase = 0 ; }
-							else INVALID_CHARACTER(8) ;
-                            break ;
-                        case (unichar)';':
-                            if (SPHASE(3)) { context->phase = 0 ; }
-							else INVALID_CHARACTER(9) ;
-                            break ;
-                        case (unichar)'=':
-                            if (SPHASE(1)) { context->phase = 2 ; }
-							else INVALID_CHARACTER(10) ;
-                            break ;
-                        case (unichar)'"': case (unichar)'\'':
-                            delimitor = c ;
-                            buf = (MSString*)CCreateString(4) ;
-							if (buf) { state = STRING_QUOT ; }
-							else STOP_BUF ;
-                            break ;
-                        case (unichar)'/':
-                            if (!startingCommentaryWasTested) {
-                                lastState = state ; state = PRECOMMENTARY ;
-                                break ;
-                            }
-                            // on va passer en defaut si on venait de tester la presence de commentaire
-                        default:
-                            if (CUnicharIsSpace(c) || CUnicharIsEOL(c)) { break ; } // les espaces ne comptent pas en regime normal de meme que les fins de ligne
-                            if (SPHASE(0) || SPHASE(2) || APHASE(0)) {
-                                // lecture d'une chaine de caracteres sans double quote (ni simple quote) autour
-                                state = STRING_NORM ;
-                                buf = (MSString*)CCreateString(4) ;
-								if (buf) { MSSAddUnichar(buf, c) ; }
-								else STOP_BUF ;
-                            }
-                            else INVALID_CHARACTER(11) ;
-                            break ;
-                    }
-                    startingCommentaryWasTested = NO ;
-                    break ;
-                case PRECOMMENTARY:
-                    if (c == (unichar)'/') { state = COMMENTARY ; }
-                    else if (c == (unichar)'*') { state = MCOMMENTARY ; }
-                    else {
-                        // c'etait la continuation d'un etat precedent normal
-                        startingCommentaryWasTested = YES ;
-                        pos -= 2 ; // on depile pour revenir a l'etat precedent
-                        state = lastState ;
-                    }
-                    break ;
-                case MCOMMENTARY:
-                    if (c == (unichar)'*') { state = MCOMMENTARY2 ; }
-                    break ;
-                case MCOMMENTARY2:
-                    if (c == (unichar)'/') { state = lastState ; startingCommentaryWasTested = NO ; }
-                    else if(c != (unichar)'*') { state = MCOMMENTARY ; }
-                    break ;
-                case COMMENTARY:
-                    if (CUnicharIsEOL(c)) { pos-- ; state = lastState ; startingCommentaryWasTested = NO ; }
-                    break ;
-                case STRING_QUOT:
-                    if (c == (unichar)'\\') { state = ESCAPE ; }
-                    else if (c == delimitor) {
-						error = _MSDealWithRetainedObject(context, &buf, &state) ;
-						if (error) STOP(error)
-					}
-                    else { MSSAddUnichar(buf, c) ; }
-                    break ;
-                case ESCAPE:
-                    switch (c) {
-                        case (unichar)'0': case (unichar)'1': case (unichar)'2': case (unichar)'3':
-                            c1 = c ;
-                            state = ESCAPE_DIGIT1 ;
-                            break ;
-                        case (unichar)'n':
-                            MSSAddUnichar(buf, (unichar)'\n') ;
-                            state = STRING_QUOT ;
-                            break ;
-                        case (unichar)'t' :
-                            MSSAddUnichar(buf, (unichar)'\t') ;
-                            state = STRING_QUOT ;
-                            break ;
-                        case (unichar)'r':
-                            MSSAddUnichar(buf, (unichar)'\r') ;
-                            state = STRING_QUOT ;
-                            break ;
-                        case  (unichar)'U':
-                            // on va aller decoder de l'unicode
-                            unicodeLength = 0 ;
-                            c1 = 0 ;
-                            state = UNICODE_DIGITS ;
-                            break ;
-                        default:
-                            MSSAddUnichar(buf, c) ;
-                            state = STRING_QUOT ;
-                            break ;
-                    }
-                    break ;
-                case UNICODE_DIGITS:
-                    if      (c >= (unichar)'0' && c <= (unichar)'9') { c1 = (unichar)( (c1 << 3) + c - (unichar)'0'      ); unicodeLength++ ; }
-                    else if (c >= (unichar)'A' && c <= (unichar)'F') { c1 = (unichar)( (c1 << 3) + c - (unichar)'A' + 10 ); unicodeLength++ ; }
-                    else if (c >= (unichar)'a' && c <= (unichar)'f') { c1 = (unichar)( (c1 << 3) + c - (unichar)'a' + 10 ); unicodeLength++ ; }
-                    else {
-                        // si on a un pb, on insere juste le grand U puisqu'il y avait un antislash devant
-                        MSSAddUnichar(buf, (unichar)'U') ;
-                        pos -= unicodeLength ; // et on revient en arriere de ce qu'on avait decode
-                        state = STRING_QUOT ;
-                        break ;
-                    }
-                    if (unicodeLength == 4) {
-                        MSSAddUnichar(buf, c1) ;
-                        state = STRING_QUOT ;
-                    }
-                    break ;
-                case ESCAPE_DIGIT1:
-                    if (c >= (unichar)'0' && c <= (unichar)'7') { c2 = c ; state = ESCAPE_DIGIT2 ;}
-                    else {
-                        MSSAddUnichar(buf, (c1 == (unichar)'0' ? (unichar)0 : c1)) ; ;
-                        pos -- ;
-                        state = STRING_QUOT ;
-                    }
-                    break ;
-                case ESCAPE_DIGIT2:
-                    if (c >= (unichar)'0' && c <= (unichar)'7') {
-                        MSSAddUnichar(buf, escapeTransformationFn((((c1-(unichar)'0') << 6) + ((c2-(unichar)'0') << 3) + (c-(unichar)'0')) & 0xff)) ;
-                    }
-                    else {
-                        MSSAddUnichar(buf, c1) ;
-                        MSSAddUnichar(buf, c2) ;
-                        pos -- ;
-                    }
-                    state = STRING_QUOT ;
-                    break ;
-                case STRING_NORM:
-                    switch (c) {
-                        case (unichar)'(': case (unichar)'{': case (unichar)'[': case (unichar)'@':
-                        case (unichar)']': // on ne peut pas trouver de chaines dans un tableau de naturals
-                        case (unichar) '"': case (unichar)'\'':
-                            STOP("Invalid p-list control character found in string") ;
-                            break ;
-                        case (unichar)')': case (unichar)'}': case (unichar)',': case (unichar)';': case (unichar)'=':
-                            error = _MSDealWithNormalString(context, mask, &buf, &state, analyseFn, analyseContext) ;
-                            if (error) STOP(error)
-							else { pos -- ; }
-                            break ;
-                        case (unichar)'/':
-                            if (!startingCommentaryWasTested) { lastState = state ; state = PRECOMMENTARY ; break ; }
-                            // on continue sur le case suivant car on venait deja de tester la presence d'un commentaire
-                        default:
-                            if (CUnicharIsSpace(c) || CUnicharIsEOL(c)) {
-                                error = _MSDealWithNormalString(context, mask, &buf, &state, analyseFn, analyseContext) ;
-                                if (error) STOP(error) ;
-                            }
-                            else { MSSAddUnichar(buf, c) ; }
-                            break ;
-                    }
-                    startingCommentaryWasTested = NO ;
-                    break ;
-                case CLASS_DEFINITION_START:
-                    if (CUnicharIsLetter(c) || c == (unichar)'_') {
-                        if (ACCEPTS_FIRST(MSPPLParseUserClass) || OBJECT_NOT_KEY) {
-                            MSSAddUnichar(buf, c) ;
-                            state = CLASS_DEFINITION ;
-                        }
-                        else STOP("Tryng to make a non-accepted class parsing") ;
-                    }
-                    else if (c == (unichar)'(') {
-						// a thing like @(x, y) is a couple
-						if (ACCEPTS_FIRST(MSPPLParseCouple) || OBJECT_NOT_KEY) {
-							PUSH(MSMutableCouple)
-							state = NORMAL ;
-							DESTROY(buf) ;
-						}
-						else STOP("Tryng to make a non-accepted couple parsing")
-                    }
-                    else STOP("Invalid character found at start of class name")
-					break ;
-                case CLASS_DEFINITION:
-                    if (CUnicharIsLetter(c) || c == (unichar)'_' || CUnicharIsIsoDigit(c)) { MSSAddUnichar(buf, c) ; }
-                    else if (c == (unichar)'{' || c == (unichar)'(') {
-                        if (c == (unichar)'{') PUSH(NSMutableDictionary) else PUSH(NSMutableArray) ;
-                        
-                        futureClassName = [__privateClassCorrespondances objectForKey:buf] ;
-                        if (!futureClassName) futureClassName = [classCorrespondances objectForKey:buf] ;
-                        
-                        if (futureClassName) context->futureClass = ([futureClassName length] ? NSClassFromString(buf) : Nil) ;
-                        else context->futureClass = NSClassFromString(buf) ;
-                        
-                        state = NORMAL ;
-                        DESTROY(buf) ;
-                    }
-                    else STOP("Invalid character found in class name") ;
-                    break ;
-                    
-            }
-            pos ++ ;
-        }
- 		//NS?Log(@"MSCreatePropertyListFromString() == analysis done") ;
-       
-        if (state != NORMAL || pool != 0) STOP("Non terminated p-list") ;
-        retour = RETAIN(context->object) ;
-        DESTROY(array) ;
-		KILL_POOL ;
-        return retour ;
-		/*******************
-		 HM remark: the new compiler is vicious.
-		 in the precedent version we did return context->object 
-		 and it crashes randomly (about half of the time).
-		 By using an intermediary var, it works. I don't know why !!!!!!!!
-		 *******************/
+    SES ses;
+    MSUInt flags;
+    NSUInteger pos;
+    unichar c;
+    id error;
+} ParseContext;
+
+static inline BOOL ParseContextNext(ParseContext *context)
+{
+    BOOL ret= context->pos < SESLength(context->ses);
+    if(ret) {
+        context->c = SESIndexN(context->ses, &context->pos);
     }
-    return nil ;
+    return ret;
 }
 
+static BOOL ParseContextNextWord(ParseContext *context)
+{
+    while (ParseContextNext(context)) {
+        if (context->c == (unichar)'/') {
+            BOOL ret;
+            NSUInteger ppos = context->pos;
+            if(!ParseContextNext(context)) {
+                return YES;
+            }
+            if(context->c == (unichar)'/') { // Single Line Comment
+                while ((ret= ParseContextNext(context)) && !CUnicharIsEOL(context->c));
+                if(!ret) return NO;
+            }
+            else if(context->c == (unichar)'*') { // Multiline comment
+                BOOL canClose= NO;
+                while ((ret= ParseContextNext(context))) {
+                    if(canClose && context->c == (unichar)'/')
+                        break;
+                    if(context->c == (unichar)'*')
+                        canClose= YES;
+                }
+                if(!ret) return NO;
+            }
+            else {
+                context->pos = ppos;
+                return YES;
+            }
+        }
+        else if(!CUnicharIsSpaceOrEOL(context->c)) {
+            return YES;
+        }
+    }
+    return NO;
+}
 
+static void ParseContextError(ParseContext *context, NSString* object, NSString *expect)
+{
+    if(!context->error)
+        context->error= FMT(@"Error while parsing %@, %@ was expected at %lld", object, expect, (MSLong)context->pos);
+}
 
-@implementation _MSPlistContext
-- (void)dealloc { DESTROY(object) ; DESTROY(key) ; [super dealloc] ; }
-@end
+static id parsePList(NSString *str, MSUInt flags, NSString **error);
+static id parseObject(ParseContext *context, BOOL isRoot);
+static MSDictionary *parseDictionary(ParseContext *context);
+static MSArray *parseArray(ParseContext *context);
+static inline MSString *parseString(ParseContext *context);
+static MSString *parseQuotedString(ParseContext *context);
+static MSString *parseSimpleString(ParseContext *context);
+static MSBuffer *parseData(ParseContext *context);
 
-@implementation NSObject (MSPPLParsing)
-- (id)initWithPPLParsedObject:(id)anObject { NSLog(@"*** ERROR *** : want to init with PPL parsed object '%@'", anObject) ; RELEASE(self) ; return nil ; }
-@end
+static id parsePList(NSString *str, MSUInt flags, NSString **error)
+{
+    id ret= nil;
+    ParseContext context;
+    context.ses= SESFromString(str);
+    context.flags= flags > 0 ? flags : MSPPLParseAll | MSPPLParseAll;
+    context.pos= 0;
+    context.error= nil;
+    if (SESOK(context.ses)) {
+        if(!ParseContextNextWord(&context)) ParseContextError(&context, @"Object", @"Something");
+        else {
+            ret= parseObject(&context, YES);
+            if(ParseContextNextWord(&context)) {
+                DESTROY(ret);
+                ParseContextError(&context, @"Object", @"Nothing");
+            }
+        }
+        if(context.error && error)
+            *error= context.error;
+    }
+    return AUTORELEASE(ret);
+}
 
+static inline id parseObjectIfAllowed(ParseContext *context, BOOL isRoot, id (*parseMethod)(ParseContext*), MSUInt rootFlags, MSUInt subFlags, NSString* desc)
+{
+    if(isRoot && !(context->flags & rootFlags)) {
+        ParseContextError(context, @"Object", FMT(@"Root must be a %@", desc));
+        return nil;
+    }
+    else if(!isRoot && !(context->flags & subFlags)) {
+        ParseContextError(context, @"Object", FMT(@"%@ is not allowed in this context", desc));
+        return nil;
+    }
+    return parseMethod(context);
+}
 
+static id parseObject(ParseContext *context, BOOL isRoot)
+{
+    switch (context->c) {
+        case (unichar)'{':
+            return parseObjectIfAllowed(context, isRoot, parseDictionary, MSPPLParseDict, MSPPLParseSubDict, @"dictionary");
+        case (unichar)'(':
+            return parseObjectIfAllowed(context, isRoot, parseArray, MSPPLParseArray, MSPPLParseSubArray, @"array");
+        case (unichar)'<':
+            return parseObjectIfAllowed(context, isRoot, parseData, MSPPLParseData, MSPPLParseSubData, @"data");
+        default:
+            return parseObjectIfAllowed(context, isRoot, parseString, MSPPLParseString, MSPPLParseSubString, @"string");
+    }
+}
+
+static MSDictionary *parseDictionary(ParseContext *context)
+{
+    id ret, key=nil, obj=nil, expect=nil;
+    
+    expect= @"key or '}'";
+    ret= (id)CCreateDictionary(0);
+    while (ParseContextNextWord(context)) {
+        if(context->c == (unichar)'}')
+            return ret;
+        
+        // key
+        key= parseString(context);
+        if(!key) break;
+        
+        // =
+        expect= @"'='";
+        if(!ParseContextNextWord(context) || context->c != (unichar)'=') break;
+        
+        // object
+        expect= @"object";
+        if(!ParseContextNextWord(context) || !(obj= parseObject(context, NO))) break;
+        CDictionarySetObjectForKey((CDictionary*)ret, obj, key);
+        DESTROY(key);
+        RELEASE(obj);
+        
+        // ;
+        expect= @"';'";
+        if(!ParseContextNextWord(context) || context->c != (unichar)';') break;
+        
+        expect= @"key or '}'";
+    }
+    
+    ParseContextError(context, @"Dictionary", expect);
+    DESTROY(key);
+    RELEASE(ret);
+    return nil;
+}
+
+static MSArray *parseArray(ParseContext *context)
+{
+    id ret, obj= nil, expect=nil;
+    
+    expect= @"object or ')'";
+    ret= (id)CCreateArray(0);
+    while (ParseContextNextWord(context)) {
+        if(context->c == (unichar)')')
+            return ret;
+        
+        // object
+        if(!(obj= parseObject(context, NO))) break;
+        CArrayAddObject((CArray*)ret, obj);
+        RELEASE(obj);
+        
+        // ,
+        expect= @"',' or ')'";
+        if(!ParseContextNextWord(context)) break;
+        if(context->c == (unichar)')')
+            return ret;
+        if(context->c != (unichar)',') break;
+        
+        expect= @"object or ')'";
+    }
+    
+    ParseContextError(context, @"Array", expect);
+    RELEASE(ret);
+    return nil;
+}
+
+static inline MSString *parseString(ParseContext *context)
+{
+    return (context->c == (unichar)'"') ? parseQuotedString(context) : parseSimpleString(context);
+}
+
+static unichar parseUnichar(ParseContext *context)
+{
+    NSUInteger ppos= context->pos; unichar pc= context->c;
+    unichar c= 0; MSUInt pos= 0;
+    while (pos < 4 && ParseContextNext(context) && CUnicharIsIsoDigit(context->c)) {
+        c += ((context->c - (unichar)'0') << (pos * 4));
+        ++pos;
+    }
+    if(pos != 4) {
+        context->pos= ppos;
+        return pc;
+    }
+    return c;
+}
+
+static MSString *parseQuotedString(ParseContext *context)
+{
+    unichar c;
+    id expect = @"[^\"]+";
+    CString *ret= CCreateString(0);
+    while(ParseContextNext(context)) {
+        if(context->c == (unichar)'\\') {
+            expect = @"\\t, \\n, \\r, \\U[0-9]{4}, \\\"";
+            if(!ParseContextNext(context))
+                break;
+            c= context->c;
+            switch (c) {
+                case 't': context->c= '\t'; break;
+                case 'n': context->c= '\n'; break;
+                case 'r': context->c= '\r'; break;
+                case '"': context->c= '"';  break;
+                case 'U':
+                case 'u': context->c = parseUnichar(context); break;
+                default:  break;
+            }
+            expect = @"[^\"]+";
+        }
+        else if(context->c == '"') {
+            return (MSString*)ret;
+        }
+        CStringAppendCharacter(ret, context->c);
+    }
+    
+    ParseContextError(context, @"String", expect);
+    RELEASE((id)ret);
+    return nil;
+}
+
+static MSString *parseSimpleString(ParseContext *context)
+{
+    NSUInteger ppos;
+    CString *ret= CCreateString(0);
+    while((CUnicharIsLetter(context->c) || CUnicharIsIsoDigit(context->c) || context->c == (unichar)'_')) {
+        CStringAppendCharacter(ret, context->c);
+        ppos= context->pos;
+        if(!ParseContextNext(context))
+            break;
+    }
+    if(CStringLength(ret)) {
+        context->pos= ppos;
+        return (MSString *)ret;
+    }
+    
+    ParseContextError(context, @"String", @"[A-Za-z0-9_]+");
+    RELEASE((id)ret);
+    return nil;
+}
+
+static MSBuffer *parseData(ParseContext *context)
+{
+    MSByte byte, b1; BOOL first= YES;
+    CBuffer *ret= CCreateBuffer(0);
+    while(ParseContextNext(context)) {
+        if(context->c == '>') {
+            if(!first) break;
+            return (MSBuffer*) ret;
+        }
+        if(!CUnicharIsSpaceOrEOL(context->c)) {
+            if('a' <= context->c && context->c <= 'f') {
+                byte = (MSByte)(context->c - (unichar)'a') + 10;
+            }
+            else if('A' <= context->c && context->c <= 'F') {
+                byte = (MSByte)(context->c - (unichar)'A') + 10;
+            }
+            else if('0' <= context->c && context->c <= '9') {
+                byte = (MSByte)(context->c - (unichar)'0');
+            }
+            else break;
+            if(first) b1= byte;
+            else CBufferAppendByte(ret, (MSByte)(b1 << 4) + byte);
+            first= !first;
+        }
+    }
+    
+    ParseContextError(context, @"Data", @"[A-Fa-f0-9]+");
+    RELEASE((id)ret);
+    return nil;
+}
+
+static id parsePListLogError(NSString *str, MSUInt flags)
+{
+    id ret, error=nil;
+    ret= parsePList(str, flags, &error);
+    if(error)
+        NSLog(@"%@", error);
+    return ret;
+}
 @implementation NSString (MSPPPLParsing)
 
 - (NSMutableDictionary *)dictionaryValue
-{ return AUTORELEASE(MSCreatePropertyListFromString(self, MSPPLParseDict | MSPPLDecodeAll, nil, NULL, NULL, NULL)) ; }
+{ return parsePListLogError(self, MSPPLParseDict | MSPPLParseSubAll); }
 
 - (NSMutableArray *)arrayValue
-{ return AUTORELEASE(MSCreatePropertyListFromString(self, MSPPLParseArray | MSPPLDecodeAll, nil, NULL, NULL, NULL)) ; }
+{ return parsePListLogError(self, MSPPLParseArray | MSPPLParseSubAll); }
 
 - (NSMutableDictionary *)stringsDictionaryValue
-{ return AUTORELEASE(MSCreatePropertyListFromString(self, MSPPLParseDict, nil, NULL, NULL, NULL)) ; }
+{ return parsePListLogError(self, MSPPLParseDict | MSPPLParseSubString); }
 
 - (NSMutableArray *)stringsArrayValue
-{ return AUTORELEASE(MSCreatePropertyListFromString(self, MSPPLParseArray, nil, NULL, NULL, NULL)) ; }
+{ return parsePListLogError(self, MSPPLParseArray | MSPPLParseSubString); }
 
 @end
 

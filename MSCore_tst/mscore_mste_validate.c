@@ -4,7 +4,7 @@
 #include "MSTE.h" // A supprimer quand intégré dans le Core
 
 static CString *_ke,*_kd;
-static inline int _testError(CBuffer *src_, char *errLoc_,int errNo_)
+static int _testError(CBuffer *src_, char *errLoc_,int errNo_)
   {
   int err= 0;
   CDictionary *error;
@@ -29,7 +29,7 @@ static inline int _testError(CBuffer *src_, char *errLoc_,int errNo_)
   }
 // convertion hex <-> decimal
 //http://www.statman.info/conversions/hexadecimal.html
-static inline int _test(void)
+static int _test(void)
   {
   int err= 0;
   CBuffer *src;
@@ -60,12 +60,13 @@ static inline int _test(void)
   // Decode Z->1, "K" une chaine, T->0 : ok
   err+= _testError(src, NULL, 7);
   // End
+  RELEAZEN(src);
   RELEAZEN(_ke); RELEAZEN(_kd);
 //printf("SZ %lu %lu\n",sizeof(float),sizeof(double));
   return err;
   }
 
-static inline int _decode(char *ssrc, id ret)
+static int _decode(char *ssrc, id ret)
   {
   int err= 0;
   CDictionary *error; CBuffer *src,*buf; id ke,kd,v,d;

@@ -116,7 +116,7 @@ typedef struct _MSTEDecodeStruct {
   NSUInteger nbToken,nbClass,nbKey,currentToken;
   CArray *classes;
   CArray *keys;
-  CArray *refs;
+  //CArray *refs;
   }
 _MSTEDecode;
 
@@ -166,7 +166,8 @@ static inline SES _readToken(_MSTEDecode *src, int *type)
   return ses;
 }
 
-static inline void _number(SES sesTk, int type, void *res)
+// TODO: Find why inline make the compiler produce bad code, that result in SIGSEGV
+static void _number(SES sesTk, int type, void *res)
 {
   char c,*end,*p; NSUInteger endTk; CDecimal *dec; BOOL intOnly; SES rSes;
   double d;
@@ -325,8 +326,8 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
   sesRes= SESCommonPrefix(ses, sesCmp);
   if (SESLength(sesRes)!=SESLength(sesCmp)) RETURN_NIL("MSTE-21","Bad CRC.");
   // Verif du crc
-// TODO: vérifier le calcul du CRC
-// http://www.fileformat.info/tool/hash.htm?text=%5B%22MSTE0101%22%2C5%2C%22CRC00000000%22%2C0%2C0%5D
+  // TODO: vérifier le calcul du CRC
+  // http://www.fileformat.info/tool/hash.htm?text=%5B%22MSTE0101%22%2C5%2C%22CRC00000000%22%2C0%2C0%5D
   delta= SESLength(sesRes); ses.start+= delta; ses.length-= delta;
   if (ses.length!=8)                        RETURN_NIL("MSTE-22","Bad CRC.");
   for (i= 0; i < ses.length; i++) {
@@ -334,18 +335,17 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
     ((char*)ses.source)[SESStart(ses)+i]= '0';}
   crc[8]= 0x00; crc1= MSHexaStringToULong(crc, 8); // strtoul(crc, &crcend, 16);
   crc2= MSBytesLargeCRC(src.ses.source, src.ses.length);
-if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,MSBPointer(source));
+  if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,MSBPointer(source));
   if (crc1!=crc2)                           RETURN_NIL("MSTE-23","Bad CRC.");
   for (i= 0; i < ses.length; i++) {((char*)ses.source)[SESStart(ses)+i]= crc[i];}
   if (_moveToNewToken(&src,ses,1,"MSTE-24","Bad CRC.",error)) return nil;
 
-  // ------------------------------------------------------------------- CLASSES
+  // ------------------------------------------------------------------- CLASSES & KEYS
 
-  if (_readClassesOrKeys(&src, &(src.nbClass), &(src.classes), error)) return nil;
-
-  // ---------------------------------------------------------------------- KEYS
-
-  if (_readClassesOrKeys(&src, &(src.nbKey), &(src.keys), error)) return nil;
+  src.classes= NULL;
+  src.keys= NULL;
+  if (_readClassesOrKeys(&src, &(src.nbClass), &(src.classes), error)) {  RELEAZEN(src.classes); RELEAZEN(src.keys); return nil; }
+  if (_readClassesOrKeys(&src, &(src.nbKey), &(src.keys), error))      {  RELEAZEN(src.classes); RELEAZEN(src.keys); return nil; }
 
   // -------------------------------------------------------------------- STREAM
 
@@ -417,7 +417,7 @@ if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,MSBPointer(sou
 
   RELEAZEN(src.classes);
   RELEAZEN(src.keys);
-  RELEAZEN(src.refs);
+  //RELEAZEN(src.refs);
   return ret;
-  options= nil; // Unused parameter
+  MSUnused(options); // Unused parameter
 }

@@ -139,7 +139,7 @@ NSUInteger CDictionaryHash(id self, unsigned depth)
 {
   NSUInteger count= ((CDictionary*)self)->count;
   return count;
-  depth= 0; // unused parameter
+  MSUnused(depth);
 // TOTO: find something cool !
 /*
   if (!count || depth == MSMaxHashingHop) return count;

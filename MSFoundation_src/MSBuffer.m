@@ -112,6 +112,11 @@ static Class __MSBufferClass= Nil;
 
 + (id)bufferWithContentsOfFile:(NSString*)path
 {
+  return AUTORELEASE([ALLOC(self) initWithContentsOfFile:path]);
+}
+
+- (id)initWithContentsOfFile:(NSString *)path
+{
   char *buf=NULL;
   NSUInteger length;
 #ifdef WO451
@@ -132,7 +137,11 @@ static Class __MSBufferClass= Nil;
     return nil;}
   fread(buf, 1, length, f);
   fclose (f);
-  return AUTORELEASE((id)CCreateBufferWithBytesNoCopy(buf, length));
+  
+  _buf=    (MSByte*)buf;
+  _length= length;
+  _size=   length;
+  return self;
 }
 
 #pragma mark Init

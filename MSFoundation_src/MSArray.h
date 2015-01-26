@@ -55,6 +55,8 @@
 // TODO: à revoir ? La copie ne préserve pas la mutablility.
 // Donc la seule façon de copier avec la mutabilité est subarrayWithRange:.
 
+@class NSPortCoder;
+
 @interface MSArray : NSArray
 {
 @private

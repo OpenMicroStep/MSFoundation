@@ -63,7 +63,7 @@ NSUInteger CBufferHash(id self, unsigned depth)
 {
   return (!self || !((CBuffer*)self)->length) ? 0 :
     (NSUInteger)MSBytesELF(((CBuffer*)self)->buf, ((CBuffer*)self)->length);
-  depth= 0; // no warning
+  MSUnused(depth);
 }
 
 id CBufferCopy(id self)
@@ -453,7 +453,7 @@ BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *bytes, NSUIntege
 {
   MSCompressResult result = MSCompressOK;
   if (self && bytes && len) {
-    NSUInteger destLenIn = len*3 + 10, destLen;
+    NSUInteger destLenIn = len*3 + 10, destLen= 0;
     void *newDest, *dest = (void *)MSMalloc(destLenIn, "CBufferDecompressAndAppendBytes() allocation");
     
     result = MSBufferOverflow;

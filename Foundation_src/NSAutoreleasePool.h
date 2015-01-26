@@ -1,0 +1,4 @@
+
+@interface NSAutoreleasePool : NSObject
+
+@end

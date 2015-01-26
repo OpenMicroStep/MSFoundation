@@ -42,40 +42,6 @@
  include <MSFoundation/MSFoundation.h>
  */
 
-// values for decodingMask and acceptanceMask
-#define MSPPLParseArray				0x00000001
-#define MSPPLParseDict				0x00000002
-#define MSPPLParseUserClass			0x00000004
-#define MSPPLParseNaturals			0x00000008
-#define MSPPLParseCouple			0x00000010
-
-#define MSPPLParseAll				0x0000000f
-
-#define MSPPLDecodeNull				0x00010000
-#define MSPPLDecodeInteger			0x00020000
-#define MSPPLDecodeUnsigned			0x00040000
-#define MSPPLDecodeBoolean			0x00080000
-// LATER	#define MSPPLDecodeDecimal	0x00100000
-// LATER	#define MSPPLDecodeColor		0x00200000
-// LATER	#define MSPPLDecodeDate		0x00400000
-
-#define MSPPLDecodeAll				0x000f0000
-#define MSPPLDecodeOthers			0xff000000
-
-// user usable masks are in range 0x01000000 => 0xff000000
-// keys in dictionary are always strings.
-
-// MSCreate prefix means its a retained version of the property list
-MSFoundationExport id MSCreatePropertyListFromString(NSString *aString,
-										   unsigned mask,
-										   NSDictionary *classes,
-										   unichar (*escapeFn)(MSByte),
-										   id (*analyseFn)(MSString *, unsigned, void *),
-										   void *analyseContext) ;
-// escapeFn function must return an unichar value from the unsigned char comming from escape sequences in string
-// analyseFn function must return an autoreleased object or nil if nothing has been recognized
-
-
 @interface NSString (MSPPPLParsing)
 
 - (NSMutableDictionary *)dictionaryValue ;
@@ -84,12 +50,3 @@ MSFoundationExport id MSCreatePropertyListFromString(NSString *aString,
 - (NSMutableArray *)stringsArrayValue ;
 
 @end
-
-@interface NSObject (MSPPLParsing)
-- (id)initWithPPLParsedObject:(id)anObject ; // default implementation deallocate the object and returns nil ;
-											 // anObject can be a NSMutableArray or a NSMutableDictionary
-@end
-
-
-// dictionaries are : { K1 = V1; K2 = V2 ; ... Kn = Vn ; }
-// arrays are = (V1, V2, ..., Vn)

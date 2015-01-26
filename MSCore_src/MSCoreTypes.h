@@ -46,85 +46,37 @@
 #ifndef MSCORE_TYPES_H
 #define MSCORE_TYPES_H
 
+#include <stdint.h>
+
+#define MSUnused(X) (void)X;
+
 #ifndef NSINTEGER_DEFINED
-#define NSINTEGER_DEFINED
-
-// Si un jour TARGET_OS_IPHONE, éventuellement à revoir
-typedef long           NSInteger;
-typedef unsigned long  NSUInteger;
-
-#define NSIntegerMax    LONG_MAX
-#define NSIntegerMin    LONG_MIN
-#define NSUIntegerMax   ULONG_MAX
-
+    #define NSINTEGER_DEFINED
+    typedef intptr_t  NSInteger;
+    typedef uintptr_t NSUInteger;
+    #define NSIntegerMax    INTPTR_MAX
+    #define NSIntegerMin    INTPTR_MIN
+    #define NSUIntegerMax   UINTPTR_MAX
 #endif // NSINTEGER_DEFINED
+
+// Microstep codifications for 8, 16, 32 et 64 bytes integers
+// TODO: Shouldn't we use directly c11 std (int8_t, uint8_t, ...) as the meaning is obvious
+typedef int8_t   MSChar;
+typedef uint8_t  MSByte;
+typedef int16_t  MSShort;
+typedef uint16_t MSUShort;
+typedef int32_t  MSInt;
+typedef uint32_t MSUInt;
+typedef int64_t  MSLong;
+typedef uint64_t MSULong;
+
+#define NSIntegerMapValueCallBacks NSIntMapValueCallBacks
+#define NSIntegerMapKeyCallBacks   NSIntMapKeyCallBacks
+#define NS_NO_NATIVE_INTEGERS
 
 // No warning on ILP32 printf("%ld",WLI((NSInteger)i))
 static inline          long WLI(NSInteger  i) {return (         long)i;}
 static inline unsigned long WLU(NSUInteger u) {return (unsigned long)u;}
-
-#if defined(WIN32)
-#define intptr_t  MSInt
-#define uintptr_t MSUInt
-#define NS_REQUIRES_NIL_TERMINATION
-#endif
-
-#if defined(WIN32) || defined(MSCORE_STANDALONE) // ------------- defining types
-
-// Microstep codifications for 8, 16, 32 et 64 bytes integers
-typedef char               MSChar;
-typedef unsigned char      MSByte;
-typedef short              MSShort;
-typedef unsigned short     MSUShort;
-typedef int                MSInt;
-typedef unsigned int       MSUInt;
-typedef long long          MSLong;
-typedef unsigned long long MSULong;
-
-#define u_int8_t  MSByte
-#define u_int16_t MSUShort
-#define u_int32_t MSUInt
-#define u_int64_t MSULong
-#define int8_t    char
-#define int16_t   short
-#define int32_t   int
-#define int64_t   MSLong
-
-#define NSIntegerMapValueCallBacks NSIntMapValueCallBacks
-#define NSIntegerMapKeyCallBacks   NSIntMapKeyCallBacks
-#define NS_NO_NATIVE_INTEGERS
-
-#elif defined(__APPLE__) // ------------------------------------- defining types
-#if MAC_OS_X_VERSION_10_5 > MAC_OS_X_VERSION_MAX_ALLOWED
-#define NSIntegerMapValueCallBacks NSIntMapValueCallBacks
-#define NSIntegerMapKeyCallBacks   NSIntMapKeyCallBacks
-#define NS_NO_NATIVE_INTEGERS
-#endif
-// Microstep codifications for 8, 16, 32 et 64 bytes integers
-typedef int8_t   MSChar;
-typedef uint8_t  MSByte;
-typedef int16_t  MSShort;
-typedef uint16_t MSUShort;
-typedef int32_t  MSInt;
-typedef uint32_t MSUInt;
-typedef int64_t  MSLong;
-typedef uint64_t MSULong;
-
-#elif defined(__COCOTRON__) // ---------------------------------- defining types
-#define u_int8_t  uint8_t
-#define u_int16_t  uint16_t
-#define u_int32_t  uint32_t
-#define u_int64_t  uint64_t
-
-typedef int8_t   MSChar;
-typedef uint8_t  MSByte;
-typedef int16_t  MSShort;
-typedef uint16_t MSUShort;
-typedef int32_t  MSInt;
-typedef uint32_t MSUInt;
-typedef int64_t  MSLong;
-typedef uint64_t MSULong;
-#endif // --------------------------------------------------- end defining types
 
 typedef MSLong MSTimeInterval; // Time in seconds T0=01/01/2001
 

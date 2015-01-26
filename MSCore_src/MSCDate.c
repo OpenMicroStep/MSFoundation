@@ -190,7 +190,7 @@ BOOL CDateIsEqual(id self, id other)
 NSUInteger CDateHash(id self, unsigned depth)
 {
   return self ? (NSUInteger)((((CDate*)self)->interval) & 0xffffffff) : 0;
-  depth= 0; // unused parameter
+  MSUnused(depth);
 }
 
 id CDateCopy(id self)

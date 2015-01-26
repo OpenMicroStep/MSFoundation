@@ -35,8 +35,8 @@ static int ms_toNs(void)
   int err= 0;
   NSString *s1,*s2; id x1,x2;
   NSFileManager *fileManager; NSDirectoryEnumerator *e1,*e2; NSString *f1,*f2; BOOL end;
-  s1= @"/opt/microstep/support/MASHRepositoryServer/MHNetRepositoryServer.config";
-  s2= MSCreateString("/opt/microstep/support/MASHRepositoryServer/MHNetRepositoryServer.config");
+  s1= @"/opt/microstep/darwin/support/MASHRepositoryServer/MHNetRepositoryServer.config";
+  s2= MSCreateString("/opt/microstep/darwin/support/MASHRepositoryServer/MHNetRepositoryServer.config");
   x1= [NSDictionary dictionaryWithContentsOfFile:s1];
   x2= [NSDictionary dictionaryWithContentsOfFile:s2];
   if (!x1) {
@@ -280,6 +280,34 @@ static int ms_ascii(void)
   return err;
 }
 
+static int ms_plist(void)
+{
+  int err= 0;
+  NSString *s; NSArray* a, *e; CBuffer *b;
+  NEW_POOL;
+  b= CCreateBuffer(0);
+  CBufferAppendByte(b, 0xff);
+  CBufferAppendByte(b, 0x00);
+  CBufferAppendByte(b, 0xab);
+  CBufferAppendByte(b, 0xcd);
+  CBufferAppendByte(b, 0xab);
+  CBufferAppendByte(b, 0xcd);
+  s= @"( /** 1 **/ { /**/ thread = \"-\\\"re\n\"; /* 3 */ \"modelVersion\" = 1;\"diffExpirationInDay\" = 30;}, AZERTY_azerty_0123456789/*f*/, <ff 00 abcd AB CD>)";
+  e= [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:
+                                @"-\"re\n", @"thread",
+                                @"1", @"modelVersion",
+                                @"30", @"diffExpirationInDay",
+                                nil], @"AZERTY_azerty_0123456789", (MSBuffer *)b, nil];
+  RELEASE((id)b);
+  a= [s arrayValue];
+  if(!a){
+    NSLog(@"P1 parsing plist string '%@' to array failed", s); err++;}
+  else if(![e isEqual:a]){
+    NSLog(@"P2 parsing plist string '%@' to array failed, '%@' not equals to '%@'", s, a, e); err++;}
+  KILL_POOL;
+  return err;
+}
+
 int msfoundation_string_validate(void)
   {
   int err= 0; clock_t t0= clock(), t1; double seconds;
@@ -292,6 +320,7 @@ int msfoundation_string_validate(void)
   err+= ms_formatlld();
   err+= ms_hash();
   err+= ms_ascii();
+  err+= ms_plist();
 
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSString",(err?"FAIL":"PASS"),seconds);

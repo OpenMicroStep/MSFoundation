@@ -102,7 +102,7 @@ NSUInteger CStringHash(id self, unsigned depth)
 {
   CString *s= (CString*)self;
   return s && s->length ? (NSUInteger)_CHashCharacters(s->buf, s->length) : 0;
-  depth= 0; // Unused
+  MSUnused(depth);
 }
 
 id CStringCopy(id self)
@@ -608,7 +608,7 @@ static inline BOOL _frenchNumber999(CString *self, NSUInteger originalLength, un
     s= __french100[reste];
     CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}
   return YES;
-  originalLength= 0; // Unused
+  MSUnused(originalLength);
 }
 
 static BOOL CStringAppendFrenchNumber(CString *self, MSLong n)
@@ -694,7 +694,7 @@ static inline BOOL _englishNumber999(CString *self, NSUInteger originalLength, u
     s= __english100[reste];
     CStringAppendBytes(self, NSISOLatin1StringEncoding, s, strlen(s));}
   return YES;
-  originalLength= 0; // Unused
+  MSUnused(originalLength); // Unused
 }
 
 static BOOL CStringAppendEnglishNumber(CString *self, MSLong n)

@@ -1,0 +1,4 @@
+
+@interface NSZone : NSObject
+
+@end

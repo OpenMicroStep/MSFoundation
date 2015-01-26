@@ -1,0 +1,313 @@
+(
+	/** MCE **/
+	{ "CODE" = "200"; "TYPE_SRJ" = "Infractions aux règles sur l'usage des voies"; "SOUS_TYPE_SRJ" = "Infraction animaux et véhicules à traction animale"; "CATEGORIE" = "Stationnement"; "FAMILLE" = "Arrêt et stationnement"; "NUM_VERSION_SRJ" = "3"; "NUM_VERSION_CPMGN" = "-"; "CLASSE" = "1"; "CAS_PIETON" = "0"; "NB_POINTS" = "0"; "QUALIF_SRJ" = "ARRET OU STATIONNEMENT GENANT D'ANIMAL SUR LA VOIE PUBLIQUE"; "QUALIF_PVE" = "ARRET GENANT D'ANIMAL SUR LA VOIE PUBLIQUE."; "TEXTE_PREVOYANT" = "Art. R. 412-49 al. 1 du C. de la route."; "TEXTE_REPRIMANT" = "Art. R. 412-49 al. 1 du C. de la route."; "DATE_APPLICATION" = "1407362400"; "AMENDE_MINORE" = "-"; "AMENDE_FORFAIT" = "11"; "AMENDE_MAJORE" = "33"; "SAISIE_AUTH_CPM" = "0"; "INFRACTION_PROPRIETAIRE" = "0"; "INFRACTION_TCI" = "0"; "DUREE_AGC" = "4"; "DATE_CREATION_PVE" = "1407362400"; "CODE_AGGRAVATION" = "-"; "TYPE_AGGRAVATION" = "-"; },{ /* MCE.Object */
+		table = "GPM_TYdfPE_DEM";
+		outTable = "MCE_OdfgBJET";
+	    columns = (
+	    	{ name = "CD_TD"; 		type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "LIB_TD"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "ACTIV_TD=1";
+
+	},{
+  "thread" = "lsmobile-referencials";
+  "modelVersion" = 1;
+  "diffExpirationInDay" = 30;
+  "tables" = (
+	{ /* test */
+		table = "GPM_PERS";
+	    columns = (
+	    	{ name = "ID_PERS"; 	type = Integer; tableAlias = "P"; primaryKey = 1; },
+	    	{ name = MATRICULE; 	type = String; tableAlias = "P"; },
+	    	{ name = NOM; 			type = String; tableAlias = "P"; },
+	    	{ name = PRENOM; 		type = String; tableAlias = "P"; },
+	    	{ name = GRADE; 		type = String; tableAlias = "P"; },
+	    	{ name = SERVICE; 		type = String; tableAlias = "P"; },
+	    	{ name = "URN"; 		type = String; tableAlias = "U"; },
+	    	{ name = "CODE_LIB"; 	type = String; tableAlias = "F"; }
+	    );
+	    sqlFrom = "(GPM_PERS P";
+	    sqlJoin = "LEFT JOIN GPM_LIB F ON (P.FNC_ANTAI=F.ID_LIB) )
+	    		   LEFT JOIN LG_UTILIS U ON (P.NOM_UTILIS=U.[CODE])";
+	    sqlWhere = "DT_FIN_P is NULL OR DT_FIN_P = ''";
+	},
+	{
+		table = "GPM_GROUPES";
+	    columns = (
+	    	{ name = "ID_GR"; 		type = Integer; primaryKey = 1; },
+	    	{ name = "NOM_GR"; 		type = String; }
+	    );
+	},
+	{
+		table = "GPM_PERSGR";
+	    columns = (
+	    	{ name = "ID_GR"; 		type = "Integer"; primaryKey = 1; },
+	    	{ name = "ID_PERS"; 	type = "Integer"; }
+	    );
+	},
+	{
+		table = "GPM_ARRETE";
+	    columns = (
+	    	{ name = "ID_ARR"; 			type = "Integer"; primaryKey = 1; },
+	    	{ name = "REF_ARR"; 		type = "String"; },
+	    	{ name = "DATE_ARR"; 		type = "String"; },
+	    	{ name = "DATEDBT_ARR"; 	type = "String"; },
+	    	{ name = "DATEFIN_ARR"; 	type = "String"; },
+	    	{ name = "PRECISIONS_ARR"; 	type = "String"; },
+	    	{ name = "LIB_ARR"; 		type = "String"; },
+	    	{ name = "RES_ARR"; 		type = "String"; }
+	    );
+	    sqlWhere = "(ARR_NOT_PMM=0 OR ARR_NOT_PMM is null)
+             AND (
+              (DATEDBT_ARR = '' OR DATEDBT_ARR is null)
+              OR ((DATEDBT_ARR <> '' OR DATEDBT_ARR is not null) AND (DATEDBT_ARR = '' OR DATEDBT_ARR is null) AND (DATEDBT_ARR <= '%nextWeek'))
+              OR ((DATEDBT_ARR <> '' OR DATEDBT_ARR is not null) AND (DATEDBT_ARR <> '' OR DATEDBT_ARR is not null) AND ((DATEDBT_ARR >= '%lastWeek') OR (DATEFIN_ARR <= '%nextWeek')))
+             )";
+	},
+	{
+		table = "GPM_EQUIPEMENT";
+		tableAlias = "E";
+	    columns = (
+	    	{ name = "ID_EQT"; 			type = "Integer"; primaryKey = 1; },
+	    	{ name = "DESIGN_EQT"; 		type = "String"; },
+	    	{ name = "REF_EQT"; 		type = "String"; },
+	    	{ name = "MARQUE_EQT"; 		type = "String"; },
+	    	{ name = "MODEL_EQT"; 		type = "String"; },
+	    	{ name = "NUM_SERIE_EQT"; 	type = "String"; },
+	    	{ name = "DT_CTRL_EQT"; 	type = "String"; },
+	    	{ name = "ORG_CTRL_EQT"; 	type = "String"; }
+	    );
+	    sqlJoin = "INNER JOIN GPM_EQT_GROUPE G on (E.ID_GROUPE_EQT = G.ID_GROUPE_GEQT)
+	    		   INNER JOIN GPM_EQT_FAMILLE F on (E.ID_FAMILLE_EQT = F.ID_FAMILLE_FEQT)";
+	    sqlWhere = "E.TYPE_EQT=1 AND G.LIB_GROUPE_GEQT='Appareil de contrôle' AND F.LIB_FAMILLE_FEQT='Vitesse' AND (DT_SORTIE_EQT = '' OR DT_SORTIE_EQT is null)";
+	    /* TODO USE REAL VALUES */
+	    rows = (
+			{
+				"ID_EQT"= "12345678";
+				"MARQUE_EQT"= "Sagem";
+				"MODEL_EQT"= "MESTA1000";
+				"DT_CTRL_EQT"= "01/12/2011";
+				"ORG_CTRL_EQT"= "Organsime1";
+			},
+			{
+				"ID_EQT"= "30000000";
+				"MARQUE_EQT"= "Sagem";
+				"MODEL_EQT"= "MESTA2000";
+				"DT_CTRL_EQT"= "15/01/2010";
+				"ORG_CTRL_EQT"= "Organsime1";
+			},
+			{
+				"ID_EQT"= "A111111A";
+				"MARQUE_EQT"= "Sagem";
+				"MODEL_EQT"= "MESTA2200";
+				"DT_CTRL_EQT"= "15/01/2012";
+				"ORG_CTRL_EQT"= "Organsime2";
+			}
+	    );
+
+	},
+	{
+		table = "GPM_NATINF";
+	    columns = (
+	    	{ name = "NATINF"; 		type = "Integer"; primaryKey = 1; },
+	    	{ name = "NI"; 			type = "String"; },
+	    	{ name = "DT_DEB"; 		type = "String"; },
+	    	{ name = "DT_FIN"; 		type = "String"; },
+	    	{ name = "POINTS"; 		type = "Integer"; },
+	    	{ name = "LIBELLE"; 	type = "String"; },
+	    	{ name = "ART_CR"; 		type = "String"; },
+	    	{ name = "REPRIM"; 		type = "String"; }
+	    );
+	    sqlWhere = "DT_FIN IS NULL";
+	},
+	{
+		table = "GPM_RUE";
+	    columns = (
+	    	{ name = "ID_U"; 		type = "String"; primaryKey = 1; },
+	    	{ name = "CL_U"; 		type = "String"; },
+	    	{ name = "ID_COM_U"; 	type = "Integer"; },
+	    	{ name = "NM_U"; 		type = "String"; },
+	    	{ name = "CP_U"; 		type = "String"; }
+	    );
+	},
+	{
+		table = "GPM_VEHICULE";
+	    columns = (
+	    	{ name = "MARQUE"; 		type = "String"; primaryKey = 1; },
+	    	{ name = "MODELE"; 		type = "String"; primaryKey = 1; },
+	    	{ name = "CODE"; 		type = "Integer"; }
+	    );
+	},
+	/** MCE **/
+	{ /* MCE.Object */
+		table = "GPM_TYPE_DEM";
+		outTable = "MCE_OBJET";
+	    columns = (
+	    	{ name = "CD_TD"; 		type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "LIB_TD"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "ACTIV_TD=1";
+
+	},
+	{ /* MCE.Source */
+		table = "GPM_CODE";
+		outTable = "MCE_SOURCE";
+	    columns = (
+	    	{ name = "CODE"; 		type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "TXT"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "ACTIV=1";
+
+	},
+	{ /* MCE.Suites(=Suites) */
+		table = "GPM_LIB";
+		outTable = "MCE_SUITES";
+	    columns = (
+	    	{ name = "CODE_LIB"; 	type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "LIB"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "TYPE_LIB='Suites' AND ACTIV_LIB=1";
+	},
+	{ /* MCE.Réquérant(=Source) */
+		table = "GPM_LIB";
+		outTable = "MCE_REQUERANT";
+	    columns = (
+	    	{ name = "CODE_LIB"; 	type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "LIB"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "TYPE_LIB='Source' AND ACTIV_LIB=1";
+	},
+	{ /* MCE.Locomotion(=Motif) */
+		table = "GPM_LIB";
+		outTable = "MCE_MOTIF";
+	    columns = (
+	    	{ name = "CODE_LIB"; 	type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "LIB"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "TYPE_LIB='Motif' AND ACTIV_LIB=1";
+	},
+	{ /* MCE.Tiers.Rôle(=Role Tiers) */
+		table = "GPM_LIB";
+		outTable = "MCE_TIER_ROLE";
+	    columns = (
+	    	{ name = "CODE_LIB"; 	type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "LIB"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "TYPE_LIB='Role Tiers' AND ACTIV_LIB=1";
+	},
+	{ /* MCE.Tiers.Type(=Type Tiers)} */
+		table = "GPM_LIB";
+		outTable = "MCE_TIER_TYPE";
+	    columns = (
+	    	{ name = "CODE_LIB"; 	type = "String"; 	outName = "CODE"; primaryKey = 1; },
+	    	{ name = "LIB"; 		type = "String"; 	outName = "LABEL"; }
+	    );
+	    sqlWhere = "TYPE_LIB='Type_Tiers' AND (CODE_LIB='IDENT' OR CODE_LIB='REQ') AND ACTIV_LIB=1";
+	    addRows = (
+	        { CODE_LIB = "AUTRES"; 	LIB = "Autres"; }
+	    );
+	},
+	{
+		table = "DrivingLicenseType" ;
+	    columns = (
+	    	{ name = "KEY"; 			type = "String"; primaryKey = 1; },
+	    	{ name = "LABEL"; 			type = "String"; }
+	    );
+	    rows = (
+            { KEY = "A"; 	LABEL = "Permis A";},
+            { KEY = "A1"; 	LABEL = "Permis A1";},
+            { KEY = "B"; 	LABEL = "Permis B";},
+            { KEY = "B1"; 	LABEL = "Permis B1";},
+            { KEY = "C"; 	LABEL = "Permis C";},
+            { KEY = "D"; 	LABEL = "Permis D";},
+            { KEY = "EB"; 	LABEL = "Permis EB";},
+            { KEY = "EC"; 	LABEL = "Permis EC";},
+            { KEY = "ED"; 	LABEL = "Permis ED";} 
+	    );
+	},
+	{
+		table = "PersonalIdentificationNature" ;
+	    columns = (
+	    	{ name = "KEY"; 			type = "String"; primaryKey = 1; },
+	    	{ name = "LABEL"; 			type = "String"; }
+	    );
+	    rows = (
+	        { KEY = "CNI"; 	LABEL = "Carte Nationale d'identité"; },
+            { KEY = "PAS"; 	LABEL = "Passeport"; },
+            { KEY = "PCO"; 	LABEL = "Permis de conduire"; },
+            { KEY = "SEJ"; 	LABEL = "Carte de séjour"; },
+            { KEY = "SANS"; LABEL = "Pas de pièce"; }
+	    );
+	},
+	{
+		table = "PersonCivilityType" ;
+	    columns = (
+	    	{ name = "KEY"; 			type = "String"; primaryKey = 1; },
+	    	{ name = "LABEL"; 			type = "String"; }
+	    );
+	    rows = (
+            { KEY = "M"; 		LABEL = "Monsieur"; },
+            { KEY = "MME"; 		LABEL = "Madame"; },
+            { KEY = "MLLE"; 	LABEL = "Mademoiselle"; },
+            { KEY = "SOCIETE"; 	LABEL = "Société"; }
+	    );
+	});
+}, {
+  "thread" = "lsmobile-villes";
+  "modelVersion" = 1;
+  "tables" = (
+	{
+		table = "VILLES" ;
+	    columns = (
+	    	{ name = "NM_V"; 			type = "String"; primaryKey = 1; },
+	    	{ name = "NM_V_MIN"; 		type = "String"; },
+	    	{ name = "CODE_DEP"; 		type = "Integer"; },
+	    	{ name = "CODE_PTT"; 		type = "String"; },
+	    	{ name = "ART_V"; 			type = "String"; },
+	    	{ name = "CHA_V"; 			type = "String"; }
+	    );
+	}
+	);
+}, {
+  "thread" = "lsmobile-natinfs";
+  "modelVersion" = 1;
+  "tables" = (
+	{
+		table = "NATINFS_PVE" ;
+	    columns = (
+	    	{ name = "CODE"; 					type = "String"; primaryKey = 1; },
+	    	{ name = "TYPE_SRJ"; 				type = "String"; },
+	    	{ name = "SOUS_TYPE_SRJ"; 			type = "String"; },
+	    	{ name = "CATEGORIE"; 				type = "String"; },
+	    	{ name = "FAMILLE"; 				type = "String"; },
+	    	{ name = "NUM_VERSION_SRJ"; 		type = "String"; },
+	    	{ name = "NUM_VERSION_CPMGN";		type = "String"; },
+	    	{ name = "DATE_EDIT_CPMGM"; 		type = "Integer"; },
+	    	{ name = "CLASSE"; 					type = "String"; },
+	    	{ name = "CAS_PIETON"; 				type = "String"; },
+	    	{ name = "NB_POINTS"; 				type = "String"; },
+	    	{ name = "QUALIF_SRJ"; 				type = "String"; },
+	    	{ name = "QUALIF_PVE"; 				type = "String"; },
+	    	{ name = "TEXTE_PREVOYANT"; 		type = "String"; },
+	    	{ name = "TEXTE_REPRIMANT"; 		type = "String"; },
+	    	{ name = "DATE_APPLICATION";		type = "Integer"; },
+	    	{ name = "DATE_FIN"; 				type = "Integer"; },
+	    	{ name = "AMENDE_MINORE";  			type = "String"; },
+	    	{ name = "AMENDE_FORFAIT";			type = "String"; },
+	    	{ name = "AMENDE_MAJORE"; 			type = "String"; },
+	    	{ name = "SAISIE_AUTH_CPM"; 		type = "String"; },
+	    	{ name = "INFRACTION_PROPRIETAIRE"; type = "String"; },
+	    	{ name = "INFRACTION_TCI"; 			type = "String"; },
+	    	{ name = "DUREE_AGC"; 				type = "String"; },
+	    	{ name = "DATE_CREATION_PVE"; 		type = "String"; },
+	    	{ name = "CODE_AGGRAVATION"; 		type = "String"; },
+	    	{ name = "TYPE_AGGRAVATION"; 		type = "String"; }
+	    );
+	    rows = (
+{ "CODE" = "200"; "TYPE_SRJ" = "Infractions aux règles sur l'usage des voies"; "SOUS_TYPE_SRJ" = "Infraction animaux et véhicules à traction animale"; "CATEGORIE" = "Stationnement"; "FAMILLE" = "Arrêt et stationnement"; "NUM_VERSION_SRJ" = "3"; "NUM_VERSION_CPMGN" = "-"; "CLASSE" = "1"; "CAS_PIETON" = "0"; "NB_POINTS" = "0"; "QUALIF_SRJ" = "ARRET OU STATIONNEMENT GENANT D'ANIMAL SUR LA VOIE PUBLIQUE"; "QUALIF_PVE" = "ARRET GENANT D'ANIMAL SUR LA VOIE PUBLIQUE."; "TEXTE_PREVOYANT" = "Art. R. 412-49 al. 1 du C. de la route."; "TEXTE_REPRIMANT" = "Art. R. 412-49 al. 1 du C. de la route."; "DATE_APPLICATION" = "1407362400"; "AMENDE_MINORE" = "-"; "AMENDE_FORFAIT" = "11"; "AMENDE_MAJORE" = "33"; "SAISIE_AUTH_CPM" = "0"; "INFRACTION_PROPRIETAIRE" = "0"; "INFRACTION_TCI" = "0"; "DUREE_AGC" = "4"; "DATE_CREATION_PVE" = "1407362400"; "CODE_AGGRAVATION" = "-"; "TYPE_AGGRAVATION" = "-"; }
+);
+
+
+	}
+	);
+})

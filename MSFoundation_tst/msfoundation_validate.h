@@ -1,6 +1,6 @@
 // msfoundation_validate.h, ecb, 130911
 
-#include "MSFoundation.h"
+#import <MSFoundation/MSFoundation.h>
 #import "mscore_validate.h"
 
 int msfoundation_array_validate     (void);
@@ -27,7 +27,7 @@ static inline int testFoundation(BOOL alone)
        msfoundation_decimal_validate()    +
        msfoundation_dictionary_validate() +
        msfoundation_string_validate()     +
-       msfoundation_mste_validate()       +
+       //msfoundation_mste_validate()       +
        0;
   if (alone) {
     if (!err)

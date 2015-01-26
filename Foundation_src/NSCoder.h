@@ -1,0 +1,4 @@
+
+@interface NSCoder : NSObject
+
+@end

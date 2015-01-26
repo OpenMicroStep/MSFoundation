@@ -170,6 +170,9 @@ void MSReportErrorV(MSErrorDomain domain, MSErrorLevel level, MSInt errorCode, c
   else {
     fprintf(stderr, "MSCore %s #%d:%s\n", __errorDomains[domain], errorCode, buf);
     fflush(stderr);
+#ifdef  WIN32
+    DebugBreak();
+#endif
     if (level == MSFatalError) { exit(errorCode); }
   }
 }

@@ -1,0 +1,11 @@
+CArray is a c-like object structure for array.
+By default, CArray acts the same way as NSMutableArray.
+Retain / Release paradigme is supported and nil objects can't be added.
+Copied arrays act this way.
+
+Nevertheless, pointers or not retain/release objects are also supported as well as nil or NULL added items.
+To configure these options, you need to use CCreateArrayWithOptions. This is the only way to active them. Copied arrays keep these options.
+
+CArray is usable as array of NSIntegers, NSUIntegers, array of pointers (of anything: int, struct...), array of objects. Obviously if items are not objects you can not use methods witch retain/release, copy or equal-compare items.
+
+Added objects are retained unless the noRetainRelease option is activated. If objects are copied, there retain counts are set to 1, even on noRetainRelease option. By careful, in the last case, copied objects are NOT released when the array is released. You have to do it manually.

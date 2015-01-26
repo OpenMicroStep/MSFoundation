@@ -1,0 +1,4 @@
+
+@interface NSNull : NSObject
+
+@end
