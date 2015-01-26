@@ -383,6 +383,10 @@
 		A6E03BF91A7696A100A97DA3 /* MSASCIIString.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038DF1A7630CB00A97DA3 /* MSASCIIString.m */; };
 		A6E03BFA1A7696B300A97DA3 /* MSCharsets_Private.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038E31A7630CB00A97DA3 /* MSCharsets_Private.m */; };
 		A6E03BFC1A7697F300A97DA3 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
+		A6E03C001A769A0300A97DA3 /* NSObjCRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E03BFF1A769A0300A97DA3 /* NSObjCRuntime.m */; };
+		A6E03C021A769A3100A97DA3 /* NSObjCRuntime.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03C011A769A3100A97DA3 /* NSObjCRuntime.h */; };
+		A6E03C051A769EE800A97DA3 /* NSRange.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03C031A769EE800A97DA3 /* NSRange.h */; };
+		A6E03C061A769EE800A97DA3 /* NSRange.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E03C041A769EE800A97DA3 /* NSRange.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -681,6 +685,10 @@
 		A6E03BF31A76954C00A97DA3 /* NSAutoreleasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSAutoreleasePool.m; path = Foundation_src/NSAutoreleasePool.m; sourceTree = "<group>"; };
 		A6E03BF61A7695A300A97DA3 /* Foundation_Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Foundation_Protected.h; path = Foundation_src/Foundation_Protected.h; sourceTree = "<group>"; };
 		A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.4.6.dylib; path = Runtime/libobjc.4.6.dylib; sourceTree = "<group>"; };
+		A6E03BFF1A769A0300A97DA3 /* NSObjCRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSObjCRuntime.m; path = Foundation_src/NSObjCRuntime.m; sourceTree = "<group>"; };
+		A6E03C011A769A3100A97DA3 /* NSObjCRuntime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSObjCRuntime.h; path = Foundation_src/NSObjCRuntime.h; sourceTree = "<group>"; };
+		A6E03C031A769EE800A97DA3 /* NSRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSRange.h; path = Foundation_src/NSRange.h; sourceTree = "<group>"; };
+		A6E03C041A769EE800A97DA3 /* NSRange.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSRange.m; path = Foundation_src/NSRange.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -947,10 +955,10 @@
 			isa = PBXGroup;
 			children = (
 				A6E03B931A767E7800A97DA3 /* Foundation.h */,
+				A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */,
 				A6E03BF61A7695A300A97DA3 /* Foundation_Protected.h */,
 				A6E03B951A767E8700A97DA3 /* Foundation_Private.h */,
 				A6E03BD41A76874B00A97DA3 /* FoundationTypes.h */,
-				A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */,
 				A6E03BB41A7681B800A97DA3 /* Bases */,
 				A6E03BB51A7681C700A97DA3 /* Protocols */,
 				A6E03BB61A7681D600A97DA3 /* Others */,
@@ -1080,6 +1088,8 @@
 		A6E03BB41A7681B800A97DA3 /* Bases */ = {
 			isa = PBXGroup;
 			children = (
+				A6E03C011A769A3100A97DA3 /* NSObjCRuntime.h */,
+				A6E03BFF1A769A0300A97DA3 /* NSObjCRuntime.m */,
 				A6E03B8D1A767E1200A97DA3 /* NSObject.h */,
 				A6E03B8E1A767E1200A97DA3 /* NSObject.m */,
 				A6E03BF21A76954C00A97DA3 /* NSAutoreleasePool.h */,
@@ -1126,6 +1136,8 @@
 				A6E03BC91A76838A00A97DA3 /* NSZone.m */,
 				A6E03BEE1A7691BC00A97DA3 /* NSTimeZone.h */,
 				A6E03BEF1A7691BC00A97DA3 /* NSTimeZone.m */,
+				A6E03C031A769EE800A97DA3 /* NSRange.h */,
+				A6E03C041A769EE800A97DA3 /* NSRange.m */,
 			);
 			name = Others;
 			sourceTree = "<group>";
@@ -1203,12 +1215,14 @@
 				A6E03BD51A76874B00A97DA3 /* FoundationTypes.h in Headers */,
 				A6E03BAB1A7680A100A97DA3 /* NSNull.h in Headers */,
 				A6E03BF01A7691BC00A97DA3 /* NSTimeZone.h in Headers */,
+				A6E03C051A769EE800A97DA3 /* NSRange.h in Headers */,
 				A6E03BCA1A76847B00A97DA3 /* NSData.h in Headers */,
 				A6E03BA71A76806400A97DA3 /* NSEnumerator.h in Headers */,
 				A6E03B9F1A767F7400A97DA3 /* NSArray.h in Headers */,
 				A6E03BB81A7681F700A97DA3 /* NSCoding.h in Headers */,
 				A6E03B8F1A767E1200A97DA3 /* NSObject.h in Headers */,
 				A6E03BBA1A76821A00A97DA3 /* NSCopying.h in Headers */,
+				A6E03C021A769A3100A97DA3 /* NSObjCRuntime.h in Headers */,
 				A6E03BCB1A76849100A97DA3 /* NSCoder.h in Headers */,
 				A6E03BCC1A76849100A97DA3 /* NSException.h in Headers */,
 				A6E03BD21A7684D800A97DA3 /* NSDate.h in Headers */,
@@ -1663,8 +1677,10 @@
 				A6E039C91A76320700A97DA3 /* mapm_div.c in Sources */,
 				A6E039CA1A76320700A97DA3 /* mapm_exp.c in Sources */,
 				A6E039CB1A76320700A97DA3 /* mapm_fft.c in Sources */,
+				A6E03C001A769A0300A97DA3 /* NSObjCRuntime.m in Sources */,
 				A6E039CC1A76320700A97DA3 /* mapm_flr.c in Sources */,
 				A6E03BF11A7691BC00A97DA3 /* NSTimeZone.m in Sources */,
+				A6E03C061A769EE800A97DA3 /* NSRange.m in Sources */,
 				A6E039CD1A76320700A97DA3 /* mapm_fpf.c in Sources */,
 				A6E039CE1A76320700A97DA3 /* mapm_gcd.c in Sources */,
 				A6E039CF1A76320700A97DA3 /* mapm_lg2.c in Sources */,
@@ -2034,6 +2050,10 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Runtime",
 				);
+				OTHER_CFLAGS = (
+					"-fconstant-string-class=NSConstantString",
+					"-fobjc-runtime=gnustep-1.7",
+				);
 				PRODUCT_NAME = Foundation;
 				SKIP_INSTALL = YES;
 			};
@@ -2055,6 +2075,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Runtime",
+				);
+				OTHER_CFLAGS = (
+					"-fconstant-string-class=NSConstantString",
+					"-fobjc-runtime=gnustep-1.7",
 				);
 				PRODUCT_NAME = Foundation;
 				SKIP_INSTALL = YES;

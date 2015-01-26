@@ -3,3 +3,7 @@
 @implementation NSArray
 
 @end
+
+@implementation NSMutableArray
+
+@end

@@ -3,3 +3,7 @@
 @implementation NSDictionary
 
 @end
+
+@implementation NSMutableDictionary
+
+@end

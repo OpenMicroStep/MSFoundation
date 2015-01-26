@@ -3,3 +3,8 @@
 @implementation NSData
 
 @end
+
+
+@implementation NSMutableData
+
+@end

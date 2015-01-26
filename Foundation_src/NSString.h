@@ -31,3 +31,10 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 @interface NSMutableString : NSString
 
 @end
+
+@interface NSConstantString : NSString {
+    void    *_bytes;
+    uint32_t _length;
+}
+@end
+
