@@ -35,5 +35,8 @@
     atomic_int32_t _retainCount;
 }
 
++ (instancetype)new;
++ (instancetype)alloc;
+- (instancetype)init;
 - (void)dealloc;
 @end

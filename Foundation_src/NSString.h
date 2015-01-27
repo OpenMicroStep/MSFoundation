@@ -32,7 +32,8 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 
 @end
 
-@interface NSConstantString : NSString {
+@interface NSConstantString {
+    Class isa;
     void    *_bytes;
     uint32_t _length;
 }

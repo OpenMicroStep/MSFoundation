@@ -535,8 +535,8 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
       _MSIndexedColor *c;
       NSString *s;
       int i;
-      __namedColors= [ALLOC(NSMutableDictionary) initWithCapacity:COLOR_LIST_COUNT*2];
-      __colorsList= [[MSArray alloc] mutableInit];
+      __namedColors= (MSDictionary *)CCreateDictionary(COLOR_LIST_COUNT*2);
+      __colorsList= (MSArray *)CCreateArray(COLOR_LIST_COUNT);
       for (i= 0; i < COLOR_LIST_COUNT; i++) {
         entry= __colorTable[i];
         s= [NSString stringWithUTF8String:entry.name];

@@ -2,6 +2,45 @@
 
 @implementation NSObject
 
++ (instancetype)new
+{
+    return [[self alloc] init];
+}
+
++ (instancetype)alloc
+{
+    return NSAllocateObject(self, 0, NULL);
+}
+
+- (instancetype)init
+{
+    return self;
+}
+
+- (instancetype)retain
+{
+    atomic_int32_increment(&_retainCount);
+    return self;
+}
+
+- (oneway void)release
+{
+    if(atomic_int32_decrement(&_retainCount)) {
+        [self dealloc];
+    }
+}
+
+// See NSAutoreleasePool.m - (instancetype)autorelease;
+- (NSUInteger)retainCount
+{
+    return atomic_int32_fetch(&_retainCount);
+}
+
+- (void)dealloc
+{
+    NSDeallocateObject(self);
+}
+
 - (BOOL)isEqual:(id)object
 {
     return self == object;
@@ -68,26 +107,6 @@
     return imp(self, aSelector, object1, object2);
 }
 
-- (instancetype)retain
-{
-    atomic_int32_increment(&_retainCount);
-    return self;
-}
-
-- (oneway void)release
-{
-    if(atomic_int32_decrement(&_retainCount)) {
-        [self dealloc];
-    }
-}
-
-
-// See NSAutoreleasePool.m - (instancetype)autorelease;
-- (NSUInteger)retainCount
-{
-    return atomic_int32_fetch(&_retainCount);
-}
-
 - (NSString *)description
 {
     return [NSString stringWithFormat:@"<%@ %p>", [self class], self];
@@ -101,11 +120,6 @@
 - (BOOL)isProxy
 {
     return NO;
-}
-
-- (void)dealloc
-{
-    NSDeallocateObject(self);
 }
 
 @end

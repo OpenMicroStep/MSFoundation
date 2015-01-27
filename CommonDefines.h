@@ -55,6 +55,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <limits.h>
 #include <math.h>
 
@@ -122,6 +123,8 @@ inline int32_t atomic_int32_decrement(atomic_int32_t *value)
 
 // dlopen/dlsym/dlclose
 #ifdef WIN32
+    #define RTLD_LAZY 0
+    #define RTLD_NOW  1
     typedef HMODULE dl_handle_t;
     static inline dl_handle_t dlopen(const char *path, int mode)       { return LoadLibrary(path); }
     static inline int dlclose(dl_handle_t *handle)                     { return FreeLibrary(handle) ? 0 : -1; }
