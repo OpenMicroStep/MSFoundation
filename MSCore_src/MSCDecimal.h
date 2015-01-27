@@ -47,10 +47,7 @@
 #define MSCORE_DECIMAL_H
 
 typedef struct CDecimalStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   unsigned char *m_apm_data;
   long m_apm_id;
   int  m_apm_malloclength;

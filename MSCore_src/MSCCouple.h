@@ -46,10 +46,7 @@
 #define MSCORE_COUPLE_H
 
 typedef struct CCoupleStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   id members[2];}
 CCouple;
 

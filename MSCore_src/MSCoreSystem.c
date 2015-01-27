@@ -203,20 +203,12 @@ MSInt MSCurrentTimezoneOffset(void)
 
 MSInt MSCurrentProcessID(void)
 {
-#ifdef WIN32
-  return (MSInt)GetCurrentProcessId();
-#else
-  return (MSInt)syscall(SYS_getpid);
-#endif
+    return (MSInt)getpid();
 }
 
 MSInt  MSCurrentThreadID(void)
 {
-#ifdef WIN32
-  return (MSInt)GetCurrentThreadId();
-#else
-  return (MSInt)syscall(SYS_gettid);
-#endif
+    return (MSInt)gettid();
 }
 /*
 MSLong MSCurrentHostID(void)

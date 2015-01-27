@@ -59,10 +59,7 @@ typedef struct CBufferFlagsStruct {
 CBufferFlags;
 
 typedef struct CBufferStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   MSByte *buf;
   NSUInteger   size;
   NSUInteger   length;

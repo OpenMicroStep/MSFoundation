@@ -46,7 +46,10 @@
 #ifndef MSCORE_TYPES_H
 #define MSCORE_TYPES_H
 
-#include <stdint.h>
+#if !defined(MSCORE_STANDALONE) && !defined(_OBJC_OBJC_H_) 
+// Objc type aren't defined, MSCore will defines the most common ones
+#define MSCORE_FORFOUNDATION 1
+#endif
 
 #define MSUnused(X) (void)X;
 
@@ -177,69 +180,9 @@ enum {
   NSDOSStringEncoding= 0x20000 // we add a string encoding for DOS
 };
 
-///// Definition of atomics
-#if defined(__APPLE__)
-#include <libkern/OSAtomic.h>
-typedef volatile int32_t atomic_int32_t;
-#define atomic_int32_increment(V) OSAtomicIncrement32(V)
-#define atomic_int32_decrement(V) OSAtomicDecrement32(V)
-#define atomic_int32_fetch(V) (*V)
-#elif defined(_WIN32)
-#include <Winnt.h>
-typedef volatile int32_t atomic_int32_t;
-#define atomic_int32_increment(V) InterlockedIncrementNoFence(V)
-#define atomic_int32_decrement(V) InterlockedDecrementNoFence(V)
-#define atomic_int32_fetch(V) (*V)
-#else 
-// Use GCC & Clang builtins, in case OSs doesn't provide faster implementation
-typedef volatile int32_t atomic_int32_t;
-inline int32_t atomic_int32_increment(atomic_int32_t *value)
-{
-    int32_t ret;
-    ret= __sync_fetch_and_add(value, 1);
-    ++ret;
-    return ret;
-}
-inline int32_t atomic_int32_decrement(atomic_int32_t *value)
-{
-    int32_t ret;
-    ret= __sync_fetch_and_sub(value, 1);
-    --ret;
-    return ret;
-}
-#define atomic_int32_fetch(V) (*V)
-#endif
 
-///// Definition of mutexes
-#ifdef WIN32
-
-#define mutex_t                          CRITICAL_SECTION
-#define mutex_init(mutex)                InitializeCriticalSection(&mutex)
-#define mutex_lock(mutex)                EnterCriticalSection(&mutex)
-#define mutex_trylock(mutex)             TryEnterCriticalSection(&mutex)
-#define mutex_unlock(mutex)              LeaveCriticalSection(&mutex)
-#define mutex_delete(mutex)              DeleteCriticalSection(&mutex)
-
-#else
-
-#define mutex_t                          pthread_mutex_t
-#define mutex_init(mutex)                pthread_mutex_init(&mutex, NULL)
-#define mutex_lock(mutex)                pthread_mutex_lock(&mutex)
-#define mutex_trylock(mutex)             !pthread_mutex_trylock(&mutex)
-#define mutex_unlock(mutex)              pthread_mutex_unlock(&mutex)
-#define mutex_delete(mutex)              pthread_mutex_destroy(&mutex)
-
-typedef int SOCKET;
-
-#endif
-
-///// Definition of MSFileHandle
-#ifdef WIN32
-#define MSFileHandle HANDLE
-#define MSInvalidFileHandle INVALID_HANDLE_VALUE
-#else
-#define MSFileHandle int
-#define MSInvalidFileHandle -1
-#endif
+#define MSCORE_NSOBJECT_ATTRIBUTES \
+  Class isa; \
+  uint32_t refCount;
 
 #endif // MSCORE_TYPES_H

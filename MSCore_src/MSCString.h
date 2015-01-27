@@ -45,10 +45,7 @@
 #define MSBase_MSCString_h
 
 typedef struct CStringStruct {
-  Class      isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   unichar*   buf;
   NSUInteger size;
   NSUInteger length;

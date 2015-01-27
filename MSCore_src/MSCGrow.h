@@ -63,10 +63,7 @@ typedef struct CGrowFlagsStruct {
 CGrowFlags;
 
 typedef struct CGrowStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   void *zone;       // la zone allouée pour les éléments
   NSUInteger size;  // le nombre d'éléments utilisables
   NSUInteger count; // le nombre d'éléments utilisés

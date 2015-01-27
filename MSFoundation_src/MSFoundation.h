@@ -41,6 +41,7 @@
 #import <Foundation/Foundation.h>
 
 #import <MSFoundation/MSCoreIncludes.h>
+#import <MSFoundation/CommonDefines.h>
 #import <MSFoundation/MSCoreTypes.h>
 #import <MSFoundation/MSCoreWin32.h>
 #import <MSFoundation/MSCoreSystem.h>

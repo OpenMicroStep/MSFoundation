@@ -50,10 +50,7 @@
 #define MSCORE_DATE_H
 
 typedef struct CDateStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   MSTimeInterval interval;}
 CDate;
 

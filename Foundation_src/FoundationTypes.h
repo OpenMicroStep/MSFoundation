@@ -1,23 +1,7 @@
-
 #import <objc/objc.h>
-#import <limits.h>
-#import <stdarg.h>
 
+#ifndef MSCORE_FORFOUNDATION
 #define MSCORE_FORFOUNDATION
-#import "MSCoreTypes.h"
-
-#ifdef __cplusplus
-    #define EXTERN_C extern "C"
-#else
-    #define EXTERN_C extern
-#endif
-
-#ifdef __WIN32__
-    #define FOUNDATION_LIBEXPORT EXTERN_C __declspec(dllexport)
-    #define FOUNDATION_LIBIMPORT EXTERN_C __declspec(dllimport)
-#else
-    #define FOUNDATION_LIBEXPORT EXTERN_C
-    #define FOUNDATION_LIBIMPORT EXTERN_C
 #endif
 
 #define NS_INLINE static inline

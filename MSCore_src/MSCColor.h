@@ -46,10 +46,7 @@
 #define MSCORE_COLOR_H
 
 typedef struct CColorStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
 #ifdef __BIG_ENDIAN__
   MSUInt r:8;
   MSUInt g:8;

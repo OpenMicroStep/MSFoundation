@@ -48,7 +48,7 @@
 #ifndef MSCORE_PRIVATE_H
 #define MSCORE_PRIVATE_H
 
-#include "MSCoreIncludes.h"
+#include "CommonDefines.h"
 #include "MSCoreTypes.h"
 #include "MSCoreWin32.h"
 #include "MSCoreSystem.h"

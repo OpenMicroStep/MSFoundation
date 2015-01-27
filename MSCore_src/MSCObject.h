@@ -58,10 +58,7 @@ typedef struct ClassStruct {
 
 ///// c-like object
 typedef struct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   }
 *id;
 #define nil ((void*)0)

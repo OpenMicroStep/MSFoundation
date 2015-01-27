@@ -1,5 +1,8 @@
+#import <Foundation/CommonDefines.h>
+#define FOUNDATION_EXPORT LIBIMPORT
+
+#import <Foundation/MSCoreTypes.h>
 #import <Foundation/FoundationTypes.h>
-#define FOUNDATION_EXPORT FOUNDATION_LIBIMPORT
 
 #import <Foundation/NSObject.h>
 

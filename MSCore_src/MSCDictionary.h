@@ -48,10 +48,7 @@
 #define MSCORE_DICTIONARY_H
 
 typedef struct CDictionaryStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   void **buckets;
   NSUInteger nBuckets;
   NSUInteger count;

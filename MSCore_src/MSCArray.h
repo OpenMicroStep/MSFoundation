@@ -65,10 +65,7 @@ typedef struct CArrayFlagsStruct {
 CArrayFlags;
 
 typedef struct CArrayStruct {
-  Class isa;
-#ifdef MSCORE_STANDALONE
-  NSUInteger refCount;
-#endif
+  MSCORE_NSOBJECT_ATTRIBUTES
   id *pointers;
   NSUInteger  size;
   NSUInteger  count;
