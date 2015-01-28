@@ -56,11 +56,7 @@ static inline int ccolor_create(void)
 
 int mscore_ccolor_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+  int err= 0;
   err+= ccolor_create();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CColor",(err?"FAIL":"PASS"),seconds);
   return err;
   }

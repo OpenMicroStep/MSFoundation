@@ -160,7 +160,7 @@ static inline int date_create2(void)
   {
   int err= 0,i;
   MSTimeInterval t;
-  MSDate *c[M1],*d,*e; // last date: 3432/07/11-02:51:40
+  MSDate *c[M1],*d= nil,*e= nil; // last date: 3432/07/11-02:51:40
   
   for (t= -63113904000LL, i= 0; i<M1; i++) { //-63113904000LL
     c[i]= MSCreateObjectWithClassIndex(CDateClassIndex);
@@ -324,18 +324,13 @@ static inline int date_now(void)
   return err;
   }
 
-int msfoundation_date_validate(void)
-  {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+TEST_FCT_BEGIN(MSDate)
+  int err= 0;
   err+= date_create();
   err+= date_create2();
   err+= date_week();
   err+= date_firstLast();
   err+= date_replacing();
   err+= date_now();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSDate",(err?"FAIL":"PASS"),seconds);
   return err;
-  }
+TEST_FCT_END(MSDate)

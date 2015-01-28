@@ -41,17 +41,16 @@
 #ifndef MSFOUNDATION_PRIVATE_H
 #define MSFOUNDATION_PRIVATE_H
 
-#ifdef FOUNDATION_NOT_INCLUDED
+#ifdef MSFOUNDATION_FOR_COCOA
 #import <Foundation/Foundation.h>
 #endif
 
 #import "MSCore_Private.h"
+#define MSFoundationExport LIBEXPORT
 
-#ifndef FOUNDATION_NOT_INCLUDED
+#ifndef MSFOUNDATION_FOR_COCOA
 #import "Foundation_Protected.h"
 #endif
-
-#import "MSFoundationWin32.h"
 
 #import "MSFoundationDefines.h"
 #import "MSCoderAdditions.h"
@@ -70,8 +69,6 @@
 #import "MSFileManipulation.h"
 
 #import "MSRow.h"
-#import "MSCSSLInterface.h"
-#import "MSSSLInterface.h" // Dans MSNet ?
 
 #import "MSArray.h"
 //#import "MSMutableArray.h"

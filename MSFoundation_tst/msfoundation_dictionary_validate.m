@@ -151,15 +151,10 @@ static int cdictionary_init(void)
   return err;
   }
 
-int msfoundation_dictionary_validate(void)
-  {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+TEST_FCT_BEGIN(MSDictionary)
+  int err= 0;
   err+= cdictionary_create();
   err+= cdictionary_enum();
   err+= cdictionary_init();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSDictionary",(err?"FAIL":"PASS"),seconds);
   return err;
-  }
+TEST_FCT_END(MSDictionary)

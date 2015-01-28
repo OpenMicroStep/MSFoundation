@@ -8,10 +8,12 @@
 
 #import "foundation_validate.h"
 
-BEGIN_TEST(retain)
-    printf("NSObject - retain - test \n");
-END_TEST
+TEST_FCT_BEGIN(retain)
+    id obj = [NSObject new];
+    ASSERT_EQUALS([obj retainCount], 1, "retain count of [NSObject new] must be one: %d != %d");
+    [obj release];
+TEST_FCT_END(retain)
 
-BEGIN_TESTSUITE(NSObject)
-ADD_TEST(retain)
-END_TESTSUITE
+TEST_FCT_BEGIN(NSObject)
+    TEST_FCT(retain);
+TEST_FCT_END(NSObject)

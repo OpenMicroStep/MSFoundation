@@ -38,35 +38,8 @@
  
  */
 
-#import <MSFoundation/CommonDefines.h>
-#define FOUNDATION_EXPORT LIBIMPORT
+#import <Foundation/Foundation.h>
 #define MSFoundationExport LIBIMPORT
-
-#import <MSFoundation/MSCoreTypes.h>
-#import <MSFoundation/FoundationTypes.h>
-
-#import <MSFoundation/NSObject.h>
-
-// Protocols
-#import <MSFoundation/NSCoding.h>
-#import <MSFoundation/NSCopying.h>
-
-// Base classes
-#import <MSFoundation/NSAutoreleasePool.h>
-#import <MSFoundation/NSString.h>
-#import <MSFoundation/NSArray.h>
-#import <MSFoundation/NSDictionary.h>
-#import <MSFoundation/NSEnumerator.h>
-#import <MSFoundation/NSData.h>
-#import <MSFoundation/NSDate.h>
-#import <MSFoundation/NSNull.h>
-
-#import <MSFoundation/NSCoder.h>
-#import <MSFoundation/NSException.h>
-#import <MSFoundation/NSNumber.h>
-#import <MSFoundation/NSMapTable.h>
-#import <MSFoundation/NSZone.h>
-#import <MSFoundation/NSTimeZone.h>
 
 #import <MSFoundation/CommonDefines.h>
 #import <MSFoundation/MSCoreTypes.h>

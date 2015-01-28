@@ -120,12 +120,8 @@ static inline int cdictionary_enum(void)
 
 int mscore_cdictionary_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+  int err= 0;
   err+= cdictionary_create();
   err+= cdictionary_enum();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CDictionary",(err?"FAIL":"PASS"),seconds);
   return err;
   }

@@ -134,15 +134,10 @@ static inline int buffer_compress(void)
   return err;
   }
 
-int msfoundation_buffer_validate(void)
-  {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
-  err+= buffer_create();
-  err+= buffer_b64();
-  err+= buffer_compress();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSBuffer",(err?"FAIL":"PASS"),seconds);
-  return err;
-  }
+TEST_FCT_BEGIN(MSBuffer)
+    int err= 0;
+    err+= buffer_create();
+    err+= buffer_b64();
+    err+= buffer_compress();
+    return err;
+TEST_FCT_END(MSBuffer)

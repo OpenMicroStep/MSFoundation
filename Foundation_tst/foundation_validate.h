@@ -1,18 +1,13 @@
-//
-//  foundation_validate.h
-//  MSFoundation
-//
-//  Created by Vincent Rouillé on 27/01/2015.
-//  Copyright (c) 2015 OpenMicroStep. All rights reserved.
-//
+#if   defined(MSFOUNDATION_TESTS)
+#import <MSFoundation/MSFoundation.h>
+#elif defined(MSFOUNDATIONFORCOCOA_TESTS)
+#import <MSFoundationForCocoa/MSFoundationForCocoa.h>
+#else
+#error MSFOUNDATION_TESTS or MSFOUNDATIONFORCOCOA_TESTS must be defined
+#endif
+#import "MSTests.h"
 
-#ifndef __MSFoundation__foundation_validate__
-#define __MSFoundation__foundation_validate__
+TEST_FCT_DECLARE(NSObject);
+// OR LIBEXPORT int testNSObject();
 
-#include <Foundation/Foundation.h>
-#include "MSTests.h"
-
-DECLARE_TESTEXPORTS
-DECLARE_TESTSUITE(NSObject)
-
-#endif /* defined(__MSFoundation__foundation_validate__) */
+TEST_FCT_DECLARE(Foundation);

@@ -1,6 +1,7 @@
 // mscore_validate.h, ecb, 130911
 
-#include "MSCore.h"
+#include <MSCore/MSCore.h>
+#import "MSTests.h"
 
 int mscore_c_validate          (void);
 int mscore_tools_validate      (void);
@@ -14,4 +15,6 @@ int mscore_cdecimal_validate   (void);
 int mscore_cdictionary_validate(void);
 int mscore_cstring_validate    (void);
 int mscore_mste_validate       (void);
-int testCore(BOOL alone);
+
+
+TEST_FCT_DECLARE(MSCore);

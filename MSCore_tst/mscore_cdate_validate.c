@@ -236,14 +236,10 @@ static inline int cdate_week(void)
 
 int mscore_cdate_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+  int err= 0;
   err+= cdate_constants();
   err+= cdate_create();
   err+= cdate_create2();
   err+= cdate_week();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CDate",(err?"FAIL":"PASS"),seconds);
   return err;
   }

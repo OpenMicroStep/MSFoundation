@@ -2,10 +2,9 @@
 
 #include "mscore_validate.h"
 
-int main(int argc, const char *argv[])
-  {
-  argc= 0;
-  argv= NULL;
-  MSSystemInitialize(0, NULL);
-  return testCore(YES);
-  }
+EXPORT_TESTS_BASE
+
+TESTS_MAIN_BEGIN
+    MSSystemInitialize(0, NULL);
+    TEST_FCT(MSCore);
+TESTS_MAIN_END

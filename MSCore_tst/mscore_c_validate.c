@@ -50,13 +50,9 @@ static inline int c_classEqual(void)
 
 int mscore_c_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+  int err= 0;
   err+= c_isa(CArrayClassIndex);
   err+= c_isa(CBufferClassIndex);
   err+= c_classEqual();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","C",(err?"FAIL":"PASS"),seconds);
   return err;
   }

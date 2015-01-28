@@ -2940,7 +2940,6 @@ static inline int mapm_test_special_set(void)
 
 int mapm_validate()
 {
-  clock_t t0= clock(), t1; double seconds;
   int    total_pass;
   
   total_pass = 0;
@@ -2991,9 +2990,6 @@ int mapm_validate()
   total_pass += mapm_test_special_div();
   total_pass += mapm_test_special_fpf();
   total_pass += mapm_test_special_set();
-  
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CDecimal MAPM",(total_pass?"FAIL":"PASS"),seconds);
   
   return total_pass;
 }

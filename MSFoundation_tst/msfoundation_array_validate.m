@@ -136,15 +136,10 @@ static inline int carray_subarray(void)
   return err;
   }
 
-int msfoundation_array_validate(void)
-  {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
-  err+= array_create();
-  err+= carray_ptr();
-  err+= carray_subarray();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSArray",(err?"FAIL":"PASS"),seconds);
-  return err;
-  }
+TEST_FCT_BEGIN(MSArray)
+    int err= 0;
+    err+= array_create();
+    err+= carray_ptr();
+    err+= carray_subarray();
+    return err;
+TEST_FCT_END(MSArray)

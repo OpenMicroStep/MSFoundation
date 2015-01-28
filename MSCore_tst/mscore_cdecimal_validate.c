@@ -236,16 +236,12 @@ static inline int cdecimal_strto(void)
 
 int mscore_cdecimal_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+  int err= 0;
   err+= cdecimal_create();
   err+= cdecimal_op();
   err+= cdecimal_value();
   err+= cdecimal_fromSES();
   err+= cdecimal_cast();
   err+= cdecimal_strto();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CDecimal",(err?"FAIL":"PASS"),seconds);
   return err;
   }

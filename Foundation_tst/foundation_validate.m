@@ -1,11 +1,7 @@
-#include "foundation_validate.h"
+#import "foundation_validate.h"
+#import "MSTests.h"
 
-BEGIN_DEPENDENCIES
-ADD_DEPENDENCY(MSCore)
-END_DEPENDENCIES
+TEST_FCT_BEGIN(Foundation)
+    TEST_FCT(NSObject);
+TEST_FCT_END(Foundation)
 
-BEGIN_TESTSUITES
-ADD_TESTSUITE(NSObject)
-END_TESTSUITES
-
-EXPORT_TESTS

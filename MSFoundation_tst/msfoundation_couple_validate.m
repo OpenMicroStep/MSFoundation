@@ -42,13 +42,8 @@ static inline int couple_create(void)
   return err;
   }
 
-int msfoundation_couple_validate(void)
-  {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+TEST_FCT_BEGIN(MSCouple)
+  int err= 0;
   err+= couple_create();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSCouple",(err?"FAIL":"PASS"),seconds);
   return err;
-  }
+TEST_FCT_END(MSCouple)

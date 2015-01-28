@@ -308,10 +308,8 @@ static int ms_plist(void)
   return err;
 }
 
-int msfoundation_string_validate(void)
-  {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+TEST_FCT_BEGIN(MSString)
+  int err= 0;
   err+= ms_ns();
   err+= ms_trim();
   err+= ms_toNs();
@@ -321,8 +319,5 @@ int msfoundation_string_validate(void)
   err+= ms_hash();
   err+= ms_ascii();
   err+= ms_plist();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSString",(err?"FAIL":"PASS"),seconds);
   return err;
-  }
+TEST_FCT_END(MSString)

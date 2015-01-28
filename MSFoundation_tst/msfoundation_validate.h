@@ -1,38 +1,24 @@
 // msfoundation_validate.h, ecb, 130911
-
-#import <MSFoundation/MSFoundation.h>
+#import "foundation_validate.h"
 #import "mscore_validate.h"
+#if   defined(MSFOUNDATION_TESTS)
+#import <MSFoundation/MSFoundation.h>
+#elif defined(MSFOUNDATIONFORCOCOA_TESTS)
+#import <MSFoundationForCocoa/MSFoundationForCocoa.h>
+#else
+#error MSFOUNDATION_TESTS or MSFOUNDATIONFORCOCOA_TESTS are required -D flags
+#endif
 
-int msfoundation_array_validate     (void);
-int msfoundation_buffer_validate    (void);
-int msfoundation_color_validate     (void);
-int msfoundation_couple_validate    (void);
-int msfoundation_date_validate      (void);
-int msfoundation_decimal_validate   (void);
-int msfoundation_dictionary_validate(void);
-int msfoundation_string_validate    (void);
-int msfoundation_mste_validate    (void);
+#import "MSTests.h"
 
-static inline int testFoundation(BOOL alone)
-  {
-  int err= 0;
-  if (alone)
-    printf("******* Test of the Microstep MSFoundation Framework %s *******\n\n",[[MSDate date] UTF8String]);
-  err= testCore(NO) +
-       msfoundation_array_validate()      +
-       msfoundation_buffer_validate()     +
-       msfoundation_color_validate()      +
-       msfoundation_couple_validate()     +
-       msfoundation_date_validate()       +
-       msfoundation_decimal_validate()    +
-       msfoundation_dictionary_validate() +
-       msfoundation_string_validate()     +
-       //msfoundation_mste_validate()       +
-       0;
-  if (alone) {
-    if (!err)
-      printf("\n********************    ALL THE TESTS ARE SUCCESSFUL !!!    ********************\n\n");
-    else
-      printf("\n**** FAIL ***** FAIL ***** FAIL ***** FAIL ***** FAIL ***** FAIL ***** FAIL ****\n\n");}
-  return err;
-  }
+TEST_FCT_DECLARE(MSArray);
+TEST_FCT_DECLARE(MSBuffer);
+TEST_FCT_DECLARE(MSColor);
+TEST_FCT_DECLARE(MSCouple);
+TEST_FCT_DECLARE(MSDate);
+TEST_FCT_DECLARE(MSDecimal);
+TEST_FCT_DECLARE(MSDictionary);
+TEST_FCT_DECLARE(MSString);
+int msfoundation_mste_validate      (void);
+
+TEST_FCT_DECLARE(MSFoundation);

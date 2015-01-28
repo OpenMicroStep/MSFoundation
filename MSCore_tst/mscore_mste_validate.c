@@ -98,7 +98,7 @@ static int _decode(char *ssrc, id ret)
 
 int mscore_mste_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
+  int err= 0;
   id o1; char b[1024]; MSUInt col; CBuffer *buf= NULL;
 
   err+= _test();
@@ -138,7 +138,5 @@ int mscore_mste_validate(void)
   err+= _decode(b,o1);
   RELEAZEN(o1);
 
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSTE (Core)",(err?"FAIL":"PASS"),seconds);
   return err;
   }

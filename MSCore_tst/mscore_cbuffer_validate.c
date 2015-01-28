@@ -133,13 +133,9 @@ static inline int cbuffer_compress(void)
 
 int mscore_cbuffer_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+  int err= 0;
   err+= cbuffer_create();
   err+= cbuffer_b64();
   err+= cbuffer_compress();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CBuffer",(err?"FAIL":"PASS"),seconds);
   return err;
   }

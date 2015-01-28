@@ -71,14 +71,9 @@ static inline int decimal_op(void)
   return err;
   }
 
-int msfoundation_decimal_validate(void)
-  {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+TEST_FCT_BEGIN(MSDecimal)
+  int err= 0;
   err+= decimal_create();
   err+= decimal_op();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSDecimal",(err?"FAIL":"PASS"),seconds);
   return err;
-  }
+TEST_FCT_END(MSDecimal)

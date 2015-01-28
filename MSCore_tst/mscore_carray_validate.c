@@ -208,15 +208,11 @@ static inline int carray_immutable(void)
 
 int mscore_carray_validate(void)
   {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
-
+  int err= 0;
   err+= carray_create();
   err+= carray_ptr();
   err+= carray_subarray();
   err+= carray_retainrelease();
   err+= carray_immutable();
-
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","CArray",(err?"FAIL":"PASS"),seconds);
   return err;
   }
