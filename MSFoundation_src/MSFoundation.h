@@ -37,40 +37,13 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-
-#import <MSFoundation/CommonDefines.h>
+#define MSCoreExport LIBIMPORT
 #define FOUNDATION_EXPORT LIBIMPORT
 #define MSFoundationExport LIBIMPORT
 
+// MSCore
+#import <MSFoundation/MSCoreStd.h>
 #import <MSFoundation/MSCoreTypes.h>
-#import <MSFoundation/FoundationTypes.h>
-
-#import <MSFoundation/NSObject.h>
-
-// Protocols
-#import <MSFoundation/NSCoding.h>
-#import <MSFoundation/NSCopying.h>
-
-// Base classes
-#import <MSFoundation/NSAutoreleasePool.h>
-#import <MSFoundation/NSString.h>
-#import <MSFoundation/NSArray.h>
-#import <MSFoundation/NSDictionary.h>
-#import <MSFoundation/NSEnumerator.h>
-#import <MSFoundation/NSData.h>
-#import <MSFoundation/NSDate.h>
-#import <MSFoundation/NSNull.h>
-
-#import <MSFoundation/NSCoder.h>
-#import <MSFoundation/NSException.h>
-#import <MSFoundation/NSNumber.h>
-#import <MSFoundation/NSMapTable.h>
-#import <MSFoundation/NSZone.h>
-#import <MSFoundation/NSTimeZone.h>
-
-#import <MSFoundation/CommonDefines.h>
-#import <MSFoundation/MSCoreTypes.h>
-#import <MSFoundation/MSCoreWin32.h>
 #import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>
 #import <MSFoundation/MSCObject.h>
@@ -89,6 +62,28 @@
 #import <MSFoundation/m_apm.h>
 #import <MSFoundation/MSCDictionary.h>
 
+// FoundationForCompatibility
+#import <MSFoundation/NSFoundationStd.h>
+#import <MSFoundation/NSObject.h>
+#import <MSFoundation/NSCoding.h>
+#import <MSFoundation/NSCopying.h>
+#import <MSFoundation/NSAutoreleasePool.h>
+#import <MSFoundation/NSString.h>
+#import <MSFoundation/NSArray.h>
+#import <MSFoundation/NSDictionary.h>
+#import <MSFoundation/NSEnumerator.h>
+#import <MSFoundation/NSData.h>
+#import <MSFoundation/NSDate.h>
+#import <MSFoundation/NSNull.h>
+
+#import <MSFoundation/NSCoder.h>
+#import <MSFoundation/NSException.h>
+#import <MSFoundation/NSNumber.h>
+#import <MSFoundation/NSMapTable.h>
+#import <MSFoundation/NSZone.h>
+#import <MSFoundation/NSTimeZone.h>
+
+// MSFoundation
 #import <MSFoundation/MSFoundationDefines.h>
 #import <MSFoundation/MSCoderAdditions.h>
 #import <MSFoundation/MSExceptionAdditions.h>
@@ -106,7 +101,6 @@
 #import <MSFoundation/MSRow.h>
 
 #import <MSFoundation/MSArray.h>
-//#import <MSFoundation/MSMutableArray.h>
 #import <MSFoundation/MSBuffer.h>
 #import <MSFoundation/MSColor.h>
 #import <MSFoundation/MSCouple.h>
@@ -120,8 +114,4 @@
 
 #import <MSFoundation/MSStringParsing.h>
 
-#ifdef WO451
-#  define FMT(ARGS...)  [MSString stringWithFormat:##ARGS]
-#else
-#  define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
-#endif
+#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]

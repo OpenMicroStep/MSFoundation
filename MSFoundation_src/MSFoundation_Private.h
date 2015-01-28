@@ -41,12 +41,13 @@
 #ifndef MSFOUNDATION_PRIVATE_H
 #define MSFOUNDATION_PRIVATE_H
 
+#define MSFoundationExport LIBEXPORT
+
 #ifdef MSFOUNDATION_FOR_COCOA
 #import <Foundation/Foundation.h>
 #endif
 
 #import "MSCore_Private.h"
-#define MSFoundationExport LIBEXPORT
 
 #ifndef MSFOUNDATION_FOR_COCOA
 #import "Foundation_Protected.h"
@@ -85,10 +86,6 @@
 
 #import "MSStringParsing.h"
 
-#ifdef WO451
-#  define FMT(ARGS...)  [MSString stringWithFormat:##ARGS]
-#else
-#  define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
-#endif
+#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
 
 #endif // MSFOUNDATION_PRIVATE_H

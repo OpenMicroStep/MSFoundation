@@ -48,10 +48,11 @@
 #ifndef MSCORE_H
 #define MSCORE_H
 
-#include <MSCore/CommonDefines.h>
+#define MSCoreExport LIBIMPORT
+#include <MSCore/MSCoreStd.h>
 #include <MSCore/MSCoreTypes.h>
-#include <MSCore/MSCoreWin32.h>
 #include <MSCore/MSCoreSystem.h>
+
 #include <MSCore/MSCoreTools.h>
 #include <MSCore/MSCObject.h>
 #include <MSCore/MSCGrow.h>

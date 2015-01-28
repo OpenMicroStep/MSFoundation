@@ -48,19 +48,14 @@
 #ifndef MSCORE_PRIVATE_H
 #define MSCORE_PRIVATE_H
 
-#include "CommonDefines.h"
+#define MSCoreExport LIBEXPORT
+#include "MSCoreStd.h"
 #include "MSCoreTypes.h"
-#include "MSCoreWin32.h"
 #include "MSCoreSystem.h"
+
 #include "MSCoreTools.h"
 #include "MSCObject.h"
 #include "MSCGrow.h"
-
-//#include "MSCoreNetwork.h"
-//#include "MSCoreEntropy.h"
-//#include "MSCoreCompress.h"
-//#include "MSCoreTimeInterval.h"
-//#include "MSCoreTLS.h"
 
 // ..ToString functions use MSCString
 // so we include it first
@@ -77,7 +72,6 @@
 #include "m_apm.h"
 #include "MSCDictionary.h"
 #include "MSTE.h"
-//#include "MSCMutex.h"
 //#include "MSCNaturalArray.h"
 
 #endif // MSCORE_PRIVATE_H

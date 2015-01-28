@@ -38,12 +38,14 @@
  
  */
 
-#import <Foundation/Foundation.h>
+
+#define MSCoreExport LIBIMPORT
 #define MSFoundationExport LIBIMPORT
 
-#import <MSFoundation/CommonDefines.h>
+#import <Foundation/Foundation.h>
+
+#import <MSFoundation/MSCoreStd.h>
 #import <MSFoundation/MSCoreTypes.h>
-#import <MSFoundation/MSCoreWin32.h>
 #import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>
 #import <MSFoundation/MSCObject.h>

@@ -1,7 +1,6 @@
-#import "CommonDefines.h"
 #define FOUNDATION_EXPORT LIBEXPORT
 
-#import "FoundationTypes.h"
+#import "NSFoundationStd.h"
 
 #import "NSObjCRuntime.h"
 #import "NSObject.h"

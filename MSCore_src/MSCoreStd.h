@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 OpenMicroStep. All rights reserved.
 //
 
-#ifndef MSFoundation_CommonDefines_h
-#define MSFoundation_CommonDefines_h
+#ifndef MSCORE_STD_H
+#define MSCORE_STD_H
 
 ////////
 // Platform defines
@@ -156,4 +156,4 @@ inline int32_t atomic_int32_decrement(atomic_int32_t *value)
 // END Simple platform abstraction
 ////////
 
-#endif
+#endif // MSCORE_STD_H
