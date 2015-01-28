@@ -118,6 +118,18 @@ static inline NSRange NSMakeRange(NSUInteger pos, NSUInteger len) {
   r.length=   len;
   return r;}
 
+static inline NSUInteger NSMaxRange(NSRange range) {
+  return (range.location + range.length);
+}
+
+static inline BOOL NSLocationInRange(NSUInteger loc, NSRange range) {
+  return range.location <= loc && loc < range.location + range.length;
+}
+
+static inline BOOL NSEqualRanges(NSRange range1, NSRange range2) {
+  return range1.location == range2.location && range1.length == range2.length;
+}
+
 enum _NSComparisonResult {
   NSOrderedAscending= -1L,
   NSOrderedSame,

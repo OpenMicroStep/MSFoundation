@@ -426,7 +426,7 @@ int msfoundation_mste_validate(void)
   }
   
   //Decimal number (code 20)
-  err += _decode("[\"MSTE0102\",7,\"CRCBF421375\",0,0,20,12.34]", [NSDecimalNumber decimalNumberWithString:@"12.34"]);
+  err += _decode("[\"MSTE0102\",7,\"CRCBF421375\",0,0,20,12.34]", [MSDecimal decimalWithString:@"12.34"]);
   //String "My beautiful string éè" (code 21)
   err += _decode("[\"MSTE0102\",7,\"CRC09065CB6\",0,0,21,\"My beautiful string \\u00E9\\u00E8\"]", @"My beautiful string éè");
   //String "Json \\a/b\"cÆ" (code 21)
@@ -442,7 +442,6 @@ int msfoundation_mste_validate(void)
   err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978307200.000000000000000]", [NSDate dateWithString:@"2001-01-01 02:00:00 +0200"]);
   err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978303600.000000000000000]", [NSDate dateWithString:@"2001-01-01 00:00:00 +0100"]);
   err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978303600.000000000000000]", [NSDate dateWithString:@"2001-01-01 01:00:00 +0200"]);
-  err += _decode("[\"MSTE0102\",7,\"CRC5EC4E889\",0,0,23,978303600.000000000000000]", [NSCalendarDate dateWithString:@"2001-01-01 00:00:00 +0100"]);
   //date Color (code 24)
   err += _decode("[\"MSTE0102\",7,\"CRCAB284946\",0,0,24,4034942921]", [MSColor colorWithRed:128 green:87 blue:201 opacity:15]);
   //data via NSData (code 25)

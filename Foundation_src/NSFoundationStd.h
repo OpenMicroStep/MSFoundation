@@ -26,3 +26,9 @@
 
 #define NS_ENUM(_type, _name) _type _name; enum
 #define NS_OPTIONS(_type, _name) _type _name; enum
+
+#define NS_DURING @try {
+#define NS_HANDLER } @catch(NSException *localException) {
+#define NS_ENDHANDLER }
+#define NS_VALUERETURN(val,type) { return val; }
+#define NS_VOIDRETURN { return; }

@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		A64D64F41A79305D00CCA6D7 /* libobjc2 */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = A64D64F51A79305D00CCA6D7 /* Build configuration list for PBXAggregateTarget "libobjc2" */;
+			buildPhases = (
+				A64D64FA1A79306A00CCA6D7 /* CopyFiles */,
+			);
+			dependencies = (
+			);
+			name = libobjc2;
+			productName = libobjc2;
+		};
 		A6E03AA81A7634FF00A97DA3 /* All */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = A6E03AA91A7634FF00A97DA3 /* Build configuration list for PBXAggregateTarget "All" */;
@@ -134,10 +145,18 @@
 		A64D64E21A79186F00CCA6D7 /* MSCoreStd.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64E01A79186F00CCA6D7 /* MSCoreStd.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64E31A79186F00CCA6D7 /* MSCoreStd.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64E01A79186F00CCA6D7 /* MSCoreStd.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64E51A7919C500CCA6D7 /* Foundation_Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64E41A7919C500CCA6D7 /* Foundation_Protected.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		A6D359851A7782F200B87986 /* foundation_validate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6D3597F1A7782D200B87986 /* foundation_validate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A64D64E61A792C6A00CCA6D7 /* MSNaturalArray.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038F61A7630CB00A97DA3 /* MSNaturalArray.m */; };
+		A64D64E71A792D2500CCA6D7 /* MSCNaturalArray.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038E51A7630CB00A97DA3 /* MSCNaturalArray.m */; };
+		A64D64E81A792D3E00CCA6D7 /* MSNaturalArrayEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038F91A7630CB00A97DA3 /* MSNaturalArrayEnumerator.m */; };
+		A64D64E91A792D4E00CCA6D7 /* mapm_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E03B701A7673FB00A97DA3 /* mapm_validate.c */; };
+		A64D64EA1A792D7100CCA6D7 /* foundation_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D3597E1A7782D200B87986 /* foundation_validate.m */; };
+		A64D64EB1A792E2400CCA6D7 /* foundation_validate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6D3597F1A7782D200B87986 /* foundation_validate.h */; };
+		A64D64EC1A792E2900CCA6D7 /* foundation_validate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6D3597F1A7782D200B87986 /* foundation_validate.h */; };
+		A64D64ED1A792E8100CCA6D7 /* m_apm_lc.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038421A76301700A97DA3 /* m_apm_lc.h */; };
+		A64D64FB1A79308200CCA6D7 /* libobjc.4.6.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
 		A6D3598A1A778F0F00B87986 /* MSCoreTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038121A76300800A97DA3 /* MSCoreTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6D3598D1A7798B600B87986 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
-		A6D3599B1A77991600B87986 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = A6D3599A1A77991600B87986 /* main.c */; };
+		A6D3599B1A77991600B87986 /* MSTests_main.c in Sources */ = {isa = PBXBuildFile; fileRef = A6D3599A1A77991600B87986 /* MSTests_main.c */; };
 		A6D359C61A77D65F00B87986 /* mapm_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E03B701A7673FB00A97DA3 /* mapm_validate.c */; };
 		A6D359C71A77D65F00B87986 /* mscore_c_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */; };
 		A6D359C81A77D65F00B87986 /* mscore_carray_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0388E1A76304600A97DA3 /* mscore_carray_validate.c */; };
@@ -401,7 +420,6 @@
 		A6E03B491A76364F00A97DA3 /* MSCoreUnicharPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038151A76300800A97DA3 /* MSCoreUnicharPrivate.h */; };
 		A6E03B4B1A76364F00A97DA3 /* MSCString.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038191A76300800A97DA3 /* MSCString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03B4C1A76364F00A97DA3 /* MSTE.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E0381B1A76300800A97DA3 /* MSTE.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A6E03B4D1A76366600A97DA3 /* m_apm_lc.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038421A76301700A97DA3 /* m_apm_lc.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03B8F1A767E1200A97DA3 /* NSObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03B8D1A767E1200A97DA3 /* NSObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03B961A767E8700A97DA3 /* Foundation_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03B951A767E8700A97DA3 /* Foundation_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03B981A767F0E00A97DA3 /* Foundation-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */; };
@@ -485,6 +503,13 @@
 			remoteGlobalIDString = A6D3599F1A77D35200B87986;
 			remoteInfo = MSFoundationForCocoaTests;
 		};
+		A64D64F81A79306500CCA6D7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A691637A1A7016E6001E42F4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A64D64F41A79305D00CCA6D7;
+			remoteInfo = libobjc2;
+		};
 		A6D3598B1A77977400B87986 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A691637A1A7016E6001E42F4 /* Project object */;
@@ -523,6 +548,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		A64D64FA1A79306A00CCA6D7 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = /lib;
+			dstSubfolderSpec = 0;
+			files = (
+				A64D64FB1A79308200CCA6D7 /* libobjc.4.6.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A6D359901A7798DA00B87986 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -550,7 +585,7 @@
 		A6D3597F1A7782D200B87986 /* foundation_validate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = foundation_validate.h; path = Foundation_tst/foundation_validate.h; sourceTree = "<group>"; };
 		A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsobject_validate.m; path = Foundation_tst/foundation_nsobject_validate.m; sourceTree = "<group>"; };
 		A6D359921A7798DA00B87986 /* MSTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MSTests; sourceTree = BUILT_PRODUCTS_DIR; };
-		A6D3599A1A77991600B87986 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = MSTests_src/main.c; sourceTree = "<group>"; };
+		A6D3599A1A77991600B87986 /* MSTests_main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSTests_main.c; path = MSTests_src/MSTests_main.c; sourceTree = "<group>"; };
 		A6D359A01A77D35200B87986 /* libMSFoundationForCocoaTests.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMSFoundationForCocoaTests.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6D359B01A77D38600B87986 /* libMSCoreCTests.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMSCoreCTests.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6E037F61A76300800A97DA3 /* MSCArray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSCArray.c; path = MSCore_src/MSCArray.c; sourceTree = "<group>"; };
@@ -1121,7 +1156,7 @@
 			isa = PBXGroup;
 			children = (
 				A6D3597D1A77825900B87986 /* MSTests.h */,
-				A6D3599A1A77991600B87986 /* main.c */,
+				A6D3599A1A77991600B87986 /* MSTests_main.c */,
 			);
 			name = MSTests;
 			sourceTree = "<group>";
@@ -1340,7 +1375,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6D359851A7782F200B87986 /* foundation_validate.h in Headers */,
+				A64D64EB1A792E2400CCA6D7 /* foundation_validate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1348,6 +1383,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A64D64EC1A792E2900CCA6D7 /* foundation_validate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1364,6 +1400,7 @@
 			files = (
 				A6E03B371A76364E00A97DA3 /* m_apm.h in Headers */,
 				A6E03B421A76364E00A97DA3 /* MSCore.h in Headers */,
+				A64D64ED1A792E8100CCA6D7 /* m_apm_lc.h in Headers */,
 				A6E03B381A76364E00A97DA3 /* MSCArray.h in Headers */,
 				A6E03B391A76364E00A97DA3 /* MSCBuffer.h in Headers */,
 				A6E03B3A1A76364E00A97DA3 /* MSCColor.h in Headers */,
@@ -1381,7 +1418,6 @@
 				A6E03B481A76364F00A97DA3 /* MSCoreUnichar.h in Headers */,
 				A6E03B4B1A76364F00A97DA3 /* MSCString.h in Headers */,
 				A6E03B4C1A76364F00A97DA3 /* MSTE.h in Headers */,
-				A6E03B4D1A76366600A97DA3 /* m_apm_lc.h in Headers */,
 				A6E03B411A76364E00A97DA3 /* MSCore_Private.h in Headers */,
 				A6E03B491A76364F00A97DA3 /* MSCoreUnicharPrivate.h in Headers */,
 			);
@@ -1420,6 +1456,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A64D64F91A79306500CCA6D7 /* PBXTargetDependency */,
 			);
 			name = MSFoundation;
 			productName = MSFoundation;
@@ -1524,6 +1561,9 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = OpenMicroStep;
 				TargetAttributes = {
+					A64D64F41A79305D00CCA6D7 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
 					A69163821A7016E6001E42F4 = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -1562,6 +1602,7 @@
 				A6E03AA81A7634FF00A97DA3 /* All */,
 				A6E03A901A7634AA00A97DA3 /* MSCore */,
 				A6D359AF1A77D38600B87986 /* MSCoreCTests */,
+				A64D64F41A79305D00CCA6D7 /* libobjc2 */,
 				A691639F1A701754001E42F4 /* MSFoundation */,
 				A6D359771A76D39A00B87986 /* MSFoundationTests */,
 				A69163821A7016E6001E42F4 /* MSFoundationForCocoa */,
@@ -1700,6 +1741,7 @@
 				A6E03BEB1A76912700A97DA3 /* MSDecimal.m in Sources */,
 				A6E03BEC1A76912700A97DA3 /* MSDictionary.m in Sources */,
 				A6E03BED1A76912700A97DA3 /* MSString.m in Sources */,
+				A64D64E71A792D2500CCA6D7 /* MSCNaturalArray.m in Sources */,
 				A6E03BAD1A7680FA00A97DA3 /* NSObject.m in Sources */,
 				A6E03BE01A76908400A97DA3 /* NSData.m in Sources */,
 				A6E03BD31A7684D800A97DA3 /* NSDate.m in Sources */,
@@ -1760,6 +1802,7 @@
 				A6E039F01A76320700A97DA3 /* MSCDictionary.c in Sources */,
 				A6E039F11A76320700A97DA3 /* MSCGrow.c in Sources */,
 				A6E039F21A76320700A97DA3 /* MSCObject.c in Sources */,
+				A64D64E81A792D3E00CCA6D7 /* MSNaturalArrayEnumerator.m in Sources */,
 				A6E039F31A76320700A97DA3 /* MSCoreSES.c in Sources */,
 				A6E03BF51A76954C00A97DA3 /* NSAutoreleasePool.m in Sources */,
 				A6E039F41A76320700A97DA3 /* MSCoreSystem.c in Sources */,
@@ -1767,6 +1810,7 @@
 				A6E039F61A76320700A97DA3 /* MSCoreToolsCompress.c in Sources */,
 				A6E039F71A76320700A97DA3 /* MSCoreUnichar.c in Sources */,
 				A6E039F91A76320700A97DA3 /* MSCString.c in Sources */,
+				A64D64E61A792C6A00CCA6D7 /* MSNaturalArray.m in Sources */,
 				A6E039FA1A76320700A97DA3 /* MSTE.c in Sources */,
 				A6E03BB31A76811700A97DA3 /* MSCObject.m in Sources */,
 			);
@@ -1788,6 +1832,7 @@
 				A64D64A71A77E76300CCA6D7 /* msfoundation_string_validate.m in Sources */,
 				A64D64601A77DE6A00CCA6D7 /* mscore_c_validate.c in Sources */,
 				A64D64611A77DE6A00CCA6D7 /* mscore_carray_validate.c in Sources */,
+				A64D64EA1A792D7100CCA6D7 /* foundation_validate.m in Sources */,
 				A64D64621A77DE6A00CCA6D7 /* mscore_cbuffer_validate.c in Sources */,
 				A64D64631A77DE6A00CCA6D7 /* mscore_ccolor_validate.c in Sources */,
 				A64D64641A77DE6A00CCA6D7 /* mscore_ccouple_validate.c in Sources */,
@@ -1798,6 +1843,7 @@
 				A64D64691A77DE6A00CCA6D7 /* mscore_mste_validate.c in Sources */,
 				A64D646A1A77DE6A00CCA6D7 /* mscore_tools_validate.c in Sources */,
 				A64D646B1A77DE6A00CCA6D7 /* mscore_validate.c in Sources */,
+				A64D64E91A792D4E00CCA6D7 /* mapm_validate.c in Sources */,
 				A64D646E1A77DF6900CCA6D7 /* msfoundation_validate.m in Sources */,
 				A64D646C1A77DEAB00CCA6D7 /* msfoundation_test.m in Sources */,
 			);
@@ -1807,7 +1853,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6D3599B1A77991600B87986 /* main.c in Sources */,
+				A6D3599B1A77991600B87986 /* MSTests_main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1946,6 +1992,11 @@
 			target = A6D3599F1A77D35200B87986 /* MSFoundationForCocoaTests */;
 			targetProxy = A64D64DC1A78F8EC00CCA6D7 /* PBXContainerItemProxy */;
 		};
+		A64D64F91A79306500CCA6D7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A64D64F41A79305D00CCA6D7 /* libobjc2 */;
+			targetProxy = A64D64F81A79306500CCA6D7 /* PBXContainerItemProxy */;
+		};
 		A6D3598C1A77977400B87986 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A691639F1A701754001E42F4 /* MSFoundation */;
@@ -1974,6 +2025,22 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		A64D64F61A79305D00CCA6D7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INSTALL_PATH = /libs;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A64D64F71A79305D00CCA6D7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INSTALL_PATH = /libs;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		A69163971A7016E6001E42F4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1995,6 +2062,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
+				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = $MICROSTEP_PATH/;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c11;
@@ -2047,6 +2115,7 @@
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = $MICROSTEP_PATH/;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2192,6 +2261,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				INSTALL_PATH = /bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -2204,6 +2274,7 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				INSTALL_PATH = /bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -2272,7 +2343,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				DEPLOYMENT_LOCATION = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
@@ -2280,7 +2350,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INSTALL_PATH = /libs;
+				INSTALL_PATH = /lib;
 				OTHER_CFLAGS = "-DMSCORE_STANDALONE";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = ../include/MSCore;
@@ -2291,11 +2361,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				DEPLOYMENT_LOCATION = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
-				INSTALL_PATH = /libs;
+				INSTALL_PATH = /lib;
 				OTHER_CFLAGS = "-DMSCORE_STANDALONE";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = ../include/MSCore;
@@ -2319,6 +2388,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		A64D64F51A79305D00CCA6D7 /* Build configuration list for PBXAggregateTarget "libobjc2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A64D64F61A79305D00CCA6D7 /* Debug */,
+				A64D64F71A79305D00CCA6D7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		A691637D1A7016E6001E42F4 /* Build configuration list for PBXProject "MSFoundation" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

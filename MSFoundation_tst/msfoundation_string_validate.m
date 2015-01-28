@@ -33,6 +33,9 @@ static inline int ms_trim(void)
 static int ms_toNs(void)
   {
   int err= 0;
+#ifndef MSFOUNDATION_FOR_COCOA
+#warning Disabled test ms_toNs
+#else
   NSString *s1,*s2; id x1,x2;
   NSFileManager *fileManager; NSDirectoryEnumerator *e1,*e2; NSString *f1,*f2; BOOL end;
   s1= @"/opt/microstep/darwin/support/MASHRepositoryServer/MHNetRepositoryServer.config";
@@ -56,6 +59,7 @@ static int ms_toNs(void)
       NSLog(@"A6 not equal %@ != %@",f1,f2); err++;}}
   RELEASE(s1);
   RELEASE(s2);
+#endif
   return err;
   }
 

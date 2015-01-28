@@ -315,7 +315,7 @@ static inline int date_now(void)
     err++;}
   if (ABS(dt1n-dt2n)>1) {
     fprintf(stdout, "F2-bad now %f %f %f %lld %lld %lld\n",dt1n,dt2n,dt1n-dt2n,dt1m,dt2m,dt1m-dt2m);
-    NSLog(@"%@ %@ %@",d2,[d2 descriptionWithCalendarFormat:@"%Y/%m/%d-%H:%M:%S" timeZone:nil locale:nil],[NSCalendarDate calendarDate]);
+    //NSLog(@"%@ %@ %@",d2,[d2 descriptionWithCalendarFormat:@"%Y/%m/%d-%H:%M:%S" timeZone:nil locale:nil],[NSCalendarDate calendarDate]);
     NSLog(@"%@ %@",[d1 descriptionRfc1123],[d1 descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S"]);
     //NSLog(@"%@",[[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
     date_print(d1);
