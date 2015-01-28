@@ -295,7 +295,7 @@ static MSString *parseQuotedString(ParseContext *context)
 
 static MSString *parseSimpleString(ParseContext *context)
 {
-    NSUInteger ppos;
+    NSUInteger ppos = 0;
     CString *ret= CCreateString(0);
     while((CUnicharIsLetter(context->c) || CUnicharIsIsoDigit(context->c) || context->c == (unichar)'_')) {
         CStringAppendCharacter(ret, context->c);
@@ -315,7 +315,7 @@ static MSString *parseSimpleString(ParseContext *context)
 
 static MSBuffer *parseData(ParseContext *context)
 {
-    MSByte byte, b1; BOOL first= YES;
+    MSByte byte, b1 = '\0'; BOOL first= YES;
     CBuffer *ret= CCreateBuffer(0);
     while(ParseContextNext(context)) {
         if(context->c == '>') {

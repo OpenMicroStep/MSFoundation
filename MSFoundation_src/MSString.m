@@ -583,7 +583,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   SES ses;
   ses= SESFromString(self);
   if(SESOK(ses)) {
-    NSUInteger i,end; unichar u; BOOL c= YES;
+    NSUInteger i,end; unichar u = 0; BOOL c= YES;
     for (i= SESStart(ses), end= SESEnd(ses); c && i < end;) {
       u= SESIndexN(ses, &i);
       c= (u == 0x0020 || u == 0x0009); }

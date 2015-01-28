@@ -201,9 +201,9 @@ NSArray * MSDirectoryContentsAtPath(NSString *path) {
     nxtImp = [direnum methodForSelector: @selector(nextObject)];
     addImp = [content methodForSelector: @selector(addObject:)];
     
-    while ((path = (*nxtImp)(direnum, @selector(nextObject))) != nil)
+    while ((path = ((id(*)(id, SEL))(*nxtImp))(direnum, @selector(nextObject))) != nil)
     {
-        (*addImp)(content, @selector(addObject:), path);
+        ((id(*)(id, SEL, id))(*addImp))(content, @selector(addObject:), path);
     }
     //RELEASE(direnum);
     

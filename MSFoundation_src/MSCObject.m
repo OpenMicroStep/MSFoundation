@@ -49,7 +49,7 @@
 - (NSUInteger)hash:(unsigned)depth;
 @end
 @implementation NSObject (Private)
-- (NSUInteger)hash:(unsigned)depth {return [self hash]; depth=0;}
+- (NSUInteger)hash:(unsigned)depth {return [self hash]; MSUnused(depth);}
 @end
 
 #pragma mark MSCore compatibility

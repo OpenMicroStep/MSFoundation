@@ -559,7 +559,7 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
 - (oneway void)release {}
 - (id)retain { return self;}
 - (id)autorelease { return self;}
-- (void)dealloc {if (0) [super dealloc];} // No warning
+- (void)dealloc {if (/* DISABLES CODE */ (0)) [super dealloc];} // No warning
 - (Class)classForCoder { return __MSIndexedColorClass; }
 - (id)copyWithZone:(NSZone *)z { return self; z= nil;}
 - (id)copy { return self; }

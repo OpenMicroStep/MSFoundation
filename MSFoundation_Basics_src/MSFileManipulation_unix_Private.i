@@ -1,5 +1,6 @@
 #ifndef WIN32
 #import "MSFoundation_Private.h"
+#import <sys/stat.h>
 
 #define _MSFileSystemRepresentation(X)				(char *)[(X) fileSystemRepresentation]
 

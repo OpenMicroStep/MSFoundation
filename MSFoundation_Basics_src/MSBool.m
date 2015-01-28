@@ -70,7 +70,7 @@ MSBool *MSFalse = nil ;
 - (const char *)objCType { return "C" ; }
 - (id)init { return self ; }
 - (void)_internalRelease { [ super release] ; }
-- (void)dealloc {if (0) [super dealloc];} // No warning
+- (void)dealloc {if (/* DISABLES CODE */ (0)) [super dealloc];} // No warning
 
 - (id)copyWithZone:(NSZone *)zone { return self ; zone= nil; }
 - (id)copy{ return self ; }

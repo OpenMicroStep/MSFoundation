@@ -779,11 +779,11 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 @implementation NSObject (MSTEncoding)
 
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_USER_CLASS ; } //must be overriden by subclasse to be encoded if tokenTypeWithReference: method is not overriden
-- (MSByte)tokenTypeWithReference:(BOOL)isReferenced { return [self tokenType] ; (void)isReferenced; } //must be overriden by subclasse to be encoded if tokenType method is not overriden
+- (MSByte)tokenTypeWithReference:(BOOL)isReferenced { return [self tokenType] ; MSUnused(isReferenced); } //must be overriden by subclasse to be encoded if tokenType method is not overriden
 
 - (NSDictionary *)MSTESnapshot { [self notImplemented:_cmd] ; return nil ; } //must be overriden by subclasse to be encoded as a dictionary. keys of snapshot are member names, values are MSCouple with the member in firstMember and in secondMember : nil if member is strongly referenced, or not nil if member is weakly referenced.
 
-- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return MSTE_TOKEN_MUST_ENCODE ; (void)encoder; }
+- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return MSTE_TOKEN_MUST_ENCODE ; MSUnused(encoder); }
 - (MSBuffer *)MSTEncodedBuffer
 {
     MSTEncoder *encoder = NEW(MSTEncoder) ;
@@ -802,7 +802,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 @implementation NSNull (MSTEncoding)
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_NULL ; }
-- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return MSTE_TOKEN_TYPE_NULL ; (void)encoder;  }
+- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return MSTE_TOKEN_TYPE_NULL ; MSUnused(encoder);  }
 @end
 
 @implementation MSBool (MSTEncoding)
@@ -810,7 +810,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 {
     if ([self isTrue]) return MSTE_TOKEN_TYPE_TRUE ;
     else return MSTE_TOKEN_TYPE_FALSE ;
-    (void)encoder;
+    MSUnused(encoder);
 }
 - (MSByte)tokenType
 {
