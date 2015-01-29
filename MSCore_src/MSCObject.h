@@ -58,7 +58,7 @@
 
 #endif
 
-#ifdef MSCORE_STANDALONE // ---------------------------------- MSCORE_STANDALONE
+#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 ///// Class for c-like objects
 typedef struct ClassStruct {
   struct ClassStruct *isa;
@@ -73,8 +73,6 @@ typedef struct {
 *id;
 #define nil ((void*)0)
 
-#else // ---------------------------------------------------- !MSCORE_STANDALONE
-#include <objc/objc.h>
 #endif
 
 #define MSMaxHashingHop 3
