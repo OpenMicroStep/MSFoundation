@@ -15,7 +15,7 @@ void NSLogv(NSString *format,va_list args)
 SEL NSSelectorFromString(NSString *selectorName)
 {
     if(selectorName == nil) {
-        return nil;
+        return NULL;
     }
     return sel_registerName([selectorName UTF8String]);
 }
@@ -26,7 +26,7 @@ NSString *NSStringFromSelector(SEL selector)
         return nil;
     }
     const char* selectorName= sel_getName(selector);
-    return AUTORELEASE(CCreateStringWithBytes(NSUTF8StringEncoding, selectorName, strlen(selectorName)));
+    return AUTORELEASE((id)CCreateStringWithBytes(NSUTF8StringEncoding, selectorName, strlen(selectorName)));
 }
 
 Class NSClassFromString(NSString *className)
@@ -35,7 +35,7 @@ Class NSClassFromString(NSString *className)
         return nil;
     }
     const char *clsName = [className UTF8String];
-    return objc_lookUpClass([className UTF8String]);
+    return objc_lookUpClass(clsName);
 }
 
 NSString *NSStringFromClass(Class cls)
@@ -44,7 +44,7 @@ NSString *NSStringFromClass(Class cls)
         return nil;
     }
     const char* className= class_getName(cls);
-    return AUTORELEASE(CCreateStringWithBytes(NSUTF8StringEncoding, className, strlen(className)));
+    return AUTORELEASE((id)CCreateStringWithBytes(NSUTF8StringEncoding, className, strlen(className)));
 }
 
 
