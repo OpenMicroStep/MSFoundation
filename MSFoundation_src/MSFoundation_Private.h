@@ -43,13 +43,13 @@
 
 #define MSFoundationExport LIBEXPORT
 
-#ifdef MSFOUNDATION_FOR_COCOA
+#ifdef MSFOUNDATION_FORCOCOA
 #import <Foundation/Foundation.h>
 #endif
 
 #import "MSCore_Private.h"
 
-#ifndef MSFOUNDATION_FOR_COCOA
+#ifndef MSFOUNDATION_FORCOCOA
 #import "Foundation_Protected.h"
 #endif
 

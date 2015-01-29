@@ -33,7 +33,7 @@ static inline int ms_trim(void)
 static int ms_toNs(void)
   {
   int err= 0;
-#ifndef MSFOUNDATION_FOR_COCOA
+#ifndef MSFOUNDATION_FORCOCOA
 #warning Disabled test ms_toNs
 #else
   NSString *s1,*s2; id x1,x2;

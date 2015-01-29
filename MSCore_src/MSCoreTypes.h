@@ -46,8 +46,7 @@
 #ifndef MSCORE_TYPES_H
 #define MSCORE_TYPES_H
 
-#if !defined(MSCORE_STANDALONE) && !defined(_OBJC_OBJC_H_) 
-// Objc type aren't defined, MSCore will defines the most common ones
+#if !defined(MSCORE_STANDALONE) && !defined(__OBJC__)
 #define MSCORE_FORFOUNDATION 1
 #endif
 
@@ -83,7 +82,7 @@ static inline unsigned long WLU(NSUInteger u) {return (unsigned long)u;}
 
 typedef MSLong MSTimeInterval; // Time in seconds T0=01/01/2001
 
-#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
+#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION) || !defined(MSFOUNDATION_FORCOCOA)
 
 typedef unsigned char BOOL;
 #if !defined(YES)
@@ -192,7 +191,7 @@ enum {
   NSDOSStringEncoding= 0x20000 // we add a string encoding for DOS
 };
 
-#if defined(MSFOUNDATION_FOR_COCOA)
+#if defined(MSFOUNDATION_FORCOCOA)
 #define MSCORE_NSOBJECT_ATTRIBUTES \
   Class isa;
 #else

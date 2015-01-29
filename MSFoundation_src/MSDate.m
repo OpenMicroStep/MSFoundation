@@ -154,7 +154,11 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 }
 */
 
-- (void)dealloc { CDateFreeInside(self); [super dealloc]; }
+- (void)dealloc
+{
+  CDateFreeInside(self);
+  [super dealloc];
+}
 
 #pragma mark Copying
 

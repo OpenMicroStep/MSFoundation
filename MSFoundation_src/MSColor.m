@@ -360,7 +360,7 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 + (MSColor *)colorWithName:(NSString *)name { return MSColorNamed(name); }
 @end
 
-static NSMutableDictionary *__namedColors= nil;
+static MSDictionary *__namedColors= nil;
 static MSArray *__colorsList= nil;
 #define COLOR_LIST_COUNT 139
 

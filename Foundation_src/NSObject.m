@@ -19,13 +19,13 @@
 
 - (instancetype)retain
 {
-    atomic_int32_increment(&_retainCount);
+    __sync_add_and_fetch(&_retainCount, 1);
     return self;
 }
 
 - (oneway void)release
 {
-    if(atomic_int32_decrement(&_retainCount)) {
+    if(__sync_sub_and_fetch(&_retainCount, 1) == -1) {
         [self dealloc];
     }
 }
@@ -33,7 +33,7 @@
 // See NSAutoreleasePool.m - (instancetype)autorelease;
 - (NSUInteger)retainCount
 {
-    return atomic_int32_fetch(&_retainCount);
+    return _retainCount + 1;
 }
 
 - (void)dealloc
@@ -55,6 +55,17 @@
 {
     return self;
 }
+
++ (Class)superclass
+{
+    return class_getSuperclass(self);
+}
+
++ (Class)class
+{
+    return self;
+}
+
 - (Class)superclass
 {
     return class_getSuperclass(isa);

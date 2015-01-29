@@ -1,9 +1,3 @@
-#import <objc/objc.h>
-
-#ifndef MSCORE_FORFOUNDATION
-#define MSCORE_FORFOUNDATION
-#endif
-
 #define NS_INLINE static inline
 
 #ifdef __clang__

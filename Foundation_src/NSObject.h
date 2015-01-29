@@ -32,8 +32,13 @@
 
 @interface NSObject <NSObject> {
     Class isa;
-    atomic_int32_t _retainCount;
+    uint32_t _retainCount;
 }
+
++ (Class)superclass;
++ (Class)class;
+
+- (BOOL)isEqual:(id)object;
 
 + (instancetype)new;
 + (instancetype)alloc;

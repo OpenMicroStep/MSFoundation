@@ -1730,40 +1730,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6E03BFA1A7696B300A97DA3 /* MSCharsets_Private.m in Sources */,
-				A6E03BF91A7696A100A97DA3 /* MSASCIIString.m in Sources */,
-				A6E03BF81A76969300A97DA3 /* MSExceptionAdditions.m in Sources */,
-				A6E03BE61A76912700A97DA3 /* MSArray.m in Sources */,
-				A6E03BE71A76912700A97DA3 /* MSBuffer.m in Sources */,
-				A6E03BE81A76912700A97DA3 /* MSColor.m in Sources */,
-				A6E03BE91A76912700A97DA3 /* MSCouple.m in Sources */,
-				A6E03BEA1A76912700A97DA3 /* MSDate.m in Sources */,
-				A6E03BEB1A76912700A97DA3 /* MSDecimal.m in Sources */,
-				A6E03BEC1A76912700A97DA3 /* MSDictionary.m in Sources */,
-				A6E03BED1A76912700A97DA3 /* MSString.m in Sources */,
-				A64D64E71A792D2500CCA6D7 /* MSCNaturalArray.m in Sources */,
-				A6E03BAD1A7680FA00A97DA3 /* NSObject.m in Sources */,
-				A6E03BE01A76908400A97DA3 /* NSData.m in Sources */,
-				A6E03BD31A7684D800A97DA3 /* NSDate.m in Sources */,
-				A6E03BE11A76908400A97DA3 /* NSCoder.m in Sources */,
-				A6E03BE21A76908400A97DA3 /* NSException.m in Sources */,
-				A6E03BE31A76908400A97DA3 /* NSNumber.m in Sources */,
-				A6E03BE41A76908400A97DA3 /* NSMapTable.m in Sources */,
-				A6E03BE51A76908400A97DA3 /* NSZone.m in Sources */,
-				A6E03BAE1A7680FA00A97DA3 /* NSString.m in Sources */,
-				A6E03BAF1A7680FA00A97DA3 /* NSArray.m in Sources */,
-				A6E03BB01A7680FA00A97DA3 /* NSDictionary.m in Sources */,
-				A6E03BB11A7680FA00A97DA3 /* NSEnumerator.m in Sources */,
-				A6E03BB21A7680FA00A97DA3 /* NSNull.m in Sources */,
 				A6E039C71A76320700A97DA3 /* mapm_add.c in Sources */,
 				A6E039C81A76320700A97DA3 /* mapm_cpi.c in Sources */,
 				A6E039C91A76320700A97DA3 /* mapm_div.c in Sources */,
 				A6E039CA1A76320700A97DA3 /* mapm_exp.c in Sources */,
 				A6E039CB1A76320700A97DA3 /* mapm_fft.c in Sources */,
-				A6E03C001A769A0300A97DA3 /* NSObjCRuntime.m in Sources */,
 				A6E039CC1A76320700A97DA3 /* mapm_flr.c in Sources */,
-				A6E03BF11A7691BC00A97DA3 /* NSTimeZone.m in Sources */,
-				A6E03C061A769EE800A97DA3 /* NSRange.m in Sources */,
 				A6E039CD1A76320700A97DA3 /* mapm_fpf.c in Sources */,
 				A6E039CE1A76320700A97DA3 /* mapm_gcd.c in Sources */,
 				A6E039CF1A76320700A97DA3 /* mapm_lg2.c in Sources */,
@@ -1802,16 +1774,44 @@
 				A6E039F01A76320700A97DA3 /* MSCDictionary.c in Sources */,
 				A6E039F11A76320700A97DA3 /* MSCGrow.c in Sources */,
 				A6E039F21A76320700A97DA3 /* MSCObject.c in Sources */,
-				A64D64E81A792D3E00CCA6D7 /* MSNaturalArrayEnumerator.m in Sources */,
 				A6E039F31A76320700A97DA3 /* MSCoreSES.c in Sources */,
-				A6E03BF51A76954C00A97DA3 /* NSAutoreleasePool.m in Sources */,
 				A6E039F41A76320700A97DA3 /* MSCoreSystem.c in Sources */,
 				A6E039F51A76320700A97DA3 /* MSCoreTools.c in Sources */,
 				A6E039F61A76320700A97DA3 /* MSCoreToolsCompress.c in Sources */,
 				A6E039F71A76320700A97DA3 /* MSCoreUnichar.c in Sources */,
 				A6E039F91A76320700A97DA3 /* MSCString.c in Sources */,
-				A64D64E61A792C6A00CCA6D7 /* MSNaturalArray.m in Sources */,
 				A6E039FA1A76320700A97DA3 /* MSTE.c in Sources */,
+				A6E03C001A769A0300A97DA3 /* NSObjCRuntime.m in Sources */,
+				A6E03BAD1A7680FA00A97DA3 /* NSObject.m in Sources */,
+				A6E03BF51A76954C00A97DA3 /* NSAutoreleasePool.m in Sources */,
+				A6E03BAE1A7680FA00A97DA3 /* NSString.m in Sources */,
+				A6E03BE01A76908400A97DA3 /* NSData.m in Sources */,
+				A6E03BAF1A7680FA00A97DA3 /* NSArray.m in Sources */,
+				A6E03BD31A7684D800A97DA3 /* NSDate.m in Sources */,
+				A6E03BB21A7680FA00A97DA3 /* NSNull.m in Sources */,
+				A6E03BE11A76908400A97DA3 /* NSCoder.m in Sources */,
+				A6E03BE21A76908400A97DA3 /* NSException.m in Sources */,
+				A6E03BE31A76908400A97DA3 /* NSNumber.m in Sources */,
+				A6E03BE41A76908400A97DA3 /* NSMapTable.m in Sources */,
+				A6E03BE51A76908400A97DA3 /* NSZone.m in Sources */,
+				A6E03BF11A7691BC00A97DA3 /* NSTimeZone.m in Sources */,
+				A6E03BB01A7680FA00A97DA3 /* NSDictionary.m in Sources */,
+				A6E03BB11A7680FA00A97DA3 /* NSEnumerator.m in Sources */,
+				A6E03C061A769EE800A97DA3 /* NSRange.m in Sources */,
+				A6E03BFA1A7696B300A97DA3 /* MSCharsets_Private.m in Sources */,
+				A6E03BF91A7696A100A97DA3 /* MSASCIIString.m in Sources */,
+				A6E03BF81A76969300A97DA3 /* MSExceptionAdditions.m in Sources */,
+				A6E03BE61A76912700A97DA3 /* MSArray.m in Sources */,
+				A6E03BE71A76912700A97DA3 /* MSBuffer.m in Sources */,
+				A6E03BEC1A76912700A97DA3 /* MSDictionary.m in Sources */,
+				A6E03BE91A76912700A97DA3 /* MSCouple.m in Sources */,
+				A6E03BEA1A76912700A97DA3 /* MSDate.m in Sources */,
+				A6E03BED1A76912700A97DA3 /* MSString.m in Sources */,
+				A6E03BEB1A76912700A97DA3 /* MSDecimal.m in Sources */,
+				A6E03BE81A76912700A97DA3 /* MSColor.m in Sources */,
+				A64D64E71A792D2500CCA6D7 /* MSCNaturalArray.m in Sources */,
+				A64D64E81A792D3E00CCA6D7 /* MSNaturalArrayEnumerator.m in Sources */,
+				A64D64E61A792C6A00CCA6D7 /* MSNaturalArray.m in Sources */,
 				A6E03BB31A76811700A97DA3 /* MSCObject.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2149,7 +2149,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MSFoundation_src/MSFoundationForCocoa-Info.plist";
 				INSTALL_PATH = /framework;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				OTHER_CFLAGS = "-DMSFOUNDATION_FOR_COCOA";
+				OTHER_CFLAGS = "-DMSFOUNDATION_FORCOCOA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -2164,7 +2164,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/MSFoundation_src/MSFoundationForCocoa-Info.plist";
 				INSTALL_PATH = /framework;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				OTHER_CFLAGS = "-DMSFOUNDATION_FOR_COCOA";
+				OTHER_CFLAGS = "-DMSFOUNDATION_FORCOCOA";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -2288,7 +2288,7 @@
 				INSTALL_PATH = /tests;
 				OTHER_CFLAGS = (
 					"-DMSFOUNDATIONFORCOCOA_TESTS",
-					"-DMSFOUNDATION_FOR_COCOA",
+					"-DMSFOUNDATION_FORCOCOA",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2303,7 +2303,7 @@
 				INSTALL_PATH = /tests;
 				OTHER_CFLAGS = (
 					"-DMSFOUNDATIONFORCOCOA_TESTS",
-					"-DMSFOUNDATION_FOR_COCOA",
+					"-DMSFOUNDATION_FORCOCOA",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2395,6 +2395,7 @@
 				A64D64F71A79305D00CCA6D7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A691637D1A7016E6001E42F4 /* Build configuration list for PBXProject "MSFoundation" */ = {
 			isa = XCConfigurationList;

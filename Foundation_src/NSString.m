@@ -9,5 +9,8 @@
 @end
 
 @implementation NSConstantString
-
+- (const char*)UTF8String
+{
+    return (const char *)_bytes;
+}
 @end

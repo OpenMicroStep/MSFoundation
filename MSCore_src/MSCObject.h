@@ -47,8 +47,7 @@
 
 #pragma mark c-like Class and Objects
 
-#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
-
+#ifdef MSCORE_STANDALONE // ---------------------------------- MSCORE_STANDALONE
 ///// Class for c-like objects
 typedef struct ClassStruct {
   struct ClassStruct *isa;
@@ -63,9 +62,11 @@ typedef struct {
 *id;
 #define nil ((void*)0)
 
-#define MSMaxHashingHop 3
+#else // ---------------------------------------------------- !MSCORE_STANDALONE
+#include <objc/objc.h>
+#endif
 
-#endif // defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
+#define MSMaxHashingHop 3
 
 typedef enum {
   CArrayClassIndex= 0,
@@ -188,13 +189,10 @@ MSCoreExport id          _MObjectCopy     (id obj);
 #define RETAIN(X)      [(X) retain]
 #define RELEASE(X)     [(X) release]
 #define AUTORELEASE(X) [(X) autorelease]
-/*
+
 #define ISEQUAL(X,Y) ({ \
   id __x__= (id)(X), __y__= (id)(Y); \
   (__x__ == __y__) ? YES : [__x__ isEqual:__y__];})
-*/
-static inline BOOL ISEQUAL(id x, id y) {
-  return (x == y) ? YES : (!x || !y) ? NO : [x isEqual:y];}
 
 #define HASH(X)        [(X) hash:0]
 #define HASHDEPTH(X,D) [(X) hash:(D)]

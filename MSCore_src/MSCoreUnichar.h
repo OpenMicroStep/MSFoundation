@@ -45,7 +45,7 @@
 #ifndef MSCORE_UNICHAR_H
 #define MSCORE_UNICHAR_H
 
-#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
+#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION) || !defined(MSFOUNDATION_FORCOCOA)
 typedef unsigned short unichar;
 #endif // defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 

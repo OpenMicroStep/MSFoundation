@@ -34,9 +34,8 @@ Class NSClassFromString(NSString *className)
     if(className == nil) {
         return nil;
     }
-    const char *t= object_getClassName(className);
     const char *clsName = [className UTF8String];
-    return objc_lookUpClass(clsName);
+    return objc_lookUpClass([className UTF8String]);
 }
 
 NSString *NSStringFromClass(Class cls)

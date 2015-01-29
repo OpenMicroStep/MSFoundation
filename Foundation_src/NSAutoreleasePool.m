@@ -36,25 +36,25 @@ static inline void drain(CArray *objects)
     if(pool) {
         pool->_parent = self;
     }
-    pool->_objects= CCreateArrayWithOptions(0, YES, NO);
+    _objects= CCreateArrayWithOptions(0, YES, NO);
     __currentPool = self;
     return self;
 }
 
 -(void)addObject:(id)object
 {
-    addObject(self, object);
+    addObject(_objects, object);
 }
 
 -(void)dealloc
 {
-    drain(self->_objects);
+    drain(_objects);
     [super dealloc];
 }
 
 -(void)drain
 {
-    drain(self);
+    drain(_objects);
 }
 
 - (instancetype)retain
