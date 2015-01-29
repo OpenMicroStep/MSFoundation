@@ -3,8 +3,12 @@
 
 #warning Write tests for NSAutoreleasePool
 
-// Both GCC & CLang support ThreadLocalStorage at variable declaration
-static __thread NSAutoreleasePool *__currentPool = nil;
+static pthread_key_t __currentPool_key;
+
+static void __currentPool_key_free(void *pool)
+{
+    [(NSAutoreleasePool *)pool release];
+}
 
 static inline void addObject(CArray *objects, id object)
 {
@@ -19,10 +23,14 @@ static inline void drain(CArray *objects)
 }
 
 @implementation NSAutoreleasePool
++ (void)load
+{
+    pthread_key_create(&__currentPool_key, __currentPool_key_free);
+}
 
 +(void)addObject:(id)object
 {
-    NSAutoreleasePool *pool= __currentPool;
+    NSAutoreleasePool *pool= pthread_getspecific(__currentPool_key);
     if(!pool) {
         printf("no autorelease pool, leaking (%s*)%p", object_getClassName(object), object);
         return;
@@ -32,12 +40,12 @@ static inline void drain(CArray *objects)
 
 -(instancetype)init
 {
-    NSAutoreleasePool *pool= __currentPool;
+    NSAutoreleasePool *pool= pthread_getspecific(__currentPool_key);
     if(pool) {
         pool->_parent = self;
     }
     _objects= CCreateArrayWithOptions(0, YES, NO);
-    __currentPool = self;
+    pthread_setspecific(__currentPool_key, self);
     return self;
 }
 
@@ -74,7 +82,7 @@ static inline void drain(CArray *objects)
 
 - (instancetype)autorelease
 {
-    [__currentPool addObject:self];
+    [(NSAutoreleasePool*)pthread_getspecific(__currentPool_key) addObject:self];
     return self;
 }
 
