@@ -61,53 +61,53 @@ typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
   void *jnode;}
 CDictionaryEnumerator;
 
-MSCoreExport CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self);
-MSCoreExport void CDictionaryEnumeratorFree(CDictionaryEnumerator *de);
+MSCoreExtern CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self);
+MSCoreExtern void CDictionaryEnumeratorFree(CDictionaryEnumerator *de);
 
-MSCoreExport id CDictionaryEnumeratorNextObject   (CDictionaryEnumerator *de);
-MSCoreExport id CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
-MSCoreExport id CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
-MSCoreExport id CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
+MSCoreExtern id CDictionaryEnumeratorNextObject   (CDictionaryEnumerator *de);
+MSCoreExtern id CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
+MSCoreExtern id CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
+MSCoreExtern id CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
 
-MSCoreExport CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
-MSCoreExport CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
+MSCoreExtern CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
+MSCoreExtern CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
 
-  MSCoreExport void       CDictionaryFreeInside(id self);
+  MSCoreExtern void       CDictionaryFreeInside(id self);
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
 // Attention Dnas le Core le COPY copie la mutability et pas dans le .m: pas cohérent. Réécrire un COPY avec un arg ?)
-  MSCoreExport id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems);
+  MSCoreExtern id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems);
 //Already defined in MSCObject.h
-//MSCoreExport void       CDictionaryFree(id self);
-//MSCoreExport BOOL       CDictionaryIsEqual(id self, id other);
-//MSCoreExport NSUInteger CDictionaryHash(id self, unsigned depth);
-//MSCoreExport id         CDictionaryCopy(id self);
+//MSCoreExtern void       CDictionaryFree(id self);
+//MSCoreExtern BOOL       CDictionaryIsEqual(id self, id other);
+//MSCoreExtern NSUInteger CDictionaryHash(id self, unsigned depth);
+//MSCoreExtern id         CDictionaryCopy(id self);
 // CDictionaryCopy: As keys already come from a dictionary, they are not re-copied.
 
-MSCoreExport BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other);
+MSCoreExtern BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other);
 
 #pragma mark Creation
 
-MSCoreExport CDictionary *CCreateDictionary(NSUInteger capacity);
-MSCoreExport CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSUInteger count);
+MSCoreExtern CDictionary *CCreateDictionary(NSUInteger capacity);
+MSCoreExtern CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSUInteger count);
 
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
-MSCoreExport CDictionary *CCreateDictionaryWithDictionaryCopyItems(const CDictionary *src, BOOL cpy);
+MSCoreExtern CDictionary *CCreateDictionaryWithDictionaryCopyItems(const CDictionary *src, BOOL cpy);
 
 // No more mutable
-MSCoreExport BOOL CDictionaryIsMutable(CDictionary *self);
-MSCoreExport void CDictionarySetImmutable(CDictionary *self);
+MSCoreExtern BOOL CDictionaryIsMutable(CDictionary *self);
+MSCoreExtern void CDictionarySetImmutable(CDictionary *self);
 
-MSCoreExport void CDictionaryGrow(CDictionary *self, NSUInteger n);
-MSCoreExport void CDictionaryAdjustSize(CDictionary *self);
+MSCoreExtern void CDictionaryGrow(CDictionary *self, NSUInteger n);
+MSCoreExtern void CDictionaryAdjustSize(CDictionary *self);
 
 #pragma mark Informations
 
-MSCoreExport NSUInteger CDictionaryCount(const CDictionary *self);
-MSCoreExport id CDictionaryObjectForKey(const CDictionary *self, id k);
+MSCoreExtern NSUInteger CDictionaryCount(const CDictionary *self);
+MSCoreExtern id CDictionaryObjectForKey(const CDictionary *self, id k);
 
 #pragma mark Setters
 
-MSCoreExport void CDictionarySetObjectForKey(CDictionary *self, id o, id k);
+MSCoreExtern void CDictionarySetObjectForKey(CDictionary *self, id o, id k);
 // k!=nil, o=nil => remove
 
 // TODO: description functions

@@ -48,8 +48,7 @@
 #ifndef MSCORE_H
 #define MSCORE_H
 
-#define MSCoreExport LIBIMPORT
-#include <MSCore/MSCoreStd.h>
+#include <MSCore/MSCorePlatform.h>
 #include <MSCore/MSCoreTypes.h>
 #include <MSCore/MSCoreSystem.h>
 

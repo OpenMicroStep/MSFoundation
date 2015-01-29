@@ -64,13 +64,12 @@
 		A64D64771A77E4B700CCA6D7 /* MSCDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038031A76300800A97DA3 /* MSCDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64781A77E4B700CCA6D7 /* MSCGrow.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038051A76300800A97DA3 /* MSCGrow.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64791A77E4B700CCA6D7 /* MSCObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038071A76300800A97DA3 /* MSCObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A64D647A1A77E4B700CCA6D7 /* MSCore_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038081A76300800A97DA3 /* MSCore_Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A64D647A1A77E4B700CCA6D7 /* MSCore_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038081A76300800A97DA3 /* MSCore_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A64D647B1A77E4B700CCA6D7 /* MSCore.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038091A76300800A97DA3 /* MSCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D647C1A77E4B700CCA6D7 /* MSCoreSES.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E0380C1A76300800A97DA3 /* MSCoreSES.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D647D1A77E4B700CCA6D7 /* MSCoreSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E0380E1A76300800A97DA3 /* MSCoreSystem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D647E1A77E4B700CCA6D7 /* MSCoreTools.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038101A76300800A97DA3 /* MSCoreTools.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D647F1A77E4B700CCA6D7 /* MSCoreUnichar.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038141A76300800A97DA3 /* MSCoreUnichar.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A64D64801A77E4B700CCA6D7 /* MSCoreUnicharPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038151A76300800A97DA3 /* MSCoreUnicharPrivate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64821A77E4B700CCA6D7 /* MSCString.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038191A76300800A97DA3 /* MSCString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64831A77E4D000CCA6D7 /* MSASCIIString.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038DE1A7630CB00A97DA3 /* MSASCIIString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64841A77E4D000CCA6D7 /* MSBool.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038E01A7630CB00A97DA3 /* MSBool.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -132,7 +131,6 @@
 		A64D64CA1A77EB0600CCA6D7 /* msfoundation_string_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E039371A7630DC00A97DA3 /* msfoundation_string_validate.m */; };
 		A64D64CB1A77EB0600CCA6D7 /* msfoundation_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */; };
 		A64D64CC1A77EB2400CCA6D7 /* MSFoundationForCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A69163831A7016E6001E42F4 /* MSFoundationForCocoa.framework */; };
-		A64D64CF1A77EDB200CCA6D7 /* MSFoundationForCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64CD1A77EDAF00CCA6D7 /* MSFoundationForCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A64D64D11A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */; };
 		A64D64D31A77EFFD00CCA6D7 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A64D64D21A77EFFD00CCA6D7 /* libobjc.dylib */; };
 		A64D64D41A77F00400CCA6D7 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A64D64D21A77EFFD00CCA6D7 /* libobjc.dylib */; };
@@ -141,10 +139,6 @@
 		A64D64D71A77F07E00CCA6D7 /* foundation_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D3597E1A7782D200B87986 /* foundation_validate.m */; };
 		A64D64DE1A78FA2A00CCA6D7 /* foundation_nsobject_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */; };
 		A64D64DF1A78FA2B00CCA6D7 /* foundation_nsobject_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */; };
-		A64D64E11A79186F00CCA6D7 /* MSCoreStd.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64E01A79186F00CCA6D7 /* MSCoreStd.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A64D64E21A79186F00CCA6D7 /* MSCoreStd.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64E01A79186F00CCA6D7 /* MSCoreStd.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A64D64E31A79186F00CCA6D7 /* MSCoreStd.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64E01A79186F00CCA6D7 /* MSCoreStd.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A64D64E51A7919C500CCA6D7 /* Foundation_Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = A64D64E41A7919C500CCA6D7 /* Foundation_Protected.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A64D64E61A792C6A00CCA6D7 /* MSNaturalArray.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038F61A7630CB00A97DA3 /* MSNaturalArray.m */; };
 		A64D64E71A792D2500CCA6D7 /* MSCNaturalArray.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038E51A7630CB00A97DA3 /* MSCNaturalArray.m */; };
 		A64D64E81A792D3E00CCA6D7 /* MSNaturalArrayEnumerator.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038F91A7630CB00A97DA3 /* MSNaturalArrayEnumerator.m */; };
@@ -154,6 +148,21 @@
 		A64D64EC1A792E2900CCA6D7 /* foundation_validate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6D3597F1A7782D200B87986 /* foundation_validate.h */; };
 		A64D64ED1A792E8100CCA6D7 /* m_apm_lc.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038421A76301700A97DA3 /* m_apm_lc.h */; };
 		A64D64FB1A79308200CCA6D7 /* libobjc.4.6.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
+		A66299591A7A888100B2B60D /* MSCore_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = A66299581A7A888100B2B60D /* MSCore_Public.h */; };
+		A662995C1A7A88BB00B2B60D /* MSCoreUnichar_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A662995B1A7A88BB00B2B60D /* MSCoreUnichar_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A662995D1A7A88BB00B2B60D /* MSCoreUnichar_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A662995B1A7A88BB00B2B60D /* MSCoreUnichar_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A662995E1A7A88BB00B2B60D /* MSCoreUnichar_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A662995B1A7A88BB00B2B60D /* MSCoreUnichar_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A66299601A7A88E500B2B60D /* MSCorePlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = A662995F1A7A88E500B2B60D /* MSCorePlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A66299611A7A88E500B2B60D /* MSCorePlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = A662995F1A7A88E500B2B60D /* MSCorePlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A66299621A7A88E500B2B60D /* MSCorePlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = A662995F1A7A88E500B2B60D /* MSCorePlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A66299651A7A8A1A00B2B60D /* mscore_test.c in Sources */ = {isa = PBXBuildFile; fileRef = A66299641A7A8A1A00B2B60D /* mscore_test.c */; };
+		A66299781A7A8A8800B2B60D /* FoundationCompatibility.h in Headers */ = {isa = PBXBuildFile; fileRef = A66299771A7A8A8800B2B60D /* FoundationCompatibility.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A662997B1A7A8A9500B2B60D /* FoundationCompatibility_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A66299791A7A8A9500B2B60D /* FoundationCompatibility_Private.h */; };
+		A662997C1A7A8A9500B2B60D /* FoundationCompatibility_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = A662997A1A7A8A9500B2B60D /* FoundationCompatibility_Public.h */; };
+		A662997F1A7A8B2600B2B60D /* MSFoundation_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */; };
+		A66299801A7A8B2600B2B60D /* MSFoundation_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */; };
+		A66299811A7A8B2E00B2B60D /* MSFoundation_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		A66299821A7A8B3700B2B60D /* MSFoundation.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038C11A7630C200A97DA3 /* MSFoundation.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6D3598A1A778F0F00B87986 /* MSCoreTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038121A76300800A97DA3 /* MSCoreTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6D3598D1A7798B600B87986 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
 		A6D3599B1A77991600B87986 /* MSTests_main.c in Sources */ = {isa = PBXBuildFile; fileRef = A6D3599A1A77991600B87986 /* MSTests_main.c */; };
@@ -169,7 +178,6 @@
 		A6D359CF1A77D65F00B87986 /* mscore_cstring_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038951A76304600A97DA3 /* mscore_cstring_validate.c */; };
 		A6D359D01A77D65F00B87986 /* mscore_mste_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038961A76304600A97DA3 /* mscore_mste_validate.c */; };
 		A6D359D11A77D65F00B87986 /* mscore_tools_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038971A76304600A97DA3 /* mscore_tools_validate.c */; };
-		A6D359D21A77D65F00B87986 /* mscore_test.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E03B5B1A76729700A97DA3 /* mscore_test.c */; };
 		A6D359D31A77D65F00B87986 /* mscore_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E03B5D1A7672D800A97DA3 /* mscore_validate.c */; };
 		A6E038AB1A76306100A97DA3 /* UnicodeData.txt in Resources */ = {isa = PBXBuildFile; fileRef = A6E038A81A76306100A97DA3 /* UnicodeData.txt */; };
 		A6E038D71A7630C200A97DA3 /* MSFoundation-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A6E038C01A7630C200A97DA3 /* MSFoundation-Info.plist */; };
@@ -248,7 +256,6 @@
 		A6E039BB1A76318200A97DA3 /* MSDate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038BA1A7630C200A97DA3 /* MSDate.m */; };
 		A6E039BD1A76318200A97DA3 /* MSDecimal.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038BC1A7630C200A97DA3 /* MSDecimal.m */; };
 		A6E039BF1A76318200A97DA3 /* MSDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038BE1A7630C200A97DA3 /* MSDictionary.m */; };
-		A6E039C41A76318200A97DA3 /* MSFoundationWin32.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038C31A7630C200A97DA3 /* MSFoundationWin32.m */; };
 		A6E039C61A76318200A97DA3 /* MSString.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038C51A7630C200A97DA3 /* MSString.m */; };
 		A6E039C71A76320700A97DA3 /* mapm_add.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038441A76301700A97DA3 /* mapm_add.c */; };
 		A6E039C81A76320700A97DA3 /* mapm_cpi.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038451A76301700A97DA3 /* mapm_cpi.c */; };
@@ -341,12 +348,10 @@
 		A6E03A451A7632AD00A97DA3 /* MSDate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038B91A7630C200A97DA3 /* MSDate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03A461A7632AD00A97DA3 /* MSDecimal.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038BB1A7630C200A97DA3 /* MSDecimal.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03A471A7632AD00A97DA3 /* MSDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038BD1A7630C200A97DA3 /* MSDictionary.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A6E03A491A7632AD00A97DA3 /* MSFoundationWin32.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038C21A7630C200A97DA3 /* MSFoundationWin32.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03A4A1A7632AD00A97DA3 /* MSString.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038C41A7630C200A97DA3 /* MSString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03A4B1A76331100A97DA3 /* MSFoundation_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03A4C1A76331400A97DA3 /* MSNaturalArrayEnumerator_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038F71A7630CB00A97DA3 /* MSNaturalArrayEnumerator_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03A4D1A76331600A97DA3 /* MSCharsets_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038E21A7630CB00A97DA3 /* MSCharsets_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		A6E03A4E1A76331800A97DA3 /* MSCoreUnicharPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038151A76300800A97DA3 /* MSCoreUnicharPrivate.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03A4F1A76331B00A97DA3 /* MSCore_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038081A76300800A97DA3 /* MSCore_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03A501A76333D00A97DA3 /* m_apm_lc.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038421A76301700A97DA3 /* m_apm_lc.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03B031A76363C00A97DA3 /* mapm_add.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038441A76301700A97DA3 /* mapm_add.c */; };
@@ -417,11 +422,9 @@
 		A6E03B461A76364F00A97DA3 /* MSCoreTools.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038101A76300800A97DA3 /* MSCoreTools.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03B471A76364F00A97DA3 /* MSCoreTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038121A76300800A97DA3 /* MSCoreTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03B481A76364F00A97DA3 /* MSCoreUnichar.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038141A76300800A97DA3 /* MSCoreUnichar.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A6E03B491A76364F00A97DA3 /* MSCoreUnicharPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038151A76300800A97DA3 /* MSCoreUnicharPrivate.h */; };
 		A6E03B4B1A76364F00A97DA3 /* MSCString.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038191A76300800A97DA3 /* MSCString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03B4C1A76364F00A97DA3 /* MSTE.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E0381B1A76300800A97DA3 /* MSTE.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03B8F1A767E1200A97DA3 /* NSObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03B8D1A767E1200A97DA3 /* NSObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A6E03B961A767E8700A97DA3 /* Foundation_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03B951A767E8700A97DA3 /* Foundation_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6E03B981A767F0E00A97DA3 /* Foundation-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */; };
 		A6E03B9B1A767F6600A97DA3 /* NSString.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03B991A767F6600A97DA3 /* NSString.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03B9F1A767F7400A97DA3 /* NSArray.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03B9D1A767F7400A97DA3 /* NSArray.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -445,7 +448,7 @@
 		A6E03BCF1A76849100A97DA3 /* NSZone.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03BC81A76838A00A97DA3 /* NSZone.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03BD21A7684D800A97DA3 /* NSDate.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03BD01A7684D800A97DA3 /* NSDate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03BD31A7684D800A97DA3 /* NSDate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E03BD11A7684D800A97DA3 /* NSDate.m */; };
-		A6E03BD51A76874B00A97DA3 /* NSFoundationStd.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03BD41A76874B00A97DA3 /* NSFoundationStd.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A6E03BD51A76874B00A97DA3 /* FoundationTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E03BD41A76874B00A97DA3 /* FoundationTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E03BE01A76908400A97DA3 /* NSData.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E03BBE1A76826D00A97DA3 /* NSData.m */; };
 		A6E03BE11A76908400A97DA3 /* NSCoder.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E03BC01A7682AA00A97DA3 /* NSCoder.m */; };
 		A6E03BE21A76908400A97DA3 /* NSException.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E03BC21A7682D100A97DA3 /* NSException.m */; };
@@ -572,11 +575,28 @@
 /* Begin PBXFileReference section */
 		A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_validate.m; path = MSFoundation_tst/msfoundation_validate.m; sourceTree = SOURCE_ROOT; };
 		A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundationforcocoa_test.m; path = MSFoundation_tst/msfoundationforcocoa_test.m; sourceTree = SOURCE_ROOT; };
-		A64D64CD1A77EDAF00CCA6D7 /* MSFoundationForCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundationForCocoa.h; path = MSFoundation_src/MSFoundationForCocoa.h; sourceTree = SOURCE_ROOT; };
 		A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MSFoundationForCocoa-Info.plist"; path = "MSFoundation_src/MSFoundationForCocoa-Info.plist"; sourceTree = SOURCE_ROOT; };
 		A64D64D21A77EFFD00CCA6D7 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = usr/lib/libobjc.dylib; sourceTree = SDKROOT; };
-		A64D64E01A79186F00CCA6D7 /* MSCoreStd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCoreStd.h; path = MSCore_src/MSCoreStd.h; sourceTree = "<group>"; };
-		A64D64E41A7919C500CCA6D7 /* Foundation_Protected.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Foundation_Protected.h; path = Foundation_src/Foundation_Protected.h; sourceTree = "<group>"; };
+		A66299581A7A888100B2B60D /* MSCore_Public.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCore_Public.h; path = MSCore_src/MSCore_Public.h; sourceTree = "<group>"; };
+		A662995B1A7A88BB00B2B60D /* MSCoreUnichar_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCoreUnichar_Private.h; path = MSCore_src/MSCoreUnichar_Private.h; sourceTree = "<group>"; };
+		A662995F1A7A88E500B2B60D /* MSCorePlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCorePlatform.h; path = MSCore_src/MSCorePlatform.h; sourceTree = "<group>"; };
+		A66299641A7A8A1A00B2B60D /* mscore_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mscore_test.c; path = MSCore_tst/mscore_test.c; sourceTree = "<group>"; };
+		A662996A1A7A8A4B00B2B60D /* algorithms.used */ = {isa = PBXFileReference; lastKnownFileType = text; path = algorithms.used; sourceTree = "<group>"; };
+		A662996B1A7A8A4B00B2B60D /* article.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = article.pdf; sourceTree = "<group>"; };
+		A662996C1A7A8A4B00B2B60D /* commentary.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = commentary.txt; sourceTree = "<group>"; };
+		A662996D1A7A8A4B00B2B60D /* function.ref */ = {isa = PBXFileReference; lastKnownFileType = text; path = function.ref; sourceTree = "<group>"; };
+		A662996E1A7A8A4B00B2B60D /* history.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = history.txt; sourceTree = "<group>"; };
+		A662996F1A7A8A4B00B2B60D /* license.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		A66299701A7A8A4B00B2B60D /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		A66299711A7A8A4B00B2B60D /* struct.ref */ = {isa = PBXFileReference; lastKnownFileType = text; path = struct.ref; sourceTree = "<group>"; };
+		A66299721A7A8A4B00B2B60D /* 120926-MemoMSTEncoder.pages */ = {isa = PBXFileReference; lastKnownFileType = file; name = "120926-MemoMSTEncoder.pages"; path = "MSCore_doc/120926-MemoMSTEncoder.pages"; sourceTree = "<group>"; };
+		A66299731A7A8A4B00B2B60D /* 120926-MemoMSTEncoder.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = "120926-MemoMSTEncoder.pdf"; path = "MSCore_doc/120926-MemoMSTEncoder.pdf"; sourceTree = "<group>"; };
+		A66299741A7A8A4B00B2B60D /* MSCArray.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = MSCArray.txt; path = MSCore_doc/MSCArray.txt; sourceTree = "<group>"; };
+		A66299751A7A8A4B00B2B60D /* MSTE-Implementation.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "MSTE-Implementation.txt"; path = "MSCore_doc/MSTE-Implementation.txt"; sourceTree = "<group>"; };
+		A66299771A7A8A8800B2B60D /* FoundationCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoundationCompatibility.h; path = Foundation_src/FoundationCompatibility.h; sourceTree = "<group>"; };
+		A66299791A7A8A9500B2B60D /* FoundationCompatibility_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoundationCompatibility_Private.h; path = Foundation_src/FoundationCompatibility_Private.h; sourceTree = "<group>"; };
+		A662997A1A7A8A9500B2B60D /* FoundationCompatibility_Public.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoundationCompatibility_Public.h; path = Foundation_src/FoundationCompatibility_Public.h; sourceTree = "<group>"; };
+		A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundation_Public.h; path = MSFoundation_src/MSFoundation_Public.h; sourceTree = SOURCE_ROOT; };
 		A69163831A7016E6001E42F4 /* MSFoundationForCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundationForCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A69163A81A701754001E42F4 /* MSFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6D359781A76D39A00B87986 /* libMSFoundationTests.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMSFoundationTests.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -618,7 +638,6 @@
 		A6E038121A76300800A97DA3 /* MSCoreTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCoreTypes.h; path = MSCore_src/MSCoreTypes.h; sourceTree = "<group>"; };
 		A6E038131A76300800A97DA3 /* MSCoreUnichar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSCoreUnichar.c; path = MSCore_src/MSCoreUnichar.c; sourceTree = "<group>"; };
 		A6E038141A76300800A97DA3 /* MSCoreUnichar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCoreUnichar.h; path = MSCore_src/MSCoreUnichar.h; sourceTree = "<group>"; };
-		A6E038151A76300800A97DA3 /* MSCoreUnicharPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCoreUnicharPrivate.h; path = MSCore_src/MSCoreUnicharPrivate.h; sourceTree = "<group>"; };
 		A6E038181A76300800A97DA3 /* MSCString.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSCString.c; path = MSCore_src/MSCString.c; sourceTree = "<group>"; };
 		A6E038191A76300800A97DA3 /* MSCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSCString.h; path = MSCore_src/MSCString.h; sourceTree = "<group>"; };
 		A6E0381A1A76300800A97DA3 /* MSTE.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSTE.c; path = MSCore_src/MSTE.c; sourceTree = "<group>"; };
@@ -693,8 +712,6 @@
 		A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundation_Private.h; path = MSFoundation_src/MSFoundation_Private.h; sourceTree = SOURCE_ROOT; };
 		A6E038C01A7630C200A97DA3 /* MSFoundation-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MSFoundation-Info.plist"; path = "MSFoundation_src/MSFoundation-Info.plist"; sourceTree = SOURCE_ROOT; };
 		A6E038C11A7630C200A97DA3 /* MSFoundation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundation.h; path = MSFoundation_src/MSFoundation.h; sourceTree = SOURCE_ROOT; };
-		A6E038C21A7630C200A97DA3 /* MSFoundationWin32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundationWin32.h; path = MSFoundation_src/MSFoundationWin32.h; sourceTree = SOURCE_ROOT; };
-		A6E038C31A7630C200A97DA3 /* MSFoundationWin32.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSFoundationWin32.m; path = MSFoundation_src/MSFoundationWin32.m; sourceTree = SOURCE_ROOT; };
 		A6E038C41A7630C200A97DA3 /* MSString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSString.h; path = MSFoundation_src/MSString.h; sourceTree = SOURCE_ROOT; };
 		A6E038C51A7630C200A97DA3 /* MSString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSString.m; path = MSFoundation_src/MSString.m; sourceTree = SOURCE_ROOT; };
 		A6E038C61A7630C200A97DA3 /* MSStringBooleanAdditions_Private.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = MSStringBooleanAdditions_Private.i; path = MSFoundation_src/MSStringBooleanAdditions_Private.i; sourceTree = SOURCE_ROOT; };
@@ -747,13 +764,11 @@
 		A6E039381A7630DC00A97DA3 /* msfoundation_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_test.m; path = MSFoundation_tst/msfoundation_test.m; sourceTree = SOURCE_ROOT; };
 		A6E039391A7630DC00A97DA3 /* msfoundation_validate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = msfoundation_validate.h; path = MSFoundation_tst/msfoundation_validate.h; sourceTree = SOURCE_ROOT; };
 		A6E03A911A7634AA00A97DA3 /* libMSCore.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMSCore.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		A6E03B5B1A76729700A97DA3 /* mscore_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mscore_test.c; path = MSCore_tstc/mscore_test.c; sourceTree = "<group>"; };
 		A6E03B5D1A7672D800A97DA3 /* mscore_validate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mscore_validate.c; path = MSCore_tst/mscore_validate.c; sourceTree = "<group>"; };
 		A6E03B701A7673FB00A97DA3 /* mapm_validate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mapm_validate.c; path = MSCore_tst/MAPM_tst/mapm_validate.c; sourceTree = "<group>"; };
 		A6E03B8A1A767C5600A97DA3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A6E03B8D1A767E1200A97DA3 /* NSObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSObject.h; path = Foundation_src/NSObject.h; sourceTree = "<group>"; };
 		A6E03B8E1A767E1200A97DA3 /* NSObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSObject.m; path = Foundation_src/NSObject.m; sourceTree = "<group>"; };
-		A6E03B951A767E8700A97DA3 /* Foundation_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Foundation_Private.h; path = Foundation_src/Foundation_Private.h; sourceTree = "<group>"; };
 		A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "Foundation-Info.plist"; path = "Foundation_src/Foundation-Info.plist"; sourceTree = "<group>"; };
 		A6E03B991A767F6600A97DA3 /* NSString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSString.h; path = Foundation_src/NSString.h; sourceTree = "<group>"; };
 		A6E03B9A1A767F6600A97DA3 /* NSString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSString.m; path = Foundation_src/NSString.m; sourceTree = "<group>"; };
@@ -781,7 +796,7 @@
 		A6E03BC91A76838A00A97DA3 /* NSZone.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = NSZone.m; path = Foundation_src/NSZone.m; sourceTree = "<group>"; };
 		A6E03BD01A7684D800A97DA3 /* NSDate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSDate.h; path = Foundation_src/NSDate.h; sourceTree = "<group>"; };
 		A6E03BD11A7684D800A97DA3 /* NSDate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSDate.m; path = Foundation_src/NSDate.m; sourceTree = "<group>"; };
-		A6E03BD41A76874B00A97DA3 /* NSFoundationStd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSFoundationStd.h; path = Foundation_src/NSFoundationStd.h; sourceTree = "<group>"; };
+		A6E03BD41A76874B00A97DA3 /* FoundationTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoundationTypes.h; path = Foundation_src/FoundationTypes.h; sourceTree = "<group>"; };
 		A6E03BEE1A7691BC00A97DA3 /* NSTimeZone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSTimeZone.h; path = Foundation_src/NSTimeZone.h; sourceTree = "<group>"; };
 		A6E03BEF1A7691BC00A97DA3 /* NSTimeZone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSTimeZone.m; path = Foundation_src/NSTimeZone.m; sourceTree = "<group>"; };
 		A6E03BF21A76954C00A97DA3 /* NSAutoreleasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSAutoreleasePool.h; path = Foundation_src/NSAutoreleasePool.h; sourceTree = "<group>"; };
@@ -855,11 +870,122 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A66299571A7A886400B2B60D /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				A6E038091A76300800A97DA3 /* MSCore.h */,
+				A66299581A7A888100B2B60D /* MSCore_Public.h */,
+				A6E038081A76300800A97DA3 /* MSCore_Private.h */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
+		A662995A1A7A889A00B2B60D /* Abstraction */ = {
+			isa = PBXGroup;
+			children = (
+				A662995F1A7A88E500B2B60D /* MSCorePlatform.h */,
+				A6E038121A76300800A97DA3 /* MSCoreTypes.h */,
+				A6E0380E1A76300800A97DA3 /* MSCoreSystem.h */,
+				A6E0380D1A76300800A97DA3 /* MSCoreSystem.c */,
+				A6E038101A76300800A97DA3 /* MSCoreTools.h */,
+				A6E0380F1A76300800A97DA3 /* MSCoreTools.c */,
+				A6E038111A76300800A97DA3 /* MSCoreToolsCompress.c */,
+			);
+			name = Abstraction;
+			sourceTree = "<group>";
+		};
+		A66299631A7A895400B2B60D /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				A6E037F51A762FF200A97DA3 /* MAPM */,
+				A6E038071A76300800A97DA3 /* MSCObject.h */,
+				A6E038061A76300800A97DA3 /* MSCObject.c */,
+				A6E038051A76300800A97DA3 /* MSCGrow.h */,
+				A6E038041A76300800A97DA3 /* MSCGrow.c */,
+				A6E037F71A76300800A97DA3 /* MSCArray.h */,
+				A6E037F61A76300800A97DA3 /* MSCArray.c */,
+				A6E037F91A76300800A97DA3 /* MSCBuffer.h */,
+				A6E037F81A76300800A97DA3 /* MSCBuffer.c */,
+				A6E037FB1A76300800A97DA3 /* MSCColor.h */,
+				A6E037FA1A76300800A97DA3 /* MSCColor.c */,
+				A6E037FD1A76300800A97DA3 /* MSCCouple.h */,
+				A6E037FC1A76300800A97DA3 /* MSCCouple.c */,
+				A6E037FF1A76300800A97DA3 /* MSCDate.h */,
+				A6E037FE1A76300800A97DA3 /* MSCDate.c */,
+				A6E038011A76300800A97DA3 /* MSCDecimal.h */,
+				A6E038001A76300800A97DA3 /* MSCDecimal.c */,
+				A6E038031A76300800A97DA3 /* MSCDictionary.h */,
+				A6E038021A76300800A97DA3 /* MSCDictionary.c */,
+				A6E0380C1A76300800A97DA3 /* MSCoreSES.h */,
+				A6E0380B1A76300800A97DA3 /* MSCoreSES.c */,
+				A6E038141A76300800A97DA3 /* MSCoreUnichar.h */,
+				A662995B1A7A88BB00B2B60D /* MSCoreUnichar_Private.h */,
+				A6E038131A76300800A97DA3 /* MSCoreUnichar.c */,
+				A6E038191A76300800A97DA3 /* MSCString.h */,
+				A6E038181A76300800A97DA3 /* MSCString.c */,
+				A6E0381B1A76300800A97DA3 /* MSTE.h */,
+				A6E0381A1A76300800A97DA3 /* MSTE.c */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		A66299681A7A8A2A00B2B60D /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				A66299691A7A8A4B00B2B60D /* MAPM_doc */,
+				A66299721A7A8A4B00B2B60D /* 120926-MemoMSTEncoder.pages */,
+				A66299731A7A8A4B00B2B60D /* 120926-MemoMSTEncoder.pdf */,
+				A66299741A7A8A4B00B2B60D /* MSCArray.txt */,
+				A66299751A7A8A4B00B2B60D /* MSTE-Implementation.txt */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+		A66299691A7A8A4B00B2B60D /* MAPM_doc */ = {
+			isa = PBXGroup;
+			children = (
+				A662996A1A7A8A4B00B2B60D /* algorithms.used */,
+				A662996B1A7A8A4B00B2B60D /* article.pdf */,
+				A662996C1A7A8A4B00B2B60D /* commentary.txt */,
+				A662996D1A7A8A4B00B2B60D /* function.ref */,
+				A662996E1A7A8A4B00B2B60D /* history.txt */,
+				A662996F1A7A8A4B00B2B60D /* license.txt */,
+				A66299701A7A8A4B00B2B60D /* README */,
+				A66299711A7A8A4B00B2B60D /* struct.ref */,
+			);
+			name = MAPM_doc;
+			path = MSCore_doc/MAPM_doc;
+			sourceTree = "<group>";
+		};
+		A66299761A7A8A6000B2B60D /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				A66299771A7A8A8800B2B60D /* FoundationCompatibility.h */,
+				A66299791A7A8A9500B2B60D /* FoundationCompatibility_Private.h */,
+				A662997A1A7A8A9500B2B60D /* FoundationCompatibility_Public.h */,
+				A6E03BD41A76874B00A97DA3 /* FoundationTypes.h */,
+				A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
+		A662997D1A7A8AE600B2B60D /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				A6E038C11A7630C200A97DA3 /* MSFoundation.h */,
+				A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */,
+				A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */,
+				A6E038C01A7630C200A97DA3 /* MSFoundation-Info.plist */,
+				A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */,
+			);
+			name = Headers;
+			sourceTree = "<group>";
+		};
 		A69163791A7016E6001E42F4 = {
 			isa = PBXGroup;
 			children = (
 				A6E037F31A762FDC00A97DA3 /* MSCore */,
-				A6E038AC1A76309000A97DA3 /* FoundationForCompatibility */,
+				A6E038AC1A76309000A97DA3 /* FoundationCompatibility */,
 				A69163851A7016E6001E42F4 /* MSFoundation */,
 				A6E03AB81A76350D00A97DA3 /* MSTests */,
 				A69163861A7016E6001E42F4 /* Supporting Files */,
@@ -884,6 +1010,7 @@
 		A69163851A7016E6001E42F4 /* MSFoundation */ = {
 			isa = PBXGroup;
 			children = (
+				A662997D1A7A8AE600B2B60D /* Headers */,
 				A6E038AE1A7630A100A97DA3 /* Basics */,
 				A6E038AD1A76309C00A97DA3 /* Sources */,
 				A6E038AF1A7630A600A97DA3 /* Tests */,
@@ -904,9 +1031,9 @@
 		A6D359701A76D02800B87986 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */,
 				A6D3597F1A7782D200B87986 /* foundation_validate.h */,
 				A6D3597E1A7782D200B87986 /* foundation_validate.m */,
+				A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -914,55 +1041,14 @@
 		A6E037F31A762FDC00A97DA3 /* MSCore */ = {
 			isa = PBXGroup;
 			children = (
-				A6E037F41A762FE500A97DA3 /* Sources */,
+				A66299571A7A886400B2B60D /* Headers */,
+				A662995A1A7A889A00B2B60D /* Abstraction */,
+				A66299631A7A895400B2B60D /* Sources */,
 				A6E0388C1A76303000A97DA3 /* Tests */,
 				A6E038A51A76304D00A97DA3 /* Unicode */,
+				A66299681A7A8A2A00B2B60D /* Documentation */,
 			);
 			name = MSCore;
-			sourceTree = "<group>";
-		};
-		A6E037F41A762FE500A97DA3 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				A6E037F51A762FF200A97DA3 /* MAPM */,
-				A6E037F61A76300800A97DA3 /* MSCArray.c */,
-				A6E037F71A76300800A97DA3 /* MSCArray.h */,
-				A6E037F81A76300800A97DA3 /* MSCBuffer.c */,
-				A6E037F91A76300800A97DA3 /* MSCBuffer.h */,
-				A6E037FA1A76300800A97DA3 /* MSCColor.c */,
-				A6E037FB1A76300800A97DA3 /* MSCColor.h */,
-				A6E037FC1A76300800A97DA3 /* MSCCouple.c */,
-				A6E037FD1A76300800A97DA3 /* MSCCouple.h */,
-				A6E037FE1A76300800A97DA3 /* MSCDate.c */,
-				A6E037FF1A76300800A97DA3 /* MSCDate.h */,
-				A6E038001A76300800A97DA3 /* MSCDecimal.c */,
-				A6E038011A76300800A97DA3 /* MSCDecimal.h */,
-				A6E038021A76300800A97DA3 /* MSCDictionary.c */,
-				A6E038031A76300800A97DA3 /* MSCDictionary.h */,
-				A6E038041A76300800A97DA3 /* MSCGrow.c */,
-				A6E038051A76300800A97DA3 /* MSCGrow.h */,
-				A6E038061A76300800A97DA3 /* MSCObject.c */,
-				A6E038071A76300800A97DA3 /* MSCObject.h */,
-				A6E038091A76300800A97DA3 /* MSCore.h */,
-				A6E038081A76300800A97DA3 /* MSCore_Private.h */,
-				A6E0380B1A76300800A97DA3 /* MSCoreSES.c */,
-				A6E0380C1A76300800A97DA3 /* MSCoreSES.h */,
-				A6E0380D1A76300800A97DA3 /* MSCoreSystem.c */,
-				A6E0380E1A76300800A97DA3 /* MSCoreSystem.h */,
-				A6E0380F1A76300800A97DA3 /* MSCoreTools.c */,
-				A6E038101A76300800A97DA3 /* MSCoreTools.h */,
-				A6E038111A76300800A97DA3 /* MSCoreToolsCompress.c */,
-				A64D64E01A79186F00CCA6D7 /* MSCoreStd.h */,
-				A6E038121A76300800A97DA3 /* MSCoreTypes.h */,
-				A6E038131A76300800A97DA3 /* MSCoreUnichar.c */,
-				A6E038141A76300800A97DA3 /* MSCoreUnichar.h */,
-				A6E038151A76300800A97DA3 /* MSCoreUnicharPrivate.h */,
-				A6E038181A76300800A97DA3 /* MSCString.c */,
-				A6E038191A76300800A97DA3 /* MSCString.h */,
-				A6E0381A1A76300800A97DA3 /* MSTE.c */,
-				A6E0381B1A76300800A97DA3 /* MSTE.h */,
-			);
-			name = Sources;
 			sourceTree = "<group>";
 		};
 		A6E037F51A762FF200A97DA3 /* MAPM */ = {
@@ -1013,7 +1099,10 @@
 			isa = PBXGroup;
 			children = (
 				A6E03B6F1A7673F300A97DA3 /* MAPM */,
+				A6E038981A76304600A97DA3 /* mscore_validate.h */,
+				A6E03B5D1A7672D800A97DA3 /* mscore_validate.c */,
 				A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */,
+				A6E038971A76304600A97DA3 /* mscore_tools_validate.c */,
 				A6E0388E1A76304600A97DA3 /* mscore_carray_validate.c */,
 				A6E0388F1A76304600A97DA3 /* mscore_cbuffer_validate.c */,
 				A6E038901A76304600A97DA3 /* mscore_ccolor_validate.c */,
@@ -1023,10 +1112,7 @@
 				A6E038941A76304600A97DA3 /* mscore_cdictionary_validate.c */,
 				A6E038951A76304600A97DA3 /* mscore_cstring_validate.c */,
 				A6E038961A76304600A97DA3 /* mscore_mste_validate.c */,
-				A6E038971A76304600A97DA3 /* mscore_tools_validate.c */,
-				A6E03B5B1A76729700A97DA3 /* mscore_test.c */,
-				A6E038981A76304600A97DA3 /* mscore_validate.h */,
-				A6E03B5D1A7672D800A97DA3 /* mscore_validate.c */,
+				A66299641A7A8A1A00B2B60D /* mscore_test.c */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -1041,19 +1127,16 @@
 			name = Unicode;
 			sourceTree = "<group>";
 		};
-		A6E038AC1A76309000A97DA3 /* FoundationForCompatibility */ = {
+		A6E038AC1A76309000A97DA3 /* FoundationCompatibility */ = {
 			isa = PBXGroup;
 			children = (
-				A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */,
-				A64D64E41A7919C500CCA6D7 /* Foundation_Protected.h */,
-				A6E03B951A767E8700A97DA3 /* Foundation_Private.h */,
-				A6E03BD41A76874B00A97DA3 /* NSFoundationStd.h */,
+				A66299761A7A8A6000B2B60D /* Headers */,
 				A6E03BB41A7681B800A97DA3 /* Bases */,
 				A6E03BB51A7681C700A97DA3 /* Protocols */,
 				A6E03BB61A7681D600A97DA3 /* Others */,
 				A6D359701A76D02800B87986 /* Tests */,
 			);
-			name = FoundationForCompatibility;
+			name = FoundationCompatibility;
 			sourceTree = "<group>";
 		};
 		A6E038AD1A76309C00A97DA3 /* Sources */ = {
@@ -1074,13 +1157,6 @@
 				A6E038BC1A7630C200A97DA3 /* MSDecimal.m */,
 				A6E038BD1A7630C200A97DA3 /* MSDictionary.h */,
 				A6E038BE1A7630C200A97DA3 /* MSDictionary.m */,
-				A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */,
-				A6E038C11A7630C200A97DA3 /* MSFoundation.h */,
-				A6E038C01A7630C200A97DA3 /* MSFoundation-Info.plist */,
-				A64D64CD1A77EDAF00CCA6D7 /* MSFoundationForCocoa.h */,
-				A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */,
-				A6E038C21A7630C200A97DA3 /* MSFoundationWin32.h */,
-				A6E038C31A7630C200A97DA3 /* MSFoundationWin32.m */,
 				A6E038C41A7630C200A97DA3 /* MSString.h */,
 				A6E038C51A7630C200A97DA3 /* MSString.m */,
 				A6E038C61A7630C200A97DA3 /* MSStringBooleanAdditions_Private.i */,
@@ -1134,6 +1210,10 @@
 		A6E038AF1A7630A600A97DA3 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				A6E039391A7630DC00A97DA3 /* msfoundation_validate.h */,
+				A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */,
+				A6E039381A7630DC00A97DA3 /* msfoundation_test.m */,
+				A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */,
 				A6E0392E1A7630DC00A97DA3 /* msfoundation_array_validate.m */,
 				A6E0392F1A7630DC00A97DA3 /* msfoundation_buffer_validate.m */,
 				A6E039301A7630DC00A97DA3 /* msfoundation_color_validate.m */,
@@ -1144,10 +1224,6 @@
 				A6E039351A7630DC00A97DA3 /* msfoundation_mste_validate.m */,
 				A6E039361A7630DC00A97DA3 /* msfoundation_string_plist_test1.plist */,
 				A6E039371A7630DC00A97DA3 /* msfoundation_string_validate.m */,
-				A6E039381A7630DC00A97DA3 /* msfoundation_test.m */,
-				A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */,
-				A6E039391A7630DC00A97DA3 /* msfoundation_validate.h */,
-				A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -1254,7 +1330,9 @@
 				A6E03A1F1A76326E00A97DA3 /* MSCGrow.h in Headers */,
 				A6E03A201A76326E00A97DA3 /* MSCObject.h in Headers */,
 				A6E03A241A76326E00A97DA3 /* MSCoreSES.h in Headers */,
+				A66299821A7A8B3700B2B60D /* MSFoundation.h in Headers */,
 				A6E03A251A76326E00A97DA3 /* MSCoreSystem.h in Headers */,
+				A66299621A7A88E500B2B60D /* MSCorePlatform.h in Headers */,
 				A6E03A261A76326E00A97DA3 /* MSCoreTools.h in Headers */,
 				A6E03A271A76326E00A97DA3 /* MSCoreTypes.h in Headers */,
 				A6E03A281A76326E00A97DA3 /* MSCoreUnichar.h in Headers */,
@@ -1263,7 +1341,6 @@
 				A6E03A2D1A76328400A97DA3 /* MSASCIIString.h in Headers */,
 				A6E03A2E1A76328400A97DA3 /* MSBool.h in Headers */,
 				A6E03A301A76328400A97DA3 /* MSCNaturalArray.h in Headers */,
-				A64D64CF1A77EDB200CCA6D7 /* MSFoundationForCocoa.h in Headers */,
 				A6E03A311A76328400A97DA3 /* MSCoderAdditions.h in Headers */,
 				A6E03A331A76328400A97DA3 /* MSExceptionAdditions.h in Headers */,
 				A6E03A341A76328400A97DA3 /* MSFileManipulation.h in Headers */,
@@ -1272,25 +1349,24 @@
 				A6E03A371A76328400A97DA3 /* MSMutex.h in Headers */,
 				A6E03A381A76328400A97DA3 /* MSNaturalArray.h in Headers */,
 				A6E03A3A1A76328400A97DA3 /* MSNaturalArrayEnumerator.h in Headers */,
+				A66299801A7A8B2600B2B60D /* MSFoundation_Public.h in Headers */,
 				A6E03A3B1A76328400A97DA3 /* MSObjectAdditions.h in Headers */,
 				A6E03A3C1A76328400A97DA3 /* MSRow.h in Headers */,
+				A662995E1A7A88BB00B2B60D /* MSCoreUnichar_Private.h in Headers */,
 				A6E03A3E1A76328400A97DA3 /* MSStringParsing.h in Headers */,
 				A6E03A3F1A76328400A97DA3 /* MSTDecoder.h in Headers */,
 				A6E03A401A76328400A97DA3 /* MSTEncoder.h in Headers */,
 				A6E03A411A7632AD00A97DA3 /* MSArray.h in Headers */,
-				A64D64E31A79186F00CCA6D7 /* MSCoreStd.h in Headers */,
 				A6E03A421A7632AD00A97DA3 /* MSBuffer.h in Headers */,
 				A6E03A431A7632AD00A97DA3 /* MSColor.h in Headers */,
 				A6E03A441A7632AD00A97DA3 /* MSCouple.h in Headers */,
 				A6E03A451A7632AD00A97DA3 /* MSDate.h in Headers */,
 				A6E03A461A7632AD00A97DA3 /* MSDecimal.h in Headers */,
 				A6E03A471A7632AD00A97DA3 /* MSDictionary.h in Headers */,
-				A6E03A491A7632AD00A97DA3 /* MSFoundationWin32.h in Headers */,
 				A6E03A4A1A7632AD00A97DA3 /* MSString.h in Headers */,
 				A6E03A501A76333D00A97DA3 /* m_apm_lc.h in Headers */,
 				A6E03A4F1A76331B00A97DA3 /* MSCore_Private.h in Headers */,
 				A6E03A4B1A76331100A97DA3 /* MSFoundation_Private.h in Headers */,
-				A6E03A4E1A76331800A97DA3 /* MSCoreUnicharPrivate.h in Headers */,
 				A6E03A4C1A76331400A97DA3 /* MSNaturalArrayEnumerator_Private.h in Headers */,
 				A6E03A4D1A76331600A97DA3 /* MSCharsets_Private.h in Headers */,
 			);
@@ -1308,19 +1384,22 @@
 				A64D64761A77E4B700CCA6D7 /* MSCDecimal.h in Headers */,
 				A64D64771A77E4B700CCA6D7 /* MSCDictionary.h in Headers */,
 				A64D64781A77E4B700CCA6D7 /* MSCGrow.h in Headers */,
+				A66299611A7A88E500B2B60D /* MSCorePlatform.h in Headers */,
 				A64D64791A77E4B700CCA6D7 /* MSCObject.h in Headers */,
+				A662997B1A7A8A9500B2B60D /* FoundationCompatibility_Private.h in Headers */,
 				A64D647A1A77E4B700CCA6D7 /* MSCore_Private.h in Headers */,
+				A662997F1A7A8B2600B2B60D /* MSFoundation_Public.h in Headers */,
 				A64D647B1A77E4B700CCA6D7 /* MSCore.h in Headers */,
 				A64D647C1A77E4B700CCA6D7 /* MSCoreSES.h in Headers */,
 				A64D647D1A77E4B700CCA6D7 /* MSCoreSystem.h in Headers */,
 				A64D647E1A77E4B700CCA6D7 /* MSCoreTools.h in Headers */,
+				A66299811A7A8B2E00B2B60D /* MSFoundation_Private.h in Headers */,
 				A64D647F1A77E4B700CCA6D7 /* MSCoreUnichar.h in Headers */,
-				A64D64801A77E4B700CCA6D7 /* MSCoreUnicharPrivate.h in Headers */,
 				A64D64821A77E4B700CCA6D7 /* MSCString.h in Headers */,
 				A6E03B9B1A767F6600A97DA3 /* NSString.h in Headers */,
-				A64D64E21A79186F00CCA6D7 /* MSCoreStd.h in Headers */,
 				A6E03BA31A767F8100A97DA3 /* NSDictionary.h in Headers */,
-				A6E03BD51A76874B00A97DA3 /* NSFoundationStd.h in Headers */,
+				A6E03BD51A76874B00A97DA3 /* FoundationTypes.h in Headers */,
+				A66299781A7A8A8800B2B60D /* FoundationCompatibility.h in Headers */,
 				A6E03BAB1A7680A100A97DA3 /* NSNull.h in Headers */,
 				A6E03BF01A7691BC00A97DA3 /* NSTimeZone.h in Headers */,
 				A64D649E1A77E55300CCA6D7 /* m_apm_lc.h in Headers */,
@@ -1352,6 +1431,7 @@
 				A64D648D1A77E4D000CCA6D7 /* MSNaturalArray.h in Headers */,
 				A64D648E1A77E4D000CCA6D7 /* MSNaturalArrayEnumerator.h in Headers */,
 				A64D648F1A77E4D000CCA6D7 /* MSObjectAdditions.h in Headers */,
+				A662997C1A7A8A9500B2B60D /* FoundationCompatibility_Public.h in Headers */,
 				A64D64901A77E4D000CCA6D7 /* MSRow.h in Headers */,
 				A64D64921A77E4D000CCA6D7 /* MSStringParsing.h in Headers */,
 				A64D64931A77E4D000CCA6D7 /* MSTDecoder.h in Headers */,
@@ -1360,14 +1440,13 @@
 				A64D64961A77E4EF00CCA6D7 /* MSBuffer.h in Headers */,
 				A64D64971A77E4EF00CCA6D7 /* MSColor.h in Headers */,
 				A64D64981A77E4EF00CCA6D7 /* MSCouple.h in Headers */,
-				A64D64E51A7919C500CCA6D7 /* Foundation_Protected.h in Headers */,
 				A64D649D1A77E54E00CCA6D7 /* m_apm.h in Headers */,
 				A64D64991A77E4EF00CCA6D7 /* MSDate.h in Headers */,
+				A662995D1A7A88BB00B2B60D /* MSCoreUnichar_Private.h in Headers */,
 				A64D649A1A77E4EF00CCA6D7 /* MSDecimal.h in Headers */,
 				A64D649B1A77E4F000CCA6D7 /* MSDictionary.h in Headers */,
 				A64D649C1A77E4F000CCA6D7 /* MSString.h in Headers */,
 				A6E03BCF1A76849100A97DA3 /* NSZone.h in Headers */,
-				A6E03B961A767E8700A97DA3 /* Foundation_Private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1402,6 +1481,7 @@
 				A6E03B421A76364E00A97DA3 /* MSCore.h in Headers */,
 				A64D64ED1A792E8100CCA6D7 /* m_apm_lc.h in Headers */,
 				A6E03B381A76364E00A97DA3 /* MSCArray.h in Headers */,
+				A662995C1A7A88BB00B2B60D /* MSCoreUnichar_Private.h in Headers */,
 				A6E03B391A76364E00A97DA3 /* MSCBuffer.h in Headers */,
 				A6E03B3A1A76364E00A97DA3 /* MSCColor.h in Headers */,
 				A6E03B3B1A76364E00A97DA3 /* MSCCouple.h in Headers */,
@@ -1411,15 +1491,15 @@
 				A6E03B3F1A76364E00A97DA3 /* MSCGrow.h in Headers */,
 				A6E03B401A76364E00A97DA3 /* MSCObject.h in Headers */,
 				A6E03B441A76364E00A97DA3 /* MSCoreSES.h in Headers */,
-				A64D64E11A79186F00CCA6D7 /* MSCoreStd.h in Headers */,
 				A6E03B451A76364F00A97DA3 /* MSCoreSystem.h in Headers */,
+				A66299601A7A88E500B2B60D /* MSCorePlatform.h in Headers */,
 				A6E03B461A76364F00A97DA3 /* MSCoreTools.h in Headers */,
 				A6E03B471A76364F00A97DA3 /* MSCoreTypes.h in Headers */,
 				A6E03B481A76364F00A97DA3 /* MSCoreUnichar.h in Headers */,
 				A6E03B4B1A76364F00A97DA3 /* MSCString.h in Headers */,
 				A6E03B4C1A76364F00A97DA3 /* MSTE.h in Headers */,
+				A66299591A7A888100B2B60D /* MSCore_Public.h in Headers */,
 				A6E03B411A76364E00A97DA3 /* MSCore_Private.h in Headers */,
-				A6E03B491A76364F00A97DA3 /* MSCoreUnicharPrivate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1655,7 +1735,6 @@
 				A6E039BB1A76318200A97DA3 /* MSDate.m in Sources */,
 				A6E039BD1A76318200A97DA3 /* MSDecimal.m in Sources */,
 				A6E039BF1A76318200A97DA3 /* MSDictionary.m in Sources */,
-				A6E039C41A76318200A97DA3 /* MSFoundationWin32.m in Sources */,
 				A6E039C61A76318200A97DA3 /* MSString.m in Sources */,
 				A6E0399B1A76317A00A97DA3 /* MSFileManipulation.m in Sources */,
 				A6E0399E1A76317A00A97DA3 /* MSLanguage.m in Sources */,
@@ -1901,12 +1980,12 @@
 				A6D359CA1A77D65F00B87986 /* mscore_ccolor_validate.c in Sources */,
 				A6D359CB1A77D65F00B87986 /* mscore_ccouple_validate.c in Sources */,
 				A6D359CC1A77D65F00B87986 /* mscore_cdate_validate.c in Sources */,
+				A66299651A7A8A1A00B2B60D /* mscore_test.c in Sources */,
 				A6D359CD1A77D65F00B87986 /* mscore_cdecimal_validate.c in Sources */,
 				A6D359CE1A77D65F00B87986 /* mscore_cdictionary_validate.c in Sources */,
 				A6D359CF1A77D65F00B87986 /* mscore_cstring_validate.c in Sources */,
 				A6D359D01A77D65F00B87986 /* mscore_mste_validate.c in Sources */,
 				A6D359D11A77D65F00B87986 /* mscore_tools_validate.c in Sources */,
-				A6D359D21A77D65F00B87986 /* mscore_test.c in Sources */,
 				A6D359D31A77D65F00B87986 /* mscore_validate.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

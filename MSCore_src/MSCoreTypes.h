@@ -84,7 +84,12 @@ typedef MSLong MSTimeInterval; // Time in seconds T0=01/01/2001
 
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION) || !defined(MSFOUNDATION_FORCOCOA)
 
+#ifdef MSCORE_STANDALONE
 typedef unsigned char BOOL;
+#else
+#include <objc/objc.h>
+#endif
+
 #if !defined(YES)
 #define YES  (BOOL)1
 #endif
@@ -190,14 +195,5 @@ MSByteOrder;
 enum {
   NSDOSStringEncoding= 0x20000 // we add a string encoding for DOS
 };
-
-#if defined(MSFOUNDATION_FORCOCOA)
-#define MSCORE_NSOBJECT_ATTRIBUTES \
-  Class isa;
-#else
-#define MSCORE_NSOBJECT_ATTRIBUTES \
-  Class isa; \
-  uint32_t refCount;
-#endif
 
 #endif // MSCORE_TYPES_H

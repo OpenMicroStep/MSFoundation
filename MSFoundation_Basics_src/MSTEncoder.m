@@ -796,7 +796,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 @implementation NSObject (MSTEncodingPrivate)
 
-- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { [self notImplemented:_cmd] ; (void)encoder; } //must be overriden by subclasse to be encoded
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { [self notImplemented:_cmd] ; MSUnused(encoder); } //must be overriden by subclasse to be encoded
 
 @end
 

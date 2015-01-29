@@ -1,4 +1,4 @@
-#import "Foundation_Private.h"
+#import "FoundationCompatibility_Private.h"
 
 NSString *NSStringFromRange(NSRange range)
 {

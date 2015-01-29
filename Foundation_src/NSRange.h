@@ -1,3 +1,3 @@
 
-FOUNDATION_EXPORT NSString *NSStringFromRange(NSRange range);
+FoundationExtern NSString *NSStringFromRange(NSRange range);
 

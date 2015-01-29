@@ -1,5 +1,5 @@
 
-FOUNDATION_EXPORT NSZone *NSDefaultMallocZone(void);
+FoundationExtern NSZone *NSDefaultMallocZone(void);
 
 @interface NSZone : NSObject
 

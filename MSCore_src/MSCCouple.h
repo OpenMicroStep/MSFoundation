@@ -50,21 +50,21 @@ typedef struct CCoupleStruct {
   id members[2];}
 CCouple;
 
-  MSCoreExport void CCoupleFreeInside(id self);
+  MSCoreExtern void CCoupleFreeInside(id self);
 //Already defined in MSCObject.h
-//MSCoreExport void       CCoupleFree(id self);
-//MSCoreExport BOOL       CCoupleIsEqual(id self, id other);
-//MSCoreExport NSUInteger CCoupleHash(id self, unsigned depth);
-//MSCoreExport id         CCoupleCopy(id self);
+//MSCoreExtern void       CCoupleFree(id self);
+//MSCoreExtern BOOL       CCoupleIsEqual(id self, id other);
+//MSCoreExtern NSUInteger CCoupleHash(id self, unsigned depth);
+//MSCoreExtern id         CCoupleCopy(id self);
 
-MSCoreExport BOOL CCoupleEquals(const CCouple *self, const CCouple *other);
+MSCoreExtern BOOL CCoupleEquals(const CCouple *self, const CCouple *other);
 
-MSCoreExport CCouple *CCreateCouple(id firstMember, id secondMember);
+MSCoreExtern CCouple *CCreateCouple(id firstMember, id secondMember);
 
-MSCoreExport id   CCoupleFirstMember    (CCouple *self);
-MSCoreExport id   CCoupleSecondMember   (CCouple *self);
-MSCoreExport void CCoupleSetFirstMember (CCouple *self, id member);
-MSCoreExport void CCoupleSetSecondMember(CCouple *self, id member);
+MSCoreExtern id   CCoupleFirstMember    (CCouple *self);
+MSCoreExtern id   CCoupleSecondMember   (CCouple *self);
+MSCoreExtern void CCoupleSetFirstMember (CCouple *self, id member);
+MSCoreExtern void CCoupleSetSecondMember(CCouple *self, id member);
 
 #define MSC1(XX) CCoupleFirstMember ((CCouple*)(XX))
 #define MSC2(XX) CCoupleSecondMember((CCouple*)(XX))

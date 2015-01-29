@@ -1,0 +1,129 @@
+Implémentation du MSTE en C
+
+
+Documents de référence: 
+[1] 120926-MemoMSTEncoder.pages
+
+Le document de référence définit les termes suivants:
+
+Token: un membre de la chaine MSTE
+Section Header: Les trois premiers membres d'une chaine MSTE: version, count et crc
+Section Classes: le nombre et les noms des classes utilisateur
+Section Keys: le nombre et les noms des clés utilisateur
+Section Stream: les tokens formant la grappe d'objets à décoder.
+
+Remarque: La grappe d'objets encodée est soutenu par un seul objet racine, le « root object ».
+
+0-SUGGESTIONS
+
+Encodage UTF8
+
+Pour les valeurs binaires commencer par indiquer un nombre comme pour les natural arrays (mais non référencées)
+
+Ce ne sont pas les objets qui sont weaks mais leur association à un objet père. Donc ce sont simplement les clés de la section Keys qui devraient être signalées comme weaks. Par exemple avec deux sections de Keys, une pour les normales, une pour les weaks. Ainsi on ne pourrait pas avoir dans l'encodage un objet weak dans un objet de base comme un couple ou un array. Ce qui est possible aujourd'hui. Ainsi, il n'y a plus de 27 ni de 51.
+Dans [1] code 27 on lit: 
+	L’objet ne peut-être qu’un objet de classe «user class».
+Ce n'est pas tout-à-fait ça qu'on veut. C'est que l'objet père soit de classe «user class».
+
+1-DECODAGE
+
+1.1-La chaine en entrée
+
+L'algorithme qui suit suppose une chaine MSTE bien formée.
+
+Si ce n'est pas le cas, deux cas se présentent:
+- Soit la chaine a un header incorrect: on retourne alors immédiatement avec une erreur (cf. § suivants). Il s'agit vraisemblablement d'une erreur de transmission, donc il faut donner la possibilité de retransmettre le plus rapidement possible.
+- Soit la chaine est au moins en partie décodable: on décode alors tant qu'on peut en retournant éventuellement un code d'erreur s'il est détecté.
+
+Remarques:
+Les chaine MSTE sont générées par des automates, elles n'ont donc aucune raison d'être mal-formées.
+Le CRC vérifie déjà la bonne transmission.
+L'algorithme doit favoriser les chaines bien-formés.
+En cas de mise au point d'un encodeur MSTE, il est plus intéressant d'avoir ce qui a été traduit.
+
+1.6-Retour en cas d'erreur
+
+Ce qui relève d'une erreur potentiel de communication retourne un root object à NULL et une erreur qui identifie clairement ces cas. Attention, il existe aussi une chaine MSTE bien formée qui retourne NULL. C'est:
+	[\"MSTE0101\",6,\"CRC00000000\",0,0]
+Les autres erreurs qui relèvent de la mal-formation, (comme: mauvais nombre de tokens, nombre mal écrit, nombre flottant au lieu d'entier...) retourne si possible un root object et une erreur différente du premier cas.
+Toutes description d'erreur contient le numéro de token et sa valeur dans la chaine initiale.
+
+1.3-Vérification initiale
+
+On vérifie le début de la chaine (["MSTE0101",X,"CRCF3452BCD" avec X>=6 : 0 des classes, 0 des keys, code du root object) et la terminaison (])
+On vérifie le CRC.
+
+1.2-Principe de fonctionnement
+
+Après la vérification initiale, l'analyse se fait au fil de l'eau et s'arrête normalement en fin de traitement ou cas d'incohérence structurelle (sur les tokens: par exemple, référence sur un objet inconnu, un token vide empêchant la continuation du traitement).
+
+1.4-Valeurs nulle et booléennes
+
+Encodées dans des dictionnaires avec respectivement pour clé-valeur:
+"MSTE-Class"-"NULL"
+"MSTE-Class"-"TRUE"
+"MSTE-Class"-"FALSE"
+Non intégrées à Os puisque ces valeurs ne comptent pas dans les objets référencés.
+
+1.5-Valeur binaire
+
+En C, les valeurs binaires sont encodées dans un buffer interprété comme un tableau du type de ces valeurs.
+Si plusieurs valeurs binaires de même type se succèdent, elles sont encodées dans le même buffer.
+Le tout (buffer, type, nombre) est encodé dans un dictionnaire avec une clé-valeur "MSTE-Classe"-"Binary" de manière à permettre un ré-encodage à l'identique.
+Non intégrées à Os puisque ces valeurs ne comptent pas dans les objets référencés.
+
+1.5-Objet utilisateur
+
+Un objet utilisateur est encodé dans un dictionnaire avec les clés et valeurs telles que décodées et avec pour valeur de la clé "MSTE-Classe" le nom de la classe utilisateur.
+
+1.5-Weak pointeur
+
+Un weak pointeur ne peut apparaître que dans un objet utilisateur. Pour identifier ces weak dans le dictionnaire construit pour l'objet, on rajoute une clé "MSTE-Weaks" avec un array de toutes les clés dont les valeurs doivent être considérées comme weak.
+
+1.9-Algorithme
+
+On construit et maintient tout au long de l'algorithme une structure s contenant tous les paramètres dont on a besoin:
+- le buffer d'entrée
+- PEnd, la position du ] final 
+- TEnd, le nombre de tokens attendus
+- le tableau Cs des classes
+- le tableau Ks des clés
+- le tableau Os des objets déjà construits
+- la première erreur détectée (ou la plus grave ? ou celle de l'arrêt ?)
+- ...
+
+id MSTECreateRootObjectFromBuffer(entry, error)
+Prend en entrée la chaine à décoder 'entry'.
+Retourne le rootObject et par référence une erreur (un dictionnaire ?)
+
+	Vérification du header. Déterminasion de TEnd, PEnd. Retour en cas d'erreur.
+	Lecture des classes dans Cs. Retour en cas d'erreurs (ex: les classes ne sont pas des strings)
+	Lecture des keys dans Ks. Retour en cas d'erreurs (ex: les classes ne sont pas des strings)
+	Soit Os l'ensemble des objets, vide initialement.
+	Soit T le numéro du token courant (à décoder).
+	Soit P la position du début du token courant, ici le début du Stream.
+	Soit PEnd la position du ] final.
+	errorCode= _decode(s,P,T)
+	Retourner Os[0]
+	
+id,int,int _decode(s,P,T)
+Remplit dans Os la grappe d'objets et éventuellement l'erreur détectée.
+Retourne l'objet décodé, et s'il est weak. 
+
+	Lecture du type. Avancer P et T.
+	Si type primaire (null, true, false, nombre, couleur, base64, natural array...), lire les tokens des valeurs (0, 1, n), créer l'objet et l'ajouter dans Os.
+	Si valeur binaire (10 à 19), lire la valeur, l'ajouter dans le dernier objet de Os si c'est déjà un objet contenant une valeur binaire de même type, sinon en créer un nouveau.
+	Si c'est une référence (9,27), lire le token de l'index et retourner l'objet de Os correspondant avec weak positionné si nécessaire
+	Si container (couple tableau dictionnaire objet user)
+		Créer le container (vide) et l'ajouter dans Os
+		Si couple ou array, lire le nombre n d'objets à lire et appliquer n fois
+			_decode() et ajouter les objets retournés au container
+		Si dict
+		Si objet user, setObject:o forMSTEKey: isWeak:
+
+	tant que P<PEnd et T<TEnd et pas d'erreur bloquante
+		
+	Erreur si P!=PEnd ou T!=TEnd
+
+
+2-ENCODAGE

@@ -2,6 +2,9 @@
 #import "MSFoundation_Private.h"
 #import <sys/stat.h>
 
+// TODO: A revoir dans abstraction
+#include <sys/stat.h>
+
 #define _MSFileSystemRepresentation(X)				(char *)[(X) fileSystemRepresentation]
 
 static inline BOOL _MSFileExists(char *path, BOOL *isDirectory)

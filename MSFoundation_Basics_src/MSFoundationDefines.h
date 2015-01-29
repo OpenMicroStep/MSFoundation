@@ -49,6 +49,12 @@
  standardized OBJC fast access functions
  */
 
+#ifdef MSFOUNDATION_PRIVATE_H
+#define MSFoundationExport LIBEXPORT
+#else
+#define MSFoundationExport LIBIMPORT
+#endif
+
 #if defined(WIN32)
 /************************ APPLE WO 451 ON WIN32 **********************/
 struct WOFakeClass { long isa; };

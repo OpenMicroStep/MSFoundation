@@ -171,11 +171,12 @@ MSFileOperationStatus MSMoveFile(NSString *sourcePath, NSString *destPath) { ret
 NSString *MSUNCPath(NSString *path) { return _MSUNCPath(path) ; }
 
 
+typedef id (*IMP_LOCAL)(id, SEL, ...); /// TODO: TO BE REPLACED BY IMP ???
 NSArray * MSDirectoryContentsAtPath(NSString *path) {
     NSDirectoryEnumerator	*direnum;
     NSMutableArray	*content;
-    IMP			nxtImp;
-    IMP			addImp;
+    IMP_LOCAL			nxtImp;
+    IMP_LOCAL			addImp;
     BOOL			is_dir;
     
     /*
@@ -198,8 +199,8 @@ NSArray * MSDirectoryContentsAtPath(NSString *path) {
     direnum = [[NSFileManager defaultManager] enumeratorAtPath:path] ;
     content = [NSMutableArray arrayWithCapacity: 128];
     
-    nxtImp = [direnum methodForSelector: @selector(nextObject)];
-    addImp = [content methodForSelector: @selector(addObject:)];
+    nxtImp = (IMP_LOCAL)[direnum methodForSelector: @selector(nextObject)];
+    addImp = (IMP_LOCAL)[content methodForSelector: @selector(addObject:)];
     
     while ((path = ((id(*)(id, SEL))(*nxtImp))(direnum, @selector(nextObject))) != nil)
     {

@@ -49,13 +49,13 @@
 
 #pragma mark ***** Checksum
 
-MSCoreExport MSUShort MSBytesSmallCRC    (const void *sbytes, NSUInteger slen);
-MSCoreExport MSUInt   MSBytesLargeCRC    (const void *sbytes, NSUInteger slen);
-MSCoreExport MSUInt   MSBytesELF         (const void *sbytes, NSUInteger slen);
-MSCoreExport MSUInt   MSBytesUppercaseELF(const void *sbytes, NSUInteger slen);
-MSCoreExport MSUInt   MSBytesAdlerHash(MSULong adler, const void *sbytes, NSUInteger slen);
+MSCoreExtern MSUShort MSBytesSmallCRC    (const void *sbytes, NSUInteger slen);
+MSCoreExtern MSUInt   MSBytesLargeCRC    (const void *sbytes, NSUInteger slen);
+MSCoreExtern MSUInt   MSBytesELF         (const void *sbytes, NSUInteger slen);
+MSCoreExtern MSUInt   MSBytesUppercaseELF(const void *sbytes, NSUInteger slen);
+MSCoreExtern MSUInt   MSBytesAdlerHash(MSULong adler, const void *sbytes, NSUInteger slen);
 
-MSCoreExport NSUInteger  MSPointerHash(void *pointer);
+MSCoreExtern NSUInteger  MSPointerHash(void *pointer);
 
 #pragma mark ***** Compress
 
@@ -65,17 +65,17 @@ typedef enum {
   MSBufferOverflow= 1}
 MSCompressResult;
 
-MSCoreExport NSUInteger        MSCompressBound(NSUInteger sourceLen);
-MSCoreExport MSCompressResult  MSCompress  (void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
-MSCoreExport MSCompressResult  MSUncompress(void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
+MSCoreExtern NSUInteger        MSCompressBound(NSUInteger sourceLen);
+MSCoreExtern MSCompressResult  MSCompress  (void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
+MSCoreExtern MSCompressResult  MSUncompress(void *destination, NSUInteger *destinationLen, const void *source, NSUInteger sourceLen);
 
 #pragma mark ***** Sort
 
-MSCoreExport void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compareFunction)(void*, void*, void*), void *context);
+MSCoreExtern void MSSort(void **ps, NSUInteger count, NSComparisonResult (*compareFunction)(void*, void*, void*), void *context);
 
 #pragma mark ***** Hexa
 
-MSCoreExport MSULong MSHexaStringToULong(const char *src, NSUInteger srcLen);
+MSCoreExtern MSULong MSHexaStringToULong(const char *src, NSUInteger srcLen);
 // If srcLen is 0, it is calculated with strlen
 // Return the value of 'src' in base 16.
 // No space, no '-' or '0x' or 'u'.

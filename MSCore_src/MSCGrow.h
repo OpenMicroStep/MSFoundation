@@ -70,18 +70,18 @@ typedef struct CGrowStruct {
   CGrowFlags flag;}
 CGrow;
 
-MSCoreExport void CGrowFreeInside(id self);
-MSCoreExport void CGrowFree(id self);
+MSCoreExtern void CGrowFreeInside(id self);
+MSCoreExtern void CGrowFree(id self);
 
-MSCoreExport BOOL CGrowIsMutable(id self);
-MSCoreExport void CGrowSetImmutable(id self);
+MSCoreExtern BOOL CGrowIsMutable(id self);
+MSCoreExtern void CGrowSetImmutable(id self);
 
-MSCoreExport void CGrowGrow(id self, NSUInteger n);
-MSCoreExport void CGrowAdjustSize(id self);
+MSCoreExtern void CGrowGrow(id self, NSUInteger n);
+MSCoreExtern void CGrowAdjustSize(id self);
 
-MSCoreExport NSUInteger CGrowCount(const id self);
+MSCoreExtern NSUInteger CGrowCount(const id self);
 
-MSCoreExport NSUInteger CGrowElementSize(id self);
+MSCoreExtern NSUInteger CGrowElementSize(id self);
 
 #pragma mark mutability functions
 

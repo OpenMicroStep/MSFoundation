@@ -53,52 +53,52 @@ typedef struct CStringStruct {
 CString;
 
 
-  MSCoreExport void       CStringFreeInside(id self); // for MSArray dealloc
-//  MSCoreExport id         CStringInitCopy(CString *self, const CString *copied);
+  MSCoreExtern void       CStringFreeInside(id self); // for MSArray dealloc
+//  MSCoreExtern id         CStringInitCopy(CString *self, const CString *copied);
 //Already defined in MSCObject.h
-//MSCoreExport void       CStringFree(id self);
-//MSCoreExport BOOL       CStringIsEqual(id self, id other);
-//MSCoreExport NSUInteger CStringHash(id self, unsigned depth);
-//MSCoreExport id         CStringCopy(id self);
+//MSCoreExtern void       CStringFree(id self);
+//MSCoreExtern BOOL       CStringIsEqual(id self, id other);
+//MSCoreExtern NSUInteger CStringHash(id self, unsigned depth);
+//MSCoreExtern id         CStringCopy(id self);
 //  Warning: the copy follows the options of self: if objects are not
 //  retained in self, they are not retained in the copy. If nilItems are
 //  allowed in self, they are also allowed in the copy.
 
-MSCoreExport BOOL CStringEquals           (const CString *s1, const CString *s2);
-MSCoreExport BOOL CStringInsensitiveEquals(const CString *s1, const CString *s2);
+MSCoreExtern BOOL CStringEquals           (const CString *s1, const CString *s2);
+MSCoreExtern BOOL CStringInsensitiveEquals(const CString *s1, const CString *s2);
 
-MSCoreExport CString *CCreateString(NSUInteger capacity);
-MSCoreExport CString *CCreateStringWithBytes(NSStringEncoding encoding, const void *s, NSUInteger length);
-MSCoreExport CString *CCreateStringWithSES(SES ses);
+MSCoreExtern CString *CCreateString(NSUInteger capacity);
+MSCoreExtern CString *CCreateStringWithBytes(NSStringEncoding encoding, const void *s, NSUInteger length);
+MSCoreExtern CString *CCreateStringWithSES(SES ses);
 
-MSCoreExport void CStringGrow(CString *self, NSUInteger n);
-MSCoreExport void CStringAdjustSize(CString *self);
+MSCoreExtern void CStringGrow(CString *self, NSUInteger n);
+MSCoreExtern void CStringAdjustSize(CString *self);
 
-MSCoreExport NSUInteger CStringLength(const CString *self);
-MSCoreExport unichar    CStringCharacterAtIndex(const CString *self, NSUInteger i);
-MSCoreExport NSUInteger CStringIndexOfCharacter(const CString *self, unichar c);
-MSCoreExport SES        CStringSES(const CString *self);
+MSCoreExtern NSUInteger CStringLength(const CString *self);
+MSCoreExtern unichar    CStringCharacterAtIndex(const CString *self, NSUInteger i);
+MSCoreExtern NSUInteger CStringIndexOfCharacter(const CString *self, unichar c);
+MSCoreExtern SES        CStringSES(const CString *self);
 
 
-MSCoreExport void CStringAppendCharacter(CString *self, unichar c);
-MSCoreExport void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb);
-MSCoreExport void CStringAppendBytes(CString *self, NSStringEncoding encoding, const void *s, NSUInteger length);
-MSCoreExport void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const char *fmt, ...);
-MSCoreExport void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args);
-MSCoreExport void CStringAppendSES(CString *self, SES ses);
-MSCoreExport void CStringAppendString(CString *self, const CString *s);
+MSCoreExtern void CStringAppendCharacter(CString *self, unichar c);
+MSCoreExtern void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb);
+MSCoreExtern void CStringAppendBytes(CString *self, NSStringEncoding encoding, const void *s, NSUInteger length);
+MSCoreExtern void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const char *fmt, ...);
+MSCoreExtern void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args);
+MSCoreExtern void CStringAppendSES(CString *self, SES ses);
+MSCoreExtern void CStringAppendString(CString *self, const CString *s);
 
 // TODO: Not reviewed, not tested.
 // this functions work only for ANSI, Mac roman, NextStep, ISO Latin 1, UTF8 and ASCII as supposed encoding NOT TESTED
-MSCoreExport BOOL CStringAppendSupposedEncodingBytes(CString *self, const void *bytes, NSUInteger length, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer);
+MSCoreExtern BOOL CStringAppendSupposedEncodingBytes(CString *self, const void *bytes, NSUInteger length, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer);
 // if you don't know what encoding you've got from your internet source, try UTF8 as supposed encoding
-MSCoreExport BOOL CStringAppendInternetBytes(CString *self, const void *bytes, NSUInteger len, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer);
+MSCoreExtern BOOL CStringAppendInternetBytes(CString *self, const void *bytes, NSUInteger len, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer);
 // same remark. this function decodes URL encoding scheme in the supposed encoding
-MSCoreExport BOOL CStringAppendURLBytes(CString *self, const void *bytes, NSUInteger len, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer);
+MSCoreExtern BOOL CStringAppendURLBytes(CString *self, const void *bytes, NSUInteger len, NSStringEncoding suposedEncoding, NSStringEncoding *foundEncodingPointer);
 
-//MSCoreExport BOOL CStringAppendTimeInterval(CString *self, MSTimeInterval interval, const char *utf8StringFormat, MSLanguage language);
+//MSCoreExtern BOOL CStringAppendTimeInterval(CString *self, MSTimeInterval interval, const char *utf8StringFormat, MSLanguage language);
 
-MSCoreExport BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage language);
+MSCoreExtern BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage language);
 
 // MCSCreate car retourne un CString. MSCreateString est défini dans MSString.h
 #define MCSCreate(S) ({ \

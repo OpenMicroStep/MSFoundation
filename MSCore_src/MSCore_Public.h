@@ -1,4 +1,4 @@
-/* MSCore_Private.h
+/* MSCore_Public.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -45,9 +45,40 @@
  
  */
 
-#ifndef MSCORE_PRIVATE_H
-#define MSCORE_PRIVATE_H
+// The same as MSCore.h but for local include
 
-#include "MSCore_Public.h"
+#ifndef MSCORE_PUBLIC_H
+#define MSCORE_PUBLIC_H
 
-#endif // MSCORE_PRIVATE_H
+#include "MSCorePlatform.h"
+#include "MSCoreTypes.h"
+#include "MSCoreSystem.h"
+#include "MSCoreTools.h"
+#include "MSCObject.h"
+#include "MSCGrow.h"
+
+//#include "MSCoreNetwork.h"
+//#include "MSCoreEntropy.h"
+//#include "MSCoreCompress.h"
+//#include "MSCoreTimeInterval.h"
+//#include "MSCoreTLS.h"
+
+// ..ToString functions use MSCString
+// so we include it first
+#include "MSCoreUnichar.h"
+#include "MSCoreSES.h"
+#include "MSCString.h"
+
+#include "MSCArray.h"
+#include "MSCBuffer.h"
+#include "MSCColor.h"
+#include "MSCCouple.h"
+#include "MSCDate.h"
+#include "MSCDecimal.h"
+#include "m_apm.h"
+#include "MSCDictionary.h"
+#include "MSTE.h"
+//#include "MSCMutex.h"
+//#include "MSCNaturalArray.h"
+
+#endif // MSCORE_PUBLIC_H

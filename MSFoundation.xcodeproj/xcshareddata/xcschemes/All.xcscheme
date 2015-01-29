@@ -63,11 +63,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "MSFoundation"
+            argument = "MSFoundationForCocoa"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "MSFoundationForCocoa"
+            argument = "MSFoundation"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -1,4 +1,4 @@
-/*   MSFoundation.h
+/*   MSFoundation_Public.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -38,65 +38,51 @@
  
  */
 
+// The same as MSFundation.h but for local include
 
-#define MSCoreExport LIBIMPORT
-#define MSFoundationExport LIBIMPORT
+#ifndef MSFOUNDATION_PUBLIC_H
+#define MSFOUNDATION_PUBLIC_H
 
+#ifdef MSFOUNDATION_FORCOCOA
 #import <Foundation/Foundation.h>
-
-#import <MSFoundation/MSCoreStd.h>
-#import <MSFoundation/MSCoreTypes.h>
-#import <MSFoundation/MSCoreSystem.h>
-#import <MSFoundation/MSCoreTools.h>
-#import <MSFoundation/MSCObject.h>
-#import <MSFoundation/MSCGrow.h>
-
-#import <MSFoundation/MSCoreUnichar.h>
-#import <MSFoundation/MSCoreSES.h>
-#import <MSFoundation/MSCString.h>
-
-#import <MSFoundation/MSCArray.h>
-#import <MSFoundation/MSCBuffer.h>
-#import <MSFoundation/MSCColor.h>
-#import <MSFoundation/MSCCouple.h>
-#import <MSFoundation/MSCDate.h>
-#import <MSFoundation/MSCDecimal.h>
-#import <MSFoundation/m_apm.h>
-#import <MSFoundation/MSCDictionary.h>
-
-#import <MSFoundation/MSFoundationDefines.h>
-#import <MSFoundation/MSCoderAdditions.h>
-#import <MSFoundation/MSExceptionAdditions.h>
-#import <MSFoundation/MSLanguage.h>
-#import <MSFoundation/MSObjectAdditions.h>
-
-#import <MSFoundation/MSBool.h>
-#import <MSFoundation/MSASCIIString.h>
-#import <MSFoundation/MSMutex.h>
-#import <MSFoundation/MSCNaturalArray.h>
-#import <MSFoundation/MSNaturalArray.h>
-#import <MSFoundation/MSNaturalArrayEnumerator.h>
-#import <MSFoundation/MSFileManipulation.h>
-
-#import <MSFoundation/MSRow.h>
-
-#import <MSFoundation/MSArray.h>
-//#import <MSFoundation/MSMutableArray.h>
-#import <MSFoundation/MSBuffer.h>
-#import <MSFoundation/MSColor.h>
-#import <MSFoundation/MSCouple.h>
-#import <MSFoundation/MSDate.h>
-#import <MSFoundation/MSDecimal.h>
-#import <MSFoundation/MSDictionary.h>
-#import <MSFoundation/MSString.h>
-
-#import <MSFoundation/MSTDecoder.h>
-#import <MSFoundation/MSTEncoder.h>
-
-#import <MSFoundation/MSStringParsing.h>
-
-#ifdef WO451
-#  define FMT(ARGS...)  [MSString stringWithFormat:##ARGS]
 #else
-#  define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
+#import "FoundationCompatibility_Public.h"
 #endif
+
+#import "MSCore_Public.h"
+
+#import "MSFoundationDefines.h"
+#import "MSCoderAdditions.h"
+#import "MSExceptionAdditions.h"
+#import "MSLanguage.h"
+#import "MSObjectAdditions.h"
+
+#import "MSBool.h"
+#import "MSCharsets_Private.h"
+#import "MSASCIIString.h"
+#import "MSMutex.h"
+#import "MSCNaturalArray.h"
+#import "MSNaturalArray.h"
+#import "MSNaturalArrayEnumerator.h"
+#import "MSFileManipulation.h"
+
+#import "MSRow.h"
+
+#import "MSArray.h"
+//#import "MSMutableArray.h"
+#import "MSBuffer.h"
+#import "MSColor.h"
+#import "MSCouple.h"
+#import "MSDate.h"
+#import "MSDecimal.h"
+#import "MSDictionary.h"
+#import "MSString.h"
+
+#import "MSTDecoder.h"
+#import "MSTEncoder.h"
+
+#import "MSStringParsing.h"
+
+#define FMT(X,...) [MSString stringWithFormat:(X),##__VA_ARGS__]
+
+#endif // MSFOUNDATION_PUBLIC_H

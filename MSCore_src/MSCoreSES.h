@@ -55,8 +55,8 @@
 typedef unichar (*CHAI)(const void *, NSUInteger*);
 #define InvalidCHAI (CHAI)0
 
-MSCoreExport unichar utf8ChaiN          (         const void *src, NSUInteger *pos);
-MSCoreExport unichar utf8JsonStringChaiN(         const void *src, NSUInteger *pos);
+MSCoreExtern unichar utf8ChaiN          (         const void *src, NSUInteger *pos);
+MSCoreExtern unichar utf8JsonStringChaiN(         const void *src, NSUInteger *pos);
 // For UTF8 and UTF8 JSON String encoding.
 // These chai returns 0x00 on badly-formed character. And pos-1 is the error position.
 // if you're not sure that the string is well-formed
@@ -76,7 +76,7 @@ typedef struct SESStruct {
   NSStringEncoding encoding;}
 SES;
 
-MSCoreExport const SES MSInvalidSES;
+MSCoreExtern const SES MSInvalidSES;
 
 static inline SES MSMakeSES(const void *source, CHAI funct, NSUInteger start, NSUInteger length, NSStringEncoding encoding)
 {
@@ -99,7 +99,7 @@ typedef MSByte MSRealScanOptions;
 //unichar        CEncodingToUnicode(unsigned short c, NSStringEncoding encoding);
 //unsigned short CUnicodeToEncoding(unichar        u, NSStringEncoding encoding);
 
-MSCoreExport SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding);
+MSCoreExtern SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding);
 // Use this function to make a SES from a source.
 // To obtain the unichar suite equivalent to a source use:
 // SES ses= MSMakeSESWithBytes(cmySource, mySourceLength, mySourceEncoding);
@@ -107,29 +107,29 @@ MSCoreExport SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength,
 // for (i= SESStart(ses), n= SESLength(ses); i<n;) u= SESIndexN(ses, &i);
 // Or CCreateStringWithBytes()
 
-MSCoreExport SES SESFind(SES src, SES searched);
-MSCoreExport SES SESInsensitiveFind(SES src, SES searched);
+MSCoreExtern SES SESFind(SES src, SES searched);
+MSCoreExtern SES SESInsensitiveFind(SES src, SES searched);
 
-MSCoreExport SES SESCommonPrefix(SES src, SES comparator);
-MSCoreExport SES SESInsensitiveCommonPrefix(SES src, SES comparator);
+MSCoreExtern SES SESCommonPrefix(SES src, SES comparator);
+MSCoreExtern SES SESInsensitiveCommonPrefix(SES src, SES comparator);
 // Retourne en tant que SES sur src le plus grand préfixe entre les deux chaînes.
 // Retourne MSInvalidSES si pas de préfixe commun.
 
-MSCoreExport SES SESExtractPart(SES src, CUnicharChecker matchingChar);
+MSCoreExtern SES SESExtractPart(SES src, CUnicharChecker matchingChar);
 // TODO: Need utf8 SESIndexP NOT TESTED
 
 // Si 'leftSpaces' est NULL, il est remplacé par CUnicharIsSpace.
 // Retourne un SES de 'src' sans les 'leftSpaces', avec les caractères qui matchent
 // avec 'matchingChar'.
 // Ex: ('  123zehgf',CUnicharIsDigit,NULL) -> '123'
-MSCoreExport SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
+MSCoreExtern SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
 
 // Extrait un décimal, ou juste sa partie entière si intOnly=YES.
 // Le SES retourné est la chaine contenant le nombre sans les leftSpaces.
 // Si le nombre est bien formé, le décimal correspondant est retourné dans decimalPtr.
 // Il doit être libéré par l'appelant.
 // Déclaré dans CDecimal.h
-// MSCoreExport SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
+// MSCoreExtern SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
 
 #define CHAIOK(X)      ((X) != InvalidCHAI)
 #define SESOK(X)       ({SES __x__= (X);  \

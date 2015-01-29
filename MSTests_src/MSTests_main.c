@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 OpenMicroStep. All rights reserved.
 //
 
-#include "MSCoreStd.h"
+#include "MSCorePlatform.h"
 
 static const int __testPadding = 20;
 

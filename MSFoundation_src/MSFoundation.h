@@ -37,12 +37,17 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-#define MSCoreExport LIBIMPORT
-#define FOUNDATION_EXPORT LIBIMPORT
-#define MSFoundationExport LIBIMPORT
 
-// MSCore
-#import <MSFoundation/MSCoreStd.h>
+#ifndef MSFOUNDATION_H
+#define MSFOUNDATION_H
+
+#ifdef MSFOUNDATION_FORCOCOA
+#import <Foundation/Foundation.h>
+#else
+#import <MSFoundation/FoundationCompatibility.h>
+#endif
+
+#import <MSFoundation/MSCorePlatform.h>
 #import <MSFoundation/MSCoreTypes.h>
 #import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>
@@ -62,28 +67,6 @@
 #import <MSFoundation/m_apm.h>
 #import <MSFoundation/MSCDictionary.h>
 
-// FoundationForCompatibility
-#import <MSFoundation/NSFoundationStd.h>
-#import <MSFoundation/NSObject.h>
-#import <MSFoundation/NSCoding.h>
-#import <MSFoundation/NSCopying.h>
-#import <MSFoundation/NSAutoreleasePool.h>
-#import <MSFoundation/NSString.h>
-#import <MSFoundation/NSArray.h>
-#import <MSFoundation/NSDictionary.h>
-#import <MSFoundation/NSEnumerator.h>
-#import <MSFoundation/NSData.h>
-#import <MSFoundation/NSDate.h>
-#import <MSFoundation/NSNull.h>
-
-#import <MSFoundation/NSCoder.h>
-#import <MSFoundation/NSException.h>
-#import <MSFoundation/NSNumber.h>
-#import <MSFoundation/NSMapTable.h>
-#import <MSFoundation/NSZone.h>
-#import <MSFoundation/NSTimeZone.h>
-
-// MSFoundation
 #import <MSFoundation/MSFoundationDefines.h>
 #import <MSFoundation/MSCoderAdditions.h>
 #import <MSFoundation/MSExceptionAdditions.h>
@@ -115,3 +98,5 @@
 #import <MSFoundation/MSStringParsing.h>
 
 #define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
+
+#endif

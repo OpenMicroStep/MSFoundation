@@ -74,104 +74,104 @@ CArray;
 
 // HM: 27/08/13 void return and report error to be conform to ObjC error reporting
 
-  MSCoreExport void CArrayFreeInside(id self); // for MSArray dealloc
-  MSCoreExport id   CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutable);
+  MSCoreExtern void CArrayFreeInside(id self); // for MSArray dealloc
+  MSCoreExtern id   CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutable);
 //Already defined in MSCObject.h
-//MSCoreExport void       CArrayFree(id self);
-//MSCoreExport BOOL       CArrayIsEqual(id self, id other);
-//MSCoreExport NSUInteger CArrayHash(id self, unsigned depth);
-//MSCoreExport id         CArrayCopy(id self);
+//MSCoreExtern void       CArrayFree(id self);
+//MSCoreExtern BOOL       CArrayIsEqual(id self, id other);
+//MSCoreExtern NSUInteger CArrayHash(id self, unsigned depth);
+//MSCoreExtern id         CArrayCopy(id self);
 //  Warning: the copy follows the options of self: if objects are not
 //  retained in self, they are not retained in the copy. If nilItems are
 //  allowed in self, they are also allowed in the copy.
 
-MSCoreExport BOOL CArrayEquals(const CArray *self, const CArray *anotherArray);
-MSCoreExport BOOL CArrayIdenticals(const CArray *self, const CArray *anotherArray);
+MSCoreExtern BOOL CArrayEquals(const CArray *self, const CArray *anotherArray);
+MSCoreExtern BOOL CArrayIdenticals(const CArray *self, const CArray *anotherArray);
 
 // Returned arrays are retained.
 // By default, objects are retained unless you use CCreateArrayWithOptions()
-MSCoreExport CArray *CCreateArrayWithOptions(NSUInteger capacity, BOOL noRetainRelease, BOOL nilItems);
-MSCoreExport CArray *CCreateArray(NSUInteger capacity);
-MSCoreExport CArray *CCreateArrayWithObject(id o);
-MSCoreExport CArray *CCreateArrayWithObjects(const id *os, NSUInteger count, BOOL copyItems);
-MSCoreExport CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg);
+MSCoreExtern CArray *CCreateArrayWithOptions(NSUInteger capacity, BOOL noRetainRelease, BOOL nilItems);
+MSCoreExtern CArray *CCreateArray(NSUInteger capacity);
+MSCoreExtern CArray *CCreateArrayWithObject(id o);
+MSCoreExtern CArray *CCreateArrayWithObjects(const id *os, NSUInteger count, BOOL copyItems);
+MSCoreExtern CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg);
 
 // No more mutable
-MSCoreExport BOOL CArrayIsMutable(CArray *self);
-MSCoreExport void CArraySetImmutable(CArray *self);
+MSCoreExtern BOOL CArrayIsMutable(CArray *self);
+MSCoreExtern void CArraySetImmutable(CArray *self);
 
-MSCoreExport void CArrayGrow(CArray *self, NSUInteger n);
-MSCoreExport void CArrayAdjustSize(CArray *self);
+MSCoreExtern void CArrayGrow(CArray *self, NSUInteger n);
+MSCoreExtern void CArrayAdjustSize(CArray *self);
 
 // Changing retain/release option. Use theses methods very carefully ! You are
 // supposed knowing what you're doing !
-MSCoreExport void CArraySetRetainReleaseOptionAndRetainAllObjects(CArray *self, BOOL retain);
+MSCoreExtern void CArraySetRetainReleaseOptionAndRetainAllObjects(CArray *self, BOOL retain);
 // Set the retain/release option to ON and if 'retain' is YES retain all the
 // objects in the array.
 // You may use this function if for example you have created a no retain/release
 // array and need to make a real one from now.
 // Or you have created a no retain/release array with objects already retained
 // and want a normal behavior from now. In this case, 'retain' is NO.
-MSCoreExport void CArrayUnsetRetainReleaseOptionAndReleaseAllObjects(CArray *self, BOOL release);
+MSCoreExtern void CArrayUnsetRetainReleaseOptionAndReleaseAllObjects(CArray *self, BOOL release);
 // Set the retain/release option to OFF and if 'release' is YES, send a release
 // on all the objects in the array.
 
-MSCoreExport NSUInteger CArrayCount(const CArray *self);
-MSCoreExport id CArrayObjectAtIndex(const CArray *self, NSUInteger i);
-MSCoreExport id CArrayFirstObject(const CArray *self);
-MSCoreExport id CArrayLastObject(const CArray *self);
+MSCoreExtern NSUInteger CArrayCount(const CArray *self);
+MSCoreExtern id CArrayObjectAtIndex(const CArray *self, NSUInteger i);
+MSCoreExtern id CArrayFirstObject(const CArray *self);
+MSCoreExtern id CArrayLastObject(const CArray *self);
 
-MSCoreExport NSUInteger CArrayIndexOfObject(const CArray *self, const id object, NSUInteger start, NSUInteger count);
-MSCoreExport NSUInteger CArrayIndexOfIdenticalObject(const CArray *self, const id object, NSUInteger start, NSUInteger count);
+MSCoreExtern NSUInteger CArrayIndexOfObject(const CArray *self, const id object, NSUInteger start, NSUInteger count);
+MSCoreExtern NSUInteger CArrayIndexOfIdenticalObject(const CArray *self, const id object, NSUInteger start, NSUInteger count);
 
 // CArrays are protected from inserting nil to be conform with NSArray paradygm.
 // If the array doesn't retain objects, added objects are not retained.
-MSCoreExport void CArrayAddObject( CArray *self, id object);
-MSCoreExport void CArrayAddObjects(CArray *self, const id *objects, NSUInteger nb, BOOL copyItems);
-MSCoreExport void CArrayAddArray(  CArray *self, const CArray *other             , BOOL copyItems);
+MSCoreExtern void CArrayAddObject( CArray *self, id object);
+MSCoreExtern void CArrayAddObjects(CArray *self, const id *objects, NSUInteger nb, BOOL copyItems);
+MSCoreExtern void CArrayAddArray(  CArray *self, const CArray *other             , BOOL copyItems);
 
-MSCoreExport void CArrayRemoveObjectAtIndex(CArray *self, NSUInteger i);
-MSCoreExport void CArrayRemoveLastObject(CArray *self);
+MSCoreExtern void CArrayRemoveObjectAtIndex(CArray *self, NSUInteger i);
+MSCoreExtern void CArrayRemoveLastObject(CArray *self);
 
 // Returns the number of removed objects
-MSCoreExport NSUInteger CArrayRemoveObject(         CArray *self, id object);
-MSCoreExport NSUInteger CArrayRemoveIdenticalObject(CArray *self, id object);
-MSCoreExport NSUInteger CArrayRemoveObjectsInRange( CArray *self, NSRange rg);
-MSCoreExport NSUInteger CArrayRemoveAllObjects(     CArray *self);
+MSCoreExtern NSUInteger CArrayRemoveObject(         CArray *self, id object);
+MSCoreExtern NSUInteger CArrayRemoveIdenticalObject(CArray *self, id object);
+MSCoreExtern NSUInteger CArrayRemoveObjectsInRange( CArray *self, NSRange rg);
+MSCoreExtern NSUInteger CArrayRemoveAllObjects(     CArray *self);
 
-MSCoreExport void CArrayReplaceObjectAtIndex(CArray *self, id object, NSUInteger i);
-MSCoreExport void CArrayReplaceObjectsInRange(CArray *self, const id *objects, NSRange rg, BOOL copyItems);
+MSCoreExtern void CArrayReplaceObjectAtIndex(CArray *self, id object, NSUInteger i);
+MSCoreExtern void CArrayReplaceObjectsInRange(CArray *self, const id *objects, NSRange rg, BOOL copyItems);
 
-MSCoreExport void CArrayInsertObjectAtIndex( CArray *self, id object, NSUInteger i);
-MSCoreExport void CArrayInsertObjectsInRange(CArray *self, const id *objects, NSRange rg, BOOL copyItems);
+MSCoreExtern void CArrayInsertObjectAtIndex( CArray *self, id object, NSUInteger i);
+MSCoreExtern void CArrayInsertObjectsInRange(CArray *self, const id *objects, NSRange rg, BOOL copyItems);
 
 // Returns the first object at the same index and identical or equal to the
 // objet in the other array
 // TODO: Pas cohérent avec firstObjectCommonWithArray:
-MSCoreExport id CArrayFirstCommonIdenticalObject(const CArray *self, const CArray *other);
-MSCoreExport id CArrayFirstCommonObject(const CArray *self, const CArray *other);
+MSCoreExtern id CArrayFirstCommonIdenticalObject(const CArray *self, const CArray *other);
+MSCoreExtern id CArrayFirstCommonObject(const CArray *self, const CArray *other);
 
 // Returns NSNotFound if self or objet is nil
 // If exact, return the object's index or NSNotFound
 // If !exact: if n>ns[nb-1] returns nb-1
 //            otherwise returns the smallest i verifying n<=ns[i]
-MSCoreExport NSUInteger CSortedArrayIndexOfObject(CArray *self, id object,
+MSCoreExtern NSUInteger CSortedArrayIndexOfObject(CArray *self, id object,
   NSUInteger start, NSUInteger nb,
   MSObjectComparator comparator, void *context,
   BOOL exact);
 
 // Returns the index of the inserted object
-MSCoreExport NSUInteger CSortedArrayAddObject(CArray *self, id object,
+MSCoreExtern NSUInteger CSortedArrayAddObject(CArray *self, id object,
   MSObjectComparator comparator, void *context);
 
 /* TODO:
  #ifndef MSCORE_STANDALONE
  // these 2 function should be replaced by "MSCString" functions :
- MSCoreExport NSString *CArrayToString(CArray *self);
- MSCoreExport NSString *CArrayJsonRepresentation(CArray *self);
+ MSCoreExtern NSString *CArrayToString(CArray *self);
+ MSCoreExtern NSString *CArrayJsonRepresentation(CArray *self);
  #endif
  */
-MSCoreExport CString *CArrayToString(CArray *self);
+MSCoreExtern CString *CArrayToString(CArray *self);
 
 #define MSAAdd(  X, Y) CArrayAddObject((CArray*)(X), (Y))
 //#define MSAPush( X, Y) MSAAdd(X, Y)

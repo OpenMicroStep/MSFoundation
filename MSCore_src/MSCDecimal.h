@@ -57,14 +57,14 @@ typedef struct CDecimalStruct {
 CDecimal;
 
 
-  MSCoreExport void CDecimalFreeInside(id self);
+  MSCoreExtern void CDecimalFreeInside(id self);
 //Already defined in MSCObject.h
-//MSCoreExport void       CDecimalFree(id self);
-//MSCoreExport BOOL       CDecimalIsEqual(id self, id other);
-//MSCoreExport NSUInteger CDecimalHash(id self, unsigned depth);
-//MSCoreExport id         CDecimalCopy(id self);
+//MSCoreExtern void       CDecimalFree(id self);
+//MSCoreExtern BOOL       CDecimalIsEqual(id self, id other);
+//MSCoreExtern NSUInteger CDecimalHash(id self, unsigned depth);
+//MSCoreExtern id         CDecimalCopy(id self);
 
-MSCoreExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
+MSCoreExtern BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
 
 #pragma mark Creation
 
@@ -73,37 +73,37 @@ MSCoreExport BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
 // Si le nombre est bien formé, le décimal correspondant est créé et retourné.
 // Si le nombre est mal formé (par ex: " +.", nil est retourné mais rSes contient néanmoins ce qui a été lu
 // (dans l'exemple, SESStart(*rSes)==1, SESLength(*rSes)==1 si intOnly, 2 sinon)
-MSCoreExport CDecimal *CCreateDecimalWithSES(SES src, BOOL intOnly, CUnicharChecker leftSpaces, SES *rSes);
+MSCoreExtern CDecimal *CCreateDecimalWithSES(SES src, BOOL intOnly, CUnicharChecker leftSpaces, SES *rSes);
 
-MSCoreExport CDecimal *CCreateDecimalWithString(CString *x);
-MSCoreExport CDecimal *CCreateDecimalWithUTF8String(const char *x);
-MSCoreExport CDecimal *CCreateDecimalWithDouble(double x);
-MSCoreExport CDecimal *CCreateDecimalWithLongLong(MSLong x);
-MSCoreExport CDecimal *CCreateDecimalWithULongLong(MSULong x);
-MSCoreExport CDecimal *CCreateDecimalWithMantissaExponentSign(MSULong mm, MSInt exponent, int sign);
+MSCoreExtern CDecimal *CCreateDecimalWithString(CString *x);
+MSCoreExtern CDecimal *CCreateDecimalWithUTF8String(const char *x);
+MSCoreExtern CDecimal *CCreateDecimalWithDouble(double x);
+MSCoreExtern CDecimal *CCreateDecimalWithLongLong(MSLong x);
+MSCoreExtern CDecimal *CCreateDecimalWithULongLong(MSULong x);
+MSCoreExtern CDecimal *CCreateDecimalWithMantissaExponentSign(MSULong mm, MSInt exponent, int sign);
 
 #pragma mark Calculation
 
-MSCoreExport CDecimal *CCreateDecimalFloor   (CDecimal *a);
-MSCoreExport CDecimal *CCreateDecimalCeil    (CDecimal *a);
-MSCoreExport CDecimal *CCreateDecimalAdd     (CDecimal *a, CDecimal *b);
-MSCoreExport CDecimal *CCreateDecimalSubtract(CDecimal *a, CDecimal *b);
-MSCoreExport CDecimal *CCreateDecimalMultiply(CDecimal *a, CDecimal *b);
-MSCoreExport CDecimal *CCreateDecimalDivide  (CDecimal *a, CDecimal *b, int decimalPlaces);
+MSCoreExtern CDecimal *CCreateDecimalFloor   (CDecimal *a);
+MSCoreExtern CDecimal *CCreateDecimalCeil    (CDecimal *a);
+MSCoreExtern CDecimal *CCreateDecimalAdd     (CDecimal *a, CDecimal *b);
+MSCoreExtern CDecimal *CCreateDecimalSubtract(CDecimal *a, CDecimal *b);
+MSCoreExtern CDecimal *CCreateDecimalMultiply(CDecimal *a, CDecimal *b);
+MSCoreExtern CDecimal *CCreateDecimalDivide  (CDecimal *a, CDecimal *b, int decimalPlaces);
 
 #pragma mark Value
 
-MSCoreExport MSChar     CDecimalCharValue(    CDecimal*);
-MSCoreExport MSByte     CDecimalByteValue(    CDecimal*);
-MSCoreExport MSShort    CDecimalShortValue(   CDecimal*);
-MSCoreExport MSUShort   CDecimalUShortValue(  CDecimal*);
-MSCoreExport MSInt      CDecimalIntValue(     CDecimal*);
-MSCoreExport MSUInt     CDecimalUIntValue(    CDecimal*);
-MSCoreExport MSLong     CDecimalLongValue(    CDecimal*);
-MSCoreExport MSULong    CDecimalULongValue(   CDecimal*);
-MSCoreExport NSInteger  CDecimalIntegerValue( CDecimal*);
-MSCoreExport NSUInteger CDecimalUIntegerValue(CDecimal*);
-// TODO: MSCoreExport double    CDecimalDoubleValue (CDecimal*);
+MSCoreExtern MSChar     CDecimalCharValue(    CDecimal*);
+MSCoreExtern MSByte     CDecimalByteValue(    CDecimal*);
+MSCoreExtern MSShort    CDecimalShortValue(   CDecimal*);
+MSCoreExtern MSUShort   CDecimalUShortValue(  CDecimal*);
+MSCoreExtern MSInt      CDecimalIntValue(     CDecimal*);
+MSCoreExtern MSUInt     CDecimalUIntValue(    CDecimal*);
+MSCoreExtern MSLong     CDecimalLongValue(    CDecimal*);
+MSCoreExtern MSULong    CDecimalULongValue(   CDecimal*);
+MSCoreExtern NSInteger  CDecimalIntegerValue( CDecimal*);
+MSCoreExtern NSUInteger CDecimalUIntegerValue(CDecimal*);
+// TODO: MSCoreExtern double    CDecimalDoubleValue (CDecimal*);
 
 
 // Identique à CCreateDecimalWithSES mmais ecrite comme une SESEXtract... fonction.
@@ -112,12 +112,12 @@ MSCoreExport NSUInteger CDecimalUIntegerValue(CDecimal*);
 // Si le nombre est bien formé, le décimal correspondant est retourné dans decimalPtr.
 // Il doit être libéré par l'appelant.
 // Déclaré ici car MSCoreSES.h est inclut avant MSCDecimal.h.
-MSCoreExport SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
+MSCoreExtern SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
 
 // TODO: description functions
-MSCoreExport CString *CCreateDecimalDescription(CDecimal*);
+MSCoreExtern CString *CCreateDecimalDescription(CDecimal*);
 
-MSCoreExport MSLong  CStrToLongLong( const char *restrict str, char **restrict endptr);
-MSCoreExport MSULong CStrToULongLong(const char *restrict str, char **restrict endptr);
+MSCoreExtern MSLong  CStrToLongLong( const char *restrict str, char **restrict endptr);
+MSCoreExtern MSULong CStrToULongLong(const char *restrict str, char **restrict endptr);
 
 #endif

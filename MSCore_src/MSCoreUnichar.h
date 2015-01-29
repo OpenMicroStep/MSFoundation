@@ -49,36 +49,36 @@
 typedef unsigned short unichar;
 #endif // defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 
-MSCoreExport BOOL CUnicharIsAlnum     (unichar c);
-MSCoreExport BOOL CUnicharIsAlpha     (unichar c);
-MSCoreExport BOOL CUnicharIsControl   (unichar c);
-MSCoreExport BOOL CUnicharIsUpper     (unichar c);
-MSCoreExport BOOL CUnicharIsLower     (unichar c);
-MSCoreExport BOOL CUnicharIsSpace     (unichar c); // warning : character 0x00a0 (&nbsp;) is also a
+MSCoreExtern BOOL CUnicharIsAlnum     (unichar c);
+MSCoreExtern BOOL CUnicharIsAlpha     (unichar c);
+MSCoreExtern BOOL CUnicharIsControl   (unichar c);
+MSCoreExtern BOOL CUnicharIsUpper     (unichar c);
+MSCoreExtern BOOL CUnicharIsLower     (unichar c);
+MSCoreExtern BOOL CUnicharIsSpace     (unichar c); // warning : character 0x00a0 (&nbsp;) is also a
                                                // white space : should I keep it that way ?
-MSCoreExport BOOL CUnicharIsSolid     (unichar c); // not a space and not and end of line
-MSCoreExport BOOL CUnicharIsDigit     (unichar c);
-MSCoreExport BOOL CUnicharIsPunct     (unichar c);
-MSCoreExport BOOL CUnicharIsWordChar  (unichar c);
-MSCoreExport BOOL CUnicharIsPrintable (unichar c);
-MSCoreExport BOOL CUnicharIsLetter    (unichar c);
-MSCoreExport BOOL CUnicharIsHexa      (unichar c);
-MSCoreExport BOOL CUnicharIsEOL       (unichar c);
-MSCoreExport BOOL CUnicharIsSeparator (unichar c);
-MSCoreExport BOOL CUnicharIsIsoDigit  (unichar c);
-MSCoreExport BOOL CUnicharIsSpaceOrEOL(unichar c);
+MSCoreExtern BOOL CUnicharIsSolid     (unichar c); // not a space and not and end of line
+MSCoreExtern BOOL CUnicharIsDigit     (unichar c);
+MSCoreExtern BOOL CUnicharIsPunct     (unichar c);
+MSCoreExtern BOOL CUnicharIsWordChar  (unichar c);
+MSCoreExtern BOOL CUnicharIsPrintable (unichar c);
+MSCoreExtern BOOL CUnicharIsLetter    (unichar c);
+MSCoreExtern BOOL CUnicharIsHexa      (unichar c);
+MSCoreExtern BOOL CUnicharIsEOL       (unichar c);
+MSCoreExtern BOOL CUnicharIsSeparator (unichar c);
+MSCoreExtern BOOL CUnicharIsIsoDigit  (unichar c);
+MSCoreExtern BOOL CUnicharIsSpaceOrEOL(unichar c);
 
-MSCoreExport unichar CUnicharToUpper(unichar c);
-MSCoreExport unichar CUnicharToLower(unichar c);
+MSCoreExtern unichar CUnicharToUpper(unichar c);
+MSCoreExtern unichar CUnicharToLower(unichar c);
 
-MSCoreExport BOOL               CUnicharEquals(unichar ca, unichar cb, BOOL insensitive);
-MSCoreExport BOOL               CUnicharInsensitiveEquals (unichar ca, unichar cb);
-MSCoreExport NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb);
+MSCoreExtern BOOL               CUnicharEquals(unichar ca, unichar cb, BOOL insensitive);
+MSCoreExtern BOOL               CUnicharInsensitiveEquals (unichar ca, unichar cb);
+MSCoreExtern NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb);
 
-MSCoreExport BOOL               CUnicharsInsensitiveEquals (const unichar *ba, NSUInteger la, const unichar *bb, NSUInteger lb);
-MSCoreExport NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, NSUInteger la, const unichar *bb, NSUInteger lb);
+MSCoreExtern BOOL               CUnicharsInsensitiveEquals (const unichar *ba, NSUInteger la, const unichar *bb, NSUInteger lb);
+MSCoreExtern NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, NSUInteger la, const unichar *bb, NSUInteger lb);
 
-MSCoreExport NSUInteger CUnicharsInsensitiveFind(const unichar *b, NSUInteger l, const unichar *bf, NSUInteger lf);
+MSCoreExtern NSUInteger CUnicharsInsensitiveFind(const unichar *b, NSUInteger l, const unichar *bf, NSUInteger lf);
 
 typedef BOOL (*CUnicharChecker)(unichar);
 

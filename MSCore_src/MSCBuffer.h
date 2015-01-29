@@ -66,65 +66,65 @@ typedef struct CBufferStruct {
   CBufferFlags flags;}
 CBuffer;
 
-  MSCoreExport void       CBufferFreeInside(id self); // for MSBuffer dealloc
+  MSCoreExtern void       CBufferFreeInside(id self); // for MSBuffer dealloc
 //Already defined in MSCObject.h
-//MSCoreExport void       CBufferFree(id self);
-//MSCoreExport BOOL       CBufferIsEqual(id self, id other);
-//MSCoreExport NSUInteger CBufferHash(id self, unsigned depth);
-//MSCoreExport id         CBufferCopy(id self);
+//MSCoreExtern void       CBufferFree(id self);
+//MSCoreExtern BOOL       CBufferIsEqual(id self, id other);
+//MSCoreExtern NSUInteger CBufferHash(id self, unsigned depth);
+//MSCoreExtern id         CBufferCopy(id self);
 
-MSCoreExport BOOL CBufferEquals(const CBuffer *self, const CBuffer *anotherBuffer);
+MSCoreExtern BOOL CBufferEquals(const CBuffer *self, const CBuffer *anotherBuffer);
 
-MSCoreExport CBuffer *CCreateBuffer(NSUInteger capacity);
-MSCoreExport CBuffer *CCreateBufferWithBytes(const void *bytes, NSUInteger length);
-MSCoreExport CBuffer *CCreateBufferWithBytesNoCopy(void *bytes, NSUInteger length);
+MSCoreExtern CBuffer *CCreateBuffer(NSUInteger capacity);
+MSCoreExtern CBuffer *CCreateBufferWithBytes(const void *bytes, NSUInteger length);
+MSCoreExtern CBuffer *CCreateBufferWithBytesNoCopy(void *bytes, NSUInteger length);
   // 'bytes' is supposed 'length' sized. The buffer takes the ownership of
   // 'bytes' and frees it at end. It also can be reallocated on append.
-MSCoreExport CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUInteger length);
+MSCoreExtern CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUInteger length);
   // The returned buffer is immutable.
   // 'bytes' is supposed 'length' sized. The buffer doesn't take the ownership
   // of 'bytes' and doesn't free it at end. It can NOT be reallocated so
   // appending is forbidden and an exception is raised.
-MSCoreExport CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationEncoding);
+MSCoreExtern CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationEncoding);
 
-MSCoreExport void CBufferGrow(CBuffer *self, NSUInteger n);
-MSCoreExport void CBufferAdjustSize(CBuffer *self);
+MSCoreExtern void CBufferGrow(CBuffer *self, NSUInteger n);
+MSCoreExtern void CBufferAdjustSize(CBuffer *self);
 
-MSCoreExport NSUInteger CBufferLength(const CBuffer *self);
-MSCoreExport MSByte CBufferByteAtIndex(const CBuffer *self, NSUInteger i);
-MSCoreExport MSByte *CBufferCString(CBuffer *self);
+MSCoreExtern NSUInteger CBufferLength(const CBuffer *self);
+MSCoreExtern MSByte CBufferByteAtIndex(const CBuffer *self, NSUInteger i);
+MSCoreExtern MSByte *CBufferCString(CBuffer *self);
 // Make sure buf ends with 0x00 before returning the buf.
 
-MSCoreExport NSUInteger CBufferIndexOfByte          (const CBuffer *self, MSByte c);
-MSCoreExport NSUInteger CBufferIndexOfBytes         (const CBuffer *self, void *sbytes, NSUInteger slen);
-MSCoreExport NSUInteger CBufferIndexOfBytesInRange  (const CBuffer *self, void *sbytes, NSUInteger slen, NSRange searchRange);
-MSCoreExport NSUInteger CBufferIndexOfCString       (const CBuffer *self, char *cString);
-MSCoreExport NSUInteger CBufferIndexOfCStringInRange(const CBuffer *self, char *cString                , NSRange searchRange);
+MSCoreExtern NSUInteger CBufferIndexOfByte          (const CBuffer *self, MSByte c);
+MSCoreExtern NSUInteger CBufferIndexOfBytes         (const CBuffer *self, void *sbytes, NSUInteger slen);
+MSCoreExtern NSUInteger CBufferIndexOfBytesInRange  (const CBuffer *self, void *sbytes, NSUInteger slen, NSRange searchRange);
+MSCoreExtern NSUInteger CBufferIndexOfCString       (const CBuffer *self, char *cString);
+MSCoreExtern NSUInteger CBufferIndexOfCStringInRange(const CBuffer *self, char *cString                , NSRange searchRange);
 
-MSCoreExport void CBufferAppendBuffer (CBuffer *self, const CBuffer *s);
-MSCoreExport void CBufferAppendCString(CBuffer *self, const char *myStr);
-MSCoreExport void CBufferAppendBytes  (CBuffer *self, const void *bytes, NSUInteger length);
-MSCoreExport void CBufferAppendByte   (CBuffer *self, MSByte c);
-MSCoreExport void CBufferFillWithByte (CBuffer *self, MSByte c, NSUInteger nb);
-MSCoreExport void CBufferAppendSES    (CBuffer *self, SES ses, NSStringEncoding destinationEncoding);
+MSCoreExtern void CBufferAppendBuffer (CBuffer *self, const CBuffer *s);
+MSCoreExtern void CBufferAppendCString(CBuffer *self, const char *myStr);
+MSCoreExtern void CBufferAppendBytes  (CBuffer *self, const void *bytes, NSUInteger length);
+MSCoreExtern void CBufferAppendByte   (CBuffer *self, MSByte c);
+MSCoreExtern void CBufferFillWithByte (CBuffer *self, MSByte c, NSUInteger nb);
+MSCoreExtern void CBufferAppendSES    (CBuffer *self, SES ses, NSStringEncoding destinationEncoding);
 // Only UTF8 for destinationEncoding at this time
 // or NSUnicodeStringEncoding IN THE SAME endianness than the ses encoding
-MSCoreExport void CBufferAppendString (CBuffer *self, const CString *s, NSStringEncoding destinationEncoding);
+MSCoreExtern void CBufferAppendString (CBuffer *self, const CString *s, NSStringEncoding destinationEncoding);
 // See CBufferAppendSES
 
-MSCoreExport void CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
-MSCoreExport BOOL CBufferBase64DecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSCoreExtern void CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSCoreExtern BOOL CBufferBase64DecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
-MSCoreExport void CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
-MSCoreExport BOOL CBufferBase64URLDecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSCoreExtern void CBufferBase64URLEncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSCoreExtern BOOL CBufferBase64URLDecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
-MSCoreExport BOOL CBufferCompressAndAppendBytes  (CBuffer *self, const void *bytes, NSUInteger len);
-MSCoreExport BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
+MSCoreExtern BOOL CBufferCompressAndAppendBytes  (CBuffer *self, const void *bytes, NSUInteger len);
+MSCoreExtern BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 
-// @function MSCoreExport BOOL CBufferAppendUniqueID(MSUInt domainID, MSUInt dealerID, MSUInt clientID);
+// @function MSCoreExtern BOOL CBufferAppendUniqueID(MSUInt domainID, MSUInt dealerID, MSUInt clientID);
 // suggestion : use MSCurrentProcessID(), MSCurrentThreadID(), MSCurrentHostID(), MSUnsignedRandom(), nowGMT() + the parameters, salt it and mix all in at least a 32 bytes string
 
-// @function MSCoreExport BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict);
+// @function MSCoreExtern BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict);
 // not so simple to do...
 
 #define MSBAddBuffer(X, Y) CBufferAppendBuffer((CBuffer*)(X), (const CBuffer*)(Y))

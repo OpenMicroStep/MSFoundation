@@ -233,7 +233,7 @@ double CDecimalDoubleValue (CDecimal *a)
 */
 #pragma mark Description
 
-MSCoreExport CString *CCreateDecimalDescription(CDecimal *d)
+MSCoreExtern CString *CCreateDecimalDescription(CDecimal *d)
 {
   int exp=   abs(d->m_apm_exponent - 1);
   int expLg= exp==0 ? 1 : (int)(log(exp)+1.);

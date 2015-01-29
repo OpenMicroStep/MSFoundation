@@ -1,5 +1,5 @@
 
-#import "Foundation_Private.h"
+#import "FoundationCompatibility_Private.h"
 
 #warning Write tests for NSAutoreleasePool
 

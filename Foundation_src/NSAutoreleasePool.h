@@ -2,7 +2,7 @@
 @interface NSAutoreleasePool : NSObject {
 @private
     NSAutoreleasePool *_parent;
-    CArray *_objects;
+    void *_objects;
 }
 
 +(void)addObject:(id)object;

@@ -1,13 +1,7 @@
-//
-//  CommonDefines.h
-//  MSFoundation
-//
-//  Created by Vincent Rouillé on 27/01/2015.
-//  Copyright (c) 2015 OpenMicroStep. All rights reserved.
-//
+// MSCorePlatform.h
 
-#ifndef MSCORE_STD_H
-#define MSCORE_STD_H
+#ifndef MSCORE_PLATFORM_H
+#define MSCORE_PLATFORM_H
 
 ////////
 // Platform defines
@@ -44,6 +38,12 @@
 #else
     #define LIBEXPORT EXTERN_C
     #define LIBIMPORT EXTERN_C
+#endif
+
+#ifdef MSCORE_PRIVATE_H
+#define MSCoreExtern LIBEXPORT
+#else
+#define MSCoreExtern LIBIMPORT
 #endif
 
 // END Platform defines
@@ -124,4 +124,4 @@
 // END Simple platform abstraction
 ////////
 
-#endif // MSCORE_STD_H
+#endif

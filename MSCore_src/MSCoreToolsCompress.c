@@ -1086,7 +1086,7 @@ static BOOL tdefl_compress_lz_codes(tdefl_compressor *d)
   
   while (bits_in)
   {
-    MSUInt n = MIN(bits_in, 16);
+    MSUInt n = MIN(bits_in, (MSUInt)16);
     TDEFL_PUT_BITS((mz_uint)bit_buffer & mz_bitmasks[n], n);
     bit_buffer >>= n;
     bits_in -= n;
@@ -1278,7 +1278,7 @@ if (TDEFL_READ_UNALIGNED_WORD(&d->m_dict[probe_pos + match_len - 1]) == c01) bre
                   (TDEFL_READ_UNALIGNED_WORD(++p) == TDEFL_READ_UNALIGNED_WORD(++q)) && (TDEFL_READ_UNALIGNED_WORD(++p) == TDEFL_READ_UNALIGNED_WORD(++q)) && (--probe_len > 0) );
     if (!probe_len)
     {
-      *pMatch_dist = dist; *pMatch_len = MIN(max_match_len, TDEFL_MAX_MATCH_LEN); break;
+      *pMatch_dist = dist; *pMatch_len = MIN(max_match_len, (MSUInt)TDEFL_MAX_MATCH_LEN); break;
     }
     else if ((probe_len = ((mz_uint)(p - s) * 2) + (mz_uint)(*(const MSByte*)p == *(const MSByte*)q)) > match_len)
     {
@@ -1407,7 +1407,7 @@ static BOOL tdefl_compress_fast(tdefl_compressor *d)
       
       total_lz_bytes += cur_match_len;
       lookahead_pos += cur_match_len;
-      dict_size = MIN(dict_size + cur_match_len, TDEFL_LZ_DICT_SIZE);
+      dict_size = MIN(dict_size + cur_match_len, (MSUInt)TDEFL_LZ_DICT_SIZE);
       cur_pos = (cur_pos + cur_match_len) & TDEFL_LZ_DICT_SIZE_MASK;
       MZ_ASSERT(lookahead_size >= cur_match_len);
       lookahead_size -= cur_match_len;
@@ -1435,7 +1435,7 @@ static BOOL tdefl_compress_fast(tdefl_compressor *d)
       d->m_huff_count[0][lit]++;
       
       lookahead_pos++;
-      dict_size = MIN(dict_size + 1, TDEFL_LZ_DICT_SIZE);
+      dict_size = MIN(dict_size + 1, (MSUInt)TDEFL_LZ_DICT_SIZE);
       cur_pos = (cur_pos + 1) & TDEFL_LZ_DICT_SIZE_MASK;
       lookahead_size--;
       
@@ -1560,7 +1560,7 @@ static BOOL tdefl_compress_normal(tdefl_compressor *d)
     d->m_lookahead_pos += len_to_move;
     MZ_ASSERT(d->m_lookahead_size >= len_to_move);
     d->m_lookahead_size -= len_to_move;
-    d->m_dict_size = MIN(d->m_dict_size + len_to_move, TDEFL_LZ_DICT_SIZE);
+    d->m_dict_size = MIN(d->m_dict_size + len_to_move, (MSUInt)TDEFL_LZ_DICT_SIZE);
     // Check if it's time to flush the current LZ codes to the internal output buffer.
     if ( (d->m_pLZ_code_buf > &d->m_lz_code_buf[TDEFL_LZ_CODE_BUF_SIZE - 8]) ||
         ( (d->m_total_lz_bytes > 31*1024) && (((((mz_uint)(d->m_pLZ_code_buf - d->m_lz_code_buf) * 115) >> 7) >= d->m_total_lz_bytes) || (d->m_flags & TDEFL_FORCE_ALL_RAW_BLOCKS))) )
@@ -1878,7 +1878,8 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const MSByte *pIn_buf_next,
             TINFL_CR_RETURN_FOREVER(40, TINFL_STATUS_FAILED);
           }
         }
-        n = MIN(MIN((size_t)(pOut_buf_end - pOut_buf_cur), (size_t)(pIn_buf_end - pIn_buf_cur)), counter);
+        n = MIN((size_t)(pOut_buf_end - pOut_buf_cur), (size_t)(pIn_buf_end - pIn_buf_cur));
+        n = MIN(n, counter);
         TINFL_MEMCPY(pOut_buf_cur, pIn_buf_cur, n); pIn_buf_cur += n; pOut_buf_cur += n; counter -= (mz_uint)n;
       }
     }

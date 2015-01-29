@@ -1,6 +1,8 @@
 
 @interface NSNumber : NSObject
 
+- (const char*)objCType;
+
 - (char)charValue;
 - (unsigned char)unsignedCharValue;
 - (short)shortValue;

@@ -41,51 +41,8 @@
 #ifndef MSFOUNDATION_PRIVATE_H
 #define MSFOUNDATION_PRIVATE_H
 
-#define MSFoundationExport LIBEXPORT
+#import "MSFoundation_Public.h"
 
-#ifdef MSFOUNDATION_FORCOCOA
-#import <Foundation/Foundation.h>
-#endif
-
-#import "MSCore_Private.h"
-
-#ifndef MSFOUNDATION_FORCOCOA
-#import "Foundation_Protected.h"
-#endif
-
-#import "MSFoundationDefines.h"
-#import "MSCoderAdditions.h"
-#import "MSExceptionAdditions.h"
-#import "MSLanguage.h"
-#import "MSObjectAdditions.h"
-
-#import "MSBool.h"
-#import "MSCharsets_Private.h"
-#import "MSASCIIString.h"
-#import "MSMutex.h"
-#import "MSCNaturalArray.h"
-#import "MSNaturalArray.h"
-#import "MSNaturalArrayEnumerator.h"
 #import "MSNaturalArrayEnumerator_Private.h"
-#import "MSFileManipulation.h"
-
-#import "MSRow.h"
-
-#import "MSArray.h"
-//#import "MSMutableArray.h"
-#import "MSBuffer.h"
-#import "MSColor.h"
-#import "MSCouple.h"
-#import "MSDate.h"
-#import "MSDecimal.h"
-#import "MSDictionary.h"
-#import "MSString.h"
-
-#import "MSTDecoder.h"
-#import "MSTEncoder.h"
-
-#import "MSStringParsing.h"
-
-#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
 
 #endif // MSFOUNDATION_PRIVATE_H

@@ -1,3 +1,11 @@
+#import <objc/objc.h>
+
+#ifdef FOUNDATION_PRIVATE_H
+#define FoundationExtern LIBEXPORT
+#else
+#define FoundationExtern LIBIMPORT
+#endif
+
 #define NS_INLINE static inline
 
 #ifdef __clang__

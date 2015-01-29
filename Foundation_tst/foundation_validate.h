@@ -1,7 +1,7 @@
 #if   defined(MSFOUNDATION_TESTS)
 #import <MSFoundation/MSFoundation.h>
 #elif defined(MSFOUNDATIONFORCOCOA_TESTS)
-#import <MSFoundationForCocoa/MSFoundationForCocoa.h>
+#import <MSFoundationForCocoa/MSFoundation.h>
 #else
 #error MSFOUNDATION_TESTS or MSFOUNDATIONFORCOCOA_TESTS must be defined
 #endif

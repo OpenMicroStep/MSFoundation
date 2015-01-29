@@ -1,6 +1,9 @@
-#define FOUNDATION_EXPORT LIBEXPORT
+#ifndef FOUNDATION_PUBLIC_H
+#define FOUNDATION_PUBLIC_H
 
-#import "NSFoundationStd.h"
+#import "MSCore_Public.h"
+
+#import "FoundationTypes.h"
 
 #import "NSObjCRuntime.h"
 #import "NSObject.h"
@@ -26,3 +29,5 @@
 #import "NSZone.h"
 #import "NSTimeZone.h"
 #import "NSRange.h"
+
+#endif

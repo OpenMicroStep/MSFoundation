@@ -224,114 +224,114 @@ typedef void  (*M_apm_string_components_fn)(int, const char *);
  * convienient predefined constants
  */
 
-MSCoreExport M_APM MM_Zero;
-MSCoreExport M_APM MM_One;
-MSCoreExport M_APM MM_Two;
-MSCoreExport M_APM MM_Three;
-MSCoreExport M_APM MM_Four;
-MSCoreExport M_APM MM_Five;
-MSCoreExport M_APM MM_Ten;
+MSCoreExtern M_APM MM_Zero;
+MSCoreExtern M_APM MM_One;
+MSCoreExtern M_APM MM_Two;
+MSCoreExtern M_APM MM_Three;
+MSCoreExtern M_APM MM_Four;
+MSCoreExtern M_APM MM_Five;
+MSCoreExtern M_APM MM_Ten;
 
-MSCoreExport M_APM MM_PI;
-MSCoreExport M_APM MM_HALF_PI;
-MSCoreExport M_APM MM_2_PI;
-MSCoreExport M_APM MM_E;
+MSCoreExtern M_APM MM_PI;
+MSCoreExtern M_APM MM_HALF_PI;
+MSCoreExtern M_APM MM_2_PI;
+MSCoreExtern M_APM MM_E;
 
-MSCoreExport M_APM MM_LOG_E_BASE_10;
-MSCoreExport M_APM MM_LOG_10_BASE_E;
-MSCoreExport M_APM MM_LOG_2_BASE_E;
-MSCoreExport M_APM MM_LOG_3_BASE_E;
+MSCoreExtern M_APM MM_LOG_E_BASE_10;
+MSCoreExtern M_APM MM_LOG_10_BASE_E;
+MSCoreExtern M_APM MM_LOG_2_BASE_E;
+MSCoreExtern M_APM MM_LOG_3_BASE_E;
 
 
 /*
  * function prototypes
  */
 
-MSCoreExport void M_init_mapm_constants(void); // You should  call this function only once and after m_apm_set_callbacks() if you intend to use it
+MSCoreExtern void M_init_mapm_constants(void); // You should  call this function only once and after m_apm_set_callbacks() if you intend to use it
 
 // with this new "objec oriented" function, you can use RETAIN() AUTORELEASE() and RELEASE() on a M_APM
-MSCoreExport M_APM m_apm_allocate(void);
-MSCoreExport M_APM m_apm_new(void);         // m_apm_allocate() m_apm_init()
-MSCoreExport M_APM m_apm_init(M_APM atmp);  // init alone
-MSCoreExport BOOL  m_apm_deallocate(M_APM); // clear the M_APM number content
-MSCoreExport void  m_apm_free(void *);      // uses the m_apm_deallocate() function
+MSCoreExtern M_APM m_apm_allocate(void);
+MSCoreExtern M_APM m_apm_new(void);         // m_apm_allocate() m_apm_init()
+MSCoreExtern M_APM m_apm_init(M_APM atmp);  // init alone
+MSCoreExtern BOOL  m_apm_deallocate(M_APM); // clear the M_APM number content
+MSCoreExtern void  m_apm_free(void *);      // uses the m_apm_deallocate() function
 
-MSCoreExport char *m_apm_lib_version(char *);
-MSCoreExport char *m_apm_lib_short_version(char *);
-MSCoreExport void  m_apm_set_callbacks(M_apm_alloc_fn fn1, M_apm_free_fn fn2, M_apm_log_fn fn3, M_apm_string_components_fn fn4); // if null uses the standards functions
+MSCoreExtern char *m_apm_lib_version(char *);
+MSCoreExtern char *m_apm_lib_short_version(char *);
+MSCoreExtern void  m_apm_set_callbacks(M_apm_alloc_fn fn1, M_apm_free_fn fn2, M_apm_log_fn fn3, M_apm_string_components_fn fn4); // if null uses the standards functions
 
-MSCoreExport void m_apm_set_string(M_APM, const char *);
-MSCoreExport void m_apm_set_double(M_APM, double);
-MSCoreExport void m_apm_set_long(M_APM, long long);
-MSCoreExport void m_apm_set_ulong(M_APM, unsigned long long);
-MSCoreExport void m_apm_set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign);
+MSCoreExtern void m_apm_set_string(M_APM, const char *);
+MSCoreExtern void m_apm_set_double(M_APM, double);
+MSCoreExtern void m_apm_set_long(M_APM, long long);
+MSCoreExtern void m_apm_set_ulong(M_APM, unsigned long long);
+MSCoreExtern void m_apm_set_mantissa_exponent_sign(M_APM atmp, unsigned long long mm, int exponent, int sign);
 
-MSCoreExport void  m_apm_to_string(char *, int, const M_APM);
-MSCoreExport void  m_apm_to_fixpt_string(char *, int, M_APM);
-MSCoreExport void  m_apm_to_fixpt_stringex(char *, int, M_APM, char, char, int);
-MSCoreExport char *m_apm_to_fixpt_stringexp(int, M_APM, char, char, int);
-MSCoreExport void  m_apm_to_integer_string(char *, M_APM);
-MSCoreExport MSChar     m_apm_to_char(    const M_APM);
-MSCoreExport MSByte     m_apm_to_byte(    const M_APM);
-MSCoreExport MSShort    m_apm_to_short(   const M_APM);
-MSCoreExport MSUShort   m_apm_to_ushort(  const M_APM);
-MSCoreExport MSInt      m_apm_to_int(     const M_APM);
-MSCoreExport MSUInt     m_apm_to_uint(    const M_APM);
-MSCoreExport MSLong     m_apm_to_long(    const M_APM);
-MSCoreExport MSULong    m_apm_to_ulong(   const M_APM);
-MSCoreExport NSInteger  m_apm_to_integer( const M_APM);
-MSCoreExport NSUInteger m_apm_to_uinteger(const M_APM);
+MSCoreExtern void  m_apm_to_string(char *, int, const M_APM);
+MSCoreExtern void  m_apm_to_fixpt_string(char *, int, M_APM);
+MSCoreExtern void  m_apm_to_fixpt_stringex(char *, int, M_APM, char, char, int);
+MSCoreExtern char *m_apm_to_fixpt_stringexp(int, M_APM, char, char, int);
+MSCoreExtern void  m_apm_to_integer_string(char *, M_APM);
+MSCoreExtern MSChar     m_apm_to_char(    const M_APM);
+MSCoreExtern MSByte     m_apm_to_byte(    const M_APM);
+MSCoreExtern MSShort    m_apm_to_short(   const M_APM);
+MSCoreExtern MSUShort   m_apm_to_ushort(  const M_APM);
+MSCoreExtern MSInt      m_apm_to_int(     const M_APM);
+MSCoreExtern MSUInt     m_apm_to_uint(    const M_APM);
+MSCoreExtern MSLong     m_apm_to_long(    const M_APM);
+MSCoreExtern MSULong    m_apm_to_ulong(   const M_APM);
+MSCoreExtern NSInteger  m_apm_to_integer( const M_APM);
+MSCoreExtern NSUInteger m_apm_to_uinteger(const M_APM);
 
-MSCoreExport void m_apm_absolute_value(M_APM, const M_APM);
-MSCoreExport void m_apm_negate(M_APM, const M_APM);
-MSCoreExport void m_apm_copy(M_APM, const M_APM);
-MSCoreExport void m_apm_round(M_APM, int, const M_APM);
-MSCoreExport int  m_apm_compare(const M_APM, const M_APM);
-MSCoreExport int  m_apm_sign(const M_APM);
-MSCoreExport int  m_apm_exponent(const M_APM);
-MSCoreExport int  m_apm_significant_digits(const M_APM);
-MSCoreExport int  m_apm_is_integer(const M_APM);
-MSCoreExport int  m_apm_is_even(const M_APM);
-MSCoreExport int  m_apm_is_odd(const M_APM);
+MSCoreExtern void m_apm_absolute_value(M_APM, const M_APM);
+MSCoreExtern void m_apm_negate(M_APM, const M_APM);
+MSCoreExtern void m_apm_copy(M_APM, const M_APM);
+MSCoreExtern void m_apm_round(M_APM, int, const M_APM);
+MSCoreExtern int  m_apm_compare(const M_APM, const M_APM);
+MSCoreExtern int  m_apm_sign(const M_APM);
+MSCoreExtern int  m_apm_exponent(const M_APM);
+MSCoreExtern int  m_apm_significant_digits(const M_APM);
+MSCoreExtern int  m_apm_is_integer(const M_APM);
+MSCoreExtern int  m_apm_is_even(const M_APM);
+MSCoreExtern int  m_apm_is_odd(const M_APM);
 
-MSCoreExport void m_apm_gcd(M_APM, const M_APM, const M_APM);
-MSCoreExport void m_apm_lcm(M_APM, const M_APM, const M_APM);
+MSCoreExtern void m_apm_gcd(M_APM, const M_APM, const M_APM);
+MSCoreExtern void m_apm_lcm(M_APM, const M_APM, const M_APM);
 
-MSCoreExport void m_apm_add(M_APM, const M_APM, const M_APM);
-MSCoreExport void m_apm_subtract(M_APM, const M_APM, const M_APM);
-MSCoreExport void m_apm_multiply(M_APM, const M_APM, const M_APM);
-MSCoreExport void m_apm_divide(M_APM, int, const M_APM, const M_APM);
-MSCoreExport void m_apm_integer_divide(M_APM, const M_APM, const M_APM);
-MSCoreExport void m_apm_integer_div_rem(M_APM, M_APM, const M_APM, const M_APM);
-MSCoreExport void m_apm_reciprocal(M_APM, int, const M_APM);
-MSCoreExport void m_apm_factorial(M_APM, const M_APM);
-MSCoreExport void m_apm_floor(M_APM, const M_APM);
-MSCoreExport void m_apm_ceil(M_APM, const M_APM);
+MSCoreExtern void m_apm_add(M_APM, const M_APM, const M_APM);
+MSCoreExtern void m_apm_subtract(M_APM, const M_APM, const M_APM);
+MSCoreExtern void m_apm_multiply(M_APM, const M_APM, const M_APM);
+MSCoreExtern void m_apm_divide(M_APM, int, const M_APM, const M_APM);
+MSCoreExtern void m_apm_integer_divide(M_APM, const M_APM, const M_APM);
+MSCoreExtern void m_apm_integer_div_rem(M_APM, M_APM, const M_APM, const M_APM);
+MSCoreExtern void m_apm_reciprocal(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_factorial(M_APM, const M_APM);
+MSCoreExtern void m_apm_floor(M_APM, const M_APM);
+MSCoreExtern void m_apm_ceil(M_APM, const M_APM);
 
-MSCoreExport void m_apm_sqrt(M_APM, int, const M_APM);
-MSCoreExport void m_apm_cbrt(M_APM, int, const M_APM);
-MSCoreExport void m_apm_log(M_APM, int, const M_APM);
-MSCoreExport void m_apm_log10(M_APM, int, const M_APM);
-MSCoreExport void m_apm_exp(M_APM, int, const M_APM);
-MSCoreExport void m_apm_pow(M_APM, int, const M_APM, const M_APM);
-MSCoreExport void m_apm_integer_pow(M_APM, int, const M_APM, int);
-MSCoreExport void m_apm_integer_pow_nr(M_APM, const M_APM, int);
+MSCoreExtern void m_apm_sqrt(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_cbrt(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_log(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_log10(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_exp(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_pow(M_APM, int, const M_APM, const M_APM);
+MSCoreExtern void m_apm_integer_pow(M_APM, int, const M_APM, int);
+MSCoreExtern void m_apm_integer_pow_nr(M_APM, const M_APM, int);
 
-MSCoreExport void m_apm_sin_cos(M_APM, M_APM, int, const M_APM);
-MSCoreExport void m_apm_sin(M_APM, int, const M_APM);
-MSCoreExport void m_apm_cos(M_APM, int, const M_APM);
-MSCoreExport void m_apm_tan(M_APM, int, const M_APM);
-MSCoreExport void m_apm_arcsin(M_APM, int, const M_APM);
-MSCoreExport void m_apm_arccos(M_APM, int, const M_APM);
-MSCoreExport void m_apm_arctan(M_APM, int, const M_APM);
-MSCoreExport void m_apm_arctan2(M_APM, int, const M_APM, const M_APM);
+MSCoreExtern void m_apm_sin_cos(M_APM, M_APM, int, const M_APM);
+MSCoreExtern void m_apm_sin(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_cos(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_tan(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_arcsin(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_arccos(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_arctan(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_arctan2(M_APM, int, const M_APM, const M_APM);
 
-MSCoreExport void m_apm_sinh(M_APM, int, const M_APM);
-MSCoreExport void m_apm_cosh(M_APM, int, const M_APM);
-MSCoreExport void m_apm_tanh(M_APM, int, const M_APM);
-MSCoreExport void m_apm_arcsinh(M_APM, int, const M_APM);
-MSCoreExport void m_apm_arccosh(M_APM, int, const M_APM);
-MSCoreExport void m_apm_arctanh(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_sinh(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_cosh(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_tanh(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_arcsinh(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_arccosh(M_APM, int, const M_APM);
+MSCoreExtern void m_apm_arctanh(M_APM, int, const M_APM);
 
 /* more intuitive alternate names for the ARC functions ... */
 
