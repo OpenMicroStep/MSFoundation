@@ -7,6 +7,8 @@
 //
 
 #include "MSCorePlatform.h"
+#include <signal.h>
+#define debug_break raise(SIGTRAP)
 
 static const int __testPadding = 20;
 
@@ -47,6 +49,18 @@ static int imp_testsFinish(const char *module)
     return ret;
 }
 
+static void imp_testRaiseError()
+{
+    debug_break;
+}
+
+static inline const char *_basename(const char *path)
+{
+    const char* basename;
+    basename= strrchr(path, '/');
+    return basename ? basename + 1 : path;
+}
+
 static int imp_testAssert(int result, const char *assert, const char *file, int line, const char *msg, ...)
 {
     if(!result) {
@@ -55,13 +69,18 @@ static int imp_testAssert(int result, const char *assert, const char *file, int 
         if(__context.current)
             ++__context.current->err;
         ++__context.err;
-        fprintf(stderr, "%-*sFAIL(%s) assertion: %s\n%-*s   ", (__context.level - 1) * 2, "", name, assert, (__context.level - 1) * 2, "");
+        int spaces= (__context.level - 1) * 2;
+        fprintf(stderr, "%-*sX %s\n", spaces, "", name);
+        fprintf(stderr, "%-*sX  assertion: %s\n", spaces, "", assert);
+        fprintf(stderr, "%-*sX         at: %s:%d\n", spaces, "", _basename(file), line);
+        fprintf(stderr, "%-*sX     reason: ", spaces, "");
         va_list ap;
         va_start (ap, msg);
         vfprintf(stderr, msg, ap);
         va_end(ap);
         fprintf(stderr, "\n");
         mutex_unlock(__context.mutex);
+        imp_testRaiseError();
     }
     return result;
 }
@@ -92,6 +111,7 @@ static void imp_testError(int err)
         __context.current->err += err;
     __context.err += err;
     mutex_unlock(__context.mutex);
+    imp_testRaiseError();
 }
 
 static int imp_testEnd(const char *name)
