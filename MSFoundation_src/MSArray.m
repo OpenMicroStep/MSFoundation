@@ -84,7 +84,7 @@
 //******************************************************************************
 
 @implementation MSArray
-
++ (void)load{ MSInitSetInitializedClass(self); }
 #pragma mark alloc / init
 
 #define FIXE(a) CArraySetImmutable((CArray*)a)

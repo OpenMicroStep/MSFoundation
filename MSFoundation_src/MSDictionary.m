@@ -61,6 +61,7 @@
 @end
 
 @implementation MSDictionary
++ (void)load{ MSInitSetInitializedClass(self); }
 
 #pragma mark alloc / init
 

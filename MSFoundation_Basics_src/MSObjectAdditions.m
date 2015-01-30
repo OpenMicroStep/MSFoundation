@@ -134,10 +134,7 @@ NSNull *MSNull= nil;
 
 // OK, we use a load on a private class for something it's not made for.
 // But it's free and in the right file, so why not
-+ (void)load
-{
-  if (!MSNull) MSNull= RETAIN([NSNull null]);
-}
++ (void)load{ MSNull= RETAIN([NSNull null]); }
 
 // warning, this class method is not thread safe...
 + (_MSDelayedPostingManager *)defaultDelayedManager

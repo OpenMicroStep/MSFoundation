@@ -43,29 +43,12 @@
  */
 
 #import "MSFoundation_Private.h"
-//#import "MSNaturalArrayEnumerator.h"
-//#import "_MSNaturalArrayEnumeratorPrivate.h"
-//#import "MSNaturalArray.h"
-//#import "NSNumberAdditions.h"
-
-static Class __MSNaturalArrayClass = Nil ;
-static Class __MSMutableNaturalArrayClass = Nil ;
-static Class __MSNaturalArrayEnumeratorClass = Nil ;
-static Class __MSNaturalArrayArangementEnumeratorClass = Nil ;
 
 #define MS_NATURALARRAY_LAST_VERSION	102
 
 @implementation MSNaturalArray
-
-+ (void)load { if (!__MSNaturalArrayClass) __MSNaturalArrayClass = [self class] ; }
-+ (void)initialize
-{
-    if (!__MSNaturalArrayEnumeratorClass) {
-        [MSNaturalArray setVersion:MS_NATURALARRAY_LAST_VERSION];
-        __MSNaturalArrayEnumeratorClass = [_MSNaturalConcreteEnumerator class] ;
-        __MSNaturalArrayArangementEnumeratorClass = [_MSNaturalArangementEnumerator class] ;
-    }
-}
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSNaturalArray setVersion:MS_NATURALARRAY_LAST_VERSION]; }
 
 // ====================== ALLOCATIONS, CREATIONS AND DEALLOCATIONS ============================
 + (id)alloc { return MSCreateObject(self) ; }
@@ -190,7 +173,7 @@ static Class __MSNaturalArrayArangementEnumeratorClass = Nil ;
 
 - (BOOL)isEqual:(id)otherObject
 {
-    if ([otherObject isKindOfClass:__MSNaturalArrayClass]) {
+    if ([otherObject isKindOfClass:[MSNaturalArray class]]) {
         if (MSNCount(otherObject) == _count) {
             return !memcmp(_naturals, ((MSNaturalArray *)otherObject)->_naturals, _count*sizeof(NSUInteger)) ;
         }
@@ -265,7 +248,7 @@ static int _naturalCompare(const void *aa, const void *bb)
 
 static inline _MSNaturalConcreteEnumerator *_naturalArrayEnumerator(MSNaturalArray *array)
 {
-    _MSNaturalConcreteEnumerator *e = MSAllocateObject(__MSNaturalArrayEnumeratorClass, 0, [array zone]) ;
+    _MSNaturalConcreteEnumerator *e = MSAllocateObject([MSNaturalArrayEnumerator class], 0, [array zone]) ;
     e->_array = RETAIN(array) ;
     return AUTORELEASE(e) ;
 }
@@ -277,7 +260,7 @@ static inline _MSNaturalConcreteEnumerator *_naturalArrayEnumerator(MSNaturalArr
 {
     if (nb && nb <= _count) {
         register NSUInteger i ;
-        _MSNaturalArangementEnumerator *e = MSAllocateObject(__MSNaturalArrayArangementEnumeratorClass, 0, [self zone]) ;
+        _MSNaturalArangementEnumerator *e = MSAllocateObject([_MSNaturalArangementEnumerator class], 0, [self zone]) ;
         e->_array = RETAIN(self) ;
         e->_ones = MSCreateNaturalArray(nb) ;
         if (e->_ones) {
@@ -427,8 +410,6 @@ static inline _MSNaturalConcreteEnumerator *_naturalArrayEnumerator(MSNaturalArr
 @end
 
 @implementation MSMutableNaturalArray
-
-+ (void)load { if (!__MSMutableNaturalArrayClass) __MSMutableNaturalArrayClass = [self class] ; }
 
 + (id)naturalArrayWithCapacity:(NSUInteger)capacity { return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]) ; }
 - (id)initWithCapacity:(NSUInteger)capacity
@@ -656,7 +637,7 @@ static inline _MSNaturalConcreteEnumerator *_naturalArrayEnumerator(MSNaturalArr
 
 #define _MSCreateWithCapacity(PROTO, ITEMS_TYPE, ITEMS_TOKEN) MS ## PROTO *MSCreate ## PROTO(NSUInteger capacity) \
 { \
-	MS ## PROTO *ret = (MS ## PROTO *)MSCreateObject(__MS ## PROTO ## Class) ; \
+	MS ## PROTO *ret = (MS ## PROTO *)MSCreateObject([MS ## PROTO class]) ; \
 	if (ret) { \
 		if (capacity) { \
 			char *str = "MSCreate" #PROTO "()" ; \

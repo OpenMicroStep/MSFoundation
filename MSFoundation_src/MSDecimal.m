@@ -44,17 +44,9 @@
 
 #define MS_DECIMAL_LAST_VERSION 301
 
-static Class __MSDecimalClass= Nil;
-
 @implementation MSDecimal
-
-+ (void)load { if (!__MSDecimalClass) __MSDecimalClass= [self class]; }
-
-+ (void)initialize
-{
-  if ([self class] == [MSDecimal class]) {
-    [MSDecimal setVersion:MS_DECIMAL_LAST_VERSION];}
-}
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSDecimal setVersion:MS_DECIMAL_LAST_VERSION]; }
 
 #pragma mark Initialisation
 

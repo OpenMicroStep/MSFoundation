@@ -41,12 +41,7 @@
   
  */
 #import "MSFoundation_Private.h"
-//#import "MSStringAdditions.h"
-//#import "_MSStringBooleanAdditionsPrivate.h"
-//#import "MSBuffer.h"
 
-static Class __MSASCIIStringClass = Nil ;
-static Class __NSStringClass = Nil ;
 /*
 static unichar _asciiStringCharacterAtIndex(id self, NSUInteger i) { return ((MSASCIIString *)self)->_buf[i] ; }
 */
@@ -55,21 +50,14 @@ static unichar _asciiStringCharacterAtIndex(id self, NSUInteger i) { return ((MS
 
 
 @implementation MSASCIIString
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSASCIIString setVersion:MS_ASCIISTRING_LAST_VERSION] ; }
 
-+ (void)load { if (!__MSASCIIStringClass) __MSASCIIStringClass = [self class] ; }
-+ (void)initialize
-{
-    if (!__NSStringClass) {
-		__NSStringClass = [NSString class] ;
-        [MSASCIIString setVersion:MS_ASCIISTRING_LAST_VERSION] ;
-    }
-}
++ (id)alloc { return MSCreateObject([self class]) ; }
++ (id)allocWithZone:(NSZone *)zone { return MSAllocateObject([self class], 0, zone) ; }
++ (id)new { return MSCreateObject([self class]) ; }
 
-+ (id)alloc { return MSCreateObject(__MSASCIIStringClass) ; }
-+ (id)allocWithZone:(NSZone *)zone { return MSAllocateObject(__MSASCIIStringClass, 0, zone) ; }
-+ (id)new { return MSCreateObject(__MSASCIIStringClass) ; }
-
-+ (id)string { return AUTORELEASE(MSCreateObject(__MSASCIIStringClass)) ; }
++ (id)string { return AUTORELEASE(MSCreateObject([self class])) ; }
 + (id)stringWithString:(NSString *)string
 {
     if (string) {
@@ -84,7 +72,7 @@ static unichar _asciiStringCharacterAtIndex(id self, NSUInteger i) { return ((MS
                 return AUTORELEASE(ret) ;
             }
         }
-        return AUTORELEASE(MSCreateObject(__MSASCIIStringClass)) ; 
+        return AUTORELEASE(MSCreateObject([self class])) ;
     }
     return nil ;
 }
@@ -157,7 +145,7 @@ static unichar _asciiStringCharacterAtIndex(id self, NSUInteger i) { return ((MS
 - (id)initWithString:(NSString *)string
 {
     if (string) {
-        if ([string class] == __MSASCIIStringClass) {
+        if ([string isKindOfClass:[self class]]) {
             CBufferAppendBuffer((CBuffer *)self, (CBuffer *)string) ;
         }
         else {
@@ -313,7 +301,7 @@ static inline void _copyASCIIToUnichars(unichar *dest, MSByte *source, NSUIntege
 - (BOOL)isEqual:(id)object
 {
 	if (object == self) return YES ;
-	if (!object || ![object isKindOfClass:__NSStringClass]) return NO ;
+	if (!object || ![object isKindOfClass:[NSString class]]) return NO ;
 	return MSEqualStrings(self, (NSString *)object) ;
 }
 
@@ -397,7 +385,7 @@ static inline void _copyASCIIToUnichars(unichar *dest, MSByte *source, NSUIntege
 
 #define _MSCreateWithCapacity(PROTO, ITEMS_TYPE, ITEMS_TOKEN) MS ## PROTO *MSCreate ## PROTO(NSUInteger capacity) \
 { \
-	MS ## PROTO *ret = (MS ## PROTO *)MSCreateObject(__MS ## PROTO ## Class) ; \
+	MS ## PROTO *ret = (MS ## PROTO *)MSCreateObject([MS ## PROTO class]) ; \
 	if (ret) { \
 		if (capacity) { \
 			char *str = "MSCreate" #PROTO "()" ; \
@@ -417,7 +405,7 @@ _MSCreateWithCapacity(ASCIIString, MSByte, _buf)
 
 MSASCIIString *MSCreateASCIIStringWithBytes(void *bytes, NSUInteger length, BOOL takesACopy, BOOL freeWhenDone)
 {
-	MSASCIIString *ret = (MSASCIIString *)MSCreateObject(__MSASCIIStringClass) ;
+	MSASCIIString *ret = [MSASCIIString new] ;
     if (ret) {
 		if (takesACopy) {
 			if (length) {

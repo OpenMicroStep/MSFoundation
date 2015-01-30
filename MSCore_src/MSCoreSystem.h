@@ -49,8 +49,6 @@
 
 #pragma mark ***** System
 
-// TODO: MHInitSSL
-MSCoreExtern void MSSystemInitialize(int argc, const char **argv);
 #ifndef MSCORE_STANDALONE
 MSCoreExtern void _MSFoundationCoreSystemInitialize(void);
 #endif

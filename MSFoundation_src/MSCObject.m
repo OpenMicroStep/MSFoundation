@@ -48,7 +48,10 @@
 @interface NSObject (Private)
 - (NSUInteger)hash:(unsigned)depth;
 @end
+
+void MSSystemInitialize();
 @implementation NSObject (Private)
++ (void)load { MSInitConfigure(14, NULL, MSSystemInitialize); }
 - (NSUInteger)hash:(unsigned)depth {return [self hash]; MSUnused(depth);}
 @end
 

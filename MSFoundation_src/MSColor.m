@@ -48,9 +48,6 @@
 #define DARKER(X)    -(X)*(X)/(float)3.0+(float)5.0*(X)/(float)6.0
 #define OPAQUE_COLOR ((MSUInt)0xff)
 
-Class __MSColorClass= Nil;
-Class __MSIndexedColorClass= Nil;
-
 #pragma mark Create functions
 
 MSColor *MSCreateColor(MSUInt rgba)
@@ -84,13 +81,11 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
   return AUTORELEASE(_MSCreateComponentsColor(rf, gf, bf, af));
 }
 
+@class _MSRGBAColor;
 @implementation MSColor
 
-+ (void)initialize
-{
-  if ([self class] == [MSColor class]) {
-    [MSColor setVersion:MS_COLOR_LAST_VERSION];}
-}
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSColor setVersion:MS_COLOR_LAST_VERSION]; }
 
 #pragma mark Class methods
 
@@ -262,7 +257,7 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 
 #pragma mark NSCoding
 
-- (Class)classForCoder     { return __MSColorClass; }
+- (Class)classForCoder     { return [_MSRGBAColor class]; }
 - (Class)classForAchiver   { return [self classForCoder]; }
 - (Class)classForPortCoder { return [self classForCoder]; }
 
@@ -324,13 +319,8 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 #define MS_RGBACOLOR_LAST_VERSION  301
 
 @implementation _MSRGBAColor : MSColor
-+ (void)load { if (!__MSColorClass) {  __MSColorClass= [_MSRGBAColor class]; }}
-+ (void)initialize
-{
-  if ([self class] == [_MSRGBAColor class]) {
-    [_MSRGBAColor setVersion:MS_RGBACOLOR_LAST_VERSION];
-  }
-}
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [_MSRGBAColor setVersion:MS_RGBACOLOR_LAST_VERSION]; }
 
 - (NSString *)listItemString { return [self toString]; }
 - (NSString *)displayString  { return [self toString]; }
@@ -360,207 +350,205 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 + (MSColor *)colorWithName:(NSString *)name { return MSColorNamed(name); }
 @end
 
-static MSDictionary *__namedColors= nil;
-static MSArray *__colorsList= nil;
 #define COLOR_LIST_COUNT 139
+
+struct _MSColorDefinition {
+  MSColor **color;
+  NSString *name;
+  MSUInt    value;};
+static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
+  {&MSAliceBlue           , @"AliceBlue"           , 0xf0f8ffff},
+  {&MSAntiqueWhite        , @"AntiqueWhite"        , 0xfaebd7ff},
+  {&MSAqua                , @"Aqua"                , 0x00ffffff},
+  {&MSAquamarine          , @"Aquamarine"          , 0x7fffd4ff},
+  {&MSAzure               , @"Azure"               , 0xf0ffffff},
+  {&MSBeige               , @"Beige"               , 0xf5f5dcff},
+  {&MSBisque              , @"Bisque"              , 0xffe4c4ff},
+  {&MSBlack               , @"Black"               , 0x000000ff},
+  {&MSBlanchedAlmond      , @"BlanchedAlmond"      , 0xffebcdff},
+  {&MSBlue                , @"Blue"                , 0x0000ffff},
+  {&MSBlueViolet          , @"BlueViolet"          , 0x8a2be2ff},
+  {&MSBrown               , @"Brown "              , 0xa52a2aff},
+  {&MSBurlyWood           , @"BurlyWood"           , 0xdeb887ff},
+  {&MSCadetBlue           , @"CadetBlue"           , 0x5f9ea0ff},
+  {&MSChartreuse          , @"Chartreuse"          , 0x7fff00ff},
+  {&MSChocolate           , @"Chocolate"           , 0xd2691eff},
+  {&MSCoral               , @"Coral"               , 0xff7f50ff},
+  {&MSCornflowerBlue      , @"CornflowerBlue"      , 0x6495edff},
+  {&MSCornsilk            , @"Cornsilk"            , 0xfff8dcff},
+  {&MSCrimson             , @"Crimson"             , 0xdc143cff},
+  {&MSCyan                , @"Cyan"                , 0x00ffffff},
+  {&MSDarkBlue            , @"DarkBlue"            , 0x00008bff},
+  {&MSDarkCyan            , @"DarkCyan"            , 0x008b8bff},
+  {&MSDarkGoldenRod       , @"DarkGoldenRod"       , 0xb8860bff},
+  {&MSDarkGray            , @"DarkGray"            , 0xa9a9a9ff},
+  {&MSDarkGreen           , @"DarkGreen"           , 0x006400ff},
+  {&MSDarkKhaki           , @"DarkKhaki"           , 0xbdb76bff},
+  {&MSDarkMagenta         , @"DarkMagenta"         , 0x8b008bff},
+  {&MSDarkOrange          , @"DarkOrange"          , 0xff8c00ff},
+  {&MSDarkOrchid          , @"DarkOrchid"          , 0x9932ccff},
+  {&MSDarkRed             , @"DarkRed"             , 0x8b0000ff},
+  {&MSDarkSalmon          , @"DarkSalmon"          , 0xe9967aff},
+  {&MSDarkSeaGreen        , @"DarkSeaGreen"        , 0x8fbc8fff},
+  {&MSDarkSlateBlue       , @"DarkSlateBlue"       , 0x483d8bff},
+  {&MSDarkSlateGray       , @"DarkSlateGray"       , 0x2f4f4fff},
+  {&MSDarkTurquoise       , @"DarkTurquoise"       , 0x00ced1ff},
+  {&MSDarkViolet          , @"DarkViolet"          , 0x9400d3ff},
+  {&MSDeepPink            , @"DeepPink"            , 0xff1493ff},
+  {&MSDeepSkyBlue         , @"DeepSkyBlue"         , 0x00bfffff},
+  {&MSDimGray             , @"DimGray"             , 0x696969ff},
+  {&MSDodgerBlue          , @"DodgerBlue"          , 0x1e90ffff},
+  {&MSFireBrick           , @"FireBrick"           , 0xb22222ff},
+  {&MSFloralWhite         , @"FloralWhite"         , 0xfffaf0ff},
+  {&MSForestGreen         , @"ForestGreen"         , 0x228b22ff},
+  {&MSFuchsia             , @"Fuchsia"             , 0xff00ffff},
+  {&MSGainsboro           , @"Gainsboro"           , 0xdcdcdcff},
+  {&MSGhostWhite          , @"GhostWhite"          , 0xf8f8ffff},
+  {&MSGold                , @"Gold"                , 0xffd700ff},
+  {&MSGoldenRod           , @"GoldenRod"           , 0xdaa520ff},
+  {&MSGray                , @"Gray"                , 0x808080ff},
+  {&MSGreen               , @"Green"               , 0x008000ff},
+  {&MSGreenYellow         , @"GreenYellow"         , 0xadff2fff},
+  {&MSHoneyDew            , @"HoneyDew"            , 0xf0fff0ff},
+  {&MSHotPink             , @"HotPink"             , 0xff69b4ff},
+  {&MSIndianRed           , @"IndianRed"           , 0xcd5c5cff},
+  {&MSIndigo              , @"Indigo"              , 0x4b0082ff},
+  {&MSIvory               , @"Ivory"               , 0xfffff0ff},
+  {&MSKhaki               , @"Khaki"               , 0xf0e68cff},
+  {&MSLavender            , @"Lavender"            , 0xe6e6faff},
+  {&MSLavenderBlush       , @"LavenderBlush"       , 0xfff0f5ff},
+  {&MSLawnGreen           , @"LawnGreen"           , 0x7cfc00ff},
+  {&MSLemonChiffon        , @"LemonChiffon"        , 0xfffacdff},
+  {&MSLightBlue           , @"LightBlue"           , 0xadd8e6ff},
+  {&MSLightCoral          , @"LightCoral"          , 0xf08080ff},
+  {&MSLightCyan           , @"LightCyan"           , 0xe0ffffff},
+  {&MSLightGoldenRodYellow, @"LightGoldenRodYellow", 0xfafad2ff},
+  {&MSLightGray           , @"LightGray"           , 0xd3d3d3ff},
+  {&MSLightGreen          , @"LightGreen"          , 0x90ee90ff},
+  {&MSLightPink           , @"LightPink"           , 0xffb6c1ff},
+  {&MSLightSalmon         , @"LightSalmon"         , 0xffa07aff},
+  {&MSLightSeaGreen       , @"LightSeaGreen"       , 0x20b2aaff},
+  {&MSLightSkyBlue        , @"LightSkyBlue"        , 0x87cefaff},
+  {&MSLightSlateGray      , @"LightSlateGray"      , 0x778899ff},
+  {&MSLightSteelBlue      , @"LightSteelBlue"      , 0xb0c4deff},
+  {&MSLightYellow         , @"LightYellow"         , 0xffffe0ff},
+  {&MSLime                , @"Lime"                , 0x00ff00ff},
+  {&MSLimeGreen           , @"LimeGreen"           , 0x32cd32ff},
+  {&MSLinen               , @"Linen"               , 0xfaf0e6ff},
+  {&MSMagenta             , @"Magenta"             , 0xff00ffff},
+  {&MSMaroon              , @"Maroon"              , 0x800000ff},
+  {&MSMediumAquaMarine    , @"MediumAquaMarine"    , 0x66cdaaff},
+  {&MSMediumOrchid        , @"MediumOrchid"        , 0xba55d3ff},
+  {&MSMediumPurple        , @"MediumPurple"        , 0x9370d8ff},
+  {&MSMediumSeaGreen      , @"MediumSeaGreen"      , 0x3cb371ff},
+  {&MSMediumStateBlue     , @"MediumStateBlue"     , 0x7b68eeff},
+  {&MSMediumSpringGreen   , @"MediumSpringGreen"   , 0x00fa9aff},
+  {&MSMediumTurquoise     , @"MediumTurquoise"     , 0x48d1ccff},
+  {&MSMediumVioletRed     , @"MediumVioletRed"     , 0xc71585ff},
+  {&MSMidnightBlue        , @"MidnightBlue"        , 0x191970ff},
+  {&MSMintCream           , @"MintCream"           , 0xf5fffaff},
+  {&MSMistyRose           , @"MistyRose"           , 0xffe4e1ff},
+  {&MSMoccasin            , @"Moccasin"            , 0xffe4b5ff},
+  {&MSNavajoWhite         , @"NavajoWhite"         , 0xffdeadff},
+  {&MSNavy                , @"Navy"                , 0x000080ff},
+  {&MSOldLace             , @"OldLace"             , 0xfdf5e6ff},
+  {&MSOlive               , @"Olive"               , 0x808000ff},
+  {&MSOliveDrab           , @"OliveDrab"           , 0x6b8e23ff},
+  {&MSOrange              , @"Orange"              , 0xffa500ff},
+  {&MSOrangeRed           , @"OrangeRed"           , 0xff4500ff},
+  {&MSOrchid              , @"Orchid"              , 0xda70d6ff},
+  {&MSPaleGoldenRod       , @"PaleGoldenRod"       , 0xeee8aaff},
+  {&MSPaleGreen           , @"PaleGreen"           , 0x98fb98ff},
+  {&MSPaleTurquoise       , @"PaleTurquoise"       , 0xafeeeeff},
+  {&MSPaleVioletRed       , @"PaleVioletRed"       , 0xd87093ff},
+  {&MSPapayaWhip          , @"PapayaWhip"          , 0xffefd5ff},
+  {&MSPeachPuff           , @"PeachPuff"           , 0xffdab9ff},
+  {&MSPeru                , @"Peru"                , 0xcd853fff},
+  {&MSPink                , @"Pink"                , 0xffc0cbff},
+  {&MSPlum                , @"Plum"                , 0xdda0ddff},
+  {&MSPowderBlue          , @"PowderBlue"          , 0xb0e0e6ff},
+  {&MSPurple              , @"Purple"              , 0x800080ff},
+  {&MSRed                 , @"Red"                 , 0xff0000ff},
+  {&MSRosyBrown           , @"RosyBrown"           , 0xbc8f8fff},
+  {&MSRoyalBlue           , @"RoyalBlue"           , 0x4169e1ff},
+  {&MSSaddleBrown         , @"SaddleBrown"         , 0x8b4513ff},
+  {&MSSalmon              , @"Salmon"              , 0xfa8072ff},
+  {&MSSandyBrown          , @"SandyBrown"          , 0xf4a460ff},
+  {&MSSeaGreen            , @"SeaGreen"            , 0x2e8b57ff},
+  {&MSSeaShell            , @"SeaShell"            , 0xfff5eeff},
+  {&MSSienna              , @"Sienna"              , 0xa0522dff},
+  {&MSSilver              , @"Silver"              , 0xc0c0c0ff},
+  {&MSSkyBlue             , @"SkyBlue"             , 0x87ceebff},
+  {&MSSlateBlue           , @"SlateBlue"           , 0x6a5acdff},
+  {&MSSlateGray           , @"SlateGray"           , 0x708090ff},
+  {&MSSnow                , @"Snow"                , 0xfffafaff},
+  {&MSSpringGreen         , @"SpringGreen"         , 0x00ff7fff},
+  {&MSSteelBlue           , @"SteelBlue"           , 0x4682b4ff},
+  {&MSTan                 , @"Tan"                 , 0xd2b48cff},
+  {&MSTeal                , @"Teal"                , 0x008080ff},
+  {&MSThistle             , @"Thistle"             , 0xd8bfd8ff},
+  {&MSTomato              , @"Tomato"              , 0xff6347ff},
+  {&MSTransparent         , @"Transparent"         , 0x00000000},
+  {&MSTurquoise           , @"Turquoise"           , 0x40e0d0ff},
+  {&MSViolet              , @"Violet"              , 0xee82eeff},
+  {&MSWheat               , @"Wheat"               , 0xf5deb3ff},
+  {&MSWhite               , @"White"               , 0xffffffff},
+  {&MSWhiteSmoke          , @"WhiteSmoke"          , 0xf5f5f5ff},
+  {&MSYellow              , @"Yellow"              , 0xffff00ff},
+  {&MSYellowGreen         , @"YellowGreen"         , 0x9acd32ff}};
+
+static MSDictionary *__namedColors= nil;
+
+static void _initNamedColors()
+{
+    struct _MSColorDefinition entry;
+    
+    __namedColors= (MSDictionary *)CCreateDictionary(COLOR_LIST_COUNT*2);
+    for(int i = 0; i < COLOR_LIST_COUNT; ++i) {
+        entry= __colorTable[i];
+        [__namedColors setObject:*entry.color forKey:[entry.name lowercaseString]];
+        [__namedColors setObject:*entry.color forKey:entry.name];
+    }
+}
 
 MSColor *MSColorNamed(NSString *name)
 {
   MSColor *ret= nil;
   if (name) {
+    if(!__namedColors)_initNamedColors();
     ret= [__namedColors objectForKey:name];
     if (!ret) ret= [__namedColors objectForKey:[name lowercaseString]];
   }
   return ret;
 }
 
-struct _MSColorDefinition {
-  MSColor **color;
-  char     *name;
-  MSUInt    value;};
-static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
-  {&MSAliceBlue           , "AliceBlue"           , 0xf0f8ffff},
-  {&MSAntiqueWhite        , "AntiqueWhite"        , 0xfaebd7ff},
-  {&MSAqua                , "Aqua"                , 0x00ffffff},
-  {&MSAquamarine          , "Aquamarine"          , 0x7fffd4ff},
-  {&MSAzure               , "Azure"               , 0xf0ffffff},
-  {&MSBeige               , "Beige"               , 0xf5f5dcff},
-  {&MSBisque              , "Bisque"              , 0xffe4c4ff},
-  {&MSBlack               , "Black"               , 0x000000ff},
-  {&MSBlanchedAlmond      , "BlanchedAlmond"      , 0xffebcdff},
-  {&MSBlue                , "Blue"                , 0x0000ffff},
-  {&MSBlueViolet          , "BlueViolet"          , 0x8a2be2ff},
-  {&MSBrown               , "Brown "              , 0xa52a2aff},
-  {&MSBurlyWood           , "BurlyWood"           , 0xdeb887ff},
-  {&MSCadetBlue           , "CadetBlue"           , 0x5f9ea0ff},
-  {&MSChartreuse          , "Chartreuse"          , 0x7fff00ff},
-  {&MSChocolate           , "Chocolate"           , 0xd2691eff},
-  {&MSCoral               , "Coral"               , 0xff7f50ff},
-  {&MSCornflowerBlue      , "CornflowerBlue"      , 0x6495edff},
-  {&MSCornsilk            , "Cornsilk"            , 0xfff8dcff},
-  {&MSCrimson             , "Crimson"             , 0xdc143cff},
-  {&MSCyan                , "Cyan"                , 0x00ffffff},
-  {&MSDarkBlue            , "DarkBlue"            , 0x00008bff},
-  {&MSDarkCyan            , "DarkCyan"            , 0x008b8bff},
-  {&MSDarkGoldenRod       , "DarkGoldenRod"       , 0xb8860bff},
-  {&MSDarkGray            , "DarkGray"            , 0xa9a9a9ff},
-  {&MSDarkGreen           , "DarkGreen"           , 0x006400ff},
-  {&MSDarkKhaki           , "DarkKhaki"           , 0xbdb76bff},
-  {&MSDarkMagenta         , "DarkMagenta"         , 0x8b008bff},
-  {&MSDarkOrange          , "DarkOrange"          , 0xff8c00ff},
-  {&MSDarkOrchid          , "DarkOrchid"          , 0x9932ccff},
-  {&MSDarkRed             , "DarkRed"             , 0x8b0000ff},
-  {&MSDarkSalmon          , "DarkSalmon"          , 0xe9967aff},
-  {&MSDarkSeaGreen        , "DarkSeaGreen"        , 0x8fbc8fff},
-  {&MSDarkSlateBlue       , "DarkSlateBlue"       , 0x483d8bff},
-  {&MSDarkSlateGray       , "DarkSlateGray"       , 0x2f4f4fff},
-  {&MSDarkTurquoise       , "DarkTurquoise"       , 0x00ced1ff},
-  {&MSDarkViolet          , "DarkViolet"          , 0x9400d3ff},
-  {&MSDeepPink            , "DeepPink"            , 0xff1493ff},
-  {&MSDeepSkyBlue         , "DeepSkyBlue"         , 0x00bfffff},
-  {&MSDimGray             , "DimGray"             , 0x696969ff},
-  {&MSDodgerBlue          , "DodgerBlue"          , 0x1e90ffff},
-  {&MSFireBrick           , "FireBrick"           , 0xb22222ff},
-  {&MSFloralWhite         , "FloralWhite"         , 0xfffaf0ff},
-  {&MSForestGreen         , "ForestGreen"         , 0x228b22ff},
-  {&MSFuchsia             , "Fuchsia"             , 0xff00ffff},
-  {&MSGainsboro           , "Gainsboro"           , 0xdcdcdcff},
-  {&MSGhostWhite          , "GhostWhite"          , 0xf8f8ffff},
-  {&MSGold                , "Gold"                , 0xffd700ff},
-  {&MSGoldenRod           , "GoldenRod"           , 0xdaa520ff},
-  {&MSGray                , "Gray"                , 0x808080ff},
-  {&MSGreen               , "Green"               , 0x008000ff},
-  {&MSGreenYellow         , "GreenYellow"         , 0xadff2fff},
-  {&MSHoneyDew            , "HoneyDew"            , 0xf0fff0ff},
-  {&MSHotPink             , "HotPink"             , 0xff69b4ff},
-  {&MSIndianRed           , "IndianRed"           , 0xcd5c5cff},
-  {&MSIndigo              , "Indigo"              , 0x4b0082ff},
-  {&MSIvory               , "Ivory"               , 0xfffff0ff},
-  {&MSKhaki               , "Khaki"               , 0xf0e68cff},
-  {&MSLavender            , "Lavender"            , 0xe6e6faff},
-  {&MSLavenderBlush       , "LavenderBlush"       , 0xfff0f5ff},
-  {&MSLawnGreen           , "LawnGreen"           , 0x7cfc00ff},
-  {&MSLemonChiffon        , "LemonChiffon"        , 0xfffacdff},
-  {&MSLightBlue           , "LightBlue"           , 0xadd8e6ff},
-  {&MSLightCoral          , "LightCoral"          , 0xf08080ff},
-  {&MSLightCyan           , "LightCyan"           , 0xe0ffffff},
-  {&MSLightGoldenRodYellow, "LightGoldenRodYellow", 0xfafad2ff},
-  {&MSLightGray           , "LightGray"           , 0xd3d3d3ff},
-  {&MSLightGreen          , "LightGreen"          , 0x90ee90ff},
-  {&MSLightPink           , "LightPink"           , 0xffb6c1ff},
-  {&MSLightSalmon         , "LightSalmon"         , 0xffa07aff},
-  {&MSLightSeaGreen       , "LightSeaGreen"       , 0x20b2aaff},
-  {&MSLightSkyBlue        , "LightSkyBlue"        , 0x87cefaff},
-  {&MSLightSlateGray      , "LightSlateGray"      , 0x778899ff},
-  {&MSLightSteelBlue      , "LightSteelBlue"      , 0xb0c4deff},
-  {&MSLightYellow         , "LightYellow"         , 0xffffe0ff},
-  {&MSLime                , "Lime"                , 0x00ff00ff},
-  {&MSLimeGreen           , "LimeGreen"           , 0x32cd32ff},
-  {&MSLinen               , "Linen"               , 0xfaf0e6ff},
-  {&MSMagenta             , "Magenta"             , 0xff00ffff},
-  {&MSMaroon              , "Maroon"              , 0x800000ff},
-  {&MSMediumAquaMarine    , "MediumAquaMarine"    , 0x66cdaaff},
-  {&MSMediumOrchid        , "MediumOrchid"        , 0xba55d3ff},
-  {&MSMediumPurple        , "MediumPurple"        , 0x9370d8ff},
-  {&MSMediumSeaGreen      , "MediumSeaGreen"      , 0x3cb371ff},
-  {&MSMediumStateBlue     , "MediumStateBlue"     , 0x7b68eeff},
-  {&MSMediumSpringGreen   , "MediumSpringGreen"   , 0x00fa9aff},
-  {&MSMediumTurquoise     , "MediumTurquoise"     , 0x48d1ccff},
-  {&MSMediumVioletRed     , "MediumVioletRed"     , 0xc71585ff},
-  {&MSMidnightBlue        , "MidnightBlue"        , 0x191970ff},
-  {&MSMintCream           , "MintCream"           , 0xf5fffaff},
-  {&MSMistyRose           , "MistyRose"           , 0xffe4e1ff},
-  {&MSMoccasin            , "Moccasin"            , 0xffe4b5ff},
-  {&MSNavajoWhite         , "NavajoWhite"         , 0xffdeadff},
-  {&MSNavy                , "Navy"                , 0x000080ff},
-  {&MSOldLace             , "OldLace"             , 0xfdf5e6ff},
-  {&MSOlive               , "Olive"               , 0x808000ff},
-  {&MSOliveDrab           , "OliveDrab"           , 0x6b8e23ff},
-  {&MSOrange              , "Orange"              , 0xffa500ff},
-  {&MSOrangeRed           , "OrangeRed"           , 0xff4500ff},
-  {&MSOrchid              , "Orchid"              , 0xda70d6ff},
-  {&MSPaleGoldenRod       , "PaleGoldenRod"       , 0xeee8aaff},
-  {&MSPaleGreen           , "PaleGreen"           , 0x98fb98ff},
-  {&MSPaleTurquoise       , "PaleTurquoise"       , 0xafeeeeff},
-  {&MSPaleVioletRed       , "PaleVioletRed"       , 0xd87093ff},
-  {&MSPapayaWhip          , "PapayaWhip"          , 0xffefd5ff},
-  {&MSPeachPuff           , "PeachPuff"           , 0xffdab9ff},
-  {&MSPeru                , "Peru"                , 0xcd853fff},
-  {&MSPink                , "Pink"                , 0xffc0cbff},
-  {&MSPlum                , "Plum"                , 0xdda0ddff},
-  {&MSPowderBlue          , "PowderBlue"          , 0xb0e0e6ff},
-  {&MSPurple              , "Purple"              , 0x800080ff},
-  {&MSRed                 , "Red"                 , 0xff0000ff},
-  {&MSRosyBrown           , "RosyBrown"           , 0xbc8f8fff},
-  {&MSRoyalBlue           , "RoyalBlue"           , 0x4169e1ff},
-  {&MSSaddleBrown         , "SaddleBrown"         , 0x8b4513ff},
-  {&MSSalmon              , "Salmon"              , 0xfa8072ff},
-  {&MSSandyBrown          , "SandyBrown"          , 0xf4a460ff},
-  {&MSSeaGreen            , "SeaGreen"            , 0x2e8b57ff},
-  {&MSSeaShell            , "SeaShell"            , 0xfff5eeff},
-  {&MSSienna              , "Sienna"              , 0xa0522dff},
-  {&MSSilver              , "Silver"              , 0xc0c0c0ff},
-  {&MSSkyBlue             , "SkyBlue"             , 0x87ceebff},
-  {&MSSlateBlue           , "SlateBlue"           , 0x6a5acdff},
-  {&MSSlateGray           , "SlateGray"           , 0x708090ff},
-  {&MSSnow                , "Snow"                , 0xfffafaff},
-  {&MSSpringGreen         , "SpringGreen"         , 0x00ff7fff},
-  {&MSSteelBlue           , "SteelBlue"           , 0x4682b4ff},
-  {&MSTan                 , "Tan"                 , 0xd2b48cff},
-  {&MSTeal                , "Teal"                , 0x008080ff},
-  {&MSThistle             , "Thistle"             , 0xd8bfd8ff},
-  {&MSTomato              , "Tomato"              , 0xff6347ff},
-  {&MSTransparent         , "Transparent"         , 0x00000000},
-  {&MSTurquoise           , "Turquoise"           , 0x40e0d0ff},
-  {&MSViolet              , "Violet"              , 0xee82eeff},
-  {&MSWheat               , "Wheat"               , 0xf5deb3ff},
-  {&MSWhite               , "White"               , 0xffffffff},
-  {&MSWhiteSmoke          , "WhiteSmoke"          , 0xf5f5f5ff},
-  {&MSYellow              , "Yellow"              , 0xffff00ff},
-  {&MSYellowGreen         , "YellowGreen"         , 0x9acd32ff}};
-
 #define MS_INDEXEDCOLOR_LAST_VERSION  401
 
 @implementation _MSIndexedColor
-+ (void)load { if (!__MSIndexedColorClass) {  __MSIndexedColorClass= [_MSIndexedColor class]; }}
-+ (void)initialize
-{
-  if ([self class] == [_MSIndexedColor class]) {
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded
+{ 
+    struct _MSColorDefinition entry;
+    _MSIndexedColor *c;
+    
     [_MSIndexedColor setVersion:MS_INDEXEDCOLOR_LAST_VERSION];
-
-    if (!__namedColors) {
-      // TODO: initialize called before releasepool is setup
-      NSAutoreleasePool *pool= [NSAutoreleasePool new];
-      struct _MSColorDefinition entry;
-      _MSIndexedColor *c;
-      NSString *s;
-      int i;
-      __namedColors= (MSDictionary *)CCreateDictionary(COLOR_LIST_COUNT*2);
-      __colorsList= (MSArray *)CCreateArray(COLOR_LIST_COUNT);
-      for (i= 0; i < COLOR_LIST_COUNT; i++) {
+    for(int i = 0; i < COLOR_LIST_COUNT; ++i) {
         entry= __colorTable[i];
-        s= [NSString stringWithUTF8String:entry.name];
-        // load is done after initialize !
         c= (_MSIndexedColor*)MSCreateObject([_MSIndexedColor class]);
         c->_rgba.r= (MSByte)((entry.value >> 24) & 0xff);
         c->_rgba.g= (MSByte)((entry.value >> 16) & 0xff);
         c->_rgba.b= (MSByte)((entry.value >>  8) & 0xff);
         c->_rgba.a= (MSByte)((entry.value      ) & 0xff);
-        c->_name= RETAIN(s);
+        c->_name= [entry.name retain];
         c->_colorIndex= i;
         *entry.color= c;
-        [__namedColors setObject:c forKey:[s lowercaseString]];
-        [__namedColors setObject:c forKey:s];
-        [__colorsList addObject:c];
-        }
-    [pool release];
-    }}
+    }
 }
 - (oneway void)release {}
 - (id)retain { return self;}
 - (id)autorelease { return self;}
 - (void)dealloc {if (/* DISABLES CODE */ (0)) [super dealloc];} // No warning
-- (Class)classForCoder { return __MSIndexedColorClass; }
+- (Class)classForCoder { return [_MSIndexedColor class]; }
 - (id)copyWithZone:(NSZone *)z { return self; z= nil;}
 - (id)copy { return self; }
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -574,7 +562,7 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
   }
   RELEASE(self);
   if (0 <= i && i < COLOR_LIST_COUNT) {
-    return [__colorsList objectAtIndex:(NSUInteger)i];
+    return (id)*__colorTable[i].color;
   }
   return nil;
 }

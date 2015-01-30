@@ -630,6 +630,8 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 @end
 
 @implementation MSString
++ (void)load{ MSInitSetInitializedClass(self); }
+
 #pragma mark alloc / init
 
 + (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}

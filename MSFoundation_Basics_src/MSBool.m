@@ -54,9 +54,8 @@ MSBool *MSFalse = nil ;
 @end
 
 @implementation MSBool
-
-+ (void)initialize
-{ if ([self class] == [MSBool class]) { [MSBool setVersion:MS_BOOL_LAST_VERSION] ; } }
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSBool setVersion:MS_BOOL_LAST_VERSION] ;}
 
 + (id)trueNumber { return MSTrue ; }
 + (id)falseNumber { return MSFalse ; }
@@ -86,7 +85,7 @@ MSBool *MSFalse = nil ;
 @end
 
 @implementation _MSFalseBool 
-+ (void)load { if (!MSFalse) MSFalse = (MSBool *)MSCreateObject(self) ; }
++ (void)load { MSFalse = (MSBool *)MSCreateObject(self) ; }
 - (void)getValue:(void *)value
 {
 	if (value) *((unsigned char *)value) = '\0' ;
@@ -130,7 +129,7 @@ MSBool *MSFalse = nil ;
 @end
 
 @implementation _MSTrueBool 
-+ (void)load { if (!MSTrue) MSTrue = (MSBool *)MSCreateObject(self) ; }
++ (void)load { MSTrue = (MSBool *)MSCreateObject(self) ; }
 - (void)getValue:(void *)value { if (value) *((unsigned char *)value) = '\001' ; }
 + (id)allocWithZone:(NSZone *)zone { return (id)MSTrue ; zone= nil; }
 + (id)alloc { return (id)MSTrue ; }

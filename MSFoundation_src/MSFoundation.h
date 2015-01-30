@@ -68,6 +68,7 @@
 #import <MSFoundation/MSCDictionary.h>
 
 #import <MSFoundation/MSFoundationDefines.h>
+#import <MSFoundation/MSInitialization.h>
 #import <MSFoundation/MSCoderAdditions.h>
 #import <MSFoundation/MSExceptionAdditions.h>
 #import <MSFoundation/MSLanguage.h>

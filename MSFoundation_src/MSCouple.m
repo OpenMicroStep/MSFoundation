@@ -56,9 +56,6 @@
 
 @end
 
-static Class __MSCoupleClass= Nil;
-static Class __MSMutableCoupleClass= Nil;
-
 #pragma mark Create functions
 
 MSCouple *MSCreateCouple(id first, id second)
@@ -67,14 +64,8 @@ MSCouple *MSCreateCouple(id first, id second)
 }
 
 @implementation MSCouple
-
-+ (void)load { if (!__MSCoupleClass) __MSCoupleClass= [self class]; }
-
-+ (void)initialize
-{
-  if ([self class] == [MSCouple class]) {
-    [MSCouple setVersion:MS_COUPLE_LAST_VERSION];}
-}
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSCouple setVersion:MS_COUPLE_LAST_VERSION];}
 
 #pragma mark Initialisation
 
@@ -132,7 +123,7 @@ MSCouple *MSCreateCouple(id first, id second)
 - (BOOL)isEqual:(id)o
 {
   if (o == self) return YES;
-  return [o isKindOfClass:__MSCoupleClass] &&
+  return [o isKindOfClass:[self class]] &&
          ISEQUAL(_members[0], [o firstMember ]) &&
          ISEQUAL(_members[1], [o secondMember]);
 }
@@ -218,15 +209,13 @@ MSCouple *MSCreateCouple(id first, id second)
 
 MSMutableCouple *MSCreateMutableCouple(id first, id second)
 {
-  MSMutableCouple *c= (MSMutableCouple*)MSCreateObject(__MSMutableCoupleClass);
+  MSMutableCouple *c= (MSMutableCouple*)MSCreateObject([MSMutableCouple class]);
   CCoupleSetFirstMember ((CCouple*)c, first );
   CCoupleSetSecondMember((CCouple*)c, second);
   return c;
 }
 
 @implementation MSMutableCouple
-
-+ (void)load { if (!__MSMutableCoupleClass) __MSMutableCoupleClass= [self class]; }
 
 - (id)copyWithZone:(NSZone *)zone
 {

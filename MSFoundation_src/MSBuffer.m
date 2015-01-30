@@ -41,17 +41,11 @@
 
 #import "MSFoundation_Private.h"
 
-static Class __MSBufferClass= Nil;
-
 #define MS_BUFFER_LAST_VERSION 112
 
 @implementation MSBuffer
-+ (void)load { if (!__MSBufferClass) __MSBufferClass= [self class]; }
-+ (void)initialize
-{
-  if ([self class] == [MSBuffer class]) {
-    [MSBuffer setVersion:MS_BUFFER_LAST_VERSION];}
-}
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSBuffer setVersion:MS_BUFFER_LAST_VERSION]; }
 
 #pragma mark Class methods
 

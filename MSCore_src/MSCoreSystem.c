@@ -239,13 +239,20 @@ static M_APM _MS_APM_Allocate(void)
 
 void _CDateInitialize();
 void _MSTEInitialize();
-void MSSystemInitialize(int argc, const char **argv)
+
+#ifdef MSCORE_STANDALONE
+// This makes MSSystemInitialize beeing called when the MSCoreC lib is loaded (before "main call"/"dlopen returns")
+// Because it's the only point where MSCoreC lib use lib initialization, it's safe to use any part of MSCore in this
+__attribute__((constructor))
+#else
+// MSInitConfigure(coreClassCount, NULL, MSSystemInitialize) is used (see MSCObject.m)
+#endif
+void MSSystemInitialize()
 {
   static BOOL done= NO;
   if (!done) {
     M_apm_free_fn freeFct;
     done= YES;
-    argc= 0; argv= NULL; // Unused parameters
 #ifdef MSCORE_STANDALONE
     freeFct= (M_apm_free_fn)_CRelease;
 #elif MSCORE_FORFOUNDATION
@@ -258,46 +265,5 @@ void MSSystemInitialize(int argc, const char **argv)
 #endif
     _CDateInitialize();
     _MSTEInitialize();
-
-#ifndef COCOTRON
-#ifdef WIN32
-    {
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2,0),&wsaData) == SOCKET_ERROR) {
-      MSReportError(MSGenericError, MSFatalError, MSNetworkLayerInitializationError, "ERROR: impossible to initialize WINSOCK layer.\n");}
-    }
-#endif
-#endif
-  
-#ifndef MSCORE_STANDALONE
-#ifdef COCOTRON
-    MSCocotronInitializeProcess(argc, (const char **)argv);
-  
-    /* MSCocotronInitializeProcess should do that :
-    NSInitializeProcess(argc, (const char **)argv);
-    {
-      // since COCOTRON has no class loading mechanism, we must call all classes load methods
-      int n = objc_getClassList(NULL, 0);
-      if (n) {
-        Class *classList = malloc(n * sizeof(Class));
-        if (classList) {
-          SEL loadSelector = @selector(load);
-          n = objc_getClassList(classList, n);
-          for (i = 0; i < n; i++) {
-            Class cls = classList[idx];
-            if (class_respondsToSelector(cls, loadSelector)) {
-              [(id)cls load];
-            }
-          }
-        }
-        else { n = 0; }
-      }
-      if (!n) {
-        MSReportError(MSGenericError, MSFatalError, -2, "ERROR: impossible to perform load to COCOTRON classes.\n");
-      }
-
-    }*/
-#endif
-#endif
     }
 }

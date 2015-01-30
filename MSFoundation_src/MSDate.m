@@ -44,8 +44,6 @@
 
 #define MS_DATE_LAST_VERSION 301
 
-static Class __MSDateClass= Nil;
-
 #pragma mark Create functions
 
 MSDate *MSCreateYMD(unsigned year,  unsigned month,   unsigned day)
@@ -59,15 +57,8 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 }
 
 @implementation MSDate
-
-+ (void)load { if (!__MSDateClass) __MSDateClass= [self class]; }
-
-+ (void)initialize
-{
-  if ([self class] == [MSDate class]) {
-    [MSDate setVersion:MS_DATE_LAST_VERSION];
-    }
-}
++ (void)load{ MSInitSetInitializedClass(self); }
++ (void)msloaded{ [MSDate setVersion:MS_DATE_LAST_VERSION]; }
 
 #pragma mark Initialisation
 
