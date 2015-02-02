@@ -41,6 +41,20 @@
 
 #include "MSCore_Private.h"
 
+#define CDICT_KEY_HASH(k)       (((CDictionary*)self)->flag.keyAsSimplePtr ? _hashPtr(k) : HASH(k))
+#define CDICT_KEY_COPY(k)       (((CDictionary*)self)->flag.keyAsSimplePtr ? k : COPY(k))
+#define CDICT_KEY_EQUALS(a, b)  (((CDictionary*)self)->flag.keyAsSimplePtr ? a == b : ISEQUAL(a, b))
+#define CDICT_KEY_RETAIN(k)     (((CDictionary*)self)->flag.keyAsSimplePtr ? k : RETAIN(k))
+#define CDICT_KEY_RELEASE(k)    (((CDictionary*)self)->flag.keyAsSimplePtr ? (void)0 : RELEASE(k))
+#define CDICT_OBJ_EQUALS(a, b)  (((CDictionary*)self)->flag.objAsSimplePtr ? a == b : ISEQUAL(a, b))
+#define CDICT_OBJ_RETAIN(o)     (((CDictionary*)self)->flag.objAsSimplePtr ? o : RETAIN(o))
+#define CDICT_OBJ_RELEASE(o)    (((CDictionary*)self)->flag.objAsSimplePtr ? (void)0 : RELEASE(o))
+
+static NSUInteger _hashPtr(const void * ptr)
+{
+    return (NSUInteger)ptr;
+}
+
 typedef struct _nodeStruct {
    id key;
    id value;
@@ -59,13 +73,14 @@ static inline void _grow(id self, NSUInteger n, NSUInteger count, NSUInteger uni
       return;}
     for (i= 0; i<*size; i++) {
       for (j= ns[i]; j!=NULL; j= next) {
-        newi= HASH(j->key) % newSize;
+        newi= CDICT_KEY_HASH(j->key) % newSize;
         next= j->next;
         j->next= (*ptr)[newi];
         (*ptr)[newi]= j;}}
     *size= newSize;
     MSFree(ns, "CDictionary _grow");}
   }
+
 
 static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict)
 {
@@ -76,25 +91,25 @@ static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict
 
   if (!self || !k) return;
   CGrowMutVerif((id)self, 0, 0, "CDictionarySetObjectForKey");
-  h= HASH(k);
+  h= CDICT_KEY_HASH(k);
   fd= NO;
   if (self->nBuckets && !fromDict) {
     i= h % self->nBuckets;
     // k may already exist
     for (j= *(pj= (_node**)&self->buckets[i]); !fd && j!=NULL; j= *(pj= &j->next)) {
-      if (ISEQUAL(j->key, k)) {
+      if (CDICT_KEY_EQUALS(j->key, k)) {
         void *oldKey=   j->key;
         void *oldValue= j->value;
         fd= YES;
         if (o) { // replace the node
-          j->key=   COPY(k);
-          j->value= RETAIN(o);}
+          j->key=   CDICT_KEY_COPY(k);
+          j->value= CDICT_OBJ_RETAIN(o);}
         else { // remove the node
           *pj= j->next;
           MSFree(j, "CDictionarySetObjectForKey");
           self->count--;}
-        RELEASE(oldKey);
-        RELEASE(oldValue);}}}
+        CDICT_KEY_RELEASE(oldKey);
+        CDICT_OBJ_RELEASE(oldValue);}}}
   if (!fd && o) { // add a new node
     // may grown
     if (!fromDict)
@@ -104,8 +119,8 @@ static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict
       MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode,
         "CDictionarySetObjectForKey() allocation error");
       return;}
-    j->key=   (fromDict ? RETAIN(k) : COPY(k));
-    j->value= RETAIN(o);
+    j->key=   (fromDict ? CDICT_KEY_RETAIN(k) : CDICT_KEY_COPY(k));
+    j->value= CDICT_OBJ_RETAIN(o);
     j->next= self->buckets[i];
     self->buckets[i]= j;
     self->count++;}
@@ -120,7 +135,8 @@ void CDictionaryFreeInside(id s)
     NSUInteger i, n; _node *j,*nj;
     for (n= self->nBuckets, i= 0; i < n; i++) {
       for (j= self->buckets[i]; j != NULL; j= nj) {
-        RELEASE(j->key); RELEASE(j->value);
+        CDICT_KEY_RELEASE(j->key);
+        CDICT_OBJ_RELEASE(j->value);
         nj= j->next; MSFree(j, "CDictionaryFreeInside");}}
     MSFree(self->buckets, "CDictionaryFreeInside"); self->buckets= NULL;}
 }
@@ -194,8 +210,7 @@ BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other)
     if (self->count == other->count) ret= YES;
     for (n= self->nBuckets, i= 0; ret && i < n; i++) {
       for (j= self->buckets[i]; ret && j != NULL; j= j->next) {
-        if (!ISEQUAL(j->value, CDictionaryObjectForKey(other, j->key))) {
-          ret= NO;}}}}
+        ret= CDICT_OBJ_EQUALS(j->value, CDictionaryObjectForKey(other, j->key)); }}}
   return ret;
 }
 
@@ -263,9 +278,9 @@ id CDictionaryObjectForKey(const CDictionary *self, id k)
   NSUInteger i;
   _node *j;
   if (!self || !k || !self->nBuckets) return nil;
-  i= HASH(k) % self->nBuckets;
+  i= CDICT_KEY_HASH(k) % self->nBuckets;
   for (j= self->buckets[i]; !o && j!=NULL; j= j->next) {
-    if (ISEQUAL(j->key, k)) o= j->value;}
+    if (CDICT_KEY_EQUALS(j->key, k)) o= j->value;}
   return o;
 }
 

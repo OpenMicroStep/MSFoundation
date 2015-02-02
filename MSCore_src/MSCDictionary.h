@@ -47,12 +47,27 @@
 #ifndef MSCORE_DICTIONARY_H
 #define MSCORE_DICTIONARY_H
 
+typedef struct CDictionaryFlagsStruct {
+#ifdef __BIG_ENDIAN__
+  MSUInt fixed:1;           // mutability
+  MSUInt _pad:29;
+  MSUInt keyAsSimplePtr:1;  // Use keys as simple void* addresses (no object copy/hash)
+  MSUInt objAsSimplePtr:1;  // Use values as simple void* addresses (no object retain/release/description)
+#else
+  MSUInt objAsSimplePtr:1;
+  MSUInt keyAsSimplePtr:1;
+  MSUInt _pad:29;
+  MSUInt fixed:1;
+#endif
+  }
+CDictionaryFlags;
+
 typedef struct CDictionaryStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   void **buckets;
   NSUInteger nBuckets;
   NSUInteger count;
-  CGrowFlags flag;}
+  CDictionaryFlags flag;}
 CDictionary;
 
 typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
