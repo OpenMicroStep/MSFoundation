@@ -120,4 +120,6 @@ LIBEXPORT testBegin_t testBegin;
 LIBEXPORT testEnd_t testEnd;
 LIBEXPORT testRun_t testRun;
 
+int test(int argc, const char * argv[]);
+
 #endif

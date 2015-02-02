@@ -49,10 +49,6 @@
 
 #pragma mark ***** System
 
-#ifndef MSCORE_STANDALONE
-MSCoreExtern void _MSFoundationCoreSystemInitialize(void);
-#endif
-
 //#define MSMacAddressLength 6
 //typedef struct {MSByte component[MSMacAddressLength];} MSMacAddress;
 //MSCoreExtern MSLong MSCurrentHostID(void);

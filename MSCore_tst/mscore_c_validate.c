@@ -4,7 +4,7 @@
 
 static inline int c_isa(CClassIndex classIndex)
   {
-  int err= 0;
+  int err= 0; BOOL ok;
   id x,y;
   x= (id)MSCreateObjectWithClassIndex(classIndex);
   y= COPY(x);
@@ -14,8 +14,9 @@ static inline int c_isa(CClassIndex classIndex)
   if (RETAINCOUNT(y)!=1) {
     fprintf(stdout, "A2-Bad retain count: %lu\n",WLU(RETAINCOUNT(y)));
     err++;}
-  if (!ISEQUAL(x, y)) {
-    fprintf(stdout, "A3-Bad equal\n");
+  ok= ISEQUAL(x, y);
+  if (!ok) {
+    fprintf(stdout, "A3-Bad equal %d %d %p %p\n",ok,classIndex,x,y);
     err++;}
   if (!ISA(x)) {
     fprintf(stdout, "A4-Bad isa\n");

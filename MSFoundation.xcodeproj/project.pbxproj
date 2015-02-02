@@ -37,6 +37,11 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		408D256B1A7D0CB8007258D4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 408D256A1A7D0CB8007258D4 /* main.m */; };
+		408D25711A7D0D77007258D4 /* MSFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A69163A81A701754001E42F4 /* MSFoundation.framework */; };
+		408D25721A7D1289007258D4 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
+		408D25761A7E9C37007258D4 /* MSTests.c in Sources */ = {isa = PBXBuildFile; fileRef = 408D25751A7E9C37007258D4 /* MSTests.c */; };
+		408D25771A7E9C37007258D4 /* MSTests.c in Sources */ = {isa = PBXBuildFile; fileRef = 408D25751A7E9C37007258D4 /* MSTests.c */; };
 		A64D645E1A77DBA400CCA6D7 /* mscore_validate.h in Resources */ = {isa = PBXBuildFile; fileRef = A6E038981A76304600A97DA3 /* mscore_validate.h */; };
 		A64D645F1A77DC4300CCA6D7 /* libMSCore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03A911A7634AA00A97DA3 /* libMSCore.dylib */; };
 		A64D64601A77DE6A00CCA6D7 /* mscore_c_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */; };
@@ -163,10 +168,10 @@
 		A66299801A7A8B2600B2B60D /* MSFoundation_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */; };
 		A66299811A7A8B2E00B2B60D /* MSFoundation_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A66299821A7A8B3700B2B60D /* MSFoundation.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038C11A7630C200A97DA3 /* MSFoundation.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A69DE3CE1A7BA29800F2863E /* MSInitialization.h in Headers */ = {isa = PBXBuildFile; fileRef = A69DE3CC1A7BA29800F2863E /* MSInitialization.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A69DE3CF1A7BA29800F2863E /* MSInitialization.h in Headers */ = {isa = PBXBuildFile; fileRef = A69DE3CC1A7BA29800F2863E /* MSInitialization.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		A69DE3D01A7BA29800F2863E /* MSInitialization.m in Sources */ = {isa = PBXBuildFile; fileRef = A69DE3CD1A7BA29800F2863E /* MSInitialization.m */; };
-		A69DE3D11A7BA29800F2863E /* MSInitialization.m in Sources */ = {isa = PBXBuildFile; fileRef = A69DE3CD1A7BA29800F2863E /* MSInitialization.m */; };
+		A69DE3CE1A7BA29800F2863E /* MSFinishLoading.h in Headers */ = {isa = PBXBuildFile; fileRef = A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A69DE3CF1A7BA29800F2863E /* MSFinishLoading.h in Headers */ = {isa = PBXBuildFile; fileRef = A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A69DE3D01A7BA29800F2863E /* MSFinishLoading.m in Sources */ = {isa = PBXBuildFile; fileRef = A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */; };
+		A69DE3D11A7BA29800F2863E /* MSFinishLoading.m in Sources */ = {isa = PBXBuildFile; fileRef = A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */; };
 		A6D3598A1A778F0F00B87986 /* MSCoreTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038121A76300800A97DA3 /* MSCoreTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6D3598D1A7798B600B87986 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
 		A6D3599B1A77991600B87986 /* MSTests_main.c in Sources */ = {isa = PBXBuildFile; fileRef = A6D3599A1A77991600B87986 /* MSTests_main.c */; };
@@ -482,6 +487,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		408D256F1A7D0D57007258D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A691637A1A7016E6001E42F4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A691639F1A701754001E42F4;
+			remoteInfo = MSFoundation;
+		};
 		A64D64B11A77EAE200CCA6D7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = A691637A1A7016E6001E42F4 /* Project object */;
@@ -555,6 +567,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		408D25661A7D0CB8007258D4 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		A64D64FA1A79306A00CCA6D7 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
@@ -577,6 +598,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		408D25681A7D0CB8007258D4 /* simple */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = simple; sourceTree = BUILT_PRODUCTS_DIR; };
+		408D256A1A7D0CB8007258D4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		408D25751A7E9C37007258D4 /* MSTests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSTests.c; path = MSTests_src/MSTests.c; sourceTree = "<group>"; };
 		A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_validate.m; path = MSFoundation_tst/msfoundation_validate.m; sourceTree = SOURCE_ROOT; };
 		A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundationforcocoa_test.m; path = MSFoundation_tst/msfoundationforcocoa_test.m; sourceTree = SOURCE_ROOT; };
 		A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MSFoundationForCocoa-Info.plist"; path = "MSFoundation_src/MSFoundationForCocoa-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -603,8 +627,8 @@
 		A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundation_Public.h; path = MSFoundation_src/MSFoundation_Public.h; sourceTree = SOURCE_ROOT; };
 		A69163831A7016E6001E42F4 /* MSFoundationForCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundationForCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A69163A81A701754001E42F4 /* MSFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A69DE3CC1A7BA29800F2863E /* MSInitialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSInitialization.h; path = MSFoundation_src/MSInitialization.h; sourceTree = SOURCE_ROOT; };
-		A69DE3CD1A7BA29800F2863E /* MSInitialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSInitialization.m; path = MSFoundation_src/MSInitialization.m; sourceTree = SOURCE_ROOT; };
+		A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFinishLoading.h; path = MSFoundation_src/MSFinishLoading.h; sourceTree = SOURCE_ROOT; };
+		A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSFinishLoading.m; path = MSFoundation_src/MSFinishLoading.m; sourceTree = SOURCE_ROOT; };
 		A6D359781A76D39A00B87986 /* libMSFoundationTests.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMSFoundationTests.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6D3597D1A77825900B87986 /* MSTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MSTests.h; path = MSTests_src/MSTests.h; sourceTree = "<group>"; };
 		A6D3597E1A7782D200B87986 /* foundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_validate.m; path = Foundation_tst/foundation_validate.m; sourceTree = "<group>"; };
@@ -815,6 +839,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		408D25651A7D0CB8007258D4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				408D25721A7D1289007258D4 /* libobjc.4.6.dylib in Frameworks */,
+				408D25711A7D0D77007258D4 /* MSFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A691637F1A7016E6001E42F4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -876,6 +909,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		408D25691A7D0CB8007258D4 /* simple */ = {
+			isa = PBXGroup;
+			children = (
+				408D256A1A7D0CB8007258D4 /* main.m */,
+			);
+			path = simple;
+			sourceTree = "<group>";
+		};
 		A66299571A7A886400B2B60D /* Headers */ = {
 			isa = PBXGroup;
 			children = (
@@ -995,6 +1036,7 @@
 				A69163851A7016E6001E42F4 /* MSFoundation */,
 				A6E03AB81A76350D00A97DA3 /* MSTests */,
 				A69163861A7016E6001E42F4 /* Supporting Files */,
+				408D25691A7D0CB8007258D4 /* simple */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1008,6 +1050,7 @@
 				A69163831A7016E6001E42F4 /* MSFoundationForCocoa.framework */,
 				A6D359A01A77D35200B87986 /* libMSFoundationForCocoaTests.dylib */,
 				A6D359921A7798DA00B87986 /* MSTests */,
+				408D25681A7D0CB8007258D4 /* simple */,
 			);
 			name = Products;
 			path = ..;
@@ -1148,13 +1191,13 @@
 		A6E038AD1A76309C00A97DA3 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				A69DE3CC1A7BA29800F2863E /* MSInitialization.h */,
-				A69DE3CD1A7BA29800F2863E /* MSInitialization.m */,
+				A6E038B41A7630C200A97DA3 /* MSCObject.m */,
+				A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */,
+				A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */,
 				A6E038B01A7630C200A97DA3 /* MSArray.h */,
 				A6E038B11A7630C200A97DA3 /* MSArray.m */,
 				A6E038B21A7630C200A97DA3 /* MSBuffer.h */,
 				A6E038B31A7630C200A97DA3 /* MSBuffer.m */,
-				A6E038B41A7630C200A97DA3 /* MSCObject.m */,
 				A6E038B51A7630C200A97DA3 /* MSColor.h */,
 				A6E038B61A7630C200A97DA3 /* MSColor.m */,
 				A6E038B71A7630C200A97DA3 /* MSCouple.h */,
@@ -1240,6 +1283,7 @@
 			isa = PBXGroup;
 			children = (
 				A6D3597D1A77825900B87986 /* MSTests.h */,
+				408D25751A7E9C37007258D4 /* MSTests.c */,
 				A6D3599A1A77991600B87986 /* MSTests_main.c */,
 			);
 			name = MSTests;
@@ -1353,7 +1397,7 @@
 				A6E03A331A76328400A97DA3 /* MSExceptionAdditions.h in Headers */,
 				A6E03A341A76328400A97DA3 /* MSFileManipulation.h in Headers */,
 				A6E03A351A76328400A97DA3 /* MSFoundationDefines.h in Headers */,
-				A69DE3CF1A7BA29800F2863E /* MSInitialization.h in Headers */,
+				A69DE3CF1A7BA29800F2863E /* MSFinishLoading.h in Headers */,
 				A6E03A361A76328400A97DA3 /* MSLanguage.h in Headers */,
 				A6E03A371A76328400A97DA3 /* MSMutex.h in Headers */,
 				A6E03A381A76328400A97DA3 /* MSNaturalArray.h in Headers */,
@@ -1441,7 +1485,7 @@
 				A64D648E1A77E4D000CCA6D7 /* MSNaturalArrayEnumerator.h in Headers */,
 				A64D648F1A77E4D000CCA6D7 /* MSObjectAdditions.h in Headers */,
 				A662997C1A7A8A9500B2B60D /* FoundationCompatibility_Public.h in Headers */,
-				A69DE3CE1A7BA29800F2863E /* MSInitialization.h in Headers */,
+				A69DE3CE1A7BA29800F2863E /* MSFinishLoading.h in Headers */,
 				A64D64901A77E4D000CCA6D7 /* MSRow.h in Headers */,
 				A64D64921A77E4D000CCA6D7 /* MSStringParsing.h in Headers */,
 				A64D64931A77E4D000CCA6D7 /* MSTDecoder.h in Headers */,
@@ -1516,6 +1560,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		408D25671A7D0CB8007258D4 /* simple */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 408D256E1A7D0CB8007258D4 /* Build configuration list for PBXNativeTarget "simple" */;
+			buildPhases = (
+				408D25641A7D0CB8007258D4 /* Sources */,
+				408D25651A7D0CB8007258D4 /* Frameworks */,
+				408D25661A7D0CB8007258D4 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				408D25701A7D0D57007258D4 /* PBXTargetDependency */,
+			);
+			name = simple;
+			productName = simple;
+			productReference = 408D25681A7D0CB8007258D4 /* simple */;
+			productType = "com.apple.product-type.tool";
+		};
 		A69163821A7016E6001E42F4 /* MSFoundationForCocoa */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A69163991A7016E6001E42F4 /* Build configuration list for PBXNativeTarget "MSFoundationForCocoa" */;
@@ -1651,6 +1713,9 @@
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = OpenMicroStep;
 				TargetAttributes = {
+					408D25671A7D0CB8007258D4 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
 					A64D64F41A79305D00CCA6D7 = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
@@ -1692,12 +1757,13 @@
 				A6E03AA81A7634FF00A97DA3 /* All */,
 				A6E03A901A7634AA00A97DA3 /* MSCore */,
 				A6D359AF1A77D38600B87986 /* MSCoreCTests */,
+				A69163821A7016E6001E42F4 /* MSFoundationForCocoa */,
+				A6D3599F1A77D35200B87986 /* MSFoundationForCocoaTests */,
 				A64D64F41A79305D00CCA6D7 /* libobjc2 */,
 				A691639F1A701754001E42F4 /* MSFoundation */,
 				A6D359771A76D39A00B87986 /* MSFoundationTests */,
-				A69163821A7016E6001E42F4 /* MSFoundationForCocoa */,
-				A6D3599F1A77D35200B87986 /* MSFoundationForCocoaTests */,
 				A6D359911A7798DA00B87986 /* MSTests */,
+				408D25671A7D0CB8007258D4 /* simple */,
 			);
 		};
 /* End PBXProject section */
@@ -1733,6 +1799,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		408D25641A7D0CB8007258D4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				408D256B1A7D0CB8007258D4 /* main.m in Sources */,
+				408D25771A7E9C37007258D4 /* MSTests.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A691637E1A7016E6001E42F4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1802,7 +1877,7 @@
 				A6E0395C1A76313800A97DA3 /* mapmfact.c in Sources */,
 				A6E0395D1A76313800A97DA3 /* mapmfmul.c in Sources */,
 				A6E0395E1A76313800A97DA3 /* mapmgues.c in Sources */,
-				A69DE3D11A7BA29800F2863E /* MSInitialization.m in Sources */,
+				A69DE3D11A7BA29800F2863E /* MSFinishLoading.m in Sources */,
 				A6E0395F1A76313800A97DA3 /* mapmhasn.c in Sources */,
 				A6E039601A76313800A97DA3 /* mapmhsin.c in Sources */,
 				A6E039611A76313800A97DA3 /* mapmipwr.c in Sources */,
@@ -1841,7 +1916,7 @@
 				A6E039D91A76320700A97DA3 /* mapmasin.c in Sources */,
 				A6E039DA1A76320700A97DA3 /* mapmasn0.c in Sources */,
 				A6E039DB1A76320700A97DA3 /* mapmcbrt.c in Sources */,
-				A69DE3D01A7BA29800F2863E /* MSInitialization.m in Sources */,
+				A69DE3D01A7BA29800F2863E /* MSFinishLoading.m in Sources */,
 				A6E039DC1A76320700A97DA3 /* mapmcnst.c in Sources */,
 				A6E039DD1A76320700A97DA3 /* mapmfact.c in Sources */,
 				A6E039DE1A76320700A97DA3 /* mapmfmul.c in Sources */,
@@ -1945,6 +2020,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A6D3599B1A77991600B87986 /* MSTests_main.c in Sources */,
+				408D25761A7E9C37007258D4 /* MSTests.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2063,6 +2139,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		408D25701A7D0D57007258D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A691639F1A701754001E42F4 /* MSFoundation */;
+			targetProxy = 408D256F1A7D0D57007258D4 /* PBXContainerItemProxy */;
+		};
 		A64D64B21A77EAE200CCA6D7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A69163821A7016E6001E42F4 /* MSFoundationForCocoa */;
@@ -2116,6 +2197,48 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		408D256C1A7D0CB8007258D4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Runtime";
+				INSTALL_PATH = /bin;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Runtime",
+				);
+				OTHER_CFLAGS = (
+					$MSOBJC_C_FLAGS,
+					"-DSTRICT_APPLE_COMPATIBILITY",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		408D256D1A7D0CB8007258D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/Runtime";
+				INSTALL_PATH = /bin;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Runtime",
+				);
+				OTHER_CFLAGS = (
+					$MSOBJC_C_FLAGS,
+					"-DSTRICT_APPLE_COMPATIBILITY",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		A64D64F61A79305D00CCA6D7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2353,15 +2476,8 @@
 		A6D359971A7798DA00B87986 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				INSTALL_PATH = /bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2370,11 +2486,8 @@
 		A6D359981A7798DA00B87986 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
 				INSTALL_PATH = /bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2447,10 +2560,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
 				INSTALL_PATH = /lib;
 				OTHER_CFLAGS = "-DMSCORE_STANDALONE";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2489,6 +2598,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		408D256E1A7D0CB8007258D4 /* Build configuration list for PBXNativeTarget "simple" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				408D256C1A7D0CB8007258D4 /* Debug */,
+				408D256D1A7D0CB8007258D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		A64D64F51A79305D00CCA6D7 /* Build configuration list for PBXAggregateTarget "libobjc2" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

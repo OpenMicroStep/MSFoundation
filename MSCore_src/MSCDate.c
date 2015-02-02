@@ -49,7 +49,7 @@ CDate *CDate19700101;
 CDate *CDate20010101;
 MSTimeInterval CDateSecondsFrom19700101To20010101;
 
-void _CDateInitialize(void); // used in MSSystemInitialize
+void _CDateInitialize(void); // used in MSFinishLoadingCore
 void _CDateInitialize()
 {
   CDateDistantPast= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);

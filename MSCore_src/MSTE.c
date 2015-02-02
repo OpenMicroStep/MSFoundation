@@ -51,7 +51,7 @@ id MSTEDistantFuture;
 id MSTEEmptyString;
 
 static id _MSTEConstants[26];
-void _MSTEInitializeCommon(void); // used in MSSystemInitialize
+void _MSTEInitializeCommon(void); // used in MSFinishLoadingCore
 void _MSTEInitializeCommon(void)
 {
   NSUInteger i;

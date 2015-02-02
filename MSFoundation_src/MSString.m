@@ -630,7 +630,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 @end
 
 @implementation MSString
-+ (void)load{ MSInitSetInitializedClass(self); }
++ (void)load{ MSFinishLoadingAddClass(self); }
 
 #pragma mark alloc / init
 

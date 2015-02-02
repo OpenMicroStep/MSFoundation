@@ -49,9 +49,13 @@
 - (NSUInteger)hash:(unsigned)depth;
 @end
 
-void MSSystemInitialize();
+void MSFinishLoadingCore();
 @implementation NSObject (Private)
-+ (void)load { MSInitConfigure(14, NULL, MSSystemInitialize); }
+#ifdef MSFOUNDATION_FORCOCOA
++ (void)load { MSFinishLoadingConfigure(14, MSFinishLoadingCore, NULL); }
+#else
++ (void)load { MSFinishLoadingConfigure(12, MSFinishLoadingCore, NULL); }
+#endif
 - (NSUInteger)hash:(unsigned)depth {return [self hash]; MSUnused(depth);}
 @end
 
@@ -89,7 +93,8 @@ NSUInteger _MRetainCount(id obj)
 
 BOOL _MObjectIsEqual(id obj1, id obj2)
 {
-  return (obj1 == obj2) || [obj1 isEqual:obj2];
+  BOOL ok= (obj1 == obj2) || [obj1 isEqual:obj2];
+  return ok;
 }
 
 NSUInteger _MObjectHashDepth(id obj, unsigned depth)
@@ -105,10 +110,6 @@ NSUInteger _MObjectHash(id obj)
 id _MObjectCopy(id obj)
 {
   return [obj copyWithZone:NULL];
-}
-
-void _MSFoundationCoreSystemInitialize()
-{
 }
 
 id MSCreateObjectWithClassIndex(CClassIndex classIndex)

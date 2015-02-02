@@ -85,7 +85,7 @@ typedef MSLong MSTimeInterval; // Time in seconds T0=01/01/2001
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION) || !defined(MSFOUNDATION_FORCOCOA)
 
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
-typedef unsigned char BOOL;
+typedef signed char BOOL;
 #else
 #include <objc/objc.h>
 #endif

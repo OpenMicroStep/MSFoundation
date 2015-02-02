@@ -54,8 +54,8 @@ MSBool *MSFalse = nil ;
 @end
 
 @implementation MSBool
-+ (void)load{ MSInitSetInitializedClass(self); }
-+ (void)msloaded{ [MSBool setVersion:MS_BOOL_LAST_VERSION] ;}
++ (void)load{ MSFinishLoadingAddClass(self); }
++ (void)finishLoading{ [MSBool setVersion:MS_BOOL_LAST_VERSION] ;}
 
 + (id)trueNumber { return MSTrue ; }
 + (id)falseNumber { return MSFalse ; }

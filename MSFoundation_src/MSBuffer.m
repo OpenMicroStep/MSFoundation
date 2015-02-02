@@ -44,8 +44,8 @@
 #define MS_BUFFER_LAST_VERSION 112
 
 @implementation MSBuffer
-+ (void)load{ MSInitSetInitializedClass(self); }
-+ (void)msloaded{ [MSBuffer setVersion:MS_BUFFER_LAST_VERSION]; }
++ (void)load{ MSFinishLoadingAddClass(self); }
++ (void)finishLoading{ [MSBuffer setVersion:MS_BUFFER_LAST_VERSION]; }
 
 #pragma mark Class methods
 
@@ -250,6 +250,8 @@
 
 #pragma mark Primitives
 
+- (NSUInteger)hash:(unsigned)depth {return CBufferHash(self, depth);}
+
 - (NSUInteger)length { return _length; }
 - (const void *)bytes { return (const void *)_buf; }
 - (MSByte*)cString { return CBufferCString((CBuffer*)self); }
@@ -279,6 +281,17 @@
 
 - (BOOL)isEqualToBuffer:(MSBuffer *)other
 { return CBufferEquals((CBuffer*)self, (CBuffer*)other); }
+
+- (BOOL)isEqual:(id)object
+  {
+  if (object == (id)self) return YES;
+  if (!object) return NO;
+  if ([object isKindOfClass:[MSBuffer class]]) {
+    return CBufferEquals((CBuffer*)self, (CBuffer*)object);}
+  else if ([object isKindOfClass:[NSData class]]) {
+    return [self isEqualToData:object];}
+  return NO;
+  }
 
 - (NSData *)subdataWithRange:(NSRange)range
 {

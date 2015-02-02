@@ -52,7 +52,7 @@
 #import "MSCore_Public.h"
 
 #import "MSFoundationDefines.h"
-#import "MSInitialization.h"
+#import "MSFinishLoading.h"
 #import "MSCoderAdditions.h"
 #import "MSExceptionAdditions.h"
 #import "MSLanguage.h"

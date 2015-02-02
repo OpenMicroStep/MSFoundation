@@ -32,9 +32,10 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 
 @end
 
+//TODO: a root class ? really ?
 @interface NSConstantString {
     Class isa;
-    void    *_bytes;
+    const char *_bytes;
     uint32_t _length;
 }
 @end
