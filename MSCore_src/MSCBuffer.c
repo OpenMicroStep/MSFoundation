@@ -62,7 +62,7 @@ BOOL CBufferIsEqual(id self, id other)
 NSUInteger CBufferHash(id self, unsigned depth)
 {
   return (!self || !((CBuffer*)self)->length) ? 0 :
-    (NSUInteger)MSBytesELF(((CBuffer*)self)->buf, ((CBuffer*)self)->length);
+    (NSUInteger)MSBytesFastHash(((CBuffer*)self)->buf, ((CBuffer*)self)->length);
   MSUnused(depth);
 }
 

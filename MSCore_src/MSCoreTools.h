@@ -54,6 +54,7 @@ MSCoreExtern MSUInt   MSBytesLargeCRC    (const void *sbytes, NSUInteger slen);
 MSCoreExtern MSUInt   MSBytesELF         (const void *sbytes, NSUInteger slen);
 MSCoreExtern MSUInt   MSBytesUppercaseELF(const void *sbytes, NSUInteger slen);
 MSCoreExtern MSUInt   MSBytesAdlerHash(MSULong adler, const void *sbytes, NSUInteger slen);
+MSCoreExtern MSUInt   MSBytesFastHash    (const void *sbytes, NSUInteger slen);
 
 MSCoreExtern NSUInteger  MSPointerHash(void *pointer);
 

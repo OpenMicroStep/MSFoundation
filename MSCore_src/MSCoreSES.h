@@ -124,12 +124,16 @@ MSCoreExtern SES SESExtractPart(SES src, CUnicharChecker matchingChar);
 // Ex: ('  123zehgf',CUnicharIsDigit,NULL) -> '123'
 MSCoreExtern SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnicharChecker leftSpaces);
 
+// Identique à CCreateDecimalWithSES mmais ecrite comme une SESEXtract... fonction.
 // Extrait un décimal, ou juste sa partie entière si intOnly=YES.
 // Le SES retourné est la chaine contenant le nombre sans les leftSpaces.
 // Si le nombre est bien formé, le décimal correspondant est retourné dans decimalPtr.
 // Il doit être libéré par l'appelant.
-// Déclaré dans CDecimal.h
-// MSCoreExtern SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
+struct CDecimalStruct;
+MSCoreExtern SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, struct CDecimalStruct**decimalPtr);
+
+
+MSCoreExtern NSUInteger SESHash(SES ses);
 
 #define CHAIOK(X)      ((X) != InvalidCHAI)
 #define SESOK(X)       ({SES __x__= (X);  \

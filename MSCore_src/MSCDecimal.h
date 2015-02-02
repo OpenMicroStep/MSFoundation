@@ -105,15 +105,6 @@ MSCoreExtern NSInteger  CDecimalIntegerValue( CDecimal*);
 MSCoreExtern NSUInteger CDecimalUIntegerValue(CDecimal*);
 // TODO: MSCoreExtern double    CDecimalDoubleValue (CDecimal*);
 
-
-// Identique à CCreateDecimalWithSES mmais ecrite comme une SESEXtract... fonction.
-// Extrait un décimal, ou juste sa partie entière si intOnly=YES.
-// Le SES retourné est la chaine contenant le nombre sans les leftSpaces.
-// Si le nombre est bien formé, le décimal correspondant est retourné dans decimalPtr.
-// Il doit être libéré par l'appelant.
-// Déclaré ici car MSCoreSES.h est inclut avant MSCDecimal.h.
-MSCoreExtern SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecimal **decimalPtr);
-
 // TODO: description functions
 MSCoreExtern CString *CCreateDecimalDescription(CDecimal*);
 

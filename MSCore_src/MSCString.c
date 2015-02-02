@@ -97,12 +97,9 @@ static inline MSUInt _CHashCharacters(const unichar *uContents, NSUInteger len)
   return result + (result << (len & 31));
 }
 
-/* for unicode buffers, for now we use the same hashing algorithm has in CoreFoundation */
 NSUInteger CStringHash(id self, unsigned depth)
 {
-  CString *s= (CString*)self;
-  return s && s->length ? (NSUInteger)_CHashCharacters(s->buf, s->length) : 0;
-  MSUnused(depth);
+  return SESHash(CStringSES(self));
 }
 
 id CStringCopy(id self)

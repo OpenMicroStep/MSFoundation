@@ -323,6 +323,42 @@ SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, CDecima
   return ret;
 }
 
+// Inspired by
+// http://www.azillionmonkeys.com/qed/hash.html by Paul Hsieh in 2008
+// https://github.com/adobe/webkit/blob/master/Source/WTF/wtf/StringHasher.h
+NSUInteger SESHash(SES ses)
+{
+  uint32_t hash = 0x9e3779b9U, tmp;
+  unichar c1, c2; NSUInteger i;
+  
+  if (!SESOK(ses)) return 0;
+  
+  i= 0;
+  while (i < SESLength(ses)) {
+    c1= SESIndexN(ses, &i);
+    if(i < SESLength(ses)) {
+      c2= SESIndexN(ses, &i);
+      hash+= c1;
+      tmp= (c2 << 11) ^ hash;
+      hash= (hash << 16) ^ tmp;
+      hash+= hash >> 11;
+    } else {
+      hash+= c1;
+      hash^= hash << 11;
+      hash+= hash >> 17;
+    }
+  }
+  
+  /* Force "avalanching" of final 31 bits */
+  hash ^= hash << 3;
+  hash += hash >> 5;
+  hash ^= hash << 2;
+  hash += hash >> 15;
+  hash ^= hash << 10;
+  
+  return hash;
+}
+
 // -----------------------------------------------------------------------------
 #pragma mark encoding
 
