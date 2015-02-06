@@ -10,6 +10,7 @@
   FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithUTF8String:));
   FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithFormat:));
   FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(localizedStringWithFormat:));
+  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithCString:encoding:));
   
   FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(lowercaseString));
   FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(uppercaseString));

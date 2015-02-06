@@ -43,6 +43,8 @@
 		408D25761A7E9C37007258D4 /* MSTests.c in Sources */ = {isa = PBXBuildFile; fileRef = 408D25751A7E9C37007258D4 /* MSTests.c */; };
 		408D25771A7E9C37007258D4 /* MSTests.c in Sources */ = {isa = PBXBuildFile; fileRef = 408D25751A7E9C37007258D4 /* MSTests.c */; };
 		A604A2311A8515B3001DAD54 /* FoundationCompatibility_Private.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */; };
+		A604A2331A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
+		A604A2341A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
 		A64D645E1A77DBA400CCA6D7 /* mscore_validate.h in Resources */ = {isa = PBXBuildFile; fileRef = A6E038981A76304600A97DA3 /* mscore_validate.h */; };
 		A64D645F1A77DC4300CCA6D7 /* libMSCore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03A911A7634AA00A97DA3 /* libMSCore.dylib */; };
 		A64D64601A77DE6A00CCA6D7 /* mscore_c_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */; };
@@ -614,6 +616,7 @@
 		408D256A1A7D0CB8007258D4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		408D25751A7E9C37007258D4 /* MSTests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSTests.c; path = MSTests_src/MSTests.c; sourceTree = "<group>"; };
 		A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FoundationCompatibility_Private.m; path = Foundation_src/FoundationCompatibility_Private.m; sourceTree = "<group>"; };
+		A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsstring_validate.m; path = Foundation_tst/foundation_nsstring_validate.m; sourceTree = "<group>"; };
 		A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_validate.m; path = MSFoundation_tst/msfoundation_validate.m; sourceTree = SOURCE_ROOT; };
 		A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundationforcocoa_test.m; path = MSFoundation_tst/msfoundationforcocoa_test.m; sourceTree = SOURCE_ROOT; };
 		A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MSFoundationForCocoa-Info.plist"; path = "MSFoundation_src/MSFoundationForCocoa-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -1103,6 +1106,7 @@
 				A6D3597F1A7782D200B87986 /* foundation_validate.h */,
 				A6D3597E1A7782D200B87986 /* foundation_validate.m */,
 				A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */,
+				A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -2028,6 +2032,7 @@
 			files = (
 				A64D64DF1A78FA2B00CCA6D7 /* foundation_nsobject_validate.m in Sources */,
 				A64D649F1A77E76300CCA6D7 /* msfoundation_array_validate.m in Sources */,
+				A604A2341A852951001DAD54 /* foundation_nsstring_validate.m in Sources */,
 				A64D64A01A77E76300CCA6D7 /* msfoundation_buffer_validate.m in Sources */,
 				A64D64A11A77E76300CCA6D7 /* msfoundation_color_validate.m in Sources */,
 				A64D64A21A77E76300CCA6D7 /* msfoundation_couple_validate.m in Sources */,
@@ -2070,6 +2075,7 @@
 			files = (
 				A64D64C21A77EB0600CCA6D7 /* msfoundation_array_validate.m in Sources */,
 				A64D64C31A77EB0600CCA6D7 /* msfoundation_buffer_validate.m in Sources */,
+				A604A2331A852951001DAD54 /* foundation_nsstring_validate.m in Sources */,
 				A64D64C41A77EB0600CCA6D7 /* msfoundation_color_validate.m in Sources */,
 				A64D64C51A77EB0600CCA6D7 /* msfoundation_couple_validate.m in Sources */,
 				A64D64C61A77EB0600CCA6D7 /* msfoundation_date_validate.m in Sources */,

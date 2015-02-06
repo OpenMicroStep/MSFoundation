@@ -8,6 +8,7 @@
 #import "MSTests.h"
 
 TEST_FCT_DECLARE(NSObject);
+TEST_FCT_DECLARE(NSString);
 // OR LIBEXPORT int testNSObject();
 
 TEST_FCT_DECLARE(Foundation);
