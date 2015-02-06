@@ -7,8 +7,6 @@
 
 #include "MSCorePlatform.h"
 #include <signal.h>
-#define debug_break raise(SIGTRAP)
-//#define debug_break exit(SIGTRAP)
 
 static const int __testPadding = 20;
 
@@ -51,7 +49,7 @@ static int imp_testsFinish(const char *module)
 
 static void imp_testRaiseError()
 {
-    debug_break;
+  (void)0;
 }
 
 static inline const char *_basename(const char *path)

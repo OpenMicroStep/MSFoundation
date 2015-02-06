@@ -119,10 +119,6 @@
 typedef FILE* MSFileHandle;
 static const MSFileHandle MSInvalidFileHandle= NULL;
 
-#else
-#define MSFileHandle int
-#define MSInvalidFileHandle -1
-#endif
 
 // END Simple platform abstraction
 ////////
