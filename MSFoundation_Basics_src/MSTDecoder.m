@@ -330,7 +330,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
     unsigned char *s = start ;
     BOOL endStringFound = NO ;
     MSShort state = MSTE_DECODING_STRING_START ;
-    MSString *ret = (MSString*)CCreateString(2) ;
+    CString *ret = CCreateString(2) ;
     
     while ((s < endPointer) && !endStringFound) {
         unsigned char character = *s ;
@@ -349,7 +349,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
                 
                 if (character <= 0x7F) {
                     //ascii character
-                    MSSAddUnichar(ret, (unichar)character) ; //adding visible ascii character to unicode string
+                    CStringAppendCharacter(ret, (unichar)character) ; //adding visible ascii character to unicode string
                     s++ ; //pass to next character
                 }
                 else {
@@ -383,53 +383,53 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
                 unichar uniCharacter = (unichar)character ;
                 if (uniCharacter == (unichar)'"')
                 {
-                    MSSAddUnichar(ret, (unichar)0x0022) ;
+                    CStringAppendCharacter(ret, (unichar)0x0022) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
                 }
                 else if (uniCharacter == (unichar)'\\')
                 {
-                    MSSAddUnichar(ret, (unichar)0x005c) ;
+                    CStringAppendCharacter(ret, (unichar)0x005c) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
                 }
                 else if (uniCharacter == (unichar)'/')
                 {
-                    MSSAddUnichar(ret, (unichar)0x002F) ;
+                    CStringAppendCharacter(ret, (unichar)0x002F) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
                 }
                 else if (uniCharacter == (unichar)'b') {
-                    MSSAddUnichar(ret, (unichar)0x0008) ;
+                    CStringAppendCharacter(ret, (unichar)0x0008) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
                 }
                 else if (uniCharacter == (unichar)'f') {
-                    MSSAddUnichar(ret, (unichar)0x0012) ;
+                    CStringAppendCharacter(ret, (unichar)0x0012) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
                 }
                 else if (uniCharacter == (unichar)'n')
                 {
-                    MSSAddUnichar(ret, (unichar)0x000a) ;
+                    CStringAppendCharacter(ret, (unichar)0x000a) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
                 }
                 else if (uniCharacter == (unichar)'r') {
-                    MSSAddUnichar(ret, (unichar)0x000d) ;
+                    CStringAppendCharacter(ret, (unichar)0x000d) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
                 }
                 else if (uniCharacter == (unichar)'t')
                 {
-                    MSSAddUnichar(ret, (unichar)0x0009) ;
+                    CStringAppendCharacter(ret, (unichar)0x0009) ;
                     s++ ;
                     state = MSTE_DECODING_STRING ;
                     break ;
@@ -455,7 +455,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
                         MSByte b1 = _hexaCharacterToShortValue(s1) ;
                         MSByte b2 = _hexaCharacterToShortValue(s2) ;
                         MSByte b3 = _hexaCharacterToShortValue(s3) ;
-                        MSSAddUnichar(ret, (unichar)((b0<<12) + (b1<<8) + (b2<<4) + b3)) ; //unicode character to unicode string
+                        CStringAppendCharacter(ret, (unichar)((b0<<12) + (b1<<8) + (b2<<4) + b3)) ; //unicode character to unicode string
                         s += 5 ;
                         state = MSTE_DECODING_STRING ;
                     }
@@ -473,7 +473,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
     }
     
     *pointer = s ;
-    return AUTORELEASE(ret) ;
+    return AUTORELEASE((id)ret) ;
 }
 
 NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, MSShort tokenType, NSZone *zone)

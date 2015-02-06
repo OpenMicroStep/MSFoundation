@@ -46,7 +46,7 @@
 
 - (id)initWithRowKeys:(MSRowKeys *)rowKeys values:(MSArray *)values
 {
-  if (!rowKeys || !values || [rowKeys count] != MSACount(values)) {
+  if (!rowKeys || !values || [rowKeys count] != CArrayCount((CArray*)values)) {
     RELEASE(self) ;
     return nil ;
   }
@@ -64,8 +64,8 @@
 
 - (id)objectAtIndex:(NSUInteger)i
 {
-  if (i >= MSACount(_values)) MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"index %lu out of bounds %lu", (unsigned long)i, (unsigned long)MSACount(_values)) ;
-  return MSAIndex(_values, i) ;
+  if (i >= CArrayCount((CArray*)_values)) MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"index %lu out of bounds %lu", (unsigned long)i, (unsigned long)CArrayCount((CArray*)_values)) ;
+  return CArrayObjectAtIndex((CArray*)_values, i) ;
 }
 - (MSArray *)allKeys { return _rowKeys ? _rowKeys->_keys : nil ; }
 - (MSArray *)allValues { return _values ; }
@@ -75,16 +75,16 @@
 {
   id o = nil ;
   if (aKey && _rowKeys) {
-    NSUInteger idx = (NSUInteger)NSMapGet(_rowKeys->_table, (const void *)aKey) ;
+    NSUInteger idx = (NSUInteger)CDictionaryObjectForKey(_rowKeys->_table, (const void *)aKey) ;
     if (idx) {
-      o = MSAIndex(_values, idx - 1) ;
+      o = CArrayObjectAtIndex((CArray*)_values, idx - 1) ;
       if ([o isNull]) { o = nil ; }
     }
   }
   return o ;
 }
 
-- (NSUInteger)count { return MSACount(_values) ; }
+- (NSUInteger)count { return CArrayCount((CArray*)_values) ; }
 - (NSEnumerator *)keyEnumerator { return _rowKeys ? [_rowKeys->_keys objectEnumerator] : nil ; }
 - (NSEnumerator *)objectEnumerator { return [_values objectEnumerator] ; }
 
@@ -101,15 +101,17 @@
 
 @implementation MSRowKeys
 
-+ (NSMapTable *)_conversionTableWithKeys:(MSArray *)keys
++ (CDictionary *)_conversionTableWithKeys:(MSArray *)keys
 {
-  NSMapTable *table = NULL ;
+  CDictionary *table = NULL ;
   NSUInteger count ;
-  if ((count = MSACount(keys))) {
+  if ((count = CArrayCount((CArray*)keys))) {
     NSUInteger i ;
-    table = NSCreateMapTable(NSNonRetainedObjectMapKeyCallBacks, NSIntegerMapValueCallBacks, count) ;
+    table = CCreateDictionary(count) ;
+    table->flag.keyAsSimplePtr= YES;
+    table->flag.objAsSimplePtr= YES;
     for (i = 0 ; i < count ; i++) {
-      NSMapInsertKnownAbsent(table, (const void *)MSAIndex(keys,i),  (const void *)(i+1)) ;
+      CDictionarySetObjectForKey(table, (id)CArrayObjectAtIndex((CArray*)keys,i),  (id)(i+1)) ;
     }
   }
   return table ;
@@ -121,7 +123,7 @@
   if (count) {
     MSArray *keys = [originalKeys isKindOfClass:[MSArray class]] ? (MSArray *)RETAIN(originalKeys) : [ALLOC(MSArray) initWithArray:originalKeys] ;
     if (keys) {
-      NSMapTable *table = [self _conversionTableWithKeys:keys] ;
+      CDictionary *table = [self _conversionTableWithKeys:keys] ;
       if (table) {
         MSRowKeys *rk = ALLOC(self) ;
         if (rk) {
@@ -131,7 +133,7 @@
         }
         else {
           RELEASE(keys) ;
-          NSFreeMapTable(table) ;
+          RELEASE((id)table) ;
         }
       }
       else { RELEASE(keys) ; }
@@ -143,19 +145,19 @@
 - (void)dealloc
 {
   RELEASE(_keys) ;
-  NSFreeMapTable(_table) ;
+  RELEASE((id)_table) ;
   [super dealloc] ;
 }
 
 - (MSArray *)keys { return _keys ; }
 - (NSUInteger)indexForKey:(id)aKey
 {
-  NSUInteger idx = (NSUInteger)NSMapGet(_table, (const void *)aKey) ;
+  NSUInteger idx = (NSUInteger)CDictionaryObjectForKey(_table, (id)aKey) ;
   if (idx) { return idx - 1 ; }
   return NSNotFound ;
 }
 
-- (NSUInteger)count { return MSACount(_keys) ; }
+- (NSUInteger)count { return CArrayCount((CArray*)_keys) ; }
 - (void *)context { return _context ; }
 
 @end

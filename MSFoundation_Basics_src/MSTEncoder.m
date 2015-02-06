@@ -517,10 +517,10 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     for (i = 0 ; i< count ; i++) {
         NSString *stringKey = [keys objectAtIndex:i] ;
-        NSUInteger keyReference = (NSUInteger)NSMapGet(_keys, (const void *)stringKey) ;
+        NSUInteger keyReference = (NSUInteger)CDictionaryObjectForKey(_keys, (id)stringKey) ;
         if (!keyReference) {
             keyReference = ++_lastKeyIndex ;
-            NSMapInsertKnownAbsent(_keys, (const void *)stringKey, (const void *)keyReference) ;
+            CDictionarySetObjectForKey(_keys, (id)stringKey, (id)keyReference) ;
             [_keysArray addObject:stringKey] ;
         }
         
@@ -548,7 +548,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
         [self _encodeTokenType:singleToken] ;
     }
     else {
-        NSUInteger objectReference = (NSUInteger)NSMapGet(_encodedObjects, (const void *)anObject) ;
+        NSUInteger objectReference = (NSUInteger)CDictionaryObjectForKey(_encodedObjects, (id)anObject) ;
         
         if (objectReference) {
             //this is an already encoded object
@@ -565,16 +565,16 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
                 if (!snapshot) MSRaise(NSGenericException, @"encodeObject: Specific user classes must implement MSTESnapshot to be encoded as a dictionary!") ;
                 
                 objectClass = [anObject class] ;
-                classIndex = (NSUInteger)NSMapGet(_classes, (const void *)objectClass) ;
+                classIndex = (NSUInteger)CDictionaryObjectForKey(_classes, (id)objectClass) ;
                 
                 if (!classIndex) {
                     classIndex = ++_lastClassIndex ;
-                    NSMapInsertKnownAbsent(_classes, (const void *)objectClass, (const void *)classIndex) ;
+                    CDictionarySetObjectForKey(_classes, (id)objectClass, (id)classIndex) ;
                     [_classesArray addObject:NSStringFromClass(objectClass)] ;
                 }
                 
                 objectReference = ++_lastReference ;
-                NSMapInsertKnownAbsent(_encodedObjects, (const void *)anObject, (const void *)objectReference) ;
+                CDictionarySetObjectForKey(_encodedObjects, (id)anObject, (id)objectReference) ;
                 [self _encodeTokenSeparator] ;
                 [self _encodeTokenType:(MSTE_TOKEN_TYPE_USER_CLASS + classIndex - 1)] ;
                 [self encodeDictionary:snapshot isSnapshot:YES] ;
@@ -583,7 +583,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
               
                 if (referencing) {
                     objectReference = ++_lastReference ;
-                    NSMapInsertKnownAbsent(_encodedObjects, (const void *)anObject, (const void *)objectReference) ;
+                    CDictionarySetObjectForKey(_encodedObjects, (id)anObject, (id)objectReference) ;
                 }
               
                 [self _encodeTokenSeparator] ;
@@ -600,7 +600,6 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 - (MSBuffer *)encodeRootObject:(id)anObject
 {
-    NSZone *zone = [self zone] ;
     MSBuffer *ret = nil ;
     NSUInteger crcPos;
     NSEnumerator *ec, *ek ;
@@ -608,11 +607,17 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     _keysArray = NEW(NSMutableArray) ;
     _classesArray = NEW(NSMutableArray) ;
-    _classes = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSIntegerMapValueCallBacks, 32, zone) ;
-    _keys = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSIntegerMapValueCallBacks, 256, zone) ;
-    _encodedObjects = NSCreateMapTableWithZone(NSNonOwnedPointerMapKeyCallBacks, NSIntegerMapValueCallBacks, 256, zone) ;
-    _global = MSCreateBuffer(65536) ;
-    _content = MSCreateBuffer(65536) ;
+    _classes = CCreateDictionary(32);
+    _classes->flag.keyAsSimplePtr= YES;
+    _classes->flag.objAsSimplePtr= YES;
+    _keys = CCreateDictionary(256);
+    _keys->flag.keyAsSimplePtr= YES;
+    _keys->flag.objAsSimplePtr= YES;
+    _encodedObjects = CCreateDictionary(256);
+    _encodedObjects->flag.keyAsSimplePtr= YES;
+    _encodedObjects->flag.objAsSimplePtr= YES;
+    _global = CCreateBuffer(65536) ;
+    _content = CCreateBuffer(65536) ;
     
     [self encodeObject:anObject] ;
     
@@ -644,7 +649,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     }
     
     if (((CBuffer*)_content)->length) {
-        MSBAddBuffer(_global, _content) ;
+        CBufferAppendBuffer(_global, _content) ;
     }
     
     CBufferAppendByte((CBuffer *)_global, (MSByte)']');
@@ -757,10 +762,9 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 - (void)_clean
 {
-    if (_classes) NSFreeMapTable(_classes) ;
-    if (_keys) NSFreeMapTable(_keys) ;
-    if (_encodedObjects) NSFreeMapTable(_encodedObjects) ;
-    _keys = _classes = _encodedObjects = (NSMapTable *)nil ;
+    DESTROY(_classes) ;
+    DESTROY(_keys) ;
+    DESTROY(_encodedObjects) ;
     _lastKeyIndex = _lastClassIndex = _lastReference = _tokenCount = 0 ;
     DESTROY(_keysArray) ;
     DESTROY(_classesArray) ;

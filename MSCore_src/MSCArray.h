@@ -173,12 +173,4 @@ MSCoreExtern NSUInteger CSortedArrayAddObject(CArray *self, id object,
  */
 MSCoreExtern CString *CArrayToString(CArray *self);
 
-#define MSAAdd(  X, Y) CArrayAddObject((CArray*)(X), (Y))
-//#define MSAPush( X, Y) MSAAdd(X, Y)
-#define MSAIndex(X, Y) ((CArray*)(X))->pointers[(Y)]
-#define MSACount(X) CArrayCount((CArray*)(X))
-//#define MSAFirst(X) CArrayFirstObject((CArray*)(X))
-//#define MSALast( X) CArrayLastObject((CArray*)(X))
-//#define MSAPull( X) CArrayRemoveLastObject((CArray*)(X))
-
 #endif // MSCORE_ARRAY_H

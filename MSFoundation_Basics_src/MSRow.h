@@ -70,7 +70,7 @@
 
 {
 @public ;
-  NSMapTable *_table ;
+  CDictionary *_table ;
   MSArray *_keys ;
   void *_context ;
 }

@@ -103,9 +103,5 @@ MSCoreExtern BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage la
 // MCSCreate car retourne un CString. MSCreateString est défini dans MSString.h
 #define MCSCreate(S) ({ \
   char *__x__= (S); __x__?CCreateStringWithBytes(NSUTF8StringEncoding, __x__, strlen(__x__)):CCreateString(0);})
-#define MSSAdd(       X, Y) CStringAppendString((CString*)(X), Y)
-#define MSSAddUnichar(X, Y) CStringAppendCharacter((CString*)(X), Y)
-#define MSSLength(    X   ) CStringLength((const CString*)(X))
-#define MSSIndex(     X, Y) (((CString*)(X))->buf[(Y)])
 
 #endif

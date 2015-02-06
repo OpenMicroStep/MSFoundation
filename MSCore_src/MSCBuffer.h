@@ -127,10 +127,4 @@ MSCoreExtern BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *byt
 // @function MSCoreExtern BOOL CBufferAppendWithSES(CBuffer *self, SES enumerator, const void *source, NSStringEncoding destinationEncoding, BOOL strict);
 // not so simple to do...
 
-#define MSBAddBuffer(X, Y) CBufferAppendBuffer((CBuffer*)(X), (const CBuffer*)(Y))
-#define MSBAddByte(X, Y)   CBufferAppendByte  ((CBuffer*)(X), (MSByte)(Y))
-#define MSBPointer(X)      (((CBuffer*)(X))->buf)
-#define MSBLength(X)       CBufferLength((const CBuffer*)(X))
-#define MSBIndex(X,Y)                         ((CBuffer*)(X))->buf[(Y)]
-
 #endif

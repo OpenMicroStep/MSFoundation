@@ -88,11 +88,11 @@
 @interface MSTEncoder : NSObject
 {
 	MSBuffer *_content, *_global ;
-	NSMapTable *_keys ;
+	CDictionary *_keys ;
     NSMutableArray *_keysArray ;
-	NSMapTable *_classes ;
+	CDictionary *_classes ;
     NSMutableArray *_classesArray ;
-    NSMapTable *_encodedObjects ;
+    CDictionary *_encodedObjects ;
     NSUInteger _lastClassIndex ;
     NSUInteger _lastKeyIndex ;
     NSUInteger _lastReference ;

@@ -21,7 +21,7 @@ static inline int ccouple_create(void)
   if (CCoupleEquals(d, e)) {
     fprintf(stdout, "A4-d & e are equals\n");
     err++;}
-  if (!ISEQUAL(MSC1(d), c)) {
+  if (!ISEQUAL(CCoupleFirstMember(d), c)) {
     fprintf(stdout, "A5-MSC1(d) & c not equals\n");
     err++;}
   if (!ISEQUAL(d, CCoupleSecondMember(e))) {

@@ -66,7 +66,4 @@ MSCoreExtern id   CCoupleSecondMember   (CCouple *self);
 MSCoreExtern void CCoupleSetFirstMember (CCouple *self, id member);
 MSCoreExtern void CCoupleSetSecondMember(CCouple *self, id member);
 
-#define MSC1(XX) CCoupleFirstMember ((CCouple*)(XX))
-#define MSC2(XX) CCoupleSecondMember((CCouple*)(XX))
-
 #endif /* MSCORE_COUPLE_H */

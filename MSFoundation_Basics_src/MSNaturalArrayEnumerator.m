@@ -74,9 +74,9 @@
 {
     NSUInteger n = [self nextNatural] ;
 	if (n != NSNotFound) {
-        MSArray *array = [MSArray arrayWithObject:[NSNumber numberWithUnsignedInteger:n]] ;
-		while ((n = [self nextNatural]) != NSNotFound) { MSAAdd(array, [NSNumber numberWithUnsignedInteger:n]) ; }
-		return array ;
+        CArray *array = CCreateArrayWithObject([NSNumber numberWithUnsignedInteger:n]) ;
+		while ((n = [self nextNatural]) != NSNotFound) { CArrayAddObject(array, [NSNumber numberWithUnsignedInteger:n]) ; }
+		return AUTORELEASE((id)array) ;
 	}
 	return nil ;
 }

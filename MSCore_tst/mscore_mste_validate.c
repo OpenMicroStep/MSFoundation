@@ -41,22 +41,22 @@ static int _test(void)
   // Decode erreur MSTE0102    [ "MSTE0101" ,8, "CRCbda1803f", 1,\"C\",Z,KKK,T]"
   src= CCreateBufferWithBytes("[\"MSTE0102\",X,\"CRCbda1803f\",Y,\"C\",Z,KKK,T]", 42);
   err+= _testError(src, "MSTE-11-", 2);
-  MSBIndex(src, 9)= '1';
+  src->buf[9]= '1';
   // Decode X au lieu d'un nombre: -> 0: trop petit
   err+= _testError(src, "MSTE-16-", 3);
-  MSBIndex(src, 12)= '1';
+  src->buf[12]= '1';
   // Decode nbToken = 1: trop petit
   err+= _testError(src, "MSTE-16-", 4);
-  MSBIndex(src, 12)= '8';
+  src->buf[12]= '8';
   // Decode Y->0, "C" pas un nombre: bad number of keys
   err+= _testError(src, "MSTE-25-", 5);
-  MSBIndex(src, 28)= '1'; // Y
-  MSBIndex(src, 34)= '1'; // Z
+  src->buf[28]= '1'; // Y
+  src->buf[34]= '1'; // Z
 //memmove(src->buf+18, "bda18000", 8);
   // Decode Z->1, KKK pas une chaine
   err+= _testError(src, "MSTE-30-", 6);
-  MSBIndex(src, 36)= '"';
-  MSBIndex(src, 38)= '"';
+  src->buf[36]= '"';
+  src->buf[38]= '"';
   // Decode Z->1, "K" une chaine, T->0 : ok
   err+= _testError(src, NULL, 7);
   // End

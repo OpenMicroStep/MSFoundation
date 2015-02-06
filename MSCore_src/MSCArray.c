@@ -106,7 +106,7 @@ BOOL CArrayIsEqual(id self, id other)
 // TODO: Si ce n'est jamais utilisé, considérer sa suppression.
 NSUInteger CArrayHash(id self, unsigned depth)
 {
-  NSUInteger count = MSACount(self);
+  NSUInteger count = CArrayCount((CArray*)self);
   
   if (!count || depth == MSMaxHashingHop) return count;
   

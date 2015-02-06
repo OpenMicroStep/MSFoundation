@@ -45,7 +45,7 @@ static inline int unichar_test(void)
   b= CCreateBuffer(0);
   CBufferAppendString(b, a, NSUTF8StringEncoding);
   for (i= 0; i<l; i++) {
-    c1= s[i]; c2= (char)MSBIndex(b,i);
+    c1= s[i]; c2= (char)CBufferByteAtIndex(b,i);
     u1= CStringCharacterAtIndex(a, i);
     if (c1!=c2) {
       fprintf(stdout, "A8 Bad index: %hhu %hhu\n",c1,c2); err++;}}
