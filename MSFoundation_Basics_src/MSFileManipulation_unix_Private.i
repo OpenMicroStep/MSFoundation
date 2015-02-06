@@ -22,7 +22,7 @@ static inline BOOL _MSFileExists(char *path, BOOL *isDirectory)
 #define _MSRemoveDirectory(X)	((rmdir(X) == 0) ? YES : NO)
 #define _MSCreateDirectory(X)	(mkdir(X, 0777) != 0 ? NO : YES)
 
-static inline NSString *_MSAbsolutePath(NSString *path, int mode)
+static NSString *_MSAbsolutePath(NSString *path, int mode)
 {
 #warning TO BE IMPLEMENTED
     [[NSNull null] notImplemented:nil] ;
@@ -33,6 +33,7 @@ static inline NSString *_MSAbsolutePath(NSString *path, int mode)
 
 static inline MSFileHandle _MSCreateFileForWritingAtPath(NSString *path)
 {
+  
     MSFileHandle fd = open([path UTF8String], O_CREAT|O_TRUNC|O_WRONLY, S_IRWXU | S_IRGRP | S_IROTH) ;
     fchmod(fd, S_IRWXU | S_IRGRP | S_IROTH);
     return fd ;

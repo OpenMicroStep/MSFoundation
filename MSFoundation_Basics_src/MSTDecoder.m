@@ -90,7 +90,6 @@
 #define MSTE_DECODING_STRING_STOP               3
 
 static NSNull *__theNull = nil ;
-static NSDictionary *__decimalLocale = nil ;
 
 void _MSTJumpToNextToken(unsigned char **pointer, unsigned char *endPointer, MSULong *tokenCount) ;
 
@@ -501,11 +500,10 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
             if (strLen) {
                 NSData *decimalData = nil ;
                 NSString *decimalString = nil ;
-                if (!__decimalLocale) __decimalLocale = [[NSDictionary alloc] initWithObjectsAndKeys:@".", NSLocaleDecimalSeparator, nil];
           
                 decimalData = [NSData dataWithBytes:startPointer length:strLen] ;
                 decimalString = [[[NSString alloc] initWithData:decimalData encoding:NSASCIIStringEncoding] autorelease];
-                ret = [[NSDecimalNumber allocWithZone:zone] initWithString:decimalString locale:__decimalLocale] ;
+                ret = CCreateDecimalWithSES(SESFromString(decimalString), NO, NULL, NULL);
             }
             else {
                 [NSException raise:NSGenericException format:@"_MSTDecodeNumber - decimal number has null length!"] ;
@@ -832,7 +830,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
             double seconds ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
             seconds = _MSTDecodeDouble(&s, endPointer, @"_MSTDecodeObject") ;
-            ret = [[[NSCalendarDate allocWithZone:zone] initWithTimeIntervalSince1970:(NSTimeInterval)seconds] autorelease] ;
+            ret = [[[NSDate allocWithZone:zone] initWithTimeIntervalSince1970:(NSTimeInterval)seconds] autorelease] ;
             [decodedObjects addObject:ret] ;
             break;
         }

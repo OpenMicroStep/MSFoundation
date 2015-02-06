@@ -45,7 +45,8 @@ NSString *MSAbsoluteWindowsPath(NSString *path) { return _MSAbsolutePath(path, 2
 
 NSString *MSPathForCommand(NSString *command)
 {
-    NSDictionary *env = [[NSProcessInfo processInfo] environment] ;
+#warning MSPathForCommand is missing NSProcessInfo
+    NSDictionary *env = nil; //[[NSProcessInfo processInfo] environment] ;
 #ifdef WIN32
     NSString *envPath = [env objectForKey:@"Path"] ;
     NSString *c = ([command hasExtension:@"exe"] ? command : [command stringByAppendingPathExtension:@"exe"]) ;
@@ -78,7 +79,7 @@ NSString *MSRandomFile(NSString *extension)
 	return s ;
 }
 
-NSString *MSTemporaryDirectory(void) { return [NSTemporaryDirectory() stringByResolvingSymlinksInPath] ; }
+NSString *MSTemporaryDirectory(void) { return nil; /*[NSTemporaryDirectory() stringByResolvingSymlinksInPath] ;*/ }
 
 NSString *MSTemporaryPath(NSString *extension) { return [MSTemporaryDirectory() stringByAppendingPathComponent:MSTemporaryFile(extension)] ; }
 
@@ -160,13 +161,13 @@ BOOL MSCreateRecursiveDirectory(NSString *path)
     return YES ;
 }
 
-MSFileHandle MSCreateFileForWritingAtPath(NSString *path) { return _MSCreateFileForWritingAtPath(path) ; }
-MSFileHandle MSOpenFileForReadingAtPath(NSString *path) { return _MSOpenFileForReadingAtPath(path) ; }
-MSFileOperationStatus MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length) { return _MSWriteToFile(file, ptr, length) ; }
-MSFileOperationStatus MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes) { return _MSReadFromFile(file, ptr, length, readBytes) ; }
-MSFileOperationStatus MSCloseFile(MSFileHandle file) { return _MSCloseFile(file) ; }
+MSFileHandle MSCreateFileForWritingAtPath(NSString *path) { return fopen([path UTF8String], "w+"); }
+MSFileHandle MSOpenFileForReadingAtPath(NSString *path) { return fopen([path UTF8String], "r+") ; }
+MSFileOperationStatus MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length) { return fwrite(ptr, length, 1, file) == length ? MSFileOperationSuccess : MSFileOperationFail ; }
+MSFileOperationStatus MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes) { return (*readBytes= fread(ptr, length, 1, file)) > 0 ? MSFileOperationSuccess : MSFileOperationFail ; }
+MSFileOperationStatus MSCloseFile(MSFileHandle file) { return fclose(file) == 0 ? MSFileOperationSuccess : MSFileOperationFail; }
 
-MSFileOperationStatus MSMoveFile(NSString *sourcePath, NSString *destPath) { return _MSMoveFile(sourcePath, destPath) ; }
+MSFileOperationStatus MSMoveFile(NSString *sourcePath, NSString *destPath) { return rename([sourcePath UTF8String], [destPath UTF8String]) == 0 ? MSFileOperationSuccess : MSFileOperationFail  ; }
 
 NSString *MSUNCPath(NSString *path) { return _MSUNCPath(path) ; }
 

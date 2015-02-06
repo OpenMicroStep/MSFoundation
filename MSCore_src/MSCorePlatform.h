@@ -54,6 +54,7 @@
 // Default Includes
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
@@ -65,6 +66,8 @@
     #include <sys/syscall.h>
     #include <unistd.h>
     #include <pthread.h>
+    #include <fcntl.h>
+    #include <signal.h>
 #endif
 // END Default Includes
 ////////
@@ -113,9 +116,9 @@
 
 
 ///// Definition of MSFileHandle
-#ifdef WIN32
-#define MSFileHandle HANDLE
-#define MSInvalidFileHandle INVALID_HANDLE_VALUE
+typedef FILE* MSFileHandle;
+static const MSFileHandle MSInvalidFileHandle= NULL;
+
 #else
 #define MSFileHandle int
 #define MSInvalidFileHandle -1

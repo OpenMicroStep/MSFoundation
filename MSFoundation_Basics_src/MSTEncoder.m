@@ -56,7 +56,6 @@
 #define MSTEncoderLastVersion	100
 
 static const char *__hexa = "0123456789ABCDEF" ;
-static NSDictionary *__decimalLocale = nil ;
 
 
 static inline MSByte _ShortValueToHexaCharacter(MSByte c)
@@ -815,7 +814,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder
 {
     return [self length] ? MSTE_TOKEN_MUST_ENCODE : MSTE_TOKEN_TYPE_EMPTY_STRING ;
-    (void)encoder;
+    MSUnused(encoder);
 }
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_STRING ; }
 @end
@@ -841,7 +840,7 @@ static NSNumber *__aBool = nil ;
     }
   }
   return MSTE_TOKEN_MUST_ENCODE ;
-  (void)encoder;
+  MSUnused(encoder);
 }
 
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_DECIMAL_VALUE ; }
@@ -938,14 +937,6 @@ static NSNumber *__aBool = nil ;
 }
 @end
 
-@implementation NSDecimalNumber (MSTEncodingPrivate)
-- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
-{
-  if (!__decimalLocale) __decimalLocale = [[NSDictionary alloc] initWithObjectsAndKeys:@".", NSLocaleDecimalSeparator, nil];
-  [encoder encodeString:[self descriptionWithLocale:__decimalLocale] withTokenType:NO andDoubleQuotes:NO] ;
-}
-@end
-
 @implementation NSDictionary (MSTEncoding)
 - (MSByte)tokenType { return MSTE_TOKEN_TYPE_DICTIONARY ; }
 @end
@@ -995,18 +986,6 @@ static NSNumber *__aBool = nil ;
   }
   else {
     [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for NSDate class!"] ;
-  }
-}
-@end
-
-@implementation NSCalendarDate (MSTEncodingPrivate)
-- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
-{
-  if (![[NSCalendarDate distantPast] isEqual:self] && ![[NSCalendarDate distantFuture] isEqual:self]) {
-    [encoder encodeDouble:[self timeIntervalSince1970] withTokenType:NO] ;
-  }
-  else {
-    [NSException raise:NSGenericException format:@"MSTE protocol does not allow to encode distant past and distant future for NSCalendarDate class!"] ;
   }
 }
 @end

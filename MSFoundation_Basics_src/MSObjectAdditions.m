@@ -185,10 +185,11 @@ NSNull *MSNull= nil;
     notif= [NSNotification notificationWithName:MSDelayedPostingNotification
                                          object:self
                                        userInfo:userInfo];
+    /* TODO with NSNotificationCenter
     [[NSNotificationQueue defaultQueue] enqueueNotification:notif
                                                postingStyle:NSPostASAP
                                                coalesceMask:NSNotificationNoCoalescing
-                                                   forModes:nil];}
+                                                   forModes:nil];*/}
 }
 
 - (void)postAction:(SEL)action to:(id)target withObject:(id)argument
@@ -200,10 +201,11 @@ NSNull *MSNull= nil;
     notif= [NSNotification notificationWithName:MSDelayedPostingWithObjectNotification
                                          object:self
                                        userInfo:userInfo];
+    /* TODO with NSNotificationCenter                                       
     [[NSNotificationQueue defaultQueue] enqueueNotification:notif
                                                postingStyle:NSPostASAP
                                                coalesceMask:NSNotificationNoCoalescing
-                                                   forModes:nil];}
+                                                   forModes:nil];*/}
 }
 
 @end
@@ -233,14 +235,6 @@ NSNull *MSNull= nil;
 
 - (NSString *)toString { return [self description]; }
 
-@end
-
-@implementation NSDecimalNumber (MSObjectAdditions)
-#if defined(WO451)
-- (BOOL)isTrue { return (_length == 0 ? NO : (_mantissa[0] == 0 ? NO : YES)); } // if it's not a number it's not true
-#else
-- (BOOL)isTrue { NSDecimal d= [self decimalValue]; return (d._length == 0 ? NO : (d._mantissa[0] == 0 ? NO : YES)); }
-#endif
 @end
 
 @implementation NSNull (MSObjectAdditions)
