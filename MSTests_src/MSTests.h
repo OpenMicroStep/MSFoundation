@@ -103,12 +103,13 @@ Same example without inlining of test contexts
 // Tests
 #define _ASSERT_VALUE_TO_STRING(x) #x
 #define _ASSERT_VALUE(x) _ASSERT_VALUE_TO_STRING(x)
-#define ASSERT(TEST, MSG, ...)           testAssert((TEST), _ASSERT_VALUE(TEST), __FILE__, __LINE__, MSG, ## __VA_ARGS__)
-#define ASSERT_OP(A, OP, B, MSG, ...)    ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); testAssert((__a OP __b), #A " " #OP " " #B, __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a, __b); })
-#define ASSERT_SEL0(A, SEL, MSG, ...)    ({ __typeof__(A) __a= (A); testAssert([__a SEL], [#A " " #SEL], __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a); })
-#define ASSERT_SEL1(A, SEL, B, MSG, ...) ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); testAssert([__a SEL: __b], [#A " " #SEL ": " #B], __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a, __b); })
-#define ASSERT_ISEQUAL(A, B, MSG, ...)   ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); testAssert(ISEQUAL(__a, __b), "ISEQUAL("#A", "#B") => " _ASSERT_VALUE(ISEQUAL(A, B)), __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a, __b); })
-#define ASSERT_EQUALS(A, B, MSG, ...)    ASSERT_OP(A, == ,B, MSG, ## __VA_ARGS__)
+#define ASSERT(TEST, MSG, ...)            testAssert(!!(TEST), _ASSERT_VALUE(TEST), __FILE__, __LINE__, MSG, ## __VA_ARGS__)
+#define ASSERT_OP(A, OP, B, MSG, ...)     ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); testAssert((__a OP __b), #A " " #OP " " #B, __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a, __b); })
+#define ASSERT_SEL0(A, SEL, MSG, ...)     ({ __typeof__(A) __a= (A); testAssert([__a SEL], [#A " " #SEL], __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a); })
+#define ASSERT_SEL1(A, SEL, B, MSG, ...)  ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); testAssert([__a SEL: __b], [#A " " #SEL ": " #B], __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a, __b); })
+#define ASSERT_ISEQUAL(A, B, MSG, ...)    ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); testAssert(ISEQUAL(__a, __b), "ISEQUAL("#A", "#B") => " _ASSERT_VALUE(ISEQUAL(A, B)), __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a, __b); })
+#define ASSERT_ISNOTEQUAL(A, B, MSG, ...) ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); testAssert(!ISEQUAL(__a, __b), "!ISEQUAL("#A", "#B") => " _ASSERT_VALUE(!ISEQUAL(A, B)), __FILE__, __LINE__, MSG, ## __VA_ARGS__, __a, __b); })
+#define ASSERT_EQUALS(A, B, MSG, ...)     ASSERT_OP(A, == ,B, MSG, ## __VA_ARGS__)
 
 typedef int (*testAssert_t)(int result, const char *assert, const char *file, int line, const char *msg, ...);
 typedef void (*testBegin_t)(const char *name);

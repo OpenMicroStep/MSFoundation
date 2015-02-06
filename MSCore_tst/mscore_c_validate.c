@@ -2,58 +2,47 @@
 
 #include "mscore_validate.h"
 
-static inline int c_isa(CClassIndex classIndex)
+static int c_isa_for(CClassIndex classIndex)
   {
-  int err= 0; BOOL ok;
+  int err= 0;
   id x,y;
   x= (id)MSCreateObjectWithClassIndex(classIndex);
   y= COPY(x);
-  if (RETAINCOUNT(x)!=1) {
-    fprintf(stdout, "A1-Bad retain count: %lu\n",WLU(RETAINCOUNT(x)));
-    err++;}
-  if (RETAINCOUNT(y)!=1) {
-    fprintf(stdout, "A2-Bad retain count: %lu\n",WLU(RETAINCOUNT(y)));
-    err++;}
-  ok= ISEQUAL(x, y);
-  if (!ok) {
-    fprintf(stdout, "A3-Bad equal %d %d %p %p\n",ok,classIndex,x,y);
-    err++;}
-  if (!ISA(x)) {
-    fprintf(stdout, "A4-Bad isa\n");
-    err++;}
-  if (!ISEQUAL(ISA(x), ISA(y))) {
-    fprintf(stdout, "A5-Bad isa equal\n");
-    err++;}
-  if (!NAMEOFCLASS(x)) {
-    fprintf(stdout, "A6-Bad nameof\n");
-    err++;}
-  if (memcmp(NAMEOFCLASS(x), NAMEOFCLASS(y),strlen(NAMEOFCLASS(x)))) {
-    fprintf(stdout, "A7-Bad class name equal\n");
-    err++;}
+  ASSERT_EQUALS(RETAINCOUNT(x), 1, "A1-Bad retain count: %lu != %lu");
+  ASSERT_EQUALS(RETAINCOUNT(y), 1, "A2-Bad retain count: %lu != %lu");
+  ASSERT_ISEQUAL(x, y, "A3-Bad equal");
+  ASSERT(ISA(x), "A4-Bad isa");
+  ASSERT_ISEQUAL(ISA(x), ISA(y), "A5-Bad isa equal");
+  ASSERT(NAMEOFCLASS(x), "A6-Bad nameof");
+  ASSERT(strcmp(NAMEOFCLASS(x), NAMEOFCLASS(y)) == 0, "A7-Bad class name equal");
   RELEASE(x);
   RELEASE(y);
   return err;
   }
 
-static inline int c_classEqual(void)
+static int c_classEqual(void)
   {
   int err= 0;
   id x,y;
   x= (id)MSCreateObjectWithClassIndex(CArrayClassIndex);
   y= (id)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  if (ISEQUAL(ISA(x), ISA(y))) {
-    fprintf(stdout, "B1-Bad isa equal\n");
-    err++;}
+  ASSERT_ISNOTEQUAL(ISA(x), ISA(y), "B1-Bad isa equal");
   RELEASE(x);
   RELEASE(y);
   return err;
   }
 
+static int c_isa()
+{
+    int err= 0;
+    err+= c_isa_for(CArrayClassIndex);
+    err+= c_isa_for(CBufferClassIndex);
+    return err;
+}
+
 int mscore_c_validate(void)
   {
-  int err= 0;
-  err+= c_isa(CArrayClassIndex);
-  err+= c_isa(CBufferClassIndex);
-  err+= c_classEqual();
-  return err;
+  testRun("isa", c_isa);
+  testRun("isEqual", c_classEqual);
+  return 0;
   }

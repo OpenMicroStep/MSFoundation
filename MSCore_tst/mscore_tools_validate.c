@@ -9,9 +9,7 @@ static inline int crc(char *txt, MSUInt r)
   int err= 0;
   MSUInt crc;
   crc= MSBytesLargeCRC(txt, strlen(txt));
-  if (crc!=r) {
-    fprintf(stdout, "A1-Bad crc. Expected:%u Calculated:%u %s\n",r,crc,txt);
-    err++;}
+  ASSERT_EQUALS(crc, r, "A1-Bad crc. Expected:%3$u Calculated:%2$u for %1$s",txt);
   return err;
   }
 

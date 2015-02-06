@@ -146,13 +146,8 @@ static inline int cdecimal_fromSES(void)
 
 static inline int cdecimal_cast(void)
   {
-#ifdef WO451
-// wo451 gcc version compute MSUIntMax + 1 UL = 4294967295U + 1UL = 0U
-// To help the compiler, with WO451, MSUIntMax must be an unsigned long
 #define __UIntMaxU ((MSULong)MSUIntMax)
-#else
-#define __UIntMaxU MSUIntMax
-#endif
+
   int err= 0, i;
   MSLong val  [12]=  {MSLongMin    ,MSIntMin    ,MSShortMin  ,MSCharMin  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,MSUIntMax    ,MSLongMax    };
   MSLong rcm1 [12]=  {MSCharMin    ,MSCharMin   ,MSCharMin   ,MSCharMin  ,-1,MSCharMax-1,MSCharMax  ,MSCharMax   ,MSCharMax    ,MSCharMax   ,MSCharMax    ,MSCharMax    };

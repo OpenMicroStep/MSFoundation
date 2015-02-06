@@ -122,33 +122,25 @@ static inline int cdictionary_enum(void)
 
 static int cdictionary_init(void)
   {
-  int err= 0;
   NSDictionary *o;
   MSDictionary *d, *d2;
-  
   o= [NSDictionary dictionaryWithObjectsAndKeys:@"obj1", @"key1", @"obj2", @"key2", nil];
-  if([o count] != 2) {
-    fprintf(stdout, "C1: %d != 2\n",(int)[o count]); err++;}
   d= [MSDictionary dictionaryWithDictionary:o];
-  if([d count] != 2) {
-    fprintf(stdout, "C2: %d != 2\n",(int)[o count]); err++;}
-  if(![d isEqual:o]) {
-    fprintf(stdout, "C3: dictionary missmatch\n"); err++;}
-  if(![o isEqual:d]) {
-    fprintf(stdout, "C4: dictionary missmatch\n"); err++;}
-    
+  ASSERT_ISEQUAL([d objectForKey:@"key1"], @"obj1", "dictionary are equals");
+  ASSERT_ISEQUAL([d objectForKey:@"key2"], @"obj2", "dictionary are equals");
+  ASSERT_ISEQUAL([o objectForKey:@"key1"], @"obj1", "dictionary are equals");
+  ASSERT_ISEQUAL([o objectForKey:@"key2"], @"obj2", "dictionary are equals");
+  ASSERT_EQUALS([d count], [o count], "dictionary are equals");
+  ASSERT([d isEqual:o], "dictionary are equals");
+  ASSERT([o isEqual:d], "dictionary are equals");
+  
   d2= [MSDictionary dictionaryWithDictionary:d];
-  if([d2 count] != 2) {
-    fprintf(stdout, "C5: %d != 2\n",(int)[o count]); err++;}
-  if(![d2 isEqual:o]) {
-    fprintf(stdout, "C6: dictionary missmatch\n"); err++;}
-  if(![o isEqual:d2]) {
-    fprintf(stdout, "C7: dictionary missmatch\n"); err++;}
-  if(![d2 isEqual:d]) {
-    fprintf(stdout, "C8: dictionary missmatch\n"); err++;}
-  if(![d isEqual:d2]) {
-    fprintf(stdout, "C9: dictionary missmatch\n"); err++;}
-  return err;
+  ASSERT_EQUALS([d2 count], [o count], "dictionary are equals");
+  ASSERT([d2 isEqual:o], "dictionary are equals");
+  ASSERT([o isEqual:d2], "dictionary are equals");
+  ASSERT([d2 isEqual:d], "dictionary are equals");
+  ASSERT([d isEqual:d2], "dictionary are equals");
+  return 0;
   }
 
 TEST_FCT_BEGIN(MSDictionary)
