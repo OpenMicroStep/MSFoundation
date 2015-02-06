@@ -1,0 +1,4 @@
+
+@interface NSNotificationCenter : NSObject
+
+@end

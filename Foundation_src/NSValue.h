@@ -1,0 +1,4 @@
+
+@interface NSValue : NSObject
+
+@end

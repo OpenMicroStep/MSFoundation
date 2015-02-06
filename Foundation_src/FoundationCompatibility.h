@@ -5,6 +5,7 @@
 // Core
 #import <MSFoundation/NSObject.h>
 #import <MSFoundation/NSAutoreleasePool.h>
+#import <MSFoundation/NSInvocation.h>
 
 // Protocols
 #import <MSFoundation/NSCoding.h>
@@ -22,6 +23,8 @@
 #import <MSFoundation/NSCoder.h>
 #import <MSFoundation/NSException.h>
 #import <MSFoundation/NSNumber.h>
-#import <MSFoundation/NSMapTable.h>
 #import <MSFoundation/NSZone.h>
 #import <MSFoundation/NSTimeZone.h>
+#import <MSFoundation/NSValue.h>
+#import <MSFoundation/NSNotification.h>
+#import <MSFoundation/NSNotificationCenter.h>

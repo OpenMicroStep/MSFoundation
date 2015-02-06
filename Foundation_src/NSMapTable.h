@@ -1,4 +1,0 @@
-
-@interface NSMapTable : NSObject
-
-@end

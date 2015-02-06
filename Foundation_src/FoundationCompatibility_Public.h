@@ -5,8 +5,11 @@
 
 #import "FoundationTypes.h"
 
+// Core
 #import "NSObjCRuntime.h"
 #import "NSObject.h"
+#import "NSInvocation.h"
+#import "NSAutoreleasePool.h"
 
 // Protocols
 #import "NSCoding.h"
@@ -20,14 +23,15 @@
 #import "NSData.h"
 #import "NSDate.h"
 #import "NSNull.h"
-#import "NSAutoreleasePool.h"
 
 #import "NSCoder.h"
 #import "NSException.h"
 #import "NSNumber.h"
-#import "NSMapTable.h"
 #import "NSZone.h"
 #import "NSTimeZone.h"
 #import "NSRange.h"
+#import "NSValue.h"
+#import "NSNotification.h"
+#import "NSNotificationCenter.h"
 
 #endif

@@ -1,5 +1,5 @@
 #import "FoundationCompatibility_Private.h"
 
-@implementation NSMapTable
+@implementation NSNotification
 
 @end
