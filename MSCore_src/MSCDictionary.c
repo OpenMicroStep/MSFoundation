@@ -41,7 +41,7 @@
 
 #include "MSCore_Private.h"
 
-#define CDICT_KEY_HASH(k)       (((CDictionary*)self)->flag.keyAsSimplePtr ? _hashPtr(k) : HASH(k))
+#define CDICT_KEY_HASH(k)       (((CDictionary*)self)->flag.keyAsSimplePtr ? MSPointerHash(k) : HASH(k))
 #define CDICT_KEY_COPY(k)       (((CDictionary*)self)->flag.keyAsSimplePtr ? k : COPY(k))
 #define CDICT_KEY_EQUALS(a, b)  (((CDictionary*)self)->flag.keyAsSimplePtr ? a == b : ISEQUAL(a, b))
 #define CDICT_KEY_RETAIN(k)     (((CDictionary*)self)->flag.keyAsSimplePtr ? k : RETAIN(k))
@@ -49,11 +49,6 @@
 #define CDICT_OBJ_EQUALS(a, b)  (((CDictionary*)self)->flag.objAsSimplePtr ? a == b : ISEQUAL(a, b))
 #define CDICT_OBJ_RETAIN(o)     (((CDictionary*)self)->flag.objAsSimplePtr ? o : RETAIN(o))
 #define CDICT_OBJ_RELEASE(o)    (((CDictionary*)self)->flag.objAsSimplePtr ? (void)0 : RELEASE(o))
-
-static NSUInteger _hashPtr(const void * ptr)
-{
-    return (NSUInteger)ptr;
-}
 
 typedef struct _nodeStruct {
    id key;
