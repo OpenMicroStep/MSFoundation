@@ -15,15 +15,23 @@
 #endif
 
 #if !defined(NS_REQUIRES_NIL_TERMINATION)
-    #if TARGET_OS_WIN32
-        #define NS_REQUIRES_NIL_TERMINATION
-    #else
-        #if defined(__APPLE_CC__) && (__APPLE_CC__ >= 5549)
-            #define NS_REQUIRES_NIL_TERMINATION __attribute__((sentinel(0,1)))
-        #else
-            #define NS_REQUIRES_NIL_TERMINATION __attribute__((sentinel))
-        #endif
-    #endif
+  // Both recent version of GCC & Clang support the sentinel compilation check
+  #define NS_REQUIRES_NIL_TERMINATION __attribute__((sentinel))
+#endif
+
+#if !defined(NS_FORMAT_FUNCTION)
+  // Both recent version of GCC & Clang support the NSString formatting compilation check
+  #define NS_FORMAT_FUNCTION(F,A) __attribute__((format(__NSString__, F, A)))
+#endif
+
+/*#if !defined(NS_FORMAT_ARGUMENT)
+  // Both recent version of GCC & Clang support the va_arg formatting compilation check
+  #define NS_FORMAT_ARGUMENT(A) __attribute__ ((format_arg(A)))
+#endif*/
+
+#if !__has_feature(objc_instancetype)
+#undef instancetype
+#define instancetype id
 #endif
 
 #define NS_ENUM(_type, _name) _type _name; enum

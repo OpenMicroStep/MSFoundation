@@ -89,6 +89,9 @@ static inline SES MSMakeSES(const void *source, CHAI funct, NSUInteger start, NS
   return ret;
 }
 
+// TODO: @ECB: This break the pure object concept, sees usages (MSCColor & MSCCouple) and keep it or drop it
+#define SESFromLiteral(CSTR) MSMakeSESWithBytes(u ## CSTR, sizeof(u ## CSTR) / sizeof(unichar), NSUnicodeStringEncoding)
+
 typedef MSByte MSRealScanOptions;
 #define MSAcceptsDot        1
 #define MSAcceptsComma      2
@@ -106,6 +109,9 @@ MSCoreExtern SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength,
 // NSUInteger i,n; unichar u;
 // for (i= SESStart(ses), n= SESLength(ses); i<n;) u= SESIndexN(ses, &i);
 // Or CCreateStringWithBytes()
+
+MSCoreExtern BOOL SESEquals(SES a, SES b);
+MSCoreExtern BOOL SESInsensitiveEquals(SES a, SES b);
 
 MSCoreExtern SES SESFind(SES src, SES searched);
 MSCoreExtern SES SESInsensitiveFind(SES src, SES searched);

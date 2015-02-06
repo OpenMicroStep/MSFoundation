@@ -9,7 +9,10 @@ void NSLog(NSString *format,...)
 }
 void NSLogv(NSString *format,va_list args)
 {
-    #warning TODO NSLogv
+  CString *s= CCreateString(0);
+  CStringAppendFormatv(s, SESFromString(format), args);
+  printf("%s\n", [(id)s UTF8String]);
+  RELEASE((id)s);
 }
 
 SEL NSSelectorFromString(NSString *selectorName)

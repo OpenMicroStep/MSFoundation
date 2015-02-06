@@ -87,6 +87,8 @@ MSCoreExtern void CStringAppendEncodedFormat(CString *self, NSStringEncoding enc
 MSCoreExtern void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args);
 MSCoreExtern void CStringAppendSES(CString *self, SES ses);
 MSCoreExtern void CStringAppendString(CString *self, const CString *s);
+MSCoreExtern void CStringAppendFormat(CString *self, SES ses, ...);
+MSCoreExtern void CStringAppendFormatv(CString *self, SES ses, va_list vp);
 
 // TODO: Not reviewed, not tested.
 // this functions work only for ANSI, Mac roman, NextStep, ISO Latin 1, UTF8 and ASCII as supposed encoding NOT TESTED
@@ -99,6 +101,7 @@ MSCoreExtern BOOL CStringAppendURLBytes(CString *self, const void *bytes, NSUInt
 //MSCoreExtern BOOL CStringAppendTimeInterval(CString *self, MSTimeInterval interval, const char *utf8StringFormat, MSLanguage language);
 
 MSCoreExtern BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage language);
+MSCoreExtern MSUInt CStringSizeOfCharacterForEncoding(NSStringEncoding srcEncoding);
 
 // MCSCreate car retourne un CString. MSCreateString est défini dans MSString.h
 #define MCSCreate(S) ({ \

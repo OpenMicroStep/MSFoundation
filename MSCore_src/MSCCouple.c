@@ -82,6 +82,16 @@ id CCoupleCopy(id self)
   return (id)newCpl;
 }
 
+const CString* CCoupleRetainedDescription(id self)
+{
+  CString *s; const CCouple *a;
+  if(!self) return nil;
+  a= (CCouple *)self;
+  CCreateString(0);
+  CStringAppendFormat(s, SESFromLiteral("[%@, %@]"), a->members[0], a->members[1]);
+  return s;
+}
+
 #pragma mark Equality
 
 BOOL CCoupleEquals(const CCouple *self, const CCouple *other)

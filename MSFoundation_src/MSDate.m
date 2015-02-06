@@ -178,16 +178,16 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 // TODO: Voir avec MSString
 - (NSString *)toString
 {
-  return AUTORELEASE((MSString*)CCreateDateDescription((CDate*)self));
+  return AUTORELEASE((MSString*)CDateRetainedDescription(self));
 }
 
 - (NSString *)description
 {
-  return AUTORELEASE((MSString*)CCreateDateDescription((CDate*)self));
+  return AUTORELEASE((MSString*)CDateRetainedDescription(self));
 }
 - (NSString *)descriptionWithLocale:(id)locale
 {
-  return AUTORELEASE((MSString*)CCreateDateDescription((CDate*)self));
+  return AUTORELEASE((MSString*)CDateRetainedDescription(self));
   locale= nil;
 }
 - (NSString *)displayString

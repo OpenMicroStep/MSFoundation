@@ -62,44 +62,9 @@ BOOL CStringIsEqual(id self, id other)
   return _CClassIsEqual(self,other,(CObjectEq)CStringEquals);
 }
 
-#define _CHashCharactersLimit 96
-
-#define HashNextFourUniChars(accessStart, accessEnd, pointer) { \
-  result= result * 67503105 + \
-          (accessStart 0 accessEnd) * 16974593 + \
-          (accessStart 1 accessEnd) *    66049 + \
-          (accessStart 2 accessEnd) *      257 + \
-          (accessStart 3 accessEnd); \
-  pointer += 4;}
-
-#define HashNextUniChar(accessStart, accessEnd, pointer) \
-{result= result * 257 + (accessStart 0 accessEnd); pointer++;}
-
-static inline MSUInt _CHashCharacters(const unichar *uContents, NSUInteger len)
-{
-  MSUInt result = (MSUInt)len;
-  if (len <= _CHashCharactersLimit) {
-    const unichar *end4= uContents + (len & (NSUInteger)~3);
-    const unichar *end= uContents + len;
-    while (uContents < end4) HashNextFourUniChars(uContents[, ], uContents); // First count in fours
-    while (uContents < end) HashNextUniChar(uContents[, ], uContents);}      // Then for the last <4 chars, count in ones...
-  else {
-    const unichar *contents, *end;
-    contents= uContents;
-    end= contents + 32;
-    while (contents < end) HashNextFourUniChars(contents[, ], contents);
-    contents= uContents + (len >> 1) - 16;
-    end= contents + 32;
-    while (contents < end) HashNextFourUniChars(contents[, ], contents);
-    end= uContents + len;
-    contents= end - 32;
-    while (contents < end) HashNextFourUniChars(contents[, ], contents);}
-  return result + (result << (len & 31));
-}
-
 NSUInteger CStringHash(id self, unsigned depth)
 {
-  return SESHash(CStringSES(self));
+  return SESHash(CStringSES((const CString *)self));
 }
 
 id CStringCopy(id self)
@@ -109,6 +74,11 @@ id CStringCopy(id self)
     s= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
     CStringAppendString(s, (const CString*)self);}
   return (id)s;
+}
+
+const CString* CStringRetainedDescription(id self)
+{
+  return (const CString*)RETAIN(self);
 }
 
 #pragma mark Equality
@@ -205,12 +175,9 @@ void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb)
     for (i= 0; i < nb; i++) self->buf[self->length++]= c;}
 }
 
-//static void _CStringAppendUTF8Bytes(CString *self, const void *bytes, NSUInteger length);
 void CStringAppendBytes(CString *self, NSStringEncoding encoding, const void *s, NSUInteger length)
 {
-/*  if (encoding==NSUTF8StringEncoding) _CStringAppendUTF8Bytes(self, s, length);
-  else
-*/CStringAppendSES(self, MSMakeSESWithBytes(s, length, encoding));
+  CStringAppendSES(self, MSMakeSESWithBytes(s, length, encoding));
 }
 
 void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const char *fmt, ...)
@@ -246,6 +213,437 @@ void CStringAppendSES(CString *self, SES ses)
 void CStringAppendString(CString *self, const CString *s)
 {
   CStringAppendSES(self, CStringSES(s));
+}
+
+void CStringAppendFormat(CString *self, SES fmt, ...)
+{
+  va_list vp;
+  va_start(vp, fmt);
+  CStringAppendFormatv(self, fmt, vp);
+  va_end(vp);
+}
+
+#pragma mark Append format
+#define FORMAT_MAX2(A, B)            (A > B ? A : B)
+#define FORMAT_MAX3(A, B, C)         FORMAT_MAX2(FORMAT_MAX2(A, B), C)
+
+static const int argsOnStack= 128; // 128 arg is far enough to hold pending formatting arguments
+_Static_assert(sizeof(size_t) <= sizeof(intmax_t), "size_t must fit in intmax");
+_Static_assert(sizeof(ptrdiff_t) <= sizeof(uintmax_t), "ptrdiff_t must fit in uintmax");
+_Static_assert(sizeof(void*) <= sizeof(uintmax_t), "void* must fit in uintmax");
+// TODO: Implement a fallback to heap allocation if format should support more extreme cases (> 127 out of order arg, ie. "%128$d $1$d")
+
+typedef enum {
+  FormatTypeUndefined= 0,
+  FormatTypeS4,
+  FormatTypeU4,
+  FormatTypeSL,
+  FormatTypeUL,
+  FormatTypeS8,
+  FormatTypeU8,
+  FormatTypeSM,
+  FormatTypeUM,
+  FormatTypeST,
+  FormatTypeUD,
+  FormatTypePTR,
+  FormatTypeDBL,
+  FormatTypeLDBL
+} FormatType;
+
+typedef struct {
+  FormatType type;
+  union {
+    intmax_t im;
+    uintmax_t um;
+    double dbl;
+    long double ldbl;
+  };
+} FormatArg;
+
+enum FormatFlags {
+  FormatFlagThousandGrouping = 0x01, // '
+  FormatFlagLeftJustify      = 0x02, // -
+  FormatFlagSigned           = 0x04, // +
+  FormatFlagSpace            = 0x08, //' ' && !FormatFlagSigned
+  FormatFlagAlternativeForm  = 0x10, // #
+  FormatFlagLeadingZeros     = 0x20, // 0  && !FormatFlagLeftJustify && !precision
+  FormatFlagHasWidth         = 0x40,
+  FormatFlagHasPrecision     = 0x80,
+};
+
+const MSByte __nextArg = MSByteMax;
+
+typedef struct {
+  MSUShort width;
+  MSUShort precision;
+  FormatType type;
+  MSByte arg;
+  MSByte widthArg;
+  MSByte precisionArg;
+  MSByte specifier;
+  struct {
+    MSByte thousandGroup : 1;   // '
+    MSByte leftJustify : 1;     // -
+    MSByte plus : 1;            // +
+    MSByte space : 1;           //' '
+    MSByte alternativeForm : 1; // #
+    MSByte leadingZeros : 1;    // 0
+    MSByte hasWidth : 1;
+    MSByte hasPrecision : 1;
+  } flags;
+} FormatToken;
+
+
+#define NEXT_CHAR c= ((u= SESIndexN(ses, pos)) > 127 ? 0 : (char)u)
+#define TRY_NEXT_CHAR ({ hasMore= *pos < SESLength(ses); if(hasMore) NEXT_CHAR; hasMore; })
+
+static inline FormatToken _formatParse(SES ses, NSUInteger *pos)
+{
+  FormatToken f; unichar u; char c;
+  BOOL hasMore = YES;
+  memset(&f, 0, sizeof(f));
+  NEXT_CHAR;
+  
+  // %
+  if(c == '%') {
+    f.specifier= c;
+    return f;
+  }
+  
+  // Position OR Width OR 0 Flag
+  if(hasMore && '0' == c) {
+    f.flags.leadingZeros= 1;
+    TRY_NEXT_CHAR;}
+  while(hasMore && f.arg == 0) {
+    if('0' <= c && c <= '9') {
+      f.flags.hasWidth= 1;
+      f.width= f.width * 10 + (c - '0'); }
+    else if('$' == c) {
+      f.flags.hasWidth= 0;
+      f.arg= f.width;
+      f.width= 0;}
+    else break;
+    TRY_NEXT_CHAR;}
+  
+  // Flags
+  if(f.width == 0) {
+    while(hasMore) {
+      BOOL next=NO;
+      switch (c) {
+        case '\'': f.flags.thousandGroup= 1;    break;
+        case '-' : f.flags.leftJustify= 1;      break;
+        case '+' : f.flags.plus= 1;             break;
+        case ' ' : f.flags.space= 1;            break;
+        case '#' : f.flags.alternativeForm= 1;  break;
+        case '0' : f.flags.leadingZeros= 1;     break;
+        default: next= YES; break;
+      }
+      if(next) break;
+      TRY_NEXT_CHAR;
+    }
+    // Width
+    while(hasMore) {
+      if('0' <= c && c <= '9') {
+        f.flags.hasWidth= 1;
+        f.width= f.width * 10 + (c - '0'); }
+      else if('*' == c) {
+        f.flags.hasWidth= 1;
+        f.widthArg= __nextArg; }
+      else if('$' == c) {
+        f.widthArg=f.width;
+        f.width= 0;}
+      else break;
+      TRY_NEXT_CHAR;
+    }
+  }
+  
+  // Precision
+  if(hasMore && '.' == c) {
+    while(TRY_NEXT_CHAR) {
+      if('0' <= c && c <= '9') {
+        f.flags.hasPrecision= 1;
+        f.precision= f.precision * 10 + (c - '0'); }
+      else if('*' == c) {
+        f.flags.hasPrecision= 1;
+        f.precisionArg= __nextArg; }
+      else if('$' == c) {
+        f.precisionArg= f.precision;
+        f.precision= 0;}
+      else break;
+    }
+  }
+  
+  // Length
+  while(hasMore) {
+    BOOL next=NO;
+    switch (c) {
+      case 'h': f.type= FormatTypeS4; break;
+      case 'l': f.type= f.type == FormatTypeSL ? FormatTypeS8 : FormatTypeSL;  break;
+      case 'q': f.type= FormatTypeS8; break;
+      case 'j': f.type= FormatTypeSM; break;
+      case 'z': f.type= FormatTypeST; break;
+      case 't': f.type= FormatTypeUD; break;
+      case 'L': f.type= FormatTypeLDBL; break;
+      default:               next= YES; break;
+    }
+    if(next) break;
+    TRY_NEXT_CHAR;
+  }
+  
+  // Specifier
+  if(hasMore) {
+    switch(c) {
+      case 'd': case 'i':
+        if(!f.type)
+          f.type= FormatTypeS4;
+        f.specifier= 'd';
+        break;
+      case 'o': case 'u':
+      case 'x': case 'X':
+        f.type= (f.type > 0 ? f.type + (f.type < FormatTypeUM ? 1 : 0) : FormatTypeU4);
+        f.specifier= c;
+        break;
+      case 'f': case 'F':
+      case 'e': case 'E':
+      case 'g': case 'G':
+      case 'a': case 'A':
+        if(f.type != FormatTypeLDBL)
+          f.type= FormatTypeDBL;
+        f.specifier= c;
+        break;
+      case 'c':
+        f.type= FormatTypeS4;
+        f.specifier= c;
+        break;
+      case '@': case 'n': case 's': case 'p':
+        f.type= FormatTypePTR;
+        f.specifier= c;
+        break;
+      default:
+        break;
+    }
+  }
+  
+  return f;
+}
+
+static inline void _formatPrintSES(CString *s, SES ses, NSUInteger len, NSUInteger width, MSUInt leftJustify)
+{
+  if(!leftJustify && width > len) {
+    CStringAppendCharacterSuite(s, ' ', width - len); }
+  CStringAppendSES(s, ses);
+  if(leftJustify && width > len) {
+    CStringAppendCharacterSuite(s, ' ', width - len); }
+}
+
+static inline void _formatPrintUTF8(CString *s, const char *cstr, NSUInteger len, NSUInteger width, MSByte flags)
+{
+  _formatPrintSES(s, MSMakeSESWithBytes(cstr, len, NSUTF8StringEncoding), len, width, flags);
+}
+
+static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
+{
+  static const char* charsL="0123456789abcdef";
+  static const char* charsU="0123456789ABCDEF";
+  int width=     f.widthArg     ? (int)argTypes[f.widthArg - 1].im : f.width;
+  int precision= f.precisionArg ? (int)argTypes[f.precisionArg - 1].im : f.precision;
+  switch(f.specifier) {
+    case 'd': case 'i': {
+      intmax_t value; uintmax_t v;
+      value= argTypes[f.arg - 1].im;
+      if(f.flags.leadingZeros && !f.flags.hasPrecision)
+        precision= value < 0 || (f.flags.plus || f.flags.space) ? width - 1 : width;
+      char *pos, *end, buffer[1 + MAX(precision, 20)]; // 20 = ceil(log10(2^64))
+      end= buffer + sizeof(buffer);
+      pos= end - 1;
+      v= value > 0 ? value : -value;
+      while(v > 0) {
+        *(pos--)= '0' + v % 10LL ;
+        v /= 10LL ;}
+      
+      if(precision != MSUShortMax) {
+        while(precision >= end - pos) {
+          *(pos--)= '0' ; } }
+      
+      if(value < 0) {
+        *pos--= '-' ;}
+      else if(f.flags.plus) {
+        *pos--= '+' ;}
+      else if(f.flags.space) {
+        *pos--= ' ' ;}
+      _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);
+      break;
+    }
+    case 'p':
+    case 'u': case 'o':
+    case 'x': case 'X':{
+      uintmax_t v= argTypes[f.arg - 1].um;
+      if(f.flags.leadingZeros && !f.flags.hasPrecision)
+        precision= width;
+      char *pos, *end, buffer[1 + MAX(precision, 22)]; // 22 = ceil(log8(2^64))
+      end= buffer + sizeof(buffer);
+      pos= end - 1;
+      const char* chars= f.specifier == 'X' ? charsU : charsL;
+      long long radix= f.specifier == 'u' ? 10LL : (f.specifier == 'o' ? 8LL : 16LL);
+      while(v > 0) {
+        *(pos--)= chars[v % radix] ;
+        v /= radix ;}
+      
+      if(precision != MSUShortMax) {
+        while(precision >= end - pos) {
+          *(pos--)= '0';}}
+      
+      if(f.flags.alternativeForm) {
+        if(f.specifier== 'o') {
+          *pos--= '0';}
+        else if(f.specifier== 'x') {
+          *pos--= 'x';
+          *pos--= '0';}
+        else if(f.specifier== 'X') {
+          *pos--= 'X';
+          *pos--= '0';}
+      }
+      else if(f.specifier == 'p') {
+        *pos--= 'x';
+        *pos--= '0';}
+      
+      _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);
+      break;
+    }
+    case 'f': case 'F':
+    case 'e': case 'E':
+    case 'g': case 'G':
+    case 'a': case 'A': {
+      // TODO: Implement it ? insteed of relying on snprinf.
+      // We have to be very carefull about precision handling.
+      // Requires a lot of tests.
+      char fmt[/*%*/1 + /*flags*/5 + /*width*/20 + /*precision*/21 + /*length*/1 + /*specifier*/1 + /*'\0'*/1];
+      char *fmtPos= fmt, *fmtEnd= fmt + sizeof(fmt);
+      *(fmtPos++)= '%';
+      if(f.flags.leftJustify)     { *(fmtPos++)= '-'; }
+      if(f.flags.plus)            { *(fmtPos++)= '+'; }
+      if(f.flags.space)           { *(fmtPos++)= ' '; }
+      if(f.flags.alternativeForm) { *(fmtPos++)= '#'; }
+      if(f.flags.leadingZeros)    { *(fmtPos++)= '0'; }
+      if(f.flags.hasWidth) {
+        fmtPos+= snprintf(fmtPos, fmtEnd - fmtPos, "%d", (int)width); }
+      if(f.flags.hasPrecision) {
+        fmtPos+= snprintf(fmtPos, fmtEnd - fmtPos, ".%d", (int)precision); }
+      if(f.type == FormatTypeLDBL){ *(fmtPos++)= 'L'; }
+      *(fmtPos++)= f.specifier;
+      *(fmtPos++)= 0;
+      // TODO: Performance test the overhead of the rare usage of long double against double (x87 FPU vs SSE)
+      // to see if it's really needed to distinct both in the code;
+      // several benchmark shows a 50% overhead, which is quite a lot
+      if(f.type == FormatTypeLDBL) {
+        long double value= argTypes[f.arg - 1].ldbl;
+        int n= snprintf(NULL, 0, fmt, value);
+        char buffer[n + 1];
+        snprintf(buffer, n + 1, fmt, value);
+        _formatPrintUTF8(s, buffer, n, width, f.flags.leftJustify);
+      }
+      else {
+        double value= argTypes[f.arg - 1].dbl;
+        int n= snprintf(NULL, 0, fmt, value);
+        char buffer[n + 1];
+        snprintf(buffer, n + 1, fmt, value);
+        _formatPrintUTF8(s, buffer, n, width, f.flags.leftJustify);
+      }
+      break;
+    }
+    case 'c': {
+      unichar str[1];
+      *str = (unichar)argTypes[f.arg - 1].im;
+      _formatPrintSES(s, MSMakeSESWithBytes(str, 1, NSUnicodeStringEncoding), 1, width, f.flags.leftJustify);
+      break;
+    }
+    case 's': {
+      char *cstr= (char*)argTypes[f.arg - 1].um;
+      _formatPrintUTF8(s, cstr, strlen(cstr), width, f.flags.leftJustify);
+      break;
+    }
+    case '@': {
+      id obj= (id)argTypes[f.arg - 1].um;
+      const CString *str= DESCRIPTION(obj);
+      if(str) {
+        _formatPrintSES(s, CStringSES(str), CStringLength(str), width, f.flags.leftJustify); }
+      else {
+        _formatPrintUTF8(s, "nil", 3, width, f.flags.leftJustify); }
+      RELEASE(str);
+      break;
+    }
+  }
+}
+
+#define LOAD_ARG(argtype, var) argType->var= (__typeof__(argType->var))va_arg(ap, argtype)
+
+void CStringAppendFormatv(CString *self, SES fmt, va_list ap)
+{
+  if(!SESOK(fmt)) return;
+  // arg informations/values
+  FormatArg argTypes[argsOnStack];
+  FormatArg *argType;
+  NSUInteger argLoadIdx= 0, argParseIdx= 0;
+  NSUInteger pos=0, positionalPassPos= 0, startPos;
+  BOOL positionalFormating= NO, firstPass= YES;
+  // tmp
+  FormatToken f; unichar u;
+  memset(argTypes, 0, sizeof(argTypes));
+  while(1) {
+    firstPass= YES;
+    while (pos < SESLength(fmt)) {
+      startPos= pos;
+      u= SESIndexN(fmt, &pos);
+      if(u == (unichar)'%' && pos < SESLength(fmt)) {
+        f= _formatParse(fmt, &pos);
+        if(f.specifier == '%') {
+          if(!positionalPassPos) CStringAppendCharacter((CString*)self, '%'); }
+        else if(f.specifier > 0) {
+          if(firstPass && !positionalFormating && f.arg > 0) {
+            positionalFormating= YES;
+            positionalPassPos= startPos;}
+          if(!positionalFormating) {
+            if(f.widthArg == __nextArg) {
+              f.widthArg= ++argParseIdx;}
+            if(f.precisionArg == __nextArg) {
+              f.precisionArg= ++argParseIdx;}
+            f.arg= ++argParseIdx;}
+          if(f.widthArg) {
+            argTypes[f.widthArg - 1].type= FormatTypeS4; }
+          if(f.precisionArg) {
+            argTypes[f.precisionArg - 1].type= FormatTypeS4; }
+          argTypes[f.arg - 1].type= f.type;
+          while((argType= argTypes + argLoadIdx)->type) {
+            // Can't be move to a sub method due arch handling of va_arg
+            switch(argType->type) {
+              case FormatTypeUndefined: abort();
+              case FormatTypeS4:   LOAD_ARG(signed int, im); break;
+              case FormatTypeU4:   LOAD_ARG(unsigned int, um); break;
+              case FormatTypeSL:   LOAD_ARG(signed long, im); break;
+              case FormatTypeUL:   LOAD_ARG(unsigned long, um); break;
+              case FormatTypeS8:   LOAD_ARG(signed long long, im); break;
+              case FormatTypeU8:   LOAD_ARG(unsigned long long, um); break;
+              case FormatTypeSM:   LOAD_ARG(intmax_t, im); break;
+              case FormatTypeUM:   LOAD_ARG(uintmax_t, um); break;
+              case FormatTypeST:   LOAD_ARG(size_t, im); break;
+              case FormatTypeUD:   LOAD_ARG(ptrdiff_t, um); break;
+              case FormatTypePTR:  LOAD_ARG(void*, um); break;
+              case FormatTypeDBL:  LOAD_ARG(double, dbl); break;
+              case FormatTypeLDBL: LOAD_ARG(long double, ldbl); break;
+            }
+            argLoadIdx++;}
+          if(!positionalPassPos) {
+            _formatPrintArg(self, f, argTypes);}
+        }
+      }
+      else if(!positionalPassPos) {
+        CStringAppendCharacter(self, u) ;}}
+    if(positionalPassPos) {
+      pos= positionalPassPos ;
+      positionalPassPos= 0;
+      firstPass= NO;}
+    else break;
+  }
 }
 
 static inline unichar _CEncodingToUnicode(MSByte c, NSStringEncoding encoding)

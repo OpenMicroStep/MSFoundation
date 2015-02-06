@@ -148,6 +148,29 @@ id CArrayCopy(id self)
   return CArrayInitCopyWithMutability(a, (CArray*)self, !((CArray*)self)->flag.fixed);
 }
 
+const CString* CArrayRetainedDescription(id self)
+{
+  CString *s; const CString *d; id *start, *p, *end;
+  if (!self) return nil;
+  s= CCreateString(0);
+  CStringAppendCharacter(s, '(');
+  start= ((CArray*)self)->pointers;
+  p= start;
+  end= p + ((CArray*)self)->count;
+  for(; p < end; ++p) {
+    d= DESCRIPTION(*p);
+    if(p > start)
+      CStringAppendBytes(s, NSUTF8StringEncoding, ", ", 2);
+    if(!d)
+      CStringAppendBytes(s, NSUTF8StringEncoding, "nil", 3);
+    else
+      CStringAppendString(s, d);
+    RELEASE(d);
+  }
+  CStringAppendCharacter(s, ')');
+  return s;
+}
+
 #pragma mark Equality
 
 BOOL CArrayEquals(const CArray *self, const CArray *anotherArray)

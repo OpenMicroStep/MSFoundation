@@ -48,6 +48,7 @@ typedef struct _encodingStuffStruct {
   unichar *toUnicode; // 256
 //unichar (*char2Unichar)(unsigned short); // to be removed ?
   CHAI chai;
+  MSUInt chsize;
   }
 _encodingStuff;
 
@@ -110,31 +111,31 @@ static unichar _bigChaiN     (const void *src, NSUInteger *pos) {return MSFromBi
 static unichar _littleChaiN  (const void *src, NSUInteger *pos) {return MSFromLittle16(((unichar*)src)[(*pos)++]);}
 
 static _encodingStuff _encoding[]= {
-  {NULL                    , InvalidCHAI   }, //  0
-  {NULL                    , _asciiChaiN   }, //  1 NSASCIIStringEncoding=          1, // 0..127 only
-  {__MSNextstepToUnicode   , _nextstepChaiN}, //  2 NSNEXTSTEPStringEncoding=       2,
-  {NULL                    , InvalidCHAI   }, //  3 NSJapaneseEUCStringEncoding=    3,
-  {NULL                    , utf8ChaiN     }, //  4 NSUTF8StringEncoding=           4,
-  {NULL                    , _asciiChaiN   }, //  5 NSISOLatin1StringEncoding=      5,
-  {__MSAdobeSymbolToUnicode, _symbolChaiN  }, //  6 NSSymbolStringEncoding=         6,
-  {NULL                    , _asciiChaiN   }, //  7 NSNonLossyASCIIStringEncoding=  7,
-  {NULL                    , InvalidCHAI   }, //  8 NSShiftJISStringEncoding=       8, // kCFStringEncodingDOSJapanese
-  {__MSIsoLatin2ToUnicode  , _latin2ChaiN  }, //  9 NSISOLatin2StringEncoding=      9,
-  {NULL                    , _unicodeChaiN }, // 10 NSUnicodeStringEncoding=       10,
-  {__MSWindows1251ToUnicode, _w1251ChaiN   }, // 11 NSWindowsCP1251StringEncoding= 11, // Cyrillic; same as AdobeStandardCyrillic
-  {__MSAnsiToUnicode       , _ansiChaiN    }, // 12 NSWindowsCP1252StringEncoding= 12, // WinLatin1
-  {__MSWindows1253ToUnicode, _w1253ChaiN   }, // 13 NSWindowsCP1253StringEncoding= 13, // Greek
-  {__MSWindows1254ToUnicode, _w1254ChaiN   }, // 14 NSWindowsCP1254StringEncoding= 14, // Turkish
-  {__MSWindows1250ToUnicode, _w1250ChaiN   }, // 15 NSWindowsCP1250StringEncoding= 15, // WinLatin2
+  {NULL                    , InvalidCHAI   , sizeof(char)    }, //  0
+  {NULL                    , _asciiChaiN   , sizeof(char)    }, //  1 NSASCIIStringEncoding=          1, // 0..127 only
+  {__MSNextstepToUnicode   , _nextstepChaiN, sizeof(char)    }, //  2 NSNEXTSTEPStringEncoding=       2,
+  {NULL                    , InvalidCHAI   , sizeof(char)    }, //  3 NSJapaneseEUCStringEncoding=    3,
+  {NULL                    , utf8ChaiN     , sizeof(char)    }, //  4 NSUTF8StringEncoding=           4,
+  {NULL                    , _asciiChaiN   , sizeof(char)    }, //  5 NSISOLatin1StringEncoding=      5,
+  {__MSAdobeSymbolToUnicode, _symbolChaiN  , sizeof(char)    }, //  6 NSSymbolStringEncoding=         6,
+  {NULL                    , _asciiChaiN   , sizeof(char)    }, //  7 NSNonLossyASCIIStringEncoding=  7,
+  {NULL                    , InvalidCHAI   , sizeof(char)    }, //  8 NSShiftJISStringEncoding=       8, // kCFStringEncodingDOSJapanese
+  {__MSIsoLatin2ToUnicode  , _latin2ChaiN  , sizeof(char)    }, //  9 NSISOLatin2StringEncoding=      9,
+  {NULL                    , _unicodeChaiN , sizeof(unichar) }, // 10 NSUnicodeStringEncoding=       10,
+  {__MSWindows1251ToUnicode, _w1251ChaiN   , sizeof(char)    }, // 11 NSWindowsCP1251StringEncoding= 11, // Cyrillic; same as AdobeStandardCyrillic
+  {__MSAnsiToUnicode       , _ansiChaiN    , sizeof(char)    }, // 12 NSWindowsCP1252StringEncoding= 12, // WinLatin1
+  {__MSWindows1253ToUnicode, _w1253ChaiN   , sizeof(char)    }, // 13 NSWindowsCP1253StringEncoding= 13, // Greek
+  {__MSWindows1254ToUnicode, _w1254ChaiN   , sizeof(char)    }, // 14 NSWindowsCP1254StringEncoding= 14, // Turkish
+  {__MSWindows1250ToUnicode, _w1250ChaiN   , sizeof(char)    }, // 15 NSWindowsCP1250StringEncoding= 15, // WinLatin2
 
-  {NULL                    , InvalidCHAI   }, // 16 NSISO2022JPStringEncoding=     21, // ISO 2022 Japanese encoding for e-mail
-  {__MSMacRomanToUnicode   , _macChaiN     }, // 17 NSMacOSRomanStringEncoding=    30,
-  {__MSDOSToUnicode        , _dosChaiN     }, // 18 NSDOSStringEncoding=           0x20000, // DOS: Added to NS...Encoding constants
+  {NULL                    , InvalidCHAI   , sizeof(char)    }, // 16 NSISO2022JPStringEncoding=     21, // ISO 2022 Japanese encoding for e-mail
+  {__MSMacRomanToUnicode   , _macChaiN     , sizeof(char)    }, // 17 NSMacOSRomanStringEncoding=    30,
+  {__MSDOSToUnicode        , _dosChaiN     , sizeof(char)    }, // 18 NSDOSStringEncoding=           0x20000, // DOS: Added to NS...Encoding constants
   
-  {NULL                    , InvalidCHAI   }, // 19 NSUTF16StringEncoding= NSUnicodeStringEncoding, // An alias for NSUnicodeStringEncoding
+  {NULL                    , InvalidCHAI   , sizeof(unichar) }, // 19 NSUTF16StringEncoding= NSUnicodeStringEncoding, // An alias for NSUnicodeStringEncoding
   
-  {NULL                    , _bigChaiN     }, // 20 NSUTF16BigEndianStringEncoding=    0x90000100,  // explicit endianness
-  {NULL                    , _littleChaiN  }  // 21 NSUTF16LittleEndianStringEncoding= 0x94000100,  // explicit endianness
+  {NULL                    , _bigChaiN     , sizeof(unichar) }, // 20 NSUTF16BigEndianStringEncoding=    0x90000100,  // explicit endianness
+  {NULL                    , _littleChaiN  , sizeof(unichar) }  // 21 NSUTF16LittleEndianStringEncoding= 0x94000100,  // explicit endianness
 };
 
 /*
@@ -148,6 +149,11 @@ unsigned short CUnicodeToEncoding(unichar u, NSStringEncoding encoding)
   return 0;
 }
 */
+
+MSUInt CStringSizeOfCharacterForEncoding(NSStringEncoding srcEncoding)
+{
+  return _encodingStuffForEncoding(srcEncoding)->chsize;
+}
 
 SES MSMakeSESWithBytes(const void *src, NSUInteger srcLength, NSStringEncoding srcEncoding)
 {
@@ -249,6 +255,25 @@ static SES _SESFind(SES src, SES searched, BOOL insensitive)
       if (_SESPrefix(ses, searched, insensitive).length==ses.length) ret= ses;}}
   return ret;
 }
+
+static inline BOOL _SESEquals(SES a, SES b, BOOL insensitive)
+{
+  BOOL equals= YES; NSUInteger aIdx= 0, bIdx= 0, aLen, bLen;
+  if(!SESOK(a)) return !SESOK(b);
+  if(!SESOK(b)) return NO;
+  aLen= SESLength(a);
+  bLen= SESLength(b);
+  while(equals && aIdx < aLen && bIdx < bLen) {
+    equals= CUnicharEquals(SESIndexN(a, &aIdx), SESIndexN(b, &bIdx), insensitive); }
+  
+  return equals && aIdx == aLen && bIdx == bLen;
+}
+
+BOOL SESEquals(SES a, SES b)
+{ return _SESEquals(a, b, NO); }
+
+BOOL SESInsensitiveEquals(SES a, SES b)
+{ return _SESEquals(a, b, YES); }
 
 SES SESFind(SES src, SES searched)
 {

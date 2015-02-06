@@ -112,6 +112,13 @@ id _MObjectCopy(id obj)
   return [obj copyWithZone:NULL];
 }
 
+const CString* _MObjectRetainedDescription(id obj)
+{
+  id d= [obj description];
+  if(!d || [d isKindOfClass:[MSString class]]) return (const CString*)[d retain];
+  return CCreateStringWithSES(SESFromString(d));
+}
+
 id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 {
   static NSString *__allCLikeClasses[CClassIndexMax+1]= {
@@ -122,7 +129,6 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
     @"MSDate",
     @"MSDecimal",
     @"MSDictionary",
-    0,//MSMutex,
     @"MSString"};
   
   Class aClass= NSClassFromString(__allCLikeClasses[classIndex]);

@@ -620,13 +620,8 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   return value;
 }
 
-// TODO: This is very inefficient
-- (NSUInteger)hash:(unsigned)depth {
-  MSString *str= [[MSString alloc] initWithString:self];
-  NSUInteger hash = [str hash:depth];
-  [str release];
-  return hash;
-}
+- (NSUInteger)hash:(unsigned)depth
+{ return SESHash(SESFromString(self)); }
 @end
 
 @implementation MSString
@@ -634,14 +629,10 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 
 #pragma mark alloc / init
 
-+ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
-+ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
-+ (id)new                         {return MSAllocateObject(self, 0, NULL);}
-+ (id)string         {return AUTORELEASE(MSAllocateObject(self, 0, NULL));}
-- (id)init
-  {
-  return self;
-  }
++ (id)new    { return ALLOC(self);}
+
+- (id)init   { return self; }
+
 + (id)UUIDString
   {
   // TODO: Reimplement
@@ -658,24 +649,95 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 #pragma mark init
 
 // NEEDED
-- (id)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)flag
++ (id)string { return AUTORELEASE(ALLOC(self));}
++ (instancetype)stringWithString:(NSString *)string
+{ return AUTORELEASE([ALLOC(self) initWithString:string]); }
++ (instancetype)stringWithCharacters:(const unichar *)characters length:(NSUInteger)length
+{ return AUTORELEASE([ALLOC(self) initWithCharacters:characters length:length]); }
++ (instancetype)stringWithUTF8String:(const char *)cstr
+{ return AUTORELEASE([ALLOC(self) initWithUTF8String:cstr]); }
++ (instancetype)stringWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
+{ return AUTORELEASE([ALLOC(self) initWithCString:cstr encoding:enc]); }
+
++ (instancetype)stringWithFormat:(NSString *)fmt, ...
+{
+  MSString *s; va_list vp;
+  va_start(vp, fmt);
+  s= AUTORELEASE([ALLOC(self) initWithFormat:fmt locale:nil arguments:vp]);
+  va_end(vp);
+  return s;
+}
++ (instancetype)localizedStringWithFormat:(NSString *)fmt, ...
+{
+  MSString *s; va_list vp;
+  va_start(vp, fmt);
+  s= AUTORELEASE([ALLOC(self) initWithFormat:fmt locale:nil/* TODO*/ arguments:vp]);
+  va_end(vp);
+  return s;
+}
+
+- (instancetype)initWithString:(NSString *)string
+{
+  CStringAppendSES((CString*)self, SESFromString(string));
+  return self;
+}
+
+- (instancetype)initWithData:(NSData *)data encoding:(NSStringEncoding)encoding
+{
+  CStringAppendBytes((CString*)self, encoding, [data bytes], [data length]/CStringSizeOfCharacterForEncoding(encoding));
+  return self;
+}
+- (instancetype)initWithBytes:(const void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding
+{
+  CStringAppendBytes((CString*)self, encoding, bytes, len/CStringSizeOfCharacterForEncoding(encoding));
+  return self;
+}
+- (instancetype)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding freeWhenDone:(BOOL)flag
+{
+  CStringAppendBytes((CString*)self, encoding, bytes, len/CStringSizeOfCharacterForEncoding(encoding));
+  if (flag) free(bytes);
+  return self;
+}
+- (instancetype)initWithCharacters:(const unichar *)characters length:(NSUInteger)length
+{
+  CStringAppendBytes((CString*)self, NSUnicodeStringEncoding, characters, length);
+  return self;
+}
+- (instancetype)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)flag
 {
   CStringAppendBytes((CString*)self, NSUnicodeStringEncoding, characters, length);
   if (flag) free(characters);
   return self;
 }
-
-- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length encoding:(NSStringEncoding)encoding
+- (instancetype)initWithCString:(const char *)cstr encoding:(NSStringEncoding)encoding
 {
-  CStringAppendBytes((CString*)self, encoding, bytes, length);
+  CStringAppendBytes((CString*)self, encoding, cstr, strlen(cstr));
   return self;
 }
 
-- (id)initWithFormat:(NSString *)fmt locale:(id)locale arguments:(va_list)args
-  {
-  RELEASE(self);
-  return (MSString*)[[NSString alloc] initWithFormat:fmt locale:locale arguments:args];
-  }
+- (instancetype)initWithFormat:(NSString *)fmt, ...
+{
+  va_list args;
+  va_start(args, fmt);
+  self= [self initWithFormat:fmt locale:nil arguments:args];
+  va_end(args);
+  return self;
+}
+- (instancetype)initWithFormat:(NSString *)fmt locale:(id)locale, ...
+{
+  va_list args;
+  va_start(args, locale);
+  self= [self initWithFormat:fmt locale:locale arguments:args];
+  va_end(args);
+  return self;
+}
+- (instancetype)initWithFormat:(NSString *)fmt arguments:(va_list)args
+{ return [self initWithFormat:fmt locale:nil arguments:args]; }
+- (instancetype)initWithFormat:(NSString *)fmt locale:(id)locale arguments:(va_list)args
+{
+  CStringAppendFormatv((CString*)self, SESFromString(fmt), args);
+  return self;
+}
 
 #pragma mark Primitives
 
@@ -696,7 +758,12 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 }
 - (SES)stringEnumeratorStructure
 {
-  return MSMakeSESWithBytes(_buf, _length, NSUnicodeStringEncoding);
+  return CStringSES((CString*)self);
+}
+
+- (NSString *)substringWithRange:(NSRange)range
+{
+  return AUTORELEASE((id)CCreateStringWithBytes(NSUnicodeStringEncoding, _buf + range.location, range.length));
 }
 
 #pragma mark Global methods
@@ -715,15 +782,12 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   CStringAppendString(s, (const CString*)self);
   return (id)s;
   }
-/*
+
 - (BOOL)isEqualToString:(NSString*)s
   {
-  if (s == (id)self) return YES;
-  if (!s) return NO;
-  if ([s _isMS]) return CStringEquals((CString*)self,(CString*)s);
-  return [super isEqualToString:s];
+  return SESEquals(SESFromString(self), SESFromString(s));
   }
-*/
+
 - (BOOL)isEqual:(id)object
   {
   if (object == (id)self) return YES;
@@ -731,25 +795,34 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   if ([object isKindOfClass:[MSString class]]) {
     return CStringEquals((CString*)self, (CString*)object);}
   else if ([object isKindOfClass:[NSString class]]) {
-    NSUInteger n= [object length];
-    BOOL eq= (n == [self length]);
-    if (eq) {
-      unichar b[n?n:1];
-      NSUInteger i;
-      [object getCharacters:b range:NSMakeRange(0, n)];
-      for (i= 0; eq && i<n; i++) eq= (_buf[i]==b[i]);
-    }
-//NSLog(@"MSString isEqual %@ %@= %@ %@\n",self,(eq?@"=":@"!"),[object class],object);
-    return eq;}
+    return SESEquals(SESFromString(self), SESFromString(object));}
   return NO;
   }
 
 #pragma mark description
 
-- (NSString*)description
+static inline unichar _noopTransform(unichar ch)
+{ return ch; }
+static inline NSString* _caseTransformedString(NSString* self, unichar (*firstChar)(unichar ch), unichar (*otherChars)(unichar ch))
 {
-  return self;
+  SES ses; NSUInteger i= 0; CString *s;
+  ses= [self stringEnumeratorStructure];
+  s= CCreateString([self length]);
+  if (i < SESLength(ses)) {
+    CStringAppendCharacter(s, firstChar(SESIndexN(ses, &i)));}
+  while (i < SESLength(ses)) {
+    CStringAppendCharacter(s, otherChars(SESIndexN(ses, &i)));}
+  return AUTORELEASE((id)s);
 }
+- (NSString *)uppercaseString
+{ return _caseTransformedString(self, CUnicharToUpper, CUnicharToUpper);}
+- (NSString *)lowercaseString
+{ return _caseTransformedString(self, CUnicharToLower, CUnicharToLower);}
+- (NSString *)capitalizedString
+{ return _caseTransformedString(self, CUnicharToUpper, _noopTransform);}
+
+- (NSString*)description
+{ return self; }
 
 #pragma mark encoding
 

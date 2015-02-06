@@ -137,14 +137,13 @@ MSCouple *MSCreateCouple(id first, id second)
 
 // we use quite the same description as NSArray
 // the difference is that we can have null values here
+
+- (NSString*)description   {return [(id)CCoupleRetainedDescription(self) autorelease];}
 - (NSString *)toString
 {
-  return [NSString stringWithFormat:@"[%@,%@]",
-         (_members[0] ? [_members[0] listItemString] : @"null"),
-         (_members[1] ? [_members[1] listItemString] : @"null")];
+  return [self description];
 }
 
-- (NSString *)description { return [self toString]; }
 - (NSString *)displayString
 {
   return ([_members[0] length] ?

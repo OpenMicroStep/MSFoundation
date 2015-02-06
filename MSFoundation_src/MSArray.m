@@ -466,21 +466,11 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 }
 - (NSString *)jsonRepresentation { return CArrayJsonRepresentation((CArray *)self); }
 */
-- (NSString*)toString
-{
-// TODO: return (NSString*)CArrayToString((CArray*)self);
-  NSMutableString *s; id oe,o; BOOL first;
-  s= [NSMutableString string];
-  [s appendString:@"["];
-  for (first= YES, oe= [self objectEnumerator]; (o= [oe nextObject]); first= NO) {
-    [s appendFormat:@"%@%@",(first?@"":@", "),o];}
-  [s appendString:@"]"];
-  return s;
-}
 
-- (NSString*)description                                                          {return [self toString];}
-- (NSString*)descriptionWithLocale:(NSDictionary*)locale                          {return [self toString]; locale= NULL;}
-- (NSString*)descriptionWithLocale:(NSDictionary*)locale indent:(NSUInteger)level {return [self toString]; locale= NULL; level= 0;}
+- (NSString*)toString                                                             {return [self description];}
+- (NSString*)description                                                          {return [(id)CArrayRetainedDescription(self) autorelease];}
+- (NSString*)descriptionWithLocale:(NSDictionary*)locale                          {return [self description]; locale= NULL;}
+- (NSString*)descriptionWithLocale:(NSDictionary*)locale indent:(NSUInteger)level {return [self description]; locale= NULL; level= 0;}
 
 #pragma mark NSCoding protocol
 

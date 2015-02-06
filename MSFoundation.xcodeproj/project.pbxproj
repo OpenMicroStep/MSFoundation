@@ -42,6 +42,7 @@
 		408D25721A7D1289007258D4 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
 		408D25761A7E9C37007258D4 /* MSTests.c in Sources */ = {isa = PBXBuildFile; fileRef = 408D25751A7E9C37007258D4 /* MSTests.c */; };
 		408D25771A7E9C37007258D4 /* MSTests.c in Sources */ = {isa = PBXBuildFile; fileRef = 408D25751A7E9C37007258D4 /* MSTests.c */; };
+		A604A2311A8515B3001DAD54 /* FoundationCompatibility_Private.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */; };
 		A64D645E1A77DBA400CCA6D7 /* mscore_validate.h in Resources */ = {isa = PBXBuildFile; fileRef = A6E038981A76304600A97DA3 /* mscore_validate.h */; };
 		A64D645F1A77DC4300CCA6D7 /* libMSCore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03A911A7634AA00A97DA3 /* libMSCore.dylib */; };
 		A64D64601A77DE6A00CCA6D7 /* mscore_c_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */; };
@@ -481,6 +482,7 @@
 		A6E4EAF21A7FABDC002E99FF /* NSInvocation.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E4EAF01A7FABDC002E99FF /* NSInvocation.m */; };
 		A6E4EAF51A7FABF1002E99FF /* NSValue.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E4EAF31A7FABF1002E99FF /* NSValue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6E4EAF61A7FABF1002E99FF /* NSValue.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E4EAF41A7FABF1002E99FF /* NSValue.m */; };
+		A6E4EAF81A7FB1A0002E99FF /* NSConstantString.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E4EAF71A7FB1A0002E99FF /* NSConstantString.m */; };
 		A6E4EAF91A7FC984002E99FF /* MSBool.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038E11A7630CB00A97DA3 /* MSBool.m */; };
 		A6E4EAFA1A7FC98C002E99FF /* MSCoderAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038E71A7630CB00A97DA3 /* MSCoderAdditions.m */; };
 		A6E4EAFC1A7FC993002E99FF /* MSLanguage.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E038F21A7630CB00A97DA3 /* MSLanguage.m */; };
@@ -611,6 +613,7 @@
 		408D25681A7D0CB8007258D4 /* simple */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = simple; sourceTree = BUILT_PRODUCTS_DIR; };
 		408D256A1A7D0CB8007258D4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		408D25751A7E9C37007258D4 /* MSTests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSTests.c; path = MSTests_src/MSTests.c; sourceTree = "<group>"; };
+		A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FoundationCompatibility_Private.m; path = Foundation_src/FoundationCompatibility_Private.m; sourceTree = "<group>"; };
 		A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_validate.m; path = MSFoundation_tst/msfoundation_validate.m; sourceTree = SOURCE_ROOT; };
 		A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundationforcocoa_test.m; path = MSFoundation_tst/msfoundationforcocoa_test.m; sourceTree = SOURCE_ROOT; };
 		A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MSFoundationForCocoa-Info.plist"; path = "MSFoundation_src/MSFoundationForCocoa-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -848,6 +851,7 @@
 		A6E4EAF01A7FABDC002E99FF /* NSInvocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSInvocation.m; path = Foundation_src/NSInvocation.m; sourceTree = "<group>"; };
 		A6E4EAF31A7FABF1002E99FF /* NSValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSValue.h; path = Foundation_src/NSValue.h; sourceTree = "<group>"; };
 		A6E4EAF41A7FABF1002E99FF /* NSValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSValue.m; path = Foundation_src/NSValue.m; sourceTree = "<group>"; };
+		A6E4EAF71A7FB1A0002E99FF /* NSConstantString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSConstantString.m; path = Foundation_src/NSConstantString.m; sourceTree = "<group>"; };
 		A6E4EB031A7FCCDC002E99FF /* NSNotificationCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSNotificationCenter.h; path = Foundation_src/NSNotificationCenter.h; sourceTree = "<group>"; };
 		A6E4EB041A7FCCDC002E99FF /* NSNotificationCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSNotificationCenter.m; path = Foundation_src/NSNotificationCenter.m; sourceTree = "<group>"; };
 		A6E4EB0B1A7FEC65002E99FF /* NSNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSNotification.h; path = Foundation_src/NSNotification.h; sourceTree = "<group>"; };
@@ -1326,6 +1330,7 @@
 		A6E03BB41A7681B800A97DA3 /* Bases */ = {
 			isa = PBXGroup;
 			children = (
+				A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */,
 				A6E03C011A769A3100A97DA3 /* NSObjCRuntime.h */,
 				A6E03BFF1A769A0300A97DA3 /* NSObjCRuntime.m */,
 				A6E03B8D1A767E1200A97DA3 /* NSObject.h */,
@@ -1334,6 +1339,7 @@
 				A6E03BF31A76954C00A97DA3 /* NSAutoreleasePool.m */,
 				A6E03B991A767F6600A97DA3 /* NSString.h */,
 				A6E03B9A1A767F6600A97DA3 /* NSString.m */,
+				A6E4EAF71A7FB1A0002E99FF /* NSConstantString.m */,
 				A6E03B9D1A767F7400A97DA3 /* NSArray.h */,
 				A6E03B9E1A767F7400A97DA3 /* NSArray.m */,
 				A6E03BA11A767F8100A97DA3 /* NSDictionary.h */,
@@ -1928,6 +1934,7 @@
 				A6E039D01A76320700A97DA3 /* mapm_lg3.c in Sources */,
 				A6E039D11A76320700A97DA3 /* mapm_lg4.c in Sources */,
 				A6E039D21A76320700A97DA3 /* mapm_log.c in Sources */,
+				A6E4EAF81A7FB1A0002E99FF /* NSConstantString.m in Sources */,
 				A6E039D31A76320700A97DA3 /* mapm_mul.c in Sources */,
 				A6E039D41A76320700A97DA3 /* mapm_pow.c in Sources */,
 				A6E4EAF91A7FC984002E99FF /* MSBool.m in Sources */,
@@ -2009,6 +2016,7 @@
 				A6E03BE81A76912700A97DA3 /* MSColor.m in Sources */,
 				A64D64E71A792D2500CCA6D7 /* MSCNaturalArray.m in Sources */,
 				A64D64E81A792D3E00CCA6D7 /* MSNaturalArrayEnumerator.m in Sources */,
+				A604A2311A8515B3001DAD54 /* FoundationCompatibility_Private.m in Sources */,
 				A64D64E61A792C6A00CCA6D7 /* MSNaturalArray.m in Sources */,
 				A6E03BB31A76811700A97DA3 /* MSCObject.m in Sources */,
 			);

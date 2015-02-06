@@ -251,6 +251,7 @@
 #pragma mark Primitives
 
 - (NSUInteger)hash:(unsigned)depth {return CBufferHash(self, depth);}
+- (NSString*)description   {return [(id)CBufferRetainedDescription(self) autorelease];}
 
 - (NSUInteger)length { return _length; }
 - (const void *)bytes { return (const void *)_buf; }

@@ -1,4 +1,4 @@
-@class NSLocale;
+@class NSLocale, NSData;
 
 typedef uint16_t unichar;
 
@@ -21,22 +21,47 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 
 @end
 
+@interface NSString (NSStringCreation)
+
+- (instancetype)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)freeBuffer;	/* "NoCopy" is a hint */
+- (instancetype)initWithCharacters:(const unichar *)characters length:(NSUInteger)length;
+- (instancetype)initWithUTF8String:(const char *)nullTerminatedCString;
+- (instancetype)initWithString:(NSString *)aString;
+- (instancetype)initWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
+- (instancetype)initWithFormat:(NSString *)format arguments:(va_list)argList NS_FORMAT_FUNCTION(1,0);
+- (instancetype)initWithFormat:(NSString *)format locale:(id)locale, ... NS_FORMAT_FUNCTION(1,3);
+- (instancetype)initWithFormat:(NSString *)format locale:(id)locale arguments:(va_list)argList NS_FORMAT_FUNCTION(1,0);
+- (instancetype)initWithData:(NSData *)data encoding:(NSStringEncoding)encoding;
+- (instancetype)initWithBytes:(const void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding;
+- (instancetype)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding freeWhenDone:(BOOL)freeBuffer;	/* "NoCopy" is a hint */
+- (instancetype)initWithCString:(const char *)nullTerminatedCString encoding:(NSStringEncoding)encoding;
+
++ (instancetype)string;
++ (instancetype)stringWithString:(NSString *)string;
++ (instancetype)stringWithCharacters:(const unichar *)characters length:(NSUInteger)length;
++ (instancetype)stringWithUTF8String:(const char *)nullTerminatedCString;
++ (instancetype)stringWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
++ (instancetype)localizedStringWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
++ (instancetype)stringWithCString:(const char *)cString encoding:(NSStringEncoding)enc;
+@end
+
 @interface NSString (NSStringExtensionMethods)
+- (BOOL)isEqualToString:(NSString*)s;
+
 - (NSRange)rangeOfString:(NSString *)aString;
 - (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask;
 - (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask range:(NSRange)searchRange;
 - (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask range:(NSRange)searchRange locale:(NSLocale *)locale;
+
+- (NSString *)uppercaseString;
+- (NSString *)lowercaseString;
+- (NSString *)capitalizedString;
 @end
 
 @interface NSMutableString : NSString
 
 @end
 
-//TODO: a root class ? really ?
-@interface NSConstantString {
-    Class isa;
-    const char *_bytes;
-    uint32_t _length;
-}
+@interface NSConstantString : NSString
 @end
 

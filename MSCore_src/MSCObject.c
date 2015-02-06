@@ -53,6 +53,7 @@ typedef void       (*CObjectAction  )(id);
 typedef BOOL       (*CObjectTest    )(id, id);
 typedef NSUInteger (*CObjectHashier )(id, unsigned);
 typedef id         (*CObjectAccessor)(id);
+typedef const CString* (*CObjectDescription)(id);
 
 typedef struct CClassStruct {
   struct CClassStruct *isa;
@@ -61,24 +62,28 @@ typedef struct CClassStruct {
   CObjectTest          isEqual;
   CObjectHashier       hashier;
   CObjectAccessor      copier;
+  CObjectDescription   descriptor;
   NSUInteger           instanceSize;
   NSUInteger           elementSize;} // For growable instance
 CClass;
 
+const CString *CClassRetainedDescription(id self)
+{
+  return CCreateStringWithBytes(NSUTF8StringEncoding, ((CClass*)self)->className, strlen(((CClass*)self)->className));
+}
+
 static struct CClassStruct metaclass=
-{  NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , sizeof(CClass)     , 0              };
+{  NULL      , "Class"         , NULL              , NULL                 , NULL              , NULL              , CClassRetainedDescription      , sizeof(CClass)     , 0              };
 static CClass __allClasses[CClassIndexMax+1]=
-{ //           className         deallocator         isEqual                hashier             copier              instanceSize        elementSize
-  {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , sizeof(CArray)     , sizeof(id)     },
-  {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , sizeof(CBuffer)    , sizeof(MSByte) },
-  {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , sizeof(CColor)     , 0              },
-  {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , sizeof(CCouple)    , 0              },
-  {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , sizeof(CDate)      , 0              },
-  {&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , sizeof(CDecimal)   , 0              },
-  {&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , sizeof(CDictionary), sizeof(void*)  },
-  {&metaclass, "CMutex"        , NULL              , NULL                 , NULL              , NULL              , 0                  , 0              },
-//{&metaclass, "CMutex"        , CMutexFree        , NULL                 , MSPointerHash     , NULL              , sizeof(CMutex)     , 0              },
-  {&metaclass, "CString"       , CStringFree       , CStringIsEqual       , CStringHash       , CStringCopy       , sizeof(CString)    , sizeof(unichar)}
+{ //           className         deallocator         isEqual                hashier             copier              descriptor                       instanceSize         elementSize
+  {&metaclass, "CArray"        , CArrayFree        , CArrayIsEqual        , CArrayHash        , CArrayCopy        , CArrayRetainedDescription      , sizeof(CArray)     , sizeof(id)     },
+  {&metaclass, "CBuffer"       , CBufferFree       , CBufferIsEqual       , CBufferHash       , CBufferCopy       , CBufferRetainedDescription     , sizeof(CBuffer)    , sizeof(MSByte) },
+  {&metaclass, "CColor"        , CColorFree        , CColorIsEqual        , CColorHash        , CColorCopy        , CColorRetainedDescription      , sizeof(CColor)     , 0              },
+  {&metaclass, "CCouple"       , CCoupleFree       , CCoupleIsEqual       , CCoupleHash       , CCoupleCopy       , CCoupleRetainedDescription     , sizeof(CCouple)    , 0              },
+  {&metaclass, "CDate"         , CDateFree         , CDateIsEqual         , CDateHash         , CDateCopy         , CDateRetainedDescription       , sizeof(CDate)      , 0              },
+  {&metaclass, "CDecimal"      , CDecimalFree      , CDecimalIsEqual      , CDecimalHash      , CDecimalCopy      , CDecimalRetainedDescription    , sizeof(CDecimal)   , 0              },
+  {&metaclass, "CDictionary"   , CDictionaryFree   , CDictionaryIsEqual   , CDictionaryHash   , CDictionaryCopy   , CDictionaryRetainedDescription , sizeof(CDictionary), sizeof(void*)  },
+  {&metaclass, "CString"       , CStringFree       , CStringIsEqual       , CStringHash       , CStringCopy       , CStringRetainedDescription     , sizeof(CString)    , sizeof(unichar)}
 };
 
 #define CISA(obj) ((CClass*)((obj)->isa))
@@ -136,6 +141,18 @@ id _CObjectCopy(id obj)
       return CISA(obj)->copier(obj);}
     else {
       MSReportError(MSGenericError, MSFatalError, MSUnimplementedMethod, "Objects of class %s don't implement the 'copier' function", obj->isa->className);
+    }
+  }
+  return nil;
+}
+
+const CString* _CObjectRetainedDescription(id obj)
+{
+  if (obj) {
+    if (CISA(obj)->descriptor) {
+      return CISA(obj)->descriptor(obj);}
+    else {
+      MSReportError(MSGenericError, MSFatalError, MSUnimplementedMethod, "Objects of class %s don't implement the 'descriptor' function", obj->isa->className);
     }
   }
   return nil;

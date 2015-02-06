@@ -180,7 +180,7 @@ static inline int cdecimal_cast(void)
   MSULong rul  [12]= {       0     ,       0    ,         0  ,        0  , 0,MSCharMax  ,MSByteMax  ,MSShortMax  ,MSUShortMax  ,MSIntMax    ,__UIntMaxU    ,MSLongMax    };
   MSULong rulp1[12]= {       0     ,       0    ,         0  ,        0  , 1,MSCharMax+1,MSByteMax+1,MSShortMax+1,MSUShortMax+1,MSIntMax+1ULL,__UIntMaxU+1ULL,MSLongMax+1ULL};
   CDecimal *c,*minus1,*cm1,*cp1;
-  CString *s; CBuffer *b;
+  const CString *s; CBuffer *b;
   minus1= CCreateDecimalWithLongLong(-1);
   for (i=0; i<12; i++) {
     c= CCreateDecimalWithLongLong(val[i]);
@@ -210,7 +210,7 @@ static inline int cdecimal_cast(void)
     if (        CDecimalULongValue( cm1)!=rulm1[i]) {err++; printf("E81-%d %llu %llu\n",i,CDecimalULongValue(  cm1),rulm1[i]);}
     if (        CDecimalULongValue( c  )!=rul  [i]) {err++; printf("E82-%d %llu %llu\n",i,CDecimalULongValue(  c  ),rul  [i]);}
     if (        CDecimalULongValue( cp1)!=rulp1[i]) {err++; printf("E83-%d %llu %llu\n",i,CDecimalULongValue(  cp1),rulp1[i]);}
-    s= CCreateDecimalDescription(cp1);
+    s= CDecimalRetainedDescription((id)cp1);
     b= CCreateBufferWithString(s, NSUTF8StringEncoding);
   //printf("E99-%d %s\n",i,CBufferCString(b));
     RELEASE(b); RELEASE(s);

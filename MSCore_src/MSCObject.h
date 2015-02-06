@@ -58,6 +58,15 @@
 
 #endif
 
+typedef struct CArrayStruct      CArray;
+typedef struct CBufferStruct     CBuffer;
+typedef struct CColorStruct      CColor;
+typedef struct CCoupleStruct     CCouple;
+typedef struct CDateStruct       CDate;
+typedef struct CDecimalStruct    CDecimal;
+typedef struct CDictionaryStruct CDictionary;
+typedef struct CStringStruct     CString;
+
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
 ///// Class for c-like objects
 typedef struct ClassStruct {
@@ -85,7 +94,6 @@ typedef enum {
   CDateClassIndex,
   CDecimalClassIndex,
   CDictionaryClassIndex,
-  CMUtexClassIndex,
   CStringClassIndex}
 CClassIndex;
 #define CClassIndexMax ((NSUInteger)CStringClassIndex)
@@ -127,6 +135,10 @@ typedef NSComparisonResult (*MSObjectComparator)(id, id, void*);
 #undef COPY
 #endif
 
+#ifdef DESCRIPTION
+#undef DESCRIPTION
+#endif
+
 #ifdef MSCORE_STANDALONE // ---------------------------------- MSCORE_STANDALONE
 // No autorelease in Core. Not needed, not a priority.
 
@@ -138,6 +150,7 @@ MSCoreExtern BOOL        _CObjectIsEqual  (id obj1, id obj2);
 MSCoreExtern NSUInteger  _CObjectHash     (id obj);
 MSCoreExtern NSUInteger  _CObjectHashDepth(id obj, unsigned depth);
 MSCoreExtern id          _CObjectCopy     (id obj);
+MSCoreExtern const CString* _CObjectRetainedDescription(id obj);
 
 #define ISA(X)         ((X)->isa)
 #define NAMEOFCLASS(X) (ISA(X)->className)
@@ -151,6 +164,7 @@ MSCoreExtern id          _CObjectCopy     (id obj);
 #define HASH(X)        _CObjectHash     ((id)(X))
 #define HASHDEPTH(X,D) _CObjectHashDepth((id)(X),(D))
 #define COPY(X)        _CObjectCopy     ((id)(X))
+#define DESCRIPTION(X) _CObjectRetainedDescription((id)(X))
 
 #else // ---------------------------------------------------- !MSCORE_STANDALONE
 
@@ -164,6 +178,10 @@ MSCoreExtern BOOL        _MObjectIsEqual  (id obj1, id obj2);
 MSCoreExtern NSUInteger  _MObjectHash     (id obj);
 MSCoreExtern NSUInteger  _MObjectHashDepth(id obj, unsigned depth);
 MSCoreExtern id          _MObjectCopy     (id obj);
+MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
+
+// A retained CString made from [X description]
+#define DESCRIPTION(X) _MObjectRetainedDescription((id)(X))
 
 #ifdef MSCORE_FORFOUNDATION                              // MSCORE_FORFOUNDATION
 
@@ -229,47 +247,53 @@ MSCoreExtern id          _MObjectCopy     (id obj);
 #define RELEAZEN(X) ({ id __x__= (id)X; X= NULL; RELEASE(__x__); })
 #define DESTROY RELEAZEN
 
-MSCoreExtern void       CArrayFree(id self);
-MSCoreExtern BOOL       CArrayIsEqual(id self, id other);
-MSCoreExtern NSUInteger CArrayHash(id self, unsigned depth);
-MSCoreExtern id         CArrayCopy(id self);
+MSCoreExtern void           CArrayFree(id self);
+MSCoreExtern BOOL           CArrayIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CArrayHash(id self, unsigned depth);
+MSCoreExtern id             CArrayCopy(id self);
+MSCoreExtern const CString* CArrayRetainedDescription(id self);
 
-MSCoreExtern void       CBufferFree(id self);
-MSCoreExtern BOOL       CBufferIsEqual(id self, id other);
-MSCoreExtern NSUInteger CBufferHash(id self, unsigned depth);
-MSCoreExtern id         CBufferCopy(id self);
+MSCoreExtern void           CBufferFree(id self);
+MSCoreExtern BOOL           CBufferIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CBufferHash(id self, unsigned depth);
+MSCoreExtern id             CBufferCopy(id self);
+MSCoreExtern const CString* CBufferRetainedDescription(id self);
 
-MSCoreExtern void       CColorFree(id self);
-MSCoreExtern BOOL       CColorIsEqual(id self, id other);
-MSCoreExtern NSUInteger CColorHash(id self, unsigned depth);
-MSCoreExtern id         CColorCopy(id self);
+MSCoreExtern void           CColorFree(id self);
+MSCoreExtern BOOL           CColorIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CColorHash(id self, unsigned depth);
+MSCoreExtern id             CColorCopy(id self);
+MSCoreExtern const CString* CColorRetainedDescription(id self);
 
-MSCoreExtern void       CCoupleFree(id self);
-MSCoreExtern BOOL       CCoupleIsEqual(id self, id other);
-MSCoreExtern NSUInteger CCoupleHash(id self, unsigned depth);
-MSCoreExtern id         CCoupleCopy(id self);
+MSCoreExtern void           CCoupleFree(id self);
+MSCoreExtern BOOL           CCoupleIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CCoupleHash(id self, unsigned depth);
+MSCoreExtern id             CCoupleCopy(id self);
+MSCoreExtern const CString* CCoupleRetainedDescription(id self);
 
-MSCoreExtern void       CDateFree(id self);
-MSCoreExtern BOOL       CDateIsEqual(id self, id other);
-MSCoreExtern NSUInteger CDateHash(id self, unsigned depth);
-MSCoreExtern id         CDateCopy(id self);
+MSCoreExtern void           CDateFree(id self);
+MSCoreExtern BOOL           CDateIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CDateHash(id self, unsigned depth);
+MSCoreExtern id             CDateCopy(id self);
+MSCoreExtern const CString* CDateRetainedDescription(id self);
 
-MSCoreExtern void       CDecimalFree(id self);
-MSCoreExtern BOOL       CDecimalIsEqual(id self, id other);
-MSCoreExtern NSUInteger CDecimalHash(id self, unsigned depth);
-MSCoreExtern id         CDecimalCopy(id self);
+MSCoreExtern void           CDecimalFree(id self);
+MSCoreExtern BOOL           CDecimalIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CDecimalHash(id self, unsigned depth);
+MSCoreExtern id             CDecimalCopy(id self);
+MSCoreExtern const CString* CDecimalRetainedDescription(id self);
 
-MSCoreExtern void       CDictionaryFree(id self);
-MSCoreExtern BOOL       CDictionaryIsEqual(id self, id other);
-MSCoreExtern NSUInteger CDictionaryHash(id self, unsigned depth);
-MSCoreExtern id         CDictionaryCopy(id self);
+MSCoreExtern void           CDictionaryFree(id self);
+MSCoreExtern BOOL           CDictionaryIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CDictionaryHash(id self, unsigned depth);
+MSCoreExtern id             CDictionaryCopy(id self);
+MSCoreExtern const CString* CDictionaryRetainedDescription(id self);
 
-//MSCoreExtern void       CMutexFree(id self);
-
-MSCoreExtern void       CStringFree(id self);
-MSCoreExtern BOOL       CStringIsEqual(id self, id other);
-MSCoreExtern NSUInteger CStringHash(id self, unsigned depth);
-MSCoreExtern id         CStringCopy(id self);
+MSCoreExtern void           CStringFree(id self);
+MSCoreExtern BOOL           CStringIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CStringHash(id self, unsigned depth);
+MSCoreExtern id             CStringCopy(id self);
+MSCoreExtern const CString* CStringRetainedDescription(id self);
 
 // Private for CArrayIsEqual, CBufferIsEqual...
 typedef BOOL (*CObjectEq)(id, id);

@@ -142,7 +142,4 @@ MSCoreExtern NSTimeInterval GMTWithYMDHMS(
 MSCoreExtern NSTimeInterval GMTFromLocal(MSTimeInterval t); // TODO: How on windows ?
 MSCoreExtern MSTimeInterval GMTToLocal(NSTimeInterval t);
 
-// TODO: description functions
-MSCoreExtern CString *CCreateDateDescription(CDate *self); // %Y/%m/%d-%H:%M:%S
-
 #endif

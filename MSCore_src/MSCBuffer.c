@@ -75,6 +75,28 @@ id CBufferCopy(id self)
   return (id)b;
 }
 
+const CString* CBufferRetainedDescription(id self)
+{
+  static const char* hex= "0123456789abcdef";
+  CString *s; const MSByte *start, *p, *end; BOOL space= NO; NSUInteger len;
+  if (!self) return nil;
+  len= ((CBuffer*)self)->length;
+  s= CCreateString( len*2 + (len > 0 ? (len + 1)/2 - 1 : 0) + 2);
+  CStringAppendCharacter(s, '<');
+  start= ((CBuffer*)self)->buf;
+  p= start;
+  end= p + len;
+  for(; p < end; ++p) {
+    if(space && p > start)
+      CStringAppendCharacter(s, ' ');
+    CStringAppendCharacter(s, hex[(*p     ) & 0xF]);
+    CStringAppendCharacter(s, hex[(*p >> 4) & 0xF]);
+    space= !space;
+  }
+  CStringAppendCharacter(s, '>');
+  return s;
+}
+
 #pragma mark Equality
 
 BOOL CBufferEquals(const CBuffer *self, const CBuffer *anotherBuffer)

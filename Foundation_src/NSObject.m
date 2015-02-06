@@ -120,7 +120,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"<%@ %p>", [self class], self];
+    return [NSString stringWithFormat:@"<%s %p>", object_getClassName(self), self];
 }
 
 - (NSString *)debugDescription

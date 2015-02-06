@@ -196,6 +196,58 @@ id CDictionaryCopy(id self)
   return CDictionaryInitCopy(d, (CDictionary*)self, NO);
 }
 
+typedef struct {
+  const void *source;
+  CHAI chai;
+  MSByte counter;
+} _indentChaiSrc;
+
+unichar _indentChai(const void *src, NSUInteger *pos) {
+  unichar c; _indentChaiSrc *s;
+  s= (_indentChaiSrc *)src;
+  if(s->counter > 0) {
+    c= ' ';
+    s->counter--; }
+  else {
+    c= s->chai(s->source, pos);
+    if(c == (unichar)'\n') {
+      s->counter= 2; }}
+  return c;
+}
+
+const CString* CDictionaryRetainedDescription(id self)
+{
+  if(!self) return nil;
+  id k, o; const CString *d; SES ses; _indentChaiSrc identChai;
+  CDictionaryEnumerator *e= CDictionaryEnumeratorAlloc((CDictionary*)self);
+  CString *s= CCreateString(0);
+  CStringAppendCharacter(s, '{');
+  CStringAppendCharacter(s, '\n');
+  while ((k= CDictionaryEnumeratorNextKey(e)) && (o= CDictionaryEnumeratorCurrentObject(e))) {
+    CStringAppendCharacter(s, ' ');
+    CStringAppendCharacter(s, ' ');
+    d= DESCRIPTION(k);
+    CStringAppendString(s, d);
+    RELEASE(d);
+    CStringAppendCharacter(s, ' ');
+    CStringAppendCharacter(s, '=');
+    CStringAppendCharacter(s, ' ');
+    d= DESCRIPTION(o);
+    ses= CStringSES(d);
+    identChai.source= ses.source;
+    identChai.chai= ses.chai;
+    identChai.counter= 0;
+    ses.source= &identChai;
+    ses.chai= _indentChai;
+    CStringAppendSES(s, ses);
+    RELEASE(d);
+    CStringAppendCharacter(s, '\n');
+  }
+  CDictionaryEnumeratorFree(e);
+  CStringAppendCharacter(s, '}');
+  return s;
+}
+
 #pragma mark Equality
 
 BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other)

@@ -203,6 +203,22 @@ id CDateCopy(id self)
   return (id)newDate;
 }
 
+const CString *CDateRetainedDescription(id self)
+{
+  _dtm dt= _dtmCast(((CDate*)self)->interval);
+  char buf[20];
+  CString *s= CCreateString(20);
+  sprintf(buf, "%04u-%02u-%02u %02u:%02u:%02u",
+    (dt.year   % 10000),
+    (dt.month  % 100),
+    (dt.day    % 100),
+    (dt.hour   % 100),
+    (dt.minute % 100),
+    (dt.second % 100));
+  CStringAppendSES(s, MSMakeSESWithBytes(buf, 19, NSASCIIStringEncoding));
+  return s;
+}
+
 #pragma mark Equality
 
 BOOL CDateEquals(const CDate *self, const CDate *other)
@@ -719,23 +735,7 @@ MSTimeInterval timeIntervalForLastDayOfYear(MSTimeInterval timeInterval)
   return _tmFromYMD(dt.year, 12, 31);
 }
 */
-#pragma mark Description
 
-CString *CCreateDateDescription(CDate *self)
-{
-  _dtm dt= _dtmCast(self->interval);
-  char buf[20];
-  CString *s= CCreateString(20);
-  sprintf(buf, "%04u-%02u-%02u %02u:%02u:%02u",
-    (dt.year   % 10000),
-    (dt.month  % 100),
-    (dt.day    % 100),
-    (dt.hour   % 100),
-    (dt.minute % 100),
-    (dt.second % 100));
-  CStringAppendSES(s, MSMakeSESWithBytes(buf, 19, NSASCIIStringEncoding));
-  return s;
-}
 // TODO: !!!
 /*
 NSString *timeIntervalDescription(MSTimeInterval timeInterval, NSString *format)

@@ -105,9 +105,6 @@ MSCoreExtern NSInteger  CDecimalIntegerValue( CDecimal*);
 MSCoreExtern NSUInteger CDecimalUIntegerValue(CDecimal*);
 // TODO: MSCoreExtern double    CDecimalDoubleValue (CDecimal*);
 
-// TODO: description functions
-MSCoreExtern CString *CCreateDecimalDescription(CDecimal*);
-
 MSCoreExtern MSLong  CStrToLongLong( const char *restrict str, char **restrict endptr);
 MSCoreExtern MSULong CStrToULongLong(const char *restrict str, char **restrict endptr);
 

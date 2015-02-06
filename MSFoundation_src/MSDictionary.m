@@ -215,26 +215,7 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 
 - (NSUInteger)hash:(unsigned)depth {return CDictionaryHash(self, depth);}
 
-- (NSString *)description {
-    id k, o;
-    CDictionaryEnumerator *e= CDictionaryEnumeratorAlloc((CDictionary*)self);
-    CString *s= CCreateString(0);
-    CStringAppendCharacter(s, '{');
-    CStringAppendCharacter(s, '\n');
-    while ((k= CDictionaryEnumeratorNextKey(e)) && (o= CDictionaryEnumeratorCurrentObject(e))) {
-        CStringAppendCharacter(s, ' ');
-        CStringAppendCharacter(s, ' ');
-        CStringAppendSES(s, SESFromString([k description]));
-        CStringAppendCharacter(s, ' ');
-        CStringAppendCharacter(s, '=');
-        CStringAppendCharacter(s, ' ');
-        CStringAppendSES(s, SESFromString([[o description] replaceOccurrencesOfString:@"\n" withString:@"\n  "]));
-        CStringAppendCharacter(s, '\n');
-    }
-    CDictionaryEnumeratorFree(e);
-    CStringAppendCharacter(s, '}');
-    return AUTORELEASE((id)s);
-}
+- (NSString*)description   {return [(id)CDictionaryRetainedDescription(self) autorelease];}
 
 - (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
   {

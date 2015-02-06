@@ -149,7 +149,7 @@
 - (NSInteger) integerValue          {return CDecimalIntegerValue ((CDecimal*)self);}
 - (NSUInteger)unsignedIntegerValue  {return CDecimalUIntegerValue((CDecimal*)self);}
 
-- (NSString*)description   {return [(id)CCreateDecimalDescription((CDecimal*)self) autorelease];}
+- (NSString*)description   {return [(id)CDecimalRetainedDescription(self) autorelease];}
 - (NSString*)toString      {return [self description];}
 - (NSString*)displayString {return [self description];}
 
