@@ -80,15 +80,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A6E03AA81A7634FF00A97DA3"
-            BuildableName = "All"
-            BlueprintName = "All"
+            BlueprintIdentifier = "A6D359911A7798DA00B87986"
+            BuildableName = "MSTests"
+            BlueprintName = "MSTests"
             ReferencedContainer = "container:MSFoundation.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

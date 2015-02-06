@@ -72,15 +72,15 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A6D359AF1A77D38600B87986"
-            BuildableName = "libMSCoreCTests.dylib"
-            BlueprintName = "MSCoreCTests"
+            BlueprintIdentifier = "A6D359911A7798DA00B87986"
+            BuildableName = "MSTests"
+            BlueprintName = "MSTests"
             ReferencedContainer = "container:MSFoundation.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
