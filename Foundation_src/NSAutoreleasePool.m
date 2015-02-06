@@ -32,7 +32,8 @@ static inline void drain(CArray *objects)
 {
     NSAutoreleasePool *pool= pthread_getspecific(__currentPool_key);
     if(!pool) {
-        printf("no autorelease pool, leaking (%s*)%p", object_getClassName(object), object);
+        printf("no autorelease pool, leaking (%s*)%p\n", object_getClassName(object), object);
+        abort();
         return;
     }
     addObject(pool->_objects, object);
@@ -76,14 +77,4 @@ static inline void drain(CArray *objects)
     MSRaise(@"NSAutoreleasePool", @"autorelease is not allowed on NSAutoreleasePool");
     return nil;
 }
-@end
-
-@implementation NSObject (NSAutoreleasePool)
-
-- (instancetype)autorelease
-{
-    [(NSAutoreleasePool*)pthread_getspecific(__currentPool_key) addObject:self];
-    return self;
-}
-
 @end

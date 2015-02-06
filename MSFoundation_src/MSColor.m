@@ -530,7 +530,8 @@ MSColor *MSColorNamed(NSString *name)
 { 
     struct _MSColorDefinition entry;
     _MSIndexedColor *c;
-    
+    NEW_POOL;
+  
     [_MSIndexedColor setVersion:MS_INDEXEDCOLOR_LAST_VERSION];
     for(int i= 0; i < COLOR_LIST_COUNT; ++i) {
         entry= __colorTable[i];
@@ -544,6 +545,7 @@ MSColor *MSColorNamed(NSString *name)
         *entry.color= c;
     }
     _initNamedColors();
+    KILL_POOL;
 }
 - (oneway void)release {}
 - (id)retain { return self;}

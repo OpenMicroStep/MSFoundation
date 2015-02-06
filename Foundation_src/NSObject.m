@@ -9,7 +9,17 @@
 
 + (instancetype)alloc
 {
+    return [self allocWithZone:nil];
+}
+
++ (instancetype)allocWithZone:(NSZone *)zone
+{
     return NSAllocateObject(self, 0, NULL);
+}
+
+- (NSZone *)zone
+{
+  return nil;
 }
 
 - (instancetype)init
@@ -30,7 +40,11 @@
     }
 }
 
-// See NSAutoreleasePool.m - (instancetype)autorelease;
+- (instancetype)autorelease {
+  [NSAutoreleasePool addObject:self];
+  return self;
+}
+
 - (NSUInteger)retainCount
 {
     return _retainCount + 1;
@@ -133,4 +147,19 @@
     return NO;
 }
 
+- (id)copy
+{
+  if([self respondsToSelector:@selector(copyWithZone:)])
+    return [(id <NSCopying>)self copyWithZone:nil];
+  MSRaise(@"NSObject", @"copyWithZone not implemented");
+  return nil;
+}
+
+- (id)mutableCopy
+{
+  if([self respondsToSelector:@selector(mutableCopyWithZone:)])
+    return [(id <NSMutableCopying>)self mutableCopyWithZone:nil];
+  MSRaise(@"NSObject", @"mutableCopyWithZone not implemented");
+  return nil;
+}
 @end

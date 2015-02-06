@@ -1,4 +1,4 @@
-@class NSString, NSMethodSignature, NSInvocation;
+@class NSString, NSMethodSignature, NSInvocation, NSZone;
 
 @protocol NSObject
 
@@ -32,7 +32,7 @@
 
 @interface NSObject <NSObject> {
     Class isa;
-    uint32_t _retainCount;
+    int32_t _retainCount;
 }
 
 + (Class)superclass;
@@ -42,6 +42,11 @@
 
 + (instancetype)new;
 + (instancetype)alloc;
++ (instancetype)allocWithZone:(NSZone *)zone;
 - (instancetype)init;
 - (void)dealloc;
+
+- (id)copy;
+- (id)mutableCopy;
+
 @end

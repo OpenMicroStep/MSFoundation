@@ -91,7 +91,7 @@ static CClass __allClasses[CClassIndexMax+1]=
 id _CRetain(id object)
 {
   if (object && object->isa) {
-    object->refCount ++;
+    __sync_add_and_fetch(&object->refCount, 1);
   }
   return object;
 }
@@ -99,21 +99,14 @@ id _CRetain(id object)
 void _CRelease(id object)
 {
   if (object && object->isa) {
-//if ((CClass*)object->isa==__allClasses+CDictionaryClassIndex)printf("_CRelease %p %lu\n",object,object->refCount);
     // a 0 refCount means the object is retained once, so we can deallocate it after the release;
-    if (object->refCount) { object->refCount --; }
-    else if (CISA(object)->deallocator) { CISA(object)->deallocator((void *)object); }
-    else { MSFree(object, "CRelease() [object]"); }
+    if(__sync_sub_and_fetch(&object->refCount, 1) == -1) {
+      if (CISA(object)->deallocator) { CISA(object)->deallocator((void *)object); }
+      else { MSFree(object, "CRelease() [object]"); }
+    }
   }
 }
-/*
-id _CAutorelease(id object)
-{
-  if (object && CISA(object)) {
-  }
-  return object;
-}
-*/
+
 NSUInteger _CRetainCount(id object)
 {
   return !object ? 0 : object->refCount+1;

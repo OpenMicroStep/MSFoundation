@@ -54,7 +54,7 @@
 #else
 #define MSCORE_NSOBJECT_ATTRIBUTES \
   Class isa; \
-  uint32_t refCount;
+  int32_t refCount;
 
 #endif
 
