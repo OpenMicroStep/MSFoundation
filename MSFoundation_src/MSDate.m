@@ -62,9 +62,8 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 
 #pragma mark Initialisation
 
-+ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
-+ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
-+ (id)new                         {return MSAllocateObject(self, 0, NULL);}
++ (id)alloc                       {return ALLOC(self);}
++ (id)new                         {return ALLOC(self);}
 
 + (BOOL)verifyYear:(unsigned)year month:(unsigned)month day:(unsigned)day
 {
@@ -93,8 +92,9 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 
 + (id)date
 {
-  return AUTORELEASE((id)CCreateDateNow());
+  return AUTORELEASE([ALLOC(self) init]);
 }
+
 + (id)now
 {
   return AUTORELEASE((id)CCreateDateNow());
@@ -104,10 +104,13 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
   return AUTORELEASE((id)CCreateDateToday());
 }
 
+- (id)init
+{
+  return (id)CDateInitNow((CDate*)self);
+}
 - (id)initWithYear:(unsigned)year month:(unsigned)month day:(unsigned)day
 {
-  [self initWithYear:year month:month day:day hour:0 minute:0 second:0];
-  return self;
+  return [self initWithYear:year month:month day:day hour:0 minute:0 second:0];
 }
 - (id)initWithYear:(unsigned)year month: (unsigned)month day:   (unsigned)day
               hour:(unsigned)h    minute:(unsigned)mn    second:(unsigned)sec
@@ -119,8 +122,7 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 - (id)initWithSecondsSinceNow:(MSTimeInterval)secsToBeAddedToNow
 {
   CDate *d;
-  [self release];
-  d= CCreateDateNow();
+  d= CDateInitNow((CDate*)self);
   d->interval+= secsToBeAddedToNow;
   return (id)d;
 }

@@ -1,4 +1,4 @@
-/*   MSDictionary.m
+ /*   MSDictionary.m
  
  This file is is a part of the MicroStep Framework.
  
@@ -67,13 +67,11 @@
 
 #define FIXE(X) CGrowSetImmutable((id)X)
 
-+ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
-+ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
-+ (id)new                         {return MSAllocateObject(self, 0, NULL);}
++ (id)new                         {return ALLOC(self);}
 
 static inline id _dict(Class cl, id d, BOOL m)
   {
-  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!d) d= AUTORELEASE(ALLOC(cl));
   if (!m) FIXE(d);
   return d;
   }
@@ -84,7 +82,7 @@ static inline id _dict(Class cl, id d, BOOL m)
 
 static inline id _dictWithObject(Class cl, id d, BOOL m, id o, id k)
   {
-  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!d) d= AUTORELEASE(ALLOC(cl));
   CDictionarySetObjectForKey((CDictionary*)d, o, k);
   if (!m) FIXE(d);
   return d;
@@ -102,7 +100,7 @@ static inline id _dictWithObject(Class cl, id d, BOOL m, id o, id k)
 static inline id _dictWithOsKsN(Class cl, id d, BOOL m, const id* os, const id COPY_PT *ks, NSUInteger n)
   {
   NSUInteger i;
-  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!d) d= AUTORELEASE(ALLOC(cl));
   CDictionaryGrow((CDictionary*)d, n);
   for (i= 0; i<n; i++) {
     CDictionarySetObjectForKey((CDictionary*)d,os[i],ks[i]);}
@@ -117,7 +115,7 @@ static inline id _dictWithOsKsN(Class cl, id d, BOOL m, const id* os, const id C
 static inline id _dictWithArgs(Class cl, id d, BOOL m, BOOL kFirst, id a, va_list l)
   {
   id b;
-  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!d) d= AUTORELEASE(ALLOC(cl));
   if (a) while ((b= va_arg (l, id))) {
     if (a==nil) {a= b;}
     else {
@@ -144,11 +142,28 @@ static inline id _dictWithArgs(Class cl, id d, BOOL m, BOOL kFirst, id a, va_lis
 - (id)initWithKeysAndObjects:             (id)k, ... {_dictOs(nil ,self,  NO, YES, k);}
 - (id)mutableInitWithKeysAndObjects:      (id)k, ... {_dictOs(nil ,self, YES, YES, k);}
 
+static inline id _dictWithOsKs(Class cl, id d, BOOL m, NSArray *objects, NSArray *keys)
+{
+  NSUInteger n;
+  if (!d) d= AUTORELEASE(ALLOC(cl));
+  n= MIN([objects count], [keys count]);
+  CDictionaryGrow((CDictionary*)d, n);
+  while (n > 0) {
+    --n;
+    CDictionarySetObjectForKey((CDictionary*)d, [objects objectAtIndex:n], [keys objectAtIndex:n]); }
+  if (!m) FIXE(d);
+  return d;
+}
++ (id)dictionaryWithObjects:(NSArray *)objects forKeys:(NSArray *)keys        { return _dictWithOsKs(self, nil,  NO, objects, keys); }
++ (id)mutableDictionaryWithObjects:(NSArray *)objects forKeys:(NSArray *)keys { return _dictWithOsKs(self, nil, YES, objects, keys); }
+- (id)initWithObjects:(NSArray *)objects forKeys:(NSArray *)keys              { return _dictWithOsKs(nil ,self,  NO, objects, keys); }
+- (id)mutableInitWithObjects:(NSArray *)objects forKeys:(NSArray *)keys       { return _dictWithOsKs(nil ,self, YES, objects, keys); }
+
 #pragma mark Other inits
 
 static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 {
-  if (!d) d= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!d) d= AUTORELEASE(ALLOC(cl));
   if ([src isKindOfClass:[MSDictionary class]]) {
     d= CDictionaryInitCopy((CDictionary*)d, (CDictionary*)src, cpy);}
   else if ([src respondsToSelector:@selector(keyEnumerator)]) {

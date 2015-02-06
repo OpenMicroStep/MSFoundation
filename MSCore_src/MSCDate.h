@@ -82,6 +82,7 @@ MSCoreExtern CDate *CCreateDateWithYMDHMS(
   unsigned hour, unsigned minute, unsigned second);
 MSCoreExtern CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s);
 
+MSCoreExtern CDate* CDateInitNow    (CDate* self);
 MSCoreExtern CDate *CCreateDateNow  (void);        // With time
 MSCoreExtern CDate *CCreateDateToday(void);        // No time
 MSCoreExtern CDate *CCreateDayDate  (CDate *self); // No time

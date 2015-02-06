@@ -63,8 +63,6 @@
 }
 
 // Attention, alloc et new retourne des instances mutables.
-+ (id)allocWithZone:(NSZone*)zone;
-+ (id)alloc;
 + (id)new;
 
 #if WIN32
@@ -81,6 +79,7 @@
 + (id)dictionaryWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
 + (id)dictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 + (id)dictionaryWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
++ (id)dictionaryWithObjects:(NSArray *)objects forKeys:(NSArray *)keys;
 
 - (id)init;
 - (id)initWithObject:(id)o forKey:(id <NSCopying>)k;
@@ -88,6 +87,7 @@
 - (id)initWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
 - (id)initWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 - (id)initWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)initWithObjects:(NSArray *)objects forKeys:(NSArray *)keys;
 
 #pragma mark mutable init
 
@@ -97,6 +97,7 @@
 + (id)mutableDictionaryWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
 + (id)mutableDictionaryWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 + (id)mutableDictionaryWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
++ (id)mutableDictionaryWithObjects:(NSArray *)objects forKeys:(NSArray *)keys;
 
 - (id)mutableInit;
 - (id)mutableInitWithObject:(id)o forKey:(id <NSCopying>)k;
@@ -104,8 +105,9 @@
 - (id)mutableInitWithObjects:(const id [])os forKeys:(const id COPY_PT [])ks count:(NSUInteger)n;
 - (id)mutableInitWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 - (id)mutableInitWithKeysAndObjects:(id)firstKey, ... NS_REQUIRES_NIL_TERMINATION;
+- (id)mutableInitWithObjects:(NSArray *)objects forKeys:(NSArray *)keys;
 
-#pragma mark Other inits 
+#pragma mark Other inits
 
 + (id)dictionaryWithDictionary:(id)otherDictionary;
 + (id)mutableDictionaryWithDictionary:(id)otherDictionary;

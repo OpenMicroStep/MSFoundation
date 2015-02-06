@@ -89,13 +89,11 @@
 
 #define FIXE(a) CArraySetImmutable((CArray*)a)
 
-+ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
-+ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
-+ (id)new                         {return MSAllocateObject(self, 0, NULL);}
++ (id)new                         {return ALLOC(self);}
 
 static inline id _array(Class cl, id a, BOOL m)
   {
-  if (!a) a= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
   if (!m) FIXE(a);
   return a;
   }
@@ -106,7 +104,7 @@ static inline id _array(Class cl, id a, BOOL m)
 
 static inline id _arrayWithObject(Class cl, id a, BOOL m, id o)
   {
-  if (!a) a= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
   CArrayAddObject((CArray*)a, o);
   if (!m) FIXE(a);
   return a;
@@ -118,7 +116,7 @@ static inline id _arrayWithObject(Class cl, id a, BOOL m, id o)
 
 static inline id _arrayOsNC(Class cl, id a, BOOL m, const id *os, NSUInteger n, BOOL copy)
   {
-  if (!a) a= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
   CArrayAddObjects((CArray*)a, os, n, copy);
   if (!m) FIXE(a);
   return a;
@@ -130,7 +128,7 @@ static inline id _arrayOsNC(Class cl, id a, BOOL m, const id *os, NSUInteger n, 
 
 static inline id _arrayFoArgs(Class cl, id a, BOOL m, id o, va_list l)
   {
-  if (!a) a= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
   if (o) {
     CArrayAddObject((CArray*)a,o);
     while ((o= va_arg (l, id))) CArrayAddObject((CArray*)a,o);}
@@ -167,7 +165,7 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
 
 static inline id _arrayA(Class cl, id a, BOOL m, id aa, BOOL copy)
   {
-  if (!a) a= AUTORELEASE(MSAllocateObject(cl, 0, NULL));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
   _addArray((CArray*)a, aa, copy);
   if (!m) FIXE(a);
   return a;

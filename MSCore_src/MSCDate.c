@@ -370,16 +370,21 @@ MSTimeInterval GMTToLocal(NSTimeInterval t)
 }
 static MSTimeInterval _CDateSecondsOfNow(void)
 // NO needs to be public
+// TODO: @ECB Utility?
 {
   return _GMTToLocal(_GMTNow());
 }
 
+CDate* CDateInitNow(CDate* self)
+{
+  if (!self) return nil;
+  self->interval= _CDateSecondsOfNow();
+  return self;
+}
+
 CDate *CCreateDateNow()
 {
-  CDate *d;
-  d= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
-  d->interval= _CDateSecondsOfNow();
-  return d;
+  return CDateInitNow((CDate*)MSCreateObjectWithClassIndex(CDateClassIndex));
 }
 
 CDate *CCreateDateToday()

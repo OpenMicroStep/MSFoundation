@@ -67,8 +67,6 @@
 }
 
 // Attention, alloc et new retourne des instances mutables.
-+ (id)allocWithZone:(NSZone*)zone;
-+ (id)alloc;
 + (id)new;
 
 #pragma mark init

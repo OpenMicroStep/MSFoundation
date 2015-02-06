@@ -54,7 +54,7 @@ void MSFinishLoadingCore();
 #ifdef MSFOUNDATION_FORCOCOA
 + (void)load { MSFinishLoadingConfigure(14, MSFinishLoadingCore, NULL); }
 #else
-+ (void)load { MSFinishLoadingConfigure(12, MSFinishLoadingCore, NULL); }
++ (void)load { MSFinishLoadingConfigure(19, MSFinishLoadingCore, NULL); }
 #endif
 - (NSUInteger)hash:(unsigned)depth {return [self hash]; MSUnused(depth);}
 @end
