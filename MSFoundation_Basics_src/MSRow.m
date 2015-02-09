@@ -107,9 +107,7 @@
   NSUInteger count ;
   if ((count = CArrayCount((CArray*)keys))) {
     NSUInteger i ;
-    table = CCreateDictionary(count) ;
-    table->flag.keyAsSimplePtr= YES;
-    table->flag.objAsSimplePtr= YES;
+    table= CCreateDictionaryWithOptions(count, CDictionaryPointer, CDictionaryPointer);
     for (i = 0 ; i < count ; i++) {
       CDictionarySetObjectForKey(table, (id)CArrayObjectAtIndex((CArray*)keys,i),  (id)(i+1)) ;
     }

@@ -91,8 +91,9 @@ MSCoreExtern void CBufferGrow(CBuffer *self, NSUInteger n);
 MSCoreExtern void CBufferAdjustSize(CBuffer *self);
 
 MSCoreExtern NSUInteger CBufferLength(const CBuffer *self);
-MSCoreExtern MSByte CBufferByteAtIndex(const CBuffer *self, NSUInteger i);
-MSCoreExtern MSByte *CBufferCString(CBuffer *self);
+MSCoreExtern MSByte     CBufferByteAtIndex(const CBuffer *self, NSUInteger i);
+MSCoreExtern MSByte    *CBufferBytes(const CBuffer *self);
+MSCoreExtern MSByte    *CBufferCString(CBuffer *self);
 // Make sure buf ends with 0x00 before returning the buf.
 
 MSCoreExtern NSUInteger CBufferIndexOfByte          (const CBuffer *self, MSByte c);

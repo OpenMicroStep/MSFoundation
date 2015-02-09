@@ -181,7 +181,7 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 - (BOOL)isMutable    {return CDictionaryIsMutable((CDictionary*)self);}
 - (void)setImmutable {FIXE(self);}
 
-- (NSUInteger)count {return _count;}
+- (NSUInteger)count {return CDictionaryCount((CDictionary*)self);}
 
 - (id)objectForKey:(id)k
   {

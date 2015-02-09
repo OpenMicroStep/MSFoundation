@@ -137,6 +137,11 @@ void CBufferAdjustSize(CBuffer *self)
   CGrowAdjustSize((id)self);
 }
 
+NSUInteger CBufferLength(const CBuffer *self)
+{
+  return (self ? self->length : 0);
+}
+
 MSByte *CBufferCString(CBuffer *self)
 {
   if (!self || !self->length) return (MSByte*)"";
@@ -145,9 +150,9 @@ MSByte *CBufferCString(CBuffer *self)
   return self->buf;
 }
 
-NSUInteger CBufferLength(const CBuffer *self)
+MSByte *CBufferBytes(const CBuffer *self)
 {
-  return (self ? self->length : 0);
+  return self->buf;
 }
 
 MSByte CBufferByteAtIndex(const CBuffer *self, NSUInteger i)

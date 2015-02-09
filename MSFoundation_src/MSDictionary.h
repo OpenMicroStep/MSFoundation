@@ -59,7 +59,7 @@
   void **_buckets;
   NSUInteger _nBuckets;
   NSUInteger _count;
-  CGrowFlags _flag;
+  CDictionaryFlags _flag;
 }
 
 // Attention, alloc et new retourne des instances mutables.

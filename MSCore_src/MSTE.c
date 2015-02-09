@@ -299,7 +299,7 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
 
   if (!source)                  RETURN_NIL("MSTE-1","No entry to decode.");
   if (CBufferLength(source)<32) RETURN_NIL("MSTE-2","Header badly-formed.");
-  src.ses= MSMakeSESWithBytes(source->buf, CBufferLength(source), srcEncoding);
+  src.ses= MSMakeSESWithBytes(CBufferBytes(source), CBufferLength(source), srcEncoding);
   ///// Les [ et ]
   if (((char*)SESSource(src.ses))[                   0]!='[') RETURN_NIL("MSTE-5","No begin character ([).");
   if (((char*)SESSource(src.ses))[SESLength(src.ses)-1]!=']') RETURN_NIL("MSTE-6","No end character (]).");
@@ -335,7 +335,7 @@ id MSTECreateRootObjectFromBuffer(CBuffer *source, CDictionary *options, CDictio
     ((char*)ses.source)[SESStart(ses)+i]= '0';}
   crc[8]= 0x00; crc1= MSHexaStringToULong(crc, 8); // strtoul(crc, &crcend, 16);
   crc2= MSBytesLargeCRC(src.ses.source, src.ses.length);
-  if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,source->buf);
+  if(crc1!=crc2)printf("crc: in:%lu %s real:%lu %s\n",crc1,crc,crc2,CBufferBytes(source));
   if (crc1!=crc2)                           RETURN_NIL("MSTE-23","Bad CRC.");
   for (i= 0; i < ses.length; i++) {((char*)ses.source)[SESStart(ses)+i]= crc[i];}
   if (_moveToNewToken(&src,ses,1,"MSTE-24","Bad CRC.",error)) return nil;

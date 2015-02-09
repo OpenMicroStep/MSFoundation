@@ -607,17 +607,11 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     _keysArray = NEW(NSMutableArray) ;
     _classesArray = NEW(NSMutableArray) ;
-    _classes = CCreateDictionary(32);
-    _classes->flag.keyAsSimplePtr= YES;
-    _classes->flag.objAsSimplePtr= YES;
-    _keys = CCreateDictionary(256);
-    _keys->flag.keyAsSimplePtr= YES;
-    _keys->flag.objAsSimplePtr= YES;
-    _encodedObjects = CCreateDictionary(256);
-    _encodedObjects->flag.keyAsSimplePtr= YES;
-    _encodedObjects->flag.objAsSimplePtr= YES;
-    _global = CCreateBuffer(65536) ;
-    _content = CCreateBuffer(65536) ;
+    _classes = CCreateDictionaryWithOptions(32, CDictionaryPointer, CDictionaryPointer);
+    _keys = CCreateDictionaryWithOptions(256, CDictionaryPointer, CDictionaryPointer);
+    _encodedObjects = CCreateDictionaryWithOptions(256, CDictionaryPointer, CDictionaryPointer);
+    _global = (MSBuffer*)CCreateBuffer(65536) ;
+    _content = (MSBuffer*)CCreateBuffer(65536) ;
     
     [self encodeObject:anObject] ;
     

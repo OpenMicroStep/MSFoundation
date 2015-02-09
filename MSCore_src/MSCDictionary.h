@@ -47,17 +47,26 @@
 #ifndef MSCORE_DICTIONARY_H
 #define MSCORE_DICTIONARY_H
 
+typedef enum {
+  CDictionaryObject= 0,
+  CDictionaryPointer,
+  CDictionaryNatural}
+CDictionaryElementType;
+
+// When objects are naturals, NSNotFound is used instead of nil when no object for key. Even for object enumeration.
+// Idem for key enumeration
+
 typedef struct CDictionaryFlagsStruct {
 #ifdef __BIG_ENDIAN__
   MSUInt fixed:1;           // mutability
-  MSUInt _pad:29;
-  MSUInt keyAsSimplePtr:1;  // Use keys as simple void* addresses (no object copy/hash)
-  MSUInt objAsSimplePtr:1;  // Use values as simple void* addresses (no object retain/release/description)
+  MSUInt _pad:27;
+  MSUInt keyType:2;  // Use keys as simple void* addresses (no object copy/hash) or naturals
+  MSUInt objType:2;  // Use values as simple void* addresses (no object retain/release/description)
 #else
-  MSUInt objAsSimplePtr:1;
-  MSUInt keyAsSimplePtr:1;
-  MSUInt _pad:29;
-  MSUInt fixed:1;
+  MSUInt objType:2;  // Use values as simple void* #endif
+  MSUInt keyType:2;  // Use keys as simple void* addresses (no object copy/hash) or naturals
+  MSUInt _pad:27;
+  MSUInt fixed:1;           // mutability
 #endif
   }
 CDictionaryFlags;
@@ -103,6 +112,7 @@ MSCoreExtern BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *
 #pragma mark Creation
 
 MSCoreExtern CDictionary *CCreateDictionary(NSUInteger capacity);
+MSCoreExtern CDictionary *CCreateDictionaryWithOptions(NSUInteger capacity, CDictionaryElementType keyType, CDictionaryElementType objType);
 MSCoreExtern CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSUInteger count);
 
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
