@@ -13,6 +13,7 @@ int mscore_cdate_validate      (void);
 int mapm_validate              (void);
 int mscore_cdecimal_validate   (void);
 int mscore_cdictionary_validate(void);
+int mscore_ses_validate        (void);
 int mscore_cstring_validate    (void);
 int mscore_mste_validate       (void);
 

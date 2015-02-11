@@ -178,6 +178,9 @@
 		A69DE3CF1A7BA29800F2863E /* MSFinishLoading.h in Headers */ = {isa = PBXBuildFile; fileRef = A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A69DE3D01A7BA29800F2863E /* MSFinishLoading.m in Sources */ = {isa = PBXBuildFile; fileRef = A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */; };
 		A69DE3D11A7BA29800F2863E /* MSFinishLoading.m in Sources */ = {isa = PBXBuildFile; fileRef = A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */; };
+		A6A569B31A8B950C0054F346 /* mscore_ses_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */; };
+		A6A569B41A8B950C0054F346 /* mscore_ses_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */; };
+		A6A569B51A8B950C0054F346 /* mscore_ses_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */; };
 		A6D3598A1A778F0F00B87986 /* MSCoreTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038121A76300800A97DA3 /* MSCoreTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6D3598D1A7798B600B87986 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
 		A6D3599B1A77991600B87986 /* MSTests_main.c in Sources */ = {isa = PBXBuildFile; fileRef = A6D3599A1A77991600B87986 /* MSTests_main.c */; };
@@ -651,6 +654,7 @@
 		A69163A81A701754001E42F4 /* MSFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFinishLoading.h; path = MSFoundation_src/MSFinishLoading.h; sourceTree = SOURCE_ROOT; };
 		A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSFinishLoading.m; path = MSFoundation_src/MSFinishLoading.m; sourceTree = SOURCE_ROOT; };
+		A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mscore_ses_validate.c; path = MSCore_tst/mscore_ses_validate.c; sourceTree = "<group>"; };
 		A6D359781A76D39A00B87986 /* libMSFoundationTests.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMSFoundationTests.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6D3597D1A77825900B87986 /* MSTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MSTests.h; path = MSTests_src/MSTests.h; sourceTree = "<group>"; };
 		A6D3597E1A7782D200B87986 /* foundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_validate.m; path = Foundation_tst/foundation_validate.m; sourceTree = "<group>"; };
@@ -1191,6 +1195,7 @@
 				A6E038921A76304600A97DA3 /* mscore_cdate_validate.c */,
 				A6E038931A76304600A97DA3 /* mscore_cdecimal_validate.c */,
 				A6E038941A76304600A97DA3 /* mscore_cdictionary_validate.c */,
+				A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */,
 				A6E038951A76304600A97DA3 /* mscore_cstring_validate.c */,
 				A6E038961A76304600A97DA3 /* mscore_mste_validate.c */,
 				A66299641A7A8A1A00B2B60D /* mscore_test.c */,
@@ -2056,6 +2061,7 @@
 				A64D64631A77DE6A00CCA6D7 /* mscore_ccolor_validate.c in Sources */,
 				A64D64641A77DE6A00CCA6D7 /* mscore_ccouple_validate.c in Sources */,
 				A604A23A1A861B39001DAD54 /* foundation_nsarray_validate.m in Sources */,
+				A6A569B51A8B950C0054F346 /* mscore_ses_validate.c in Sources */,
 				A64D64651A77DE6A00CCA6D7 /* mscore_cdate_validate.c in Sources */,
 				A64D64661A77DE6A00CCA6D7 /* mscore_cdecimal_validate.c in Sources */,
 				A64D64671A77DE6A00CCA6D7 /* mscore_cdictionary_validate.c in Sources */,
@@ -2101,6 +2107,7 @@
 				A64D64B71A77EAF000CCA6D7 /* mscore_cbuffer_validate.c in Sources */,
 				A64D64B81A77EAF000CCA6D7 /* mscore_ccolor_validate.c in Sources */,
 				A604A2391A861B39001DAD54 /* foundation_nsarray_validate.m in Sources */,
+				A6A569B41A8B950C0054F346 /* mscore_ses_validate.c in Sources */,
 				A64D64B91A77EAF000CCA6D7 /* mscore_ccouple_validate.c in Sources */,
 				A64D64BA1A77EAF000CCA6D7 /* mscore_cdate_validate.c in Sources */,
 				A64D64BB1A77EAF000CCA6D7 /* mscore_cdecimal_validate.c in Sources */,
@@ -2122,6 +2129,7 @@
 				A6D359C61A77D65F00B87986 /* mapm_validate.c in Sources */,
 				A6D359C71A77D65F00B87986 /* mscore_c_validate.c in Sources */,
 				A6D359C81A77D65F00B87986 /* mscore_carray_validate.c in Sources */,
+				A6A569B31A8B950C0054F346 /* mscore_ses_validate.c in Sources */,
 				A6D359C91A77D65F00B87986 /* mscore_cbuffer_validate.c in Sources */,
 				A6D359CA1A77D65F00B87986 /* mscore_ccolor_validate.c in Sources */,
 				A6D359CB1A77D65F00B87986 /* mscore_ccouple_validate.c in Sources */,

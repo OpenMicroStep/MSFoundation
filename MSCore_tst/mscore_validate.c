@@ -19,5 +19,6 @@ TEST_FCT_BEGIN(MSCore)
     testRun("mapm", mapm_validate);
     testRun("cdecimal", mscore_cdecimal_validate);
     testRun("cdictionary", mscore_cdictionary_validate);
+    testRun("ses", mscore_ses_validate);
     testRun("cstring", mscore_cstring_validate);
 TEST_FCT_END(MSCore)

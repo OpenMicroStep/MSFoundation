@@ -258,15 +258,17 @@ static SES _SESFind(SES src, SES searched, BOOL insensitive)
 
 static inline BOOL _SESEquals(SES a, SES b, BOOL insensitive)
 {
-  BOOL equals= YES; NSUInteger aIdx= 0, bIdx= 0, aLen, bLen;
+  BOOL equals= YES; NSUInteger aIdx, bIdx, aEnd, bEnd;
   if(!SESOK(a)) return !SESOK(b);
   if(!SESOK(b)) return NO;
-  aLen= SESLength(a);
-  bLen= SESLength(b);
-  while(equals && aIdx < aLen && bIdx < bLen) {
+  aIdx= SESStart(a);
+  bIdx= SESStart(b);
+  aEnd= SESEnd(a);
+  bEnd= SESEnd(b);
+  while(equals && aIdx < aEnd && bIdx < bEnd) {
     equals= CUnicharEquals(SESIndexN(a, &aIdx), SESIndexN(b, &bIdx), insensitive); }
   
-  return equals && aIdx == aLen && bIdx == bLen;
+  return equals && aIdx == aEnd && bIdx == bEnd;
 }
 
 BOOL SESEquals(SES a, SES b)
@@ -318,6 +320,70 @@ SES SESExtractPart(SES src, CUnicharChecker matchingChar)
       ret.length= end-start;}}
   return ret;
 }
+
+struct _sesWildcardsStruct
+{
+  SES src, wildcards;
+  unichar c;
+  NSUInteger srcIdx, srcEnd, mEnd;
+  BOOL insensitive;
+};
+
+static inline BOOL _SESWildcardsMatch(struct _sesWildcardsStruct *s, unichar c, NSUInteger srcIdx, unichar m, NSUInteger mIdx)
+{
+  while(1) {
+    if(m == (unichar)'?') {}
+    else if(m == (unichar)'*') {
+      NSUInteger mIdxNext= mIdx;
+      if(mIdx < s->mEnd && _SESWildcardsMatch(s, c, srcIdx, SESIndexN(s->wildcards, &mIdxNext), mIdxNext)) {
+        return YES;}
+      if(srcIdx < s->srcEnd) {
+        c= SESIndexN(s->src, &srcIdx);
+        continue;}}
+    else if(CUnicharEquals(c, m, s->insensitive)) {}
+    else break;
+    if(mIdx == s->mEnd) {
+      s->srcIdx= srcIdx;
+      return YES;}
+    if(srcIdx < s->srcEnd) {
+      c= SESIndexN(s->src, &srcIdx);
+      m= SESIndexN(s->wildcards, &mIdx);
+    }
+    else break;}
+  return NO;
+}
+
+static SES _SESWildcardsExtractPart(SES src, SES wildcards, BOOL insensitive)
+{
+  SES ret= MSInvalidSES;
+  if (SESOK(src) && SESOK(wildcards)) {
+    NSUInteger mIdx, start= 0;
+    unichar m;
+    struct _sesWildcardsStruct s;
+    s.src= src;
+    s.srcIdx= SESStart(src);
+    s.srcEnd= SESEnd(src);
+    s.wildcards= wildcards;
+    s.mEnd= SESEnd(wildcards);
+    s.insensitive= insensitive;
+    mIdx= SESStart(wildcards);
+    m= SESIndexN(wildcards, &mIdx);
+    while (s.srcIdx < s.srcEnd) {
+      start= s.srcIdx;
+      s.c= SESIndexN(s.src, &s.srcIdx);
+      if(_SESWildcardsMatch(&s, s.c, s.srcIdx, m, mIdx)) {
+        ret=        src;
+        ret.start=  start;
+        ret.length= s.srcIdx- start;
+        break;}}}
+  return ret;
+}
+
+SES SESWildcardsExtractPart(SES src, SES wildcards)
+{ return _SESWildcardsExtractPart(src, wildcards, NO); }
+
+SES SESInsensitiveWildcardsExtractPart(SES src, SES wildcards)
+{ return _SESWildcardsExtractPart(src, wildcards, YES); }
 
 static inline NSUInteger _go(SES src, CUnicharChecker check, NSUInteger b)
 {

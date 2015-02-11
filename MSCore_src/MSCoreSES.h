@@ -90,7 +90,7 @@ static inline SES MSMakeSES(const void *source, CHAI funct, NSUInteger start, NS
 }
 
 // TODO: @ECB: This break the pure object concept, sees usages (MSCColor & MSCCouple) and keep it or drop it
-#define SESFromLiteral(CSTR) MSMakeSESWithBytes(u ## CSTR, sizeof(u ## CSTR) / sizeof(unichar), NSUnicodeStringEncoding)
+#define SESFromLiteral(CSTR) MSMakeSESWithBytes(u ## CSTR, (sizeof(u ## CSTR) / sizeof(unichar)) - 1, NSUnicodeStringEncoding)
 
 typedef MSByte MSRealScanOptions;
 #define MSAcceptsDot        1
@@ -122,6 +122,10 @@ MSCoreExtern SES SESInsensitiveCommonPrefix(SES src, SES comparator);
 // Retourne MSInvalidSES si pas de préfixe commun.
 
 MSCoreExtern SES SESExtractPart(SES src, CUnicharChecker matchingChar);
+
+MSCoreExtern SES SESWildcardsExtractPart(SES src, SES wildcards);
+MSCoreExtern SES SESInsensitiveWildcardsExtractPart(SES src, SES wildcards);
+
 // TODO: Need utf8 SESIndexP NOT TESTED
 
 // Si 'leftSpaces' est NULL, il est remplacé par CUnicharIsSpace.
