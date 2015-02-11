@@ -212,18 +212,18 @@ MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
   #define NAMEOFCLASS(X) object_get_class_name(X)
 #endif
 
-#define RETAINCOUNT(X) [(X) retainCount]
-#define RETAIN(X)      [(X) retain]
-#define RELEASE(X)     [(X) release]
-#define AUTORELEASE(X) [(X) autorelease]
+#define RETAINCOUNT(X) [(id)(X) retainCount]
+#define RETAIN(X)      [(id)(X) retain]
+#define RELEASE(X)     [(id)(X) release]
+#define AUTORELEASE(X) [(id)(X) autorelease]
 
 #define ISEQUAL(X,Y) ({ \
   id __x__= (id)(X), __y__= (id)(Y); \
   (__x__ == __y__) ? YES : [__x__ isEqual:__y__];})
 
-#define HASH(X)        [(X) hash:0]
-#define HASHDEPTH(X,D) [(X) hash:(D)]
-#define COPY(X)        [(X) copyWithZone:NULL]
+#define HASH(X)        [(id)(X) hash:0]
+#define HASHDEPTH(X,D) [(id)(X) hash:(D)]
+#define COPY(X)        [(id)(X) copyWithZone:NULL]
 
 #endif                                      // MSCORE_FORFOUNDATION & FOUNDATION
 
