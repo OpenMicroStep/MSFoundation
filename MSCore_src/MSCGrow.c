@@ -60,12 +60,25 @@ void CGrowFree(id self)
 
 BOOL CGrowIsMutable(id self)
 {
-  return !self ? NO : !(((CGrow*)self)->flag.fixed);
+  return !self ? NO : !(((CGrow*)self)->flag.immutable);
+}
+
+BOOL CGrowIsMutabilityFixed(id self)
+{
+  return !self ? NO : (((CGrow*)self)->flag.mutabilityFixed);
+}
+
+void CGrowSetMutabilityFixed(id self)
+{
+  if (self) ((CGrow*)self)->flag.mutabilityFixed= YES;
 }
 
 void CGrowSetImmutable(id self)
 {
-  if (self) ((CGrow*)self)->flag.fixed= YES;
+  if (self && !((CGrow*)self)->flag.mutabilityFixed) {
+    ((CGrow*)self)->flag.immutable= YES;
+    ((CGrow*)self)->flag.mutabilityFixed= YES;
+  }
 }
 
 void CGrowGrow(id self, NSUInteger n)
@@ -99,7 +112,7 @@ void CGrowMutVerif(id self, NSUInteger idxStart, NSUInteger idxCount, char *wher
 {
   CGrow *g= (CGrow*)self;
   if (!g) return;
-  if (g->flag.fixed) MSReportError(MSInvalidArgumentError, MSFatalError,
+  if (g->flag.immutable) MSReportError(MSInvalidArgumentError, MSFatalError,
     MSNotMutableError, "%s: not mutable.", where);
   if (idxStart+idxCount > g->count) MSReportError(MSInvalidArgumentError, MSFatalError,
     MSIndexOutOfRangeError,"%s: out of range.", where);

@@ -45,6 +45,10 @@
 		A604A2311A8515B3001DAD54 /* FoundationCompatibility_Private.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */; };
 		A604A2331A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
 		A604A2341A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
+		A604A2361A861639001DAD54 /* foundation_nsautoreleasepool_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2351A861639001DAD54 /* foundation_nsautoreleasepool_validate.m */; };
+		A604A2371A861639001DAD54 /* foundation_nsautoreleasepool_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2351A861639001DAD54 /* foundation_nsautoreleasepool_validate.m */; };
+		A604A2391A861B39001DAD54 /* foundation_nsarray_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2381A861B39001DAD54 /* foundation_nsarray_validate.m */; };
+		A604A23A1A861B39001DAD54 /* foundation_nsarray_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2381A861B39001DAD54 /* foundation_nsarray_validate.m */; };
 		A64D645E1A77DBA400CCA6D7 /* mscore_validate.h in Resources */ = {isa = PBXBuildFile; fileRef = A6E038981A76304600A97DA3 /* mscore_validate.h */; };
 		A64D645F1A77DC4300CCA6D7 /* libMSCore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03A911A7634AA00A97DA3 /* libMSCore.dylib */; };
 		A64D64601A77DE6A00CCA6D7 /* mscore_c_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */; };
@@ -617,6 +621,8 @@
 		408D25751A7E9C37007258D4 /* MSTests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSTests.c; path = MSTests_src/MSTests.c; sourceTree = "<group>"; };
 		A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FoundationCompatibility_Private.m; path = Foundation_src/FoundationCompatibility_Private.m; sourceTree = "<group>"; };
 		A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsstring_validate.m; path = Foundation_tst/foundation_nsstring_validate.m; sourceTree = "<group>"; };
+		A604A2351A861639001DAD54 /* foundation_nsautoreleasepool_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsautoreleasepool_validate.m; path = Foundation_tst/foundation_nsautoreleasepool_validate.m; sourceTree = "<group>"; };
+		A604A2381A861B39001DAD54 /* foundation_nsarray_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsarray_validate.m; path = Foundation_tst/foundation_nsarray_validate.m; sourceTree = "<group>"; };
 		A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_validate.m; path = MSFoundation_tst/msfoundation_validate.m; sourceTree = SOURCE_ROOT; };
 		A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundationforcocoa_test.m; path = MSFoundation_tst/msfoundationforcocoa_test.m; sourceTree = SOURCE_ROOT; };
 		A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MSFoundationForCocoa-Info.plist"; path = "MSFoundation_src/MSFoundationForCocoa-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -1107,6 +1113,8 @@
 				A6D3597E1A7782D200B87986 /* foundation_validate.m */,
 				A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */,
 				A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */,
+				A604A2351A861639001DAD54 /* foundation_nsautoreleasepool_validate.m */,
+				A604A2381A861B39001DAD54 /* foundation_nsarray_validate.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -2047,6 +2055,7 @@
 				A64D64621A77DE6A00CCA6D7 /* mscore_cbuffer_validate.c in Sources */,
 				A64D64631A77DE6A00CCA6D7 /* mscore_ccolor_validate.c in Sources */,
 				A64D64641A77DE6A00CCA6D7 /* mscore_ccouple_validate.c in Sources */,
+				A604A23A1A861B39001DAD54 /* foundation_nsarray_validate.m in Sources */,
 				A64D64651A77DE6A00CCA6D7 /* mscore_cdate_validate.c in Sources */,
 				A64D64661A77DE6A00CCA6D7 /* mscore_cdecimal_validate.c in Sources */,
 				A64D64671A77DE6A00CCA6D7 /* mscore_cdictionary_validate.c in Sources */,
@@ -2056,6 +2065,7 @@
 				A64D646B1A77DE6A00CCA6D7 /* mscore_validate.c in Sources */,
 				A64D64E91A792D4E00CCA6D7 /* mapm_validate.c in Sources */,
 				A64D646E1A77DF6900CCA6D7 /* msfoundation_validate.m in Sources */,
+				A604A2371A861639001DAD54 /* foundation_nsautoreleasepool_validate.m in Sources */,
 				A64D646C1A77DEAB00CCA6D7 /* msfoundation_test.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2090,6 +2100,7 @@
 				A64D64B61A77EAF000CCA6D7 /* mscore_carray_validate.c in Sources */,
 				A64D64B71A77EAF000CCA6D7 /* mscore_cbuffer_validate.c in Sources */,
 				A64D64B81A77EAF000CCA6D7 /* mscore_ccolor_validate.c in Sources */,
+				A604A2391A861B39001DAD54 /* foundation_nsarray_validate.m in Sources */,
 				A64D64B91A77EAF000CCA6D7 /* mscore_ccouple_validate.c in Sources */,
 				A64D64BA1A77EAF000CCA6D7 /* mscore_cdate_validate.c in Sources */,
 				A64D64BB1A77EAF000CCA6D7 /* mscore_cdecimal_validate.c in Sources */,
@@ -2099,6 +2110,7 @@
 				A64D64BF1A77EAF000CCA6D7 /* mscore_tools_validate.c in Sources */,
 				A64D64C11A77EAF000CCA6D7 /* mscore_validate.c in Sources */,
 				A64D64DE1A78FA2A00CCA6D7 /* foundation_nsobject_validate.m in Sources */,
+				A604A2361A861639001DAD54 /* foundation_nsautoreleasepool_validate.m in Sources */,
 				A64D64AE1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2342,7 +2354,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -2394,7 +2406,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = NO;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -2651,6 +2663,7 @@
 				408D256D1A7D0CB8007258D4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A64D64F51A79305D00CCA6D7 /* Build configuration list for PBXAggregateTarget "libobjc2" */ = {
 			isa = XCConfigurationList;

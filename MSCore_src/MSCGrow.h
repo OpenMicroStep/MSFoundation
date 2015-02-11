@@ -53,11 +53,13 @@
 // On veut que la structure à 0 soit le default (mutable).
 typedef struct CGrowFlagsStruct {
 #ifdef __BIG_ENDIAN__
-  MSUInt fixed:1; // mutability
+  MSUInt immutable:1;       // mutability
+  MSUInt mutabilityFixed:1; // mutability
   MSUInt _pad:31;
 #else
   MSUInt _pad:31;
-  MSUInt fixed:1;
+  MSUInt mutabilityFixed:1;
+  MSUInt immutable:1;
 #endif
   }
 CGrowFlags;
@@ -74,7 +76,9 @@ MSCoreExtern void CGrowFreeInside(id self);
 MSCoreExtern void CGrowFree(id self);
 
 MSCoreExtern BOOL CGrowIsMutable(id self);
+MSCoreExtern BOOL CGrowIsMutabilityFixed(id self);
 MSCoreExtern void CGrowSetImmutable(id self);
+MSCoreExtern void CGrowSetMutabilityFixed(id self);
 
 MSCoreExtern void CGrowGrow(id self, NSUInteger n);
 MSCoreExtern void CGrowAdjustSize(id self);

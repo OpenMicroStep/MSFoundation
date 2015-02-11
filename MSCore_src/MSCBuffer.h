@@ -47,13 +47,15 @@
 
 typedef struct CBufferFlagsStruct {
 #ifdef __BIG_ENDIAN__
-  MSUInt fixed:1;  // mutability
-  MSUInt _pad:30;
+  MSUInt immutable:1;       // mutability
+  MSUInt mutabilityFixed:1; // mutability
+  MSUInt _pad:29;
   MSUInt noFree:1; // 'buf' not freed at end. Append fcts forbidden.
 #else
   MSUInt noFree:1;
-  MSUInt _pad:30;
-  MSUInt fixed:1;
+  MSUInt _pad:29;
+  MSUInt mutabilityFixed:1;
+  MSUInt immutable:1;
 #endif
   }
 CBufferFlags;

@@ -58,15 +58,17 @@ CDictionaryElementType;
 
 typedef struct CDictionaryFlagsStruct {
 #ifdef __BIG_ENDIAN__
-  MSUInt fixed:1;           // mutability
-  MSUInt _pad:27;
+  MSUInt immutable:1;       // mutability
+  MSUInt mutabilityFixed:1; // mutability
+  MSUInt _pad:26;
   MSUInt keyType:2;  // Use keys as simple void* addresses (no object copy/hash) or naturals
   MSUInt objType:2;  // Use values as simple void* addresses (no object retain/release/description)
 #else
   MSUInt objType:2;  // Use values as simple void* #endif
   MSUInt keyType:2;  // Use keys as simple void* addresses (no object copy/hash) or naturals
-  MSUInt _pad:27;
-  MSUInt fixed:1;           // mutability
+  MSUInt _pad:26;
+  MSUInt mutabilityFixed:1;
+  MSUInt immutable:1;
 #endif
   }
 CDictionaryFlags;

@@ -31,7 +31,10 @@
 @implementation NSMutableArray
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSMutableArray class]) self= [MSArray class];
+  if(self == [NSMutableArray class]) {
+    id o= [[MSArray class] allocWithZone:zone];
+    CGrowSetMutabilityFixed(o);
+    return o;}
   return [super allocWithZone:zone];
 }
 -(id)copyWithZone:(NSZone *)zone

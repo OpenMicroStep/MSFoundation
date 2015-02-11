@@ -35,7 +35,10 @@
 @implementation NSMutableDictionary
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSMutableDictionary class]) self= [MSDictionary class];
+  if(self == [NSMutableDictionary class]) {
+    id o= [[MSDictionary class] allocWithZone:zone];
+    CGrowSetMutabilityFixed(o);
+    return o;}
   return [super allocWithZone:zone];
 }
 -(id)copyWithZone:(NSZone *)zone

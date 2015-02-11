@@ -44,7 +44,10 @@
 @implementation NSMutableData
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSMutableData class]) self= [MSBuffer class];
+  if(self == [NSMutableData class]) {
+    id o= [[MSBuffer class] allocWithZone:zone];
+    CGrowSetMutabilityFixed(o);
+    return o;}
   return [super allocWithZone:zone];
 }
 -(id)copyWithZone:(NSZone *)zone

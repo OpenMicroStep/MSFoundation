@@ -51,15 +51,17 @@
 // On veut que la structure à 0 soit le default (mutable, retain/release, no nils).
 typedef struct CArrayFlagsStruct {
 #ifdef __BIG_ENDIAN__
-  MSUInt fixed:1;           // mutability
-  MSUInt _pad:29;
+  MSUInt immutable:1;       // mutability
+  MSUInt mutabilityFixed:1; // mutability
+  MSUInt _pad:28;
   MSUInt noRetainRelease:1; // no retain / release
   MSUInt nilItems:1;        // accepting NULL or nil items
 #else
   MSUInt nilItems:1;
   MSUInt noRetainRelease:1;
-  MSUInt _pad:29;
-  MSUInt fixed:1;
+  MSUInt _pad:28;
+  MSUInt mutabilityFixed:1;
+  MSUInt immutable:1;
 #endif
   }
 CArrayFlags;

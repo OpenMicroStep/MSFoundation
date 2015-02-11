@@ -131,13 +131,12 @@ id CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutab
 {
   if (!self) return nil;
   if (copied) {
-    self->flag.fixed=           NO;
     self->flag.noRetainRelease= copied->flag.noRetainRelease;
     self->flag.nilItems=        copied->flag.nilItems;
     // Pas de copy des items
     // Pas de nilItems verif puisque copied est cohérent
     _insert(self, copied->pointers, self->count, copied->count, NO, NO, "CArrayInitCopy");
-    self->flag.fixed=           !isMutable;}
+    if(!isMutable) CGrowSetImmutable((id)self);}
   return (id)self;
 }
 id CArrayCopy(id self)
@@ -145,7 +144,7 @@ id CArrayCopy(id self)
   CArray *a;
   if (!self) return nil;
   a= (CArray*)MSCreateObjectWithClassIndex(CArrayClassIndex);
-  return CArrayInitCopyWithMutability(a, (CArray*)self, !((CArray*)self)->flag.fixed);
+  return CArrayInitCopyWithMutability(a, (CArray*)self, CGrowIsMutable(self));
 }
 
 const CString* CArrayRetainedDescription(id self)
@@ -206,7 +205,6 @@ BOOL CArrayIdenticals(const CArray *self, const CArray *anotherArray)
 CArray *CCreateArrayWithOptions(NSUInteger capacity, BOOL noRetainRelease, BOOL nilItems)
 {
   CArray *a= CCreateArray(capacity);
-  a->flag.fixed=           NO;
   a->flag.noRetainRelease= noRetainRelease;
   a->flag.nilItems=        nilItems;
   return a;
@@ -253,11 +251,10 @@ CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg)
       WLU(rg.location), WLU(rg.location+rg.length-1), WLU(a->count));
     return nil;}
   sub= CCreateArray(rg.length);
-  sub->flag.fixed=           NO;
   sub->flag.noRetainRelease= a->flag.noRetainRelease;
   sub->flag.nilItems=        a->flag.nilItems;
   _insert(sub, a->pointers+rg.location, 0, rg.length, NO, NO, "CCreateArrayWithObjects");
-  sub->flag.fixed=           a->flag.fixed;
+  if(!CGrowIsMutable((id)sub)) CGrowSetImmutable((id)a);
   return sub;
 }
 
