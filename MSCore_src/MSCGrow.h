@@ -52,15 +52,9 @@
 
 // On veut que la structure à 0 soit le default (mutable).
 typedef struct CGrowFlagsStruct {
-#ifdef __BIG_ENDIAN__
+  MSUInt :31;
   MSUInt immutable:1;       // mutability
   MSUInt mutabilityFixed:1; // mutability
-  MSUInt _pad:31;
-#else
-  MSUInt _pad:31;
-  MSUInt mutabilityFixed:1;
-  MSUInt immutable:1;
-#endif
   }
 CGrowFlags;
 

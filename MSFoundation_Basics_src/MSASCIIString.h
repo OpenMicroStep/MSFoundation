@@ -98,15 +98,8 @@
  
  */
 typedef struct _MSASCIIStringFlagsStruct {
-#ifdef __BIG_ENDIAN__
-    MSUInt fixed:1;
-    MSUInt _pad:30;
     MSUInt leak:1;
-#else
-    MSUInt leak:1;
-    MSUInt _pad:30;
-    MSUInt fixed:1;
-#endif
+    MSUInt :31;
 } _MSASCIIStringFlags ;
 
 @class MSBuffer ;

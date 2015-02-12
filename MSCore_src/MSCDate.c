@@ -91,7 +91,6 @@ static inline unsigned _lastDayOfMonth(unsigned year, unsigned month)
 #pragma mark _dtm declarations
 
 typedef struct _dtmStruct {
-#ifdef __BIG_ENDIAN__
   unsigned long long year:32;
   unsigned long long month:4;
   unsigned long long day:5;
@@ -99,17 +98,7 @@ typedef struct _dtmStruct {
   unsigned long long minute:6;
   unsigned long long second:6;
   unsigned long long dayOfWeek:3;
-  unsigned long long _pad:3;
-#else
-  unsigned long long _pad:3;
-  unsigned long long dayOfWeek:3;
-  unsigned long long second:6;
-  unsigned long long minute:6;
-  unsigned long long hour:5;
-  unsigned long long day:5;
-  unsigned long long month:4;
-  unsigned long long year:32;
-#endif
+  unsigned long long :3;
   }
 _dtm;
 

@@ -295,17 +295,10 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 { 
 @protected
   struct {
-#ifdef __BIG_ENDIAN__
   MSUInt r:8;
   MSUInt g:8;
   MSUInt b:8;
   MSUInt a:8;
-#else
-  MSUInt a:8;
-  MSUInt b:8;
-  MSUInt g:8;
-  MSUInt r:8;
-#endif
   } _rgba;
 }
 @end
