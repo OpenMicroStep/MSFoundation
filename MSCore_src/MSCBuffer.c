@@ -121,22 +121,29 @@ CBuffer *CCreateBuffer(NSUInteger capacity)
 // CBuffer *CCreateBufferWithBytes(const void *bytes, NSUInteger length)
 // Coded with append fcts.
 
+void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree)
+{
+  if(noCopy) {
+    self->buf=    (MSByte*)bytes;
+    self->length= length;
+    self->size=   length;
+    self->flags.noFree= noFree;
+    CGrowSetImmutable((id)self);}
+  else {
+    CBufferAppendBytes(self, bytes, length); }
+}
+
 CBuffer *CCreateBufferWithBytesNoCopy(void *bytes, NSUInteger length)
 {
   CBuffer *b= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  b->buf=    (MSByte*)bytes;
-  b->length= length;
-  b->size=   length;
+  CBufferInitWithBytes(b, bytes, length, YES, NO);
   return b;
 }
 
 CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUInteger length)
 {
   CBuffer *b= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  b->buf=    (MSByte*)bytes;
-  b->length= length;
-  b->size=   length;
-  b->flags.noFree= 1;
+  CBufferInitWithBytes(b, (void*)bytes, length, YES, YES);
   return b;
 }
 
@@ -225,11 +232,7 @@ NSUInteger CBufferIndexOfCStringInRange(const CBuffer *self, char *cString, NSRa
 static inline void _append(CBuffer *self, const void *ptr, NSUInteger length)
 {
   if (self && ptr && length) {
-    // TODO: Raise sur le Grow
-    if (self->flags.noFree) { // immutable
-      MSReportError(MSInvalidArgumentError, MSFatalError, MSIndexOutOfRangeError,
-        "CBufferAppend...(): try to append on immutable buffer.");
-      return;}
+    CGrowMutVerif((id)self, 0, 0, "CBufferAppend*");
     CBufferGrow(self, length);
     memmove(self->buf+self->length, ptr, length);
     self->length+= length;}
@@ -276,6 +279,7 @@ void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncodi
   NSUInteger i,end,u8n;
   unichar u;
   MSByte u8[3];
+  if(!self) return;
   if (destinationEncoding==NSUnicodeStringEncoding) {
     if (ses.encoding==NSUnicodeStringEncoding) {
       _append(self, SESSource(ses), SESLength(ses)*sizeof(unichar));}
@@ -294,11 +298,45 @@ void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncodi
         u8[1]= (MSByte)(u & 0x003F) | 0x80; u>>= 6;
         u8[0]= (MSByte)(u & 0x000F) | 0xE0; u8n= 3;}
       _append(self, u8, u8n);}}
+  else MSReportError(MSInvalidArgumentError, MSFatalError,
+    MSInvalidArgumentError, "destinationEncoding %d not supported.", destinationEncoding);
 }
 
 void CBufferAppendString(CBuffer *self, const CString *s, NSStringEncoding destinationEncoding)
 {
   if (s) CBufferAppendSES(self, CStringSES(s), destinationEncoding);
+}
+
+void CBufferAppendContentsOfFile(CBuffer *self, SES path)
+{
+  CBuffer *pathBuf;
+  NSUInteger length;
+
+  pathBuf= CCreateBuffer(0);
+  CBufferAppendSES(pathBuf, path, NSUTF8StringEncoding);
+  FILE *f=fopen((const char *)CBufferCString(pathBuf), "rb");
+  RELEASE(pathBuf);
+
+  if (!f) {
+    // TODO: Non on veut pas lever une exception. On veut juste une alerte.
+    //MSRaiseFrom(NSMallocException, self, _cmd, @"buffer file not found at path '%@'", path);
+    return;}
+  fseek(f, 0, SEEK_END);
+  length= (NSUInteger)ftell(f);
+  fseek(f, 0, SEEK_SET);
+  CBufferGrow(self, length);
+  fread(self->buf+self->length, 1, length, f);
+  self->length+= length;
+  fclose (f);
+}
+
+void CBufferSetBytes(CBuffer *self, const void *ptr, NSUInteger length)
+{
+  if(!self) return;
+  CGrowMutVerif((id)self, 0, 0, "CBufferSetBytes");
+  if(length > self->length) CBufferGrow(self, length - self->length);
+  memmove(self->buf, ptr, length);
+  self->length= length;
 }
 
 /*

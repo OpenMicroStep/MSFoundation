@@ -47,103 +47,78 @@
 + (void)load{ MSFinishLoadingAddClass(self); }
 + (void)finishLoading{ [MSBuffer setVersion:MS_BUFFER_LAST_VERSION]; }
 
-#pragma mark Class methods
+#pragma mark Alloc / Init
 
-+ (id)allocWithZone:(NSZone*)zone {return MSAllocateObject(self, 0, zone);}
-+ (id)alloc                       {return MSAllocateObject(self, 0, NULL);}
-+ (id)new                         {return MSAllocateObject(self, 0, NULL);}
-+ (id)buffer          {return AUTORELEASE(MSAllocateObject(self, 0, NULL));}
-+ (id)data            {return AUTORELEASE(MSAllocateObject(self, 0, NULL));}
-
-+ (id)bufferWithBuffer:(MSBuffer*)b
+static inline id _buffer(Class cl, id a, BOOL m)
 {
-  return AUTORELEASE((id)CBufferCopy(b));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  if (!m) CGrowSetImmutable(a);
+  return a;
 }
-
-+ (id)bufferWithData:(NSData*)data
+static inline id _bufferWithBytes(Class cl, id a, BOOL m, const void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree)
 {
-  return AUTORELEASE((id)CCreateBufferWithBytes((void*)[data bytes], [data length]));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  CBufferInitWithBytes((CBuffer*)a, (void*)bytes, length, noCopy, noFree);
+  if (!m) CGrowSetImmutable(a);
+  return a;
 }
-+ (id)dataWithData:(NSData *)data
-{
-  return AUTORELEASE((id)CCreateBufferWithBytes((void*)[data bytes], [data length]));
+static inline id _bufferWithBuffer(Class cl, id a, BOOL m, NSData *d)
+{ 
+  return _bufferWithBytes(cl, a, m, (void *)[d bytes], [d length], NO, NO);
 }
-
-+ (id)bufferWithBytes:(const void *)bytes length:(NSUInteger)length
-{
-  return AUTORELEASE((id)CCreateBufferWithBytes(bytes, length));
-}
-+ (id)dataWithBytes:(const void *)bytes length:(NSUInteger)length
-{
-  return AUTORELEASE((id)CCreateBufferWithBytes(bytes, length));
+static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *path)
+{ 
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  CBufferAppendContentsOfFile((CBuffer*)a, SESFromString(path));
+  if (!m) CGrowSetImmutable(a);
+  return a;
 }
 
-+ (id)bufferWithBytesNoCopy:(void *)bytes length:(NSUInteger)length
-{
-  return AUTORELEASE((id)CCreateBufferWithBytesNoCopy(bytes, length));
-}
-+ (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length
-{
-  return AUTORELEASE((id)CCreateBufferWithBytesNoCopy(bytes, length));
-}
++ (id)new           {return ALLOC(self);}
 
-+ (id)bufferWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length
-{
-  return AUTORELEASE((id)CCreateBufferWithBytesNoCopyNoFree(bytes, length));
-}
++ (id)data          {return _buffer(self, nil,  NO);}
++ (id)buffer        {return _buffer(self, nil,  NO);}
++ (id)mutableBuffer {return _buffer(self, nil, YES);}
+- (id)init          {return _buffer(nil ,self,  NO);}
+- (id)mutableInit   {return _buffer(nil ,self, YES);}
+
++ (id)dataWithData:(NSData *)data              {return _bufferWithBuffer(self, nil,  NO, data);}
++ (id)bufferWithData:(NSData *)data            {return _bufferWithBuffer(self, nil,  NO, data);}
++ (id)bufferWithBuffer:(MSBuffer *)data        {return _bufferWithBuffer(self, nil,  NO, data);}
+- (id)initWithData:(NSData *)data              {return _bufferWithBuffer(nil ,self,  NO, data);}
+- (id)initWithBuffer:(MSBuffer *)data          {return _bufferWithBuffer(nil ,self,  NO, data);}
++ (id)mutableBufferWithData:(NSData *)data     {return _bufferWithBuffer(self, nil, YES, data);}
++ (id)mutableBufferWithBuffer:(MSBuffer *)data {return _bufferWithBuffer(self, nil, YES, data);}
+- (id)mutableInitWithData:(NSData *)data       {return _bufferWithBuffer(nil ,self, YES, data);}
+- (id)mutableInitWithBuffer:(MSBuffer *)data   {return _bufferWithBuffer(nil ,self, YES, data);}
+
++ (id)dataWithBytes:(const void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(self, nil,  NO, bytes, length,  NO,  NO);}
++ (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(self, nil,  NO, bytes, length, YES,  NO);}
 + (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b
-{
-  return b ? AUTORELEASE((id)CCreateBufferWithBytesNoCopy(bytes, length)) :
-             AUTORELEASE((id)CCreateBufferWithBytesNoCopyNoFree(bytes, length));
-}
+                                                                           {return _bufferWithBytes(self, nil,  NO, bytes, length, YES,  !b);}
++ (id)bufferWithBytes:(const void *)bytes length:(NSUInteger)length        {return _bufferWithBytes(self, nil,  NO, bytes, length,  NO,  NO);}
++ (id)bufferWithBytesNoCopy:(void *)bytes length:(NSUInteger)length        {return _bufferWithBytes(self, nil,  NO, bytes, length, YES,  NO);}
++ (id)bufferWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length  {return _bufferWithBytes(self, nil,  NO, bytes, length, YES, YES);}
+- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(nil ,self,  NO, bytes, length,  NO,  NO);}
+- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(nil ,self,  NO, bytes, length, YES,  NO);}
+- (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length    {return _bufferWithBytes(nil ,self,  NO, bytes, length, YES, YES);}
++ (id)mutableBufferWithBytes:(const void *)bytes length:(NSUInteger)length {return _bufferWithBytes(self, nil, YES, bytes, length,  NO,  NO);}
+- (id)mutableInitWithBytes:(const void *)bytes length:(NSUInteger)length   {return _bufferWithBytes(nil ,self, YES, bytes, length,  NO,  NO);}
 
-+ (id)bufferWithCString:(char *)cString
-{ NSUInteger l= (cString ? strlen(cString) : 0); return AUTORELEASE((id)CCreateBufferWithBytes(cString, l)); }
-+ (id)bufferWithCStringNoCopy:(char *)cString
-{ NSUInteger l= (cString ? strlen(cString) : 0); return AUTORELEASE((id)CCreateBufferWithBytesNoCopy(cString, l)); }
-+ (id)bufferWithCStringNoCopyNoFree:(char *)cString
-{ NSUInteger l= (cString ? strlen(cString) : 0); return AUTORELEASE((id)CCreateBufferWithBytesNoCopyNoFree(cString, l)); }
++ (id)bufferWithCString:(char *)s                                          {return _bufferWithBytes(self, nil,  NO, s,  strlen(s),  NO,  NO);}
++ (id)bufferWithCStringNoCopy:(char *)s                                    {return _bufferWithBytes(self, nil,  NO, s,  strlen(s), YES,  NO);}
++ (id)bufferWithCStringNoCopyNoFree:(char *)s                              {return _bufferWithBytes(self, nil,  NO, s,  strlen(s), YES, YES);}
+- (id)initWithCString:(char *)s                                            {return _bufferWithBytes(nil ,self,  NO, s,  strlen(s),  NO,  NO);}
+- (id)initWithCStringNoCopy:(char *)s                                      {return _bufferWithBytes(nil ,self,  NO, s,  strlen(s), YES,  NO);}
+- (id)initWithCStringNoCopyNoFree:(char *)s                                {return _bufferWithBytes(nil ,self,  NO, s,  strlen(s), YES, YES);}
++ (id)mutableBufferWithCString:(char *)s                                   {return _bufferWithBytes(self, nil, YES, s,  strlen(s),  NO,  NO);}
+- (id)mutableInitWithCString:(char *)s                                     {return _bufferWithBytes(nil ,self, YES, s,  strlen(s),  NO,  NO);}
 
-+ (id)bufferWithContentsOfFile:(NSString*)path
-{
-  return AUTORELEASE([ALLOC(self) initWithContentsOfFile:path]);
-}
-
-- (id)initWithContentsOfFile:(NSString *)path
-{
-  char *buf=NULL;
-  NSUInteger length;
-#ifdef WO451
-  FILE *f=fopen([path cString], "rb");
-#else
-  FILE *f=fopen([path UTF8String], "rb");
-#endif
-  // TODO: Non on veut pas lever une exception. On veut juste une alerte.
-  if (!f) {
-    MSRaiseFrom(NSMallocException, self, _cmd, @"buffer file not found at path '%@'", path);
-    return nil;}
-  fseek(f, 0, SEEK_END);
-  length= (NSUInteger)ftell(f);
-  fseek(f, 0, SEEK_SET);
-  buf= MSMalloc(length, "+ [MSBuffer bufferWithContentsOfFile:]");
-  if(!buf) {
-    MSRaiseFrom(NSMallocException, self, _cmd, @"buffer of %lu characters cannot be allocated", length);
-    return nil;}
-  fread(buf, 1, length, f);
-  fclose (f);
-  
-  _buf=    (MSByte*)buf;
-  _length= length;
-  _size=   length;
-  return self;
-}
-
-#pragma mark Init
-
-- (id)init
-{
-  return self;
-}
++ (id)dataWithContentsOfFile:(NSString *)path                              {return _bufferWithContentsOfFile(self, nil,  NO, path);}
++ (id)bufferWithContentsOfFile:(NSString *)path                            {return _bufferWithContentsOfFile(self, nil,  NO, path);}
+- (id)initWithContentsOfFile:(NSString *)path                              {return _bufferWithContentsOfFile(nil ,self,  NO, path);}
++ (id)mutableBufferWithContentsOfFile:(NSString *)path                     {return _bufferWithContentsOfFile(self, nil, YES, path);}
+- (id)mutableInitWithContentsOfFile:(NSString *)path                       {return _bufferWithContentsOfFile(nil ,self, YES, path);}
 
 - (void)dealloc
 {
@@ -151,102 +126,16 @@
   [super dealloc];
 }
 
-- (id)initWithBuffer:(MSBuffer *)buffer
-{
-  CBufferAppendBuffer((CBuffer*)self, (CBuffer*)buffer);
-  return self;
-}
-
-- (id)initWithData:(NSData *)data
-{
-  CBufferAppendBytes((CBuffer*)self, (void*)[data bytes], [data length]);
-  return self;
-}
-
-- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length
-{
-  CBufferAppendBytes((CBuffer*)self, bytes, length);
-  return self;
-}
-- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length
-{
-  _buf=    (MSByte*)bytes;
-  _length= length;
-  _size=   length;
-  return self;
-}
-- (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length
-{
-  _buf=    (MSByte*)bytes;
-  _length= length;
-  _size=   length;
-  _flags.noFree= 1;
-  return self;
-}
-- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b
-{
-  _buf=    (MSByte*)bytes;
-  _length= length;
-  _size=   length;
-  if (!b) _flags.noFree= 1;
-  return self;
-}
-
-- (id)initWithCString:(char *)string
-{
-  NSUInteger length= (string ? strlen(string) : 0);
-  CBufferAppendBytes((CBuffer*)self, string, length);
-  return self;
-}
-- (id)initWithCStringNoCopy:(char *)string
-{
-  NSUInteger length= (string ? strlen(string) : 0);
-  _buf=    (MSByte*)string;
-  _length= length;
-  _size=   length;
-  return self;
-}
-- (id)initWithCStringNoCopyNoFree:(char *)string
-{
-  NSUInteger length= (string ? strlen(string) : 0);
-  _buf=    (MSByte*)string;
-  _length= length;
-  _size=   length;
-  _flags.noFree= 1;
-  return self;
-}
-- (id)initWithCStringNoCopy:(char *)string freeWhenDone:(BOOL)b
-{
-  NSUInteger length= (string ? strlen(string) : 0);
-  _buf=    (MSByte*)string;
-  _length= length;
-  _size=   length;
-  if (!b) _flags.noFree= 1;
-  return self;
-}
-
-// this method is a hidden one
-- (id)initWithCapacity:(NSUInteger)capacity
-{
-  CBufferGrow((CBuffer*)self, capacity);
-  return self;
-}
-
 #pragma mark Copying
 
 - (id)copyWithZone:(NSZone *)zone
 {
-  // this MSBuffer is immutable, so if we copy in the same zone, the very same object must be returned
-  // ecb non une copie est une copie, si on veut juste retenir, on retient.
-  // De plus CBuffer n'est pas du tout immutable et
-  // COPY(CBuffer*) appelle cette méthode.
-  // if ([self zone] == zone) return RETAIN(self);
-  return CBufferCopy(self);
-  zone= NULL;
+  return _bufferWithBuffer(nil, [[self class] allocWithZone:zone], NO, self);
 }
-
-// since we have no mutable buffer, the mutable copy returns a NSMutableData object
-- (id)mutableCopyWithZone:(NSZone *)zone  { return [[NSMutableData allocWithZone:zone] initWithBytes:_buf length:_length]; }
+- (id)mutableCopyWithZone:(NSZone *)zone
+{ 
+  return _bufferWithBuffer(nil, [[self class] allocWithZone:zone], YES, self);
+}
 
 #pragma mark Primitives
 
@@ -309,6 +198,8 @@
   }
   return AUTORELEASE((id)CCreateBufferWithBytes(_buf+range.location, range.length));
 }
+
+#pragma 
 
 // TODO: MSBytesToHexaString as CString
 //- (NSString *)toString       { return MSBytesToHexaString(_buf, _length, YES); }
@@ -402,6 +293,52 @@
 - (Class)classForAchiver   { return [self class]; }
 - (Class)classForCoder     { return [self class]; }
 - (Class)classForPortCoder { return [self class]; }
+
+#pragma mark Mutability
+
+- (BOOL)isMutable    {return CGrowIsMutable(self);}
+- (void)setImmutable {CGrowSetImmutable(self);}
+
+- (void)appendBytes:(const void *)bytes length:(NSUInteger)length
+{ CBufferAppendBytes((CBuffer*)self, bytes, length); }
+- (void)appendData:(NSData *)data
+{ CBufferAppendBytes((CBuffer*)self, [data bytes], [data length]); }
+- (void)appendBuffer:(MSBuffer *)buffer
+{ CBufferAppendBuffer((CBuffer*)self, (CBuffer*)buffer); }
+/* TODO: Should we really support this ? Apple has it in NSMutableData */
+- (void)increaseLengthBy:(NSUInteger)extraLength
+{ CBufferGrow((CBuffer*)self, extraLength); }
+- (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes
+{ 
+  if (range.location + range.length > _length) {
+    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"range %@ out of range (0, %lu)", NSStringFromRange(range), (unsigned long)_length);
+  }
+  memmove(_buf + range.location, bytes, range.length);
+}
+- (void)resetBytesInRange:(NSRange)range
+{ 
+  if (range.location + range.length > _length) {
+    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"range %@ out of range (0, %lu)", NSStringFromRange(range), (unsigned long)_length);
+  }
+  memset(_buf + range.location, 0, range.length);
+}
+- (void)setData:(NSData *)data
+{
+  CBufferSetBytes((CBuffer*)self, [data bytes], [data length]);
+}
+- (void)setBuffer:(MSBuffer *)buffer
+{
+  CBufferSetBytes((CBuffer*)self, buffer->_buf, buffer->_length);
+}
+- (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)replacementBytes length:(NSUInteger)replacementLength
+{
+  NSUInteger rangeEnd;
+  if (replacementLength > range.length) {
+    CBufferGrow((CBuffer*)self, replacementLength - range.length); }
+  rangeEnd = range.location + range.length;
+  memmove(_buf + replacementLength, _buf + rangeEnd, _length - rangeEnd);
+  memmove(_buf + range.location, replacementBytes, replacementLength);
+}
 
 @end
 /*

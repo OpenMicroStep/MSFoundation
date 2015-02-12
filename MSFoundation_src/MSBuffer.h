@@ -42,43 +42,6 @@ Herve Malaingre : herve@malaingre.com
  
  */
 
-/*
- ================ WARNING ======================
- MSBuffer should be considered as a final class. It's optimized for speed and
- that means that all initializers are independant and always create MSBuffer
- instance even if they are called from subclasses. So, if you want to sublcass
- it, beware and create your own initializers and don't call super from them.
- For the very same reasons, all instance methods returning MSBuffer objects
- always instanciate MSBuffer object and cannot return subclasses. They must
- be overwritten when subclassing. In conclusion : MSBuffer class would be
- very difficult to subclass.
- 
- For speed prefare to create MSBuffer objects with the initialization functions :
- CCreateBuffer(), CCreateBufferWithBytes().
- 
- As an ObjC object MSBuffer is condidered as an immutable object. As a clone
- of the CBuffer C structure it's a mutable buffer. Good usage is : create with
- a CCreateBuffer... method, fill with CBuffer functions and when it's done,
- use with ObjC interface as an immutable Object (though access with
- MSBIndex() macro is far more faster than ObjC access...). 
- 
- Never use + (id)dataWithContentsOfMappedFile:(NSString *)path or
- - (id)initWithContentsOfMappedFile:(NSString *)path on a MSBuffer. 
- it simply does not work.
-
- Please note that the mutable copy of a MSBuffer returns a NSMutableData.
- 
- */
-
-static inline void CBufferAppendData(CBuffer *self, NSData *d)
-{
-  NSUInteger length= [d length];
-  if (self && length) {
-    CBufferGrow(self, length);
-    [d getBytes:(void*)(self->buf+self->length) range:NSMakeRange(0,length)];
-    self->length+= length;}
-}
-
 @interface MSBuffer : NSData
 {
 @private
@@ -87,6 +50,8 @@ static inline void CBufferAppendData(CBuffer *self, NSData *d)
   NSUInteger   _length;
   CBufferFlags _flags;
 }
+
+#pragma mark Init
 
 + (id)buffer;
 + (id)bufferWithData:(NSData *)data;
@@ -101,15 +66,60 @@ static inline void CBufferAppendData(CBuffer *self, NSData *d)
 + (id)bufferWithCStringNoCopy:(char *)cString;
 + (id)bufferWithCStringNoCopyNoFree:(char *)cString;
 
+- (id)initWithData:(NSData *)data;
 - (id)initWithBuffer:(MSBuffer *)data;
+- (id)initWithContentsOfFile:(NSString *)path;
+
+- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length;
+- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length;
+- (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
 
 - (id)initWithCString:(char *)string;
 - (id)initWithCStringNoCopy:(char *)string;
 - (id)initWithCStringNoCopyNoFree:(char *)string;
-- (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
 
-- (BOOL)isEqualToBuffer:(MSBuffer *)other;
+#pragma mark Mutable init
+
++ (id)mutableBuffer;
++ (id)mutableBufferWithData:(NSData *)data;
++ (id)mutableBufferWithBuffer:(MSBuffer *)data;
++ (id)mutableBufferWithContentsOfFile:(NSString *)path;
+
++ (id)mutableBufferWithBytes:(const void *)bytes length:(NSUInteger)length;
++ (id)mutableBufferWithCString:(char *)cString;
+
+- (id)mutableInitWithData:(NSData *)data;
+- (id)mutableInitWithBuffer:(MSBuffer *)data;
+- (id)mutableInitWithContentsOfFile:(NSString *)path;
+
+- (id)mutableInitWithBytes:(const void *)bytes length:(NSUInteger)length;
+- (id)mutableInitWithCString:(char *)string;
+
+#pragma mark Standard methods
+
+- (const void *)bytes;
+- (NSUInteger)length;
+
+#pragma mark Extended methods
+
+- (void)getBytes:(void *)bytes length:(NSUInteger)length;
+- (void)getBytes:(void *)bytes range:(NSRange)range;
 - (MSBuffer *)bufferWithRange:(NSRange)range;
+- (BOOL)isEqualToBuffer:(MSBuffer *)other;
+
+#pragma mark Mutability
+
+- (BOOL)isMutable;
+- (void)setImmutable;
+
+- (void)appendBytes:(const void *)bytes length:(NSUInteger)length;
+- (void)appendBuffer:(NSData *)other;
+- (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes;
+- (void)resetBytesInRange:(NSRange)range;
+- (void)setBuffer:(NSData *)data;
+- (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)replacementBytes length:(NSUInteger)replacementLength;
+
+#pragma mark Encoding
 
 - (MSByte*)cString; // With 0x00 at end
 - (MSBuffer *)encodedToBase64;
@@ -139,14 +149,6 @@ static inline void CBufferAppendData(CBuffer *self, NSData *d)
 MSFoundationExport MSBuffer *MSURLComponentFromBytes(void *bytes, NSUInteger length); // also converts special characters $-_.+!*'(),
 MSFoundationExport MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length); // doesn't convert special characters $-_.+!*'(),
 
-#if defined(WO451)
-#define NSDATA_BYTESNOCOPY_FREEWHENDONE
-#elif defined(MAC_OS_X_VERSION_MAX_ALLOWED)
-#if MAC_OS_X_VERSION_10_2 > MAC_OS_X_VERSION_MAX_ALLOWED
-#define NSDATA_BYTESNOCOPY_FREEWHENDONE
-#endif
-#endif
-
 @interface NSData (MSBufferAdditions)
 /*
  These 4 methods are not replicated from leopard to older macosx and in WOF 4.51 : that means that you MUST NOT use them.
@@ -165,11 +167,6 @@ MSFoundationExport MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length); // 
  - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile;
  - (BOOL)writeToURL:(NSURL *)url atomically:(BOOL)atomically;
  */
-
-#ifdef NSDATA_BYTESNOCOPY_FREEWHENDONE
-+ (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)freeWhenDone;
-- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)freeWhenDone;
-#endif
 
 - (MSUShort)smallCRC;
 - (MSUInt  )largeCRC;

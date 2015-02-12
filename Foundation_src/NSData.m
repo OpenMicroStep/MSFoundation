@@ -54,4 +54,8 @@
 {
   return [ALLOC(NSData) initWithData:self];
 }
+- (void *)mutableBytes
+{ [self notImplemented:_cmd]; return 0; }
+- (void)setLength:(NSUInteger)length
+{ [self notImplemented:_cmd]; }
 @end

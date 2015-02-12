@@ -45,7 +45,7 @@ static inline int cdictionary_create(void)
     fprintf(stdout, "A17 c & d are not equals\n"); err++;}
   m= [d mutableCopy];
   RELEASE(d);
-  x= [[MSBuffer alloc] initWithBytes:"a key" length:5];
+  x= [[MSBuffer alloc] mutableInitWithBytes:"a key" length:5];
   [m setObject:o forKey:x];
   if ([m count]!=2) {
     fprintf(stdout, "A20 Bad count: %lu\n",WLU([m count])); err++;}
@@ -78,8 +78,8 @@ static inline int cdictionary_enum(void)
   {
   int err= 0;
   MSDictionary *c,*d; id ks[1000],os[1000],k,o; int i,n,fd; MSDictionaryEnumerator *de;
-  k= [[MSBuffer alloc] initWithBytes:"a key" length:5];
-  o= [[MSBuffer alloc] initWithBytes:"an object" length:9];
+  k= [[MSBuffer alloc] mutableInitWithBytes:"a key" length:5];
+  o= [[MSBuffer alloc] mutableInitWithBytes:"an object" length:9];
   for (i=0; i<1000; i++) {
     CBufferAppendByte((CBuffer*)k, (MSByte)i); ks[i]= COPY(k);
     CBufferAppendByte((CBuffer*)o, (MSByte)i); os[i]= COPY(o);}

@@ -49,7 +49,7 @@ typedef struct CBufferFlagsStruct {
   MSUInt noFree:1;
   MSUInt :31;
   }
-CBufferFlags;
+  CBufferFlags;
 
 typedef struct CBufferStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
@@ -60,6 +60,7 @@ typedef struct CBufferStruct {
 CBuffer;
 
   MSCoreExtern void       CBufferFreeInside(id self); // for MSBuffer dealloc
+MSCoreExtern void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree);
 //Already defined in MSCObject.h
 //MSCoreExtern void       CBufferFree(id self);
 //MSCoreExtern BOOL       CBufferIsEqual(id self, id other);
@@ -105,6 +106,9 @@ MSCoreExtern void CBufferAppendSES    (CBuffer *self, SES ses, NSStringEncoding 
 // or NSUnicodeStringEncoding IN THE SAME endianness than the ses encoding
 MSCoreExtern void CBufferAppendString (CBuffer *self, const CString *s, NSStringEncoding destinationEncoding);
 // See CBufferAppendSES
+
+MSCoreExtern void CBufferAppendContentsOfFile(CBuffer *self, SES path);
+MSCoreExtern void CBufferSetBytes(CBuffer *self, const void *ptr, NSUInteger length);
 
 MSCoreExtern void CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
 MSCoreExtern BOOL CBufferBase64DecodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);
