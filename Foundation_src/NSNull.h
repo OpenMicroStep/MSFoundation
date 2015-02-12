@@ -1,4 +1,4 @@
 
-@interface NSNull : NSObject
-
+@interface NSNull : NSObject <NSCopying, NSSecureCoding>
++ (NSNull *)null;
 @end
