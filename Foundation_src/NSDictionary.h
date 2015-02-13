@@ -13,6 +13,7 @@
 + (instancetype)dictionaryWithDictionary:(NSDictionary *)dict;
 + (instancetype)dictionaryWithObjects:(NSArray *)objects forKeys:(NSArray *)keys;
 
+- (instancetype)initWithObjects:(const id [])objects forKeys:(const id <NSCopying> [])keys count:(NSUInteger)cnt;
 - (instancetype)initWithObjectsAndKeys:(id)firstObject, ... NS_REQUIRES_NIL_TERMINATION;
 - (instancetype)initWithDictionary:(NSDictionary *)otherDictionary;
 - (instancetype)initWithDictionary:(NSDictionary *)otherDictionary copyItems:(BOOL)flag;
@@ -23,5 +24,8 @@
 @end
 
 @interface NSMutableDictionary : NSDictionary
+
+- (void)removeObjectForKey:(id)aKey;
+- (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
 
 @end
