@@ -28,6 +28,15 @@ typedef NS_OPTIONS(NSUInteger, NSDataReadingOptions) {
 - (instancetype)initWithContentsOfFile:(NSString *)path;
 @end
 
+@interface NSData (NSExtendedData)
+
+- (void)getBytes:(void *)buffer length:(NSUInteger)length;
+- (void)getBytes:(void *)buffer range:(NSRange)range;
+- (BOOL)isEqualToData:(NSData *)other;
+- (NSData *)subdataWithRange:(NSRange)range;
+
+@end
+
 @interface NSMutableData : NSData
 
 - (void *)mutableBytes;

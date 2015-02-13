@@ -299,15 +299,27 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 - (BOOL)isMutable    {return CGrowIsMutable(self);}
 - (void)setImmutable {CGrowSetImmutable(self);}
 
+- (void *)mutableBytes{ return _buf; }
 - (void)appendBytes:(const void *)bytes length:(NSUInteger)length
 { CBufferAppendBytes((CBuffer*)self, bytes, length); }
 - (void)appendData:(NSData *)data
 { CBufferAppendBytes((CBuffer*)self, [data bytes], [data length]); }
 - (void)appendBuffer:(MSBuffer *)buffer
 { CBufferAppendBuffer((CBuffer*)self, (CBuffer*)buffer); }
-/* TODO: Should we really support this ? Apple has it in NSMutableData */
+
+- (void)setLength:(NSUInteger)length
+{
+  if(length > _length)
+    [self increaseLengthBy:length - _length];
+  else
+    _length= length;
+}
 - (void)increaseLengthBy:(NSUInteger)extraLength
-{ CBufferGrow((CBuffer*)self, extraLength); }
+{
+  CBufferGrow((CBuffer*)self, extraLength);
+  memset(_buf + _length, 0, extraLength);
+  _length+= extraLength;
+}
 - (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes
 { 
   if (range.location + range.length > _length) {

@@ -112,6 +112,9 @@ Herve Malaingre : herve@malaingre.com
 - (BOOL)isMutable;
 - (void)setImmutable;
 
+- (void *)mutableBytes;
+- (void)setLength:(NSUInteger)length;
+- (void)increaseLengthBy:(NSUInteger)extraLength;
 - (void)appendBytes:(const void *)bytes length:(NSUInteger)length;
 - (void)appendBuffer:(NSData *)other;
 - (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes;

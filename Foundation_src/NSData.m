@@ -40,16 +40,48 @@
 { [self notImplemented:_cmd]; return 0; }
 @end
 
+@interface _MSMBuffer : MSBuffer
+@end
+
+@implementation _MSMBuffer
+
+- (Class)superclass
+{
+    return [NSMutableData class];
+}
+
+- (BOOL)isKindOfClass:(Class)aClass
+{
+    return (aClass == [NSMutableData class]) || [super isKindOfClass:aClass];
+}
+- (instancetype)initWithCapacity:(NSUInteger)capacity{
+  if((self= [self init])) {
+    CGrowGrow(self, capacity);
+  }
+  return self;
+}
+- (instancetype)initWithLength:(NSUInteger)length{
+  if((self= [self init])) {
+    [(NSMutableData*)self increaseLengthBy:length];
+  }
+  return self;
+}
+@end
 
 @implementation NSMutableData
 + (instancetype)allocWithZone:(NSZone *)zone
 {
   if(self == [NSMutableData class]) {
-    id o= [[MSBuffer class] allocWithZone:zone];
+    id o= [_MSMBuffer allocWithZone:zone];
     CGrowSetMutabilityFixed(o);
     return o;}
   return [super allocWithZone:zone];
 }
++ (instancetype)dataWithCapacity:(NSUInteger)capacity
+{ return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]); }
++ (instancetype)dataWithLength:(NSUInteger)length
+{ return AUTORELEASE([ALLOC(self) initWithLength:length]); }
+
 -(id)copyWithZone:(NSZone *)zone
 {
   return [ALLOC(NSData) initWithData:self];
@@ -58,4 +90,5 @@
 { [self notImplemented:_cmd]; return 0; }
 - (void)setLength:(NSUInteger)length
 { [self notImplemented:_cmd]; }
+
 @end

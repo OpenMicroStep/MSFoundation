@@ -507,6 +507,8 @@
 		A6E4EB0E1A7FEC65002E99FF /* NSNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E4EB0C1A7FEC65002E99FF /* NSNotification.m */; };
 		A6E78EAA1A8CFCEA00416AF7 /* foundation_nsnull_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E78EA81A8CFCEA00416AF7 /* foundation_nsnull_validate.m */; };
 		A6E78EAB1A8CFCEA00416AF7 /* foundation_nsnull_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E78EA81A8CFCEA00416AF7 /* foundation_nsnull_validate.m */; };
+		A6E78EB01A8CFF7400416AF7 /* foundation_nsdata_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */; };
+		A6E78EB11A8CFF7400416AF7 /* foundation_nsdata_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -872,6 +874,7 @@
 		A6E4EB0B1A7FEC65002E99FF /* NSNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSNotification.h; path = Foundation_src/NSNotification.h; sourceTree = "<group>"; };
 		A6E4EB0C1A7FEC65002E99FF /* NSNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NSNotification.m; path = Foundation_src/NSNotification.m; sourceTree = "<group>"; };
 		A6E78EA81A8CFCEA00416AF7 /* foundation_nsnull_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsnull_validate.m; path = Foundation_tst/foundation_nsnull_validate.m; sourceTree = "<group>"; };
+		A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsdata_validate.m; path = Foundation_tst/foundation_nsdata_validate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1122,6 +1125,7 @@
 				A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */,
 				A604A2351A861639001DAD54 /* foundation_nsautoreleasepool_validate.m */,
 				A604A2381A861B39001DAD54 /* foundation_nsarray_validate.m */,
+				A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */,
 				A6E78EA81A8CFCEA00416AF7 /* foundation_nsnull_validate.m */,
 			);
 			name = Tests;
@@ -2068,6 +2072,7 @@
 				A6A569B51A8B950C0054F346 /* mscore_ses_validate.c in Sources */,
 				A64D64651A77DE6A00CCA6D7 /* mscore_cdate_validate.c in Sources */,
 				A6E78EAB1A8CFCEA00416AF7 /* foundation_nsnull_validate.m in Sources */,
+				A6E78EB11A8CFF7400416AF7 /* foundation_nsdata_validate.m in Sources */,
 				A64D64661A77DE6A00CCA6D7 /* mscore_cdecimal_validate.c in Sources */,
 				A64D64671A77DE6A00CCA6D7 /* mscore_cdictionary_validate.c in Sources */,
 				A64D64681A77DE6A00CCA6D7 /* mscore_cstring_validate.c in Sources */,
@@ -2115,6 +2120,7 @@
 				A6A569B41A8B950C0054F346 /* mscore_ses_validate.c in Sources */,
 				A64D64B91A77EAF000CCA6D7 /* mscore_ccouple_validate.c in Sources */,
 				A6E78EAA1A8CFCEA00416AF7 /* foundation_nsnull_validate.m in Sources */,
+				A6E78EB01A8CFF7400416AF7 /* foundation_nsdata_validate.m in Sources */,
 				A64D64BA1A77EAF000CCA6D7 /* mscore_cdate_validate.c in Sources */,
 				A64D64BB1A77EAF000CCA6D7 /* mscore_cdecimal_validate.c in Sources */,
 				A64D64BC1A77EAF000CCA6D7 /* mscore_cdictionary_validate.c in Sources */,
