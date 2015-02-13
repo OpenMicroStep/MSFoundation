@@ -29,3 +29,10 @@
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
 
 @end
+
+@interface NSMutableDictionary (NSMutableDictionaryCreation)
+
++ (instancetype)dictionaryWithCapacity:(NSUInteger)numItems;
+- (instancetype)initWithCapacity:(NSUInteger)numItems;
+
+@end

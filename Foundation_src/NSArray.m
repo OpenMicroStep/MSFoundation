@@ -28,15 +28,39 @@
 { [self notImplemented:_cmd]; return 0; }
 @end
 
+@interface _MSMArray : MSArray
+@end
+
+@implementation _MSMArray
+
+- (Class)superclass
+{
+    return [NSMutableArray class];
+}
+
+- (BOOL)isKindOfClass:(Class)aClass
+{
+    return (aClass == [NSMutableArray class]) || [super isKindOfClass:aClass];
+}
+- (instancetype)initWithCapacity:(NSUInteger)capacity{
+  if((self= [self init])) {
+    CArrayGrow((CArray*)self, capacity);
+  }
+  return self;
+}
+@end
+
 @implementation NSMutableArray
 + (instancetype)allocWithZone:(NSZone *)zone
 {
   if(self == [NSMutableArray class]) {
-    id o= [[MSArray class] allocWithZone:zone];
+    id o= [_MSMArray allocWithZone:zone];
     CGrowSetMutabilityFixed(o);
     return o;}
   return [super allocWithZone:zone];
 }
++ (instancetype)dictionaryWithCapacity:(NSUInteger)capacity
+{ return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]); }
 -(id)copyWithZone:(NSZone *)zone
 {
   return [ALLOC(NSArray) initWithArray:self];

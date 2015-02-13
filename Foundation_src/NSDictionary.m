@@ -32,17 +32,45 @@
 { [self notImplemented:_cmd]; return 0; }
 @end
 
+@interface _MSMDictionary : MSDictionary
+@end
+
+@implementation _MSMDictionary
+
+- (Class)superclass
+{
+    return [NSMutableDictionary class];
+}
+
+- (BOOL)isKindOfClass:(Class)aClass
+{
+    return (aClass == [NSMutableDictionary class]) || [super isKindOfClass:aClass];
+}
+- (instancetype)initWithCapacity:(NSUInteger)capacity{
+  if((self= [self init])) {
+    CDictionaryGrow((CDictionary*)self, capacity);
+  }
+  return self;
+}
+@end
+
 @implementation NSMutableDictionary
 + (instancetype)allocWithZone:(NSZone *)zone
 {
   if(self == [NSMutableDictionary class]) {
-    id o= [[MSDictionary class] allocWithZone:zone];
+    id o= [_MSMDictionary allocWithZone:zone];
     CGrowSetMutabilityFixed(o);
     return o;}
   return [super allocWithZone:zone];
 }
++ (instancetype)dictionaryWithCapacity:(NSUInteger)capacity
+{ return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]); }
 -(id)copyWithZone:(NSZone *)zone
 {
   return [ALLOC(NSDictionary) initWithDictionary:self];
 }
+- (void)removeObjectForKey:(id)aKey
+{ [self notImplemented:_cmd]; }
+- (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey
+{ [self notImplemented:_cmd]; }
 @end

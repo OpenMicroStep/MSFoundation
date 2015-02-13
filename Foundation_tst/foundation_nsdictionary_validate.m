@@ -6,6 +6,7 @@ static int nsdictionary_create(void)
   NSMutableDictionary *c,*m; NSDictionary *d; id k,o,x; int i;
   c= [NSMutableDictionary new];
   d= [[NSDictionary alloc] init];
+  ASSERT([c isKindOfClass:[NSMutableDictionary class]], "NSMutableDictionary is king of itself");
   //ASSERT_EQUALS(RETAINCOUNT(c), 1, "[NSDictionary new] retain count must be %2$d, got %1$d");
   //ASSERT_EQUALS(RETAINCOUNT(d), 1, "[[NSDictionary alloc] init] retain count must be %2$d, got %1$d");
   ASSERT_ISEQUAL(c, d, "[NSMutableDictionary new] is equal to [[NSDictionary alloc] init] (both empty)");
