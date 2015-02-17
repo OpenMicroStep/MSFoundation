@@ -590,7 +590,6 @@ void CStringAppendFormatv(CString *self, SES fmt, va_list ap)
   FormatToken f; unichar u;
   memset(argTypes, 0, sizeof(argTypes));
   while(1) {
-    firstPass= YES;
     while (pos < SESLength(fmt)) {
       startPos= pos;
       u= SESIndexN(fmt, &pos);
