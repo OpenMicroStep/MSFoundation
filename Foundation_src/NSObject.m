@@ -62,7 +62,12 @@
 
 - (NSUInteger)hash
 {
-    return (NSUInteger)self;
+    return MSPointerHash(self);
+}
+
+- (NSUInteger)hash:(unsigned)depth
+{
+    return [self hash];
 }
 
 - (instancetype)self
