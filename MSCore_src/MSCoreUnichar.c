@@ -206,8 +206,9 @@ NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, NSUInteger la,
 // Si la>0 alors ba!=NULL et idem pour lb, bb.
 // Si la==lb==0, return NSOrderedSame
 {
+  NSComparisonResult ret= NSOrderedSame;
   if ((la>0 || lb>0) && ba != bb) {
-    NSUInteger i,l; NSComparisonResult ret;
+    NSUInteger i,l;
     if      (!la || !ba) ret= NSOrderedAscending;
     else if (!lb || !bb) ret= NSOrderedDescending;
     else {
@@ -216,9 +217,9 @@ NSComparisonResult CUnicharsInsensitiveCompare(const unichar *ba, NSUInteger la,
       for (i= 0; ret==NSOrderedSame && i<l; i++) {
         ret= CUnicharInsensitiveCompare(ba[i], bb[i]);}
       if (ret==NSOrderedSame && la!=lb) {
-        if      (la < lb) return NSOrderedAscending;
-        else if (la > lb) return NSOrderedDescending;}}}
-  return (la == lb);
+        if      (la < lb) ret= NSOrderedAscending;
+        else if (la > lb) ret= NSOrderedDescending;}}}
+  return ret;
 }
 
 NSUInteger CUnicharsInsensitiveFind(const unichar *b, NSUInteger l, const unichar *bf, NSUInteger lf)
