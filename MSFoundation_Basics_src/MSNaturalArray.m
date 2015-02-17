@@ -66,13 +66,13 @@
 - (id)initWithNatural:(NSUInteger)n
 {
 	if (n == NSNotFound) {
-        RELEASE(self) ;
+        DESTROY(self) ;
         MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"try to insert NSNotFound as a natural") ;
-		return nil ;
+        return nil ;
 	}
     _naturals  = MSMalloc(sizeof(NSUInteger), "- [MSNaturalArray initWithNatural:]") ;
     if (!_naturals) {
-        RELEASE(self) ;
+        DESTROY(self) ;
         MSRaiseFrom(NSMallocException, self, _cmd, @"natural array of  one element cannot be allocated") ;
         return nil ;
     }
@@ -85,15 +85,15 @@
 {
 	if (range.location == NSNotFound) {
 		// TO DO : check if we overflow with range.length...
-        RELEASE(self) ;
-        MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"try to insert invalid range in natural array") ;
+      MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"try to insert invalid range in natural array") ;
+      DESTROY(self) ;
 		return nil ;
 	}
     if (range.length) {
         register NSUInteger i ;
         _naturals  = MSMalloc(sizeof(NSUInteger)*range.length, "- [MSNaturalArray initWithRange:]") ;
         if (!_naturals) {
-            RELEASE(self) ;
+            DESTROY(self) ;
             MSRaiseFrom(NSMallocException, self, _cmd, @"natural array of %lu elements cannot be allocated", (unsigned long)(range.length)) ;
             return nil ;
         }
