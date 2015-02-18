@@ -1,5 +1,13 @@
 #import "FoundationCompatibility_Private.h"
 
+@interface _MSSArray : MSArray
+// Immutable version of MSArray with some changes to follow NSArray specs
+@end
+
+@interface _MSMArray : MSArray
+// Mutable version of MSArray with some changes to follow NSMutableArray specs
+@end
+
 @implementation NSArray
 + (void)load {MSFinishLoadingAddClass(self);}
 + (void)finishLoading
@@ -30,28 +38,6 @@
 { [self notImplemented:_cmd]; return 0; }
 @end
 
-@interface _MSMArray : MSArray
-@end
-
-@implementation _MSMArray
-
-- (Class)superclass
-{
-    return [NSMutableArray class];
-}
-
-- (BOOL)isKindOfClass:(Class)aClass
-{
-    return (aClass == [NSMutableArray class]) || [super isKindOfClass:aClass];
-}
-- (instancetype)initWithCapacity:(NSUInteger)capacity{
-  if((self= [self init])) {
-    CArrayGrow((CArray*)self, capacity);
-  }
-  return self;
-}
-@end
-
 @implementation NSMutableArray
 + (instancetype)allocWithZone:(NSZone *)zone
 {
@@ -77,4 +63,34 @@
 { [self notImplemented:_cmd]; }
 - (void)replaceObjectAtIndex:(NSUInteger)index withObject:(id)anObject
 { [self notImplemented:_cmd]; }
+@end
+
+@implementation _MSSArray
+-(id)copyWithZone:(NSZone *)zone
+{ return [self retain]; }
+-(id)mutableCopyWithZone:(NSZone *)zone
+{ return [ALLOC(NSMutableArray) initWithArray:self]; }
+@end
+
+@implementation _MSMArray
+-(id)copyWithZone:(NSZone *)zone
+{ return [ALLOC(NSArray) initWithArray:self]; }
+-(id)mutableCopyWithZone:(NSZone *)zone
+{ return [ALLOC(NSMutableArray) initWithArray:self]; }
+
+- (Class)superclass
+{ 
+  return [NSMutableArray class]; 
+}
+- (BOOL)isKindOfClass:(Class)aClass
+{
+  return (aClass == [NSMutableArray class]) || [super isKindOfClass:aClass];
+}
+
+- (instancetype)initWithCapacity:(NSUInteger)capacity{
+  if((self= [self init])) {
+    CArrayGrow((CArray*)self, capacity);
+  }
+  return self;
+}
 @end
