@@ -498,12 +498,7 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
             strLen = (NSUInteger)(endPointer-startPointer) ;
         
             if (strLen) {
-                NSData *decimalData = nil ;
-                NSString *decimalString = nil ;
-          
-                decimalData = [NSData dataWithBytes:startPointer length:strLen] ;
-                decimalString = [[[NSString alloc] initWithData:decimalData encoding:NSASCIIStringEncoding] autorelease];
-                ret = CCreateDecimalWithSES(SESFromString(decimalString), NO, NULL, NULL);
+                ret= (NSNumber*)CCreateDecimalWithSES(MSMakeSESWithBytes(startPointer, strLen, NSASCIIStringEncoding), NO, NULL, NULL);
             }
             else {
                 [NSException raise:NSGenericException format:@"_MSTDecodeNumber - decimal number has null length!"] ;
