@@ -1,5 +1,13 @@
 #import "FoundationCompatibility_Private.h"
 
+@interface _MSSBuffer : MSBuffer
+// Immutable version of MSBuffer with some changes to follow NSData specs
+@end
+
+@interface _MSMBuffer : MSBuffer
+// Mutable version of MSBuffer with some changes to follow NSMutableData specs
+@end
+
 @implementation NSData
 + (void)load {MSFinishLoadingAddClass(self);}
 + (void)finishLoading
@@ -15,59 +23,24 @@
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSData class]) self= [MSBuffer class];
+  if(self == [NSData class]) self= [_MSSBuffer class];
   return [super allocWithZone:zone];
-}
--(id)copyWithZone:(NSZone *)zone
-{
-  return [self retain];
-}
--(id)mutableCopyWithZone:(NSZone *)zone
-{
-  return [ALLOC(NSMutableData) initWithData:self];
 }
 - (BOOL)isEqual:(id)object
 {
-    return [object isKindOfClass:[NSData class]] && [self isEqualToData:object];
+  if (object == self) return YES;
+  return [object isKindOfClass:[NSData class]] && [self isEqualToData:object];
 }
 
 - (BOOL)isEqualToData:(NSData *)otherData
 {
-    return [self length] == [otherData length] && memcmp([self bytes], [otherData bytes], [self length]);
+  return [self length] == [otherData length] && memcmp([self bytes], [otherData bytes], [self length]) == 0;
 }
 
 - (NSUInteger)length
 { [self notImplemented:_cmd]; return 0; }
 - (const void *)bytes
 { [self notImplemented:_cmd]; return 0; }
-@end
-
-@interface _MSMBuffer : MSBuffer
-@end
-
-@implementation _MSMBuffer
-
-- (Class)superclass
-{
-    return [NSMutableData class];
-}
-
-- (BOOL)isKindOfClass:(Class)aClass
-{
-    return (aClass == [NSMutableData class]) || [super isKindOfClass:aClass];
-}
-- (instancetype)initWithCapacity:(NSUInteger)capacity{
-  if((self= [self init])) {
-    CGrowGrow(self, capacity);
-  }
-  return self;
-}
-- (instancetype)initWithLength:(NSUInteger)length{
-  if((self= [self init])) {
-    [(NSMutableData*)self increaseLengthBy:length];
-  }
-  return self;
-}
 @end
 
 @implementation NSMutableData
@@ -84,13 +57,45 @@
 + (instancetype)dataWithLength:(NSUInteger)length
 { return AUTORELEASE([ALLOC(self) initWithLength:length]); }
 
--(id)copyWithZone:(NSZone *)zone
-{
-  return [ALLOC(NSData) initWithData:self];
-}
 - (void *)mutableBytes
 { [self notImplemented:_cmd]; return 0; }
 - (void)setLength:(NSUInteger)length
 { [self notImplemented:_cmd]; }
 
+@end
+
+@implementation _MSSBuffer
+-(id)copyWithZone:(NSZone *)zone
+{ return [self retain]; }
+-(id)mutableCopyWithZone:(NSZone *)zone
+{ return [ALLOC(NSMutableData) initWithData:self]; }
+@end
+
+@implementation _MSMBuffer
+-(id)copyWithZone:(NSZone *)zone
+{ return [ALLOC(NSData) initWithData:self]; }
+-(id)mutableCopyWithZone:(NSZone *)zone
+{ return [ALLOC(NSMutableData) initWithData:self]; }
+
+- (Class)superclass
+{ 
+  return [NSMutableData class]; 
+}
+- (BOOL)isKindOfClass:(Class)aClass
+{
+  return (aClass == [NSMutableData class]) || [super isKindOfClass:aClass];
+}
+
+- (instancetype)initWithCapacity:(NSUInteger)capacity{
+  if((self= [self init])) {
+    CGrowGrow(self, capacity);
+  }
+  return self;
+}
+- (instancetype)initWithLength:(NSUInteger)length{
+  if((self= [self init])) {
+    [self increaseLengthBy:length];
+  }
+  return self;
+}
 @end

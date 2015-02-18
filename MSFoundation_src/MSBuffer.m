@@ -128,14 +128,16 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 
 #pragma mark Copying
 
-- (id)copyWithZone:(NSZone *)zone
-{
-  return _bufferWithBuffer(nil, [[self class] allocWithZone:zone], NO, self);
-}
-- (id)mutableCopyWithZone:(NSZone *)zone
-{ 
-  return _bufferWithBuffer(nil, [[self class] allocWithZone:zone], YES, self);
-}
+- (id)copyWithZone:(NSZone*)z
+  {
+  CBuffer *a= (CBuffer*)MSAllocateObject([self class], 0, z);
+  return CBufferInitCopyWithMutability(a, (CBuffer*)self, NO);
+  }
+- (id)mutableCopyWithZone:(NSZone*)z
+  {
+  CBuffer *a= (CBuffer*)MSAllocateObject([self class], 0, z);
+  return CBufferInitCopyWithMutability(a, (CBuffer*)self, YES);
+  }
 
 #pragma mark Primitives
 

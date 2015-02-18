@@ -66,13 +66,20 @@ NSUInteger CBufferHash(id self, unsigned depth)
   MSUnused(depth);
 }
 
+id CBufferInitCopyWithMutability(CBuffer *self, const CBuffer *copied, BOOL isMutable)
+{
+  if (!self) return nil;
+  if (copied) {
+    CBufferAppendBuffer(self, copied);
+    if(!isMutable) CGrowSetForeverImmutable((id)self);}
+  return (id)self;
+}
 id CBufferCopy(id self)
 {
-  CBuffer *b;
+  CBuffer *a;
   if (!self) return nil;
-  b= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  if (b) CBufferAppendBuffer(b, (const CBuffer*)self);
-  return (id)b;
+  a= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
+  return CBufferInitCopyWithMutability(a, (CBuffer*)self, CGrowIsForeverImmutable(self));
 }
 
 const CString* CBufferRetainedDescription(id self)

@@ -61,6 +61,7 @@ CBuffer;
 
   MSCoreExtern void       CBufferFreeInside(id self); // for MSBuffer dealloc
 MSCoreExtern void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree);
+MSCoreExtern id CBufferInitCopyWithMutability(CBuffer *self, const CBuffer *copied, BOOL isMutable);
 //Already defined in MSCObject.h
 //MSCoreExtern void       CBufferFree(id self);
 //MSCoreExtern BOOL       CBufferIsEqual(id self, id other);
