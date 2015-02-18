@@ -85,14 +85,13 @@ MSCoreExtern SES        CStringSES(const CString *self);
 MSCoreExtern void CStringAppendCharacter(CString *self, unichar c);
 MSCoreExtern void CStringAppendCharacterSuite(CString *self, unichar c, NSUInteger nb);
 MSCoreExtern void CStringAppendBytes(CString *self, NSStringEncoding encoding, const void *s, NSUInteger length);
-MSCoreExtern void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const char *fmt, ...);
-MSCoreExtern void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args);
 MSCoreExtern void CStringAppendSES(CString *self, SES ses);
 MSCoreExtern void CStringAppendString(CString *self, const CString *s);
 
 // utf8Fmt est une UTF8String (null terminated)
 MSCoreExtern void CStringAppendFormat(CString *self, const char *utf8Fmt, ...);
 MSCoreExtern void CStringAppendFormatv(CString *self, const char *utf8Fmt, va_list vp);
+MSCoreExtern void CStringReplaceInRangeWithSES(CString *self, NSRange range, SES ses);
 
 // TODO: Not reviewed, not tested.
 // this functions work only for ANSI, Mac roman, NextStep, ISO Latin 1, UTF8 and ASCII as supposed encoding NOT TESTED

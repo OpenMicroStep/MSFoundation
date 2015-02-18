@@ -206,7 +206,7 @@ static inline CDictionary *_err(int num, char *fmt, ...)
     k= (id)MCSCreate("description");
     v= (id)MCSCreate(NULL);
     va_start(args, fmt);
-    CStringAppendEncodedFormatArguments((CString*)v, NSUTF8StringEncoding, fmt, args);
+    CStringAppendFormatv((CString*)v, fmt, args);
     va_end(args);
     CDictionarySetObjectForKey(d, v, k);
     RELEASE(k); RELEASE(v);}

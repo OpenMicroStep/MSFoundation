@@ -260,66 +260,39 @@ BOOL MSStringIsTrue(NSString *s)
 	}
 	return NO ;
 }
-BOOL MSEqualStrings(NSString *s1, NSString *s2)
+
+static inline BOOL _MSEqualsStrings(NSString *s1, NSString *s2, BOOL insensitive)
 {
   if (s1 != s2) {
     if (s1 && s2) {
       SES ses1= [s1 stringEnumeratorStructure] ;
       SES ses2= [s2 stringEnumeratorStructure] ;
-      NSUInteger len1= ses1.length ;
-      // TODO: a revoir, les length n'ont pas à être égales mais simplement à la
-      // fin i==iend et j==jend
-      if (len1 == ses2.length) {
-        NSUInteger i,iend,j,jend ;
-        i= SESStart(ses1); iend= SESEnd(ses1);
-        j= SESStart(ses2); jend= SESEnd(ses2);
-        while (i < iend && j < jend)
-          if (SESIndexN(ses1, &i) != SESIndexN(ses2, &j)) return NO ;
-        return YES ;}}
+      return insensitive ? SESEquals(ses1, ses2) : SESInsensitiveEquals(ses1, ses2) ;}
     return NO ;}
-  return YES ;
+  return YES ; 
 }
+BOOL MSEqualStrings(NSString *s1, NSString *s2)
+{ return _MSEqualsStrings(s1, s2, NO); }
 BOOL MSInsensitiveEqualStrings(NSString *s1, NSString *s2)
-{
-  if (s1 != s2) {
-    if (s1 && s2) {
-      SES ses1 = [s1 stringEnumeratorStructure];
-      SES ses2 = [s2 stringEnumeratorStructure];
-      NSUInteger len1 = ses1.length ;
-      if (len1 == ses2.length) {
-        NSUInteger i,iend,j,jend ;
-        i= SESStart(ses1); iend= SESEnd(ses1);
-        j= SESStart(ses2); jend= SESEnd(ses2);
-        while (i < iend && j < jend)
-          if (!CUnicharInsensitiveEquals(SESIndexN(ses1,&i),SESIndexN(ses2,&j)))
-            return NO ;
-        return YES ;}}
-    return NO ;}
-  return YES ;
-}
+{ return _MSEqualsStrings(s1, s2, YES); }
 
 @implementation NSString (MSAddendum)
 static inline NSString *_createStringWithContentsOfUTF8File(NSString *file)
 {
-	NSMutableData *data = [ALLOC(NSMutableData) initWithContentsOfFile:file] ;
-	NSUInteger len = [data length] ;
-	MSByte *bytes = (MSByte *)[data bytes] ;
-	MSString *ret = nil ;
-	
-	if (len >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf) {
+  MSString *ret = nil; CBuffer* buf; NSUInteger len; const MSByte *bytes;
+  buf= CCreateBuffer(0);
+  CBufferAppendContentsOfFile(buf, SESFromString(file));
+  len= CBufferLength(buf);
+  bytes= CBufferBytes(buf);
+
+  if (len >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf) {
 		len -= 3 ;
-		bytes += 3 ;
-	}
+		bytes += 3 ;}
 	if (len) {
-		
 		ret = (MSString*)CCreateString(len) ;
 		if (!CStringAppendSupposedEncodingBytes((CString *)ret, bytes, len, NSUTF8StringEncoding, NULL)) {
-			DESTROY(ret) ;
-		}
-	}
-	
-	RELEASE(data) ;
-	
+			DESTROY(ret) ;}}
+	RELEASE(buf) ;
 	return ret ;
 }
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file { return AUTORELEASE(_createStringWithContentsOfUTF8File(file)) ; }
@@ -630,11 +603,152 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 + (void)load          {MSFinishLoadingAddClass(self);}
 + (void)finishLoading {[MSDictionary setVersion:MS_STRING_LAST_VERSION];}
 
-#pragma mark alloc / init
+#pragma mark Alloc / Init
 
-+ (id)new    { return ALLOC(self);}
++ (id)new    { return ALLOC(self); }
 
-- (id)init   { return self; }
+static inline id _string(Class cl, id a, BOOL m)
+{
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  if (!m) CGrowSetForeverImmutable(a);
+  return a;
+}
+static inline id _stringWithBytes(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s, NSUInteger length)
+{
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  CStringAppendBytes((CString*)a, encoding, s, length);
+  if (!m) CGrowSetForeverImmutable(a);
+  return a;
+}
+static inline id _stringWithSES(Class cl, id a, BOOL m, SES ses)
+{
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  CStringAppendSES((CString*)a, ses);
+  if (!m) CGrowSetForeverImmutable(a);
+  return a;
+}
+static inline id _stringWithFormatv(Class cl, id a, BOOL m, const char *fmt, va_list ap)
+{
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  CStringAppendFormatv((CString*)a, fmt, ap);
+  if (!m) CGrowSetForeverImmutable(a);
+  return a;
+}
+#define _stringWithFormats(CL,A,M,LA,FMT) ({\
+  id ret; \
+  va_list ap; \
+  va_start(ap, LA); \
+  ret= _stringWithFormatv(CL,A,M, FMT,ap); \
+  va_end(ap); \
+  ret; })
+static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *path, NSStringEncoding inEnc, NSStringEncoding outEnc, NSError **error)
+{
+  CBuffer* buf= CCreateBuffer(0);
+  CBufferAppendContentsOfFile(buf, SESFromString(path));
+  if(outEnc) a=nil; // TODO
+  else       a= _stringWithBytes(cl, a, m, inEnc, CBufferBytes(buf), CBufferLength(buf));
+  RELEASE(buf);
+  return a;
+}
+
++ (instancetype)string        {return _string(self, nil,  NO);}
+- (instancetype)init          {return _string(nil ,self,  NO);}
++ (instancetype)mutableString {return _string(self, nil, YES);}
+- (instancetype)mutableInit   {return _string(nil ,self, YES);}
+
++ (instancetype)stringWithCharacters:(const unichar *)characters length:(NSUInteger)length
+{ return _stringWithBytes(nil ,self, NO, NSUnicodeStringEncoding, characters,length);}
+- (instancetype)initWithCharacters:(const unichar *)characters length:(NSUInteger)length
+{ return _stringWithBytes(nil ,self, NO, NSUnicodeStringEncoding, characters,length);}
+- (instancetype)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)freeBuffer
+{ id str=_stringWithBytes(nil ,self, NO, NSUnicodeStringEncoding, characters,length); if(freeBuffer) free(characters); return str;}
++ (instancetype)mutableStringWithCharacters:(const unichar *)characters length:(NSUInteger)length
+{ return _stringWithBytes(nil ,self,YES, NSUnicodeStringEncoding, characters,length);}
+- (instancetype)mutableInitWithCharacters:(const unichar *)characters length:(NSUInteger)length
+{ return _stringWithBytes(nil ,self,YES, NSUnicodeStringEncoding, characters,length);}
+- (instancetype)mutableInitWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)freeBuffer
+{ id str=_stringWithBytes(nil ,self,YES, NSUnicodeStringEncoding, characters,length); if(freeBuffer) free(characters); return str;}
+
++ (instancetype)stringWithUTF8String:(const char *)nullTerminatedCString
+{ return _stringWithBytes(self, nil, NO, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
+- (instancetype)initWithUTF8String:(const char *)nullTerminatedCString
+{ return _stringWithBytes(nil ,self, NO, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
++ (instancetype)mutableStringWithUTF8String:(const char *)nullTerminatedCString
+{ return _stringWithBytes(self, nil,YES, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
+- (instancetype)mutableInitWithUTF8String:(const char *)nullTerminatedCString
+{ return _stringWithBytes(nil ,self,YES, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
+
++ (instancetype)stringWithString:(NSString *)string
+{ return _stringWithSES(self, nil, NO, SESFromString(string));}
+- (instancetype)initWithString:(NSString *)string
+{ return _stringWithSES(nil ,self, NO, SESFromString(string));}
++ (instancetype)mutableStringWithString:(NSString *)string
+{ return _stringWithSES(self, nil,YES, SESFromString(string));}
+- (instancetype)mutableInitWithString:(NSString *)string
+{ return _stringWithSES(nil ,self,YES, SESFromString(string));}
+
+/* TODO: Locale support */
++ (instancetype)stringWithFormat:(NSString *)format, ...
+{ return _stringWithFormats(self, nil, NO, format, [format UTF8String]); }
+- (instancetype)initWithFormat:(NSString *)format, ...
+{ return _stringWithFormats(nil ,self, NO, format, [format UTF8String]); }
+- (instancetype)initWithFormat:(NSString *)format arguments:(va_list)argList
+{ return _stringWithFormatv(nil ,self, NO, [format UTF8String], argList);}
+- (instancetype)initWithFormat:(NSString *)format locale:(id)locale, ...
+{ return _stringWithFormats(nil ,self, NO, locale, [format UTF8String]);}
+- (instancetype)initWithFormat:(NSString *)format locale:(id)locale arguments:(va_list)argList
+{ return _stringWithFormatv(nil ,self, NO, [format UTF8String], argList);}
++ (instancetype)localizedStringWithFormat:(NSString *)format, ...
+{ return _stringWithFormats(self, nil, NO, format, [format UTF8String]); }
++ (instancetype)mutableStringWithFormat:(NSString *)format, ...
+{ return _stringWithFormats(self, nil,YES, format, [format UTF8String]); }
+- (instancetype)mutableInistWithFormat:(NSString *)format, ...
+{ return _stringWithFormats(nil ,self,YES, format, [format UTF8String]); }
+- (instancetype)mutableInitWithFormat:(NSString *)format arguments:(va_list)argList
+{ return _stringWithFormatv(nil ,self,YES, [format UTF8String], argList);}
+- (instancetype)mutableInitWithFormat:(NSString *)format locale:(id)locale, ...
+{ return _stringWithFormats(nil ,self,YES, locale, [format UTF8String]);}
+- (instancetype)mutableInitWithFormat:(NSString *)format locale:(id)locale arguments:(va_list)argList
+{ return _stringWithFormatv(nil ,self,YES, [format UTF8String], argList);}
+
+- (instancetype)initWithData:(NSData *)data encoding:(NSStringEncoding)encoding
+{ return _stringWithBytes(nil, self, NO, encoding, [data bytes], [data length]);}
+- (instancetype)initWithBytes:(const void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding
+{ return _stringWithBytes(nil, self, NO, encoding, bytes, len);}
+- (instancetype)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding freeWhenDone:(BOOL)freeBuffer
+{ id str=_stringWithBytes(nil, self, NO, encoding, bytes, len); if(freeBuffer) free(bytes); return str;}
+- (instancetype)mutableInitWithData:(NSData *)data encoding:(NSStringEncoding)encoding
+{ return _stringWithBytes(nil, self,YES, encoding, [data bytes], [data length]);}
+- (instancetype)mutableInitWithBytes:(const void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding
+{ return _stringWithBytes(nil, self,YES, encoding, bytes, len);}
+- (instancetype)mutableInitWithBytesNoCopy:(void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding freeWhenDone:(BOOL)freeBuffer
+{ id str=_stringWithBytes(nil, self,YES, encoding, bytes, len); if(freeBuffer) free(bytes); return str;}
+
++ (instancetype)stringWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
+{ return _stringWithBytes(self, nil, NO, NSUTF8StringEncoding, cstr, strlen(cstr));}
+- (instancetype)initWithCString:(const char *)cstr encoding:(NSStringEncoding)encoding
+{ return _stringWithBytes(nil ,self, NO, NSUTF8StringEncoding, cstr, strlen(cstr));}
++ (instancetype)mutableStringWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
+{ return _stringWithBytes(self, nil,YES, NSUTF8StringEncoding, cstr, strlen(cstr));}
+- (instancetype)mutableInitWithCString:(const char *)cstr encoding:(NSStringEncoding)encoding
+{ return _stringWithBytes(nil ,self,YES, NSUTF8StringEncoding, cstr, strlen(cstr));}
+
++ (instancetype)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(self, nil, NO, path, enc, 0,error);}
+- (instancetype)initWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(nil ,self, NO, path, enc, 0, error);}
++ (instancetype)stringWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(self, nil, NO, path, 0, enc, error);}
+- (instancetype)initWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(nil ,self, NO, path, 0, enc, error);}
++ (instancetype)mutableStringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(self, nil,YES, path, enc, 0,error);}
+- (instancetype)mutableInitWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(nil ,self,YES, path, enc, 0,error);}
++ (instancetype)mutableStringWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(self, nil,YES, path, 0, enc, error);}
+- (instancetype)mutableInitWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error
+{ return _stringWithContentsOfFile(nil ,self,YES, path, 0, enc, error);}
 
 + (id)UUIDString
   {
@@ -643,104 +757,17 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   //return AUTORELEASE((id)x);
   return nil;
   }
+
 - (void)dealloc
-  {
+{
   CStringFreeInside(self);
   [super dealloc];
-  }
-
-#pragma mark init
-
-// NEEDED
-+ (id)string { return AUTORELEASE(ALLOC(self));}
-+ (instancetype)stringWithString:(NSString *)string
-{ return AUTORELEASE([ALLOC(self) initWithString:string]); }
-+ (instancetype)stringWithCharacters:(const unichar *)characters length:(NSUInteger)length
-{ return AUTORELEASE([ALLOC(self) initWithCharacters:characters length:length]); }
-+ (instancetype)stringWithUTF8String:(const char *)cstr
-{ return AUTORELEASE([ALLOC(self) initWithUTF8String:cstr]); }
-+ (instancetype)stringWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
-{ return AUTORELEASE([ALLOC(self) initWithCString:cstr encoding:enc]); }
-
-+ (instancetype)stringWithFormat:(NSString *)fmt, ...
-{
-  MSString *s; va_list vp;
-  va_start(vp, fmt);
-  s= AUTORELEASE([ALLOC(self) initWithFormat:fmt locale:nil arguments:vp]);
-  va_end(vp);
-  return s;
-}
-+ (instancetype)localizedStringWithFormat:(NSString *)fmt, ...
-{
-  MSString *s; va_list vp;
-  va_start(vp, fmt);
-  s= AUTORELEASE([ALLOC(self) initWithFormat:fmt locale:nil/* TODO*/ arguments:vp]);
-  va_end(vp);
-  return s;
 }
 
-- (instancetype)initWithString:(NSString *)string
-{
-  CStringAppendSES((CString*)self, SESFromString(string));
-  return self;
-}
+#pragma mark Mutability
 
-- (instancetype)initWithData:(NSData *)data encoding:(NSStringEncoding)encoding
-{
-  CStringAppendBytes((CString*)self, encoding, [data bytes], [data length]/CStringSizeOfCharacterForEncoding(encoding));
-  return self;
-}
-- (instancetype)initWithBytes:(const void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding
-{
-  CStringAppendBytes((CString*)self, encoding, bytes, len/CStringSizeOfCharacterForEncoding(encoding));
-  return self;
-}
-- (instancetype)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding freeWhenDone:(BOOL)flag
-{
-  CStringAppendBytes((CString*)self, encoding, bytes, len/CStringSizeOfCharacterForEncoding(encoding));
-  if (flag) free(bytes);
-  return self;
-}
-- (instancetype)initWithCharacters:(const unichar *)characters length:(NSUInteger)length
-{
-  CStringAppendBytes((CString*)self, NSUnicodeStringEncoding, characters, length);
-  return self;
-}
-- (instancetype)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)flag
-{
-  CStringAppendBytes((CString*)self, NSUnicodeStringEncoding, characters, length);
-  if (flag) free(characters);
-  return self;
-}
-- (instancetype)initWithCString:(const char *)cstr encoding:(NSStringEncoding)encoding
-{
-  CStringAppendBytes((CString*)self, encoding, cstr, strlen(cstr));
-  return self;
-}
-
-- (instancetype)initWithFormat:(NSString *)fmt, ...
-{
-  va_list args;
-  va_start(args, fmt);
-  self= [self initWithFormat:fmt locale:nil arguments:args];
-  va_end(args);
-  return self;
-}
-- (instancetype)initWithFormat:(NSString *)fmt locale:(id)locale, ...
-{
-  va_list args;
-  va_start(args, locale);
-  self= [self initWithFormat:fmt locale:locale arguments:args];
-  va_end(args);
-  return self;
-}
-- (instancetype)initWithFormat:(NSString *)fmt arguments:(va_list)args
-{ return [self initWithFormat:fmt locale:nil arguments:args]; }
-- (instancetype)initWithFormat:(NSString *)fmt locale:(id)locale arguments:(va_list)args
-{
-  CStringAppendFormatv((CString*)self, [fmt UTF8String], args);
-  return self;
-}
+- (BOOL)isMutable    {return CGrowIsForeverMutable(self);}
+- (void)setImmutable {CGrowSetForeverImmutable(self);}
 
 #pragma mark Primitives
 
@@ -753,6 +780,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 {
   return _buf[index];
 }
+
 - (void)getCharacters:(unichar*)buffer range:(NSRange)rg
 {
   NSUInteger i,n; unichar *p;
@@ -769,22 +797,54 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
   return AUTORELEASE((id)CCreateStringWithBytes(NSUnicodeStringEncoding, _buf + range.location, range.length));
 }
 
+#pragma mark Mutable primitives
+
+- (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)aString
+{
+  CStringReplaceInRangeWithSES((CString *)self, range, SESFromString(aString));
+}
+
+- (void)insertString:(NSString *)aString atIndex:(NSUInteger)loc
+{
+  CStringReplaceInRangeWithSES((CString *)self, NSMakeRange(loc, 0), SESFromString(aString));
+}
+
+- (void)deleteCharactersInRange:(NSRange)range
+{
+  CStringReplaceInRangeWithSES((CString *)self, range, MSInvalidSES);
+}
+
+- (void)appendString:(NSString *)aString
+{
+  CStringAppendSES((CString*)self, SESFromString(aString));
+}
+- (void)appendFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2)
+{
+  va_list ap;
+  va_start(ap, format);
+  CStringAppendFormatv((CString*)self, [format UTF8String], ap);
+  va_end(ap);
+}
+- (void)setString:(NSString *)aString
+{
+  CStringReplaceInRangeWithSES((CString *)self, NSMakeRange(0, CStringLength((CString *)self)), SESFromString(aString));
+}
+// TODO: - (NSUInteger)replaceOccurrencesOfString:(NSString *)target withString:(NSString *)replacement options:(NSStringCompareOptions)options range:(NSRange)searchRange
+
 #pragma mark Global methods
 
 - (NSUInteger)hash:(unsigned)depth {return CStringHash(self, depth);}
 
-- (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ? just retain ?
-  {
-  CString *s= (CString*)MSAllocateObject([MSString class], 0, z);
-  CStringAppendString(s, (const CString*)self);
-  return (id)s;
-  }
-- (id)mutableCopyWithZone:(NSZone*)z
-  {
-  CString *s= (CString*)MSAllocateObject([MSMutableString class], 0, z);
-  CStringAppendString(s, (const CString*)self);
-  return (id)s;
-  }
+#pragma mark Copying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+  return [[MSString allocWithZone:zone] initWithString:self];
+}
+- (id)mutableCopyWithZone:(NSZone *)zone
+{ 
+  return [[MSString allocWithZone:zone] mutableInitWithString:self];
+}
 
 - (BOOL)isEqualToString:(NSString*)s
   {
@@ -926,21 +986,4 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
   return [WHO getFileSystemRepresentation:buffer maxLength:maxLength];
 }
 */
-@end
-
-@implementation MSMutableString
-
-+ (id)stringWithCapacity:(NSUInteger)capacity
-  {
-  id d= MSAllocateObject(self, 0, NULL);
-  CStringGrow((CString*)d, capacity);
-  return AUTORELEASE(d);
-  }
-
-- (id)initWithCapacity:(NSUInteger)capacity
-  {
-  CStringGrow((CString*)self, capacity);
-  return self;
-  }
-
 @end

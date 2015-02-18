@@ -180,22 +180,6 @@ void CStringAppendBytes(CString *self, NSStringEncoding encoding, const void *s,
   CStringAppendSES(self, MSMakeSESWithBytes(s, length, encoding));
 }
 
-void CStringAppendEncodedFormat(CString *self, NSStringEncoding encoding, const char *fmt, ...)
-{
-  va_list args;
-  if (fmt) {
-    va_start(args,fmt); CStringAppendEncodedFormatArguments(self, encoding, fmt, args); va_end(args);}
-}
-
-void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args)
-{
-  if (fmt) {
-    char *x= NULL; vasprintf(&x, fmt, args);
-    if (x) {
-      CStringAppendBytes(self, encoding, x, strlen(x));
-      free(x);}}
-}
-
 void CStringAppendSES(CString *self, SES ses)
 {
   if (self && SESOK(ses)) {
@@ -794,6 +778,46 @@ static inline NSUInteger _addNonASCIIByte(CString *self,
       break;
   }
   return pos;
+}
+
+static inline NSUInteger _insertSES(unichar *buf, SES ses) {
+  NSUInteger i, end, count= 0;
+  for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
+    unichar u= SESIndexN(ses, &i);
+    *(buf++)= (u?u:'?');
+    count++;}
+  return count;
+}
+MSCoreExtern void CStringReplaceInRangeWithSES(CString *self, NSRange range, SES ses)
+{
+  if (range.location + range.length > self->length) {
+    MSReportError(MSInvalidArgumentError, MSFatalError, MSInvalidArgumentError,
+                  "range (%lu, %lu) out of range (0, %lu)",
+                  (unsigned long)range.location, (unsigned long)range.length,
+                  (unsigned long)self->length);}
+  else {
+    NSUInteger len, rangeEnd, inserted;
+    rangeEnd= range.location + range.length;
+    len= SESLength(ses);
+    if(len > range.length) {
+      NSUInteger maxAddLen= len - range.length;
+      NSUInteger bufferLen= MIN(maxAddLen, self->length - rangeEnd);
+      unichar buffer[bufferLen];
+      memcpy(buffer, self->buf + rangeEnd, bufferLen * sizeof(unichar));
+      CStringGrow(self, maxAddLen);
+      inserted= _insertSES(self->buf + range.location, ses);
+      if(inserted != range.length){
+        NSUInteger insertEnd= range.location + inserted;
+        memmove(self->buf + insertEnd + bufferLen, self->buf + rangeEnd + bufferLen, self->length - rangeEnd - bufferLen);
+        memcpy(self->buf + insertEnd, buffer, bufferLen);}
+    }
+    else {
+      inserted= _insertSES(self->buf + range.location, ses);
+      if(inserted != range.length){
+        memmove(self->buf + range.location + inserted, self->buf + rangeEnd, self->length - rangeEnd);}
+    }
+    self->length += inserted;
+    self->length -= range.length;}
 }
 
 /*
