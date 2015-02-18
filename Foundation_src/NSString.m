@@ -1,31 +1,31 @@
 #import "FoundationCompatibility_Private.h"
 
 @implementation NSString
-+ (void)load{ MSFinishLoadingAddClass(self); }
-
++ (void)load {MSFinishLoadingAddClass(self);}
 + (void)finishLoading {
-  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(string));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithString:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithCharacters:length:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithUTF8String:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithFormat:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(localizedStringWithFormat:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithCString:encoding:));
-  
-  FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(lowercaseString));
-  FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(uppercaseString));
-  FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(capitalizedString));
-  FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(isEqualToString:));
-  FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(description));
+  if (self==[NSString class]) {
+    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(string));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithString:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithCharacters:length:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithUTF8String:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithFormat:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(localizedStringWithFormat:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithCString:encoding:));
+
+    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(lowercaseString));
+    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(uppercaseString));
+    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(capitalizedString));
+    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(isEqualToString:));
+    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(description));}
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSString class]) self= [MSString class];
+  if (self == [NSString class]) self= [MSString class];
   return [super allocWithZone:zone];
 }
 
-- (NSUInteger)length{ [self notImplemented:_cmd]; return 0; }
-- (unichar)characterAtIndex:(NSUInteger)index{ [self notImplemented:_cmd]; return 0; }
+- (NSUInteger)length                          { [self notImplemented:_cmd]; return 0; }
+- (unichar)characterAtIndex:(NSUInteger)index { [self notImplemented:_cmd]; return 0; }
 
 - (void)getCharacters:(unichar*)buffer range:(NSRange)rg
 {

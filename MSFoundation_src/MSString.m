@@ -624,8 +624,11 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 { return SESHash(SESFromString(self)); }
 @end
 
+#define MS_STRING_LAST_VERSION 101
+
 @implementation MSString
-+ (void)load{ MSFinishLoadingAddClass(self); }
++ (void)load          {MSFinishLoadingAddClass(self);}
++ (void)finishLoading {[MSDictionary setVersion:MS_STRING_LAST_VERSION];}
 
 #pragma mark alloc / init
 

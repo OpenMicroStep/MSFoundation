@@ -51,11 +51,14 @@
 
 void MSFinishLoadingCore();
 @implementation NSObject (Private)
+
 #ifdef MSFOUNDATION_FORCOCOA
-+ (void)load { MSFinishLoadingConfigure(14, MSFinishLoadingCore, NULL); }
+#define LOAD_COUNT 14
 #else
-+ (void)load { MSFinishLoadingConfigure(19, MSFinishLoadingCore, NULL); }
+#define LOAD_COUNT 19
 #endif
++ (void)load {MSFinishLoadingConfigure(LOAD_COUNT, MSFinishLoadingCore, NULL);}
+
 - (NSUInteger)hash:(unsigned)depth {return [self hash]; MSUnused(depth);}
 @end
 

@@ -64,8 +64,8 @@ MSCouple *MSCreateCouple(id first, id second)
 }
 
 @implementation MSCouple
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading{ [MSCouple setVersion:MS_COUPLE_LAST_VERSION];}
++ (void)load          {MSFinishLoadingAddClass(self);}
++ (void)finishLoading {[MSCouple setVersion:MS_COUPLE_LAST_VERSION];}
 
 #pragma mark Initialisation
 

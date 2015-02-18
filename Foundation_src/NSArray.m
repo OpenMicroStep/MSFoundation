@@ -1,12 +1,14 @@
 #import "FoundationCompatibility_Private.h"
 
 @implementation NSArray
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading {
-  FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(array));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithObjects:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithObjects:count:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithArray:));
++ (void)load {MSFinishLoadingAddClass(self);}
++ (void)finishLoading
+{
+  if (self==[NSArray class]) {
+    FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(array));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithObjects:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithObjects:count:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithArray:));}
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {

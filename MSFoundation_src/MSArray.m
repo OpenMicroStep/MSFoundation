@@ -83,8 +83,12 @@
 // (2)  if possible (under cocotron for example) a better initWithCoder and encodeWithCoder method
 //******************************************************************************
 
+#define MS_ARRAY_LAST_VERSION 101
+
 @implementation MSArray
-+ (void)load{ MSFinishLoadingAddClass(self); }
++ (void)load          {MSFinishLoadingAddClass(self);}
++ (void)finishLoading {[MSBuffer setVersion:MS_ARRAY_LAST_VERSION];}
+
 #pragma mark alloc / init
 
 #define FIXE(a) CArraySetImmutable((CArray*)a)

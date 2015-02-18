@@ -84,8 +84,8 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 @class _MSRGBAColor;
 @implementation MSColor
 
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading{ [MSColor setVersion:MS_COLOR_LAST_VERSION]; }
++ (void)load          {MSFinishLoadingAddClass(self);}
++ (void)finishLoading {[MSColor setVersion:MS_COLOR_LAST_VERSION];}
 
 #pragma mark Class methods
 
@@ -312,8 +312,8 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 #define MS_RGBACOLOR_LAST_VERSION  301
 
 @implementation _MSRGBAColor : MSColor
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading{ [_MSRGBAColor setVersion:MS_RGBACOLOR_LAST_VERSION]; }
++ (void)load          {MSFinishLoadingAddClass(self);}
++ (void)finishLoading {[_MSRGBAColor setVersion:MS_RGBACOLOR_LAST_VERSION];}
 
 - (NSString *)listItemString { return [self toString]; }
 - (NSString *)displayString  { return [self toString]; }
@@ -492,18 +492,6 @@ static const struct _MSColorDefinition __colorTable [COLOR_LIST_COUNT]= {
 
 static MSDictionary *__namedColors= nil;
 
-static void _initNamedColors()
-{
-    struct _MSColorDefinition entry;
-    
-    __namedColors= (MSDictionary *)CCreateDictionary(COLOR_LIST_COUNT*2);
-    for(int i= 0; i < COLOR_LIST_COUNT; ++i) {
-        entry= __colorTable[i];
-        [__namedColors setObject:*entry.color forKey:[entry.name lowercaseString]];
-        [__namedColors setObject:*entry.color forKey:entry.name];
-    }
-}
-
 MSColor *MSColorNamed(NSString *name)
 {
   MSColor *ret= nil;
@@ -518,27 +506,31 @@ MSColor *MSColorNamed(NSString *name)
 #define MS_INDEXEDCOLOR_LAST_VERSION  401
 
 @implementation _MSIndexedColor
-+ (void)load{ MSFinishLoadingAddClass(self); }
++ (void)load {MSFinishLoadingAddClass(self);}
 + (void)finishLoading
 { 
-    struct _MSColorDefinition entry;
-    _MSIndexedColor *c;
+  struct _MSColorDefinition entry;
+  _MSIndexedColor *c;
+
+  if (self==[_MSIndexedColor class]) {
     NEW_POOL;
-  
     [_MSIndexedColor setVersion:MS_INDEXEDCOLOR_LAST_VERSION];
-    for(int i= 0; i < COLOR_LIST_COUNT; ++i) {
-        entry= __colorTable[i];
-        c= (_MSIndexedColor*)MSCreateObject([_MSIndexedColor class]);
-        c->_rgba.r= (MSByte)((entry.value >> 24) & 0xff);
-        c->_rgba.g= (MSByte)((entry.value >> 16) & 0xff);
-        c->_rgba.b= (MSByte)((entry.value >>  8) & 0xff);
-        c->_rgba.a= (MSByte)((entry.value      ) & 0xff);
-        c->_name= [entry.name retain];
-        c->_colorIndex= i;
-        *entry.color= c;
-    }
-    _initNamedColors();
-    KILL_POOL;
+    for (int i= 0; i < COLOR_LIST_COUNT; ++i) {
+      entry= __colorTable[i];
+      c= (_MSIndexedColor*)MSCreateObject([_MSIndexedColor class]);
+      c->_rgba.r= (MSByte)((entry.value >> 24) & 0xff);
+      c->_rgba.g= (MSByte)((entry.value >> 16) & 0xff);
+      c->_rgba.b= (MSByte)((entry.value >>  8) & 0xff);
+      c->_rgba.a= (MSByte)((entry.value      ) & 0xff);
+      c->_name= [entry.name retain];
+      c->_colorIndex= i;
+      *entry.color= c;}
+    __namedColors= (MSDictionary *)CCreateDictionary(COLOR_LIST_COUNT*2);
+    for (int i= 0; i < COLOR_LIST_COUNT; ++i) {
+      entry= __colorTable[i];
+      [__namedColors setObject:*entry.color forKey:[entry.name lowercaseString]];
+      [__namedColors setObject:*entry.color forKey:entry.name];}
+    KILL_POOL;}
 }
 - (oneway void)release {}
 - (id)retain { return self;}

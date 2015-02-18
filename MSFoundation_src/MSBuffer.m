@@ -44,8 +44,8 @@
 #define MS_BUFFER_LAST_VERSION 112
 
 @implementation MSBuffer
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading{ [MSBuffer setVersion:MS_BUFFER_LAST_VERSION]; }
++ (void)load          {MSFinishLoadingAddClass(self);}
++ (void)finishLoading {[MSBuffer setVersion:MS_BUFFER_LAST_VERSION];}
 
 #pragma mark Alloc / Init
 

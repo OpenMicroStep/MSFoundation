@@ -1,15 +1,17 @@
 #import "FoundationCompatibility_Private.h"
 
 @implementation NSData
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading {
-  FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(data));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithData:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithBytes:length:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithBytesNoCopy:length:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithBytesNoCopy:length:freeWhenDone:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithContentsOfFile:options:error:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithContentsOfFile:));
++ (void)load {MSFinishLoadingAddClass(self);}
++ (void)finishLoading
+{
+  if (self==[NSData class]) {
+    FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(data));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithData:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithBytes:length:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithBytesNoCopy:length:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithBytesNoCopy:length:freeWhenDone:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithContentsOfFile:options:error:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(dataWithContentsOfFile:));}
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {

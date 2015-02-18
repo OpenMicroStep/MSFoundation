@@ -1,18 +1,21 @@
 #import "FoundationCompatibility_Private.h"
 
 @implementation NSDictionary
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading {
-  FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionary));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObject:forKey:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjects:forKeys:count:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjectsAndKeys:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithDictionary:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithContentsOfFile:));
-  FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjects:forKeys:));}
++ (void)load {MSFinishLoadingAddClass(self);}
++ (void)finishLoading
+{
+  if (self==[NSDictionary class]) {
+    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionary));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObject:forKey:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjects:forKeys:count:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjectsAndKeys:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithDictionary:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithContentsOfFile:));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjects:forKeys:));}
+}
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSDictionary class]) self= [MSDictionary class];
+  if (self == [NSDictionary class]) self= [MSDictionary class];
   return [super allocWithZone:zone];
 }
 -(id)copyWithZone:(NSZone *)zone
