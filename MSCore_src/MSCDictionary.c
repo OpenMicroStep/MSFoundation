@@ -79,7 +79,7 @@ static inline void _grow(id self, NSUInteger n, NSUInteger count, NSUInteger uni
 #define _nilKeyReturn(d) ((d && d->flag.keyType==CDictionaryNatural)?(void*)NSNotFound:nil)
 #define _nilObjReturn(d) ((d && d->flag.objType==CDictionaryNatural)?(void*)NSNotFound:nil)
 
-static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict,BOOL knowAbsent)
+static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict)
 {
   NSUInteger h;
   NSUInteger i;
@@ -90,10 +90,10 @@ static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict
   CGrowMutVerif((id)self, 0, 0, "CDictionarySetObjectForKey");
   h= CDICT_KEY_HASH(k);
   fd= NO;
-  if (self->nBuckets && !knowAbsent) {
+  if (self->nBuckets && !fromDict) {
     i= h % self->nBuckets;
     // k may already exist
-    for (j= *(pj= (_node**)&self->buckets[i]); j!=NULL; j= *(pj= &j->next)) {
+    for (j= *(pj= (_node**)&self->buckets[i]); !fd && j!=NULL; j= *(pj= &j->next)) {
       if (CDICT_KEY_EQUALS(j->key, k)) {
         void *oldKey=   j->key;
         void *oldValue= j->value;
@@ -106,11 +106,10 @@ static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict
           MSFree(j, "CDictionarySetObjectForKey");
           self->count--;}
         CDICT_KEY_RELEASE(oldKey);
-        CDICT_OBJ_RELEASE(oldValue);
-        break;}}}
+        CDICT_OBJ_RELEASE(oldValue);}}}
   if (!fd && o!=_nilObjReturn(self)) { // add a new node
     // may grown
-    if(!fromDict)
+    if (!fromDict)
       _grow((id)self, 1, self->count, sizeof(_node*), &self->nBuckets, (_node***)&self->buckets);
     i= h % self->nBuckets;
     if (!(j= MSMalloc(sizeof(_node),"CDictionarySetObjectForKey"))) {
@@ -185,7 +184,7 @@ id CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyIt
     de= CDictionaryEnumeratorAlloc(copied);
     while ((k= CDictionaryEnumeratorNextKey(de))) {
       if ((o= CDictionaryEnumeratorCurrentObject(de)) && copyItems) o= COPY(o);
-      _setObjectForKey(self,o,k,YES,YES);}
+      _setObjectForKey(self,o,k,YES);}
     CDictionaryEnumeratorFree(de);}
   return (id)self;
 }
@@ -344,13 +343,9 @@ id CDictionaryObjectForKey(const CDictionary *self, id k)
 
 #pragma mark Setters
 
-void CDictionarySetObjectForKeyKnowAbsent(CDictionary *self, id o, id k)
-{
-  _setObjectForKey(self,o,k,NO,YES);
-}
 void CDictionarySetObjectForKey(CDictionary *self, id o, id k)
 {
-  _setObjectForKey(self,o,k,NO,NO);
+  _setObjectForKey(self,o,k,NO);
 }
 
 #pragma mark Enumeration

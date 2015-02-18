@@ -125,7 +125,6 @@ MSCoreExtern id CDictionaryObjectForKey(const CDictionary *self, id k);
 #pragma mark Setters
 
 MSCoreExtern void CDictionarySetObjectForKey(CDictionary *self, id o, id k);
-MSCoreExtern void CDictionarySetObjectForKeyKnowAbsent(CDictionary *self, id o, id k);
 // k!=nil, o=nil => remove
 
 // TODO: description functions
