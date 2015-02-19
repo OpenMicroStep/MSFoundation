@@ -58,27 +58,26 @@ void CGrowFree(id self)
 
 #pragma mark Management
 
-BOOL CGrowIsMutable(id self)
+BOOL CGrowIsForeverImmutable(id self)
 {
-  return !self ? NO : !(((CGrow*)self)->flag.immutable);
+  return !self ? NO : (((CGrow*)self)->flag.foreverImmutable);
 }
 
-BOOL CGrowIsMutabilityFixed(id self)
+BOOL CGrowIsForeverMutable(id self)
 {
-  return !self ? NO : (((CGrow*)self)->flag.mutabilityFixed);
+  return !self ? NO : (((CGrow*)self)->flag.foreverMutable);
 }
 
-void CGrowSetMutabilityFixed(id self)
+void CGrowSetForeverImmutable(id self)
 {
-  if (self) ((CGrow*)self)->flag.mutabilityFixed= YES;
+  if (self && !((CGrow*)self)->flag.foreverMutable) {
+    ((CGrow*)self)->flag.foreverImmutable= YES;}
 }
 
-void CGrowSetImmutable(id self)
+void CGrowSetForeverMutable(id self)
 {
-  if (self && !((CGrow*)self)->flag.mutabilityFixed) {
-    ((CGrow*)self)->flag.immutable= YES;
-    ((CGrow*)self)->flag.mutabilityFixed= YES;
-  }
+  if (self && !((CGrow*)self)->flag.foreverImmutable) {
+    ((CGrow*)self)->flag.foreverMutable= YES;}
 }
 
 void CGrowGrow(id self, NSUInteger n)
@@ -112,7 +111,7 @@ void CGrowMutVerif(id self, NSUInteger idxStart, NSUInteger idxCount, char *wher
 {
   CGrow *g= (CGrow*)self;
   if (!g) return;
-  if (g->flag.immutable) MSReportError(MSInvalidArgumentError, MSFatalError,
+  if (g->flag.foreverImmutable) MSReportError(MSInvalidArgumentError, MSFatalError,
     MSNotMutableError, "%s: not mutable.", where);
   if (idxStart+idxCount > g->count) MSReportError(MSInvalidArgumentError, MSFatalError,
     MSIndexOutOfRangeError,"%s: out of range.", where);

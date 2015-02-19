@@ -160,8 +160,8 @@ static inline int carray_immutable(void)
   CArray *a; id o;
   o= (id)CCreateArray(0);
   a= CCreateArrayWithObject(o);
-  CArraySetImmutable(a);
-  if (CArrayIsMutable(a)) {
+  CGrowSetForeverImmutable((id)a);
+  if (!CGrowIsForeverImmutable((id)a)) {
     fprintf(stdout, "array is mutable\n");
     err++;}
 //CArrayAddObject(a, o);               // -> crash

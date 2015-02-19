@@ -98,9 +98,10 @@
  
  */
 typedef struct _MSASCIIStringFlagsStruct {
-    MSUInt leak:1;
-    MSUInt :31;
-} _MSASCIIStringFlags ;
+  MSUInt leak:1;
+  MSUInt :29;
+  MSUInt _reserved:2;}
+_MSASCIIStringFlags ;
 
 @class MSBuffer ;
 

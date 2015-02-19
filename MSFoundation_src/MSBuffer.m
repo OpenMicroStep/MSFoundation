@@ -52,14 +52,14 @@
 static inline id _buffer(Class cl, id a, BOOL m)
 {
   if (!a) a= AUTORELEASE(ALLOC(cl));
-  if (!m) CGrowSetImmutable(a);
+  if (!m) CGrowSetForeverImmutable(a);
   return a;
 }
 static inline id _bufferWithBytes(Class cl, id a, BOOL m, const void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree)
 {
   if (!a) a= AUTORELEASE(ALLOC(cl));
   CBufferInitWithBytes((CBuffer*)a, (void*)bytes, length, noCopy, noFree);
-  if (!m) CGrowSetImmutable(a);
+  if (!m) CGrowSetForeverImmutable(a);
   return a;
 }
 static inline id _bufferWithBuffer(Class cl, id a, BOOL m, NSData *d)
@@ -70,7 +70,7 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 { 
   if (!a) a= AUTORELEASE(ALLOC(cl));
   CBufferAppendContentsOfFile((CBuffer*)a, SESFromString(path));
-  if (!m) CGrowSetImmutable(a);
+  if (!m) CGrowSetForeverImmutable(a);
   return a;
 }
 
@@ -296,8 +296,8 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 
 #pragma mark Mutability
 
-- (BOOL)isMutable    {return CGrowIsMutable(self);}
-- (void)setImmutable {CGrowSetImmutable(self);}
+- (BOOL)isMutable    {return !CGrowIsForeverImmutable(self);}
+- (void)setImmutable {CGrowSetForeverImmutable(self);}
 
 - (void *)mutableBytes{ return _buf; }
 - (void)appendBytes:(const void *)bytes length:(NSUInteger)length

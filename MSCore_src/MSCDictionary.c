@@ -302,16 +302,6 @@ CDictionary *CCreateDictionaryWithDictionaryCopyItems(const CDictionary *src, BO
 
 #pragma mark Management
 
-BOOL CDictionaryIsMutable(CDictionary *self)
-{
-  return CGrowIsMutable((id)self);
-}
-
-void CDictionarySetImmutable(CDictionary *self)
-{
-  CGrowSetImmutable((id)self);
-}
-
 void CDictionaryGrow(CDictionary *self, NSUInteger n)
 {
   _grow((id)self, n, self->count, sizeof(_node*), &self->nBuckets, (_node***)&self->buckets);

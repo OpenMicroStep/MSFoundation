@@ -52,8 +52,8 @@
 typedef struct CArrayFlagsStruct {
   MSUInt nilItems:1;
   MSUInt noRetainRelease:1;
-  MSUInt :30;
-  }
+  MSUInt :28;
+  MSUInt _reserved:2;}
 CArrayFlags;
 
 typedef struct CArrayStruct {
@@ -87,10 +87,6 @@ MSCoreExtern CArray *CCreateArray(NSUInteger capacity);
 MSCoreExtern CArray *CCreateArrayWithObject(id o);
 MSCoreExtern CArray *CCreateArrayWithObjects(const id *os, NSUInteger count, BOOL copyItems);
 MSCoreExtern CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg);
-
-// No more mutable
-MSCoreExtern BOOL CArrayIsMutable(CArray *self);
-MSCoreExtern void CArraySetImmutable(CArray *self);
 
 MSCoreExtern void CArrayGrow(CArray *self, NSUInteger n);
 MSCoreExtern void CArrayAdjustSize(CArray *self);

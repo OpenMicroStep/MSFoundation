@@ -128,7 +128,7 @@ void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL no
     self->length= length;
     self->size=   length;
     self->flags.noFree= noFree;
-    CGrowSetImmutable((id)self);}
+    CGrowSetForeverImmutable((id)self);}
   else {
     CBufferAppendBytes(self, bytes, length); }
 }

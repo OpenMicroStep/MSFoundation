@@ -57,7 +57,7 @@
 {
   if(self == [NSMutableArray class]) {
     id o= [_MSMArray allocWithZone:zone];
-    CGrowSetMutabilityFixed(o);
+    CGrowSetForeverMutable(o);
     return o;}
   return [super allocWithZone:zone];
 }

@@ -136,7 +136,7 @@ id CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutab
     // Pas de copy des items
     // Pas de nilItems verif puisque copied est cohérent
     _insert(self, copied->pointers, self->count, copied->count, NO, NO, "CArrayInitCopy");
-    if(!isMutable) CGrowSetImmutable((id)self);}
+    if (!isMutable) CGrowSetForeverImmutable((id)self);}
   return (id)self;
 }
 id CArrayCopy(id self)
@@ -144,7 +144,7 @@ id CArrayCopy(id self)
   CArray *a;
   if (!self) return nil;
   a= (CArray*)MSCreateObjectWithClassIndex(CArrayClassIndex);
-  return CArrayInitCopyWithMutability(a, (CArray*)self, CGrowIsMutable(self));
+  return CArrayInitCopyWithMutability(a, (CArray*)self, !CGrowIsForeverImmutable(self));
 }
 
 const CString* CArrayRetainedDescription(id self)
@@ -254,21 +254,11 @@ CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg)
   sub->flag.noRetainRelease= a->flag.noRetainRelease;
   sub->flag.nilItems=        a->flag.nilItems;
   _insert(sub, a->pointers+rg.location, 0, rg.length, NO, NO, "CCreateArrayWithObjects");
-  if(!CGrowIsMutable((id)sub)) CGrowSetImmutable((id)a);
+  if (CGrowIsForeverImmutable((id)sub)) CGrowSetForeverImmutable((id)a);
   return sub;
 }
 
 #pragma mark Management
-
-BOOL CArrayIsMutable(CArray *self)
-{
-  return CGrowIsMutable((id)self);
-}
-
-void CArraySetImmutable(CArray *self)
-{
-  CGrowSetImmutable((id)self);
-}
 
 void CArrayGrow(CArray *self, NSUInteger n)
 {

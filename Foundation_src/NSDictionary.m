@@ -62,7 +62,7 @@
 {
   if(self == [NSMutableDictionary class]) {
     id o= [_MSMDictionary allocWithZone:zone];
-    CGrowSetMutabilityFixed(o);
+    CGrowSetForeverMutable(o);
     return o;}
   return [super allocWithZone:zone];
 }

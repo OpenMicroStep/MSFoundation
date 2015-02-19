@@ -59,8 +59,8 @@ CDictionaryElementType;
 typedef struct CDictionaryFlagsStruct {
   MSUInt objType:2;  // Use values as simple void* #endif
   MSUInt keyType:2;  // Use keys as simple void* addresses (no object copy/hash) or naturals
-  MSUInt :28;
-  }
+  MSUInt :26;
+  MSUInt _reserved:2;}
 CDictionaryFlags;
 
 typedef struct CDictionaryStruct {
@@ -109,10 +109,6 @@ MSCoreExtern CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, cons
 
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
 MSCoreExtern CDictionary *CCreateDictionaryWithDictionaryCopyItems(const CDictionary *src, BOOL cpy);
-
-// No more mutable
-MSCoreExtern BOOL CDictionaryIsMutable(CDictionary *self);
-MSCoreExtern void CDictionarySetImmutable(CDictionary *self);
 
 MSCoreExtern void CDictionaryGrow(CDictionary *self, NSUInteger n);
 MSCoreExtern void CDictionaryAdjustSize(CDictionary *self);

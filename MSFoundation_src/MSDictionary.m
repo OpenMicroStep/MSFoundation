@@ -68,7 +68,7 @@
 
 #pragma mark alloc / init
 
-#define FIXE(X) CGrowSetImmutable((id)X)
+#define FIXE(X) CGrowSetForeverImmutable((id)X)
 
 + (id)new                         {return ALLOC(self);}
 
@@ -196,7 +196,7 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 
 #pragma mark Primitives
 
-- (BOOL)isMutable    {return CDictionaryIsMutable((CDictionary*)self);}
+- (BOOL)isMutable    {return !CGrowIsForeverImmutable(self);}
 - (void)setImmutable {FIXE(self);}
 
 - (NSUInteger)count {return CDictionaryCount((CDictionary*)self);}

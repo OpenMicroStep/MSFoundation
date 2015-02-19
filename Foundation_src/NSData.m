@@ -75,7 +75,7 @@
 {
   if(self == [NSMutableData class]) {
     id o= [_MSMBuffer allocWithZone:zone];
-    CGrowSetMutabilityFixed(o);
+    CGrowSetForeverMutable(o);
     return o;}
   return [super allocWithZone:zone];
 }

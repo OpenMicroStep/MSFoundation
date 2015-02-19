@@ -47,9 +47,9 @@
 
 typedef struct CBufferFlagsStruct {
   MSUInt noFree:1;
-  MSUInt :31;
-  }
-  CBufferFlags;
+  MSUInt :29;
+  MSUInt _reserved:2;}
+CBufferFlags;
 
 typedef struct CBufferStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
