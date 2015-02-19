@@ -379,11 +379,17 @@ static SES _SESWildcardsExtractPart(SES src, SES wildcards, BOOL insensitive)
   return ret;
 }
 
-SES SESWildcardsExtractPart(SES src, SES wildcards)
-{ return _SESWildcardsExtractPart(src, wildcards, NO); }
+SES SESWildcardsExtractPart(SES src, const char *utf8Wildcards)
+{
+  SES wildcards= MSMakeSESWithBytes(utf8Wildcards, strlen(utf8Wildcards), NSUTF8StringEncoding);
+  return _SESWildcardsExtractPart(src, wildcards, NO);
+}
 
-SES SESInsensitiveWildcardsExtractPart(SES src, SES wildcards)
-{ return _SESWildcardsExtractPart(src, wildcards, YES); }
+SES SESInsensitiveWildcardsExtractPart(SES src, const char *utf8Wildcards)
+{
+  SES wildcards= MSMakeSESWithBytes(utf8Wildcards, strlen(utf8Wildcards), NSUTF8StringEncoding);
+  return _SESWildcardsExtractPart(src, wildcards, YES);
+}
 
 static inline NSUInteger _go(SES src, CUnicharChecker check, NSUInteger b)
 {

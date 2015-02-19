@@ -1,23 +1,9 @@
 #include "mscore_validate.h"
 
-BOOL ses_extract_test1(unichar c)
-{ return (unichar)'b' <= c && c <= (unichar)'f'; }
-BOOL ses_extract_test2(unichar c)
-{ return (unichar)'B' <= c && c <= (unichar)'F'; }
-
-void ses_check(SES a, SES e, NSUInteger start, NSUInteger length)
+int ses_index(void)
 {
-  ASSERT(SESOK(e), "must extract something");
-  ASSERT_EQUALS(e.start, start, "start must be %2$d, got %1$d");
-  ASSERT_EQUALS(e.length, length, "length must be %2$d, got %1$d");
-  ASSERT_EQUALS(e.source, a.source, "source must matches %p != %p");
-  ASSERT_EQUALS(e.encoding, a.encoding, "encoding must matches %d != %d");
-  ASSERT_EQUALS(e.chai, a.chai, "chai must matches %p != %p");
-}
-
-int ses_literals(void)
-{
-  SES a= SESFromLiteral("abcdef");
+  CString *c= CCreateStringWithBytes(NSUTF8StringEncoding,"abcdef",6);
+  SES a= CStringSES(c);
   NSUInteger i= SESStart(a);
   NSUInteger end= SESEnd(a);
   ASSERT(i < end, "There is still chars to tests");
@@ -33,17 +19,23 @@ int ses_literals(void)
   ASSERT(i < end, "There is still chars to tests");
   ASSERT(SESIndexN(a, &i) == (unichar)'f', "There is still chars to tests");
   ASSERT(i == end, "There is no more chars to tests");
+  RELEASE(c);
   return 0;
 }
 
 int ses_equals(void)
 {
   NSUInteger i= 0;
+  CString *cla, *clb, *cua, *csa;
   SES la, lb, ua, sa;
-  la= SESFromLiteral("abcdef");
-  ua= SESFromLiteral("ABCDEF");
-  lb= SESFromLiteral("bcdef");
-  sa= SESFromLiteral("0abcdef");
+  cla= CCreateStringWithBytes(NSUTF8StringEncoding,"abcdef",6);
+  clb= CCreateStringWithBytes(NSUTF8StringEncoding,"ABCDEF",6);
+  cua= CCreateStringWithBytes(NSUTF8StringEncoding,"bcdef",5);
+  csa= CCreateStringWithBytes(NSUTF8StringEncoding,"0abcdef",7);
+  la= CStringSES(cla);
+  ua= CStringSES(clb);
+  lb= CStringSES(cua);
+  sa= CStringSES(csa);
   ASSERT(SESEquals(la, la), "must be equals to itself");
   ASSERT(!SESEquals(la, ua), "case differs");
   ASSERT(!SESEquals(la, lb), "ses differs");
@@ -53,53 +45,64 @@ int ses_equals(void)
   sa.length-= i - sa.start;
   sa.start= i;
   ASSERT(SESEquals(la, sa), "sa is start after '0'");
+  RELEASE(cla); RELEASE(clb); RELEASE(cua); RELEASE(csa);
   return 0;
 }
 
+BOOL ses_extract_test1(unichar c)
+{ return (unichar)'b' <= c && c <= (unichar)'f'; }
+BOOL ses_extract_test2(unichar c)
+{ return (unichar)'B' <= c && c <= (unichar)'F'; }
+
+void ses_check(SES a, SES e, NSUInteger start, NSUInteger length, int line)
+{
+  ASSERT(SESOK(e), ":%d must extract something",line);
+  ASSERT_EQUALS(e.start, start, ":%d start must be %2$d, got %1$d",line);
+  ASSERT_EQUALS(e.length, length, ":%d length must be %2$d, got %1$d",line);
+  ASSERT_EQUALS(e.source, a.source, ":%d source must matches %p != %p",line);
+  ASSERT_EQUALS(e.encoding, a.encoding, ":%d encoding must matches %d != %d",line);
+  ASSERT_EQUALS(e.chai, a.chai, ":%d chai must matches %p != %p :%d",line);
+}
 int ses_extract(void)
 {
-  SES a, w, e, e2;
-  a= SESFromLiteral("abcdefghijklmnopqrstuvwxyz");
+  CString *ca;
+  SES a, e, e2;
+  ca= CCreateStringWithBytes(NSUTF8StringEncoding,"abcdefghijklmnopqrstuvwxyz",26);
+  a= CStringSES(ca);
   e= SESExtractPart(a, ses_extract_test1);
-  ses_check(a, e, 1, 5);
+  ses_check(a, e, 1, 5, __LINE__);
   
   e2= SESExtractPart(a, ses_extract_test2);
   ASSERT(!SESOK(e2), "Extract part test2 must extract nothing");
+  RELEASE(ca);
   
-  w= SESFromLiteral("nopqrst");
-  e= SESWildcardsExtractPart(a, w);
-  ses_check(a, e, 13, 7);
+  e= SESWildcardsExtractPart(a, "nopqrst");
+  ses_check(a, e, 13, 7, __LINE__);
   
-  w= SESFromLiteral("CDEF");
-  e2= SESWildcardsExtractPart(a, w);
+  e2= SESWildcardsExtractPart(a, "CDEF");
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
-  e= SESInsensitiveWildcardsExtractPart(a, w);
-  ses_check(a, e, 2, 4);
+  e= SESInsensitiveWildcardsExtractPart(a, "CDEF");
+  ses_check(a, e, 2, 4, __LINE__);
   
-  w= SESFromLiteral("?o??r??");
-  e= SESWildcardsExtractPart(a, w);
-  ses_check(a, e, 13, 7);
+  e= SESWildcardsExtractPart(a, "?o??r??");
+  ses_check(a, e, 13, 7, __LINE__);
   
-  w= SESFromLiteral("?o*r??");
-  e= SESWildcardsExtractPart(a, w);
-  ses_check(a, e, 13, 7);
+  e= SESWildcardsExtractPart(a, "?o*r??");
+  ses_check(a, e, 13, 7, __LINE__);
   
-  w= SESFromLiteral("B*?D");
-  e= SESInsensitiveWildcardsExtractPart(a, w);
-  ses_check(a, e, 1, 3);
+  e= SESInsensitiveWildcardsExtractPart(a, "B*?D");
+  ses_check(a, e, 1, 3, __LINE__);
   
-  w= SESFromLiteral("D*");
-  e= SESInsensitiveWildcardsExtractPart(a, w);
-  ses_check(a, e, 3, 23);
+  e= SESInsensitiveWildcardsExtractPart(a, "D*");
+  ses_check(a, e, 3, 23, __LINE__);
   
-  w= SESFromLiteral("abcc");
-  e2= SESWildcardsExtractPart(a, w);
+  e2= SESWildcardsExtractPart(a, "abcc");
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
-  w= SESFromLiteral("abc*c");
-  e2= SESWildcardsExtractPart(a, w);
+
+  e2= SESWildcardsExtractPart(a, "abc*c");
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
-  w= SESFromLiteral("abc?c");
-  e2= SESWildcardsExtractPart(a, w);
+
+  e2= SESWildcardsExtractPart(a, "abc?c");
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
   
   return 0;
@@ -107,7 +110,7 @@ int ses_extract(void)
 
 int mscore_ses_validate(void)
 {
-  testRun("literals", ses_literals);
+  testRun("index", ses_index);
   testRun("equals", ses_equals);
   testRun("extract", ses_extract);
   return 0;

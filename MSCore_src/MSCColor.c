@@ -81,7 +81,7 @@ const CString* CColorRetainedDescription(id self)
   if(!self) return nil;
   a= (CColor *)self;
   s= CCreateString(0);
-  CStringAppendFormat(s, SESFromLiteral("rgba(%3d, %3d, %3d, %3d)"), a->r, a->g, a->b, a->a);
+  CStringAppendFormat(s, "rgba(%3d, %3d, %3d, %3d)", a->r, a->g, a->b, a->a);
   return s;
 }
 

@@ -1,7 +1,7 @@
 #import "FoundationCompatibility_Private.h"
 
-#define csself ((_NSConstantString*)self)
-#define csses MSMakeSESWithBytes(csself->bytes, csself->length, NSUTF8StringEncoding)
+#define CSCAST(X) ((_NSConstantString*)(X))
+#define CSSES(X)  MSMakeSESWithBytes(CSCAST(X)->bytes, CSCAST(X)->length, NSUTF8StringEncoding)
 typedef struct {
   Class isa;
   const char *bytes;
@@ -23,7 +23,7 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
 
 - (NSUInteger)length
 {
-  NSUInteger i=0, len=0; SES ses= csses;
+  NSUInteger i=0, len=0; SES ses= CSSES(self);
   while(i < SESLength(ses)) {
     SESIndexN(ses, &i);
     ++len;
@@ -33,13 +33,13 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
 
 - (unichar)characterAtIndex:(NSUInteger)index
 {
-  NSUInteger i=0; SES ses= csses;
+  NSUInteger i=0; SES ses= CSSES(self);
   return characterAtRelativeIndex(ses, &i, index);
 }
 
 - (void)getCharacters:(unichar*)buffer range:(NSRange)rg
 {
-  NSUInteger i=0; SES ses= csses;
+  NSUInteger i=0; SES ses= CSSES(self);
   if (rg.length > 0) {
     *buffer++= characterAtRelativeIndex(ses, &i, rg.location);
     rg.length--;
@@ -50,7 +50,7 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
 
 - (const char*)UTF8String
 {
-  return csself->bytes;
+  return CSCAST(self)->bytes;
 }
 
 - (BOOL)isEqual:(id)object
@@ -64,7 +64,7 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
 
 - (SES)stringEnumeratorStructure
 {
-  return MSMakeSESWithBytes(csself->bytes, csself->length, NSUTF8StringEncoding);
+  return CSSES(self);
 }
 
 - (id)copyWithZone:(NSZone*)z

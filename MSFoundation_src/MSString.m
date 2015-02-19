@@ -738,7 +738,7 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 { return [self initWithFormat:fmt locale:nil arguments:args]; }
 - (instancetype)initWithFormat:(NSString *)fmt locale:(id)locale arguments:(va_list)args
 {
-  CStringAppendFormatv((CString*)self, SESFromString(fmt), args);
+  CStringAppendFormatv((CString*)self, [fmt UTF8String], args);
   return self;
 }
 

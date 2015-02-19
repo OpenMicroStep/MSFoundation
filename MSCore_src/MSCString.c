@@ -215,7 +215,7 @@ void CStringAppendString(CString *self, const CString *s)
   CStringAppendSES(self, CStringSES(s));
 }
 
-void CStringAppendFormat(CString *self, SES fmt, ...)
+void CStringAppendFormat(CString *self, const char *fmt, ...)
 {
   va_list vp;
   va_start(vp, fmt);
@@ -577,8 +577,9 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
 
 #define LOAD_ARG(argtype, var) argType->var= (__typeof__(argType->var))va_arg(ap, argtype)
 
-void CStringAppendFormatv(CString *self, SES fmt, va_list ap)
+void CStringAppendFormatv(CString *self, const char *cfmt, va_list ap)
 {
+  SES fmt= MSMakeSESWithBytes(cfmt, strlen(cfmt), NSUTF8StringEncoding);
   if(!SESOK(fmt)) return;
   // arg informations/values
   FormatArg argTypes[argsOnStack];

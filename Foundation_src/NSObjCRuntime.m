@@ -10,7 +10,7 @@ void NSLog(NSString *format,...)
 void NSLogv(NSString *format,va_list args)
 {
   CString *s= CCreateString(0);
-  CStringAppendFormatv(s, SESFromString(format), args);
+  CStringAppendFormatv(s, [format UTF8String], args);
   printf("%s\n", [(id)s UTF8String]);
   RELEASE((id)s);
 }

@@ -69,6 +69,8 @@ MSCoreExtern BOOL CStringInsensitiveEquals(const CString *s1, const CString *s2)
 
 MSCoreExtern CString *CCreateString(NSUInteger capacity);
 MSCoreExtern CString *CCreateStringWithBytes(NSStringEncoding encoding, const void *s, NSUInteger length);
+// TODO avec no free comme buffer
+// MSCoreExtern CString *CCreateStringWithUTF8String(const char *s);
 MSCoreExtern CString *CCreateStringWithSES(SES ses);
 
 MSCoreExtern void CStringGrow(CString *self, NSUInteger n);
@@ -87,8 +89,10 @@ MSCoreExtern void CStringAppendEncodedFormat(CString *self, NSStringEncoding enc
 MSCoreExtern void CStringAppendEncodedFormatArguments(CString *self, NSStringEncoding encoding, const char *fmt, va_list args);
 MSCoreExtern void CStringAppendSES(CString *self, SES ses);
 MSCoreExtern void CStringAppendString(CString *self, const CString *s);
-MSCoreExtern void CStringAppendFormat(CString *self, SES ses, ...);
-MSCoreExtern void CStringAppendFormatv(CString *self, SES ses, va_list vp);
+
+// utf8Fmt est une UTF8String (null terminated)
+MSCoreExtern void CStringAppendFormat(CString *self, const char *utf8Fmt, ...);
+MSCoreExtern void CStringAppendFormatv(CString *self, const char *utf8Fmt, va_list vp);
 
 // TODO: Not reviewed, not tested.
 // this functions work only for ANSI, Mac roman, NextStep, ISO Latin 1, UTF8 and ASCII as supposed encoding NOT TESTED
