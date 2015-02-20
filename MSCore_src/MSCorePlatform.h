@@ -115,22 +115,9 @@
 # define __sync_add_and_fetch(X,Y) ({ (*(X))+=Y; *(X);})
 # define __sync_sub_and_fetch(X,Y) ({ (*(X))-=Y; *(X);})
 
-static inline float strtof(const char *string, char **endPtr)
-{
-    return (float)strtod(string, endPtr);
-}
-static int snprintf(char *str, size_t size, const char *format, ...)
-{
-  int ret;
-  va_list ap;
-  va_start(ap, format);
-  ret = (int)_vsnprintf(str, size, format, ap);
-  va_end(ap);
-  return ret;
-}
-
-static inline int vsnprintf(char *str, size_t size, const char *format, va_list ap)
-{ return _vsnprintf(str, size, format, ap); }
+MSCoreExtern float strtof(const char *string, char **endPtr);
+MSCoreExtern int snprintf(char *str, size_t size, const char *format, ...);
+MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
 // Mutexes

@@ -53,12 +53,20 @@
 #define MSUnused(X) (void)X;
 
 #ifndef NSINTEGER_DEFINED
-    #define NSINTEGER_DEFINED
-    typedef intptr_t  NSInteger;
-    typedef uintptr_t NSUInteger;
+  #define NSINTEGER_DEFINED
+  #ifndef WO451
+    typedef long  NSInteger;
+    typedef unsigned long NSUInteger;
     #define NSIntegerMax    INTPTR_MAX
     #define NSIntegerMin    INTPTR_MIN
     #define NSUIntegerMax   UINTPTR_MAX
+  #else
+    typedef int  NSInteger;
+    typedef unsigned int NSUInteger;
+    #define NSIntegerMax    INT_MAX
+    #define NSIntegerMin    INT_MIN
+    #define NSUIntegerMax   UINT_MAX
+  #endif
 #endif // NSINTEGER_DEFINED
 
 // Microstep codifications for 8, 16, 32 et 64 bytes integers

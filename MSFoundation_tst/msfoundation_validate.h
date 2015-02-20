@@ -1,13 +1,7 @@
 // msfoundation_validate.h, ecb, 130911
 #import "foundation_validate.h"
 #import "mscore_validate.h"
-#if   defined(MSFOUNDATION_TESTS)
 #import <MSFoundation/MSFoundation.h>
-#elif defined(MSFOUNDATIONFORCOCOA_TESTS)
-#import <MSFoundationForCocoa/MSFoundation.h>
-#else
-#error MSFOUNDATION_TESTS or MSFOUNDATIONFORCOCOA_TESTS are required -D flags
-#endif
 
 #import "MSTests.h"
 
