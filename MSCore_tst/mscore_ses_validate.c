@@ -57,8 +57,8 @@ BOOL ses_extract_test2(unichar c)
 void ses_check(SES a, SES e, NSUInteger start, NSUInteger length, int line)
 {
   ASSERT(SESOK(e), ":%d must extract something",line);
-  ASSERT_EQUALS(e.start, start, ":%d start must be %2$d, got %1$d",line);
-  ASSERT_EQUALS(e.length, length, ":%d length must be %2$d, got %1$d",line);
+  ASSERT_EQUALS(e.start, start, ":%d start must matches %lu != %lu",line);
+  ASSERT_EQUALS(e.length, length, ":%d length must matches  %lu != %lu",line);
   ASSERT_EQUALS(e.source, a.source, ":%d source must matches %p != %p",line);
   ASSERT_EQUALS(e.encoding, a.encoding, ":%d encoding must matches %d != %d",line);
   ASSERT_EQUALS(e.chai, a.chai, ":%d chai must matches %p != %p :%d",line);
@@ -80,6 +80,12 @@ int ses_extract(void)
   
   e= SESWildcardsExtractPart(a, "nopqrst");
   ses_check(a, e, 13, 7, __LINE__);
+  
+  e= SESInsensitiveWildcardsExtractPart(a, "a");
+  ses_check(a, e, 0, 1, __LINE__);
+  
+  e= SESInsensitiveWildcardsExtractPart(a, "z");
+  ses_check(a, e, 25, 1, __LINE__);
   
   e2= SESWildcardsExtractPart(a, "CDEF");
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
@@ -108,6 +114,7 @@ int ses_extract(void)
 
   e2= SESWildcardsExtractPart(a, "abc?c");
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
+
   
   RELEASE(ca);
   return 0;

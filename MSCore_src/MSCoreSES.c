@@ -329,30 +329,29 @@ struct _sesWildcardsStruct
   BOOL insensitive;
 };
 
-// TODO @vr: A refaire: Expliciter les sorties de boucles => ni break, ni continue, ni return intempestif.
-
 static inline BOOL _SESWildcardsMatch(struct _sesWildcardsStruct *s, unichar c, NSUInteger srcIdx, unichar m, NSUInteger mIdx)
 {
-  while(1) {
-    if(m == (unichar)'?') {}
-    else if(m == (unichar)'*') {
+  BOOL matching= YES, next= YES, nextM= YES;
+  while (matching && next) {
+    if (m == (unichar)'?') {
+      nextM= YES;}
+    else if (m == (unichar)'*') {
       NSUInteger mIdxNext= mIdx;
-      if(mIdx < s->mEnd && _SESWildcardsMatch(s, c, srcIdx, SESIndexN(s->wildcards, &mIdxNext), mIdxNext)) {
+      if (mIdx < s->mEnd && _SESWildcardsMatch(s, c, srcIdx, SESIndexN(s->wildcards, &mIdxNext), mIdxNext)) {
         return YES;}
-      if(srcIdx < s->srcEnd) {
-        c= SESIndexN(s->src, &srcIdx);
-        continue;}}
-    else if(CUnicharEquals(c, m, s->insensitive)) {}
+      nextM= NO;}
+    else if (CUnicharEquals(c, m, s->insensitive)) {
+      nextM= YES;}
     else {
-      break;}
-    if(mIdx == s->mEnd) {
-      s->srcIdx= srcIdx;
-      return YES;}
-    if(srcIdx < s->srcEnd) {
-      c= SESIndexN(s->src, &srcIdx);
-      m= SESIndexN(s->wildcards, &mIdx);
-    }
-    else break;}
+      matching= NO;}
+    if (matching) {
+      if (nextM && (next=(mIdx < s->mEnd))) {
+          m= SESIndexN(s->wildcards, &mIdx);}
+      if ((next= next && (srcIdx < s->srcEnd))) {
+        c= SESIndexN(s->src, &srcIdx);}}}
+  if (matching && mIdx == s->mEnd) {
+    s->srcIdx= srcIdx;
+    return YES;}
   return NO;
 }
 
@@ -374,7 +373,7 @@ static SES _SESWildcardsExtractPart(SES src, SES wildcards, BOOL insensitive)
     while (s.srcIdx < s.srcEnd) {
       start= s.srcIdx;
       s.c= SESIndexN(s.src, &s.srcIdx);
-      if(_SESWildcardsMatch(&s, s.c, s.srcIdx, m, mIdx)) {
+      if (_SESWildcardsMatch(&s, s.c, s.srcIdx, m, mIdx)) {
         ret=        src;
         ret.start=  start;
         ret.length= s.srcIdx- start;
