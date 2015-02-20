@@ -66,15 +66,17 @@ void ses_check(SES a, SES e, NSUInteger start, NSUInteger length, int line)
 int ses_extract(void)
 {
   CString *ca;
-  SES a, e, e2;
+  SES a, b, e, e2;
   ca= CCreateStringWithBytes(NSUTF8StringEncoding,"abcdefghijklmnopqrstuvwxyz",26);
   a= CStringSES(ca);
+  b= MSMakeSESWithBytes("abcdefghijklmnopqrstuvwxyz", 26, NSUTF8StringEncoding);
+  ASSERT(SESEquals(a, b), "must be equals");
+  
   e= SESExtractPart(a, ses_extract_test1);
   ses_check(a, e, 1, 5, __LINE__);
   
   e2= SESExtractPart(a, ses_extract_test2);
   ASSERT(!SESOK(e2), "Extract part test2 must extract nothing");
-  RELEASE(ca);
   
   e= SESWildcardsExtractPart(a, "nopqrst");
   ses_check(a, e, 13, 7, __LINE__);
@@ -83,6 +85,8 @@ int ses_extract(void)
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
   e= SESInsensitiveWildcardsExtractPart(a, "CDEF");
   ses_check(a, e, 2, 4, __LINE__);
+  e= SESInsensitiveWildcardsExtractPart(b, "CDEF");
+  ses_check(b, e, 2, 4, __LINE__);
   
   e= SESWildcardsExtractPart(a, "?o??r??");
   ses_check(a, e, 13, 7, __LINE__);
@@ -105,6 +109,7 @@ int ses_extract(void)
   e2= SESWildcardsExtractPart(a, "abc?c");
   ASSERT(!SESOK(e2), "SESWildcardsExtractPart must extract nothing");
   
+  RELEASE(ca);
   return 0;
 }
 

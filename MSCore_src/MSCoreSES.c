@@ -329,6 +329,8 @@ struct _sesWildcardsStruct
   BOOL insensitive;
 };
 
+// TODO @vr: A refaire: Expliciter les sorties de boucles => ni break, ni continue, ni return intempestif.
+
 static inline BOOL _SESWildcardsMatch(struct _sesWildcardsStruct *s, unichar c, NSUInteger srcIdx, unichar m, NSUInteger mIdx)
 {
   while(1) {
@@ -341,7 +343,8 @@ static inline BOOL _SESWildcardsMatch(struct _sesWildcardsStruct *s, unichar c, 
         c= SESIndexN(s->src, &srcIdx);
         continue;}}
     else if(CUnicharEquals(c, m, s->insensitive)) {}
-    else break;
+    else {
+      break;}
     if(mIdx == s->mEnd) {
       s->srcIdx= srcIdx;
       return YES;}
