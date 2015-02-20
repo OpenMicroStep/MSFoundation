@@ -51,13 +51,12 @@ typedef struct CBufferFlagsStruct {
   MSUInt _reserved:2;}
 CBufferFlags;
 
-typedef struct CBufferStruct {
+struct CBufferStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   MSByte *buf;
   NSUInteger   size;
   NSUInteger   length;
-  CBufferFlags flags;}
-CBuffer;
+  CBufferFlags flags;};
 
   MSCoreExtern void       CBufferFreeInside(id self); // for MSBuffer dealloc
 MSCoreExtern void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree);

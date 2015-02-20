@@ -68,6 +68,7 @@
 #import <MSFoundation/MSCDictionary.h>
 
 #import <MSFoundation/MSFoundationDefines.h>
+#import <MSFoundation/MSFoundationPlatform.h>
 #import <MSFoundation/MSFinishLoading.h>
 #import <MSFoundation/MSCoderAdditions.h>
 #import <MSFoundation/MSExceptionAdditions.h>
@@ -98,6 +99,6 @@
 
 #import <MSFoundation/MSStringParsing.h>
 
-#define FMT(X,...)  [MSString stringWithFormat:(X),##__VA_ARGS__]
+#define FMT(ARGS...)  [MSString stringWithFormat: ARGS]
 
 #endif

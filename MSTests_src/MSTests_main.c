@@ -6,8 +6,8 @@
 //
 
 #include "MSCorePlatform.h"
-#include "MSTests.h"
 
+int test(int argc, const char * argv[]);
 int main(int argc, const char * argv[])
 {
     return test(argc,argv);

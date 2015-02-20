@@ -44,7 +44,7 @@
 #include "MSCore_Private.h"
 
 #ifndef MSCORE_STANDALONE
-#warning Check you compilation settings, this file shouldn't be compiled if MSCORE_STANDALONE is not defined
+#warning Check you compilation settings, this file shouldnt be compiled if MSCORE_STANDALONE is not defined
 #endif
 
 #ifdef MSCORE_STANDALONE

@@ -40,7 +40,7 @@
     #define LIBIMPORT EXTERN_C
 #endif
 
-#ifdef MSCORE_PRIVATE_H
+#if defined(MSCORE_PRIVATE_H) || defined(MSFOUNDATION_PRIVATE_H)
 #define MSCoreExtern LIBEXPORT
 #else
 #define MSCoreExtern LIBIMPORT
@@ -59,6 +59,7 @@
 #include <string.h>
 #include <limits.h>
 #include <math.h>
+#include <time.h>
 
 #ifdef WIN32
     #include <windows.h>
@@ -74,6 +75,63 @@
 
 ////////
 // Simple platform abstraction
+
+// WO451
+#ifdef WO451
+  typedef char               int8_t;
+  typedef unsigned char      uint8_t;
+  typedef short              int16_t;
+  typedef unsigned short     uint16_t;
+  typedef int                int32_t;
+  typedef unsigned int       uint32_t;
+  typedef long long          int64_t;
+  typedef unsigned long long uint64_t;
+  typedef long               intptr_t;
+  typedef unsigned long      uintptr_t;
+  typedef int64_t            intmax_t;
+  typedef uint64_t           uintmax_t;
+# define restrict
+# ifndef UINT8_MAX
+#   define UINT8_MAX 255
+# endif
+# ifndef LLONG_MIN
+#   define LLONG_MIN (-LLONG_MAX-1)
+# endif
+# ifndef LLONG_MAX
+#   define LLONG_MAX 9223372036854775807LL
+# endif
+# ifndef ULLONG_MAX
+#   define ULLONG_MAX 18446744073709551615ULL
+# endif
+# ifndef INTPTR_MIN
+#   define INTPTR_MIN (-INTPTR_MAX-1)
+# endif
+# ifndef INTPTR_MAX
+#   define INTPTR_MAX 2147483647
+# endif
+# ifndef UINTPTR_MAX
+#   define UINTPTR_MAX 4294967295U
+# endif
+# define __sync_add_and_fetch(X,Y) (*(X))+=Y
+# define __sync_sub_and_fetch(X,Y) (*(X))-=Y
+
+static inline float strtof(const char *string, char **endPtr)
+{
+    return (float)strtod(string, endPtr) ;
+}
+static int snprintf(char *str, size_t size, const char *format, ...)
+{
+  int ret;
+  va_list ap;
+  va_start(ap, format);
+  ret = (int)_vsnprintf(str, size, format, ap);
+  va_end(ap);
+  return ret;
+}
+
+static inline int vsnprintf(char *str, size_t size, const char *format, va_list ap)
+{ return _vsnprintf(str, size, format, ap); }
+#endif
 
 // Mutexes
 #ifdef WIN32

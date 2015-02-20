@@ -44,13 +44,12 @@
 #ifndef MSBase_MSCString_h
 #define MSBase_MSCString_h
 
-typedef struct CStringStruct {
+struct CStringStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   unichar*   buf;
   NSUInteger size;
   NSUInteger length;
-  CGrowFlags flag;}
-CString;
+  CGrowFlags flag;};
 
 
   MSCoreExtern void       CStringFreeInside(id self); // for MSArray dealloc

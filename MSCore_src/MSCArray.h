@@ -56,13 +56,12 @@ typedef struct CArrayFlagsStruct {
   MSUInt _reserved:2;}
 CArrayFlags;
 
-typedef struct CArrayStruct {
+struct CArrayStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   id *pointers;
   NSUInteger  size;
   NSUInteger  count;
-  CArrayFlags flag;}
-CArray;
+  CArrayFlags flag;};
 
 // HM: 27/08/13 void return and report error to be conform to ObjC error reporting
 

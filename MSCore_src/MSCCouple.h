@@ -45,10 +45,9 @@
 #ifndef MSCORE_COUPLE_H
 #define MSCORE_COUPLE_H
 
-typedef struct CCoupleStruct {
+struct CCoupleStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
-  id members[2];}
-CCouple;
+  id members[2];};
 
   MSCoreExtern void CCoupleFreeInside(id self);
 //Already defined in MSCObject.h

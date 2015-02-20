@@ -228,34 +228,35 @@ unichar _indentChai(const void *src, NSUInteger *pos) {
 const CString* CDictionaryRetainedDescription(id self)
 {
   if(!self) return nil;
-  id k, o; const CString *d; SES ses; _indentChaiSrc identChai;
-  CDictionaryEnumerator *e= CDictionaryEnumeratorAlloc((CDictionary*)self);
-  CString *s= CCreateString(0);
-  CStringAppendCharacter(s, '{');
-  CStringAppendCharacter(s, '\n');
-  while ((k= CDictionaryEnumeratorNextKey(e)) && (o= CDictionaryEnumeratorCurrentObject(e))) {
-    CStringAppendCharacter(s, ' ');
-    CStringAppendCharacter(s, ' ');
-    d= DESCRIPTION(k);
-    CStringAppendString(s, d);
-    RELEASE(d);
-    CStringAppendCharacter(s, ' ');
-    CStringAppendCharacter(s, '=');
-    CStringAppendCharacter(s, ' ');
-    d= DESCRIPTION(o);
-    ses= CStringSES(d);
-    identChai.source= ses.source;
-    identChai.chai= ses.chai;
-    identChai.counter= 0;
-    ses.source= &identChai;
-    ses.chai= _indentChai;
-    CStringAppendSES(s, ses);
-    RELEASE(d);
+  else {
+    id k, o; const CString *d; SES ses; _indentChaiSrc identChai;
+    CDictionaryEnumerator *e= CDictionaryEnumeratorAlloc((CDictionary*)self);
+    CString *s= CCreateString(0);
+    CStringAppendCharacter(s, '{');
     CStringAppendCharacter(s, '\n');
-  }
-  CDictionaryEnumeratorFree(e);
-  CStringAppendCharacter(s, '}');
-  return s;
+    while ((k= CDictionaryEnumeratorNextKey(e)) && (o= CDictionaryEnumeratorCurrentObject(e))) {
+      CStringAppendCharacter(s, ' ');
+      CStringAppendCharacter(s, ' ');
+      d= DESCRIPTION(k);
+      CStringAppendString(s, d);
+      RELEASE(d);
+      CStringAppendCharacter(s, ' ');
+      CStringAppendCharacter(s, '=');
+      CStringAppendCharacter(s, ' ');
+      d= DESCRIPTION(o);
+      ses= CStringSES(d);
+      identChai.source= ses.source;
+      identChai.chai= ses.chai;
+      identChai.counter= 0;
+      ses.source= &identChai;
+      ses.chai= _indentChai;
+      CStringAppendSES(s, ses);
+      RELEASE(d);
+      CStringAppendCharacter(s, '\n');
+    }
+    CDictionaryEnumeratorFree(e);
+    CStringAppendCharacter(s, '}');
+    return s;}
 }
 
 #pragma mark Equality

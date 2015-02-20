@@ -46,15 +46,14 @@
 #ifndef MSCORE_DECIMAL_H
 #define MSCORE_DECIMAL_H
 
-typedef struct CDecimalStruct {
+struct CDecimalStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   unsigned char *m_apm_data;
   long m_apm_id;
   int  m_apm_malloclength;
   int  m_apm_datalength;
   int  m_apm_exponent;
-  int  m_apm_sign;}
-CDecimal;
+  int  m_apm_sign;};
 
 
   MSCoreExtern void CDecimalFreeInside(id self);

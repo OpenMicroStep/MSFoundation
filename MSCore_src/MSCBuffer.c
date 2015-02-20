@@ -318,10 +318,11 @@ void CBufferAppendContentsOfFile(CBuffer *self, SES path)
 {
   CBuffer *pathBuf;
   NSUInteger length;
-
+  FILE *f;
+  
   pathBuf= CCreateBuffer(0);
   CBufferAppendSES(pathBuf, path, NSUTF8StringEncoding);
-  FILE *f=fopen((const char *)CBufferCString(pathBuf), "rb");
+  f=fopen((const char *)CBufferCString(pathBuf), "rb");
   RELEASE(pathBuf);
 
   if (!f) {

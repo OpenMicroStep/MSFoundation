@@ -181,6 +181,10 @@
 		A6A569B31A8B950C0054F346 /* mscore_ses_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */; };
 		A6A569B41A8B950C0054F346 /* mscore_ses_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */; };
 		A6A569B51A8B950C0054F346 /* mscore_ses_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */; };
+		A6C366191A95E85C00288B24 /* MSFoundationPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = A6C366171A95E85C00288B24 /* MSFoundationPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A6C3661A1A95E85C00288B24 /* MSFoundationPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = A6C366171A95E85C00288B24 /* MSFoundationPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A6C3661B1A95E85C00288B24 /* MSFoundationPlatform.m in Sources */ = {isa = PBXBuildFile; fileRef = A6C366181A95E85C00288B24 /* MSFoundationPlatform.m */; };
+		A6C3661C1A95E85C00288B24 /* MSFoundationPlatform.m in Sources */ = {isa = PBXBuildFile; fileRef = A6C366181A95E85C00288B24 /* MSFoundationPlatform.m */; };
 		A6D3598A1A778F0F00B87986 /* MSCoreTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038121A76300800A97DA3 /* MSCoreTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A6D3598D1A7798B600B87986 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
 		A6D3599B1A77991600B87986 /* MSTests_main.c in Sources */ = {isa = PBXBuildFile; fileRef = A6D3599A1A77991600B87986 /* MSTests_main.c */; };
@@ -661,6 +665,8 @@
 		A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFinishLoading.h; path = MSFoundation_src/MSFinishLoading.h; sourceTree = SOURCE_ROOT; };
 		A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSFinishLoading.m; path = MSFoundation_src/MSFinishLoading.m; sourceTree = SOURCE_ROOT; };
 		A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mscore_ses_validate.c; path = MSCore_tst/mscore_ses_validate.c; sourceTree = "<group>"; };
+		A6C366171A95E85C00288B24 /* MSFoundationPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundationPlatform.h; path = MSFoundation_src/MSFoundationPlatform.h; sourceTree = SOURCE_ROOT; };
+		A6C366181A95E85C00288B24 /* MSFoundationPlatform.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MSFoundationPlatform.m; path = MSFoundation_src/MSFoundationPlatform.m; sourceTree = SOURCE_ROOT; };
 		A6D359781A76D39A00B87986 /* libMSFoundationTests.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libMSFoundationTests.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6D3597D1A77825900B87986 /* MSTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MSTests.h; path = MSTests_src/MSTests.h; sourceTree = "<group>"; };
 		A6D3597E1A7782D200B87986 /* foundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_validate.m; path = Foundation_tst/foundation_validate.m; sourceTree = "<group>"; };
@@ -1267,6 +1273,8 @@
 		A6E038AE1A7630A100A97DA3 /* Basics */ = {
 			isa = PBXGroup;
 			children = (
+				A6C366171A95E85C00288B24 /* MSFoundationPlatform.h */,
+				A6C366181A95E85C00288B24 /* MSFoundationPlatform.m */,
 				A6E038DE1A7630CB00A97DA3 /* MSASCIIString.h */,
 				A6E038DF1A7630CB00A97DA3 /* MSASCIIString.m */,
 				A6E038E01A7630CB00A97DA3 /* MSBool.h */,
@@ -1456,6 +1464,7 @@
 				A6E03A351A76328400A97DA3 /* MSFoundationDefines.h in Headers */,
 				A69DE3CF1A7BA29800F2863E /* MSFinishLoading.h in Headers */,
 				A6E03A361A76328400A97DA3 /* MSLanguage.h in Headers */,
+				A6C366191A95E85C00288B24 /* MSFoundationPlatform.h in Headers */,
 				A6E03A371A76328400A97DA3 /* MSMutex.h in Headers */,
 				A6E03A381A76328400A97DA3 /* MSNaturalArray.h in Headers */,
 				A6E03A3A1A76328400A97DA3 /* MSNaturalArrayEnumerator.h in Headers */,
@@ -1506,6 +1515,7 @@
 				A66299811A7A8B2E00B2B60D /* MSFoundation_Private.h in Headers */,
 				A64D647F1A77E4B700CCA6D7 /* MSCoreUnichar.h in Headers */,
 				A64D64821A77E4B700CCA6D7 /* MSCString.h in Headers */,
+				A6C3661A1A95E85C00288B24 /* MSFoundationPlatform.h in Headers */,
 				A6E03B9B1A767F6600A97DA3 /* NSString.h in Headers */,
 				A6E03BA31A767F8100A97DA3 /* NSDictionary.h in Headers */,
 				A6E4EB0D1A7FEC65002E99FF /* NSNotification.h in Headers */,
@@ -1771,6 +1781,16 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0610;
+				MicroStepPlugin = {
+					CrossCompilationToolchains = {
+						wo451 = {
+							addIncludePaths = 3rdparty/wo451/include;
+							addLibraryPaths = 3rdparty/wo451/lib;
+							addLinkerFlags = "-lkernel32.mingw";
+							delCompilationFlags = "-Wconversion;-Wselector;-Wshadow";
+						};
+					};
+				};
 				ORGANIZATIONNAME = OpenMicroStep;
 				TargetAttributes = {
 					408D25671A7D0CB8007258D4 = {
@@ -1781,6 +1801,13 @@
 					};
 					A69163821A7016E6001E42F4 = {
 						CreatedOnToolsVersion = 6.1.1;
+						MicroStepPlugin = {
+							CrossCompilationToolchains = {
+								wo451 = {
+									delLinkerFlags = "-lobjc";
+								};
+							};
+						};
 					};
 					A6D359771A76D39A00B87986 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -1790,6 +1817,13 @@
 					};
 					A6D3599F1A77D35200B87986 = {
 						CreatedOnToolsVersion = 6.1.1;
+						MicroStepPlugin = {
+							CrossCompilationToolchains = {
+								wo451 = {
+									delLinkerFlags = "-lobjc";
+								};
+							};
+						};
 					};
 					A6D359AF1A77D38600B87986 = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -1885,6 +1919,7 @@
 				A6E039A91A76317A00A97DA3 /* MSRow.m in Sources */,
 				A6E039AD1A76317A00A97DA3 /* MSStringParsing.m in Sources */,
 				A6E039AF1A76317A00A97DA3 /* MSTDecoder.m in Sources */,
+				A6C3661B1A95E85C00288B24 /* MSFoundationPlatform.m in Sources */,
 				A6E039B11A76317A00A97DA3 /* MSTEncoder.m in Sources */,
 				A6E0398E1A76317300A97DA3 /* MSASCIIString.m in Sources */,
 				A6E039901A76317300A97DA3 /* MSBool.m in Sources */,
@@ -2001,6 +2036,7 @@
 				A6E039EF1A76320700A97DA3 /* MSCDecimal.c in Sources */,
 				A6E039F01A76320700A97DA3 /* MSCDictionary.c in Sources */,
 				A6E4EB011A7FC9A5002E99FF /* MSTDecoder.m in Sources */,
+				A6C3661C1A95E85C00288B24 /* MSFoundationPlatform.m in Sources */,
 				A6E039F11A76320700A97DA3 /* MSCGrow.c in Sources */,
 				A6E039F21A76320700A97DA3 /* MSCObject.c in Sources */,
 				A6E039F31A76320700A97DA3 /* MSCoreSES.c in Sources */,

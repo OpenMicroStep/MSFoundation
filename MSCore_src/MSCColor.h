@@ -45,14 +45,13 @@
 #ifndef MSCORE_COLOR_H
 #define MSCORE_COLOR_H
 
-typedef struct CColorStruct {
+struct CColorStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   MSUInt r:8;
   MSUInt g:8;
   MSUInt b:8;
   MSUInt a:8;
-  }
-CColor;
+  };
 
 //Already defined in MSCObject.h
 //MSCoreExtern void       CColorFree(id self);

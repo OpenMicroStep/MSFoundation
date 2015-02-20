@@ -63,13 +63,12 @@ typedef struct CDictionaryFlagsStruct {
   MSUInt _reserved:2;}
 CDictionaryFlags;
 
-typedef struct CDictionaryStruct {
+struct CDictionaryStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   void **buckets;
   NSUInteger nBuckets;
   NSUInteger count;
-  CDictionaryFlags flag;}
-CDictionary;
+  CDictionaryFlags flag;};
 
 typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
   CDictionary *dictionary;

@@ -220,9 +220,11 @@ void CStringAppendFormat(CString *self, const char *fmt, ...)
 #define FORMAT_MAX3(A, B, C)         FORMAT_MAX2(FORMAT_MAX2(A, B), C)
 
 static const int argsOnStack= 128; // 128 arg is far enough to hold pending formatting arguments
+#ifndef WO451
 _Static_assert(sizeof(size_t) <= sizeof(intmax_t), "size_t must fit in intmax");
 _Static_assert(sizeof(ptrdiff_t) <= sizeof(uintmax_t), "ptrdiff_t must fit in uintmax");
 _Static_assert(sizeof(void*) <= sizeof(uintmax_t), "void* must fit in uintmax");
+#endif
 // TODO: Implement a fallback to heap allocation if format should support more extreme cases (> 127 out of order arg, ie. "%128$d $1$d")
 
 typedef enum {
@@ -249,7 +251,7 @@ typedef struct {
     uintmax_t um;
     double dbl;
     long double ldbl;
-  };
+  } u;
 } FormatArg;
 
 enum FormatFlags {
@@ -437,69 +439,71 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
 {
   static const char* charsL="0123456789abcdef";
   static const char* charsU="0123456789ABCDEF";
-  int width=     f.widthArg     ? (int)argTypes[f.widthArg - 1].im : f.width;
-  int precision= f.precisionArg ? (int)argTypes[f.precisionArg - 1].im : f.precision;
+  int width=     f.widthArg     ? (int)argTypes[f.widthArg - 1].u.im : f.width;
+  int precision= f.precisionArg ? (int)argTypes[f.precisionArg - 1].u.im : f.precision;
   switch(f.specifier) {
     case 'd': case 'i': {
       intmax_t value; uintmax_t v;
-      value= argTypes[f.arg - 1].im;
-      if(f.flags.leadingZeros && !f.flags.hasPrecision)
-        precision= value < 0 || (f.flags.plus || f.flags.space) ? width - 1 : width;
-      char *pos, *end, buffer[1 + MAX(precision, 20)]; // 20 = ceil(log10(2^64))
-      end= buffer + sizeof(buffer);
-      pos= end - 1;
-      v= value > 0 ? value : -value;
-      while(v > 0) {
-        *(pos--)= '0' + v % 10LL ;
-        v /= 10LL ;}
+      value= argTypes[f.arg - 1].u.im;
+      if(f.flags.leadingZeros && !f.flags.hasPrecision) {
+        precision= value < 0 || (f.flags.plus || f.flags.space) ? width - 1 : width;}
       
-      if(precision != MSUShortMax) {
-        while(precision >= end - pos) {
-          *(pos--)= '0' ; } }
-      
-      if(value < 0) {
-        *pos--= '-' ;}
-      else if(f.flags.plus) {
-        *pos--= '+' ;}
-      else if(f.flags.space) {
-        *pos--= ' ' ;}
-      _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);
+      { char *pos, *end, buffer[1 + MAX(precision, 20)]; // 20 = ceil(log10(2^64))
+        end= buffer + sizeof(buffer);
+        pos= end - 1;
+        v= value > 0 ? value : -value;
+        while(v > 0) {
+          *(pos--)= '0' + v % 10LL ;
+          v /= 10LL ;}
+        
+        if(precision != MSUShortMax) {
+          while(precision >= end - pos) {
+            *(pos--)= '0' ; } }
+        
+        if(value < 0) {
+          *pos--= '-' ;}
+        else if(f.flags.plus) {
+          *pos--= '+' ;}
+        else if(f.flags.space) {
+          *pos--= ' ' ;}
+        _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);}
       break;
     }
     case 'p':
     case 'u': case 'o':
     case 'x': case 'X':{
-      uintmax_t v= argTypes[f.arg - 1].um;
+      uintmax_t v= argTypes[f.arg - 1].u.um;
       if(f.flags.leadingZeros && !f.flags.hasPrecision)
         precision= width;
-      char *pos, *end, buffer[1 + MAX(precision, 22)]; // 22 = ceil(log8(2^64))
-      end= buffer + sizeof(buffer);
-      pos= end - 1;
-      const char* chars= f.specifier == 'X' ? charsU : charsL;
-      long long radix= f.specifier == 'u' ? 10LL : (f.specifier == 'o' ? 8LL : 16LL);
-      while(v > 0) {
-        *(pos--)= chars[v % radix] ;
-        v /= radix ;}
       
-      if(precision != MSUShortMax) {
-        while(precision >= end - pos) {
-          *(pos--)= '0';}}
-      
-      if(f.flags.alternativeForm) {
-        if(f.specifier== 'o') {
-          *pos--= '0';}
-        else if(f.specifier== 'x') {
+      { long long radix;const char* chars;char *pos, *end, buffer[1 + MAX(precision, 22)]; // 22 = ceil(log8(2^64))
+        end= buffer + sizeof(buffer);
+        pos= end - 1;
+        chars= f.specifier == 'X' ? charsU : charsL;
+        radix= f.specifier == 'u' ? 10LL : (f.specifier == 'o' ? 8LL : 16LL);
+        while(v > 0) {
+          *(pos--)= chars[v % radix] ;
+          v /= radix ;}
+        
+        if(precision != MSUShortMax) {
+          while(precision >= end - pos) {
+            *(pos--)= '0';}}
+        
+        if(f.flags.alternativeForm) {
+          if(f.specifier== 'o') {
+            *pos--= '0';}
+          else if(f.specifier== 'x') {
+            *pos--= 'x';
+            *pos--= '0';}
+          else if(f.specifier== 'X') {
+            *pos--= 'X';
+            *pos--= '0';}
+        }
+        else if(f.specifier == 'p') {
           *pos--= 'x';
           *pos--= '0';}
-        else if(f.specifier== 'X') {
-          *pos--= 'X';
-          *pos--= '0';}
-      }
-      else if(f.specifier == 'p') {
-        *pos--= 'x';
-        *pos--= '0';}
-      
-      _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);
+        
+        _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);}
       break;
     }
     case 'f': case 'F':
@@ -528,14 +532,14 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
       // to see if it's really needed to distinct both in the code;
       // several benchmark shows a 50% overhead, which is quite a lot
       if(f.type == FormatTypeLDBL) {
-        long double value= argTypes[f.arg - 1].ldbl;
+        long double value= argTypes[f.arg - 1].u.ldbl;
         int n= snprintf(NULL, 0, fmt, value);
         char buffer[n + 1];
         snprintf(buffer, n + 1, fmt, value);
         _formatPrintUTF8(s, buffer, n, width, f.flags.leftJustify);
       }
       else {
-        double value= argTypes[f.arg - 1].dbl;
+        double value= argTypes[f.arg - 1].u.dbl;
         int n= snprintf(NULL, 0, fmt, value);
         char buffer[n + 1];
         snprintf(buffer, n + 1, fmt, value);
@@ -545,17 +549,17 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
     }
     case 'c': {
       unichar str[1];
-      *str = (unichar)argTypes[f.arg - 1].im;
+      *str = (unichar)argTypes[f.arg - 1].u.im;
       _formatPrintSES(s, MSMakeSESWithBytes(str, 1, NSUnicodeStringEncoding), 1, width, f.flags.leftJustify);
       break;
     }
     case 's': {
-      char *cstr= (char*)argTypes[f.arg - 1].um;
+      char *cstr= (char*)argTypes[f.arg - 1].u.um;
       _formatPrintUTF8(s, cstr, strlen(cstr), width, f.flags.leftJustify);
       break;
     }
     case '@': {
-      id obj= (id)argTypes[f.arg - 1].um;
+      id obj= (id)argTypes[f.arg - 1].u.um;
       const CString *str= DESCRIPTION(obj);
       if(str) {
         _formatPrintSES(s, CStringSES(str), CStringLength(str), width, f.flags.leftJustify); }
@@ -567,74 +571,76 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
   }
 }
 
-#define LOAD_ARG(argtype, var) argType->var= (__typeof__(argType->var))va_arg(ap, argtype)
+#define LOAD_ARG(argtype, var) argType->u.var= (__typeof__(argType->u.var))va_arg(ap, argtype)
 
 void CStringAppendFormatv(CString *self, const char *cfmt, va_list ap)
 {
   SES fmt= MSMakeSESWithBytes(cfmt, strlen(cfmt), NSUTF8StringEncoding);
   if(!SESOK(fmt)) return;
-  // arg informations/values
-  FormatArg argTypes[argsOnStack];
-  FormatArg *argType;
-  NSUInteger argLoadIdx= 0, argParseIdx= 0;
-  NSUInteger pos=0, positionalPassPos= 0, startPos;
-  BOOL positionalFormating= NO, firstPass= YES;
-  // tmp
-  FormatToken f; unichar u;
-  memset(argTypes, 0, sizeof(argTypes));
-  while(1) {
-    while (pos < SESLength(fmt)) {
-      startPos= pos;
-      u= SESIndexN(fmt, &pos);
-      if(u == (unichar)'%' && pos < SESLength(fmt)) {
-        f= _formatParse(fmt, &pos);
-        if(f.specifier == '%') {
-          if(!positionalPassPos) CStringAppendCharacter((CString*)self, '%'); }
-        else if(f.specifier > 0) {
-          if(firstPass && !positionalFormating && f.arg > 0) {
-            positionalFormating= YES;
-            positionalPassPos= startPos;}
-          if(!positionalFormating) {
-            if(f.widthArg == __nextArg) {
-              f.widthArg= ++argParseIdx;}
-            if(f.precisionArg == __nextArg) {
-              f.precisionArg= ++argParseIdx;}
-            f.arg= ++argParseIdx;}
-          if(f.widthArg) {
-            argTypes[f.widthArg - 1].type= FormatTypeS4; }
-          if(f.precisionArg) {
-            argTypes[f.precisionArg - 1].type= FormatTypeS4; }
-          argTypes[f.arg - 1].type= f.type;
-          while((argType= argTypes + argLoadIdx)->type) {
-            // Can't be move to a sub method due arch handling of va_arg
-            switch(argType->type) {
-              case FormatTypeUndefined: abort();
-              case FormatTypeS4:   LOAD_ARG(signed int, im); break;
-              case FormatTypeU4:   LOAD_ARG(unsigned int, um); break;
-              case FormatTypeSL:   LOAD_ARG(signed long, im); break;
-              case FormatTypeUL:   LOAD_ARG(unsigned long, um); break;
-              case FormatTypeS8:   LOAD_ARG(signed long long, im); break;
-              case FormatTypeU8:   LOAD_ARG(unsigned long long, um); break;
-              case FormatTypeSM:   LOAD_ARG(intmax_t, im); break;
-              case FormatTypeUM:   LOAD_ARG(uintmax_t, um); break;
-              case FormatTypeST:   LOAD_ARG(size_t, im); break;
-              case FormatTypeUD:   LOAD_ARG(ptrdiff_t, um); break;
-              case FormatTypePTR:  LOAD_ARG(void*, um); break;
-              case FormatTypeDBL:  LOAD_ARG(double, dbl); break;
-              case FormatTypeLDBL: LOAD_ARG(long double, ldbl); break;
-            }
-            argLoadIdx++;}
-          if(!positionalPassPos) {
-            _formatPrintArg(self, f, argTypes);}
+  else {
+    // arg informations/values
+    FormatArg argTypes[argsOnStack];
+    FormatArg *argType;
+    NSUInteger argLoadIdx= 0, argParseIdx= 0;
+    NSUInteger pos=0, positionalPassPos= 0, startPos;
+    BOOL positionalFormating= NO, firstPass= YES;
+    // tmp
+    FormatToken f; unichar u;
+    memset(argTypes, 0, sizeof(argTypes));
+    while(1) {
+      while (pos < SESLength(fmt)) {
+        startPos= pos;
+        u= SESIndexN(fmt, &pos);
+        if(u == (unichar)'%' && pos < SESLength(fmt)) {
+          f= _formatParse(fmt, &pos);
+          if(f.specifier == '%') {
+            if(!positionalPassPos) CStringAppendCharacter((CString*)self, '%'); }
+          else if(f.specifier > 0) {
+            if(firstPass && !positionalFormating && f.arg > 0) {
+              positionalFormating= YES;
+              positionalPassPos= startPos;}
+            if(!positionalFormating) {
+              if(f.widthArg == __nextArg) {
+                f.widthArg= ++argParseIdx;}
+              if(f.precisionArg == __nextArg) {
+                f.precisionArg= ++argParseIdx;}
+              f.arg= ++argParseIdx;}
+            if(f.widthArg) {
+              argTypes[f.widthArg - 1].type= FormatTypeS4; }
+            if(f.precisionArg) {
+              argTypes[f.precisionArg - 1].type= FormatTypeS4; }
+            argTypes[f.arg - 1].type= f.type;
+            while((argType= argTypes + argLoadIdx)->type) {
+              // Can't be move to a sub method due arch handling of va_arg
+              switch(argType->type) {
+                case FormatTypeUndefined: abort();
+                case FormatTypeS4:   LOAD_ARG(signed int, im); break;
+                case FormatTypeU4:   LOAD_ARG(unsigned int, um); break;
+                case FormatTypeSL:   LOAD_ARG(signed long, im); break;
+                case FormatTypeUL:   LOAD_ARG(unsigned long, um); break;
+                case FormatTypeS8:   LOAD_ARG(signed long long, im); break;
+                case FormatTypeU8:   LOAD_ARG(unsigned long long, um); break;
+                case FormatTypeSM:   LOAD_ARG(intmax_t, im); break;
+                case FormatTypeUM:   LOAD_ARG(uintmax_t, um); break;
+                case FormatTypeST:   LOAD_ARG(size_t, im); break;
+                case FormatTypeUD:   LOAD_ARG(ptrdiff_t, um); break;
+                case FormatTypePTR:  LOAD_ARG(void*, um); break;
+                case FormatTypeDBL:  LOAD_ARG(double, dbl); break;
+                case FormatTypeLDBL: LOAD_ARG(long double, ldbl); break;
+              }
+              argLoadIdx++;}
+            if(!positionalPassPos) {
+              _formatPrintArg(self, f, argTypes);}
+          }
         }
-      }
-      else if(!positionalPassPos) {
-        CStringAppendCharacter(self, u) ;}}
-    if(positionalPassPos) {
-      pos= positionalPassPos ;
-      positionalPassPos= 0;
-      firstPass= NO;}
-    else break;
+        else if(!positionalPassPos) {
+          CStringAppendCharacter(self, u) ;}}
+      if(positionalPassPos) {
+        pos= positionalPassPos ;
+        positionalPassPos= 0;
+        firstPass= NO;}
+      else break;
+    }
   }
 }
 

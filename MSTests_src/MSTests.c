@@ -62,17 +62,17 @@ static inline const char *_basename(const char *path)
 int imp_testAssert(int result, const char *assert, const char *file, int line, const char *msg, ...)
 {
     if(!result) {
+        va_list ap;int spaces;const char *name;
         mutex_lock(__context.mutex);
-        const char *name= __context.current ? __context.current->name : "NO CONTEXT";
+        name= __context.current ? __context.current->name : "NO CONTEXT";
         if(__context.current)
             ++__context.current->err;
         ++__context.err;
-        int spaces= (__context.level - 1) * 2;
+        spaces= (__context.level - 1) * 2;
         fprintf(stderr, "%-*sX %s\n", spaces, "", name);
         fprintf(stderr, "%-*sX  assertion: %s\n", spaces, "", assert);
         fprintf(stderr, "%-*sX         at: %s:%d\n", spaces, "", _basename(file), line);
         fprintf(stderr, "%-*sX     reason: ", spaces, "");
-        va_list ap;
         va_start (ap, msg);
         vfprintf(stderr, msg, ap);
         va_end(ap);
@@ -159,14 +159,14 @@ int bindFct(dl_handle_t handle, const char *name, void * imp)
 
 int testModule(const char * module, int argc, const char * argv[])
 {
-    int err;
+    int err= 0; dl_handle_t testLib;
     char path[strlen(__prefix) + strlen(module) + strlen(__suffix)];
     strcpy(path, __prefix);
     strcpy(path + strlen(__prefix), module);
     strcpy(path + strlen(__prefix) + strlen(module), __suffix);
     printf("Loading tests for %s (%s)\n", module, path);
     
-    dl_handle_t testLib = dlopen(path, RTLD_LAZY);
+    testLib = dlopen(path, RTLD_LAZY);
     if(!testLib) {
         printf("Unable to load lib %s\n", path);
         ++err;
@@ -180,7 +180,8 @@ int testModule(const char * module, int argc, const char * argv[])
             if((runTests= dlsym(testLib, "runTests"))) {
                 imp_testsStart(module);
                 if((dependencies= dlsym(testLib, "testDependencies"))) {
-                    for(const char **dependency= dependencies; *dependency; ++dependency) {
+                    const char **dependency;
+                    for(dependency= dependencies; *dependency; ++dependency) {
                         testModule(*dependency, argc, argv);
                     }
                 }
@@ -199,9 +200,9 @@ int testModule(const char * module, int argc, const char * argv[])
 }
 
 int test(int argc, const char * argv[]) {
-    int err= 0;
+    int err= 0, argi;
     mutex_init(__context.mutex);
-    for(int argi= 1; argi < argc; ++argi) {
+    for(argi= 1; argi < argc; ++argi) {
         err += testModule(argv[argi], argc, argv);
     }
     mutex_delete(__context.mutex);

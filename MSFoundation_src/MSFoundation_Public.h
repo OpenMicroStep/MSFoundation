@@ -52,6 +52,7 @@
 #import "MSCore_Public.h"
 
 #import "MSFoundationDefines.h"
+#import "MSFoundationPlatform.h"
 #import "MSFinishLoading.h"
 #import "MSCoderAdditions.h"
 #import "MSExceptionAdditions.h"
@@ -84,6 +85,6 @@
 
 #import "MSStringParsing.h"
 
-#define FMT(X,...) [MSString stringWithFormat:(X),##__VA_ARGS__]
+#define FMT(ARGS...) [MSString stringWithFormat: ARGS]
 
 #endif // MSFOUNDATION_PUBLIC_H

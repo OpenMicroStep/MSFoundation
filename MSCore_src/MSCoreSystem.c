@@ -237,7 +237,9 @@ static M_APM _MS_APM_Allocate(void)
 void _CDateInitialize();
 void _MSTEInitialize();
 
-#ifdef MSCORE_STANDALONE
+#if defined(WO451)
+// WO451 is so old that this is a non existing feature. So call MSFinishLoadingCore by yourself...
+#elif defined(MSCORE_STANDALONE)
 // This makes MSFinishLoadingCore beeing called when the MSCoreC lib is loaded (before "main call"/"dlopen returns")
 // Because it's the only point where MSCoreC lib use lib initialization, it's safe to use any part of MSCore in this
 __attribute__((constructor))

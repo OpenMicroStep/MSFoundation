@@ -49,10 +49,9 @@
 #ifndef MSCORE_DATE_H
 #define MSCORE_DATE_H
 
-typedef struct CDateStruct {
+struct CDateStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
-  MSTimeInterval interval;}
-CDate;
+  MSTimeInterval interval;};
 
 
 // Constants

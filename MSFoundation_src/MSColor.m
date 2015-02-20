@@ -509,13 +509,13 @@ MSColor *MSColorNamed(NSString *name)
 + (void)load {MSFinishLoadingAddClass(self);}
 + (void)finishLoading
 { 
-  struct _MSColorDefinition entry;
+  struct _MSColorDefinition entry; int i;
   _MSIndexedColor *c;
 
   if (self==[_MSIndexedColor class]) {
     NEW_POOL;
     [_MSIndexedColor setVersion:MS_INDEXEDCOLOR_LAST_VERSION];
-    for (int i= 0; i < COLOR_LIST_COUNT; ++i) {
+    for (i= 0; i < COLOR_LIST_COUNT; ++i) {
       entry= __colorTable[i];
       c= (_MSIndexedColor*)MSCreateObject([_MSIndexedColor class]);
       c->_rgba.r= (MSByte)((entry.value >> 24) & 0xff);
@@ -526,7 +526,7 @@ MSColor *MSColorNamed(NSString *name)
       c->_colorIndex= i;
       *entry.color= c;}
     __namedColors= (MSDictionary *)CCreateDictionary(COLOR_LIST_COUNT*2);
-    for (int i= 0; i < COLOR_LIST_COUNT; ++i) {
+    for (i= 0; i < COLOR_LIST_COUNT; ++i) {
       entry= __colorTable[i];
       [__namedColors setObject:*entry.color forKey:[entry.name lowercaseString]];
       [__namedColors setObject:*entry.color forKey:entry.name];}

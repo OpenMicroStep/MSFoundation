@@ -82,15 +82,16 @@ id CDecimalCopy(id self)
 const CString* CDecimalRetainedDescription(id self)
 {
   if (!self) return nil;
-  CDecimal *d= (CDecimal *)self;
-  int exp=   abs(d->m_apm_exponent - 1);
-  int expLg= exp==0 ? 1 : (int)(log(exp)+1.);
-  int rLg= d->m_apm_datalength+5+expLg+1; // 5 pour -.E± ou 0.0E+
-  char r[rLg];
-  m_apm_to_string(r,-1,d);
-  if ((int)strlen(r)+1>rLg) fprintf(stderr, "Error CCreateDecimalDescription"
-                                    " longueur attendue: %d réelle:%lu\n",rLg,strlen(r));
-  return CCreateStringWithBytes(NSASCIIStringEncoding, r, strlen(r));
+  else {
+    CDecimal *d= (CDecimal *)self;
+    int exp=   abs(d->m_apm_exponent - 1);
+    int expLg= exp==0 ? 1 : (int)(log(exp)+1.);
+    int rLg= d->m_apm_datalength+5+expLg+1; // 5 pour -.E± ou 0.0E+
+    char r[rLg];
+    m_apm_to_string(r,-1,d);
+    if ((int)strlen(r)+1>rLg) fprintf(stderr, "Error CCreateDecimalDescription"
+                                      " longueur attendue: %d réelle:%lu\n",rLg,strlen(r));
+    return CCreateStringWithBytes(NSASCIIStringEncoding, r, strlen(r));}
 }
 
 #pragma mark Equality
