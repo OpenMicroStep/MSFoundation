@@ -350,6 +350,8 @@ void CDictionarySetObjectForKey(CDictionary *self, id o, id k)
 
 #pragma mark Enumeration
 
+// We only provide the allocation concept due to the flexibility it provides
+// If there is any proven performances issues, we will reconsider this decision
 CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self)
 {
   CDictionaryEnumerator *de;

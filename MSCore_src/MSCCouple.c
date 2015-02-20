@@ -87,7 +87,7 @@ const CString* CCoupleRetainedDescription(id self)
   CString *s; const CCouple *a;
   if(!self) return nil;
   a= (CCouple *)self;
-  CCreateString(0);
+  s= CCreateString(0);
   CStringAppendFormat(s, "[%@, %@]", a->members[0], a->members[1]);
   return s;
 }
