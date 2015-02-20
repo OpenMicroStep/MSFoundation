@@ -1,26 +1,31 @@
 #include "MSFoundation_Private.h"
 
+typedef struct {
+  IMP imp;
+  Class cls;
+} MSFinishLoadingInfo;
+typedef void(*MSFinishLoadingClassMethod)(id self, SEL _cmd);
+
 static uint8_t __counter=    0;
 static uint8_t __nbWaitings= 0;
 
 static MSFinishLoadingMethod __beforeMethod= NULL;
 static MSFinishLoadingMethod __afterMethod=  NULL;
-static Class __addedClasses[UINT8_MAX];
+static MSFinishLoadingInfo __waitings[UINT8_MAX];
 
 static void _fireInits()
 {
-    Class cls;
+    MSFinishLoadingInfo info; uint8_t i;
     __counter= 0;
     if(__beforeMethod) {
         __beforeMethod();
         __beforeMethod= NULL;
     }
-    for(uint8_t i= 0; i < __nbWaitings; ++i) {
-        if((cls= __addedClasses[i])) {
-            if([cls respondsToSelector:@selector(finishLoading)])
-                [cls finishLoading];
-            __addedClasses[i]= NULL;
-        }
+    for(i= 0; i < __nbWaitings; ++i) {
+        info= __waitings[i];
+        if(info.cls) {
+          ((MSFinishLoadingClassMethod)info.imp)(info.cls, @selector(finishLoading));}
+        __waitings[i].cls= NULL;
     }
     if(__afterMethod) {
         __afterMethod();
@@ -44,11 +49,12 @@ void MSFinishLoadingConfigure(uint8_t nbWaitings, MSFinishLoadingMethod beforeFi
 void MSFinishLoadingAddClass(Class cls)
 {
 //printf("MSFinishLoadingAddClass %d %s\n",__counter,class_getName(cls));
+    IMP imp= method_getImplementation(class_getClassMethod(cls, @selector(finishLoading)));
     if(__counter == UINT8_MAX) {
         fprintf(stderr, "MSFinishLoadingAddClass counter reached the maximum: %d\n", UINT8_MAX);
         return;
     }
-    __addedClasses[__counter]= cls;
+    __waitings[__counter]= (MSFinishLoadingInfo){ imp, cls };
     if(++__counter == __nbWaitings) {
         _fireInits();
     }
