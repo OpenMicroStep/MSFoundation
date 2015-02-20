@@ -112,8 +112,8 @@
 # ifndef UINTPTR_MAX
 #   define UINTPTR_MAX 4294967295U
 # endif
-# define __sync_add_and_fetch(X,Y) (*(X))+=Y
-# define __sync_sub_and_fetch(X,Y) (*(X))-=Y
+# define __sync_add_and_fetch(X,Y) ({ (*(X))+=Y; *(X);})
+# define __sync_sub_and_fetch(X,Y) ({ (*(X))-=Y; *(X);})
 
 static inline float strtof(const char *string, char **endPtr)
 {

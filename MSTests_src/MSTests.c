@@ -11,8 +11,13 @@
 static const int __testPadding = 20;
 
 typedef int(*runtests_fct_t)(int, const char **);
+#ifndef WO451
 const char *__prefix = "../tests/lib";
 const char *__suffix = "Tests.dylib";
+#else
+const char *__prefix = "";
+const char *__suffix = "Tests.dll";
+#endif
 
 typedef struct _test_context_t {
     int err;

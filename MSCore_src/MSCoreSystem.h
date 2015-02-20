@@ -230,4 +230,8 @@ static inline MSUInt  MSFromOrder32(MSUInt X, MSByteOrder Y)
 static inline MSULong MSFromOrder64(MSULong X, MSByteOrder Y)
 { return (Y == MSBigEndian ? MSFromBig64(X) : MSFromLittle64(X)); }
 
+#ifdef WO451
+MSCoreExtern void MSFinishLoadingCore();
+#endif
+
 #endif // MS_CORE_SYSTEM_H

@@ -9,6 +9,9 @@
 #include "mscore_validate.h"
 
 TEST_FCT_BEGIN(MSCore)
+#ifdef WO451
+    MSFinishLoadingCore();
+#endif
     testRun("c", mscore_c_validate);
     testRun("tools", mscore_tools_validate);
     testRun("carray", mscore_carray_validate);
