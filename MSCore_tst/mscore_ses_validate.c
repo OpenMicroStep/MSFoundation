@@ -57,11 +57,12 @@ BOOL ses_extract_test2(unichar c)
 void ses_check(SES a, SES e, NSUInteger start, NSUInteger length, int line)
 {
   ASSERT(SESOK(e), ":%d must extract something",line);
-  ASSERT_EQUALS(e.start, start, ":%d start must matches %lu != %lu",line);
-  ASSERT_EQUALS(e.length, length, ":%d length must matches  %lu != %lu",line);
-  ASSERT_EQUALS(e.source, a.source, ":%d source must matches %p != %p",line);
-  ASSERT_EQUALS(e.encoding, a.encoding, ":%d encoding must matches %d != %d",line);
-  ASSERT_EQUALS(e.chai, a.chai, ":%d chai must matches %p != %p :%d",line);
+  if (SESOK(e)) {
+    ASSERT_EQUALS(e.start, start, ":%d start must matches %lu != %lu",line);
+    ASSERT_EQUALS(e.length, length, ":%d length must matches  %lu != %lu",line);
+    ASSERT_EQUALS(e.source, a.source, ":%d source must matches %p != %p",line);
+    ASSERT_EQUALS(e.encoding, a.encoding, ":%d encoding must matches %d != %d",line);
+    ASSERT_EQUALS(e.chai, a.chai, ":%d chai must matches %p != %p :%d",line);}
 }
 int ses_extract(void)
 {

@@ -110,7 +110,7 @@ static inline int ns_cast(void)
   int __n= snprintf(NULL, 0, FORMAT, ## __VA_ARGS__); \
   char __b[__n + 1]; \
   snprintf(__b, __n + 1, FORMAT, ## __VA_ARGS__); \
-  ASSERT(strcasecmp(EXPECT, __b) == 0, "expected: '%s', got: '%s'", EXPECT, __b); \
+  ASSERT(strcmp(EXPECT, __b) == 0, "expected: '%s', got: '%s'", EXPECT, __b); \
   ASSERT([@EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
   RELEASE(__f); })
 #else
@@ -119,7 +119,7 @@ static inline int ns_cast(void)
   int __n= snprintf(NULL, 0, FORMAT); \
   char __b[__n + 1]; \
   snprintf(__b, __n + 1, FORMAT); \
-  ASSERT(strcasecmp(EXPECT, __b) == 0, "expected: '%s', got: '%s'", EXPECT, __b); \
+  ASSERT(strcmp(EXPECT, __b) == 0, "expected: '%s', got: '%s'", EXPECT, __b); \
   ASSERT([@ ## EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
   RELEASE(__f); })
 #endif
@@ -158,11 +158,11 @@ static inline int ns_format(void)
   ASSERT_FORMAT("%hhu: max=255 mid=52",
                 "%%hhu: max=%hhu mid=%hhu", (unsigned char)255U, (unsigned char)52);
   ASSERT_FORMAT("%hu: max=65535 mid=12345",
-                "%%hu: max=%hu mid=%hu", (unsigned short)65535U, (unsigned short)12345);
+                "%%hu: max=%hu mid=%hu", (unsigned short)65535U, (unsigned short)12345U);
   ASSERT_FORMAT("%u: max=4294967295 mid=1234567890",
-                "%%u: max=%u mid=%u", (unsigned int)4294967295, (unsigned int)1234567890);
+                "%%u: max=%u mid=%u", (unsigned int)4294967295U, (unsigned int)1234567890U);
   ASSERT_FORMAT("%lu: max=4294967295 mid=1234567890",
-                "%%lu: max=%lu mid=%lu", (unsigned long)4294967295, (unsigned long)1234567890);
+                "%%lu: max=%lu mid=%lu", (unsigned long)4294967295UL, (unsigned long)1234567890UL);
   ASSERT_FORMAT("%llu: max=18446744073709551615 mid=123456789012345",
                 "%%llu: max=%llu mid=%llu", 18446744073709551615ULL, 123456789012345ULL);
   
@@ -170,11 +170,11 @@ static inline int ns_format(void)
   ASSERT_FORMAT("%hho: max=377 mid=64",
                 "%%hho: max=%hho mid=%hho", (unsigned char)255U, (unsigned char)52);
   ASSERT_FORMAT("%ho: max=177777 mid=30071",
-                "%%ho: max=%ho mid=%ho", (unsigned short)65535U, (unsigned short)12345);
+                "%%ho: max=%ho mid=%ho", (unsigned short)65535U, (unsigned short)12345U);
   ASSERT_FORMAT("%o: max=37777777777 mid=11145401322",
-                "%%o: max=%o mid=%o", (unsigned int)4294967295, (unsigned int)1234567890);
+                "%%o: max=%o mid=%o", (unsigned int)4294967295U, (unsigned int)1234567890U);
   ASSERT_FORMAT("%lo: max=37777777777 mid=11145401322",
-                "%%lo: max=%lo mid=%lo", (unsigned long)4294967295, (unsigned long)1234567890);
+                "%%lo: max=%lo mid=%lo", (unsigned long)4294967295UL, (unsigned long)1234567890UL);
   ASSERT_FORMAT("%llo: max=1777777777777777777777 mid=3404420603357571",
                 "%%llo: max=%llo mid=%llo", 18446744073709551615ULL, 123456789012345ULL);
   
@@ -182,11 +182,11 @@ static inline int ns_format(void)
   ASSERT_FORMAT("%hhx: max=ff mid=34",
                 "%%hhx: max=%hhx mid=%hhX", (unsigned char)255U, (unsigned char)52);
   ASSERT_FORMAT("%hx: max=ffff mid=3039",
-                "%%hx: max=%hx mid=%hX", (unsigned short)65535U, (unsigned short)12345);
+                "%%hx: max=%hx mid=%hX", (unsigned short)65535U, (unsigned short)12345U);
   ASSERT_FORMAT("%x: max=ffffffff mid=499602D2",
-                "%%x: max=%x mid=%X", (unsigned int)4294967295, (unsigned int)1234567890);
+                "%%x: max=%x mid=%X", (unsigned int)4294967295U, (unsigned int)1234567890U);
   ASSERT_FORMAT("%lx: max=ffffffff mid=499602D2",
-                "%%lx: max=%lx mid=%lX", (unsigned long)4294967295, (unsigned long)1234567890);
+                "%%lx: max=%lx mid=%lX", (unsigned long)4294967295UL, (unsigned long)1234567890UL);
   ASSERT_FORMAT("%llx: max=ffffffffffffffff mid=7048860DDF79",
                 "%%llx: max=%llx mid=%llX", 18446744073709551615ULL, 123456789012345ULL);
   
