@@ -1,5 +1,7 @@
 #import <objc/objc.h>
 
+#define MICROSTEP
+
 #ifdef FOUNDATION_PRIVATE_H
 #define FoundationExtern LIBEXPORT
 #else

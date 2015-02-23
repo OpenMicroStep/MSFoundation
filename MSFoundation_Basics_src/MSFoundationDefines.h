@@ -49,6 +49,8 @@
  standardized OBJC fast access functions
  */
 
+#define MSFOUNDATION
+
 #ifdef MSFOUNDATION_PRIVATE_H
 #define MSFoundationExport LIBEXPORT
 #else
