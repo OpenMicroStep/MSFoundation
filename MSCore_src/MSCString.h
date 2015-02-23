@@ -54,7 +54,7 @@ CString;
 
 
   MSCoreExtern void       CStringFreeInside(id self); // for MSArray dealloc
-//  MSCoreExtern id         CStringInitCopy(CString *self, const CString *copied);
+  MSCoreExtern id         CStringInitCopyWithMutability(CString *self, const CString *copied, BOOL isMutable);
 //Already defined in MSCObject.h
 //MSCoreExtern void       CStringFree(id self);
 //MSCoreExtern BOOL       CStringIsEqual(id self, id other);

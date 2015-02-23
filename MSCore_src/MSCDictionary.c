@@ -176,6 +176,15 @@ NSUInteger CDictionaryHash(id self, unsigned depth)
 */
 }
 
+id CDictionaryInitCopyWithMutability(CDictionary *self, const CDictionary *copied, BOOL isMutable)
+{
+  if (!self) return nil;
+  if (copied) {
+    self= (CDictionary*)CDictionaryInitCopy(self, copied, NO);}
+  if (!isMutable) CGrowSetForeverImmutable((id)self);
+  return (id)self;
+}
+
 id CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems)
 {
   CDictionaryEnumerator *de; id k,o;

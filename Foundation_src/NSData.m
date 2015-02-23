@@ -1,9 +1,5 @@
 #import "FoundationCompatibility_Private.h"
 
-@interface _MSSBuffer : MSBuffer
-// Immutable version of MSBuffer with some changes to follow NSData specs
-@end
-
 @interface _MSMBuffer : MSBuffer
 // Mutable version of MSBuffer with some changes to follow NSMutableData specs
 @end
@@ -23,7 +19,7 @@
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSData class]) self= [_MSSBuffer class];
+  if (self == [NSData class]) return [[MSBuffer class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 - (BOOL)isEqual:(id)object
@@ -46,10 +42,7 @@
 @implementation NSMutableData
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSMutableData class]) {
-    id o= [_MSMBuffer allocWithZone:zone];
-    CGrowSetForeverMutable(o);
-    return o;}
+  if (self == [NSMutableData class]) return [[_MSMBuffer class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 + (instancetype)dataWithCapacity:(NSUInteger)capacity
@@ -64,18 +57,21 @@
 
 @end
 
-@implementation _MSSBuffer
--(id)copyWithZone:(NSZone *)zone
-{ return [self retain]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableData) initWithData:self]; }
-@end
-
 @implementation _MSMBuffer
--(id)copyWithZone:(NSZone *)zone
-{ return [ALLOC(NSData) initWithData:self]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableData) initWithData:self]; }
++ (void)load {MSFinishLoadingAddClass(self);}
++ (void)finishLoading
+{
+  if (self==[_MSMBuffer class]) {
+    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));
+    FoundationCompatibilityExtendClass('-', self, @selector(initWithLength:), self, @selector(mutableInitWithLength:));}
+}
++ (instancetype)allocWithZone:(NSZone *)zone
+{
+  id o= [super allocWithZone:zone];
+  CGrowSetForeverMutable(o);
+  return o;
+}
+- (Class)_classForCopy {return [MSBuffer class];}
 
 - (Class)superclass
 { 
@@ -86,16 +82,4 @@
   return (aClass == [NSMutableData class]) || [super isKindOfClass:aClass];
 }
 
-- (instancetype)initWithCapacity:(NSUInteger)capacity{
-  if((self= [self init])) {
-    CGrowGrow(self, capacity);
-  }
-  return self;
-}
-- (instancetype)initWithLength:(NSUInteger)length{
-  if((self= [self init])) {
-    [self increaseLengthBy:length];
-  }
-  return self;
-}
 @end

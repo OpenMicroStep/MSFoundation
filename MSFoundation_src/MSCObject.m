@@ -55,7 +55,7 @@ void MSFinishLoadingCore();
 #ifdef MSFOUNDATION_FORCOCOA
 #define LOAD_COUNT 14
 #else
-#define LOAD_COUNT 19
+#define LOAD_COUNT 23
 #endif
 + (void)load {MSFinishLoadingConfigure(LOAD_COUNT, MSFinishLoadingCore, NULL);}
 

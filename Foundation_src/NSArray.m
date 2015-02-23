@@ -1,9 +1,5 @@
 #import "FoundationCompatibility_Private.h"
 
-@interface _MSSArray : MSArray
-// Immutable version of MSArray with some changes to follow NSArray specs
-@end
-
 @interface _MSMArray : MSArray
 // Mutable version of MSArray with some changes to follow NSMutableArray specs
 @end
@@ -20,7 +16,7 @@
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSArray class]) self= [MSArray class];
+  if (self == [NSArray class]) return [[MSArray class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 -(id)copyWithZone:(NSZone *)zone
@@ -41,10 +37,7 @@
 @implementation NSMutableArray
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSMutableArray class]) {
-    id o= [_MSMArray allocWithZone:zone];
-    CGrowSetForeverMutable(o);
-    return o;}
+  if (self == [NSMutableArray class]) return [[_MSMArray class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 + (instancetype)dictionaryWithCapacity:(NSUInteger)capacity
@@ -65,18 +58,20 @@
 { [self notImplemented:_cmd]; }
 @end
 
-@implementation _MSSArray
--(id)copyWithZone:(NSZone *)zone
-{ return [self retain]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableArray) initWithArray:self]; }
-@end
-
 @implementation _MSMArray
--(id)copyWithZone:(NSZone *)zone
-{ return [ALLOC(NSArray) initWithArray:self]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableArray) initWithArray:self]; }
++ (void)load {MSFinishLoadingAddClass(self);}
++ (void)finishLoading
+{
+  if (self==[_MSMArray class]) {
+    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}
+}
++ (instancetype)allocWithZone:(NSZone *)zone
+{
+  id o= [super allocWithZone:zone];
+  CGrowSetForeverMutable(o);
+  return o;
+}
+- (Class)_classForCopy {return [MSArray class];}
 
 - (Class)superclass
 { 
@@ -87,10 +82,9 @@
   return (aClass == [NSMutableArray class]) || [super isKindOfClass:aClass];
 }
 
-- (instancetype)initWithCapacity:(NSUInteger)capacity{
-  if((self= [self init])) {
-    CArrayGrow((CArray*)self, capacity);
+- (id)initWithCapacity:(NSUInteger)capacity
+  {
+  return [self mutableInitWithCapacity:capacity noRetainRelease:NO nilItems:NO];
   }
-  return self;
-}
+
 @end

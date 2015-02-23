@@ -235,18 +235,11 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 
 - (NSString*)description   {return [(id)CDictionaryRetainedDescription(self) autorelease];}
 
-- (id)copyWithZone:(NSZone*)z // La copie n'est pas mutable TODO: à revoir ?
-  {
-  CDictionary *d= (CDictionary*)MSAllocateObject([MSDictionary class], 0, z);
-  CDictionaryInitCopy(d, (CDictionary*)self, NO);
-  FIXE(d);
-  return (id)d;
-  }
+- (id)copyWithZone:(NSZone*)z
+{return MSGrowCopyWithZone(z,self, NO,(MSGrowInitCopyMethod)CDictionaryInitCopyWithMutability);}
 - (id)mutableCopyWithZone:(NSZone*)z
-  {
-  CDictionary *d= (CDictionary*)MSAllocateObject([MSDictionary class], 0, z);
-  return CDictionaryInitCopy(d, (CDictionary*)self, NO);
-  }
+{return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CDictionaryInitCopyWithMutability);}
+
 /*
 - (BOOL)isEqualToDictionary:(NSDictionary*)otherDict
   {

@@ -23,7 +23,7 @@ static inline int cdictionary_create(void)
   k= [[MSBuffer alloc] initWithBytes:"key1" length:4];
   o= [[MSBuffer alloc] initWithBytes:"obj1" length:4];
   [c setObject:o forKey:k];
-  if (RETAINCOUNT(k)!=1) {
+  if (RETAINCOUNT(k)!=2) { // k copied but immutable => retained
     fprintf(stdout, "A10 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
   if (RETAINCOUNT(o)!=2) {
     fprintf(stdout, "A11 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
@@ -32,12 +32,12 @@ static inline int cdictionary_create(void)
   d= [[MSDictionary alloc] initWithObjects:&k forKeys:&k count:1];
   if (RETAINCOUNT(d)!=1) {
     fprintf(stdout, "A12 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (RETAINCOUNT(k)!=2) {
+  if (RETAINCOUNT(k)!=4) {
     fprintf(stdout, "A13 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
   if ([c isEqual:d]) {
     fprintf(stdout, "A14 c & d are equals\n"); err++;}
   m= [d mutableCopy]; RELEASE(d); [m setObject:o forKey:k]; d= [m copy]; RELEASE(m);
-  if (RETAINCOUNT(k)!=1) {
+  if (RETAINCOUNT(k)!=3) {
     fprintf(stdout, "A15 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
   if (RETAINCOUNT(o)!=3) {
     fprintf(stdout, "A16 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}

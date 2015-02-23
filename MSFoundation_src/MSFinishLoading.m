@@ -53,3 +53,16 @@ void MSFinishLoadingAddClass(Class cls)
         _fireInits();
     }
 }
+
+@implementation NSObject (MSCopying)
+- (Class)_classForCopy {return [self class];}
+@end
+
+id MSGrowCopyWithZone(NSZone *z, id objToCopy, BOOL toMutable, MSGrowInitCopyMethod init)
+  {
+  Class cl; id o;
+  if (!toMutable && CGrowIsForeverImmutable(objToCopy)) return RETAIN(objToCopy);
+  cl= !toMutable ? [objToCopy _classForCopy] : [objToCopy class];
+  o= MSAllocateObject(cl, 0, z);
+  return init(o, objToCopy, toMutable);
+  }

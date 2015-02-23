@@ -82,6 +82,17 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 - (id)init          {return _buffer(nil ,self,  NO);}
 - (id)mutableInit   {return _buffer(nil ,self, YES);}
 
+- (id)mutableInitWithCapacity:(NSUInteger)capacity
+  {
+  CGrowGrow(self, capacity);
+  return self;
+  }
+- (id)mutableInitWithLength:(NSUInteger)length
+  {
+  [self increaseLengthBy:length];
+  return self;
+  }
+
 + (id)dataWithData:(NSData *)data              {return _bufferWithBuffer(self, nil,  NO, data);}
 + (id)bufferWithData:(NSData *)data            {return _bufferWithBuffer(self, nil,  NO, data);}
 + (id)bufferWithBuffer:(MSBuffer *)data        {return _bufferWithBuffer(self, nil,  NO, data);}
@@ -129,15 +140,9 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 #pragma mark Copying
 
 - (id)copyWithZone:(NSZone*)z
-  {
-  CBuffer *a= (CBuffer*)MSAllocateObject([self class], 0, z);
-  return CBufferInitCopyWithMutability(a, (CBuffer*)self, NO);
-  }
+{return MSGrowCopyWithZone(z,self, NO,(MSGrowInitCopyMethod)CBufferInitCopyWithMutability);}
 - (id)mutableCopyWithZone:(NSZone*)z
-  {
-  CBuffer *a= (CBuffer*)MSAllocateObject([self class], 0, z);
-  return CBufferInitCopyWithMutability(a, (CBuffer*)self, YES);
-  }
+{return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CBufferInitCopyWithMutability);}
 
 #pragma mark Primitives
 

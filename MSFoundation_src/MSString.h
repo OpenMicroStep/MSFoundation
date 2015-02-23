@@ -120,6 +120,7 @@ MSFoundationExport NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 #pragma mark Mutable creation
 
 - (instancetype)mutableInit;
+- (instancetype)mutableInitWithCapacity:(NSUInteger)capacity;
 - (instancetype)mutableInitWithCharacters:(const unichar *)characters length:(NSUInteger)length;
 - (instancetype)mutableInitWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)freeBuffer;
 - (instancetype)mutableInitWithUTF8String:(const char *)nullTerminatedCString;

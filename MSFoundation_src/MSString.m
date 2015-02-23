@@ -656,6 +656,12 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 + (instancetype)mutableString {return _string(self, nil, YES);}
 - (instancetype)mutableInit   {return _string(nil ,self, YES);}
 
+- (id)mutableInitWithCapacity:(NSUInteger)capacity
+  {
+  CGrowGrow(self, capacity);
+  return self;
+  }
+
 + (instancetype)stringWithCharacters:(const unichar *)characters length:(NSUInteger)length
 { return _stringWithBytes(nil ,self, NO, NSUnicodeStringEncoding, characters,length);}
 - (instancetype)initWithCharacters:(const unichar *)characters length:(NSUInteger)length
@@ -837,14 +843,10 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 
 #pragma mark Copying
 
-- (id)copyWithZone:(NSZone *)zone
-{
-  return [[MSString allocWithZone:zone] initWithString:self];
-}
-- (id)mutableCopyWithZone:(NSZone *)zone
-{ 
-  return [[MSString allocWithZone:zone] mutableInitWithString:self];
-}
+- (id)copyWithZone:(NSZone*)z
+{return MSGrowCopyWithZone(z,self, NO,(MSGrowInitCopyMethod)CStringInitCopyWithMutability);}
+- (id)mutableCopyWithZone:(NSZone*)z
+{return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CStringInitCopyWithMutability);}
 
 - (BOOL)isEqualToString:(NSString*)s
   {

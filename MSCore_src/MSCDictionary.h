@@ -92,6 +92,7 @@ MSCoreExtern CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
 // Attention Dnas le Core le COPY copie la mutability et pas dans le .m: pas cohérent. Réécrire un COPY avec un arg ?)
   MSCoreExtern id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems);
+  MSCoreExtern id         CDictionaryInitCopyWithMutability(CDictionary *self, const CDictionary *copied, BOOL isMutable);
 //Already defined in MSCObject.h
 //MSCoreExtern void       CDictionaryFree(id self);
 //MSCoreExtern BOOL       CDictionaryIsEqual(id self, id other);

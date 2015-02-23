@@ -190,27 +190,13 @@ static inline id _arrayA(Class cl, id a, BOOL m, id aa, BOOL copy)
 
 - (id)mutableInitWithCapacity:(NSUInteger)capacity
   {
-  return [self mutableInitWithCapacity:capacity  noRetainRelease:NO nilItems:NO];
+  return [self mutableInitWithCapacity:capacity noRetainRelease:NO nilItems:NO];
   }
 - (id)mutableInitWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems
   {
   CArrayGrow((CArray*)self, capacity);
   self->_flags.noRetainRelease= noRR    ?1:0;
   self->_flags.nilItems=        nilItems?1:0;
-  return self;
-  }
-
-// TODO: to be removed
-- (id)initWithCapacity:(NSUInteger)capacity
-  {
-  return [self initWithCapacity:capacity  noRetainRelease:NO nilItems:NO];
-  }
-- (id)initWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems
-  {
-  CArrayGrow((CArray*)self, capacity);
-  self->_flags.noRetainRelease= noRR    ?1:0;
-  self->_flags.nilItems=        nilItems?1:0;
-  FIXE(self);
   return self;
   }
 
@@ -240,22 +226,15 @@ static inline id _arrayA(Class cl, id a, BOOL m, id aa, BOOL copy)
 
 - (NSUInteger)hash:(unsigned)depth {return CArrayHash(self, depth);}
 
-// La copie ne préserve pas la mutablility TODO: à revoir ?
 - (id)copyWithZone:(NSZone*)z
-  {
-  CArray *a= (CArray*)MSAllocateObject([self class], 0, z);
-  return CArrayInitCopyWithMutability(a, (CArray*)self, NO);
-  }
+{return MSGrowCopyWithZone(z,self, NO,(MSGrowInitCopyMethod)CArrayInitCopyWithMutability);}
 - (id)mutableCopyWithZone:(NSZone*)z
-  {
-  CArray *a= (CArray*)MSAllocateObject([self class], 0, z);
-  return CArrayInitCopyWithMutability(a, (CArray*)self, YES);
-  }
+{return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CArrayInitCopyWithMutability);}
 
 - (BOOL)isTrue
   {
   if (_count) {
-    register NSUInteger i;
+    NSUInteger i;
     for (i = 0; i < _count; i++) { if (![_pointers[i] isTrue]) return NO; }
     return YES;}
   return NO;

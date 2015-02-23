@@ -117,10 +117,6 @@
 - (id)mutableInitWithCapacity:(NSUInteger)capacity;
 - (id)mutableInitWithCapacity:(NSUInteger)cap noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
 
-// TODO: to be removed
-- (id)initWithCapacity:(NSUInteger)capacity;
-- (id)initWithCapacity:(NSUInteger)cap noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems;
-
 #pragma mark Standard methods
 
 - (BOOL)isMutable;

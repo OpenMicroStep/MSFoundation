@@ -1,9 +1,5 @@
 #import "FoundationCompatibility_Private.h"
 
-@interface _MSSString : MSString
-// Immutable version of MSString with some changes to follow NSString specs
-@end
-
 @interface _MSMString : MSString
 // Mutable version of MSString with some changes to follow NSMutableString specs
 @end
@@ -28,7 +24,7 @@
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if (self == [NSString class]) self= [MSString class];
+  if (self == [NSString class]) return [[MSString class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 
@@ -53,28 +49,27 @@
 @implementation NSMutableString
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSMutableString class]) {
-    id o= [_MSMString allocWithZone:zone];
-    CGrowSetForeverMutable(o);
-    return o;}
+  if (self == [NSMutableString class]) return [[_MSMString class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 + (instancetype)stringWithCapacity:(NSUInteger)capacity
 { return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]); }
 @end
 
-@implementation _MSSString
--(id)copyWithZone:(NSZone *)zone
-{ return [self retain]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableString) initWithString:self]; }
-@end
-
 @implementation _MSMString
--(id)copyWithZone:(NSZone *)zone
-{ return [ALLOC(NSString) initWithString:self]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableString) initWithString:self]; }
++ (void)load {MSFinishLoadingAddClass(self);}
++ (void)finishLoading
+{
+  if (self==[_MSMString class]) {
+    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}
+}
++ (instancetype)allocWithZone:(NSZone *)zone
+{
+  id o= [super allocWithZone:zone];
+  CGrowSetForeverMutable(o);
+  return o;
+}
+- (Class)_classForCopy {return [MSString class];}
 
 - (Class)superclass
 { 
@@ -85,10 +80,8 @@
   return (aClass == [NSMutableString class]) || [super isKindOfClass:aClass];
 }
 
-- (instancetype)initWithCapacity:(NSUInteger)capacity{
-  if((self= [self init])) {
-    CGrowGrow(self, capacity);
-  }
-  return self;
+- (instancetype)initWithCapacity:(NSUInteger)capacity
+{
+  return [super mutableInitWithCapacity:capacity];
 }
 @end

@@ -88,6 +88,9 @@ Herve Malaingre : herve@malaingre.com
 + (id)mutableBufferWithBytes:(const void *)bytes length:(NSUInteger)length;
 + (id)mutableBufferWithCString:(char *)cString;
 
+- (id)mutableInitWithCapacity:(NSUInteger)capacity;
+- (id)mutableInitWithLength:(NSUInteger)length;
+
 - (id)mutableInitWithData:(NSData *)data;
 - (id)mutableInitWithBuffer:(MSBuffer *)data;
 - (id)mutableInitWithContentsOfFile:(NSString *)path;

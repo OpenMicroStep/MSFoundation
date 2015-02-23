@@ -67,13 +67,21 @@ NSUInteger CStringHash(id self, unsigned depth)
   return SESHash(CStringSES((const CString *)self));
 }
 
+id CStringInitCopyWithMutability(CString *self, const CString *copied, BOOL isMutable)
+{
+  if (!self) return nil;
+  if (copied) {
+    CStringAppendString(self, copied);}
+  if (!isMutable) CGrowSetForeverImmutable((id)self);
+  return (id)self;
+}
+
 id CStringCopy(id self)
 {
-  CString *s= nil;
-  if (self) {
-    s= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
-    CStringAppendString(s, (const CString*)self);}
-  return (id)s;
+  CString *s;
+  if (!self) return nil;
+  s= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
+  return CStringInitCopyWithMutability(s, self, !CGrowIsForeverImmutable(self));
 }
 
 const CString* CStringRetainedDescription(id self)

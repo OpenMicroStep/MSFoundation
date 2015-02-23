@@ -70,8 +70,8 @@ id CBufferInitCopyWithMutability(CBuffer *self, const CBuffer *copied, BOOL isMu
 {
   if (!self) return nil;
   if (copied) {
-    CBufferAppendBuffer(self, copied);
-    if(!isMutable) CGrowSetForeverImmutable((id)self);}
+    CBufferAppendBuffer(self, copied);}
+  if (!isMutable) CGrowSetForeverImmutable((id)self);
   return (id)self;
 }
 id CBufferCopy(id self)

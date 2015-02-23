@@ -135,8 +135,8 @@ id CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutab
     self->flag.nilItems=        copied->flag.nilItems;
     // Pas de copy des items
     // Pas de nilItems verif puisque copied est cohérent
-    _insert(self, copied->pointers, self->count, copied->count, NO, NO, "CArrayInitCopy");
-    if (!isMutable) CGrowSetForeverImmutable((id)self);}
+    _insert(self, copied->pointers, self->count, copied->count, NO, NO, "CArrayInitCopy");}
+  if (!isMutable) CGrowSetForeverImmutable((id)self);
   return (id)self;
 }
 id CArrayCopy(id self)

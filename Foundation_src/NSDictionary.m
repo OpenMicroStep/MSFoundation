@@ -1,9 +1,5 @@
 #import "FoundationCompatibility_Private.h"
 
-@interface _MSSDictionary : MSDictionary
-// Immutable version of MSDictionary with some changes to follow NSDictionary specs
-@end
-
 @interface _MSMDictionary : MSDictionary
 // Mutable version of MSDictionary with some changes to follow NSMutableDictionary specs
 @end
@@ -23,7 +19,7 @@
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if (self == [NSDictionary class]) self= [MSDictionary class];
+  if (self == [NSDictionary class]) return [[MSDictionary class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 -(id)copyWithZone:(NSZone *)zone
@@ -46,10 +42,7 @@
 @implementation NSMutableDictionary
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if(self == [NSMutableDictionary class]) {
-    id o= [_MSMDictionary allocWithZone:zone];
-    CGrowSetForeverMutable(o);
-    return o;}
+  if (self == [NSMutableDictionary class]) return [[_MSMDictionary class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
 + (instancetype)dictionaryWithCapacity:(NSUInteger)capacity
@@ -64,18 +57,20 @@
 { [self notImplemented:_cmd]; }
 @end
 
-@implementation _MSSDictionary
--(id)copyWithZone:(NSZone *)zone
-{ return [self retain]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableDictionary) initWithDictionary:self]; }
-@end
-
 @implementation _MSMDictionary
--(id)copyWithZone:(NSZone *)zone
-{ return [ALLOC(NSDictionary) initWithDictionary:self]; }
--(id)mutableCopyWithZone:(NSZone *)zone
-{ return [ALLOC(NSMutableDictionary) initWithDictionary:self]; }
++ (void)load {MSFinishLoadingAddClass(self);}
++ (void)finishLoading
+{
+  if (self==[_MSMDictionary class]) {
+    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}
+}
++ (instancetype)allocWithZone:(NSZone *)zone
+{
+  id o= [super allocWithZone:zone];
+  CGrowSetForeverMutable(o);
+  return o;
+}
+- (Class)_classForCopy {return [MSDictionary class];}
 
 - (Class)superclass
 { 
@@ -86,10 +81,4 @@
   return (aClass == [NSMutableDictionary class]) || [super isKindOfClass:aClass];
 }
 
-- (instancetype)initWithCapacity:(NSUInteger)capacity{
-  if((self= [self init])) {
-    CDictionaryGrow((CDictionary*)self, capacity);
-  }
-  return self;
-}
 @end

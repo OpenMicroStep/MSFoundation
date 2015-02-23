@@ -18,7 +18,8 @@ static int array_create(void)
   ASSERT([a isKindOfClass:[NSMutableArray class]], "NSMutableArray is king of itself");
   ASSERT_EQUALS([x retainCount], 1, "x retain count should be %2$d, got %1$d");
   for (i=0; i<n; i++) {
-    b= [[NSMutableArray alloc] initWithCapacity:i+1];
+    b= [NSMutableArray alloc];
+    b= [b initWithCapacity:i+1];
     for (j=0; j<i+1; j++) [b addObject:x];
     [a addObject:b];
     RELEASE(b);}
