@@ -52,9 +52,9 @@
 #define MSFOUNDATION
 
 #ifdef MSFOUNDATION_PRIVATE_H
-#define MSFoundationExport LIBEXPORT
+#define MSFoundationExtern LIBEXPORT
 #else
-#define MSFoundationExport LIBIMPORT
+#define MSFoundationExtern LIBIMPORT
 #endif
 
 #if defined(WO451)

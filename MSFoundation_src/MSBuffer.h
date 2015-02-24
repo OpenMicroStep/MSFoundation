@@ -141,19 +141,19 @@ Herve Malaingre : herve@malaingre.com
 
 #define MSCreateBuffer(C) (MSBuffer*)CCreateBuffer(C)
 //The following method is obsolete. Use: CCreateBufferWithBytes[NoCopy[NoFree]]
-//MSFoundationExport MSBuffer *MSCreateBufferWithBytes(void *bytes, NSUInteger length, BOOL takesACopy, BOOL freeWhenDone); // returns a retained object
+//MSFoundationExtern MSBuffer *MSCreateBufferWithBytes(void *bytes, NSUInteger length, BOOL takesACopy, BOOL freeWhenDone); // returns a retained object
 #define MSCreateBufferWithBytes(            C,L) (MSBuffer*)CCreateBufferWithBytes            ((C),(L))
 #define MSCreateBufferWithBytesNoCopy(      C,L) (MSBuffer*)CCreateBufferWithBytesNoCopy      ((C),(L))
 #define MSCreateBufferWithBytesNoCopyNoFree(C,L) (MSBuffer*)CCreateBufferWithBytesNoCopyNoFree((C),(L))
 
 //The following methods are obsolete Use: CBufferBase64[En|De]codeAndAppendBytes(b, bytes, length)
-//MSFoundationExport MSBuffer *MSBase64FromBytes(const void *bytes, NSUInteger length, BOOL encodeWithNewLines);
-//MSFoundationExport MSBuffer *MSBufferFromBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);
-//MSFoundationExport MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length);
+//MSFoundationExtern MSBuffer *MSBase64FromBytes(const void *bytes, NSUInteger length, BOOL encodeWithNewLines);
+//MSFoundationExtern MSBuffer *MSBufferFromBase64(const void *bytes, NSUInteger length, BOOL encodedWithNewLines);
+//MSFoundationExtern MSBuffer *MSCreateBufferEncodeBytesBase64(const void *bytes, NSUInteger length);
 
 // TODO: A mettre dans CBuffer
-MSFoundationExport MSBuffer *MSURLComponentFromBytes(void *bytes, NSUInteger length); // also converts special characters $-_.+!*'(),
-MSFoundationExport MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length); // doesn't convert special characters $-_.+!*'(),
+MSFoundationExtern MSBuffer *MSURLComponentFromBytes(void *bytes, NSUInteger length); // also converts special characters $-_.+!*'(),
+MSFoundationExtern MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length); // doesn't convert special characters $-_.+!*'(),
 
 @interface NSData (MSBufferAdditions)
 /*

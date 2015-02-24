@@ -4,10 +4,10 @@
 #define NS_FORMAT_FUNCTION(X,Y)
 #define NSLocaleDecimalSeparator NSDecimalSeparator
 
-MSFoundationExport IMP method_getImplementation(Method m);
-MSFoundationExport NSString *MSFindDLL(NSString *dllName) ;
-MSFoundationExport HINSTANCE MSLoadDLL(NSString *dllName) ;
-MSFoundationExport NSUInteger MSOperatingSystem(void) ;
+MSFoundationExtern IMP method_getImplementation(Method m);
+MSFoundationExtern NSString *MSFindDLL(NSString *dllName) ;
+MSFoundationExtern HINSTANCE MSLoadDLL(NSString *dllName) ;
+MSFoundationExtern NSUInteger MSOperatingSystem(void) ;
 
 enum {
   NSUnknownOperatingSystem=               0,

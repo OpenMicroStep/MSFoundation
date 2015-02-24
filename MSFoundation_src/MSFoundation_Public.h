@@ -60,7 +60,6 @@
 #import "MSObjectAdditions.h"
 
 #import "MSBool.h"
-#import "MSCharsets_Private.h"
 #import "MSASCIIString.h"
 #import "MSMutex.h"
 #import "MSCNaturalArray.h"

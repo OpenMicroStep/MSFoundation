@@ -46,7 +46,7 @@ Herve Malaingre : herve@malaingre.com
 + (void)raise:(NSString *)name from:(id)object in:(SEL)selector format:(NSString *)format, ...;
 @end
 
-MSFoundationExport void MSRaise(NSString *name, NSString *format, ...);
-MSFoundationExport void MSRaiseV(NSString *name, NSString *format, va_list argList);
-MSFoundationExport void MSRaiseFrom(NSString *name, id object, SEL selector, NSString *format, ...);
-MSFoundationExport void MSRaiseFromV(NSString *name, id object, SEL selector, NSString *format, va_list argList);
+MSFoundationExtern void MSRaise(NSString *name, NSString *format, ...);
+MSFoundationExtern void MSRaiseV(NSString *name, NSString *format, va_list argList);
+MSFoundationExtern void MSRaiseFrom(NSString *name, id object, SEL selector, NSString *format, ...);
+MSFoundationExtern void MSRaiseFromV(NSString *name, id object, SEL selector, NSString *format, va_list argList);

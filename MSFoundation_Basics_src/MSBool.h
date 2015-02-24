@@ -49,8 +49,8 @@ Herve Malaingre : herve@malaingre.com
 + (id)falseNumber ;
 @end
 
-MSFoundationExport MSBool *MSTrue ;
-MSFoundationExport MSBool *MSFalse ;
+MSFoundationExtern MSBool *MSTrue ;
+MSFoundationExtern MSBool *MSFalse ;
 
 #define MSCond(X)	((X) ? MSTrue : MSFalse)
 #ifdef ISTRUE

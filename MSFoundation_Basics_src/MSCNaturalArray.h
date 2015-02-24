@@ -228,7 +228,7 @@ static inline BOOL CInsertNaturalAtIndex(CNaturalArray *self, NSUInteger aNatura
     return YES ;
 }
 
-MSFoundationExport NSUInteger CSortedArrayIndexOfNatural(CNaturalArray *self, NSUInteger aNatural, NSUInteger start, NSUInteger nb, BOOL exact) ;
+MSFoundationExtern NSUInteger CSortedArrayIndexOfNatural(CNaturalArray *self, NSUInteger aNatural, NSUInteger start, NSUInteger nb, BOOL exact) ;
 
 static inline BOOL CSortedArrayAddNatural(CNaturalArray *self, NSUInteger aNatural)
 {
@@ -238,8 +238,8 @@ static inline BOOL CSortedArrayAddNatural(CNaturalArray *self, NSUInteger aNatur
     return CInsertNaturalAtIndex(self, aNatural, n) ; 
 }
 
-MSFoundationExport NSString *CNaturalArrayToString(CNaturalArray *self) ;
-MSFoundationExport NSString *CNaturalArrayJsonRepresentation(CNaturalArray *self) ;
+MSFoundationExtern NSString *CNaturalArrayToString(CNaturalArray *self) ;
+MSFoundationExtern NSString *CNaturalArrayJsonRepresentation(CNaturalArray *self) ;
 
 #define MSNAdd(X, Y)			CAddNatural((CNaturalArray *)(X), (Y))
 #define MSNIndex(X, Y)			((CNaturalArray *)(X))->pointers[(Y)]

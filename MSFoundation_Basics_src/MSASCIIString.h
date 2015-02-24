@@ -140,7 +140,7 @@ _MSASCIIStringFlags ;
 
 @end
 
-MSFoundationExport MSASCIIString *MSCreateASCIIString(NSUInteger capacity) ; // returns a retained object
-MSFoundationExport MSASCIIString *MSCreateASCIIStringWithBytes(void *bytes, NSUInteger length, BOOL takesACopy, BOOL freeWhenDone) ; // returns a retained object
+MSFoundationExtern MSASCIIString *MSCreateASCIIString(NSUInteger capacity) ; // returns a retained object
+MSFoundationExtern MSASCIIString *MSCreateASCIIStringWithBytes(void *bytes, NSUInteger length, BOOL takesACopy, BOOL freeWhenDone) ; // returns a retained object
 
-MSFoundationExport NSString *MSBytesToHexaString(const void *_buf, NSUInteger _length, BOOL plistEncoded);
+MSFoundationExtern NSString *MSBytesToHexaString(const void *_buf, NSUInteger _length, BOOL plistEncoded);

@@ -43,6 +43,7 @@
 
 #import "MSFoundation_Public.h"
 
+#import "MSCharsets_Private.h"
 #import "MSNaturalArrayEnumerator_Private.h"
 
 #endif // MSFOUNDATION_PRIVATE_H

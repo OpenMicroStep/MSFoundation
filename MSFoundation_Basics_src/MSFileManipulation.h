@@ -4,46 +4,46 @@ typedef enum {
     MSFileOperationFail = 1
 } MSFileOperationStatus ;
 
-MSFoundationExport BOOL MSFileExistsAtPath(NSString *path, BOOL *isDirectory) ;
-MSFoundationExport BOOL MSIsValidFile(NSString *path) ;
-MSFoundationExport BOOL MSIsValidDirectory(NSString *path) ;
-MSFoundationExport BOOL MSGetFileSize(NSString *path, MSLong *size) ;
+MSFoundationExtern BOOL MSFileExistsAtPath(NSString *path, BOOL *isDirectory) ;
+MSFoundationExtern BOOL MSIsValidFile(NSString *path) ;
+MSFoundationExtern BOOL MSIsValidDirectory(NSString *path) ;
+MSFoundationExtern BOOL MSGetFileSize(NSString *path, MSLong *size) ;
 
-MSFoundationExport NSString *MSPathForCommand(NSString *command) ;
+MSFoundationExtern NSString *MSPathForCommand(NSString *command) ;
 
-MSFoundationExport NSString *MSAbsolutePath(NSString *path) ;
-MSFoundationExport NSString *MSAbsoluteUnixPath(NSString *path) ;
-MSFoundationExport NSString *MSAbsoluteWindowsPath(NSString *path) ;
+MSFoundationExtern NSString *MSAbsolutePath(NSString *path) ;
+MSFoundationExtern NSString *MSAbsoluteUnixPath(NSString *path) ;
+MSFoundationExtern NSString *MSAbsoluteWindowsPath(NSString *path) ;
 
-MSFoundationExport BOOL MSCreateDirectory(NSString *directory) ;
-MSFoundationExport BOOL MSCreateRecursiveDirectory(NSString *path) ;
-MSFoundationExport BOOL MSDeleteFile(NSString *file) ;
-MSFoundationExport BOOL MSRemoveDirectory(NSString *directory) ;
-MSFoundationExport BOOL MSRemoveRecursiveDirectory(NSString *directory) ;
+MSFoundationExtern BOOL MSCreateDirectory(NSString *directory) ;
+MSFoundationExtern BOOL MSCreateRecursiveDirectory(NSString *path) ;
+MSFoundationExtern BOOL MSDeleteFile(NSString *file) ;
+MSFoundationExtern BOOL MSRemoveDirectory(NSString *directory) ;
+MSFoundationExtern BOOL MSRemoveRecursiveDirectory(NSString *directory) ;
 
 
-MSFoundationExport NSString *MSRandomFile(NSString *extension) ;
-MSFoundationExport NSString *MSTemporaryDirectory(void) ;
-MSFoundationExport NSString *MSTemporaryPath(NSString *extension) ;
-MSFoundationExport NSString *MSDisposableFolder(NSString *extension) ;
-MSFoundationExport NSString *MSTemporaryFile(NSString *extension) ;
+MSFoundationExtern NSString *MSRandomFile(NSString *extension) ;
+MSFoundationExtern NSString *MSTemporaryDirectory(void) ;
+MSFoundationExtern NSString *MSTemporaryPath(NSString *extension) ;
+MSFoundationExtern NSString *MSDisposableFolder(NSString *extension) ;
+MSFoundationExtern NSString *MSTemporaryFile(NSString *extension) ;
 
-MSFoundationExport MSFileHandle MSCreateFileForWritingAtPath(NSString *path) ;
-MSFoundationExport MSFileHandle MSOpenFileForReadingAtPath(NSString *path) ;
-MSFoundationExport MSFileOperationStatus MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length);
-MSFoundationExport MSFileOperationStatus MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes);
-MSFoundationExport MSFileOperationStatus MSCloseFile(MSFileHandle file);
+MSFoundationExtern MSFileHandle MSCreateFileForWritingAtPath(NSString *path) ;
+MSFoundationExtern MSFileHandle MSOpenFileForReadingAtPath(NSString *path) ;
+MSFoundationExtern MSFileOperationStatus MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length);
+MSFoundationExtern MSFileOperationStatus MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes);
+MSFoundationExtern MSFileOperationStatus MSCloseFile(MSFileHandle file);
 
-MSFoundationExport MSFileOperationStatus MSMoveFile(NSString *sourcePath, NSString *destPath);
+MSFoundationExtern MSFileOperationStatus MSMoveFile(NSString *sourcePath, NSString *destPath);
 
-MSFoundationExport NSString *MSUNCPath(NSString *path) ;
+MSFoundationExtern NSString *MSUNCPath(NSString *path) ;
 
-MSFoundationExport NSArray *MSDirectoryContentsAtPath(NSString *path) ;
+MSFoundationExtern NSArray *MSDirectoryContentsAtPath(NSString *path) ;
 
-MSFoundationExport const unsigned char *bmh_memmem(const unsigned char *haystack, size_t hlen, const unsigned char *needle, size_t nlen) ;
+MSFoundationExtern const unsigned char *bmh_memmem(const unsigned char *haystack, size_t hlen, const unsigned char *needle, size_t nlen) ;
 
 #ifdef WIN32
-MSFoundationExport char *strtok_r(char *s, const char *delim, char **last) ;
-MSFoundationExport char *strnstr(const char *s1, const char *s2, size_t n) ;
+MSFoundationExtern char *strtok_r(char *s, const char *delim, char **last) ;
+MSFoundationExtern char *strnstr(const char *s1, const char *s2, size_t n) ;
 #endif
 

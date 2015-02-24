@@ -45,4 +45,4 @@
  include <MSFoundation/MSFoundation.h>
  */
 
-MSFoundationExport NSString *MSTokenFromLanguage(MSLanguage language) ;   // returns ITALIAN, FRENCH, SPANISH, GERMAN, ENGLISH or nil
+MSFoundationExtern NSString *MSTokenFromLanguage(MSLanguage language) ;   // returns ITALIAN, FRENCH, SPANISH, GERMAN, ENGLISH or nil

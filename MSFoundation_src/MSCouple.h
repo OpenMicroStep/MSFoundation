@@ -76,8 +76,8 @@ Eric Baradat :  k18rt@free.fr
   // or if there's no room left
 @end
 
-MSFoundationExport MSCouple        *MSCreateCouple       (id first, id second);
-MSFoundationExport MSMutableCouple *MSCreateMutableCouple(id first, id second);
+MSFoundationExtern MSCouple        *MSCreateCouple       (id first, id second);
+MSFoundationExtern MSMutableCouple *MSCreateMutableCouple(id first, id second);
 
 #define COUPLE( XX, YY) AUTORELEASE(MSCreateCouple       (XX, YY))
 #define MCOUPLE(XX, YY) AUTORELEASE(MSCreateMutableCouple(XX, YY))

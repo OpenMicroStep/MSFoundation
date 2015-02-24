@@ -877,7 +877,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
     operation= nil; // Unused parameter
 }
 
-// TODO : This method name does not reflect it's usage (autorelease), plus the method isn't exported (MSFoundationExport)
+// TODO : This method name does not reflect it's usage (autorelease), plus the method isn't exported (MSFoundationExtern)
 id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allowsUnknownUserClasses)
 {
     NSUInteger len = [data length] ;

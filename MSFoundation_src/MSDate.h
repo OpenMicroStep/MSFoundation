@@ -130,8 +130,8 @@ NSString *GMTdescriptionRfc1123(NSTimeInterval t);
 
 @end
 
-MSFoundationExport MSDate *MSCreateYMD   (unsigned year, unsigned month, unsigned day);
-MSFoundationExport MSDate *MSCreateYMDHMS(unsigned year, unsigned month, unsigned day,
+MSFoundationExtern MSDate *MSCreateYMD   (unsigned year, unsigned month, unsigned day);
+MSFoundationExtern MSDate *MSCreateYMDHMS(unsigned year, unsigned month, unsigned day,
                                 unsigned h,    unsigned mn,    unsigned sec);
 
 #define YMD(Y,M,D)          AUTORELEASE(MSCreateYMD   ((Y),(M),(D)))
