@@ -225,6 +225,10 @@ static inline int ns_format(void)
   // ObjC
   ASSERT_NSFORMAT(@"objc: test", @"objc: %@", @"test");
   
+  // Found bug tests
+  ASSERT_FORMAT("bug print decimal when decimal is 0: expected:0, got:0",
+                "bug print decimal when decimal is 0: expected:0, got:%d", 0);
+  
   // Old Tests
   ASSERT_FORMAT("22337236854775808",
                 "%lld", posvalue2);

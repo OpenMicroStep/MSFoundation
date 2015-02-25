@@ -454,9 +454,11 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
         end= buffer + sizeof(buffer);
         pos= end - 1;
         v= value > 0 ? value : -value;
-        while(v > 0) {
+        do {
           *(pos--)= '0' + v % 10LL;
           v /= 10LL;}
+        while(v > 0);
+        while(v > 0);
         
         if (precision != MSUShortMax) {
           while(precision >= end - pos) {
