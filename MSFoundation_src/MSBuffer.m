@@ -49,38 +49,38 @@
 
 #pragma mark Alloc / Init
 
-static inline id _buffer(Class cl, id a, BOOL m)
+#define AL(X)   ALLOC(X)
+#define AR(X)   AUTORELEASE(X)
+#define FIXE(a) CGrowSetForeverImmutable((id)a)
+
+static inline id _init(id a, BOOL m)
 {
-  if (!a) a= AUTORELEASE(ALLOC(cl));
-  if (!m) CGrowSetForeverImmutable(a);
+  if (!m) FIXE(a);
   return a;
 }
-static inline id _bufferWithBytes(Class cl, id a, BOOL m, const void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree)
+static inline id _initWithBytes(id a, BOOL m, const void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree)
 {
-  if (!a) a= AUTORELEASE(ALLOC(cl));
-  CBufferInitWithBytes((CBuffer*)a, (void*)bytes, length, noCopy, noFree);
-  if (!m) CGrowSetForeverImmutable(a);
-  return a;
+  if      (!noCopy) CBufferInitWithBytes            ((CBuffer*)a, (void*)bytes, length);
+  else if (!noFree) CBufferInitWithBytesNoCopy      ((CBuffer*)a, (void*)bytes, length);
+  else              CBufferInitWithBytesNoCopyNoFree((CBuffer*)a, (void*)bytes, length);
+  return _init(a,m);
 }
-static inline id _bufferWithBuffer(Class cl, id a, BOOL m, NSData *d)
+static inline id _initWithBuffer(id a, BOOL m, NSData *d)
 { 
-  return _bufferWithBytes(cl, a, m, (void *)[d bytes], [d length], NO, NO);
+  return _initWithBytes(a, m, (void *)[d bytes], [d length], NO, NO);
 }
-static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *path)
+static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 { 
-  if (!a) a= AUTORELEASE(ALLOC(cl));
   CBufferAppendContentsOfFile((CBuffer*)a, SESFromString(path));
-  if (!m) CGrowSetForeverImmutable(a);
-  return a;
+  return _init(a,m);
 }
 
-+ (id)new           {return ALLOC(self);}
-
-+ (id)data          {return _buffer(self, nil,  NO);}
-+ (id)buffer        {return _buffer(self, nil,  NO);}
-+ (id)mutableBuffer {return _buffer(self, nil, YES);}
-- (id)init          {return _buffer(nil ,self,  NO);}
-- (id)mutableInit   {return _buffer(nil ,self, YES);}
++ (id)data          {return AR([AL(self)        init]);}
++ (id)buffer        {return AR([AL(self)        init]);}
++ (id)mutableBuffer {return AR([AL(self) mutableInit]);}
++ (id)new           {return AR([AL(self) mutableInit]);} // mutable
+- (id)init          {return _init(self,  NO);}
+- (id)mutableInit   {return _init(self, YES);}
 
 - (id)mutableInitWithCapacity:(NSUInteger)capacity
   {
@@ -93,43 +93,47 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
   return self;
   }
 
-+ (id)dataWithData:(NSData *)data              {return _bufferWithBuffer(self, nil,  NO, data);}
-+ (id)bufferWithData:(NSData *)data            {return _bufferWithBuffer(self, nil,  NO, data);}
-+ (id)bufferWithBuffer:(MSBuffer *)data        {return _bufferWithBuffer(self, nil,  NO, data);}
-- (id)initWithData:(NSData *)data              {return _bufferWithBuffer(nil ,self,  NO, data);}
-- (id)initWithBuffer:(MSBuffer *)data          {return _bufferWithBuffer(nil ,self,  NO, data);}
-+ (id)mutableBufferWithData:(NSData *)data     {return _bufferWithBuffer(self, nil, YES, data);}
-+ (id)mutableBufferWithBuffer:(MSBuffer *)data {return _bufferWithBuffer(self, nil, YES, data);}
-- (id)mutableInitWithData:(NSData *)data       {return _bufferWithBuffer(nil ,self, YES, data);}
-- (id)mutableInitWithBuffer:(MSBuffer *)data   {return _bufferWithBuffer(nil ,self, YES, data);}
++ (id)dataWithData:             (NSData *)data {return AR([AL(self)        initWithData:  data]);}
++ (id)bufferWithData:           (NSData *)data {return AR([AL(self)        initWithData:  data]);}
++ (id)bufferWithBuffer:       (MSBuffer *)buf  {return AR([AL(self)        initWithBuffer:buf ]);}
++ (id)mutableBufferWithData:    (NSData *)data {return AR([AL(self) mutableInitWithData:  data]);}
++ (id)mutableBufferWithBuffer:(MSBuffer *)buf  {return AR([AL(self) mutableInitWithBuffer:buf ]);}
+- (id)initWithData:             (NSData *)data {return _initWithBuffer(self,  NO, data);}
+- (id)initWithBuffer:         (MSBuffer *)buf  {return _initWithBuffer(self,  NO, buf );}
+- (id)mutableInitWithData:      (NSData *)data {return _initWithBuffer(self, YES, data);}
+- (id)mutableInitWithBuffer:  (MSBuffer *)buf  {return _initWithBuffer(self, YES, buf );}
 
-+ (id)dataWithBytes:(const void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(self, nil,  NO, bytes, length,  NO,  NO);}
-+ (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(self, nil,  NO, bytes, length, YES,  NO);}
-+ (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b
-                                                                           {return _bufferWithBytes(self, nil,  NO, bytes, length, YES,  !b);}
-+ (id)bufferWithBytes:(const void *)bytes length:(NSUInteger)length        {return _bufferWithBytes(self, nil,  NO, bytes, length,  NO,  NO);}
-+ (id)bufferWithBytesNoCopy:(void *)bytes length:(NSUInteger)length        {return _bufferWithBytes(self, nil,  NO, bytes, length, YES,  NO);}
-+ (id)bufferWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length  {return _bufferWithBytes(self, nil,  NO, bytes, length, YES, YES);}
-- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(nil ,self,  NO, bytes, length,  NO,  NO);}
-- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length          {return _bufferWithBytes(nil ,self,  NO, bytes, length, YES,  NO);}
-- (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length    {return _bufferWithBytes(nil ,self,  NO, bytes, length, YES, YES);}
-+ (id)mutableBufferWithBytes:(const void *)bytes length:(NSUInteger)length {return _bufferWithBytes(self, nil, YES, bytes, length,  NO,  NO);}
-- (id)mutableInitWithBytes:(const void *)bytes length:(NSUInteger)length   {return _bufferWithBytes(nil ,self, YES, bytes, length,  NO,  NO);}
++ (id)dataWithBytes:         (const void *)b length:(NSUInteger)l                      {return AR([AL(self)        initWithBytes:            b length:l]);}
++ (id)dataWithBytesNoCopy:         (void *)b length:(NSUInteger)l                      {return AR([AL(self)        initWithBytesNoCopy:      b length:l]);}
++ (id)dataWithBytesNoCopy:         (void *)b length:(NSUInteger)l freeWhenDone:(BOOL)f {return AR([AL(self)        initWithBytesNoCopy:      b length:l freeWhenDone:f]);}
 
-+ (id)bufferWithCString:(char *)s                                          {return _bufferWithBytes(self, nil,  NO, s,  strlen(s),  NO,  NO);}
-+ (id)bufferWithCStringNoCopy:(char *)s                                    {return _bufferWithBytes(self, nil,  NO, s,  strlen(s), YES,  NO);}
-+ (id)bufferWithCStringNoCopyNoFree:(char *)s                              {return _bufferWithBytes(self, nil,  NO, s,  strlen(s), YES, YES);}
-- (id)initWithCString:(char *)s                                            {return _bufferWithBytes(nil ,self,  NO, s,  strlen(s),  NO,  NO);}
-- (id)initWithCStringNoCopy:(char *)s                                      {return _bufferWithBytes(nil ,self,  NO, s,  strlen(s), YES,  NO);}
-- (id)initWithCStringNoCopyNoFree:(char *)s                                {return _bufferWithBytes(nil ,self,  NO, s,  strlen(s), YES, YES);}
-+ (id)mutableBufferWithCString:(char *)s                                   {return _bufferWithBytes(self, nil, YES, s,  strlen(s),  NO,  NO);}
-- (id)mutableInitWithCString:(char *)s                                     {return _bufferWithBytes(nil ,self, YES, s,  strlen(s),  NO,  NO);}
++ (id)bufferWithBytes:       (const void *)b length:(NSUInteger)l                      {return AR([AL(self)        initWithBytes:            b length:l]);}
++ (id)bufferWithBytesNoCopy:       (void *)b length:(NSUInteger)l                      {return AR([AL(self)        initWithBytesNoCopy:      b length:l]);}
++ (id)bufferWithBytesNoCopyNoFree: (void *)b length:(NSUInteger)l                      {return AR([AL(self)        initWithBytesNoCopyNoFree:b length:l]);}
++ (id)mutableBufferWithBytes:(const void *)b length:(NSUInteger)l                      {return AR([AL(self) mutableInitWithBytes:            b length:l]);}
++ (id)mutableBufferWithBytesNoCopy:(void *)b length:(NSUInteger)l                      {return AR([AL(self) mutableInitWithBytesNoCopy:      b length:l]);}
 
-+ (id)dataWithContentsOfFile:(NSString *)path                              {return _bufferWithContentsOfFile(self, nil,  NO, path);}
-+ (id)bufferWithContentsOfFile:(NSString *)path                            {return _bufferWithContentsOfFile(self, nil,  NO, path);}
-- (id)initWithContentsOfFile:(NSString *)path                              {return _bufferWithContentsOfFile(nil ,self,  NO, path);}
-+ (id)mutableBufferWithContentsOfFile:(NSString *)path                     {return _bufferWithContentsOfFile(self, nil, YES, path);}
-- (id)mutableInitWithContentsOfFile:(NSString *)path                       {return _bufferWithContentsOfFile(nil ,self, YES, path);}
+- (id)initWithBytes:         (const void *)b length:(NSUInteger)l                      {return _initWithBytes(self,  NO, b, l,  NO,  NO);}
+- (id)initWithBytesNoCopy:         (void *)b length:(NSUInteger)l                      {return _initWithBytes(self,  NO, b, l, YES,  NO);}
+- (id)initWithBytesNoCopyNoFree:   (void *)b length:(NSUInteger)l                      {return _initWithBytes(self,  NO, b, l, YES, YES);}
+- (id)initWithBytesNoCopy:         (void *)b length:(NSUInteger)l freeWhenDone:(BOOL)f {return _initWithBytes(self,  NO, b, l, YES,  !b);}
+- (id)mutableInitWithBytes:  (const void *)b length:(NSUInteger)l                      {return _initWithBytes(self, YES, b, l,  NO,  NO);}
+- (id)mutableInitWithBytesNoCopy:  (void *)b length:(NSUInteger)l                      {return _initWithBytes(self, YES, b, l, YES,  NO);}
+
++ (id)bufferWithCString:            (char *)s {return AR([AL(self)        initWithCString:            s]);}
++ (id)bufferWithCStringNoCopy:      (char *)s {return AR([AL(self)        initWithCStringNoCopy:      s]);}
++ (id)bufferWithCStringNoCopyNoFree:(char *)s {return AR([AL(self)        initWithCStringNoCopyNoFree:s]);}
++ (id)mutableBufferWithCString:     (char *)s {return AR([AL(self) mutableInitWithCString:            s]);}
+- (id)initWithCString:              (char *)s {return _initWithBytes(self,  NO, s, strlen(s),  NO,  NO);}
+- (id)initWithCStringNoCopy:        (char *)s {return _initWithBytes(self,  NO, s, strlen(s), YES,  NO);}
+- (id)initWithCStringNoCopyNoFree:  (char *)s {return _initWithBytes(self,  NO, s, strlen(s), YES, YES);}
+- (id)mutableInitWithCString:       (char *)s {return _initWithBytes(self, YES, s, strlen(s),  NO,  NO);}
+
++ (id)dataWithContentsOfFile:         (NSString *)path {return AR([AL(self)        initWithContentsOfFile:path]);}
++ (id)bufferWithContentsOfFile:       (NSString *)path {return AR([AL(self)        initWithContentsOfFile:path]);}
++ (id)mutableBufferWithContentsOfFile:(NSString *)path {return AR([AL(self) mutableInitWithContentsOfFile:path]);}
+- (id)initWithContentsOfFile:         (NSString *)path {return _initWithContentsOfFile(self,  NO, path);}
+- (id)mutableInitWithContentsOfFile:  (NSString *)path {return _initWithContentsOfFile(self, YES, path);}
 
 - (void)dealloc
 {
@@ -151,7 +155,11 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 
 - (NSUInteger)length { return _length; }
 - (const void *)bytes { return (const void *)_buf; }
-- (MSByte*)cString { return CBufferCString((CBuffer*)self); }
+- (MSByte*)cString
+{
+  MSBuffer *from= !_flags.noFree ? self : [MSBuffer bufferWithBuffer:self];
+  return CBufferCString((CBuffer*)from);
+}
 
 // - (NSString *)description;
 
@@ -316,30 +324,17 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 
 - (void)setLength:(NSUInteger)length
 {
-  if(length > _length)
+  CGrowMutVerif((id)self, 0, 0, "setLength:");
+  if (length > _length)
     [self increaseLengthBy:length - _length];
   else
     _length= length;
 }
 - (void)increaseLengthBy:(NSUInteger)extraLength
 {
-  CBufferGrow((CBuffer*)self, extraLength);
+  CBufferGrow((CBuffer*)self, extraLength, YES);
   memset(_buf + _length, 0, extraLength);
   _length+= extraLength;
-}
-- (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes
-{ 
-  if (range.location + range.length > _length) {
-    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"range %@ out of range (0, %lu)", NSStringFromRange(range), (unsigned long)_length);
-  }
-  memmove(_buf + range.location, bytes, range.length);
-}
-- (void)resetBytesInRange:(NSRange)range
-{ 
-  if (range.location + range.length > _length) {
-    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"range %@ out of range (0, %lu)", NSStringFromRange(range), (unsigned long)_length);
-  }
-  memset(_buf + range.location, 0, range.length);
 }
 - (void)setData:(NSData *)data
 {
@@ -349,14 +344,27 @@ static inline id _bufferWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 {
   CBufferSetBytes((CBuffer*)self, buffer->_buf, buffer->_length);
 }
+
+- (void)resetBytesInRange:(NSRange)range
+{ 
+  CGrowMutVerif((id)self, range.location, range.length, "resetBytesInRange:");
+  memset(_buf + range.location, 0, range.length);
+}
+- (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes
+{ 
+  CGrowMutVerif((id)self, range.location, range.length, "replaceBytesInRange:withBytes");
+  memmove(_buf + range.location, bytes, range.length);
+}
 - (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)replacementBytes length:(NSUInteger)replacementLength
 {
   NSUInteger rangeEnd;
+  CGrowMutVerif((id)self, range.location, range.length, "replaceBytesInRange:withBytes:length:");
   if (replacementLength > range.length) {
-    CBufferGrow((CBuffer*)self, replacementLength - range.length); }
-  rangeEnd = range.location + range.length;
-  memmove(_buf + replacementLength, _buf + rangeEnd, _length - rangeEnd);
+    CBufferGrow((CBuffer*)self, replacementLength - range.length, NO); }
+  rangeEnd= range.location + range.length;
+  memmove(_buf + range.location + replacementLength, _buf + rangeEnd, _length - rangeEnd);
   memmove(_buf + range.location, replacementBytes, replacementLength);
+  _length+= replacementLength - range.length;
 }
 
 @end
@@ -494,8 +502,8 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
 
 - (BOOL)containsOnlyBase64Characters
 {
-  unsigned char *c = (unsigned char *)[self bytes] ;
-  unsigned char *e = c + [self length];
+  unsigned char *c= (unsigned char *)[self bytes];
+  unsigned char *e= c + [self length];
 
   while(c < e) {
     if (   !(*c >= 65 && *c <=  90) //'A' to 'Z'
@@ -505,11 +513,11 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
         && (*c != 47)  // '/'
         && (*c != 61)) // '/'
     {
-      return NO ;
+      return NO;
     }
     ++c;
   }
-  return YES ;
+  return YES;
 }
 @end
 

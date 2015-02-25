@@ -279,21 +279,21 @@ BOOL MSInsensitiveEqualStrings(NSString *s1, NSString *s2)
 @implementation NSString (MSAddendum)
 static inline NSString *_createStringWithContentsOfUTF8File(NSString *file)
 {
-  MSString *ret = nil; CBuffer* buf; NSUInteger len; const MSByte *bytes;
+  MSString *ret= nil; CBuffer* buf; NSUInteger len; const MSByte *bytes;
   buf= CCreateBuffer(0);
   CBufferAppendContentsOfFile(buf, SESFromString(file));
   len= CBufferLength(buf);
   bytes= CBufferBytes(buf);
 
   if (len >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf) {
-		len -= 3 ;
-		bytes += 3 ;}
+		len-= 3;
+		bytes+= 3;}
 	if (len) {
-		ret = (MSString*)CCreateString(len) ;
+		ret= (MSString*)CCreateString(len);
 		if (!CStringAppendSupposedEncodingBytes((CString *)ret, bytes, len, NSUTF8StringEncoding, NULL)) {
-			DESTROY(ret) ;}}
-	RELEASE(buf) ;
-	return ret ;
+			RELEAZEN(ret);}}
+	RELEASE(buf);
+	return ret;
 }
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file { return AUTORELEASE(_createStringWithContentsOfUTF8File(file)) ; }
 

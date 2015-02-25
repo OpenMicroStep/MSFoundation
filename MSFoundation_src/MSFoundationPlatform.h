@@ -5,9 +5,9 @@
 #define NSLocaleDecimalSeparator NSDecimalSeparator
 
 MSFoundationExtern IMP method_getImplementation(Method m);
-MSFoundationExtern NSString *MSFindDLL(NSString *dllName) ;
-MSFoundationExtern HINSTANCE MSLoadDLL(NSString *dllName) ;
-MSFoundationExtern NSUInteger MSOperatingSystem(void) ;
+MSFoundationExtern NSString *MSFindDLL(NSString *dllName);
+MSFoundationExtern HINSTANCE MSLoadDLL(NSString *dllName);
+MSFoundationExtern NSUInteger MSOperatingSystem(void);
 
 enum {
   NSUnknownOperatingSystem=               0,
@@ -31,7 +31,7 @@ enum {
   NSLeopardOperatingSystem=             305, // 10.5
   NSSnowLeopardOperatingSystem=         306, // 10.6
   NSLionOperatingSystem=                307  // 10.7
-} ;
+};
 
 @interface NSUUID : NSObject <NSCopying, NSCoding>
 + (NSUUID *)UUID;

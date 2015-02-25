@@ -54,9 +54,9 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 + (instancetype)arrayWithObjects:(id)firstObj, ... NS_REQUIRES_NIL_TERMINATION;
 + (instancetype)arrayWithArray:(NSArray *)array;
 
-- (instancetype)init ;
-- (instancetype)initWithObjects:(const id [])objects count:(NSUInteger)cnt ;
-- (instancetype)initWithCoder:(NSCoder *)aDecoder ;
+- (instancetype)init;
+- (instancetype)initWithObjects:(const id [])objects count:(NSUInteger)cnt;
+- (instancetype)initWithCoder:(NSCoder *)aDecoder;
 - (instancetype)initWithObjects:(id)firstObj, ... NS_REQUIRES_NIL_TERMINATION;
 - (instancetype)initWithArray:(NSArray *)array;
 - (instancetype)initWithArray:(NSArray *)array copyItems:(BOOL)flag;
@@ -100,6 +100,6 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 @interface NSMutableArray (NSMutableArrayCreation)
 
 + (instancetype)arrayWithCapacity:(NSUInteger)numItems;
-- (instancetype)initWithCapacity:(NSUInteger)numItems ;
+- (instancetype)initWithCapacity:(NSUInteger)numItems;
 
 @end

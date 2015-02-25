@@ -24,9 +24,9 @@ static inline void addObject(CArray *objects, id object)
 
 static inline void drain(CArray *objects)
 {
-  objects->flag.noRetainRelease = NO;
+  objects->flags.noRetainRelease = NO;
   CArrayRemoveAllObjects(objects);
-  objects->flag.noRetainRelease = YES;
+  objects->flags.noRetainRelease = YES;
 }
 
 @implementation NSAutoreleasePool

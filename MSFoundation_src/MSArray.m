@@ -87,70 +87,65 @@
 
 @implementation MSArray
 + (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSBuffer setVersion:MS_ARRAY_LAST_VERSION];}
++ (void)finishLoading {[MSArray setVersion:MS_ARRAY_LAST_VERSION];}
 
 #pragma mark alloc / init
 
+#define AL(X)   ALLOC(X)
+#define AR(X)   AUTORELEASE(X)
 #define FIXE(a) CGrowSetForeverImmutable((id)a)
 
-+ (id)new                         {return ALLOC(self);}
-
-static inline id _array(Class cl, id a, BOOL m)
+static inline id _init(id a, BOOL m)
   {
-  if (!a) a= AUTORELEASE(ALLOC(cl));
   if (!m) FIXE(a);
   return a;
   }
-+ (id)array        {return _array(self, nil,  NO);}
-+ (id)mutableArray {return _array(self, nil, YES);}
-- (id)init         {return _array(nil ,self,  NO);}
-- (id)mutableInit  {return _array(nil ,self, YES);}
++ (id)array        {return AR([AL(self)        init]);}
++ (id)mutableArray {return AR([AL(self) mutableInit]);}
++ (id)new          {return AR([AL(self) mutableInit]);} // mutable
+- (id)init         {return _init(self,  NO);}
+- (id)mutableInit  {return _init(self, YES);}
 
-static inline id _arrayWithObject(Class cl, id a, BOOL m, id o)
+static inline id _initWithObject(id a, BOOL m, id o)
   {
-  if (!a) a= AUTORELEASE(ALLOC(cl));
   CArrayAddObject((CArray*)a, o);
-  if (!m) FIXE(a);
-  return a;
+  return _init(a,m);
   }
-+ (id)arrayWithObject:       (id)o {return _arrayWithObject(self, nil,  NO, o);}
-+ (id)mutableArrayWithObject:(id)o {return _arrayWithObject(self, nil, YES, o);}
-- (id)initWithObject:        (id)o {return _arrayWithObject(nil ,self,  NO, o);}
-- (id)mutableInitWithObject: (id)o {return _arrayWithObject(nil ,self, YES, o);}
++ (id)arrayWithObject:       (id)o {return AR([AL(self)        initWithObject:o]);}
++ (id)mutableArrayWithObject:(id)o {return AR([AL(self) mutableInitWithObject:o]);}
+- (id)initWithObject:        (id)o {return _initWithObject(self,  NO, o);}
+- (id)mutableInitWithObject: (id)o {return _initWithObject(self, YES, o);}
 
-static inline id _arrayOsNC(Class cl, id a, BOOL m, const id *os, NSUInteger n, BOOL copy)
+static inline id _initOsNC(id a, BOOL m, const id *os, NSUInteger n, BOOL copy)
   {
-  if (!a) a= AUTORELEASE(ALLOC(cl));
   CArrayAddObjects((CArray*)a, os, n, copy);
-  if (!m) FIXE(a);
-  return a;
+  return _init(a,m);
   }
-+ (id)arrayWithObjects:       (const id*)os count:(NSUInteger)n {return _arrayOsNC(self, nil,  NO, os,n,NO);}
-+ (id)mutableArrayWithObjects:(const id*)os count:(NSUInteger)n {return _arrayOsNC(self, nil, YES, os,n,NO);}
-- (id)initWithObjects:        (const id*)os count:(NSUInteger)n {return _arrayOsNC(nil ,self,  NO, os,n,NO);}
-- (id)mutableInitWithObjects: (const id*)os count:(NSUInteger)n {return _arrayOsNC(nil ,self, YES, os,n,NO);}
++ (id)arrayWithObjects:       (const id*)os count:(NSUInteger)n {return AR([AL(self)        initWithObjects:os count:n]);}
++ (id)mutableArrayWithObjects:(const id*)os count:(NSUInteger)n {return AR([AL(self) mutableInitWithObjects:os count:n]);}
+- (id)initWithObjects:        (const id*)os count:(NSUInteger)n {return _initOsNC(self,  NO, os,n,NO);}
+- (id)mutableInitWithObjects: (const id*)os count:(NSUInteger)n {return _initOsNC(self, YES, os,n,NO);}
 
-static inline id _arrayFoArgs(Class cl, id a, BOOL m, id o, va_list l)
+static inline id _initFoArgs(id a, BOOL m, id o, va_list l)
   {
-  if (!a) a= AUTORELEASE(ALLOC(cl));
   if (o) {
     CArrayAddObject((CArray*)a,o);
-    while ((o= va_arg (l, id))) CArrayAddObject((CArray*)a,o);}
-  if (!m) FIXE(a);
-  return a;
+    while ((o= va_arg(l, id))) CArrayAddObject((CArray*)a,o);}
+  return _init(a,m);
   }
-+ (id)arrayWithFirstObject:       (id)o arguments:(va_list)l {return _arrayFoArgs(self, nil,  NO, o,l);}
-+ (id)mutableArrayWithFirstObject:(id)o arguments:(va_list)l {return _arrayFoArgs(self, nil, YES, o,l);}
-- (id)initWithFirstObject:        (id)o arguments:(va_list)l {return _arrayFoArgs(nil ,self,  NO, o,l);}
-- (id)mutableInitWithFirstObject: (id)o arguments:(va_list)l {return _arrayFoArgs(nil ,self, YES, o,l);}
++ (id)arrayWithFirstObject:       (id)o arguments:(va_list)l {return AR([AL(self)        initWithFirstObject:o arguments:l]);}
++ (id)mutableArrayWithFirstObject:(id)o arguments:(va_list)l {return AR([AL(self) mutableInitWithFirstObject:o arguments:l]);}
+- (id)initWithFirstObject:        (id)o arguments:(va_list)l {return _initFoArgs(self,  NO, o,l);}
+- (id)mutableInitWithFirstObject: (id)o arguments:(va_list)l {return _initFoArgs(self, YES, o,l);}
 
 #define _arrayOs(CL,A,M,O) \
   id ret; \
   va_list ap; \
   va_start(ap, O); \
-  ret= _arrayFoArgs(CL,A,M, O,ap); \
+  ret= CL ? AL(CL) : A; \
+  ret= _initFoArgs(ret,M, O,ap); \
   va_end(ap); \
-  return ret
+  return CL ? AR(ret) : ret
 
 + (id)arrayWithObjects:       (id)firstObject, ... {_arrayOs(self, nil,  NO, firstObject);}
 + (id)mutableArrayWithObjects:(id)firstObject, ... {_arrayOs(self, nil, YES, firstObject);}
@@ -167,26 +162,24 @@ static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
       CArrayAddObjects(self,&o,1,copyItems);}}
   }
 
-static inline id _arrayA(Class cl, id a, BOOL m, id aa, BOOL copy)
+static inline id _initA(id a, BOOL m, id aa, BOOL copy)
   {
-  if (!a) a= AUTORELEASE(ALLOC(cl));
   _addArray((CArray*)a, aa, copy);
-  if (!m) FIXE(a);
-  return a;
+  return _init(a,m);
   }
-+ (id)arrayWithArray:       (NSArray*)array {return _arrayA(self, nil,  NO, array, NO);}
-+ (id)mutableArrayWithArray:(NSArray*)array {return _arrayA(self, nil, YES, array, NO);}
-- (id)initWithArray:        (NSArray*)array {return _arrayA(nil ,self,  NO, array, NO);}
-- (id)mutableInitWithArray: (NSArray*)array {return _arrayA(nil ,self, YES, array, NO);}
++ (id)arrayWithArray:       (NSArray*)array {return AR([AL(self)        initWithArray:array]);}
++ (id)mutableArrayWithArray:(NSArray*)array {return AR([AL(self) mutableInitWithArray:array]);}
+- (id)initWithArray:        (NSArray*)array {return _initA(self,  NO, array, NO);}
+- (id)mutableInitWithArray: (NSArray*)array {return _initA(self, YES, array, NO);}
 
 
 #pragma mark Other inits
 
-- (id)initWithObjects:       (const id*)os count:(NSUInteger)n copyItems:(BOOL)c {return _arrayOsNC(nil ,self,  NO, os,n,c);}
-- (id)mutableInitWithObjects:(const id*)os count:(NSUInteger)n copyItems:(BOOL)c {return _arrayOsNC(nil ,self, YES, os,n,c);}
+- (id)initWithObjects:       (const id*)os count:(NSUInteger)n copyItems:(BOOL)c {return _initOsNC(self,  NO, os,n,c);}
+- (id)mutableInitWithObjects:(const id*)os count:(NSUInteger)n copyItems:(BOOL)c {return _initOsNC(self, YES, os,n,c);}
 
-- (id)initWithArray:       (NSArray*)array copyItems:(BOOL)copy {return _arrayA(nil ,self,  NO, array, copy);}
-- (id)mutableInitWithArray:(NSArray*)array copyItems:(BOOL)copy {return _arrayA(nil ,self, YES, array, copy);}
+- (id)initWithArray:       (NSArray*)array copyItems:(BOOL)copy {return _initA(self,  NO, array, copy);}
+- (id)mutableInitWithArray:(NSArray*)array copyItems:(BOOL)copy {return _initA(self, YES, array, copy);}
 
 - (id)mutableInitWithCapacity:(NSUInteger)capacity
   {
@@ -235,7 +228,7 @@ static inline id _arrayA(Class cl, id a, BOOL m, id aa, BOOL copy)
   {
   if (_count) {
     NSUInteger i;
-    for (i = 0; i < _count; i++) { if (![_pointers[i] isTrue]) return NO; }
+    for (i= 0; i < _count; i++) { if (![_pointers[i] isTrue]) return NO; }
     return YES;}
   return NO;
   }
@@ -337,14 +330,14 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 
 - (NSEnumerator*)objectEnumerator
   {
-  _MSArrayEnumerator *e= MSAllocateObject([_MSArrayEnumerator class],0,[self zone]);
+  _MSArrayEnumerator *e= MSAllocateObject([_MSArrayEnumerator class],0,nil);
   e->_array= (CArray*)RETAIN(self);
   return AUTORELEASE(e);
   }
 
 - (NSEnumerator*)reverseObjectEnumerator
   {
-  _MSArrayReverseEnumerator *e= MSAllocateObject([_MSArrayReverseEnumerator class],0,[self zone]);
+  _MSArrayReverseEnumerator *e= MSAllocateObject([_MSArrayReverseEnumerator class],0,nil);
   e->_array= (CArray*)RETAIN(self);
   e->_next= _count;
   return AUTORELEASE(e);

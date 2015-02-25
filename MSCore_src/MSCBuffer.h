@@ -59,8 +59,10 @@ struct CBufferStruct {
   CBufferFlags flags;};
 
   MSCoreExtern void       CBufferFreeInside(id self); // for MSBuffer dealloc
-MSCoreExtern void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree);
-MSCoreExtern id CBufferInitCopyWithMutability(CBuffer *self, const CBuffer *copied, BOOL isMutable);
+MSCoreExtern void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length);
+MSCoreExtern void CBufferInitWithBytesNoCopy(CBuffer *self, void *bytes, NSUInteger length);
+MSCoreExtern void CBufferInitWithBytesNoCopyNoFree(CBuffer *self, void *bytes, NSUInteger length);
+MSCoreExtern id   CBufferInitCopyWithMutability(CBuffer *self, const CBuffer *copied, BOOL isMutable);
 //Already defined in MSCObject.h
 //MSCoreExtern void       CBufferFree(id self);
 //MSCoreExtern BOOL       CBufferIsEqual(id self, id other);
@@ -79,9 +81,10 @@ MSCoreExtern CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUI
   // 'bytes' is supposed 'length' sized. The buffer doesn't take the ownership
   // of 'bytes' and doesn't free it at end. It can NOT be reallocated so
   // appending is forbidden and an exception is raised.
+  // Also, CBufferCString returns NULL.
 MSCoreExtern CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationEncoding);
 
-MSCoreExtern void CBufferGrow(CBuffer *self, NSUInteger n);
+MSCoreExtern void CBufferGrow(CBuffer *self, NSUInteger n, BOOL verifMut);
 MSCoreExtern void CBufferAdjustSize(CBuffer *self);
 
 MSCoreExtern NSUInteger CBufferLength(const CBuffer *self);
@@ -89,6 +92,7 @@ MSCoreExtern MSByte     CBufferByteAtIndex(const CBuffer *self, NSUInteger i);
 MSCoreExtern MSByte    *CBufferBytes(const CBuffer *self);
 MSCoreExtern MSByte    *CBufferCString(CBuffer *self);
 // Make sure buf ends with 0x00 before returning the buf.
+// Return NULL if the buffer is not owned (NoCopyNoFree).
 
 MSCoreExtern NSUInteger CBufferIndexOfByte          (const CBuffer *self, MSByte c);
 MSCoreExtern NSUInteger CBufferIndexOfBytes         (const CBuffer *self, void *sbytes, NSUInteger slen);

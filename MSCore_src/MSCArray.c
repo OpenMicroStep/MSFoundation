@@ -78,7 +78,7 @@ CArray *a; const id *po; NSUInteger idxStart,idxCount; BOOL copyItems,nilVerif; 
   if (!a || !po || !idxCount) return;
   CGrowMutVerif((id)a, idxStart, 0, fct);
   CGrowMutExpand((id)a, idxStart, idxCount);
-  _fill(a, a->flag.noRetainRelease, a->pointers, po,idxStart,idxCount, copyItems,nilVerif, fct);
+  _fill(a, a->flags.noRetainRelease, a->pointers, po,idxStart,idxCount, copyItems,nilVerif, fct);
 }
 
 #pragma mark c-like class methods
@@ -87,7 +87,7 @@ void CArrayFreeInside(id self)
 {
   if (self) {
     CArray *a= (CArray*)self;
-    _erase(a->flag.noRetainRelease, a->pointers, 0, a->count);
+    _erase(a->flags.noRetainRelease, a->pointers, 0, a->count);
     CGrowFreeInside(self);}
 }
 void CArrayFree(id self)
@@ -131,8 +131,8 @@ id CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutab
 {
   if (!self) return nil;
   if (copied) {
-    self->flag.noRetainRelease= copied->flag.noRetainRelease;
-    self->flag.nilItems=        copied->flag.nilItems;
+    self->flags.noRetainRelease= copied->flags.noRetainRelease;
+    self->flags.nilItems=        copied->flags.nilItems;
     // Pas de copy des items
     // Pas de nilItems verif puisque copied est cohérent
     _insert(self, copied->pointers, self->count, copied->count, NO, NO, "CArrayInitCopy");}
@@ -205,8 +205,8 @@ BOOL CArrayIdenticals(const CArray *self, const CArray *anotherArray)
 CArray *CCreateArrayWithOptions(NSUInteger capacity, BOOL noRetainRelease, BOOL nilItems)
 {
   CArray *a= CCreateArray(capacity);
-  a->flag.noRetainRelease= noRetainRelease;
-  a->flag.nilItems=        nilItems;
+  a->flags.noRetainRelease= noRetainRelease;
+  a->flags.nilItems=        nilItems;
   return a;
 }
 
@@ -238,7 +238,7 @@ CArray *CCreateArrayWithObjects(const id *objects, NSUInteger count, BOOL copyIt
       (unsigned long)count);
     return nil;}
   a= CCreateArray(count);
-  _insert(a, objects, 0, count, copyItems, !a->flag.nilItems, "CCreateArrayWithObjects");
+  _insert(a, objects, 0, count, copyItems, !a->flags.nilItems, "CCreateArrayWithObjects");
   return a;
 }
 
@@ -251,8 +251,8 @@ CArray *CCreateSubArrayWithRange(CArray *a, NSRange rg)
       WLU(rg.location), WLU(rg.location+rg.length-1), WLU(a->count));
     return nil;}
   sub= CCreateArray(rg.length);
-  sub->flag.noRetainRelease= a->flag.noRetainRelease;
-  sub->flag.nilItems=        a->flag.nilItems;
+  sub->flags.noRetainRelease= a->flags.noRetainRelease;
+  sub->flags.nilItems=        a->flags.nilItems;
   _insert(sub, a->pointers+rg.location, 0, rg.length, NO, NO, "CCreateArrayWithObjects");
   if (CGrowIsForeverImmutable((id)sub)) CGrowSetForeverImmutable((id)a);
   return sub;
@@ -272,7 +272,7 @@ void CArrayAdjustSize(CArray *self)
 
 void CArraySetRetainReleaseOptionAndRetainAllObjects(CArray *self, BOOL retain)
 {
-  self->flag.noRetainRelease= NO;
+  self->flags.noRetainRelease= NO;
   if (retain) {
     NSUInteger n= self->count;
     id *p= self->pointers;
@@ -280,7 +280,7 @@ void CArraySetRetainReleaseOptionAndRetainAllObjects(CArray *self, BOOL retain)
 }
 void CArrayUnsetRetainReleaseOptionAndReleaseAllObjects(CArray *self, BOOL release)
 {
-  self->flag.noRetainRelease= YES;
+  self->flags.noRetainRelease= YES;
   if (release) {
     NSUInteger n= self->count;
     id *p= self->pointers;
@@ -338,19 +338,19 @@ NSUInteger CArrayIndexOfIdenticalObject(const CArray *self, const id object, NSU
 void CArrayAddObject(CArray *self, id object)
 {
   if (!self) return;
-  _insert(self, &object, self->count, 1, NO, !self->flag.nilItems, "CArrayAddObject");
+  _insert(self, &object, self->count, 1, NO, !self->flags.nilItems, "CArrayAddObject");
 }
 
 void CArrayAddObjects(CArray *self, const id *objects, NSUInteger nb, BOOL copyItems)
 {
   if (!self) return;
-  _insert(self, objects, self->count, nb, copyItems, !self->flag.nilItems, "CArrayAddObjects");
+  _insert(self, objects, self->count, nb, copyItems, !self->flags.nilItems, "CArrayAddObjects");
 }
 void CArrayAddArray(CArray *self, const CArray *other, BOOL copyItems)
 {
   BOOL nilVerif;
   if (!self || !other) return;
-  nilVerif= (!self->flag.nilItems && other->flag.nilItems);
+  nilVerif= (!self->flags.nilItems && other->flags.nilItems);
   _insert(self, other->pointers, self->count, other->count, copyItems, nilVerif, "CArrayAddArray");
 }
 
@@ -384,7 +384,7 @@ NSUInteger CArrayRemoveObjectsInRange(CArray *self, NSRange rg)
     return 0;
   if (n < idxStart+idxCount) idxCount= n-idxStart;
   CGrowMutVerif((id)self, idxStart, idxCount, "CArrayRemoveObjectsInRange");
-  _erase(self->flag.noRetainRelease, (p= self->pointers), idxStart, idxCount);
+  _erase(self->flags.noRetainRelease, (p= self->pointers), idxStart, idxCount);
   CGrowMutCompress((id)self, idxStart, idxCount);
   return idxCount;
 }
@@ -427,14 +427,9 @@ void CArrayReplaceObjectsInRange(CArray *self, const id *objects, NSRange rg, BO
   char *fct= "CArrayReplaceObjectsInRange";
   NSUInteger idxStart,idxCount; BOOL noRR; id *p;
   if (!self) return;
-  if ((idxStart= rg.location) >= self->count) {
-    MSReportError(MSInvalidArgumentError, MSFatalError, MSIndexOutOfRangeError,
-                  "%s(): try to replace object at bad index %lu.",
-                  fct,(unsigned long)idxStart);
-    return;}
-  CGrowMutVerif((id)self, idxStart, (idxCount= rg.length), "CArrayReplaceObjectsInRange");
-  _erase((noRR= self->flag.noRetainRelease), (p= self->pointers), idxStart, idxCount);
-  _fill(self, noRR, p, objects,idxStart,idxCount, copyItems,!self->flag.nilItems, fct);
+  CGrowMutVerif((id)self, (idxStart= rg.location), (idxCount= rg.length), "CArrayReplaceObjectsInRange");
+  _erase((noRR= self->flags.noRetainRelease), (p= self->pointers), idxStart, idxCount);
+  _fill(self, noRR, p, objects,idxStart,idxCount, copyItems,!self->flags.nilItems, fct);
 }
 
 #pragma mark Insert

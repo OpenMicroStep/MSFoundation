@@ -1056,8 +1056,8 @@
 			isa = PBXGroup;
 			children = (
 				A66299771A7A8A8800B2B60D /* FoundationCompatibility.h */,
-				A66299791A7A8A9500B2B60D /* FoundationCompatibility_Private.h */,
 				A662997A1A7A8A9500B2B60D /* FoundationCompatibility_Public.h */,
+				A66299791A7A8A9500B2B60D /* FoundationCompatibility_Private.h */,
 				A6E03BD41A76874B00A97DA3 /* FoundationTypes.h */,
 				A6E03B971A767F0E00A97DA3 /* Foundation-Info.plist */,
 			);
@@ -1273,6 +1273,7 @@
 		A6E038AE1A7630A100A97DA3 /* Basics */ = {
 			isa = PBXGroup;
 			children = (
+				A6E038F01A7630CB00A97DA3 /* MSFoundationDefines.h */,
 				A6C366171A95E85C00288B24 /* MSFoundationPlatform.h */,
 				A6C366181A95E85C00288B24 /* MSFoundationPlatform.m */,
 				A6E038DE1A7630CB00A97DA3 /* MSASCIIString.h */,
@@ -1291,7 +1292,6 @@
 				A6E038ED1A7630CB00A97DA3 /* MSFileManipulation_win32_Private.i */,
 				A6E038EE1A7630CB00A97DA3 /* MSFileManipulation.h */,
 				A6E038EF1A7630CB00A97DA3 /* MSFileManipulation.m */,
-				A6E038F01A7630CB00A97DA3 /* MSFoundationDefines.h */,
 				A6E038F11A7630CB00A97DA3 /* MSLanguage.h */,
 				A6E038F21A7630CB00A97DA3 /* MSLanguage.m */,
 				A6E038F31A7630CB00A97DA3 /* MSMutex.h */,
@@ -1374,23 +1374,23 @@
 				A6E03B8E1A767E1200A97DA3 /* NSObject.m */,
 				A6E03BF21A76954C00A97DA3 /* NSAutoreleasePool.h */,
 				A6E03BF31A76954C00A97DA3 /* NSAutoreleasePool.m */,
-				A6E03B991A767F6600A97DA3 /* NSString.h */,
-				A6E03B9A1A767F6600A97DA3 /* NSString.m */,
-				A6E4EAF71A7FB1A0002E99FF /* NSConstantString.m */,
-				A6E03B9D1A767F7400A97DA3 /* NSArray.h */,
-				A6E03B9E1A767F7400A97DA3 /* NSArray.m */,
-				A6E03BA11A767F8100A97DA3 /* NSDictionary.h */,
-				A6E03BA21A767F8100A97DA3 /* NSDictionary.m */,
-				A6E03BA51A76806400A97DA3 /* NSEnumerator.h */,
-				A6E03BA61A76806400A97DA3 /* NSEnumerator.m */,
 				A6E03BA91A7680A100A97DA3 /* NSNull.h */,
 				A6E03BAA1A7680A100A97DA3 /* NSNull.m */,
+				A6E03BA51A76806400A97DA3 /* NSEnumerator.h */,
+				A6E03BA61A76806400A97DA3 /* NSEnumerator.m */,
+				A6E4EAEF1A7FABDC002E99FF /* NSInvocation.h */,
+				A6E4EAF01A7FABDC002E99FF /* NSInvocation.m */,
+				A6E03B9D1A767F7400A97DA3 /* NSArray.h */,
+				A6E03B9E1A767F7400A97DA3 /* NSArray.m */,
 				A6E03BBD1A76826D00A97DA3 /* NSData.h */,
 				A6E03BBE1A76826D00A97DA3 /* NSData.m */,
 				A6E03BD01A7684D800A97DA3 /* NSDate.h */,
 				A6E03BD11A7684D800A97DA3 /* NSDate.m */,
-				A6E4EAEF1A7FABDC002E99FF /* NSInvocation.h */,
-				A6E4EAF01A7FABDC002E99FF /* NSInvocation.m */,
+				A6E03BA11A767F8100A97DA3 /* NSDictionary.h */,
+				A6E03BA21A767F8100A97DA3 /* NSDictionary.m */,
+				A6E03B991A767F6600A97DA3 /* NSString.h */,
+				A6E03B9A1A767F6600A97DA3 /* NSString.m */,
+				A6E4EAF71A7FB1A0002E99FF /* NSConstantString.m */,
 			);
 			name = Bases;
 			sourceTree = "<group>";

@@ -68,7 +68,7 @@ struct CDictionaryStruct {
   void **buckets;
   NSUInteger nBuckets;
   NSUInteger count;
-  CDictionaryFlags flag;};
+  CDictionaryFlags flags;};
 
 typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
   CDictionary *dictionary;

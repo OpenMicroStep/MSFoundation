@@ -49,7 +49,7 @@ struct CStringStruct {
   unichar*   buf;
   NSUInteger size;
   NSUInteger length;
-  CGrowFlags flag;};
+  CGrowFlags flags;};
 
 
   MSCoreExtern void       CStringFreeInside(id self); // for MSArray dealloc

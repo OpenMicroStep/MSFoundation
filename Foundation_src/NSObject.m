@@ -36,11 +36,11 @@
 - (oneway void)release
 {
     if(__sync_sub_and_fetch(&_retainCount, 1) == -1) {
-        [self dealloc];
-    }
+        [self dealloc];}
 }
 
-- (instancetype)autorelease {
+- (instancetype)autorelease
+{
   [NSAutoreleasePool addObject:self];
   return self;
 }
@@ -87,17 +87,17 @@
 
 - (Class)superclass
 {
-    return class_getSuperclass(isa);
+    return class_getSuperclass(ISA(self));
 }
 
 - (Class)class
 {
-    return isa;
+    return ISA(self);
 }
 
 - (BOOL)isKindOfClass:(Class)aClass
 {
-    Class selfClass= isa;
+    Class selfClass= ISA(self);
     while (selfClass && selfClass != aClass) {
         selfClass= class_getSuperclass(selfClass);
     }
@@ -106,17 +106,17 @@
 
 - (BOOL)isMemberOfClass:(Class)aClass
 {
-    return isa == aClass;
+    return ISA(self) == aClass;
 }
 
 - (BOOL)conformsToProtocol:(Protocol *)aProtocol
 {
-    return class_conformsToProtocol(isa, aProtocol);
+    return class_conformsToProtocol(ISA(self), aProtocol);
 }
 
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
-    return class_respondsToSelector(isa, aSelector);
+    return class_respondsToSelector(ISA(self), aSelector);
 }
 
 - (id)performSelector:(SEL)aSelector

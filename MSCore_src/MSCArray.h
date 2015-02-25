@@ -61,7 +61,7 @@ struct CArrayStruct {
   id *pointers;
   NSUInteger  size;
   NSUInteger  count;
-  CArrayFlags flag;};
+  CArrayFlags flags;};
 
 // HM: 27/08/13 void return and report error to be conform to ObjC error reporting
 

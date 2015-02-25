@@ -2,7 +2,7 @@
 
 NSZone *NSDefaultMallocZone(void)
 {
-   return NULL;
+   return nil;
 }
 
 @implementation NSZone

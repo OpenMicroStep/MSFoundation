@@ -38,12 +38,12 @@
  
  */
 
-#define SESFromString(X)    ({ __typeof__(X) __x = (X) ; (__x ? [__x stringEnumeratorStructure] : MSInvalidSES) ; })
+#define SESFromString(X)    ({ __typeof__(X) __x = (X); (__x ? [__x stringEnumeratorStructure] : MSInvalidSES); })
 MSFoundationExtern BOOL MSStringIsTrue(NSString *s);
 MSFoundationExtern BOOL MSEqualStrings(NSString *s1, NSString *s2);
 MSFoundationExtern BOOL MSInsensitiveEqualStrings(NSString *s1, NSString *s2);
-MSFoundationExtern NSRange MSStringFind(NSString *source, NSString *searched) ;
-MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger length, CUnicharChecker matchingSolidChar) ;
+MSFoundationExtern NSRange MSStringFind(NSString *source, NSString *searched);
+MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSUInteger length, CUnicharChecker matchingSolidChar);
 
 @interface NSString (MSAddendum)
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file;
@@ -53,9 +53,9 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (BOOL)isTrue;
 - (NSString *)mid:(NSUInteger)position;
 - (NSString *)mid:(NSUInteger)position :(NSUInteger)length;
-- (NSString *)left:(NSUInteger)length ;
+- (NSString *)left:(NSUInteger)length;
 - (NSString *)trim;
-- (NSString *)substringBeforeString:(NSString *)string ;
+- (NSString *)substringBeforeString:(NSString *)string;
 - (NSString *)substringAfterString:(NSString *)string;
 - (BOOL)containsString:(NSString *)anotherString;
 - (const char *)asciiCString;
@@ -63,12 +63,12 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (BOOL)hasExtension:(NSString*)ext;
 - (NSString *)stringWithURLEncoding:(NSStringEncoding)conversionEncoding;
 - (NSString *)stringWithURLEncoding;
-- (NSString *)stringByAppendingURLComponent:(NSString *)urlComponent ;
+- (NSString *)stringByAppendingURLComponent:(NSString *)urlComponent;
 - (NSString *)stringByDeletingLastURLComponent;
-- (NSString *)decodedURLString ;
+- (NSString *)decodedURLString;
 
 - (NSString *)htmlRepresentation; // also converts HTML marks
-- (NSString *)htmlRepresentation:(BOOL)convertsHTMLMarks ;
+- (NSString *)htmlRepresentation:(BOOL)convertsHTMLMarks;
 
 - (double)doubleValue;
 - (float)floatValue;

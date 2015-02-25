@@ -82,9 +82,4 @@
   return (aClass == [NSMutableArray class]) || [super isKindOfClass:aClass];
 }
 
-- (id)initWithCapacity:(NSUInteger)capacity
-  {
-  return [self mutableInitWithCapacity:capacity noRetainRelease:NO nilItems:NO];
-  }
-
 @end

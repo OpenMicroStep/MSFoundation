@@ -117,7 +117,7 @@
 
 static inline float strtof(const char *string, char **endPtr)
 {
-    return (float)strtod(string, endPtr) ;
+    return (float)strtod(string, endPtr);
 }
 static int snprintf(char *str, size_t size, const char *format, ...)
 {

@@ -41,14 +41,14 @@
 
 #include "MSCore_Private.h"
 
-#define CDICT_KEY_HASH(k)       (((CDictionary*)self)->flag.keyType!=0 ? MSPointerHash(k) : HASH(k))
-#define CDICT_KEY_COPY(k)       (((CDictionary*)self)->flag.keyType!=0 ? k : COPY(k))
-#define CDICT_KEY_EQUALS(a, b)  (((CDictionary*)self)->flag.keyType!=0 ? a == b : ISEQUAL(a, b))
-#define CDICT_KEY_RETAIN(k)     (((CDictionary*)self)->flag.keyType!=0 ? k : RETAIN(k))
-#define CDICT_KEY_RELEASE(k)    (((CDictionary*)self)->flag.keyType!=0 ? (void)0 : RELEASE(k))
-#define CDICT_OBJ_EQUALS(a, b)  (((CDictionary*)self)->flag.objType!=0 ? a == b : ISEQUAL(a, b))
-#define CDICT_OBJ_RETAIN(o)     (((CDictionary*)self)->flag.objType!=0 ? o : RETAIN(o))
-#define CDICT_OBJ_RELEASE(o)    (((CDictionary*)self)->flag.objType!=0 ? (void)0 : RELEASE(o))
+#define CDICT_KEY_HASH(k)       (((CDictionary*)self)->flags.keyType!=0 ? MSPointerHash(k) : HASH(k))
+#define CDICT_KEY_COPY(k)       (((CDictionary*)self)->flags.keyType!=0 ? k : COPY(k))
+#define CDICT_KEY_EQUALS(a, b)  (((CDictionary*)self)->flags.keyType!=0 ? a == b : ISEQUAL(a, b))
+#define CDICT_KEY_RETAIN(k)     (((CDictionary*)self)->flags.keyType!=0 ? k : RETAIN(k))
+#define CDICT_KEY_RELEASE(k)    (((CDictionary*)self)->flags.keyType!=0 ? (void)0 : RELEASE(k))
+#define CDICT_OBJ_EQUALS(a, b)  (((CDictionary*)self)->flags.objType!=0 ? a == b : ISEQUAL(a, b))
+#define CDICT_OBJ_RETAIN(o)     (((CDictionary*)self)->flags.objType!=0 ? o : RETAIN(o))
+#define CDICT_OBJ_RELEASE(o)    (((CDictionary*)self)->flags.objType!=0 ? (void)0 : RELEASE(o))
 
 typedef struct _nodeStruct {
    id key;
@@ -76,8 +76,8 @@ static inline void _grow(id self, NSUInteger n, NSUInteger count, NSUInteger uni
     MSFree(ns, "CDictionary _grow");}
   }
 
-#define _nilKeyReturn(d) ((d && d->flag.keyType==CDictionaryNatural)?(void*)NSNotFound:nil)
-#define _nilObjReturn(d) ((d && d->flag.objType==CDictionaryNatural)?(void*)NSNotFound:nil)
+#define _nilKeyReturn(d) ((d && d->flags.keyType==CDictionaryNatural)?(void*)NSNotFound:nil)
+#define _nilObjReturn(d) ((d && d->flags.objType==CDictionaryNatural)?(void*)NSNotFound:nil)
 
 static inline void _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict)
 {
@@ -287,8 +287,8 @@ MSCoreExtern CDictionary *CCreateDictionaryWithOptions(NSUInteger capacity, CDic
 {
   CDictionary *d;
   if ((d= CCreateDictionary(capacity))) {
-    d->flag.keyType= keyType;
-    d->flag.objType= objType;}
+    d->flags.keyType= keyType;
+    d->flags.objType= objType;}
   return d;
 }
 CDictionary *CCreateDictionaryWithObjectsAndKeys(const id *os, const id *ks, NSUInteger n)
@@ -406,8 +406,8 @@ CArray *CCreateArrayOfDictionaryKeys(CDictionary *d)
 {
   CArray *a; BOOL noRetainRelease, nilItems; CDictionaryEnumerator *de; id k,stop;
   if (!d) return NULL;
-  noRetainRelease= d->flag.keyType!=CDictionaryObject;
-  nilItems=        d->flag.keyType==CDictionaryNatural;
+  noRetainRelease= d->flags.keyType!=CDictionaryObject;
+  nilItems=        d->flags.keyType==CDictionaryNatural;
   a= CCreateArrayWithOptions(CDictionaryCount(d), noRetainRelease, nilItems);
   de= CDictionaryEnumeratorAlloc(d);
   stop= _nilKeyReturn(d);
@@ -420,8 +420,8 @@ CArray *CCreateArrayOfDictionaryObjects(CDictionary *d)
 {
   CArray *a; BOOL noRetainRelease, nilItems; CDictionaryEnumerator *de; id o,stop;
   if (!d) return NULL;
-  noRetainRelease= d->flag.objType!=CDictionaryObject;
-  nilItems=        d->flag.objType==CDictionaryNatural;
+  noRetainRelease= d->flags.objType!=CDictionaryObject;
+  nilItems=        d->flags.objType==CDictionaryNatural;
   a= CCreateArrayWithOptions(CDictionaryCount(d), noRetainRelease, nilItems);
   de= CDictionaryEnumeratorAlloc(d);
   stop= _nilObjReturn(d);

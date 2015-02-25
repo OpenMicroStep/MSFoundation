@@ -63,7 +63,7 @@ typedef struct CGrowStruct {
   void *zone;       // la zone allouée pour les éléments
   NSUInteger size;  // le nombre d'éléments utilisables
   NSUInteger count; // le nombre d'éléments utilisés
-  CGrowFlags flag;}
+  CGrowFlags flags;}
 CGrow;
 
 MSCoreExtern void CGrowFreeInside(id self);

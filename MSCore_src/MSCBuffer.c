@@ -121,36 +121,42 @@ BOOL CBufferEquals(const CBuffer *self, const CBuffer *anotherBuffer)
 CBuffer *CCreateBuffer(NSUInteger capacity)
 {
   CBuffer *b= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  CBufferGrow(b, capacity);
+  CBufferGrow(b, capacity, NO);
   return b;
 }
 
 // CBuffer *CCreateBufferWithBytes(const void *bytes, NSUInteger length)
 // Coded with append fcts.
 
-void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree)
+void _CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length, BOOL noCopy, BOOL noFree)
 {
-  if(noCopy) {
+  if (noCopy) {
     self->buf=    (MSByte*)bytes;
     self->length= length;
     self->size=   length;
-    self->flags.noFree= noFree;
-    CGrowSetForeverImmutable((id)self);}
-  else {
-    CBufferAppendBytes(self, bytes, length); }
+    if (noFree) {
+      self->flags.noFree= noFree;
+      CGrowSetForeverImmutable((id)self);}}
+  else CBufferAppendBytes(self, bytes, length);
 }
+void CBufferInitWithBytes(CBuffer *b, void *bytes, NSUInteger length)
+{ return _CBufferInitWithBytes(b, bytes, length,  NO,  NO); }
+void CBufferInitWithBytesNoCopy(CBuffer *b, void *bytes, NSUInteger length)
+{ return _CBufferInitWithBytes(b, bytes, length, YES,  NO); }
+void CBufferInitWithBytesNoCopyNoFree(CBuffer *b, void *bytes, NSUInteger length)
+{ return _CBufferInitWithBytes(b, bytes, length, YES, YES); }
 
 CBuffer *CCreateBufferWithBytesNoCopy(void *bytes, NSUInteger length)
 {
   CBuffer *b= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  CBufferInitWithBytes(b, bytes, length, YES, NO);
+  _CBufferInitWithBytes(b, bytes, length, YES, NO);
   return b;
 }
 
 CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUInteger length)
 {
   CBuffer *b= (CBuffer*)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  CBufferInitWithBytes(b, (void*)bytes, length, YES, YES);
+  _CBufferInitWithBytes(b, (void*)bytes, length, YES, YES);
   return b;
 }
 
@@ -163,9 +169,11 @@ CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationE
 
 #pragma mark Management
 
-void CBufferGrow(CBuffer *self, NSUInteger n)
+void CBufferGrow(CBuffer *self, NSUInteger n, BOOL verifMut)
 {
-  CGrowGrow((id)self,n);
+  if (self && n) {
+    if (verifMut) CGrowMutVerif((id)self, 0, 0, "CBufferGrow*");
+    CGrowGrow((id)self,n);}
 }
 
 void CBufferAdjustSize(CBuffer *self)
@@ -180,8 +188,9 @@ NSUInteger CBufferLength(const CBuffer *self)
 
 MSByte *CBufferCString(CBuffer *self)
 {
-  if (!self || !self->length) return (MSByte*)"";
-  CBufferGrow(self, 1);
+  if (!self || self->flags.noFree) return NULL;
+  if (!self->length) return (MSByte*)"";
+  CGrowGrow((id)self, 1); // Même si pas mutable
   self->buf[self->length]= 0x00;
   return self->buf;
 }
@@ -239,8 +248,7 @@ NSUInteger CBufferIndexOfCStringInRange(const CBuffer *self, char *cString, NSRa
 static inline void _append(CBuffer *self, const void *ptr, NSUInteger length)
 {
   if (self && ptr && length) {
-    CGrowMutVerif((id)self, 0, 0, "CBufferAppend*");
-    CBufferGrow(self, length);
+    CBufferGrow(self, length, YES);
     memmove(self->buf+self->length, ptr, length);
     self->length+= length;}
 }
@@ -275,8 +283,8 @@ void CBufferAppendByte(CBuffer *self, MSByte c)
 void CBufferFillWithByte(CBuffer *self, MSByte c, NSUInteger nb)
 {
   if (self && nb) {
-    register NSUInteger i;
-    CBufferGrow(self, nb);
+    NSUInteger i;
+    CBufferGrow(self, nb, YES);
     for (i= 0; i < nb; i++) self->buf[self->length++]= c;}
 }
 
@@ -332,7 +340,7 @@ void CBufferAppendContentsOfFile(CBuffer *self, SES path)
   fseek(f, 0, SEEK_END);
   length= (NSUInteger)ftell(f);
   fseek(f, 0, SEEK_SET);
-  CBufferGrow(self, length);
+  CBufferGrow(self, length, YES);
   fread(self->buf+self->length, 1, length, f);
   self->length+= length;
   fclose (f);
@@ -340,9 +348,9 @@ void CBufferAppendContentsOfFile(CBuffer *self, SES path)
 
 void CBufferSetBytes(CBuffer *self, const void *ptr, NSUInteger length)
 {
-  if(!self) return;
+  if (!self) return;
   CGrowMutVerif((id)self, 0, 0, "CBufferSetBytes");
-  if(length > self->length) CBufferGrow(self, length - self->length);
+  if (length > self->length) CBufferGrow(self, length - self->length, NO);
   memmove(self->buf, ptr, length);
   self->length= length;
 }

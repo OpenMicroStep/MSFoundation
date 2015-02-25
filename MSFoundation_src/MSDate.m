@@ -142,7 +142,7 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
    si le NSTimeInterval doit être exprimé en GMT ou en Local.
 - (id)initWithTimeIntervalSince1970:(NSTimeInterval)secs
 {
-  [self initWithSeconds:(MSTimeInterval)secs sinceDate:[MSDate dateWithYear:1970 month:1 day:1]] ;
+  [self initWithSeconds:(MSTimeInterval)secs sinceDate:[MSDate dateWithYear:1970 month:1 day:1]];
   return self;
 }
 */

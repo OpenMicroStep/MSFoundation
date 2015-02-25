@@ -80,8 +80,4 @@
   return (aClass == [NSMutableString class]) || [super isKindOfClass:aClass];
 }
 
-- (instancetype)initWithCapacity:(NSUInteger)capacity
-{
-  return [super mutableInitWithCapacity:capacity];
-}
 @end

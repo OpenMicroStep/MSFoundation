@@ -163,18 +163,18 @@ LIBIMPORT IMP class_lookupMethod(Class, SEL);
 #ifdef ALLOC
 #undef ALLOC
 #endif
-#define ALLOC(XX) [XX allocWithZone:NULL]
+#define ALLOC(XX) [XX allocWithZone:nil]
 
 #ifdef NEW
 #undef NEW
 #endif
-#define NEW(X)    [ALLOC(X) init]
+#define NEW(X) [ALLOC(X) init]
 
 #ifdef ASSIGNCOPY
 #undef ASSIGNCOPY
 #endif
-#define ASSIGNCOPY(X,Y)     ({id __x__ = (id)X, __y__ = (id)(Y); \
-if (__x__ != __y__) { X =  (__y__ ? COPY(__y__) : nil); if (__x__) RELEASE(__x__); } \
+#define ASSIGNCOPY(X,Y) ({id __x__= (id)X, __y__= (id)(Y); \
+if (__x__ != __y__) { X=  (__y__ ? COPY(__y__) : nil); if (__x__) RELEASE(__x__); } \
 })
 
 #define CREATE_POOL(X) NSAutoreleasePool *X = NEW(NSAutoreleasePool)

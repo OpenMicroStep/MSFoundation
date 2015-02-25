@@ -58,24 +58,24 @@ Herve Malaingre : herve@malaingre.com
 + (id)bufferWithBuffer:(MSBuffer *)data;
 + (id)bufferWithContentsOfFile:(NSString *)path;
 
-+ (id)bufferWithBytes:(const void *)bytes length:(NSUInteger)length;
-+ (id)bufferWithBytesNoCopy:(void *)bytes length:(NSUInteger)length;
++ (id)bufferWithBytes:      (const void *)bytes length:(NSUInteger)length;
++ (id)bufferWithBytesNoCopy:      (void *)bytes length:(NSUInteger)length;
 + (id)bufferWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
 
-+ (id)bufferWithCString:(char *)cString;
-+ (id)bufferWithCStringNoCopy:(char *)cString;
++ (id)bufferWithCString:            (char *)cString;
++ (id)bufferWithCStringNoCopy:      (char *)cString;
 + (id)bufferWithCStringNoCopyNoFree:(char *)cString;
 
 - (id)initWithData:(NSData *)data;
 - (id)initWithBuffer:(MSBuffer *)data;
 - (id)initWithContentsOfFile:(NSString *)path;
 
-- (id)initWithBytes:(const void *)bytes length:(NSUInteger)length;
-- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length;
+- (id)initWithBytes:      (const void *)bytes length:(NSUInteger)length;
+- (id)initWithBytesNoCopy:      (void *)bytes length:(NSUInteger)length;
 - (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
 
-- (id)initWithCString:(char *)string;
-- (id)initWithCStringNoCopy:(char *)string;
+- (id)initWithCString:            (char *)string;
+- (id)initWithCStringNoCopy:      (char *)string;
 - (id)initWithCStringNoCopyNoFree:(char *)string;
 
 #pragma mark Mutable init
@@ -86,6 +86,7 @@ Herve Malaingre : herve@malaingre.com
 + (id)mutableBufferWithContentsOfFile:(NSString *)path;
 
 + (id)mutableBufferWithBytes:(const void *)bytes length:(NSUInteger)length;
++ (id)mutableBufferWithBytesNoCopy:(void *)bytes length:(NSUInteger)length;
 + (id)mutableBufferWithCString:(char *)cString;
 
 - (id)mutableInitWithCapacity:(NSUInteger)capacity;
@@ -96,6 +97,7 @@ Herve Malaingre : herve@malaingre.com
 - (id)mutableInitWithContentsOfFile:(NSString *)path;
 
 - (id)mutableInitWithBytes:(const void *)bytes length:(NSUInteger)length;
+- (id)mutableInitWithBytesNoCopy:(void *)bytes length:(NSUInteger)length;
 - (id)mutableInitWithCString:(char *)string;
 
 #pragma mark Standard methods

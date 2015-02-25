@@ -134,10 +134,33 @@ static inline int buffer_compress(void)
   return err;
   }
 
+static inline int buffer_replace()
+  {
+  int err= 0;
+  MSBuffer *b,*c;
+  b= [[MSBuffer alloc] mutableInitWithBytes:"ACBDE" length:5];
+  [b appendBytes:"F" length:1];
+  c= [[MSBuffer alloc] initWithBytesNoCopyNoFree:"ACBDEF" length:6];
+  ASSERT_ISEQUAL(b, c, "not equals");
+  ASSERT(strcmp((char*)[b cString], (char*)[c cString])==0, "cStrings not equals");
+  RELEASE(c);
+  [b replaceBytesInRange:NSMakeRange(3, 2) withBytes:"G" length:1];
+  c= [[MSBuffer alloc] initWithBytesNoCopyNoFree:"ACBGF" length:5];
+  ASSERT_ISEQUAL(b, c, "not equals %s %s",[b cString],[c cString]);
+  RELEASE(c);
+  [b replaceBytesInRange:NSMakeRange(2, 2) withBytes:"HIJ" length:3];
+  c= [[MSBuffer alloc] initWithBytesNoCopyNoFree:"ACHIJF" length:6];
+  ASSERT_ISEQUAL(b, c, "not equals %s %s",[b cString],[c cString]);
+  RELEASE(c);
+  RELEASE(b);
+  return err;
+  }
+
 TEST_FCT_BEGIN(MSBuffer)
     int err= 0;
     err+= buffer_create();
     err+= buffer_b64();
     err+= buffer_compress();
+    err+= buffer_replace();
     return err;
 TEST_FCT_END(MSBuffer)
