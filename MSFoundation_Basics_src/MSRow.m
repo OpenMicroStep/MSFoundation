@@ -75,9 +75,9 @@
 {
   id o = nil ;
   if (aKey && _rowKeys) {
-    NSUInteger idx = (NSUInteger)CDictionaryObjectForKey(_rowKeys->_table, (const void *)aKey) ;
-    if (idx) {
-      o = CArrayObjectAtIndex((CArray*)_values, idx - 1) ;
+    NSUInteger idx = (NSUInteger)CDictionaryObjectForKey(_rowKeys->_table, aKey) ;
+    if (idx != NSNotFound) {
+      o = CArrayObjectAtIndex((CArray*)_values, idx) ;
       if ([o isNull]) { o = nil ; }
     }
   }
@@ -107,9 +107,9 @@
   NSUInteger count ;
   if ((count = CArrayCount((CArray*)keys))) {
     NSUInteger i ;
-    table= CCreateDictionaryWithOptions(count, CDictionaryPointer, CDictionaryPointer);
+    table= CCreateDictionaryWithOptions(count, CDictionaryObject, CDictionaryNatural);
     for (i = 0 ; i < count ; i++) {
-      CDictionarySetObjectForKey(table, (id)CArrayObjectAtIndex((CArray*)keys,i),  (id)(i+1)) ;
+      CDictionarySetObjectForKey(table, (id)i, CArrayObjectAtIndex((CArray*)keys,i)) ;
     }
   }
   return table ;
@@ -150,9 +150,7 @@
 - (MSArray *)keys { return _keys ; }
 - (NSUInteger)indexForKey:(id)aKey
 {
-  NSUInteger idx = (NSUInteger)CDictionaryObjectForKey(_table, (id)aKey) ;
-  if (idx) { return idx - 1 ; }
-  return NSNotFound ;
+  return (NSUInteger)CDictionaryObjectForKey(_table, (id)aKey) ;
 }
 
 - (NSUInteger)count { return CArrayCount((CArray*)_keys) ; }
