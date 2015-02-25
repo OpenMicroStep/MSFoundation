@@ -155,6 +155,16 @@ static id NSPlaceholderString_myimp_initWithFormat(id self, SEL _cmd, NSString*f
 }
 @end
 
+@implementation NSData (Compatibility)
+
++ (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b
+{ return [MSBuffer dataWithBytesNoCopy:bytes length:length freeWhenDone:b]; }
+
+- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b
+{ return [MSBuffer dataWithBytesNoCopy:bytes length:length freeWhenDone:b]; }
+
+@end
+
 @implementation NSError
 @end
 

@@ -65,9 +65,15 @@ static inline id _initWithBytes(id a, BOOL m, const void *bytes, NSUInteger leng
   else              CBufferInitWithBytesNoCopyNoFree((CBuffer*)a, (void*)bytes, length);
   return _init(a,m);
 }
-static inline id _initWithBuffer(id a, BOOL m, NSData *d)
+static inline id _initWithData(id a, BOOL m, NSData *d)
 { 
-  return _initWithBytes(a, m, (void *)[d bytes], [d length], NO, NO);
+  CBufferAppendData((CBuffer*)a, d);
+  return _init(a,m);
+}
+static inline id _initWithBuffer(id a, BOOL m, MSBuffer *d)
+{ 
+  CBufferAppendBuffer((CBuffer*)a, (CBuffer*)d);
+  return _init(a,m);
 }
 static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 { 
@@ -95,12 +101,12 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 
 + (id)dataWithData:             (NSData *)data {return AR([AL(self)        initWithData:  data]);}
 + (id)bufferWithData:           (NSData *)data {return AR([AL(self)        initWithData:  data]);}
-+ (id)bufferWithBuffer:       (MSBuffer *)buf  {return AR([AL(self)        initWithBuffer:buf ]);}
 + (id)mutableBufferWithData:    (NSData *)data {return AR([AL(self) mutableInitWithData:  data]);}
+- (id)initWithData:             (NSData *)data {return _initWithData(self,  NO, data);}
+- (id)mutableInitWithData:      (NSData *)data {return _initWithData(self, YES, data);}
++ (id)bufferWithBuffer:       (MSBuffer *)buf  {return AR([AL(self)        initWithBuffer:buf ]);}
 + (id)mutableBufferWithBuffer:(MSBuffer *)buf  {return AR([AL(self) mutableInitWithBuffer:buf ]);}
-- (id)initWithData:             (NSData *)data {return _initWithBuffer(self,  NO, data);}
 - (id)initWithBuffer:         (MSBuffer *)buf  {return _initWithBuffer(self,  NO, buf );}
-- (id)mutableInitWithData:      (NSData *)data {return _initWithBuffer(self, YES, data);}
 - (id)mutableInitWithBuffer:  (MSBuffer *)buf  {return _initWithBuffer(self, YES, buf );}
 
 + (id)dataWithBytes:         (const void *)b length:(NSUInteger)l                      {return AR([AL(self)        initWithBytes:            b length:l]);}
@@ -318,7 +324,7 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 - (void)appendBytes:(const void *)bytes length:(NSUInteger)length
 { CBufferAppendBytes((CBuffer*)self, bytes, length); }
 - (void)appendData:(NSData *)data
-{ CBufferAppendBytes((CBuffer*)self, [data bytes], [data length]); }
+{ CBufferAppendData((CBuffer*)self, data); }
 - (void)appendBuffer:(MSBuffer *)buffer
 { CBufferAppendBuffer((CBuffer*)self, (CBuffer*)buffer); }
 
@@ -480,18 +486,6 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
 
 @implementation NSData (MSDataAdditions)
 
-#ifdef NS_DATA_UPGRADE
-+ (id)dataWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b
-{ return AUTORELEASE(MSCreateBufferWithBytes((void *)bytes, length, NO, b)); }
-
-- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b
-{
-  RELEASE(self);
-  return AUTORELEASE(MSCreateBufferWithBytes((void *)bytes, length, NO, b));
-}
-
-#endif
-
 // TODO: MSBytesToHexaString as CString
 //- (NSString *)toString { return MSBytesToHexaString((void *)[self bytes], [self length], YES); }
 //- (NSString *)listItemString { return MSBytesToHexaString((void *)[self bytes], [self length], YES); }
@@ -562,6 +556,15 @@ MSBuffer *MSURLFromBytes(void *bytes, NSUInteger length) // doesn't convert spec
 }
 
 @end
+
+void CBufferAppendData(CBuffer *self, NSData *data)
+{
+  if (self) {
+    NSUInteger len= [data length];
+    CBufferGrow(self, len, YES);
+    [data getBytes:self->buf + self->length range:NSMakeRange(0, len)];
+    self->length+= len;}
+}
 
 /* Obsolete. Use: CBufferBase64[En|De]codeAndAppendBytes(b, bytes, length)
 MSBuffer *MSBase64FromBytes(const void *bytes, NSUInteger length, BOOL encodeWithNewLines)

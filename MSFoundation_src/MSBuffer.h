@@ -73,6 +73,7 @@ Herve Malaingre : herve@malaingre.com
 - (id)initWithBytes:      (const void *)bytes length:(NSUInteger)length;
 - (id)initWithBytesNoCopy:      (void *)bytes length:(NSUInteger)length;
 - (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
+- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b;
 
 - (id)initWithCString:            (char *)string;
 - (id)initWithCStringNoCopy:      (char *)string;
@@ -121,10 +122,10 @@ Herve Malaingre : herve@malaingre.com
 - (void)setLength:(NSUInteger)length;
 - (void)increaseLengthBy:(NSUInteger)extraLength;
 - (void)appendBytes:(const void *)bytes length:(NSUInteger)length;
-- (void)appendBuffer:(NSData *)other;
+- (void)appendBuffer:(MSBuffer *)other;
 - (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes;
 - (void)resetBytesInRange:(NSRange)range;
-- (void)setBuffer:(NSData *)data;
+- (void)setBuffer:(MSBuffer *)data;
 - (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)replacementBytes length:(NSUInteger)replacementLength;
 
 #pragma mark Encoding
@@ -140,6 +141,8 @@ Herve Malaingre : herve@malaingre.com
   // return nil if not decodable.
 
 @end
+
+MSFoundationExtern void CBufferAppendData(CBuffer *self, NSData *data);
 
 #define MSCreateBuffer(C) (MSBuffer*)CCreateBuffer(C)
 //The following method is obsolete. Use: CCreateBufferWithBytes[NoCopy[NoFree]]
