@@ -543,12 +543,12 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
 
 - (float)floatValue
 {
-  return strtof([self UTF8String], NULL);
+  return [[MSDecimal decimalWithString:self] floatValue];
 }
 
 - (double)doubleValue
 {
-  return strtod([self UTF8String], NULL);
+  return [[MSDecimal decimalWithString:self] doubleValue];
 }
 
 -(BOOL)boolValue

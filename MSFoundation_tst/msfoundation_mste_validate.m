@@ -372,7 +372,7 @@ static inline int _decode(char *ssrc, id ret)
 
 static void mste_some(test_t *test)
 {
-  int err= 0; clock_t t0= clock(), t1; double seconds;
+  int err= 0;
 
 /*  { //For generate MSTE expression...
     id o = [NSDecimalNumber decimalNumberWithString:@"12.34"] ;
@@ -490,9 +490,7 @@ static void mste_some(test_t *test)
 
     err += _decode("[\"MSTE0102\",11,\"CRC32766EEF\",0,0,31,2,21,\"multiple referenced object\",9,1]", o);
   }
-    
-  t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
-  fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSTE (MSF)",(err?"FAIL":"PASS"),seconds);
+
   TASSERT_EQUALS(test, err, 0, "mste errors %d",err);
 }
 

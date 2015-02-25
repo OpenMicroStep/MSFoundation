@@ -279,184 +279,101 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     else MSRaise(NSGenericException, @"encodeString:withTokenType: no string to encode!") ;
 }
 
+static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL token)
+{
+  if (token) {
+    [self _encodeTokenSeparator] ;
+    [self _encodeTokenType:MSTE_TOKEN_TYPE_DECIMAL_VALUE] ;}
+  [self _encodeTokenSeparator] ;
+}
+
+- (void)encodeDecimal:(MSDecimal *)d withTokenType:(BOOL)token
+{
+    char *ascii= NULL;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_DECIMAL_VALUE, token);
+    ascii= m_apm_to_fixpt_stringexp(-1, (CDecimal*)d, '.', 0, 0);
+    CBufferAppendCString((CBuffer *)_content, ascii);
+    free(ascii);
+}
+
 - (void)encodeUnsignedChar:(MSByte)c withTokenType:(BOOL)token
 {
     char toAscii[4] = "";
-    NSUInteger len, i ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_UNSIGNED_CHAR] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_UNSIGNED_CHAR, token);
     sprintf(toAscii, "%u", c);
-    len = (MSUInt)strlen(toAscii) ;
-    for (i=0 ; i<len ; i++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[i]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeChar:(MSChar)c withTokenType:(BOOL)token
 {
     char toAscii[5] = "";
-    NSUInteger len, i ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_CHAR] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_CHAR, token);
     sprintf(toAscii, "%d", c);
-    len = (MSUInt)strlen(toAscii) ;
-    for (i=0 ; i<len ; i++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[i]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeUnsignedShort:(MSUShort)s withTokenType:(BOOL)token
 {
     char toAscii[6] = "";
-    NSUInteger len, i ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_UNSIGNED_SHORT] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_UNSIGNED_SHORT, token);
     sprintf(toAscii, "%u", s);
-    len = (MSUInt)strlen(toAscii) ;
-    for (i=0 ; i<len ; i++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[i]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeShort:(MSShort)s withTokenType:(BOOL)token
 {
     char toAscii[7] = "";
-    NSUInteger len, i ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_SHORT] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_SHORT, token);
     sprintf(toAscii, "%d", s);
-    len = (MSUInt)strlen(toAscii) ;
-    for (i=0 ; i<len ; i++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[i]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeUnsignedInt:(MSUInt)i withTokenType:(BOOL)token
 {
     char toAscii[11] = "";
-    NSUInteger len, j ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_UNSIGNED_INT32] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_UNSIGNED_INT32, token);
     sprintf(toAscii, "%u", i);
-    len = (MSUInt)strlen(toAscii) ;
-    for (j=0 ; j<len ; j++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[j]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeInt:(MSInt)i withTokenType:(BOOL)token
 {
     char toAscii[12] = "";
-    NSUInteger len, j ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_INT32] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_INT32, token);
     sprintf(toAscii, "%d", i);
-    len = (MSUInt)strlen(toAscii) ;
-    for (j=0 ; j<len ; j++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[j]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeUnsignedLongLong:(MSULong)l withTokenType:(BOOL)token
 {
     char toAscii[21] = "";
-    NSUInteger len, j ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_UNSIGNED_INT64] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_UNSIGNED_INT64, token);
     sprintf(toAscii, "%llu", l);
-    len = (MSUInt)strlen(toAscii) ;
-    for (j=0 ; j<len ; j++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[j]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeLongLong:(MSLong)l withTokenType:(BOOL)token
 {
     char toAscii[22] = "";
-    NSUInteger len, j ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_INT64] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_INT64, token);
     sprintf(toAscii, "%lld", l);
-    len = (MSUInt)strlen(toAscii) ;
-    for (j=0 ; j<len ; j++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[j]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeFloat:(float)f withTokenType:(BOOL)token
 {
     char toAscii[20] = "";
-    NSUInteger len, j ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_FLOAT] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_FLOAT, token);
     sprintf(toAscii, "%f", f);
-    len = (MSUInt)strlen(toAscii) ;
-    for (j=0 ; j<len ; j++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[j]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeDouble:(double)d withTokenType:(BOOL)token
 {
     char toAscii[40] = "";
-    NSUInteger len, j ;
-    
-    if (token) {
-        [self _encodeTokenSeparator] ;
-        [self _encodeTokenType:MSTE_TOKEN_TYPE_DOUBLE] ;
-    }
-    
-    [self _encodeTokenSeparator] ;
+    _encodeTokenTypeWithSeparator(self, MSTE_TOKEN_TYPE_DOUBLE, token);
     sprintf(toAscii, "%.15f", d);
-    len = (MSUInt)strlen(toAscii) ;
-    for (j=0 ; j<len ; j++) {
-        CBufferAppendByte((CBuffer *)_content, (MSByte)toAscii[j]) ;
-    }
+    CBufferAppendCString((CBuffer *)_content, toAscii);
 }
 
 - (void)encodeArray:(NSArray *)anArray
@@ -516,10 +433,10 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     for (i = 0 ; i< count ; i++) {
         NSString *stringKey = [keys objectAtIndex:i] ;
-        NSUInteger keyReference = (NSUInteger)CDictionaryObjectForKey(_keys, (id)stringKey) ;
+        NSUInteger keyReference = (NSUInteger)CDictionaryObjectForKey(_keys, stringKey) ;
         if (!keyReference) {
             keyReference = ++_lastKeyIndex ;
-            CDictionarySetObjectForKey(_keys, (id)stringKey, (id)keyReference) ;
+            CDictionarySetObjectForKey(_keys, (id)keyReference, stringKey) ;
             [_keysArray addObject:stringKey] ;
         }
         
@@ -547,7 +464,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
         [self _encodeTokenType:singleToken] ;
     }
     else {
-        NSUInteger objectReference = (NSUInteger)CDictionaryObjectForKey(_encodedObjects, (id)anObject) ;
+        NSUInteger objectReference = (NSUInteger)CDictionaryObjectForKey(_encodedObjects, anObject) ;
         
         if (objectReference) {
             //this is an already encoded object
@@ -564,16 +481,16 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
                 if (!snapshot) MSRaise(NSGenericException, @"encodeObject: Specific user classes must implement MSTESnapshot to be encoded as a dictionary!") ;
                 
                 objectClass = [anObject class] ;
-                classIndex = (NSUInteger)CDictionaryObjectForKey(_classes, (id)objectClass) ;
+                classIndex = (NSUInteger)CDictionaryObjectForKey(_classes, objectClass) ;
                 
                 if (!classIndex) {
                     classIndex = ++_lastClassIndex ;
-                    CDictionarySetObjectForKey(_classes, (id)objectClass, (id)classIndex) ;
+                    CDictionarySetObjectForKey(_classes, (id)classIndex, objectClass) ;
                     [_classesArray addObject:NSStringFromClass(objectClass)] ;
                 }
                 
                 objectReference = ++_lastReference ;
-                CDictionarySetObjectForKey(_encodedObjects, (id)anObject, (id)objectReference) ;
+                CDictionarySetObjectForKey(_encodedObjects, (id)objectReference, anObject) ;
                 [self _encodeTokenSeparator] ;
                 [self _encodeTokenType:(MSTE_TOKEN_TYPE_USER_CLASS + classIndex - 1)] ;
                 [self encodeDictionary:snapshot isSnapshot:YES] ;
@@ -582,7 +499,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
               
                 if (referencing) {
                     objectReference = ++_lastReference ;
-                    CDictionarySetObjectForKey(_encodedObjects, (id)anObject, (id)objectReference) ;
+                    CDictionarySetObjectForKey(_encodedObjects, (id)objectReference, anObject) ;
                 }
               
                 [self _encodeTokenSeparator] ;
@@ -606,8 +523,8 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     
     _keysArray = NEW(NSMutableArray) ;
     _classesArray = NEW(NSMutableArray) ;
-    _classes = CCreateDictionaryWithOptions(32, CDictionaryPointer, CDictionaryPointer);
-    _keys = CCreateDictionaryWithOptions(256, CDictionaryPointer, CDictionaryPointer);
+    _classes = CCreateDictionaryWithOptions(32, CDictionaryObject, CDictionaryPointer);
+    _keys = CCreateDictionaryWithOptions(256, CDictionaryObject, CDictionaryPointer);
     _encodedObjects = CCreateDictionaryWithOptions(256, CDictionaryPointer, CDictionaryPointer);
     _global = (MSBuffer*)CCreateBuffer(65536) ;
     _content = (MSBuffer*)CCreateBuffer(65536) ;
@@ -642,7 +559,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
     }
     
     if (((CBuffer*)_content)->length) {
-        CBufferAppendBuffer(_global, _content) ;
+        CBufferAppendBuffer((CBuffer *)_global, (const CBuffer *)_content) ;
     }
     
     CBufferAppendByte((CBuffer *)_global, (MSByte)']');
@@ -828,6 +745,16 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 
 static NSNumber *__aBool = nil ;
 
+
+@implementation MSDecimal (MSTEncoding)
+- (MSInt)singleEncodingCode:(MSTEncoder *)encoder
+{
+  return MSTE_TOKEN_MUST_ENCODE ;
+  MSUnused(encoder);
+}
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_DECIMAL_VALUE ; }
+@end
+
 @implementation NSNumber (MSTEncoding)
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder
 {
@@ -904,14 +831,17 @@ static NSNumber *__aBool = nil ;
         return MSTE_TOKEN_TYPE_DOUBLE ;
         break ;
       }
-#ifdef WO451
-      default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%s'", type] ; break;
-#else
       default:  [NSException raise:NSInvalidArgumentException format:@"Unknown number type '%hhu'", type] ; break;
-#endif
     }
     return 0 ;
   }
+}
+@end
+
+@implementation MSDecimal (MSTEncodingPrivate)
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder
+{
+  [encoder encodeDecimal:self withTokenType:NO];
 }
 @end
 

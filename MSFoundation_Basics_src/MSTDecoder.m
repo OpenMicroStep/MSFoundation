@@ -296,6 +296,7 @@ float _MSTDecodeFloat(unsigned char **pointer, unsigned char *endPointer, NSStri
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
+    // TODO: no strtof, use Decimal
     float result = strtof((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeFloat - %@ (exceed buffer end)", operation) ;
@@ -311,6 +312,7 @@ double _MSTDecodeDouble(unsigned char **pointer, unsigned char *endPointer, NSSt
 {
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
+    // TODO: no strtod, use Decimal
     double result = strtod((const char *)s, &stopCar) ;
     
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeDouble - %@ (exceed buffer end)", operation) ;

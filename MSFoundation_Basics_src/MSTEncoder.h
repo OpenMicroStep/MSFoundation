@@ -106,6 +106,7 @@
 - (void)encodeUnicodeString:(const char *)str withTokenType:(BOOL)token ; // encodes an UTF8 string
 - (void)encodeString:(NSString *)s withTokenType:(BOOL)token ; // transforms a string in its UTF16 counterpart and encodes it
 - (void)encodeString:(NSString *)s withTokenType:(BOOL)token andDoubleQuotes:(BOOL)doubleQuotes; // transforms a string in its UTF16 counterpart and encodes it
+- (void)encodeDecimal:(MSDecimal *)d withTokenType:(BOOL)token;
 - (void)encodeUnsignedChar:(MSByte)c withTokenType:(BOOL)token ;
 - (void)encodeChar:(MSChar)c withTokenType:(BOOL)token ;
 - (void)encodeUnsignedShort:(MSUShort)s withTokenType:(BOOL)token ;

@@ -98,8 +98,10 @@ Eric Baradat :  k18rt@free.fr
 
 - (BOOL)isEqualToDecimal:(MSDecimal*)o;
 
+- (BOOL)      boolValue;
 - (MSChar)    charValue;
 - (MSByte)    byteValue;
+- (MSByte)    unsignedCharValue;
 - (MSShort)   shortValue;
 - (MSUShort)  unsignedShortValue;
 - (MSInt)     intValue;
@@ -108,6 +110,8 @@ Eric Baradat :  k18rt@free.fr
 - (MSULong)   unsignedLongLongValue;
 - (NSInteger) integerValue;
 - (NSUInteger)unsignedIntegerValue;
+- (float)     floatValue;
+- (double)    doubleValue;
 
 - (MSDecimal*)floorDecimal;
 - (MSDecimal*)ceilDecimal;

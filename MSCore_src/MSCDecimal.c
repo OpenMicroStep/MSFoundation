@@ -234,13 +234,24 @@ MSLong     CDecimalLongValue(    CDecimal *a) {return !a?0:m_apm_to_long(a);}
 MSULong    CDecimalULongValue(   CDecimal *a) {return !a?0:m_apm_to_ulong(a);}
 NSInteger  CDecimalIntegerValue( CDecimal *a) {return !a?0:m_apm_to_integer(a);}
 NSUInteger CDecimalUIntegerValue(CDecimal *a) {return !a?0:m_apm_to_uinteger(a);}
-/*
-double CDecimalDoubleValue (CDecimal *a)
+
+// TODO: Revoir si inférieur à float min ou supérieur à float max
+float CDecimalFloatValue(CDecimal *d)
 {
-  if (!a) return 0.;
-  return 1.0;
+  return (float)CDecimalDoubleValue(d);
 }
-*/
+
+// TODO: Ne pas passer par strtod
+double CDecimalDoubleValue(CDecimal *a)
+{
+  double ret= 0.0;
+  if (a) {
+    char *ascii;
+    ascii= m_apm_to_fixpt_stringexp(-1, a, '.', 0, 0);
+    ret= strtod(ascii, NULL);
+    free(ascii);}
+  return ret;
+}
 
 // TODO: !!!
 /*

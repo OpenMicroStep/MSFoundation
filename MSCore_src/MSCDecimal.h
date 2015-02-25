@@ -102,7 +102,8 @@ MSCoreExtern MSLong     CDecimalLongValue(    CDecimal*);
 MSCoreExtern MSULong    CDecimalULongValue(   CDecimal*);
 MSCoreExtern NSInteger  CDecimalIntegerValue( CDecimal*);
 MSCoreExtern NSUInteger CDecimalUIntegerValue(CDecimal*);
-// TODO: MSCoreExtern double    CDecimalDoubleValue (CDecimal*);
+MSCoreExtern float      CDecimalFloatValue(   CDecimal*);
+MSCoreExtern double     CDecimalDoubleValue(  CDecimal*);
 
 MSCoreExtern MSLong  CStrToLongLong( const char *restrict str, char **restrict endptr);
 MSCoreExtern MSULong CStrToULongLong(const char *restrict str, char **restrict endptr);

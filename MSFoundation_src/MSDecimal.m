@@ -138,8 +138,10 @@
   return CDecimalEquals((CDecimal*)self, (CDecimal*)o);
 }
 
+- (BOOL)      boolValue             {return CDecimalCharValue    ((CDecimal*)self) != 0;}
 - (MSChar)    charValue             {return CDecimalCharValue    ((CDecimal*)self);}
 - (MSByte)    byteValue             {return CDecimalByteValue    ((CDecimal*)self);}
+- (MSByte)    unsignedCharValue     {return CDecimalByteValue    ((CDecimal*)self);}
 - (MSShort)   shortValue            {return CDecimalShortValue   ((CDecimal*)self);}
 - (MSUShort)  unsignedShortValue    {return CDecimalUShortValue  ((CDecimal*)self);}
 - (MSInt)     intValue              {return CDecimalIntValue     ((CDecimal*)self);}
@@ -148,6 +150,8 @@
 - (MSULong)   unsignedLongLongValue {return CDecimalULongValue   ((CDecimal*)self);}
 - (NSInteger) integerValue          {return CDecimalIntegerValue ((CDecimal*)self);}
 - (NSUInteger)unsignedIntegerValue  {return CDecimalUIntegerValue((CDecimal*)self);}
+- (float)     floatValue            {return CDecimalFloatValue   ((CDecimal*)self);}
+- (double)    doubleValue           {return CDecimalDoubleValue  ((CDecimal*)self);}
 
 - (NSString*)description   {return [(id)CDecimalRetainedDescription(self) autorelease];}
 - (NSString*)toString      {return [self description];}

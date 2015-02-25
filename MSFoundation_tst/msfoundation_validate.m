@@ -9,5 +9,5 @@ test_t MSFoundationTests[]= {
   {"MSDecimal"   ,msfoundation_decimal   ,NULL,INTITIALIZE_TEST_T_END},
   {"MSDictionary",msfoundation_dictionary,NULL,INTITIALIZE_TEST_T_END},
   {"MSString"    ,msfoundation_string    ,NULL,INTITIALIZE_TEST_T_END},
-//{"MSTE"        ,msfoundation_mste      ,NULL,INTITIALIZE_TEST_T_END},
+  {"MSTE"        ,msfoundation_mste      ,NULL,INTITIALIZE_TEST_T_END},
   {NULL}};
