@@ -248,6 +248,7 @@ const CString* CDictionaryRetainedDescription(id self)
       identChai.source= ses.source;
       identChai.chai= ses.chai;
       identChai.counter= 0;
+      ses.encoding= 0;
       ses.source= &identChai;
       ses.chai= _indentChai;
       CStringAppendSES(s, ses);
