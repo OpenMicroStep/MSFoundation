@@ -305,6 +305,14 @@ static inline NSString *_createStringWithContentsOfUTF8File(NSString *file)
     buf= [MSBuffer bufferWithBytes:[data bytes] length:[data length]];}
   return (const char *)[buf cString];
 }
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding
+{
+  CBuffer *b= CCreateBuffer(0);
+  CBufferAppendSES(b, SESFromString(self), encoding);
+  AUTORELEASE((MSBuffer*)b);
+  return (const char *)CBufferCString(b);
+}
+
 static unichar _slowChai(const void *self, NSUInteger *pos)
 {
   return [(NSString*)self characterAtIndex:(*pos)++];

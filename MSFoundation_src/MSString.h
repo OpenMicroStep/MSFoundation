@@ -47,6 +47,7 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 
 @interface NSString (MSAddendum)
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file;
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)allowLossyConversion;
 - (SES)stringEnumeratorStructure;
 - (NSMutableString *)replaceOccurrencesOfString:(NSString *)tag withString:(NSString *)replace;
