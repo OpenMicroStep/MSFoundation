@@ -78,7 +78,7 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 + (id)data          {return AR([AL(self)        init]);}
 + (id)buffer        {return AR([AL(self)        init]);}
 + (id)mutableBuffer {return AR([AL(self) mutableInit]);}
-+ (id)new           {return AR([AL(self) mutableInit]);} // mutable
++ (id)new           {return [AL(self) mutableInit];} // mutable
 - (id)init          {return _init(self,  NO);}
 - (id)mutableInit   {return _init(self, YES);}
 
