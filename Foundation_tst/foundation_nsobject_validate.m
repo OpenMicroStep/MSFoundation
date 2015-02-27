@@ -128,8 +128,107 @@ int testPerform()
     return 0;
 }
 
+
+#include <assert.h>
+#define RCOUNT 100000
+int _w= 0;
+struct pdata_t {
+  long no;
+  id o;
+  long collision;};
+
+void* _concurentRetain(void* data)
+{
+  struct pdata_t *d= (struct pdata_t *)data;
+  id o= d->o;
+  NSUInteger r0,r,collision,i;
+  r0= [o retainCount]; collision= 0;
+  for (i= 0; i<RCOUNT; i++) {
+    [o retain];
+    if ((r= [o retainCount])>r0+i+1) {
+//printf("-> %d %lu %lu\n", d->no, i, r);
+      collision++;
+      r0= r-i-1;
+      }
+    //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
+    }
+  d->collision= collision;
+  __sync_add_and_fetch(&_w, 1);
+  return NULL;
+}
+void* _concurentRelease(void* data)
+{
+  struct pdata_t *d= (struct pdata_t *)data;
+  id o= d->o;
+  NSUInteger r0,r,collision,i;
+  r0= [o retainCount]; collision= 0;
+  for (i= 0; i<RCOUNT; i++) {
+    [o release];
+    if ((r= [o retainCount])<r0-i-1) {
+//printf("-> %d %lu %lu\n", d->no, i, r);
+      collision++;
+      r0= r+i+1;
+      }
+    //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
+    }
+  d->collision= collision;
+  __sync_add_and_fetch(&_w, 1);
+  return NULL;
+}
+
+void _launchThread(void *(*start_routine)(void *), void* data)
+{
+  pthread_attr_t attr;
+  pthread_t      posixThreadID;
+  int            returnVal, threadError;
+ 
+  returnVal= pthread_attr_init(&attr);
+  assert(!returnVal);
+  returnVal= pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+  assert(!returnVal);
+ 
+  threadError= pthread_create(&posixThreadID, &attr, start_routine, data);
+
+  returnVal= pthread_attr_destroy(&attr);
+  assert(!returnVal);
+  if (threadError != 0)
+    {
+         // Report an error.
+    }
+}
+
+int testThreadRetain()
+{
+  int err= 0;
+  id o;
+  struct pdata_t d1, d2;
+  o= [[NSObject alloc] init];
+  d1.no= 1; d1.o= o;
+  d2.no= 2; d2.o= o;
+
+  _w= 0; d1.collision= 0; d2.collision= 0;
+  _launchThread(_concurentRetain, &d1);
+  _launchThread(_concurentRetain, &d2);
+  while (_w!=2) sleep(1);
+  ASSERT_EQUALS([o retainCount], 2*RCOUNT+1, "retainCount %u != expected %u");
+  ASSERT(d1.collision + d2.collision > 0, "retain  collisions 1:%ld 2:%ld", d1.collision, d2.collision);
+//printf("retain  collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
+
+  _w= 0; d1.collision= 0; d2.collision= 0;
+  _launchThread(_concurentRelease, &d1);
+  _launchThread(_concurentRelease, &d2);
+  while (_w!=2) sleep(1);
+  ASSERT_EQUALS([o retainCount], 1, "retainCount %u != expected %u");
+  ASSERT(d1.collision + d2.collision > 0, "release collisions 1:%ld 2:%ld", d1.collision, d2.collision);
+//printf("release collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
+
+  RELEASE(o);
+  return err;
+}
+
 TEST_FCT_BEGIN(NSObject)
     testRun("memory", testNew);
     testRun("class tree", testClassTree);
     testRun("perform", testPerform);
+    testRun("threadRetain", testThreadRetain);
 TEST_FCT_END(NSObject)
