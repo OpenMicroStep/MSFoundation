@@ -225,6 +225,10 @@ unichar _indentChai(const void *src, NSUInteger *pos) {
   return c;
 }
 
+// TODO:
+// CStringAppendCDictionaryDescription(CString *s, CDictionary *s, long indentWhites)
+// Et c'est cette fonction qui devient polymorphe.
+
 const CString* CDictionaryRetainedDescription(id self)
 {
   if(!self) return nil;
