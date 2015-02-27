@@ -9,25 +9,26 @@
 #import "MSFoundation_Private.h"
 
 #ifdef WO451
-static NSNull *__singletonNSNull = nil ;
 
 @implementation NSNull
-+ (void)load{ __singletonNSNull= MSCreateObject(self); }
+// The +load order defined by the Objc spec is not respected by WO451 :(
+// That's why we directly use/change the MSNull global variable to give WO451 NSNull capabilities
++ (void)load{ MSNull = MSCreateObject(self); }
 + (BOOL)supportsSecureCoding{ return YES; }
 
-+ (id)new { return __singletonNSNull ; }
-+ (id)allocWithZone:(NSZone *)zone { return __singletonNSNull ; }
-+ (id)alloc { return __singletonNSNull ; }
-+ (NSNull *)null{ return __singletonNSNull; }
++ (id)new { return MSNull ; }
++ (id)allocWithZone:(NSZone *)zone { return MSNull ; }
++ (id)alloc { return MSNull ; }
++ (NSNull *)null{ return MSNull; }
 
-- (id)copyWithZone:(NSZone *)zone { return __singletonNSNull ; }
+- (id)copyWithZone:(NSZone *)zone { return MSNull ; }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {}
-- (id)initWithCoder:(NSCoder *)aDecoder { return __singletonNSNull ; }
+- (id)initWithCoder:(NSCoder *)aDecoder { return MSNull ; }
 
 - (oneway void)release {}
-- (id)autorelease { return __singletonNSNull ;}
-- (id)retain { return __singletonNSNull ; }
+- (id)autorelease { return MSNull ;}
+- (id)retain { return MSNull ; }
 @end
 
 @implementation NSArray (MSCompatibilityLayer)

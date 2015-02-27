@@ -130,11 +130,11 @@ static _MSDelayedPostingManager *__theMSDelayedPostingManager= nil;
 
 NSNull *MSNull= nil;
 
-@implementation _MSDelayedPostingManager
-
-// OK, we use a load on a private class for something it's not made for.
-// But it's free and in the right file, so why not
+@implementation NSNull(MSNull)
 + (void)load{ MSNull= RETAIN([NSNull null]); }
+@end
+
+@implementation _MSDelayedPostingManager
 
 // warning, this class method is not thread safe...
 + (_MSDelayedPostingManager *)defaultDelayedManager
