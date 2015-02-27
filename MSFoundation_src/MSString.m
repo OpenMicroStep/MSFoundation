@@ -658,7 +658,7 @@ static inline id _stringWithFormatv(Class cl, id a, BOOL m, const char *fmt, va_
   ret= _stringWithFormatv(CL,A,M, FMT,ap); \
   va_end(ap); \
   ret; })
-static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *path, NSStringEncoding inEnc, NSStringEncoding outEnc, NSError **error)
+static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *path, NSStringEncoding inEnc, NSStringEncoding *outEnc, NSError **error)
 {
   CBuffer* buf= CCreateBuffer(0);
   CBufferAppendContentsOfFile(buf, SESFromString(path));

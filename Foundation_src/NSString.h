@@ -14,7 +14,7 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
     NSRegularExpressionSearch = 1024    /* Applies to rangeOfString:..., stringByReplacingOccurrencesOfString:..., and replaceOccurrencesOfString:... methods only; the search string is treated as an ICU-compatible regular expression; if set, no other options can apply except NSCaseInsensitiveSearch and NSAnchoredSearch */
 };
 
-@interface NSString : NSObject
+@interface NSString : NSObject <NSCopying, NSMutableCopying, NSSecureCoding>
 
 - (NSUInteger)length;			
 - (unichar)characterAtIndex:(NSUInteger)index;
