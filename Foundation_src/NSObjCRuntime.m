@@ -2,10 +2,10 @@
 
 void NSLog(NSString *format,...)
 {
-    va_list arguments;
-    va_start(arguments, format);
-    NSLogv(format, arguments);
-    va_end(arguments);
+  va_list arguments;
+  va_start(arguments, format);
+  NSLogv(format, arguments);
+  va_end(arguments);
 }
 void NSLogv(NSString *format,va_list args)
 {
@@ -15,52 +15,63 @@ void NSLogv(NSString *format,va_list args)
   RELEASE((id)s);
 }
 
-SEL NSSelectorFromString(NSString *selectorName)
-{
-    if(selectorName == nil) {
-        return NULL;
-    }
-    return sel_registerName([selectorName UTF8String]);
+static inline NSString *_stringFromCStr(const char *cstr) {
+  return cstr ? AUTORELEASE((id)CCreateStringWithBytes(NSUTF8StringEncoding, cstr, strlen(cstr))) : nil;
 }
 
+SEL NSSelectorFromString(NSString *selectorName)
+{
+  return sel_registerName([selectorName UTF8String]);
+}
 NSString *NSStringFromSelector(SEL selector)
 {
-    if(!selector) {
-        return nil;
-    }
-    const char* selectorName= sel_getName(selector);
-    return AUTORELEASE((id)CCreateStringWithBytes(NSUTF8StringEncoding, selectorName, strlen(selectorName)));
+  return _stringFromCStr(sel_getName(selector));
 }
 
 Class NSClassFromString(NSString *className)
 {
-    if(className == nil) {
-        return nil;
-    }
-    const char *clsName = [className UTF8String];
-    return objc_lookUpClass(clsName);
+  return objc_lookUpClass([className UTF8String]);
 }
-
 NSString *NSStringFromClass(Class cls)
 {
-    if(cls == nil) {
-        return nil;
-    }
-    const char* className= class_getName(cls);
-    return AUTORELEASE((id)CCreateStringWithBytes(NSUTF8StringEncoding, className, strlen(className)));
+  return _stringFromCStr(class_getName(cls));
 }
 
+FoundationExtern Protocol * NSProtocolFromString (NSString *protoName)
+{
+  return objc_getProtocol([protoName UTF8String]);
+}
+FoundationExtern NSString * NSStringFromProtocol(Protocol *proto)
+{
+  return _stringFromCStr(protocol_getName(proto));
+}
 
 id NSAllocateObject(Class cls, NSUInteger extraBytes, NSZone *zone)
 {
-    id ret;
-    ret= calloc(1, class_getInstanceSize(cls) + extraBytes);
-    object_setClass(ret, cls);
-    // TODO: C++ constructor calling
-    return ret;
+  id ret;
+  ret= calloc(1, class_getInstanceSize(cls) + extraBytes);
+  object_setClass(ret, cls);
+  // TODO: C++ constructor calling
+  return ret;
 }
 
 void NSDeallocateObject(id object)
 {
-    free(object);
+  free(object);
+}
+
+const char * NSGetSizeAndAlignment(const char *typePtr, NSUInteger *sizep, NSUInteger *alignp)
+{
+  if (typePtr) {
+    if (*typePtr == '+' || *typePtr == '-') {
+      typePtr++;}
+    while ('0' <= *typePtr && *typePtr <= '9') {
+      typePtr++;}
+    typePtr= objc_skip_type_qualifiers (typePtr);
+    if (sizep) {
+      *sizep = objc_sizeof_type (typePtr);}
+    if (alignp) {
+      *alignp= objc_alignof_type (typePtr);}
+    typePtr = objc_skip_typespec (typePtr);}
+  return typePtr;
 }
