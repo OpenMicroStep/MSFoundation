@@ -73,7 +73,6 @@ Herve Malaingre : herve@malaingre.com
 - (id)initWithBytes:      (const void *)bytes length:(NSUInteger)length;
 - (id)initWithBytesNoCopy:      (void *)bytes length:(NSUInteger)length;
 - (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
-- (id)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)length freeWhenDone:(BOOL)b;
 
 - (id)initWithCString:            (char *)string;
 - (id)initWithCStringNoCopy:      (char *)string;

@@ -171,8 +171,8 @@ CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationE
 
 void CBufferGrow(CBuffer *self, NSUInteger n, BOOL verifMut)
 {
-  if (self && n) {
-    if (verifMut) CGrowMutVerif((id)self, 0, 0, "CBufferGrow*");
+  if (self) {
+    if (verifMut) CGrowMutVerif((id)self, 0, 0, "CBufferGrow");
     CGrowGrow((id)self,n);}
 }
 
@@ -349,10 +349,8 @@ void CBufferAppendContentsOfFile(CBuffer *self, SES path)
 void CBufferSetBytes(CBuffer *self, const void *ptr, NSUInteger length)
 {
   if (!self) return;
-  CGrowMutVerif((id)self, 0, 0, "CBufferSetBytes");
-  if (length > self->length) CBufferGrow(self, length - self->length, NO);
-  memmove(self->buf, ptr, length);
-  self->length= length;
+  self->length= 0;
+  _append(self, ptr, length);
 }
 
 /*

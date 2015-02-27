@@ -53,7 +53,7 @@
 #define AR(X)   AUTORELEASE(X)
 #define FIXE(a) CGrowSetForeverImmutable((id)a)
 
-static inline id _init(id a, BOOL m)
+static inline id _endInit(id a, BOOL m)
 {
   if (!m) FIXE(a);
   return a;
@@ -63,30 +63,30 @@ static inline id _initWithBytes(id a, BOOL m, const void *bytes, NSUInteger leng
   if      (!noCopy) CBufferInitWithBytes            ((CBuffer*)a, (void*)bytes, length);
   else if (!noFree) CBufferInitWithBytesNoCopy      ((CBuffer*)a, (void*)bytes, length);
   else              CBufferInitWithBytesNoCopyNoFree((CBuffer*)a, (void*)bytes, length);
-  return _init(a,m);
+  return _endInit(a,m);
 }
 static inline id _initWithData(id a, BOOL m, NSData *d)
 { 
   CBufferAppendData((CBuffer*)a, d);
-  return _init(a,m);
+  return _endInit(a,m);
 }
 static inline id _initWithBuffer(id a, BOOL m, MSBuffer *d)
 { 
   CBufferAppendBuffer((CBuffer*)a, (CBuffer*)d);
-  return _init(a,m);
+  return _endInit(a,m);
 }
 static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 { 
   CBufferAppendContentsOfFile((CBuffer*)a, SESFromString(path));
-  return _init(a,m);
+  return _endInit(a,m);
 }
 
 + (id)data          {return AR([AL(self)        init]);}
 + (id)buffer        {return AR([AL(self)        init]);}
 + (id)mutableBuffer {return AR([AL(self) mutableInit]);}
-+ (id)new           {return [AL(self) mutableInit];} // mutable
-- (id)init          {return _init(self,  NO);}
-- (id)mutableInit   {return _init(self, YES);}
++ (id)new           {return    [AL(self) mutableInit] ;} // mutable
+- (id)init          {return _endInit(self,  NO);}
+- (id)mutableInit   {return _endInit(self, YES);}
 
 - (id)mutableInitWithCapacity:(NSUInteger)capacity
   {
@@ -344,7 +344,8 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 }
 - (void)setData:(NSData *)data
 {
-  CBufferSetBytes((CBuffer*)self, [data bytes], [data length]);
+  _length= 0;
+  CBufferAppendData((CBuffer*)self, data);
 }
 - (void)setBuffer:(MSBuffer *)buffer
 {
