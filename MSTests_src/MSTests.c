@@ -6,11 +6,11 @@
 //
 
 #include "MSCorePlatform.h"
+#include "MSTests.h"
 #include <signal.h>
 
-static const int __testPadding = 20;
+static const int __testPadding= 28;
 
-typedef int(*runtests_fct_t)(int, const char **);
 #ifndef WO451
 const char *__prefix = "../tests/lib";
 const char *__suffix = "Tests.dylib";
@@ -19,197 +19,133 @@ const char *__prefix = "";
 const char *__suffix = "Tests.dll";
 #endif
 
-typedef struct _test_context_t {
-    int err;
-    clock_t t0;
-    const char *name;
-    struct _test_context_t *parent;
-    uint8_t printed;
-} test_context_t;
-
-static struct {
-    int err;
-    int level;
-    test_context_t *current;
-    mutex_t mutex;
-} __context = {0, 0, NULL, };
-
-static void imp_testsStart(const char *module)
-{
-    printf("********** Test of %-28s **********\n", module);
-}
-
-static int imp_testsFinish(const char *module)
-{
-    int ret;
-    mutex_lock(__context.mutex);
-    ret= __context.err;
-    if (!ret)
-      printf("********** ALL THE TESTS ARE SUCCESSFUL !!!     **********\n\n");
-    else
-      printf("**** FAIL *** FAIL *** FAIL *** FAIL *** FAIL *** FAIL ***\n\n");
-    mutex_unlock(__context.mutex);
-    return ret;
-}
-
-static void imp_testRaiseError()
-{
-  (void)0;
-}
+test_t *__currentTest= NULL;
+pthread_mutex_t __mutex= PTHREAD_MUTEX_INITIALIZER;
 
 static inline const char *_basename(const char *path)
 {
-    const char* basename;
-    basename= strrchr(path, '/');
-    return basename ? basename + 1 : path;
+  const char* basename;
+  basename= strrchr(path, '/');
+  return basename ? basename + 1 : path;
 }
 
 int imp_testAssert(int result, const char *assert, const char *file, int line, const char *msg, ...)
 {
-    if(!result) {
-        va_list ap;int spaces;const char *name;
-        mutex_lock(__context.mutex);
-        name= __context.current ? __context.current->name : "NO CONTEXT";
-        if(__context.current)
-            ++__context.current->err;
-        ++__context.err;
-        spaces= (__context.level - 1) * 2;
-        fprintf(stderr, "%-*sX %s\n", spaces, "", name);
-        fprintf(stderr, "%-*sX  assertion: %s\n", spaces, "", assert);
-        fprintf(stderr, "%-*sX         at: %s:%d\n", spaces, "", _basename(file), line);
-        fprintf(stderr, "%-*sX     reason: ", spaces, "");
-        va_start (ap, msg);
-        vfprintf(stderr, msg, ap);
-        va_end(ap);
-        fprintf(stderr, "\n");
-        mutex_unlock(__context.mutex);
-        imp_testRaiseError();
-    }
-    return result;
+  if (!result) {
+    va_list ap;int spaces;const char *name;
+    mutex_lock(__mutex);
+    name= __currentTest ? __currentTest->name : "NO CONTEXT";
+    spaces= 0;
+    fprintf(stderr, "%-*sX %s\n", spaces, "", name);
+    fprintf(stderr, "%-*sX  assertion: %s\n", spaces, "", assert);
+    fprintf(stderr, "%-*sX         at: %s:%d\n", spaces, "", _basename(file), line);
+    fprintf(stderr, "%-*sX     reason: ", spaces, "");
+    va_start (ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
+    fprintf(stderr, "\n");
+    mutex_unlock(__mutex);
+  }
+  return !result ? 1 : 0;
 }
 
-static void imp_testBegin(const char *name)
+#include <sys/time.h> // for gettimeofday
+static long _GMTMicro(void)
 {
-    test_context_t *context;
-    mutex_lock(__context.mutex);
-    context= calloc(1, sizeof(test_context_t));
-    context->parent= __context.current;
-    context->name= name;
-    context->t0= clock();
-    
-    if(__context.current && !__context.current->printed) {
-        fprintf(stdout, "%-*s+ %s\n", (__context.level - 1) * 2, "", __context.current->name);
-        __context.current->printed = 1;
-    }
-    __context.current = context;
-    ++__context.level;
-    mutex_unlock(__context.mutex);
-}
-
-static void imp_testError(int err)
-{
-    if(!err) return;
-    mutex_lock(__context.mutex);
-    if(__context.current)
-        __context.current->err += err;
-    __context.err += err;
-    mutex_unlock(__context.mutex);
-    imp_testRaiseError();
-}
-
-static int imp_testEnd(const char *name)
-{
-    int err; test_context_t *context;
-    mutex_lock(__context.mutex);
-    context= __context.current;
-    if(!context) {
-        fprintf(stderr, "Trying to exit test context while none are open\n");
-        err= 1; }
-    else if(strcmp(name, context->name)) {
-        fprintf(stderr, "Trying to exit %s, while the exit of %s were expected\n", name, context->name);
-        err= 1; }
-    else {
-        double seconds;
-        __context.current= context->parent;
-        if(__context.current)
-            __context.current->err += context->err;
-        --__context.level;
-        seconds= (double)(clock()-context->t0)/CLOCKS_PER_SEC;
-        err= context->err;
-        fprintf(stdout, "%-*s- %-*s validate: %s (%.3f s)\n", __context.level * 2, "", __testPadding - __context.level * 2, name, err ? "FAIL" : "PASS", seconds);
-        free(context);
-    }
-    mutex_unlock(__context.mutex);
-    return err;
-}
-
-static int imp_testRun(const char *name, void *test)
-{
-    imp_testBegin(name);
-    imp_testError(((int(*)())test)());
-    return imp_testEnd(name);
+  long t;
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  t= (tv.tv_sec)*1000000 + tv.tv_usec;
+  return t;
 }
 
 int bindFct(dl_handle_t handle, const char *name, void * imp)
 {
-    void *fct;
-    if(!(fct= dlsym(handle, name))) {
-        fprintf(stderr, "Unable to find symbol %s", name);
-    }
-    else {
-        *(void **)fct= imp;
-    }
-    return fct != 0;
+  void *fct;
+  if (!(fct= dlsym(handle, name))) {
+    fprintf(stderr, "Unable to find symbol %s", name);
+  }
+  else {
+    *(void **)fct= imp;
+  }
+  return fct != 0;
 }
 
-int testModule(const char * module, int argc, const char * argv[])
+///////////////////////////////////////////
+
+// L'erreur retournée est la somme des erreurs survenues
+int test_(test_t *tests)
 {
-    int err= 0; dl_handle_t testLib;
-    char path[strlen(__prefix) + strlen(module) + strlen(__suffix)];
-    strcpy(path, __prefix);
-    strcpy(path + strlen(__prefix), module);
-    strcpy(path + strlen(__prefix) + strlen(module), __suffix);
-    printf("Loading tests for %s (%s)\n", module, path);
-    
-    testLib = dlopen(path, RTLD_LAZY);
-    if(!testLib) {
-        printf("Unable to load lib %s\n", path);
-        ++err;
-    }
-    else {
-        if(bindFct(testLib, "testBegin",  imp_testBegin)
-           && bindFct(testLib, "testEnd",    imp_testEnd)
-           && bindFct(testLib, "testAssert", imp_testAssert)
-           && bindFct(testLib, "testRun",    imp_testRun)) {
-            void *runTests, *dependencies;
-            if((runTests= dlsym(testLib, "runTests"))) {
-                imp_testsStart(module);
-                if((dependencies= dlsym(testLib, "testDependencies"))) {
-                    const char **dependency;
-                    for(dependency= dependencies; *dependency; ++dependency) {
-                        testModule(*dependency, argc, argv);
-                    }
-                }
-                imp_testBegin(module);
-                ((runtests_fct_t)runTests)(argc, argv);
-                imp_testEnd(module);
-                err+= imp_testsFinish(module);
-            }
-        }
-        else {
-            ++err;
-        }
-        dlclose(testLib);
-    }
-    return err;
+  int err= 0, testErr;
+  test_t *test;
+  if (tests) for (test= tests; test->name; test++) {
+    __currentTest= test;
+    testErr= 0;
+    test->c0= clock();
+    test->t0= _GMTMicro();
+    testErr+= test_(test->subTests);
+    if (test->leafFunction) testErr+= test->leafFunction();
+    err+= test->err= testErr;
+    test->c1= clock();
+    test->t1= _GMTMicro();}
+  return err;
 }
 
-int test(int argc, const char * argv[]) {
-    int err= 0, argi;
-    mutex_init(__context.mutex);
-    for(argi= 1; argi < argc; ++argi) {
-        err += testModule(argv[argi], argc, argv);
+void test_print(int level,test_t *tests)
+{
+  test_t *test;
+  double clocks,seconds; int subs;
+  if (tests) for (test= tests; test->name; test++) if (strcmp(test->name, "_") && (!level || test->err)) {
+    clocks= (double)(test->c1-test->c0)/CLOCKS_PER_SEC;
+    seconds= (double)(test->t1-test->t0)/1000000.;
+    subs= (test->subTests) ? 1 : 0;
+    fprintf(stdout, "%-*s%s%-*s validate: %s clock:%.3f s time:%.3f s\n",
+      level*2, "", (subs?"+ ":". "), __testPadding - level*2, test->name, test->err ? "FAIL" : "PASS", clocks, seconds);
+    if (test->err)
+    //if (test->err || level<1)
+      test_print(level+1,test->subTests);
     }
-    mutex_delete(__context.mutex);
-    return err;
+}
+
+int test_module(const char *module, const char *prefix, const char *suffix)
+{
+  int err= 0;
+  test_t *tests;
+  dl_handle_t testLib;
+  char path[strlen(prefix) + strlen(module) + strlen(suffix)];
+  strcpy(path, prefix);
+  strcpy(path + strlen(prefix), module);
+  strcpy(path + strlen(prefix) + strlen(module), suffix);
+//printf("Loading tests for %s (%s)\n", module, path);
+  
+  testLib = dlopen(path, RTLD_LAZY);
+  tests= NULL;
+  if (!testLib) {
+    printf("Unable to load lib %s\n", path);
+    err++;}
+  if (!err) {
+    tests= dlsym(testLib, "RootTests");
+    if (!tests) {
+      printf("Unable to find 'RootTests' in %s\n", path);
+      err++;}}
+  if (!err) {
+    if (!bindFct(testLib, "testAssert", imp_testAssert)) {
+      printf("Unable to find 'RootTests' in %s\n", path);
+      err++;}}
+  if (!err) {
+    int e= test_(tests);
+    printf("********** Test of %-42s **********\n", module);
+    test_print(0,tests);
+    if (!e) printf("********** ALL THE TESTS ARE SUCCESSFUL !!!                   **********\n\n");
+    else    printf("********** FAIL *** FAIL *** FAIL *** FAIL *** FAIL *** FAIL  **********\n\n");
+    dlclose(testLib);}
+  return err;
+}
+
+int test(int argc, const char * argv[])
+{
+  int err= 0, argi;
+  for (argi= 1; argi < argc; ++argi)
+    err += test_module(argv[argi], __prefix, __suffix);
+  return err;
 }

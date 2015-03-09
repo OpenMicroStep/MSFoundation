@@ -2,7 +2,7 @@
 
 #include "mscore_validate.h"
 
-static inline int ccouple_create(void)
+static int ccouple_create(void)
   {
   int err= 0;
   CCouple *c,*d,*e;
@@ -39,3 +39,8 @@ int mscore_ccouple_validate(void)
   err+= ccouple_create();
   return err;
   }
+
+test_t mscore_ccouple[]= {
+  {"create"  ,NULL,ccouple_create,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

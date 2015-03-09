@@ -1136,7 +1136,6 @@
 		A6E039331A7630DC00A97DA3 /* msfoundation_decimal_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_decimal_validate.m; path = MSFoundation_tst/msfoundation_decimal_validate.m; sourceTree = SOURCE_ROOT; };
 		A6E039341A7630DC00A97DA3 /* msfoundation_dictionary_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_dictionary_validate.m; path = MSFoundation_tst/msfoundation_dictionary_validate.m; sourceTree = SOURCE_ROOT; };
 		A6E039351A7630DC00A97DA3 /* msfoundation_mste_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_mste_validate.m; path = MSFoundation_tst/msfoundation_mste_validate.m; sourceTree = SOURCE_ROOT; };
-		A6E039361A7630DC00A97DA3 /* msfoundation_string_plist_test1.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = msfoundation_string_plist_test1.plist; path = MSFoundation_tst/msfoundation_string_plist_test1.plist; sourceTree = SOURCE_ROOT; };
 		A6E039371A7630DC00A97DA3 /* msfoundation_string_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_string_validate.m; path = MSFoundation_tst/msfoundation_string_validate.m; sourceTree = SOURCE_ROOT; };
 		A6E039381A7630DC00A97DA3 /* msfoundation_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_test.m; path = MSFoundation_tst/msfoundation_test.m; sourceTree = SOURCE_ROOT; };
 		A6E039391A7630DC00A97DA3 /* msfoundation_validate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = msfoundation_validate.h; path = MSFoundation_tst/msfoundation_validate.h; sourceTree = SOURCE_ROOT; };
@@ -1480,13 +1479,13 @@
 			children = (
 				A6D3597F1A7782D200B87986 /* foundation_validate.h */,
 				A6D3597E1A7782D200B87986 /* foundation_validate.m */,
+				A6E78EA81A8CFCEA00416AF7 /* foundation_nsnull_validate.m */,
 				A6D359821A7782E300B87986 /* foundation_nsobject_validate.m */,
-				A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */,
 				A604A2351A861639001DAD54 /* foundation_nsautoreleasepool_validate.m */,
 				A604A2381A861B39001DAD54 /* foundation_nsarray_validate.m */,
-				A6E78EAC1A8CFF2800416AF7 /* foundation_nsdictionary_validate.m */,
 				A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */,
-				A6E78EA81A8CFCEA00416AF7 /* foundation_nsnull_validate.m */,
+				A6E78EAC1A8CFF2800416AF7 /* foundation_nsdictionary_validate.m */,
+				A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -1554,6 +1553,7 @@
 				A6E03B6F1A7673F300A97DA3 /* MAPM */,
 				A6E038981A76304600A97DA3 /* mscore_validate.h */,
 				A6E03B5D1A7672D800A97DA3 /* mscore_validate.c */,
+				A66299641A7A8A1A00B2B60D /* mscore_test.c */,
 				A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */,
 				A6E038971A76304600A97DA3 /* mscore_tools_validate.c */,
 				A6E0388E1A76304600A97DA3 /* mscore_carray_validate.c */,
@@ -1566,7 +1566,6 @@
 				A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */,
 				A6E038951A76304600A97DA3 /* mscore_cstring_validate.c */,
 				A6E038961A76304600A97DA3 /* mscore_mste_validate.c */,
-				A66299641A7A8A1A00B2B60D /* mscore_test.c */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -1679,9 +1678,8 @@
 				A6E039321A7630DC00A97DA3 /* msfoundation_date_validate.m */,
 				A6E039331A7630DC00A97DA3 /* msfoundation_decimal_validate.m */,
 				A6E039341A7630DC00A97DA3 /* msfoundation_dictionary_validate.m */,
-				A6E039351A7630DC00A97DA3 /* msfoundation_mste_validate.m */,
-				A6E039361A7630DC00A97DA3 /* msfoundation_string_plist_test1.plist */,
 				A6E039371A7630DC00A97DA3 /* msfoundation_string_validate.m */,
+				A6E039351A7630DC00A97DA3 /* msfoundation_mste_validate.m */,
 			);
 			name = Tests;
 			sourceTree = "<group>";

@@ -261,6 +261,12 @@ CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s)
 // this **!@** structure count by 100 nanoseconds steps since 1st january 1601
 #define _MSTimeIntervalSince1601 12622780800ull
 
+static inline void FileTimeToMicro(FILETIME ft, MSLong *t)
+{
+  MSULong d;
+  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
+  *t = (MSTimeInterval)(d - _MSTimeIntervalSince1601*10000000) / 10;
+}
 static inline void FileTimeToMSTimeInterval(FILETIME ft, MSTimeInterval *t)
 {
   MSULong d;
@@ -287,6 +293,24 @@ static inline void MSTimeIntervalToFileTime(MSTimeInterval t, FILETIME * ft)
 BOOL WINAPI TzSpecificLocalTimeToSystemTime(void* lpTimeZoneInformation,void* lpLocalTime,void* lpUniversalTime);
 #endif
 
+#ifndef WIN32
+#include <sys/time.h> // for gettimeofday
+#endif
+
+MSLong _GMTMicro(void)
+{
+  MSLong t;
+#ifdef WIN32
+  FILETIME fts;
+  GetSystemTimeAsFileTime(&fts);
+  FileTimeToMicro(fts, &t);
+#else
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  t= ((MSTimeInterval)tv.tv_sec - CDateSecondsFrom19700101To20010101)*1000000 + tv.tv_usec;
+#endif
+  return t;
+}
 static MSTimeInterval _GMTNow(void)
 {
   MSTimeInterval t;

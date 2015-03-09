@@ -9,7 +9,7 @@ static inline void decimal_print(MSDecimal *d)
   fprintf(stdout, "%s\n",str);
   }
 
-static inline int decimal_create(void)
+static int decimal_create(void)
   {
   int err= 0;
   MSDecimal *c,*d,*e,*f;
@@ -47,7 +47,7 @@ static inline int decimal_create(void)
   return err;
   }
 
-static inline int decimal_op(void)
+static int decimal_op(void)
   {
   int err= 0, i;
   MSDecimal *c[10],*d;
@@ -71,9 +71,8 @@ static inline int decimal_op(void)
   return err;
   }
 
-TEST_FCT_BEGIN(MSDecimal)
-  int err= 0;
-  err+= decimal_create();
-  err+= decimal_op();
-  return err;
-TEST_FCT_END(MSDecimal)
+test_t msfoundation_decimal[]= {
+  {"create",NULL,decimal_create,INTITIALIZE_TEST_T_END},
+  {"op"    ,NULL,decimal_op    ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

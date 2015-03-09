@@ -126,6 +126,7 @@ MSCoreExtern void CDateSetDay      (CDate *self, unsigned day);
 MSCoreExtern void CDateSetDayOfYear(CDate *self, unsigned doy);
 
 // GMT
+MSCoreExtern MSLong _GMTMicro(void);
 MSCoreExtern NSTimeInterval GMTNow(void);
 MSCoreExtern NSTimeInterval GMTWithYMDHMS(
   unsigned year, unsigned month,  unsigned day,

@@ -2,8 +2,22 @@
 
 #include "mscore_validate.h"
 
-EXPORT_TESTS_BASE
+EXTERN_TESTS_BASE
 
-TESTS_MAIN_BEGIN
-    TEST_FCT(MSCore);
-TESTS_MAIN_END
+static int testOn()
+{
+#ifdef WO451
+  MSFinishLoadingCore();
+#endif
+  return 0;
+}
+static int testOff()
+{
+  return 0;
+}
+
+test_t RootTests[]= {
+  {"_"     ,NULL       ,testOn,INTITIALIZE_TEST_T_END},
+  {"MSCore",MSCoreTests,NULL  ,INTITIALIZE_TEST_T_END},
+  {NULL}
+  };

@@ -370,7 +370,7 @@ static inline int _decode(char *ssrc, id ret)
   return err;
 }
 
-int msfoundation_mste_validate(void)
+int mste_some(void)
 {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
@@ -495,3 +495,8 @@ int msfoundation_mste_validate(void)
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSTE (MSF)",(err?"FAIL":"PASS"),seconds);
   return err;
 }
+
+test_t msfoundation_mste[]= {
+  {"some",NULL,mste_some,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

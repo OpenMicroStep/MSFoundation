@@ -7,7 +7,7 @@ static inline void date_print(MSDate *d)
   fprintf(stdout, "%u-%02u-%02u %02u:%02u:%02d %lld\n",[d yearOfCommonEra], [d monthOfYear], [d dayOfMonth], [d hourOfDay], [d minuteOfHour], [d secondOfMinute],[d secondsSinceLocalReferenceDate]);
   }
 
-static inline int date_create(void)
+static int date_create(void)
   {
   int err= 0;
   MSDate *c,*d,*e,*f,*g;
@@ -156,7 +156,7 @@ static inline int date_create(void)
   }
 
 #define M1 10000
-static inline int date_create2(void)
+static int date_create2(void)
   {
   int err= 0,i;
   MSTimeInterval t;
@@ -193,7 +193,7 @@ static inline int date_create2(void)
   }
 
 #define M2 200000 // last date: 3834/01/27
-static inline int date_week(void)
+static int date_week(void)
   {
   int err= 0,i; unsigned w;
   MSTimeInterval t;
@@ -222,7 +222,7 @@ static inline int date_week(void)
   return err;
   }
 
-static inline int date_firstLast(void)
+static int date_firstLast(void)
   {
   int err= 0;
   MSDate *d,*e,*f;
@@ -264,7 +264,7 @@ static inline int date_firstLast(void)
   return err;
   }
 
-static inline int date_replacing(void)
+static int date_replacing(void)
   {
   int err= 0;
   MSDate *d,*e,*f; unsigned j;
@@ -296,7 +296,7 @@ static inline int date_replacing(void)
   return err;
   }
 
-static inline int date_now(void)
+static int date_now(void)
   {
   int err= 0;
   MSDate *d1,*d2m; NSDate *d2; MSTimeInterval dt1m,dt2m; NSTimeInterval dt1n,dt2n;
@@ -324,13 +324,12 @@ static inline int date_now(void)
   return err;
   }
 
-TEST_FCT_BEGIN(MSDate)
-  int err= 0;
-  err+= date_create();
-  err+= date_create2();
-  err+= date_week();
-  err+= date_firstLast();
-  err+= date_replacing();
-  err+= date_now();
-  return err;
-TEST_FCT_END(MSDate)
+test_t msfoundation_date[]= {
+  {"create"    ,NULL,date_create   ,INTITIALIZE_TEST_T_END},
+  {"create2"   ,NULL,date_create2  ,INTITIALIZE_TEST_T_END},
+  {"week"      ,NULL,date_week     ,INTITIALIZE_TEST_T_END},
+  {"first/last",NULL,date_firstLast,INTITIALIZE_TEST_T_END},
+  {"replacing" ,NULL,date_replacing,INTITIALIZE_TEST_T_END},
+  {"now"       ,NULL,date_now      ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

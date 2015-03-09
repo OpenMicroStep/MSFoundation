@@ -7,7 +7,7 @@ static inline void cdictionary_print(MSDictionary *d)
   fprintf(stdout, "%lu\n",WLU([d count]));
   }
 */
-static inline int cdictionary_create(void)
+static int dictionary_create(void)
   {
   int err= 0;
   MSDictionary *c,*m; MSDictionary *d; id k,o,x; int i;
@@ -74,7 +74,7 @@ static inline int cdictionary_create(void)
   return err;
   }
 
-static inline int cdictionary_enum(void)
+static int dictionary_enum(void)
   {
   int err= 0;
   MSDictionary *c,*d; id ks[1000],os[1000],k,o; int i,n,fd; MSDictionaryEnumerator *de;
@@ -120,7 +120,7 @@ static inline int cdictionary_enum(void)
   return err;
   }
 
-static int cdictionary_init(void)
+static int dictionary_init(void)
   {
   NSDictionary *o;
   MSDictionary *d, *d2;
@@ -143,10 +143,9 @@ static int cdictionary_init(void)
   return 0;
   }
 
-TEST_FCT_BEGIN(MSDictionary)
-  int err= 0;
-  err+= cdictionary_create();
-  err+= cdictionary_enum();
-  err+= cdictionary_init();
-  return err;
-TEST_FCT_END(MSDictionary)
+test_t msfoundation_dictionary[]= {
+  {"create",NULL,dictionary_create,INTITIALIZE_TEST_T_END},
+  {"enum"  ,NULL,dictionary_enum  ,INTITIALIZE_TEST_T_END},
+  {"init"  ,NULL,dictionary_init  ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

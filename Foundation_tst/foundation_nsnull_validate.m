@@ -1,6 +1,8 @@
 #import "foundation_validate.h"
 
-TEST_FCT_BEGIN(NSNull)
+static int null_equal(void)
+{
+  int err= 0;
   NSNull *n1, *n2, *n3, *n4;
   NSObject *o;
   n1= [NSNull new];
@@ -19,4 +21,10 @@ TEST_FCT_BEGIN(NSNull)
   RELEASE(n1);
   RELEASE(n3);
   RELEASE(n4);
-TEST_FCT_END(NSNull)
+  return err;
+}
+
+test_t foundation_null[]= {
+  {"equal",NULL,null_equal,INTITIALIZE_TEST_T_END},
+  {NULL}
+  };

@@ -2,7 +2,7 @@
 
 #include "mscore_validate.h"
 
-static inline int unichar_test(void)
+static int unichar_test(void)
   {
   int err= 0,r;
   CString *a;
@@ -61,7 +61,7 @@ static inline void cstring_print(CString *d)
   fprintf(stdout, "%lu\n",WLU(CStringLength(d)));
   }
 */
-static inline int cstring_create(void)
+static int cstring_create(void)
   {
   int err= 0;
   CString *c,*d;
@@ -95,3 +95,9 @@ int mscore_cstring_validate(void)
   err+= cstring_create();
   return err;
   }
+
+test_t mscore_cstring[]= {
+  {"unichar",NULL,unichar_test  ,INTITIALIZE_TEST_T_END},
+  {"create" ,NULL,cstring_create,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

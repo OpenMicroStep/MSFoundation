@@ -9,7 +9,7 @@ static inline void cdecimal_print(CDecimal *d)
   fprintf(stdout, "%s\n",str);
   }
 
-static inline int cdecimal_create(void)
+static int cdecimal_create(void)
   {
   int err= 0;
   CDecimal *c,*d,*e,*f;
@@ -47,7 +47,7 @@ static inline int cdecimal_create(void)
   return err;
   }
 
-static inline int cdecimal_op(void)
+static int cdecimal_op(void)
   {
   int err= 0, i;
   CDecimal *c[10],*d;
@@ -71,7 +71,7 @@ static inline int cdecimal_op(void)
   return err;
   }
 
-static inline int cdecimal_value(void)
+static int cdecimal_value(void)
   {
   int err= 0, i;
   CDecimal *c[10];
@@ -94,7 +94,7 @@ static inline int cdecimal_value(void)
   return err;
   }
 
-static inline int cdecimal_fromSES(void)
+static int cdecimal_fromSES(void)
   {
   int err= 0, i;
   CDecimal *c; SES sesIn,sesOut;
@@ -144,7 +144,7 @@ static inline int cdecimal_fromSES(void)
   return err;
   }
 
-static inline int cdecimal_cast(void)
+static int cdecimal_cast(void)
   {
 #define __UIntMaxU ((MSULong)MSUIntMax)
 
@@ -214,7 +214,7 @@ static inline int cdecimal_cast(void)
   return err;
   }
 
-static inline int cdecimal_strto(void)
+static int cdecimal_strto(void)
   {
   int err= 0,i; char t[256]; MSLong l; MSULong u;
   i= 0;
@@ -240,3 +240,13 @@ int mscore_cdecimal_validate(void)
   err+= cdecimal_strto();
   return err;
   }
+
+test_t mscore_cdecimal[]= {
+  {"create" ,NULL,cdecimal_create ,INTITIALIZE_TEST_T_END},
+  {"op"     ,NULL,cdecimal_op     ,INTITIALIZE_TEST_T_END},
+  {"values" ,NULL,cdecimal_value  ,INTITIALIZE_TEST_T_END},
+  {"fromSES",NULL,cdecimal_fromSES,INTITIALIZE_TEST_T_END},
+  {"cast"   ,NULL,cdecimal_cast   ,INTITIALIZE_TEST_T_END},
+  {"strto"  ,NULL,cdecimal_strto  ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

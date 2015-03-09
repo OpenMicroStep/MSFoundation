@@ -8,20 +8,19 @@
 
 #include "mscore_validate.h"
 
-TEST_FCT_BEGIN(MSCore)
-#ifdef WO451
-    MSFinishLoadingCore();
-#endif
-    testRun("c", mscore_c_validate);
-    testRun("tools", mscore_tools_validate);
-    testRun("carray", mscore_carray_validate);
-    testRun("cbuffer", mscore_cbuffer_validate);
-    testRun("ccolor", mscore_ccolor_validate);
-    testRun("ccouple", mscore_ccouple_validate);
-    testRun("cdate", mscore_cdate_validate);
-    testRun("mapm", mapm_validate);
-    testRun("cdecimal", mscore_cdecimal_validate);
-    testRun("cdictionary", mscore_cdictionary_validate);
-    testRun("ses", mscore_ses_validate);
-    testRun("cstring", mscore_cstring_validate);
-TEST_FCT_END(MSCore)
+test_t MSCoreTests[]= {
+  {"c"          ,mscore_c          ,NULL,INTITIALIZE_TEST_T_END},
+  {"tools"      ,mscore_tools      ,NULL,INTITIALIZE_TEST_T_END},
+  {"carray"     ,mscore_carray     ,NULL,INTITIALIZE_TEST_T_END},
+  {"cbuffer"    ,mscore_cbuffer    ,NULL,INTITIALIZE_TEST_T_END},
+  {"ccolor"     ,mscore_ccolor     ,NULL,INTITIALIZE_TEST_T_END},
+  {"ccouple"    ,mscore_ccouple    ,NULL,INTITIALIZE_TEST_T_END},
+  {"cdate"      ,mscore_cdate      ,NULL,INTITIALIZE_TEST_T_END},
+  {"mapm"       ,mscore_mapm       ,NULL,INTITIALIZE_TEST_T_END},
+  {"cdecimal"   ,mscore_cdecimal   ,NULL,INTITIALIZE_TEST_T_END},
+  {"cdictionary",mscore_cdictionary,NULL,INTITIALIZE_TEST_T_END},
+  {"ses"        ,mscore_ses        ,NULL,INTITIALIZE_TEST_T_END},
+  {"cstring"    ,mscore_cstring    ,NULL,INTITIALIZE_TEST_T_END},
+//{"mste"       ,mscore_mste       ,NULL,INTITIALIZE_TEST_T_END},
+  {NULL}
+  };

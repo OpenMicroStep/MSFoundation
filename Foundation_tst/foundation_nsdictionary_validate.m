@@ -1,6 +1,6 @@
 #import "foundation_validate.h"
 
-static int nsdictionary_create(void)
+static int dictionary_create(void)
 {
   int err= 0;
   NSMutableDictionary *c,*m; NSDictionary *d; id k,o,x; int i;
@@ -46,7 +46,7 @@ static int nsdictionary_create(void)
   return err;
 }
 
-static int nsdictionary_init(void)
+static int dictionary_init(void)
 {
   NSDictionary *o;
   NSDictionary *d, *d2;
@@ -69,7 +69,7 @@ static int nsdictionary_init(void)
   return 0;
 }
 
-static int nsdictionary_enum(void)
+static int dictionary_enum(void)
 {
   NSDictionary *c,*d; id ks[1000],os[1000],k,o; int i,n,fdk, fdo; NSEnumerator *ke, *oe;
   k= [[NSMutableData alloc] initWithBytes:"a key" length:5];
@@ -109,12 +109,9 @@ static int nsdictionary_enum(void)
   return 0;
 }
 
-TEST_FCT_BEGIN(NSDictionary)
-  int err=0;
-  NEW_POOL;
-  err+= nsdictionary_create();
-  err+= nsdictionary_init();
-  err+=nsdictionary_enum();
-  KILL_POOL;
-  return err;
-TEST_FCT_END(NSDictionary)
+test_t foundation_dictionary[]= {
+  {"create",NULL,dictionary_create,INTITIALIZE_TEST_T_END},
+  {"init"  ,NULL,dictionary_init  ,INTITIALIZE_TEST_T_END},
+  {"enum"  ,NULL,dictionary_enum  ,INTITIALIZE_TEST_T_END},
+  {NULL}
+  };

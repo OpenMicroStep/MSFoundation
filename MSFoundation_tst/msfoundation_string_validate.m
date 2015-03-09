@@ -2,7 +2,7 @@
 
 #include "msfoundation_validate.h"
 
-static inline int ms_ns(void)
+static int string_ns(void)
   {
   int err= 0;
   NSString *s,*sl1,*sl2;
@@ -16,7 +16,7 @@ static inline int ms_ns(void)
   return err;
   }
 
-static inline int ms_trim(void)
+static int string_trim(void)
   {
   int err= 0;
   NSString *s,*st1,*st2;
@@ -30,7 +30,7 @@ static inline int ms_trim(void)
   return err;
   }
 
-static int ms_toNs(void)
+static int string_toNs(void)
   {
   int err= 0;
 #ifndef MSFOUNDATION_FORCOCOA
@@ -63,7 +63,7 @@ static int ms_toNs(void)
   return err;
   }
 
-static inline int ms_eq(void)
+static int string_eq(void)
   {
   int err= 0;
   NSString *ns,*ms;
@@ -95,7 +95,7 @@ static inline int ms_eq(void)
   }
 
 
-static inline int ms_cast(void)
+static int string_cast(void)
 {
   int err= 0;
   int intValue;
@@ -181,7 +181,7 @@ static inline int ms_cast(void)
   ASSERT([EXPECT isEqual:__f], "expected: '%s', got: '%s'", [EXPECT UTF8String], [__f UTF8String]); \
   RELEASE(__f); })
   
-static inline int ms_format(void)
+static int string_format(void)
 {
   int intValue = 2;
   long long max = LLONG_MAX;
@@ -298,7 +298,7 @@ static inline int ms_format(void)
 - (NSUInteger)hash:(unsigned)depth;
 @end
 
-static inline int ms_hash(void)
+static int string_hash(void)
 {
   int err= 0;
   NSString *nsStr;
@@ -326,7 +326,7 @@ static inline int ms_hash(void)
   return err;
 }
 
-static int ms_ascii(void)
+static int string_ascii(void)
 {
   int err= 0;
   const char *ascii, *expected;
@@ -364,7 +364,7 @@ static int ms_ascii(void)
   return err;
 }
 
-static int ms_plist(void)
+static int string_plist(void)
 {
   int err= 0;
   NSString *s; NSArray* a, *e; CBuffer *b;
@@ -392,16 +392,15 @@ static int ms_plist(void)
   return err;
 }
 
-TEST_FCT_BEGIN(MSString)
-  int err= 0;
-  err+= ms_ns();
-  err+= ms_trim();
-  err+= ms_toNs();
-  err+= ms_eq();
-  err+= ms_cast();
-  err+= ms_format();
-  err+= ms_hash();
-  err+= ms_ascii();
-  err+= ms_plist();
-  return err;
-TEST_FCT_END(MSString)
+test_t msfoundation_string[]= {
+  {"ns"    ,NULL,string_ns    ,INTITIALIZE_TEST_T_END},
+  {"trim"  ,NULL,string_trim  ,INTITIALIZE_TEST_T_END},
+  {"toNs"  ,NULL,string_toNs  ,INTITIALIZE_TEST_T_END},
+  {"equal" ,NULL,string_eq    ,INTITIALIZE_TEST_T_END},
+  {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
+  {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
+  {"hash"  ,NULL,string_hash  ,INTITIALIZE_TEST_T_END},
+  {"ascii" ,NULL,string_ascii ,INTITIALIZE_TEST_T_END},
+  {"plist" ,NULL,string_plist ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

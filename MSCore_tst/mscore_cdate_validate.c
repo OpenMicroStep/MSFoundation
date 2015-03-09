@@ -7,7 +7,7 @@ static inline void cdate_print(CDate *d)
   fprintf(stdout, "%u/%02u/%02u-%02u:%02u:%02d %lld\n",CDateYearOfCommonEra(d), CDateMonthOfYear(d), CDateDayOfMonth(d), CDateHourOfDay(d), CDateMinuteOfHour(d), CDateSecondOfMinute(d),d->interval);
   }
 
-static inline int cdate_constants(void)
+static int cdate_constants(void)
 {
   int err= 0;
   if (!CDateDistantPast) {
@@ -21,7 +21,7 @@ static inline int cdate_constants(void)
   return err;
 }
 
-static inline int cdate_create(void)
+static int cdate_create(void)
   {
   int err= 0;
   CDate *c,*d,*e,*f,*g;
@@ -170,7 +170,7 @@ static inline int cdate_create(void)
   }
 
 #define M1 10000
-static inline int cdate_create2(void)
+static int cdate_create2(void)
   {
   int err= 0,i;
   MSTimeInterval t;
@@ -207,7 +207,7 @@ static inline int cdate_create2(void)
   }
 
 #define M2 200000 // last date: 3834/01/27
-static inline int cdate_week(void)
+static int cdate_week(void)
   {
   int err= 0,i; unsigned w;
   MSTimeInterval t;
@@ -243,3 +243,11 @@ int mscore_cdate_validate(void)
   err+= cdate_week();
   return err;
   }
+
+test_t mscore_cdate[]= {
+  {"constants",NULL,cdate_constants,INTITIALIZE_TEST_T_END},
+  {"create"   ,NULL,cdate_create   ,INTITIALIZE_TEST_T_END},
+  {"create2"  ,NULL,cdate_create2  ,INTITIALIZE_TEST_T_END},
+  {"week"     ,NULL,cdate_week     ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

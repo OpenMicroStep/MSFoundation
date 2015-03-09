@@ -1,6 +1,6 @@
 #include "mscore_validate.h"
 
-int ses_index(void)
+static int ses_index(void)
 {
   CString *c= CCreateStringWithBytes(NSUTF8StringEncoding,"abcdef",6);
   SES a= CStringSES(c);
@@ -23,7 +23,7 @@ int ses_index(void)
   return 0;
 }
 
-int ses_equals(void)
+static int ses_equals(void)
 {
   NSUInteger i= 0;
   CString *cla, *clb, *cua, *csa;
@@ -49,12 +49,12 @@ int ses_equals(void)
   return 0;
 }
 
-BOOL ses_extract_test1(unichar c)
+static BOOL ses_extract_test1(unichar c)
 { return (unichar)'b' <= c && c <= (unichar)'f'; }
-BOOL ses_extract_test2(unichar c)
+static BOOL ses_extract_test2(unichar c)
 { return (unichar)'B' <= c && c <= (unichar)'F'; }
 
-void ses_check(SES a, SES e, NSUInteger start, NSUInteger length, int line)
+static void ses_check(SES a, SES e, NSUInteger start, NSUInteger length, int line)
 {
   ASSERT(SESOK(e), ":%d must extract something",line);
   if (SESOK(e)) {
@@ -64,7 +64,7 @@ void ses_check(SES a, SES e, NSUInteger start, NSUInteger length, int line)
     ASSERT_EQUALS(e.encoding, a.encoding, ":%d encoding must matches %d != %d",line);
     ASSERT_EQUALS(e.chai, a.chai, ":%d chai must matches %p != %p :%d",line);}
 }
-int ses_extract(void)
+static int ses_extract(void)
 {
   CString *ca;
   SES a, b, e, e2;
@@ -121,10 +121,9 @@ int ses_extract(void)
   return 0;
 }
 
-int mscore_ses_validate(void)
-{
-  testRun("index", ses_index);
-  testRun("equals", ses_equals);
-  testRun("extract", ses_extract);
-  return 0;
-}
+test_t mscore_ses[]= {
+  {"index"  ,NULL,ses_index  ,INTITIALIZE_TEST_T_END},
+  {"equals" ,NULL,ses_equals ,INTITIALIZE_TEST_T_END},
+  {"extract",NULL,ses_extract,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

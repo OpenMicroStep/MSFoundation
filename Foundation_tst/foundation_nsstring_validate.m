@@ -8,7 +8,7 @@
 
 #import "foundation_validate.h"
 
-static inline int ns_eq(void)
+static int string_eq(void)
   {
   int err= 0;
   NSString *ns,*ms;
@@ -39,7 +39,7 @@ static inline int ns_eq(void)
   return err;
   }
 
-static inline int ns_cast(void)
+static int string_cast(void)
 {
   int err= 0;
   int intValue;
@@ -129,7 +129,7 @@ static inline int ns_cast(void)
   ASSERT([EXPECT isEqual:__f], "expected: '%s', got: '%s'", [EXPECT UTF8String], [__f UTF8String]); \
   RELEASE(__f); })
 
-static inline int ns_format(void)
+static int string_format(void)
 {
   int intValue = 2;
   long long max = LLONG_MAX;
@@ -246,10 +246,9 @@ static inline int ns_format(void)
   return 0;
 }
 
-TEST_FCT_BEGIN(NSString)
-  int err= 0;
-  err+= ns_eq();
-  err+= ns_cast();
-  err+= ns_format();
-  return err;
-TEST_FCT_END(NSString)
+test_t foundation_string[]= {
+  {"equal" ,NULL,string_eq    ,INTITIALIZE_TEST_T_END},
+  {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
+  {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
+  {NULL}
+  };

@@ -136,10 +136,9 @@ static inline int carray_subarray(void)
   return err;
   }
 
-TEST_FCT_BEGIN(MSArray)
-    int err= 0;
-    err+= array_create();
-    err+= carray_ptr();
-    err+= carray_subarray();
-    return err;
-TEST_FCT_END(MSArray)
+test_t msfoundation_array[]= {
+  {"create"  ,NULL,array_create   ,INTITIALIZE_TEST_T_END},
+  {"ptr"     ,NULL,carray_ptr     ,INTITIALIZE_TEST_T_END},
+  {"subarray",NULL,carray_subarray,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

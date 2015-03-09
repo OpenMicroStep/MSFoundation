@@ -1,12 +1,13 @@
 #import "foundation_validate.h"
 
-static inline int nsbuffer(void)
+static int data_buffer()
 {
   const char str[]= "123456789 123456789 123456789 123456789 123456789 123456789 ";
   char buffer[60];
   const NSUInteger strLen= 60;
   NSMutableData *d, *d2;
   NSData *cd;
+	NEW_POOL;
   d= [NSMutableData new];
   ASSERT([d isKindOfClass:[NSMutableData class]], "NSMutableData objects expected");
   ASSERT([d isKindOfClass:[NSData class]], "NSData objects expected");
@@ -43,12 +44,11 @@ static inline int nsbuffer(void)
   d= [[NSMutableData alloc] initWithLength:10];
   RELEASE(d);
   d= [NSMutableData dataWithLength:20];
+	KILL_POOL;
   return 0;
 }
 
-TEST_FCT_BEGIN(NSData)
-	NEW_POOL;
-	nsbuffer();
-	KILL_POOL;
-	return 0;
-TEST_FCT_END(NSData)
+test_t foundation_data[]= {
+  {"create"    ,NULL,data_buffer,INTITIALIZE_TEST_T_END},
+  {NULL}
+  };

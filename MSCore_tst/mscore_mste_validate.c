@@ -96,7 +96,7 @@ static int _decode(char *ssrc, id ret)
   return err;
   }
 
-int mscore_mste_validate(void)
+static int mste_decode(void)
   {
   int err= 0;
   id o1; char b[1024]; MSUInt col; CBuffer *buf= NULL;
@@ -140,3 +140,15 @@ int mscore_mste_validate(void)
 
   return err;
   }
+
+int mscore_mste_validate(void)
+  {
+  int err= 0;
+  err+= mste_decode();
+  return err;
+  }
+
+test_t mscore_mste[]= {
+  {"decode",NULL,mste_decode,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

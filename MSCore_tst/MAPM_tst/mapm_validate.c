@@ -2996,3 +2996,7 @@ int mapm_validate()
 
 /****************************************************************************/
 
+test_t mscore_mapm[]= {
+  {"all",NULL,mapm_validate,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

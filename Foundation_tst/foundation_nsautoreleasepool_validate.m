@@ -8,7 +8,7 @@
 
 #import "foundation_validate.h"
 
-static int ns_simple(void)
+static int pool_some(void)
 {
   NSObject *o1, *o2;
   NSAutoreleasePool *a1, *a2;
@@ -39,6 +39,7 @@ static int ns_simple(void)
   return 0;
 }
 
-TEST_FCT_BEGIN(NSAutoreleasePool)
-  testRun("simple", ns_simple);
-TEST_FCT_END(NSAutoreleasePool)
+test_t foundation_pool[]= {
+  {"some",NULL,pool_some,INTITIALIZE_TEST_T_END},
+  {NULL}
+  };

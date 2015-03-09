@@ -3,7 +3,7 @@
 #include "mscore_validate.h"
 
 static int c_isa_for(CClassIndex classIndex)
-  {
+{
   int err= 0;
   id x,y;
   x= (id)MSCreateObjectWithClassIndex(classIndex);
@@ -18,10 +18,10 @@ static int c_isa_for(CClassIndex classIndex)
   RELEASE(x);
   RELEASE(y);
   return err;
-  }
+}
 
 static int c_classEqual(void)
-  {
+{
   int err= 0;
   id x,y;
   x= (id)MSCreateObjectWithClassIndex(CArrayClassIndex);
@@ -30,19 +30,18 @@ static int c_classEqual(void)
   RELEASE(x);
   RELEASE(y);
   return err;
-  }
+}
 
 static int c_isa()
 {
-    int err= 0;
-    err+= c_isa_for(CArrayClassIndex);
-    err+= c_isa_for(CBufferClassIndex);
-    return err;
+  int err= 0;
+  err+= c_isa_for(CArrayClassIndex);
+  err+= c_isa_for(CBufferClassIndex);
+  return err;
 }
 
-int mscore_c_validate(void)
-  {
-  testRun("isa", c_isa);
-  testRun("isEqual", c_classEqual);
-  return 0;
-  }
+test_t mscore_c[]= {
+  {"isa"     ,NULL,c_isa        ,INTITIALIZE_TEST_T_END},
+  {"isEqual" ,NULL,c_classEqual ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

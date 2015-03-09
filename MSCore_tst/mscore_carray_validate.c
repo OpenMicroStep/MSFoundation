@@ -182,3 +182,12 @@ int mscore_carray_validate(void)
   err+= carray_immutable();
   return err;
   }
+
+test_t mscore_carray[]= {
+  {"create"       ,NULL,carray_create       ,INTITIALIZE_TEST_T_END},
+  {"ptr"          ,NULL,carray_ptr          ,INTITIALIZE_TEST_T_END},
+  {"subarray"     ,NULL,carray_subarray     ,INTITIALIZE_TEST_T_END},
+  {"retainrelease",NULL,carray_retainrelease,INTITIALIZE_TEST_T_END},
+  {"immutable"    ,NULL,carray_immutable    ,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

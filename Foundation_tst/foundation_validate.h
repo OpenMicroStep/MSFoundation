@@ -1,13 +1,12 @@
 #import <MSFoundation/MSFoundation.h>
 #import "MSTests.h"
 
-TEST_FCT_DECLARE(NSObject);
-TEST_FCT_DECLARE(NSAutoreleasePool);
-TEST_FCT_DECLARE(NSString);
-TEST_FCT_DECLARE(NSArray);
-TEST_FCT_DECLARE(NSDictionary);
-TEST_FCT_DECLARE(NSData);
-TEST_FCT_DECLARE(NSNull);
-// OR LIBEXPORT int testNSObject();
+test_t FoundationTests      [20];
 
-TEST_FCT_DECLARE(Foundation);
+test_t foundation_null      [10];
+test_t foundation_object    [10];
+test_t foundation_pool      [10];
+test_t foundation_array     [10];
+test_t foundation_data      [10];
+test_t foundation_dictionary[10];
+test_t foundation_string    [10];

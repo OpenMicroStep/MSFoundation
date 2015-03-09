@@ -2,7 +2,7 @@
 
 #include "msfoundation_validate.h"
 
-static inline int color_create(void)
+static int color_create(void)
   {
   int err= 0;
   MSColor *c1,*c2,*c3;
@@ -42,9 +42,7 @@ static inline int color_create(void)
   return err;
   }
 
-
-TEST_FCT_BEGIN(MSColor)
-    int err= 0;
-    err+= color_create();
-    return err;
-TEST_FCT_END(MSColor)
+test_t msfoundation_color[]= {
+  {"create",NULL,color_create,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

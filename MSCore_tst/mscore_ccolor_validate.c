@@ -2,7 +2,7 @@
 
 #include "mscore_validate.h"
 
-static inline int ccolor_create(void)
+static int ccolor_create(void)
   {
   int err= 0;
   CColor *c,*d;
@@ -60,3 +60,8 @@ int mscore_ccolor_validate(void)
   err+= ccolor_create();
   return err;
   }
+
+test_t mscore_ccolor[]= {
+  {"create"  ,NULL,ccolor_create,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

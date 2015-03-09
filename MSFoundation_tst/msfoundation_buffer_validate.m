@@ -2,7 +2,7 @@
 
 #include "msfoundation_validate.h"
 
-static inline int buffer_create(void)
+static int buffer_create(void)
   {
   int err= 0;
   MSBuffer *b;
@@ -66,7 +66,7 @@ static inline int cbuffer_b64_(int no, char *str, NSUInteger lstr, char *enc)
   RELEASE(a);
   return err;
   }
-static inline int buffer_b64(void)
+static int buffer_b64(void)
   {
   int err= 0;
   int i; char str[257], *enc1,*enc2;
@@ -117,7 +117,7 @@ static inline int buffer_compress_(int no, char *str, NSUInteger lstr, NSUIntege
   RELEASE(a);
   return err;
   }
-static inline int buffer_compress(void)
+static int buffer_compress(void)
   {
   int err= 0;
   int i; char str[257];
@@ -134,7 +134,7 @@ static inline int buffer_compress(void)
   return err;
   }
 
-static inline int buffer_replace()
+static int buffer_replace()
   {
   int err= 0;
   MSBuffer *b,*c;
@@ -156,11 +156,10 @@ static inline int buffer_replace()
   return err;
   }
 
-TEST_FCT_BEGIN(MSBuffer)
-    int err= 0;
-    err+= buffer_create();
-    err+= buffer_b64();
-    err+= buffer_compress();
-    err+= buffer_replace();
-    return err;
-TEST_FCT_END(MSBuffer)
+test_t msfoundation_buffer[]= {
+  {"create"  ,NULL,buffer_create   ,INTITIALIZE_TEST_T_END},
+  {"b64"     ,NULL,buffer_b64     ,INTITIALIZE_TEST_T_END},
+  {"compress",NULL,buffer_compress,INTITIALIZE_TEST_T_END},
+  {"replace" ,NULL,buffer_replace,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

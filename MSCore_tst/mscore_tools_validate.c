@@ -20,3 +20,16 @@ int mscore_tools_validate(void)
   err+= crc("[\"MSTE0101\",5,\"CRC00000000\",0,0]",945492452U);
   return err;
   }
+
+static int tools_crc(void)
+  {
+  int err= 0;
+  err+= crc("A",3554254475U);
+  err+= crc("[\"MSTE0101\",5,\"CRC00000000\",0,0]",945492452U);
+  return err;
+  }
+
+test_t mscore_tools[]= {
+  {"crc",NULL,tools_crc,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

@@ -2,7 +2,7 @@
 
 #include "msfoundation_validate.h"
 
-static inline int couple_create(void)
+static int couple_create(void)
   {
   int err= 0;
   MSCouple *c,*d,*e;
@@ -42,8 +42,7 @@ static inline int couple_create(void)
   return err;
   }
 
-TEST_FCT_BEGIN(MSCouple)
-  int err= 0;
-  err+= couple_create();
-  return err;
-TEST_FCT_END(MSCouple)
+test_t msfoundation_couple[]= {
+  {"create",NULL,couple_create,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

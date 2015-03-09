@@ -139,3 +139,10 @@ int mscore_cbuffer_validate(void)
   err+= cbuffer_compress();
   return err;
   }
+
+test_t mscore_cbuffer[]= {
+  {"create"  ,NULL,cbuffer_create  ,INTITIALIZE_TEST_T_END},
+  {"b64"     ,NULL,cbuffer_b64     ,INTITIALIZE_TEST_T_END},
+  {"compress",NULL,cbuffer_compress,INTITIALIZE_TEST_T_END},
+  {NULL}
+};

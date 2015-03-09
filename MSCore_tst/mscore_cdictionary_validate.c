@@ -144,3 +144,11 @@ int mscore_cdictionary_validate(void)
   err+= cdictionary_naturals();
   return err;
   }
+
+test_t mscore_cdictionary[]= {
+  {"create"  ,NULL,cdictionary_create  ,INTITIALIZE_TEST_T_END},
+  {"enum"    ,NULL,cdictionary_enum    ,INTITIALIZE_TEST_T_END},
+  {"ptrs"    ,NULL,cdictionary_ptrs    ,INTITIALIZE_TEST_T_END},
+  {"naturals",NULL,cdictionary_naturals,INTITIALIZE_TEST_T_END},
+  {NULL}
+};
