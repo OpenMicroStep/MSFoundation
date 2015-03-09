@@ -17,7 +17,7 @@ static int testOff()
 }
 
 test_t RootTests[]= {
-  {"_"     ,NULL       ,testOn,INTITIALIZE_TEST_T_END},
-  {"MSCore",MSCoreTests,NULL  ,INTITIALIZE_TEST_T_END},
-  {NULL}
-  };
+  {"_"     ,NULL       ,testOn ,INTITIALIZE_TEST_T_END},
+  {"MSCore",MSCoreTests,NULL   ,INTITIALIZE_TEST_T_END},
+  {"_"     ,NULL       ,testOff,INTITIALIZE_TEST_T_END},
+  {NULL}};

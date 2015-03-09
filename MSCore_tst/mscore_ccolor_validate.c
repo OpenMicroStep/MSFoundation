@@ -54,13 +54,6 @@ static int ccolor_create(void)
   return err;
   }
 
-int mscore_ccolor_validate(void)
-  {
-  int err= 0;
-  err+= ccolor_create();
-  return err;
-  }
-
 test_t mscore_ccolor[]= {
   {"create"  ,NULL,ccolor_create,INTITIALIZE_TEST_T_END},
   {NULL}

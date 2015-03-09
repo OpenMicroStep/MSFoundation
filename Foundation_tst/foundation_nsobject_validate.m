@@ -21,9 +21,9 @@
 
 @interface NSObjectTests : NSObject <NSObjectTestProtocol1> {
 @public
-    id _r0, _r1, _r2;
-    id _o, _o1, _o2;
-    id _p1, _p2, _p2o;
+  id _r0, _r1, _r2;
+  id _o, _o1, _o2;
+  id _p1, _p2, _p2o;
 }
 -(id)selector;
 -(id)selectorWithObject:(id)o;
@@ -33,27 +33,27 @@
 @implementation NSObjectTests
 -(id)protocolMethod1
 {
-    return _p1;
+  return _p1;
 }
 -(id)protocolMethod2:(id)obj
 {
-    _p2o = obj;
-    return _p2;
+  _p2o = obj;
+  return _p2;
 }
 -(id)selector
 {
-    return _r0;
+  return _r0;
 }
 -(id)selectorWithObject:(id)o
 {
-    _o = o;
-    return _r1;
+  _o = o;
+  return _r1;
 }
 -(id)selectorWithObject:(id)o1 withObject2:(id)o2
 {
-    _o1 = o1;
-    _o2 = o2;
-    return _r2;
+  _o1 = o1;
+  _o2 = o2;
+  return _r2;
 }
 @end
 
@@ -65,67 +65,70 @@
 
 static int object_memory()
 {
-    id obj;
-    obj= [NSObject new];
-    ASSERT_EQUALS([obj retainCount], 1, "retain count of [NSObject new] must be one: %d != %d");
-    [obj release];
-    
-    obj= [[NSObject alloc] init];
-    ASSERT_EQUALS([obj retainCount], 1, "retain count of [[NSObject allow] init] must be %2$d, got %1$d");
-    ASSERT_EQUALS([obj retain], obj, "-retain must return the same object: %p != %p");
-    ASSERT_EQUALS([obj retainCount], 2, "retain count must be %2$d, got %1$d");
-    [obj release];
-    ASSERT_EQUALS([obj retainCount], 1, "retain count must be %2$d, got %1$d");
-    [obj release];
-    
-    return 0;
+  int err= 0;
+  id obj;
+  obj= [NSObject new];
+  err+= ASSERT_EQUALS([obj retainCount], 1, "retain count of [NSObject new] must be one: %d != %d");
+  [obj release];
+  
+  obj= [[NSObject alloc] init];
+  err+= ASSERT_EQUALS([obj retainCount], 1, "retain count of [[NSObject allow] init] must be %2$d, got %1$d");
+  err+= ASSERT_EQUALS([obj retain], obj, "-retain must return the same object: %p != %p");
+  err+= ASSERT_EQUALS([obj retainCount], 2, "retain count must be %2$d, got %1$d");
+  [obj release];
+  err+= ASSERT_EQUALS([obj retainCount], 1, "retain count must be %2$d, got %1$d");
+  [obj release];
+  
+  return err;
 }
 
 static int object_classTree()
 {
-    id obj;
-    obj= [NSObjectTests new];
-    
-    ASSERT([obj isKindOfClass:[NSObjectTests class]], "NSObjectTests is an NSObjectTests");
-    ASSERT([obj isKindOfClass:[NSObject class]], "NSObjectTests is an NSObject");
-    ASSERT(![obj isKindOfClass:[NSObjectTestOutTree class]], "NSObjectTests is not an NSObjectTestOutTree");
-    
-    ASSERT([obj isMemberOfClass:[NSObjectTests class]], "NSObjectTests is exactly an NSObjectTests");
-    ASSERT(![obj isMemberOfClass:[NSObject class]], "NSObjectTests is not exactly an NSObject");
-    ASSERT(![obj isMemberOfClass:[NSObjectTestOutTree class]], "NSObjectTests is not exactly an NSObjectTestOutTree");
-    
-    ASSERT([obj conformsToProtocol:@protocol(NSObjectTestProtocol1)], "NSObjectTests implements NSObjectTestProtocol1");
-    ASSERT(![obj conformsToProtocol:@protocol(NSObjectTestProtocol2)], "NSObjectTests doesn't implements NSObjectTestProtocol2");
-    ASSERT([obj conformsToProtocol:@protocol(NSObject)], "NSObjectTests implements NSObjectTestProtocol1");
-    
-    [obj release];
-    return 0;
+  int err= 0;
+  id obj;
+  obj= [NSObjectTests new];
+  
+  err+= ASSERT([obj isKindOfClass:[NSObjectTests class]], "NSObjectTests is an NSObjectTests");
+  err+= ASSERT([obj isKindOfClass:[NSObject class]], "NSObjectTests is an NSObject");
+  err+= ASSERT(![obj isKindOfClass:[NSObjectTestOutTree class]], "NSObjectTests is not an NSObjectTestOutTree");
+  
+  err+= ASSERT([obj isMemberOfClass:[NSObjectTests class]], "NSObjectTests is exactly an NSObjectTests");
+  err+= ASSERT(![obj isMemberOfClass:[NSObject class]], "NSObjectTests is not exactly an NSObject");
+  err+= ASSERT(![obj isMemberOfClass:[NSObjectTestOutTree class]], "NSObjectTests is not exactly an NSObjectTestOutTree");
+  
+  err+= ASSERT([obj conformsToProtocol:@protocol(NSObjectTestProtocol1)], "NSObjectTests implements NSObjectTestProtocol1");
+  err+= ASSERT(![obj conformsToProtocol:@protocol(NSObjectTestProtocol2)], "NSObjectTests doesn't implements NSObjectTestProtocol2");
+  err+= ASSERT([obj conformsToProtocol:@protocol(NSObject)], "NSObjectTests implements NSObjectTestProtocol1");
+  
+  [obj release];
+  return err;
 }
 
 int object_perform()
 {
-    id r0= (id)UINTPTR_MAX, r1= (id)(UINTPTR_MAX-2), r2= (id)(UINTPTR_MAX-1);
-    id o= (id)(UINTPTR_MAX-4), o1= (id)(UINTPTR_MAX-7), o2= (id)(UINTPTR_MAX-10);
-    NSObjectTests* obj;
-    obj= [NSObjectTests new];
-    obj->_r0 = r0;
-    obj->_r1 = r1;
-    obj->_r2 = r2;
-    
-    ASSERT_EQUALS([obj performSelector:@selector(selector)], r0, "performSelector failed, must return %2$p, got %1$p");
-    
-    ASSERT_EQUALS([obj performSelector:@selector(selectorWithObject:) withObject:o], r1, "performSelector failed, must return %2$p, got %1$p");
-    ASSERT_EQUALS(obj->_o, o, "performSelector failed, %2$p expected, got %1$p");
-    
-    ASSERT_EQUALS([obj performSelector:@selector(selectorWithObject:withObject2:) withObject:o1 withObject:o2], r2, "performSelector failed, must return %2$p, got %1$p");
-    ASSERT_EQUALS(obj->_o1, o1, "performSelector failed, %2$p expected, got %1$p");
-    ASSERT_EQUALS(obj->_o2, o2, "performSelector failed, %2$p expected, got %1$p");
-    
-    ASSERT([obj respondsToSelector:@selector(selectorWithObject:withObject2:)], "NSObjectTests implements selectorWithObject:withObject2:");
-    ASSERT(![obj respondsToSelector:@selector(protocolMethod3)], "NSObjectTests implements selectorWithObject:withObject2:");
-    
-    [obj release];
-    return 0;
+  int err= 0;
+  id r0= (id)UINTPTR_MAX, r1= (id)(UINTPTR_MAX-2), r2= (id)(UINTPTR_MAX-1);
+  id o= (id)(UINTPTR_MAX-4), o1= (id)(UINTPTR_MAX-7), o2= (id)(UINTPTR_MAX-10);
+  NSObjectTests* obj;
+  obj= [NSObjectTests new];
+  obj->_r0 = r0;
+  obj->_r1 = r1;
+  obj->_r2 = r2;
+  
+  err+= ASSERT_EQUALS([obj performSelector:@selector(selector)], r0, "performSelector failed, must return %2$p, got %1$p");
+  
+  err+= ASSERT_EQUALS([obj performSelector:@selector(selectorWithObject:) withObject:o], r1, "performSelector failed, must return %2$p, got %1$p");
+  err+= ASSERT_EQUALS(obj->_o, o, "performSelector failed, %2$p expected, got %1$p");
+  
+  err+= ASSERT_EQUALS([obj performSelector:@selector(selectorWithObject:withObject2:) withObject:o1 withObject:o2], r2, "performSelector failed, must return %2$p, got %1$p");
+  err+= ASSERT_EQUALS(obj->_o1, o1, "performSelector failed, %2$p expected, got %1$p");
+  err+= ASSERT_EQUALS(obj->_o2, o2, "performSelector failed, %2$p expected, got %1$p");
+  
+  err+= ASSERT([obj respondsToSelector:@selector(selectorWithObject:withObject2:)], "NSObjectTests implements selectorWithObject:withObject2:");
+  err+= ASSERT(![obj respondsToSelector:@selector(protocolMethod3)], "NSObjectTests implements selectorWithObject:withObject2:");
+  
+  [obj release];
+  return err;
 }
 
 
@@ -134,7 +137,7 @@ typedef struct atom_t {
   long            value;
   pthread_mutex_t mutex;
   pthread_cond_t  cond;
-  }
+}
 * atom;
 #define STRUCT_ATOM_INITIALIZER(V) {(V),PTHREAD_MUTEX_INITIALIZER,PTHREAD_COND_INITIALIZER}
 void atom_set(atom a, long value)
@@ -158,13 +161,13 @@ void atom_add_and_signal(atom a, long toBeAdded)
     pthread_cond_signal(&(a->cond));}
 }
 void atom_wait_count(atom a, long count)
-{	
+{
   if (a) {
     pthread_mutex_lock(&(a->mutex));
     while (a->value < count) {
       pthread_cond_wait(&(a->cond), &(a->mutex));}
     pthread_mutex_unlock(&(a->mutex));}
-}	
+}
 
 #define RCOUNT 1000000
 struct pthread_data_t {
@@ -183,12 +186,12 @@ void* _concurentRetain(void* data)
   for (i= 0; i<RCOUNT; i++) {
     [o retain];
     if ((r= [o retainCount])>r0+i+1) {
-//printf("-> %d %lu %lu\n", d->no, i, r);
+      //printf("-> %d %lu %lu\n", d->no, i, r);
       collision++;
       r0= r-i-1;
-      }
-    //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
     }
+    //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
+  }
   d->collision= collision;
   atom_add_and_signal(d->atom, 1);
   return NULL;
@@ -202,12 +205,12 @@ void* _concurentRelease(void* data)
   for (i= 0; i<RCOUNT; i++) {
     [o release];
     if ((r= [o retainCount])<r0-i-1) {
-//printf("-> %d %lu %lu\n", d->no, i, r);
+      //printf("-> %d %lu %lu\n", d->no, i, r);
       collision++;
       r0= r+i+1;
-      }
-    //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
     }
+    //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
+  }
   d->collision= collision;
   atom_add_and_signal(d->atom, 1);
   return NULL;
@@ -219,24 +222,25 @@ void* _concurentRelease(void* data)
 
 pthread_t _launchThread(void *(*start_routine)(void *), void* data, int what)
 {
+  int err= 0;
   pthread_attr_t attr;
   pthread_t      posixThreadID;
   int            returnVal, threadError;
- 
+  
   returnVal= pthread_attr_init(&attr);
-  assert(!returnVal);
+  err+= ASSERT(!returnVal,"error");
   returnVal= pthread_attr_setdetachstate(&attr, what==TEST_JOIN?PTHREAD_CREATE_JOINABLE:PTHREAD_CREATE_DETACHED);
-  assert(!returnVal);
- 
+  err+= ASSERT(!returnVal,"error");
+  
   threadError= pthread_create(&posixThreadID, &attr, start_routine, data);
-
+  
   returnVal= pthread_attr_destroy(&attr);
-  assert(!returnVal);
+  err+= ASSERT(!returnVal,"error");
   if (threadError != 0)
-    {
+  {
     posixThreadID= 0;
-         // Report an error.
-    }
+    // Report an error.
+  }
   return posixThreadID;
 }
 
@@ -251,7 +255,7 @@ static int object_threadRetain()
   d1.no= 1; d1.o= o; d1.atom= NULL;
   d2.no= 2; d2.o= o; d2.atom= NULL;
   d3.no= 3; d3.o= o; d3.atom= NULL;
-
+  
   for (state=TEST_JOIN; state<=TEST_ATOM; state++) {
     if (state>TEST_JOIN) {d1.atom= &struct_atom; d2.atom= &struct_atom; d3.atom= &struct_atom;}
     struct_atom.value= 0; d1.collision= 0; d2.collision= 0; d3.collision= 0;
@@ -269,10 +273,10 @@ static int object_threadRetain()
         if (e) printf("nanosleep sig abort\n");}}
     else if (state==TEST_ATOM) {
       atom_wait_count(&struct_atom, 3);}
-    ASSERT_EQUALS([o retainCount], 3*RCOUNT+1, "retainCount %u != expected %u");
-    ASSERT(d1.collision + d2.collision > 0, "retain  collisions 1:%ld 2:%ld", d1.collision, d2.collision);
-//printf("retain  collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
-
+    err+= ASSERT_EQUALS([o retainCount], 3*RCOUNT+1, "retainCount %u != expected %u");
+    err+= ASSERT(d1.collision + d2.collision > 0, "retain  collisions 1:%ld 2:%ld", d1.collision, d2.collision);
+    //printf("retain  collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
+    
     struct_atom.value= 0; d1.collision= 0; d2.collision= 0; d3.collision= 0;
     d1.posixThreadID= _launchThread(_concurentRelease, &d1, state);
     d2.posixThreadID= _launchThread(_concurentRelease, &d2, state);
@@ -288,10 +292,10 @@ static int object_threadRetain()
         if (e) printf("nanosleep sig abort\n");}}
     else if (state==TEST_ATOM) {
       atom_wait_count(&struct_atom, 3);}
-    ASSERT_EQUALS([o retainCount], 1, "retainCount %u != expected %u");
-    ASSERT(d1.collision + d2.collision > 0, "release collisions 1:%ld 2:%ld", d1.collision, d2.collision);
-//printf("release collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
-    }
+    err+= ASSERT_EQUALS([o retainCount], 1, "retainCount %u != expected %u");
+    err+= ASSERT(d1.collision + d2.collision > 0, "release collisions 1:%ld 2:%ld", d1.collision, d2.collision);
+    //printf("release collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
+  }
   RELEASE(o);
   return err;
 }
@@ -302,4 +306,4 @@ test_t foundation_object[]= {
   {"perform"     ,NULL,object_perform     ,INTITIALIZE_TEST_T_END},
   {"threadRetain",NULL,object_threadRetain,INTITIALIZE_TEST_T_END},
   {NULL}
-  };
+};

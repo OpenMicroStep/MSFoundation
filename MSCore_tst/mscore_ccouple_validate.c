@@ -33,13 +33,6 @@ static int ccouple_create(void)
   return err;
   }
 
-int mscore_ccouple_validate(void)
-  {
-  int err= 0;
-  err+= ccouple_create();
-  return err;
-  }
-
 test_t mscore_ccouple[]= {
   {"create"  ,NULL,ccouple_create,INTITIALIZE_TEST_T_END},
   {NULL}

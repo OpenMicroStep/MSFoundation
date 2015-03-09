@@ -234,16 +234,6 @@ static int cdate_week(void)
   return err;
   }
 
-int mscore_cdate_validate(void)
-  {
-  int err= 0;
-  err+= cdate_constants();
-  err+= cdate_create();
-  err+= cdate_create2();
-  err+= cdate_week();
-  return err;
-  }
-
 test_t mscore_cdate[]= {
   {"constants",NULL,cdate_constants,INTITIALIZE_TEST_T_END},
   {"create"   ,NULL,cdate_create   ,INTITIALIZE_TEST_T_END},

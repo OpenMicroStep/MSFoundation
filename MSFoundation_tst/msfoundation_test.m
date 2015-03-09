@@ -24,12 +24,10 @@ test_t MSFoundationCompleteTests[]= {
   {"MSCore"      ,MSCoreTests      ,NULL,INTITIALIZE_TEST_T_END},
   {"Foundation"  ,FoundationTests  ,NULL,INTITIALIZE_TEST_T_END},
   {"MSFoundation",MSFoundationTests,NULL,INTITIALIZE_TEST_T_END},
-  {NULL}
-  };
+  {NULL}};
 
 test_t RootTests[]= {
   {"_",NULL,testOn ,INTITIALIZE_TEST_T_END},
   {"MSFoundationComplete",MSFoundationCompleteTests,NULL,INTITIALIZE_TEST_T_END},
   {"_",NULL,testOff,INTITIALIZE_TEST_T_END},
-  {NULL}
-  };
+  {NULL}};

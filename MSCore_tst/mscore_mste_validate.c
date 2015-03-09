@@ -141,13 +141,6 @@ static int mste_decode(void)
   return err;
   }
 
-int mscore_mste_validate(void)
-  {
-  int err= 0;
-  err+= mste_decode();
-  return err;
-  }
-
 test_t mscore_mste[]= {
   {"decode",NULL,mste_decode,INTITIALIZE_TEST_T_END},
   {NULL}

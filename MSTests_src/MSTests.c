@@ -94,17 +94,18 @@ int test_(test_t *tests)
 void test_print(int level,test_t *tests)
 {
   test_t *test;
-  double clocks,seconds; int subs;
-  if (tests) for (test= tests; test->name; test++) if (strcmp(test->name, "_") && (!level || test->err)) {
-    clocks= (double)(test->c1-test->c0)/CLOCKS_PER_SEC;
-    seconds= (double)(test->t1-test->t0)/1000000.;
-    subs= (test->subTests) ? 1 : 0;
-    fprintf(stdout, "%-*s%s%-*s validate: %s clock:%.3f s time:%.3f s\n",
-      level*2, "", (subs?"+ ":". "), __testPadding - level*2, test->name, test->err ? "FAIL" : "PASS", clocks, seconds);
-    if (test->err)
-    //if (test->err || level<1)
+  double clocks,seconds; int subs,levelMax;
+  levelMax= 0;
+  if (tests) for (test= tests; test->name; test++) {
+    if (strcmp(test->name, "_") && (level<=levelMax || test->err)) {
+      clocks= (double)(test->c1-test->c0)/CLOCKS_PER_SEC;
+      seconds= (double)(test->t1-test->t0)/1000000.;
+      subs= (test->subTests) ? 1 : 0;
+      fprintf(stdout, "%-*s%s%-*s validate: %s clock:%.3f s time:%.3f s\n",
+        level*2, "", (subs?"+ ":". "), __testPadding - level*2, test->name,
+        test->err ? "FAIL" : "PASS", clocks, seconds);
       test_print(level+1,test->subTests);
-    }
+      }}
 }
 
 int test_module(const char *module, const char *prefix, const char *suffix)

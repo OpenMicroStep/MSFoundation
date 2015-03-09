@@ -229,18 +229,6 @@ static int cdecimal_strto(void)
   return err;
   }
 
-int mscore_cdecimal_validate(void)
-  {
-  int err= 0;
-  err+= cdecimal_create();
-  err+= cdecimal_op();
-  err+= cdecimal_value();
-  err+= cdecimal_fromSES();
-  err+= cdecimal_cast();
-  err+= cdecimal_strto();
-  return err;
-  }
-
 test_t mscore_cdecimal[]= {
   {"create" ,NULL,cdecimal_create ,INTITIALIZE_TEST_T_END},
   {"op"     ,NULL,cdecimal_op     ,INTITIALIZE_TEST_T_END},

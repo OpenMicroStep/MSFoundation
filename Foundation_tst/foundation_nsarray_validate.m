@@ -106,5 +106,4 @@ test_t foundation_array[]= {
   {"create"    ,NULL,array_create  ,INTITIALIZE_TEST_T_END},
   {"mutability",NULL,array_mutate  ,INTITIALIZE_TEST_T_END},
   {"subarray"  ,NULL,array_subarray,INTITIALIZE_TEST_T_END},
-  {NULL}
-  };
+  {NULL}};

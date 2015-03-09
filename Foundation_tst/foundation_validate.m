@@ -9,5 +9,4 @@ test_t FoundationTests[]= {
   {"NSData"           ,foundation_data      ,NULL,INTITIALIZE_TEST_T_END},
   {"MSDictionary"     ,foundation_dictionary,NULL,INTITIALIZE_TEST_T_END},
   {"MSString"         ,foundation_string    ,NULL,INTITIALIZE_TEST_T_END},
-  {NULL}
-  };
+  {NULL}};

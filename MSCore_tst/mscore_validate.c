@@ -22,5 +22,4 @@ test_t MSCoreTests[]= {
   {"ses"        ,mscore_ses        ,NULL,INTITIALIZE_TEST_T_END},
   {"cstring"    ,mscore_cstring    ,NULL,INTITIALIZE_TEST_T_END},
 //{"mste"       ,mscore_mste       ,NULL,INTITIALIZE_TEST_T_END},
-  {NULL}
-  };
+  {NULL}};

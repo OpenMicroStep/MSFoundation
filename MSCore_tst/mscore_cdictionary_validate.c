@@ -13,41 +13,41 @@ static int cdictionary_create(void)
   CDictionary *c,*d,*m; id k,o,x; int i;
   c= (CDictionary*)MSCreateObjectWithClassIndex(CDictionaryClassIndex);
   d= CCreateDictionary(0);
-  ASSERT_EQUALS(RETAINCOUNT(c), 1, "A1-Bad retain count: %lu != %lu");
-  ASSERT_EQUALS(RETAINCOUNT(d), 1, "A2-Bad retain count: %lu != %lu");
-  ASSERT(CDictionaryEquals(c, d), "A3 c & d are not equals");
+  err+= ASSERT_EQUALS(RETAINCOUNT(c), 1, "A1-Bad retain count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(d), 1, "A2-Bad retain count: %lu != %lu");
+  err+= ASSERT(CDictionaryEquals(c, d), "A3 c & d are not equals");
   RELEASE(d);
   k= (id)CCreateBufferWithBytes("key1", 4);
   o= (id)CCreateBufferWithBytes("obj1", 4);
   CDictionarySetObjectForKey(c, o, k);
-  ASSERT_EQUALS(RETAINCOUNT(k), 1, "A10-Bad retain count: %lu != %lu");
-  ASSERT_EQUALS(RETAINCOUNT(o), 2, "A11-Bad retain count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(k), 1, "A10-Bad retain count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(o), 2, "A11-Bad retain count: %lu != %lu");
   d= CCreateDictionaryWithObjectsAndKeys(&k, &k, 1);
-  ASSERT_EQUALS(RETAINCOUNT(d), 1, "A12-Bad retain count: %lu != %lu");
-  ASSERT_EQUALS(RETAINCOUNT(k), 2, "A13-Bad retain count: %lu != %lu");
-  ASSERT(!CDictionaryEquals(c, d), "A14 c & d are equals");
+  err+= ASSERT_EQUALS(RETAINCOUNT(d), 1, "A12-Bad retain count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(k), 2, "A13-Bad retain count: %lu != %lu");
+  err+= ASSERT(!CDictionaryEquals(c, d), "A14 c & d are equals");
   CDictionarySetObjectForKey(d, o, k);
-  ASSERT_EQUALS(RETAINCOUNT(k), 1, "A15-Bad retain count: %lu != %lu");
-  ASSERT_EQUALS(RETAINCOUNT(o), 3, "A16-Bad retain count: %lu != %lu");
-  ASSERT(CDictionaryEquals(c, d), "A17 c & d are not equals");
+  err+= ASSERT_EQUALS(RETAINCOUNT(k), 1, "A15-Bad retain count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(o), 3, "A16-Bad retain count: %lu != %lu");
+  err+= ASSERT(CDictionaryEquals(c, d), "A17 c & d are not equals");
   m= CCreateDictionaryWithDictionaryCopyItems(c, NO);
   RELEASE(d); d= m;
   x= (id)CCreateBufferWithBytes("a key", 5);
   CDictionarySetObjectForKey(d, o, x);
-  ASSERT_EQUALS(CDictionaryCount(d), 2, "A20-Bad count: %lu != %lu");
-  ASSERT(!CDictionaryEquals(c, d), "A21 c & d are equals");
+  err+= ASSERT_EQUALS(CDictionaryCount(d), 2, "A20-Bad count: %lu != %lu");
+  err+= ASSERT(!CDictionaryEquals(c, d), "A21 c & d are equals");
   CDictionarySetObjectForKey(d, nil, x);
-  ASSERT(CDictionaryEquals(c, d), "A22 c & d are not equals");
+  err+= ASSERT(CDictionaryEquals(c, d), "A22 c & d are not equals");
   for (i= 0; i<100; i++) {
     CBufferAppendByte((CBuffer*)x, (MSByte)i);
     CDictionarySetObjectForKey(d, o, x);}
-  ASSERT_EQUALS(RETAINCOUNT(o), 103, "A23-Bad count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(o), 103, "A23-Bad count: %lu != %lu");
   RELEASE(x);
   RELEASE(c);
-  ASSERT_EQUALS(RETAINCOUNT(d), 1, "A41-Bad count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(d), 1, "A41-Bad count: %lu != %lu");
   RELEASE(d);
-  ASSERT_EQUALS(RETAINCOUNT(k), 1, "A42-Bad count: %lu != %lu");
-  ASSERT_EQUALS(RETAINCOUNT(o), 1, "A43-Bad count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(k), 1, "A42-Bad count: %lu != %lu");
+  err+= ASSERT_EQUALS(RETAINCOUNT(o), 1, "A43-Bad count: %lu != %lu");
   RELEASE(k);
   RELEASE(o);
   return err;
@@ -111,37 +111,27 @@ static int cdictionary_naturals(void)
   CDictionary *c; long i; CDictionaryEnumerator *de; CArray *a;
   c= CCreateDictionaryWithOptions(100, CDictionaryNatural, CDictionaryNatural);
   CDictionarySetObjectForKey(c, (id)0, (id)0);
-  ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)0)   , (id)0   , "bad natural 1 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)0)   , (id)0   , "bad natural 1 %lu %lu");
   for (i= 0; i<=1000; i++) CDictionarySetObjectForKey(c, (id)(1000-i), (id)i);
-  ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)0)   , (id)1000, "bad natural 2 %lu %lu");
-  ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)1)   , (id)999 , "bad natural 3 %lu %lu");
-  ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)200) , (id)800 , "bad natural 4 %lu %lu");
-  ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)999) , (id)1   , "bad natural 5 %lu %lu");
-  ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)1000), (id)0   , "bad natural 6 %lu %lu");
-  ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)2000), (id)NSNotFound, "bad natural 7 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)0)   , (id)1000, "bad natural 2 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)1)   , (id)999 , "bad natural 3 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)200) , (id)800 , "bad natural 4 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)999) , (id)1   , "bad natural 5 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)1000), (id)0   , "bad natural 6 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)2000), (id)NSNotFound, "bad natural 7 %lu %lu");
   de= CDictionaryEnumeratorAlloc(c);
   for (i= 0; CDictionaryEnumeratorNextKey(de)!=(id)NSNotFound; i++);
   CDictionaryEnumeratorFree(de);
-  ASSERT_EQUALS(i, 1001, "bad natural enumeration %lu != %lu");
+  err+= ASSERT_EQUALS(i, 1001, "bad natural enumeration %lu != %lu");
   CDictionarySetObjectForKey(c, (id)NSNotFound, (id)10);
-  ASSERT_EQUALS(CDictionaryCount(c), 1000, "bad count %lu != %lu");
+  err+= ASSERT_EQUALS(CDictionaryCount(c), 1000, "bad count %lu != %lu");
   a= CCreateArrayOfDictionaryKeys(c);
-  ASSERT_EQUALS(CArrayCount(a), 1000, "bad count %lu != %lu");
+  err+= ASSERT_EQUALS(CArrayCount(a), 1000, "bad count %lu != %lu");
   RELEASE(a);
   a= CCreateArrayOfDictionaryObjects(c);
-  ASSERT_EQUALS(CArrayCount(a), 1000, "bad count %lu != %lu");
+  err+= ASSERT_EQUALS(CArrayCount(a), 1000, "bad count %lu != %lu");
   RELEASE(a);
   RELEASE(c);
-  return err;
-  }
-
-int mscore_cdictionary_validate(void)
-  {
-  int err= 0;
-  err+= cdictionary_create();
-  err+= cdictionary_enum();
-  err+= cdictionary_ptrs();
-  err+= cdictionary_naturals();
   return err;
   }
 

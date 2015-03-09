@@ -88,14 +88,6 @@ static int cstring_create(void)
   return err;
   }
 
-int mscore_cstring_validate(void)
-  {
-  int err= 0;
-  err+= unichar_test();
-  err+= cstring_create();
-  return err;
-  }
-
 test_t mscore_cstring[]= {
   {"unichar",NULL,unichar_test  ,INTITIALIZE_TEST_T_END},
   {"create" ,NULL,cstring_create,INTITIALIZE_TEST_T_END},

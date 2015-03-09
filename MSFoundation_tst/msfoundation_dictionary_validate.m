@@ -122,25 +122,26 @@ static int dictionary_enum(void)
 
 static int dictionary_init(void)
   {
+  int err= 0;
   NSDictionary *o;
   MSDictionary *d, *d2;
   o= [NSDictionary dictionaryWithObjectsAndKeys:@"obj1", @"key1", @"obj2", @"key2", nil];
   d= [MSDictionary dictionaryWithDictionary:o];
-  ASSERT_ISEQUAL([d objectForKey:@"key1"], @"obj1", "dictionary are equals");
-  ASSERT_ISEQUAL([d objectForKey:@"key2"], @"obj2", "dictionary are equals");
-  ASSERT_ISEQUAL([o objectForKey:@"key1"], @"obj1", "dictionary are equals");
-  ASSERT_ISEQUAL([o objectForKey:@"key2"], @"obj2", "dictionary are equals");
-  ASSERT_EQUALS([d count], [o count], "dictionary are equals");
-  ASSERT([d isEqual:o], "dictionary are equals");
-  ASSERT([o isEqual:d], "dictionary are equals");
+  err+= ASSERT_ISEQUAL([d objectForKey:@"key1"], @"obj1", "dictionary are equals");
+  err+= ASSERT_ISEQUAL([d objectForKey:@"key2"], @"obj2", "dictionary are equals");
+  err+= ASSERT_ISEQUAL([o objectForKey:@"key1"], @"obj1", "dictionary are equals");
+  err+= ASSERT_ISEQUAL([o objectForKey:@"key2"], @"obj2", "dictionary are equals");
+  err+= ASSERT_EQUALS([d count], [o count], "dictionary are equals");
+  err+= ASSERT([d isEqual:o], "dictionary are equals");
+  err+= ASSERT([o isEqual:d], "dictionary are equals");
   
   d2= [MSDictionary dictionaryWithDictionary:d];
-  ASSERT_EQUALS([d2 count], [o count], "dictionary are equals");
-  ASSERT([d2 isEqual:o], "dictionary are equals");
-  ASSERT([o isEqual:d2], "dictionary are equals");
-  ASSERT([d2 isEqual:d], "dictionary are equals");
-  ASSERT([d isEqual:d2], "dictionary are equals");
-  return 0;
+  err+= ASSERT_EQUALS([d2 count], [o count], "dictionary are equals");
+  err+= ASSERT([d2 isEqual:o], "dictionary are equals");
+  err+= ASSERT([o isEqual:d2], "dictionary are equals");
+  err+= ASSERT([d2 isEqual:d], "dictionary are equals");
+  err+= ASSERT([d isEqual:d2], "dictionary are equals");
+  return err;
   }
 
 test_t msfoundation_dictionary[]= {

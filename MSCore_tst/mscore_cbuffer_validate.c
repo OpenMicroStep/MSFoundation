@@ -131,15 +131,6 @@ static inline int cbuffer_compress(void)
   return err;
   }
 
-int mscore_cbuffer_validate(void)
-  {
-  int err= 0;
-  err+= cbuffer_create();
-  err+= cbuffer_b64();
-  err+= cbuffer_compress();
-  return err;
-  }
-
 test_t mscore_cbuffer[]= {
   {"create"  ,NULL,cbuffer_create  ,INTITIALIZE_TEST_T_END},
   {"b64"     ,NULL,cbuffer_b64     ,INTITIALIZE_TEST_T_END},
