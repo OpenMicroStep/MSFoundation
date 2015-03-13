@@ -52,16 +52,16 @@ struct CStringStruct {
   CGrowFlags flags;};
 
 
-  MSCoreExtern void       CStringFreeInside(id self); // for MSArray dealloc
-  MSCoreExtern id         CStringInitCopyWithMutability(CString *self, const CString *copied, BOOL isMutable);
-//Already defined in MSCObject.h
-//MSCoreExtern void       CStringFree(id self);
-//MSCoreExtern BOOL       CStringIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CStringHash(id self, unsigned depth);
-//MSCoreExtern id         CStringCopy(id self);
+MSCoreExtern void           CStringFreeInside(id self); // for MSArray dealloc
+MSCoreExtern BOOL           CStringIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CStringHash(id self, unsigned depth);
+MSCoreExtern id             CStringCopy(id self);
+MSCoreExtern const CString* CStringRetainedDescription(id self);
 //  Warning: the copy follows the options of self: if objects are not
 //  retained in self, they are not retained in the copy. If nilItems are
 //  allowed in self, they are also allowed in the copy.
+
+MSCoreExtern id         CStringInitCopyWithMutability(CString *self, const CString *copied, BOOL isMutable);
 
 MSCoreExtern BOOL CStringEquals           (const CString *s1, const CString *s2);
 MSCoreExtern BOOL CStringInsensitiveEquals(const CString *s1, const CString *s2);

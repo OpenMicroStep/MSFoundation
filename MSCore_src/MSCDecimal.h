@@ -46,22 +46,22 @@
 #ifndef MSCORE_DECIMAL_H
 #define MSCORE_DECIMAL_H
 
-struct CDecimalStruct {
+typedef struct CDecimalStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   unsigned char *m_apm_data;
   long m_apm_id;
   int  m_apm_malloclength;
   int  m_apm_datalength;
   int  m_apm_exponent;
-  int  m_apm_sign;};
+  int  m_apm_sign;}
+CDecimal;
 
 
-  MSCoreExtern void CDecimalFreeInside(id self);
-//Already defined in MSCObject.h
-//MSCoreExtern void       CDecimalFree(id self);
-//MSCoreExtern BOOL       CDecimalIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CDecimalHash(id self, unsigned depth);
-//MSCoreExtern id         CDecimalCopy(id self);
+MSCoreExtern void           CDecimalFreeInside(id self);
+MSCoreExtern BOOL           CDecimalIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CDecimalHash(id self, unsigned depth);
+MSCoreExtern id             CDecimalCopy(id self);
+MSCoreExtern const CString* CDecimalRetainedDescription(id self);
 
 MSCoreExtern BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);
 

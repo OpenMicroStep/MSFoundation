@@ -49,10 +49,10 @@
 #ifndef MSCORE_DATE_H
 #define MSCORE_DATE_H
 
-struct CDateStruct {
+typedef struct CDateStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
-  MSTimeInterval interval;};
-
+  MSTimeInterval interval;}
+CDate;
 
 // Constants
 MSCoreExtern CDate *CDateDistantPast;
@@ -61,12 +61,11 @@ MSCoreExtern CDate *CDate19700101;
 MSCoreExtern CDate *CDate20010101;
 MSCoreExtern MSTimeInterval CDateSecondsFrom19700101To20010101; // 978307200
 
-  MSCoreExtern void CDateFreeInside(id self);
-//Already defined in MSCObject.h
-//MSCoreExtern void       CDateFree(id self);
-//MSCoreExtern BOOL       CDateIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CDateHash(id self, unsigned depth);
-//MSCoreExtern id         CDateCopy(id self);
+MSCoreExtern void           CDateFreeInside(id self);
+MSCoreExtern BOOL           CDateIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CDateHash(id self, unsigned depth);
+MSCoreExtern id             CDateCopy(id self);
+MSCoreExtern const CString* CDateRetainedDescription(id self);
 
 MSCoreExtern BOOL CDateEquals(const CDate *self, const CDate *other);
 

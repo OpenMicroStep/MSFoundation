@@ -242,7 +242,7 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 {
   CDate *now= CCreateDateNow();
   MSTimeInterval r= CDateSecondsBetweenDates(now, (CDate*)self);
-  CDateFree((id)now);
+  RELEASE((id)now);
   return r;
 }
 

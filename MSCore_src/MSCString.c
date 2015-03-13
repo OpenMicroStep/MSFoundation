@@ -51,12 +51,6 @@ void CStringFreeInside(id self)
     s->length= 0; s->buf= NULL;}
 }
 
-void CStringFree(id self)
-{
-  CStringFreeInside(self);
-  MSFree(self, "CStringFree() [self]");
-}
-
 BOOL CStringIsEqual(id self, id other)
 {
   return _CClassIsEqual(self,other,(CObjectEq)CStringEquals);

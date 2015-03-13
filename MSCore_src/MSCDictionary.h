@@ -63,15 +63,16 @@ typedef struct CDictionaryFlagsStruct {
   MSUInt _reserved:2;}
 CDictionaryFlags;
 
-struct CDictionaryStruct {
+typedef struct CDictionaryStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   void **buckets;
   NSUInteger nBuckets;
   NSUInteger count;
-  CDictionaryFlags flags;};
+  CDictionaryFlags flags;}
+CDictionary;
 
 typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
-  CDictionary *dictionary;
+  const CDictionary *dictionary;
   NSUInteger iBucket;
   void *jnode;}
 CDictionaryEnumerator;
@@ -87,17 +88,15 @@ MSCoreExtern id CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
 MSCoreExtern CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
 MSCoreExtern CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
 
-  MSCoreExtern void       CDictionaryFreeInside(id self);
+MSCoreExtern void           CDictionaryFreeInside(id self);
+MSCoreExtern BOOL           CDictionaryIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CDictionaryHash(id self, unsigned depth);
+MSCoreExtern id             CDictionaryCopy(id self);
+MSCoreExtern const CString* CDictionaryRetainedDescription(id self);
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
 // Attention Dnas le Core le COPY copie la mutability et pas dans le .m: pas cohérent. Réécrire un COPY avec un arg ?)
   MSCoreExtern id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems);
   MSCoreExtern id         CDictionaryInitCopyWithMutability(CDictionary *self, const CDictionary *copied, BOOL isMutable);
-//Already defined in MSCObject.h
-//MSCoreExtern void       CDictionaryFree(id self);
-//MSCoreExtern BOOL       CDictionaryIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CDictionaryHash(id self, unsigned depth);
-//MSCoreExtern id         CDictionaryCopy(id self);
-// CDictionaryCopy: As keys already come from a dictionary, they are not re-copied.
 
 MSCoreExtern BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other);
 
@@ -120,8 +119,23 @@ MSCoreExtern id CDictionaryObjectForKey(const CDictionary *self, id k);
 
 #pragma mark Setters
 
-MSCoreExtern void CDictionarySetObjectForKey(CDictionary *self, id o, id k);
 // k!=nil, o=nil => remove
+MSCoreExtern void CDictionarySetObjectForKey(CDictionary *self, id o, id k);
+
+// Si !k, retourne nil.
+// Si le dico contient déjà un objet pour la clé k, retourne cet objet.
+// Sinon retourne o et si o!=nil ajoute l'objet o pour cette clé.
+// Si added, retourne par référence *added=YES si l'ajout a eu lieu et *added=NO dans le cas contraire.
+MSCoreExtern id CDictionarySetObjectIfKeyAbsent(CDictionary *self, id o, id k, BOOL *added);
+
+// Si !k, retourne nil.
+// Si le dico contient déjà un objet pour la clé k, retourne cet objet.
+// Sinon demande au handler un object et le retourne et s'il n'est pas nil l'associe à la clé k.
+// Si added, retourne par référence *added=YES si l'ajout a eu lieu et *added=NO dans le cas contraire.
+// Attention, si le handler crée l'objet (par exemple, le handler est MSCreateObjectWithClassIndex),
+// celui-ci doit être releaser.
+typedef id (*CDictionarySetHandler)(void*);
+MSCoreExtern id CDictionarySetObjectFromHandlerIfKeyAbsent(CDictionary *self, CDictionarySetHandler h, void *arg, id k, BOOL *added);
 
 // TODO: description functions
 

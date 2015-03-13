@@ -138,11 +138,6 @@ void CDictionaryFreeInside(id s)
         nj= j->next; MSFree(j, "CDictionaryFreeInside");}}
     MSFree(self->buckets, "CDictionaryFreeInside"); self->buckets= NULL;}
 }
-void CDictionaryFree(id self)
-{
-  CDictionaryFreeInside(self);
-  MSFree(self, "CDictionaryFree() [self]");
-}
 
 BOOL CDictionaryIsEqual(id self, id other)
 {
@@ -366,7 +361,7 @@ CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self)
     MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode,
       "CDictionaryEnumerator allocation error");
     return NULL;}
-  de->dictionary= (CDictionary*)RETAIN(self);
+  de->dictionary= self;
   de->iBucket=    0;
   de->jnode=      NULL;
   return de;
@@ -374,7 +369,6 @@ CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self)
 
 void CDictionaryEnumeratorFree(CDictionaryEnumerator *de)
 {
-  if (de) RELEASE(de->dictionary);
   MSFree(de, "CDictionaryEnumeratorFree");
 }
 

@@ -48,11 +48,6 @@ void CBufferFreeInside(id self)
   if (self && !((CBuffer*)self)->flags.noFree) {
     MSFree(((CBuffer*)self)->buf, "CBufferFreeInside() [memory]");}
 }
-void CBufferFree(id self)
-{
-  CBufferFreeInside(self);
-  MSFree(self, "CBufferFree() [self]");
-}
 
 BOOL CBufferIsEqual(id self, id other)
 {

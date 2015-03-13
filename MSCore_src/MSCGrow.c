@@ -50,11 +50,6 @@ void CGrowFreeInside(id self)
     MSFree(g->zone, "CGrowFreeInside() [memory]");
     g->zone= NULL; g->count= 0; g->size= 0;}
 }
-void CGrowFree(id self)
-{
-  CGrowFreeInside(self);
-  MSFree(self, "CGrowFree() [self]");
-}
 
 #pragma mark Management
 

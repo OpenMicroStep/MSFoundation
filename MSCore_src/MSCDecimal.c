@@ -47,11 +47,6 @@ void CDecimalFreeInside(id self)
 {
   if (self) {m_apm_deallocate((CDecimal*)self);}
 }
-void CDecimalFree(id self)
-{
-  CDecimalFreeInside(self);
-  MSFree(self, "CDecimalFree() [self]");
-}
 
 BOOL CDecimalIsEqual(id self, id other)
 {

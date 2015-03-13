@@ -165,11 +165,6 @@ void CDateFreeInside(id self)
 {
   if (self) {}
 }
-void CDateFree(id self)
-{
-  CDateFreeInside(self);
-  MSFree(self, "CDateFree() [self]");
-}
 
 BOOL CDateIsEqual(id self, id other)
 {

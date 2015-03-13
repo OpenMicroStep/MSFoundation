@@ -56,25 +56,26 @@ typedef struct CArrayFlagsStruct {
   MSUInt _reserved:2;}
 CArrayFlags;
 
-struct CArrayStruct {
+typedef struct CArrayStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   id *pointers;
   NSUInteger  size;
   NSUInteger  count;
-  CArrayFlags flags;};
+  CArrayFlags flags;}
+CArray;
 
 // HM: 27/08/13 void return and report error to be conform to ObjC error reporting
 
-  MSCoreExtern void CArrayFreeInside(id self); // for MSArray dealloc
-  MSCoreExtern id   CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutable);
-//Already defined in MSCObject.h
-//MSCoreExtern void       CArrayFree(id self);
-//MSCoreExtern BOOL       CArrayIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CArrayHash(id self, unsigned depth);
-//MSCoreExtern id         CArrayCopy(id self);
+MSCoreExtern void           CArrayFreeInside(id self); // for MSArray dealloc
+MSCoreExtern BOOL           CArrayIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CArrayHash(id self, unsigned depth);
+MSCoreExtern id             CArrayCopy(id self);
+MSCoreExtern const CString* CArrayRetainedDescription(id self);
 //  Warning: the copy follows the options of self: if objects are not
 //  retained in self, they are not retained in the copy. If nilItems are
 //  allowed in self, they are also allowed in the copy.
+
+  MSCoreExtern id   CArrayInitCopyWithMutability(CArray *self, const CArray *copied, BOOL isMutable);
 
 MSCoreExtern BOOL CArrayEquals(const CArray *self, const CArray *anotherArray);
 MSCoreExtern BOOL CArrayIdenticals(const CArray *self, const CArray *anotherArray);

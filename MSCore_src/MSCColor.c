@@ -43,9 +43,8 @@
 
 #pragma mark c-like class methods
 
-void CColorFree(id self)
+void CColorFreeInside(id self)
 {
-  MSFree(self, "CColorFree() [self]");
 }
 
 BOOL CColorIsEqual(id self, id other)

@@ -45,19 +45,19 @@
 #ifndef MSCORE_COLOR_H
 #define MSCORE_COLOR_H
 
-struct CColorStruct {
+typedef struct CColorStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   MSUInt r:8;
   MSUInt g:8;
   MSUInt b:8;
-  MSUInt a:8;
-  };
+  MSUInt a:8;}
+CColor;
 
-//Already defined in MSCObject.h
-//MSCoreExtern void       CColorFree(id self);
-//MSCoreExtern BOOL       CColorIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CColorHash(id self, unsigned depth);
-//MSCoreExtern id         CColorCopy(id self);
+MSCoreExtern void           CColorFreeInside(id self);
+MSCoreExtern BOOL           CColorIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CColorHash(id self, unsigned depth);
+MSCoreExtern id             CColorCopy(id self);
+MSCoreExtern const CString* CColorRetainedDescription(id self);
 
 MSCoreExtern BOOL CColorEquals(const CColor *self, const CColor *other);
 MSCoreExtern NSComparisonResult CColorsCompare(CColor *self, CColor *other);

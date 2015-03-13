@@ -23,12 +23,15 @@ static int c_isa_for(CClassIndex classIndex)
 static int c_classEqual(void)
 {
   int err= 0;
-  id x,y;
+  id x,y,z;
   x= (id)MSCreateObjectWithClassIndex(CArrayClassIndex);
-  y= (id)MSCreateObjectWithClassIndex(CBufferClassIndex);
-  err+= ASSERT_ISNOTEQUAL(ISA(x), ISA(y), "B1-Bad isa equal");
+  y= (id)MSCreateObjectWithClassIndex(CArrayClassIndex);
+  z= (id)MSCreateObjectWithClassIndex(CBufferClassIndex);
+  err+= ASSERT_ISEQUAL(ISA(x), ISA(y), "B1-Bad isa equal");
+  err+= ASSERT_ISNOTEQUAL(ISA(x), ISA(z), "B2-Bad isa equal");
   RELEASE(x);
   RELEASE(y);
+  RELEASE(z);
   return err;
 }
 

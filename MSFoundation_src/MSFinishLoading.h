@@ -10,7 +10,6 @@ MSCoreExtern void MSFinishLoadingConfigure(uint8_t nbWaitings, MSFinishLoadingMe
 MSCoreExtern void MSFinishLoadingAddClass(Class cls);
 
 @interface NSObject (MSCopying)
-+ (void)finishLoading;
 - (Class)_classForCopy; // Used in FoundationCompatibility to copy NSMutableClass to immutable class.
 @end
 

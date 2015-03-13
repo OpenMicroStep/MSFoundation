@@ -49,11 +49,6 @@ void CCoupleFreeInside(id self)
     RELEASE(((CCouple*)self)->members[0]);
     RELEASE(((CCouple*)self)->members[1]);}
 }
-void CCoupleFree(id self)
-{
-  CCoupleFreeInside(self);
-  MSFree(self, "CCoupleFree() [self]");
-}
 
 BOOL CCoupleIsEqual(id self, id other)
 {

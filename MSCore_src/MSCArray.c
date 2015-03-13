@@ -90,11 +90,6 @@ void CArrayFreeInside(id self)
     _erase(a->flags.noRetainRelease, a->pointers, 0, a->count);
     CGrowFreeInside(self);}
 }
-void CArrayFree(id self)
-{
-  CArrayFreeInside(self);
-  MSFree(self, "CArrayFree() [self]");
-}
 
 BOOL CArrayIsEqual(id self, id other)
 {

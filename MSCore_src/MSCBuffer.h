@@ -51,23 +51,24 @@ typedef struct CBufferFlagsStruct {
   MSUInt _reserved:2;}
 CBufferFlags;
 
-struct CBufferStruct {
+typedef struct CBufferStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   MSByte *buf;
   NSUInteger   size;
   NSUInteger   length;
-  CBufferFlags flags;};
+  CBufferFlags flags;}
+CBuffer;
 
-  MSCoreExtern void       CBufferFreeInside(id self); // for MSBuffer dealloc
+MSCoreExtern void           CBufferFreeInside(id self); // for MSBuffer dealloc
+MSCoreExtern BOOL           CBufferIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CBufferHash(id self, unsigned depth);
+MSCoreExtern id             CBufferCopy(id self);
+MSCoreExtern const CString* CBufferRetainedDescription(id self);
+
 MSCoreExtern void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length);
 MSCoreExtern void CBufferInitWithBytesNoCopy(CBuffer *self, void *bytes, NSUInteger length);
 MSCoreExtern void CBufferInitWithBytesNoCopyNoFree(CBuffer *self, void *bytes, NSUInteger length);
 MSCoreExtern id   CBufferInitCopyWithMutability(CBuffer *self, const CBuffer *copied, BOOL isMutable);
-//Already defined in MSCObject.h
-//MSCoreExtern void       CBufferFree(id self);
-//MSCoreExtern BOOL       CBufferIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CBufferHash(id self, unsigned depth);
-//MSCoreExtern id         CBufferCopy(id self);
 
 MSCoreExtern BOOL CBufferEquals(const CBuffer *self, const CBuffer *anotherBuffer);
 

@@ -67,7 +67,6 @@ typedef struct CGrowStruct {
 CGrow;
 
 MSCoreExtern void CGrowFreeInside(id self);
-MSCoreExtern void CGrowFree(id self);
 
 MSCoreExtern BOOL CGrowIsForeverMutable(id self);
 MSCoreExtern BOOL CGrowIsForeverImmutable(id self);

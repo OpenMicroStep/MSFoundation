@@ -45,16 +45,16 @@
 #ifndef MSCORE_COUPLE_H
 #define MSCORE_COUPLE_H
 
-struct CCoupleStruct {
+typedef struct CCoupleStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
-  id members[2];};
+  id members[2];}
+CCouple;
 
-  MSCoreExtern void CCoupleFreeInside(id self);
-//Already defined in MSCObject.h
-//MSCoreExtern void       CCoupleFree(id self);
-//MSCoreExtern BOOL       CCoupleIsEqual(id self, id other);
-//MSCoreExtern NSUInteger CCoupleHash(id self, unsigned depth);
-//MSCoreExtern id         CCoupleCopy(id self);
+MSCoreExtern void           CCoupleFreeInside(id self);
+MSCoreExtern BOOL           CCoupleIsEqual(id self, id other);
+MSCoreExtern NSUInteger     CCoupleHash(id self, unsigned depth);
+MSCoreExtern id             CCoupleCopy(id self);
+MSCoreExtern const CString* CCoupleRetainedDescription(id self);
 
 MSCoreExtern BOOL CCoupleEquals(const CCouple *self, const CCouple *other);
 

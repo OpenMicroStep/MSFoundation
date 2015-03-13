@@ -44,11 +44,13 @@
 - (id)initWithDictionary:(MSDictionary*)d forKeys:(BOOL)forKeys
 {
   _dictionaryEnumerator= CDictionaryEnumeratorAlloc((CDictionary*)d);
+  RETAIN(_dictionaryEnumerator->dictionary);
   _forKeys= forKeys;
   return self;
 }
 - (void)dealloc
 {
+  RELEASE(_dictionaryEnumerator->dictionary);
   CDictionaryEnumeratorFree(_dictionaryEnumerator);
   [super dealloc];
 }
