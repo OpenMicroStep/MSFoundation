@@ -122,19 +122,26 @@ const CString* _MObjectRetainedDescription(id obj)
   return CCreateStringWithSES(SESFromString(d));
 }
 
+static Class        __Class4ClassIndex[CClassIndexMax+1]= {0};
+static CDictionary *__ElementSize4Class= NULL;
+
+void _CObjectInitialize(void); // used in MSFinishLoadingCore
+void _CObjectInitialize()
+{
+  __Class4ClassIndex[CArrayClassIndex     ]= NSClassFromString(@"MSArray");
+  __Class4ClassIndex[CBufferClassIndex    ]= NSClassFromString(@"MSBuffer");
+  __Class4ClassIndex[CColorClassIndex     ]= NSClassFromString(@"_MSRGBAColor");
+  __Class4ClassIndex[CCoupleClassIndex    ]= NSClassFromString(@"MSCouple");
+  __Class4ClassIndex[CDateClassIndex      ]= NSClassFromString(@"MSDate");
+  __Class4ClassIndex[CDecimalClassIndex   ]= NSClassFromString(@"MSDecimal");
+  __Class4ClassIndex[CDictionaryClassIndex]= NSClassFromString(@"MSDictionary");
+  __Class4ClassIndex[CStringClassIndex    ]= NSClassFromString(@"MSString");
+  __ElementSize4Class= CCreateDictionaryWithOptions(5, CDictionaryPointer, CDictionaryNatural);
+}
+
 id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 {
-  static NSString *__allCLikeClasses[CClassIndexMax+1]= {
-    @"MSArray",
-    @"MSBuffer",
-    @"_MSRGBAColor",
-    @"MSCouple",
-    @"MSDate",
-    @"MSDecimal",
-    @"MSDictionary",
-    @"MSString"};
-  
-  Class aClass= NSClassFromString(__allCLikeClasses[classIndex]);
+  Class aClass= __Class4ClassIndex[classIndex];
   id obj= nil;
   if (!aClass) {
     MSReportError(MSInvalidArgumentError, MSFatalError, MSNULLPointerError,
@@ -145,14 +152,22 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
   return obj;
 }
 
+#define _esz(X)       (((CGrow*)(X))->flags.elementBytes * 8)
+#define _setEsz(X,SZ)  ((CGrow*)(X))->flags.elementBytes= (MSUInt)(SZ) / 8
 NSUInteger CGrowElementSize(id self)
 {
   NSUInteger r= 0;
-  if      ([self isKindOfClass:[MSArray       class]]) r= sizeof(id);
-  else if ([self isKindOfClass:[MSBuffer      class]]) r= sizeof(MSByte);
-  else if ([self isKindOfClass:[MSDictionary  class]]) r= sizeof(void*);
-  else if ([self isKindOfClass:[MSString      class]]) r= sizeof(unichar);
-  else if ([self isKindOfClass:[MSASCIIString class]]) r= sizeof(char);
-  else MSRaise(@"CGrowElementSize", @"unknown class %@", [self class]);
+  if ((r= _esz(self))==0) {
+    Class c= ISA(self);
+    if ((r= (NSUInteger)CDictionaryObjectForKey(__ElementSize4Class, c))==0 || r==NSNotFound) {
+      if      ([self isKindOfClass:[MSArray       class]]) r= sizeof(id);
+      else if ([self isKindOfClass:[MSBuffer      class]]) r= sizeof(MSByte);
+      else if ([self isKindOfClass:[MSDictionary  class]]) r= sizeof(void*);
+      else if ([self isKindOfClass:[MSString      class]]) r= sizeof(unichar);
+      else if ([self isKindOfClass:[MSASCIIString class]]) r= sizeof(char);
+      else MSRaise(@"CGrowElementSize", @"unknown class %@", c);
+      if (r/8 > 16) MSRaise(@"CGrowElementSize", @"size too big %ld", r);
+      CDictionarySetObjectForKey(__ElementSize4Class, (id)r, (id)c);}
+    _setEsz(self,r);}
   return r;
 }

@@ -59,16 +59,16 @@ CDictionaryElementType;
 typedef struct CDictionaryFlagsStruct {
   MSUInt objType:2;  // Use values as simple void* #endif
   MSUInt keyType:2;  // Use keys as simple void* addresses (no object copy/hash) or naturals
-  MSUInt :26;
-  MSUInt _reserved:2;}
+  MSUInt :22;
+  MSUInt _reserved:6;}
 CDictionaryFlags;
 
 typedef struct CDictionaryStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
-  void **buckets;
-  NSUInteger nBuckets;
-  NSUInteger count;
-  CDictionaryFlags flags;}
+  CDictionaryFlags flags;
+  void **          buckets;
+  NSUInteger       nBuckets;
+  NSUInteger       count;}
 CDictionary;
 
 typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain

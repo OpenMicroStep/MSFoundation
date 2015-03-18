@@ -45,10 +45,10 @@ Herve Malaingre : herve@malaingre.com
 @interface MSBuffer : NSData
 {
 @private
-  MSByte      *_buf;
+  CBufferFlags _flags;
+  MSByte*      _buf;
   NSUInteger   _size;
   NSUInteger   _length;
-  CBufferFlags _flags;
 }
 
 #pragma mark Init

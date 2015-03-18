@@ -46,10 +46,10 @@
 
 struct CStringStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
+  CGrowFlags flags;
   unichar*   buf;
   NSUInteger size;
-  NSUInteger length;
-  CGrowFlags flags;};
+  NSUInteger length;};
 
 
 MSCoreExtern void           CStringFreeInside(id self); // for MSArray dealloc

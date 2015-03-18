@@ -234,6 +234,7 @@ static M_APM _MS_APM_Allocate(void)
   return (M_APM)MSCreateObjectWithClassIndex(CDecimalClassIndex);
 }
 
+void _CObjectInitialize();
 void _CDateInitialize();
 void _MSTEInitialize();
 
@@ -255,6 +256,7 @@ void MSFinishLoadingCore()
   if (!done) {
     M_apm_free_fn freeFct;
     done= YES;
+    _CObjectInitialize();
 #ifdef MSCORE_STANDALONE
     freeFct= (M_apm_free_fn)_CRelease;
 #elif MSCORE_FORFOUNDATION

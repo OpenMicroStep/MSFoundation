@@ -52,7 +52,8 @@
 
 // On veut que la structure à 0 soit le default (mutable).
 typedef struct CGrowFlagsStruct {
-  MSUInt :30;
+  MSUInt :26;
+  MSUInt elementBytes:4; // jusqu'à 16 octets
   MSUInt foreverImmutable:1;
   MSUInt foreverMutable:1;
   }
@@ -60,10 +61,10 @@ CGrowFlags;
 
 typedef struct CGrowStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
-  void *zone;       // la zone allouée pour les éléments
-  NSUInteger size;  // le nombre d'éléments utilisables
-  NSUInteger count; // le nombre d'éléments utilisés
-  CGrowFlags flags;}
+  CGrowFlags flags;
+  void*      zone;   // la zone allouée pour les éléments
+  NSUInteger size;   // le nombre d'éléments utilisables
+  NSUInteger count;} // le nombre d'éléments utilisés
 CGrow;
 
 MSCoreExtern void CGrowFreeInside(id self);

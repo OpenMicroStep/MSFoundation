@@ -47,16 +47,16 @@
 
 typedef struct CBufferFlagsStruct {
   MSUInt noFree:1;
-  MSUInt :29;
-  MSUInt _reserved:2;}
+  MSUInt :25;
+  MSUInt _reserved:6;}
 CBufferFlags;
 
 typedef struct CBufferStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
-  MSByte *buf;
+  CBufferFlags flags;
+  MSByte*      buf;
   NSUInteger   size;
-  NSUInteger   length;
-  CBufferFlags flags;}
+  NSUInteger   length;}
 CBuffer;
 
 MSCoreExtern void           CBufferFreeInside(id self); // for MSBuffer dealloc

@@ -81,10 +81,10 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 @interface MSString : NSString
 {
 @private
+  CGrowFlags _flags;
   unichar*   _buf;
   NSUInteger _size;
   NSUInteger _length;
-  CGrowFlags _flag;
 }
 
 #pragma mark Creation

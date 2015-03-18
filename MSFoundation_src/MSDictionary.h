@@ -56,10 +56,10 @@
 @interface MSDictionary : NSDictionary
 {
 @private
-  void **_buckets;
-  NSUInteger _nBuckets;
-  NSUInteger _count;
-  CDictionaryFlags _flag;
+  CDictionaryFlags _flags;
+  void**           _buckets;
+  NSUInteger       _nBuckets;
+  NSUInteger       _count;
 }
 
 // Attention, alloc et new retourne des instances mutables.

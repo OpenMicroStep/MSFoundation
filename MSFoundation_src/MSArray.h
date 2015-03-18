@@ -60,10 +60,10 @@
 @interface MSArray : NSArray
 {
 @private
-  id *_pointers;
+  CArrayFlags _flags;
+  id*         _pointers;
   NSUInteger  _size;
   NSUInteger  _count;
-  CArrayFlags _flags;
 }
 
 // Attention, alloc et new retourne des instances mutables.

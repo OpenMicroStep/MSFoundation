@@ -99,8 +99,8 @@
  */
 typedef struct _MSASCIIStringFlagsStruct {
   MSUInt leak:1;
-  MSUInt :29;
-  MSUInt _reserved:2;}
+  MSUInt :25;
+  MSUInt _reserved:6;}
 _MSASCIIStringFlags ;
 
 @class MSBuffer ;
@@ -108,10 +108,10 @@ _MSASCIIStringFlags ;
 @interface MSASCIIString : NSString
 {
 @public
-    MSByte                  *_buf ;
-    NSUInteger              _size ;
-    NSUInteger              _length ;
-	_MSASCIIStringFlags     _flags;
+  _MSASCIIStringFlags _flags;
+  MSByte*             _buf;
+  NSUInteger          _size;
+  NSUInteger          _length;
 }
 
 + (id)stringWithBytes:(const void *)bytes length:(NSUInteger)length ;

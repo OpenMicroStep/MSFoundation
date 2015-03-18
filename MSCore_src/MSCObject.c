@@ -150,6 +150,11 @@ const CString* _CObjectRetainedDescription(id obj)
     return nil;}
 }
 
+void _CObjectInitialize(void); // used in MSFinishLoadingCore
+void _CObjectInitialize()
+{
+}
+
 id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 {
   CClass *aClass= __allClasses+classIndex;
