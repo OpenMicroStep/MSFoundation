@@ -49,16 +49,18 @@
 
 typedef enum {
   CDictionaryObject= 0,
-  CDictionaryPointer,
-  CDictionaryNatural}
+  CDictionaryPointer,        // Use keys or values as simple void*
+  CDictionaryNatural,        // Use keys or values as NSUInteger
+  CDictionaryNaturalNotZero}
 CDictionaryElementType;
 
-// When objects are naturals, NSNotFound is used instead of nil when no object for key. Even for object enumeration.
-// Idem for key enumeration
+// When objects are naturals, (id)NSNotFound is used instead of nil when no object for key. Also for object enumeration.
+// If you want (id)0 instead of (id)NSNotFound, use CDictionaryNaturalNotZero
+// Idem for key
 
 typedef struct CDictionaryFlagsStruct {
-  MSUInt objType:2;  // Use values as simple void* #endif
-  MSUInt keyType:2;  // Use keys as simple void* addresses (no object copy/hash) or naturals
+  MSUInt keyType:2;
+  MSUInt objType:2;
   MSUInt :22;
   MSUInt _reserved:6;}
 CDictionaryFlags;

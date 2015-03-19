@@ -75,7 +75,7 @@ id CStringCopy(id self)
   CString *s;
   if (!self) return nil;
   s= (CString*)MSCreateObjectWithClassIndex(CStringClassIndex);
-  return CStringInitCopyWithMutability(s, self, !CGrowIsForeverImmutable(self));
+  return CStringInitCopyWithMutability(s, (CString*)self, !CGrowIsForeverImmutable(self));
 }
 
 const CString* CStringRetainedDescription(id self)

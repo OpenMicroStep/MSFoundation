@@ -105,40 +105,71 @@ static int cdictionary_ptrs(void)
   return err;
   }
 
-static int cdictionary_naturals(void)
+static id hndl(void* arg)
+  {return (id)3000;}
+static int cdictionary_naturalsOrNotZero(BOOL notZero)
   {
   int err= 0;
   CDictionary *c; long i; CDictionaryEnumerator *de; CArray *a;
-  c= CCreateDictionaryWithOptions(100, CDictionaryNatural, CDictionaryNatural);
-  CDictionarySetObjectForKey(c, (id)0, (id)0);
-  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)0)   , (id)0   , "bad natural 1 %lu %lu");
-  for (i= 0; i<=1000; i++) CDictionarySetObjectForKey(c, (id)(1000-i), (id)i);
-  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)0)   , (id)1000, "bad natural 2 %lu %lu");
-  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)1)   , (id)999 , "bad natural 3 %lu %lu");
-  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)200) , (id)800 , "bad natural 4 %lu %lu");
-  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)999) , (id)1   , "bad natural 5 %lu %lu");
-  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)1000), (id)0   , "bad natural 6 %lu %lu");
-  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)2000), (id)NSNotFound, "bad natural 7 %lu %lu");
+  int type= notZero ? CDictionaryNaturalNotZero : CDictionaryNatural;
+  NSUInteger first=      notZero ? 1 : 0;
+  NSUInteger notAMarker= notZero ? 0 : NSNotFound;
+  BOOL added; NSUInteger n;
+  c= CCreateDictionaryWithOptions(100, type, type);
+  CDictionarySetObjectForKey(c, (id)first, (id)first);
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)first), (id)first, "bad natural 1 %lu %lu");
+  for (i= 0; i<=1000; i++) CDictionarySetObjectForKey(c, (id)(first+1000-i), (id)(first+i));
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)(first+0))   , (id)(first+1000), "bad natural 2 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)(first+1))   , (id)(first+999) , "bad natural 3 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)(first+200)) , (id)(first+800) , "bad natural 4 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)(first+999)) , (id)(first+1)   , "bad natural 5 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)(first+1000)), (id)(first+0)   , "bad natural 6 %lu %lu");
+  err+= ASSERT_EQUALS(CDictionaryObjectForKey(c, (id)(first+2000)), (id)notAMarker  , "bad natural 7 %lu %lu");
   de= CDictionaryEnumeratorAlloc(c);
-  for (i= 0; CDictionaryEnumeratorNextKey(de)!=(id)NSNotFound; i++);
+  for (i= 0; CDictionaryEnumeratorNextKey(de)!=(id)notAMarker; i++);
   CDictionaryEnumeratorFree(de);
   err+= ASSERT_EQUALS(i, 1001, "bad natural enumeration %lu != %lu");
-  CDictionarySetObjectForKey(c, (id)NSNotFound, (id)10);
+  CDictionarySetObjectForKey(c, (id)notAMarker, (id)10);
   err+= ASSERT_EQUALS(CDictionaryCount(c), 1000, "bad count %lu != %lu");
+  // Test IfAbsent !added
+  n= (NSUInteger)CDictionarySetObjectIfKeyAbsent(c, (id)2000, (id)(first+100), &added);
+  err+= ASSERT_EQUALS(n, first+900, "bad %lu != %lu");
+  err+= ASSERT_EQUALS(added,    NO, "bad %c != %c");
+  err+= ASSERT_EQUALS(CDictionaryCount(c), 1000, "bad count %lu != %lu");
+  // Test IfAbsent added
+  n= (NSUInteger)CDictionarySetObjectIfKeyAbsent(c, (id)2000, (id)2000, &added);
+  err+= ASSERT_EQUALS(n,    2000, "bad %lu != %lu");
+  err+= ASSERT_EQUALS(added, YES, "bad %c != %c");
+  err+= ASSERT_EQUALS(CDictionaryCount(c), 1001, "bad count %lu != %lu");
+  // Test IfAbsent FromHandler !added
+  n= (NSUInteger)CDictionarySetObjectFromHandlerIfKeyAbsent(c, hndl, NULL, (id)2000, &added);
+  err+= ASSERT_EQUALS(n,    2000, "bad %lu != %lu");
+  err+= ASSERT_EQUALS(added,  NO, "bad %c != %c");
+  err+= ASSERT_EQUALS(CDictionaryCount(c), 1001, "bad count %lu != %lu");
+  // Test IfAbsent FromHandler added
+  n= (NSUInteger)CDictionarySetObjectFromHandlerIfKeyAbsent(c, hndl, NULL, (id)3000, &added);
+  err+= ASSERT_EQUALS(n,    3000, "bad %lu != %lu");
+  err+= ASSERT_EQUALS(added, YES, "bad %c != %c");
+  err+= ASSERT_EQUALS(CDictionaryCount(c), 1002, "bad count %lu != %lu");
+  // Test arrays
   a= CCreateArrayOfDictionaryKeys(c);
-  err+= ASSERT_EQUALS(CArrayCount(a), 1000, "bad count %lu != %lu");
+  err+= ASSERT_EQUALS(CArrayCount(a), 1002, "bad count %lu != %lu");
   RELEASE(a);
   a= CCreateArrayOfDictionaryObjects(c);
-  err+= ASSERT_EQUALS(CArrayCount(a), 1000, "bad count %lu != %lu");
+  err+= ASSERT_EQUALS(CArrayCount(a), 1002, "bad count %lu != %lu");
   RELEASE(a);
   RELEASE(c);
   return err;
   }
 
+static int cdictionary_naturals(void)        {return cdictionary_naturalsOrNotZero(0);}
+static int cdictionary_naturalsNotZero(void) {return cdictionary_naturalsOrNotZero(1);}
+
 test_t mscore_cdictionary[]= {
-  {"create"  ,NULL,cdictionary_create  ,INTITIALIZE_TEST_T_END},
-  {"enum"    ,NULL,cdictionary_enum    ,INTITIALIZE_TEST_T_END},
-  {"ptrs"    ,NULL,cdictionary_ptrs    ,INTITIALIZE_TEST_T_END},
-  {"naturals",NULL,cdictionary_naturals,INTITIALIZE_TEST_T_END},
+  {"create"  ,NULL,cdictionary_create         ,INTITIALIZE_TEST_T_END},
+  {"enum"    ,NULL,cdictionary_enum           ,INTITIALIZE_TEST_T_END},
+  {"ptrs"    ,NULL,cdictionary_ptrs           ,INTITIALIZE_TEST_T_END},
+  {"naturals",NULL,cdictionary_naturals       ,INTITIALIZE_TEST_T_END},
+  {"naturals",NULL,cdictionary_naturalsNotZero,INTITIALIZE_TEST_T_END},
   {NULL}
 };
