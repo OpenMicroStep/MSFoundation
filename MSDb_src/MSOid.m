@@ -39,7 +39,7 @@
  
  */
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 MSOid *MSEntEntId,*MSEntCarId,*MSEntTypId;
 MSOid *MSCarEntityId,*MSCarSystemNameId,*MSCarCharacteristicId,*MSCarTypeId,
@@ -180,10 +180,9 @@ MSString *MSCarStringLib,*MSCarIntLib,*MSCarBoolLib,
 
 - (NSString*)description
 {
-  MSString *s;
-  s= [MSString string];
-  CStringAppendEncodedFormat((CString*)s, NSUTF8StringEncoding, "%ld", _oid);
-  return s;
+  CString *s= CCreateString(0);
+  CStringAppendFormat(s, "%ld", _oid);
+  return AUTORELEASE(s);
 }
 - (NSString*)sqlDescription:(MSOdb*)db
   {

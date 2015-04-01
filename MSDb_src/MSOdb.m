@@ -39,7 +39,7 @@
  
  */
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 @implementation MSOdb
 
@@ -93,10 +93,7 @@
 
 - (NSString*)description
 {
-  MSString *s;
-  s= MSCreateString(NULL);
-  CStringAppendEncodedFormat((CString*)s, NSUTF8StringEncoding, "[MSOdb:%p]", self);
-  return s;
+  return [MSString stringWithFormat:@"[MSOdb:%p]", self];
 }
 
 - (NSString*)escapeString:(NSString*)aString withQuotes:(BOOL)withQuotes
@@ -870,6 +867,7 @@ if(knownObi)NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu"
 // Retourne tous les obis décodés, le dernier étant le root.
 - (MSDictionary*)decodeObis:(MSString*)x root:(MSObi**)pRoot
 {
+  id ret= nil;
   id db= self;
 //db= nil;
   MSDictionary *all,*byName,*unresolved; _DS d;
@@ -910,8 +908,13 @@ if(knownObi)NSLog(@"%@ -%@-",(!knownObi?@"Ajouté":knownObi==obi?@"Déjà connu"
 //NSLog(@"all:%@",[MSUid uidWithUid:[all allKeys]]);
 //NSLog(@"all:%@",[all allObjects]);
 //NSLog(@"byName:%@",[byName allKeys]);
-if([unresolved count])NSLog(@"unresolved:%@",unresolved);
-  return [all count]?all:nil;
+  if([unresolved count])NSLog(@"unresolved:%@",unresolved);
+  if([all count]) {
+    ret= [[all retain] autorelease]; }
+  RELEASE(all);
+  RELEASE(byName);
+  RELEASE(unresolved);
+  return ret;
   ctx= nil;
 }
 @end

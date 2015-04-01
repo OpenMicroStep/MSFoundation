@@ -46,22 +46,20 @@
  these functions.
  */
 
-#import <curl/curl.h>
-
 //OpenSSL cross-plateform functions
-MSNetExport void			CURL_initialize(void) ;
+MSNetExtern void			CURL_initialize(void) ;
 
-MSNetExport int            MS_curl_global_init(long flags);
-MSNetExport void *		   MS_curl_easy_init(void) ;
-MSNetExport void		   MS_curl_easy_cleanup(void *handle) ;
-MSNetExport int			   MS_curl_easy_perform(void * handle ) ;
-MSNetExport const char *   MS_curl_easy_strerror(int errornum) ;
-MSNetExport void		   MS_curl_slist_free_all(void *list) ;
-MSNetExport void *		   MS_curl_slist_append(void * list, const char * string ) ;
+MSNetExtern int            MS_curl_global_init(long flags);
+MSNetExtern void *		   MS_curl_easy_init(void) ;
+MSNetExtern void		   MS_curl_easy_cleanup(void *handle) ;
+MSNetExtern int			   MS_curl_easy_perform(void * handle ) ;
+MSNetExtern const char *   MS_curl_easy_strerror(int errornum) ;
+MSNetExtern void		   MS_curl_slist_free_all(void *list) ;
+MSNetExtern void *		   MS_curl_slist_append(void * list, const char * string ) ;
 
 //Rewrite argument specific functions since we cannot wrap the function that uses a va_list to hide te type of the argument
-MSNetExport int            MS_curl_easy_setopt_func(void *handle, int option, size_t (*function) ( char *ptr, size_t size, size_t nmemb, void *userdata)) ;
-MSNetExport int            MS_curl_easy_setopt_pntr(void *handle, int option, void *ptr_param) ;
-MSNetExport int            MS_curl_easy_setopt_long(void *handle, int option, long param) ;
-MSNetExport int            MS_curl_easy_setopt_offt(void *handle, int option, curl_off_t param) ;
+MSNetExtern int            MS_curl_easy_setopt_func(void *handle, int option, size_t (*function) ( char *ptr, size_t size, size_t nmemb, void *userdata)) ;
+MSNetExtern int            MS_curl_easy_setopt_pntr(void *handle, int option, void *ptr_param) ;
+MSNetExtern int            MS_curl_easy_setopt_long(void *handle, int option, long param) ;
+MSNetExtern int            MS_curl_easy_setopt_offt(void *handle, int option, curl_off_t param) ;
 

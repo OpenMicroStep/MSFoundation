@@ -124,4 +124,4 @@ typedef enum {
 - (MSArray *)allValues ; // null columns are represented as null objects
 @end
 
-MSDatabaseExport BOOL MSGetSqlDateFromBytes(void *bytes, NSUInteger length, MSTimeInterval *t) ;
+MSDatabaseExtern BOOL MSGetSqlDateFromBytes(void *bytes, NSUInteger length, MSTimeInterval *t) ;

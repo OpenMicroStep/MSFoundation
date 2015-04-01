@@ -9,10 +9,10 @@
 #import "MSNet_Private.h"
 //#import <MSFoundation/MSSystemLayer.h>
 
-#define STR2UTF8BUF(X,Y) CBufferAppendData((CBuffer*)(X), [Y dataUsingEncoding:NSUTF8StringEncoding])
+#define STR2UTF8BUF(X,Y) CBufferAppendSES((CBuffer*)(X), SESFromString(Y), NSUTF8StringEncoding)
 
 #ifdef WIN32
-#define STR2INIBUF(X,Y) CBufferAppendData((CBuffer*)(X), [Y dataUsingEncoding:NSISOLatin1StringEncoding])
+#define STR2INIBUF(X,Y) CBufferAppendSES((CBuffer*)(X), SESFromString(Y), NSISOLatin1StringEncoding)
 #else
 #define STR2INIBUF(X,Y) STR2UTF8BUF(X,Y)
 #endif
@@ -511,17 +511,17 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
         NSString *executable = [exeInfo objectForKey:@"path"] ;
         int successValue = [[exeInfo objectForKey:@"successValue"] intValue] ;
         NSDictionary *exeParams = [exeInfo objectForKey:@"parameters"] ;
-        MSArray *args = AUTORELEASE(MSCreateArray(1)) ;
+        CArray *args = CCreateArray(1) ;
         BOOL isDir = NO ;
         
         outputPath = MHMakeTemporaryFileName() ;
         //add parameters to lauch post processing
-        if([[exeParams objectForKey:@"inputFile"] length]) MSAAdd(args, [exeParams objectForKey:@"inputFile"]) ;
-        MSAAdd(args, [input resourcePathOndisk]) ;
-        if([[exeParams objectForKey:@"confFile"] length]) MSAAdd(args, [exeParams objectForKey:@"confFile"]) ;
-        MSAAdd(args, [configPage resourcePathOndisk])  ;
-        if([[exeParams objectForKey:@"outputFile"] length]) MSAAdd(args, [exeParams objectForKey:@"outputFile"]) ;
-        MSAAdd(args, outputPath) ;
+        if([[exeParams objectForKey:@"inputFile"] length]) CArrayAddObject(args, [exeParams objectForKey:@"inputFile"]) ;
+        CArrayAddObject(args, [input resourcePathOndisk]) ;
+        if([[exeParams objectForKey:@"confFile"] length]) CArrayAddObject(args, [exeParams objectForKey:@"confFile"]) ;
+        CArrayAddObject(args, [configPage resourcePathOndisk])  ;
+        if([[exeParams objectForKey:@"outputFile"] length]) CArrayAddObject(args, [exeParams objectForKey:@"outputFile"]) ;
+        CArrayAddObject(args, outputPath) ;
 
 #ifdef WIN32
         if (!MSFileExistsAtPath(executable, &isDir) || !isDir) executable = MSFindDLL(executable);
@@ -530,7 +530,8 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
         isDir = NO ;
 #endif
         
-        success = [self _launchExternalExecutable:executable withArgs:args successValue:successValue] ;
+        success = [self _launchExternalExecutable:executable withArgs:(MSArray*)args successValue:successValue] ;
+        RELEASE(args);
     }else
     {
         MSRaise(NSGenericException, @"postProcess : cannot find reliable information in configuration file") ;

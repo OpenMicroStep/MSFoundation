@@ -84,6 +84,6 @@ typedef enum {
 @end
 
 
-MSNetExport MSCouple *MSCreateKeyPair(MSCipherKeyType type) ; // The return couple (of NSData) contains the public and the private key in that order.
+MSNetExtern MSCouple *MSCreateKeyPair(MSCipherKeyType type) ; // The return couple (of NSData) contains the public and the private key in that order.
 
-MSNetExport MSBuffer *MSCreateRandomBuffer(NSUInteger length) ; // The return MSBuffer is retained
+MSNetExtern MSBuffer *MSCreateRandomBuffer(NSUInteger length) ; // The return MSBuffer is retained

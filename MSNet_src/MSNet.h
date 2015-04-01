@@ -45,9 +45,12 @@
  
  */
 
+#ifndef MSNET_H
+#define MSNET_H
+
 #import <MSFoundation/MSFoundation.h>
 
-#import <MSNet/MSNetWin32.h>
+#import <MSNet/MSNetPlatform.h>
 
 #import <MSNet/MSThreadSafeProxy.h>
 
@@ -68,6 +71,7 @@
 
 #import <MSNet/MHSSLSocket.h>
 
+#import <MSNet/MHLogging.h>
 #import <MSNet/MHBunchableObject.h>
 #import <MSNet/MHHTTPMessage.h>
 #import <MSNet/MHApplication.h>
@@ -77,5 +81,5 @@
 #import <MSNet/MHResource.h>
 
 #import <MSNet/MHApplicationClient.h>
-//#import <MSNet/MHMessengerClient.h>
-//#import <MSNet/MHNetRepositoryClient.h>
+
+#endif // MSNET_H

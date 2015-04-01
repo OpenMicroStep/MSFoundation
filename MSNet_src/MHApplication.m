@@ -443,14 +443,21 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     {
         MSBuffer *providedSignatureInB64 = [MSBuffer bufferWithData:[challenge dataUsingEncoding:NSUTF8StringEncoding]] ;
         MSBuffer *providedSignature = [providedSignatureInB64 decodedFromBase64] ;
-        MSCipher *cypher = [MSCipher cipherWithKey:[publicKey dataUsingEncoding:NSUTF8StringEncoding] type:RSAEncoder] ;
-        if([cypher verify:providedSignature ofMessage:[storedChallenge dataUsingEncoding:NSUTF8StringEncoding]]) {
+        MSCipher *cipher = [MSCipher cipherWithKey:[publicKey dataUsingEncoding:NSUTF8StringEncoding] type:RSAEncoder] ;
+        if([cipher verify:providedSignature ofMessage:[storedChallenge dataUsingEncoding:NSUTF8StringEncoding]]) {
             [self logWithLevel:MHAppDebug log:@"Challenge Authentication success for URN '%@'",urn] ;
             MHVALIDATE_AUTHENTICATION(YES, nil) ;
         }
+        else if(!cipher) {
+            [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for URN '%@' : failed to load cipher", urn] ;
+        }
+        else {
+            [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for URN '%@' : challenge verification failed", urn] ;
+        }
     }
-    
-    [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for URN '%@' : stored challenge not found", urn] ;
+    else {
+        [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for URN '%@' : public key not found", urn] ;
+    }
     MHVALIDATE_AUTHENTICATION(NO, nil) ;
 }
 

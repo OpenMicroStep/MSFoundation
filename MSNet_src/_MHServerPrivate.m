@@ -1218,6 +1218,7 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                 case MHSessionStatusAuthenticated :
                 {
                     NSString *sessionTicket = [session memberNamed:@"ticket"] ;
+                    MHDownloadResource *resource;
                     BOOL isStandardResourceDownload = _MHIsStandardResourceDownload(notificationType) ;
                     
                     if ([application isGUIApplication] &&
@@ -1241,9 +1242,8 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                         MHDestroySession(session) ;
                         MHRedirectToURL(secureSocket, [@"/" stringByAppendingURLComponent:[message getHeader:MHHTTPUrl]], NO) ;
                     }
-                    else if(isStandardResourceDownload)
+                    else if(isStandardResourceDownload && (resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType)))
                     {
-                        MHDownloadResource *resource = MHGetResourceFromCacheOrApplication(url, application, [message contentType], notificationType);
                         MHSendResourceOrHTTPNotModifiedToClientOnSocket(secureSocket, resource, isAdmin, session, message, nil) ;
                     }
                     else {
@@ -2656,14 +2656,12 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
 {
     MSInt result = 0 ;
     NSZone *defaultZone = NSDefaultMallocZone() ;
-    MSArray *enabledSSLMethods = MSCreateArray(5);
+    CArray *enabledSSLMethods = CCreateArray(5);
     MSCouple *listeningPorts ;
     
     // TODO: MSLanguage not yet ported
     //_initializeLanguageInfos() ;
   
-    //initialize ssl libssl
-    MHInitSSL() ;
     
     __serverName = [[[params objectAtIndex:0] lastPathComponent] stringByDeletingPathExtension] ;
     
@@ -2747,11 +2745,11 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     result = _MHServerThreadsPoolsInitialize() ;
 
     //enabled ssl methods
-    if (!(__ssl_options & OPENSSL_SSL_OP_NO_SSLv2))    { MSAAdd(enabledSSLMethods, @" SSLv2") ; }
-    if (!(__ssl_options & OPENSSL_SSL_OP_NO_SSLv3))    { MSAAdd(enabledSSLMethods, @" SSLv3") ; }
-    if (!(__ssl_options & OPENSSL_SSL_OP_NO_TLSv1))    { MSAAdd(enabledSSLMethods, @" TLSv1.0") ; }
-    if (!(__ssl_options & OPENSSL_SSL_OP_NO_TLSv1_1))  { MSAAdd(enabledSSLMethods, @" TLSv1.1") ; }
-    if (!(__ssl_options & OPENSSL_SSL_OP_NO_TLSv1_2))  { MSAAdd(enabledSSLMethods, @" TLSv1.2") ; }
+    if (!(__ssl_options & OPENSSL_SSL_OP_NO_SSLv2))    { CArrayAddObject(enabledSSLMethods, @" SSLv2") ; }
+    if (!(__ssl_options & OPENSSL_SSL_OP_NO_SSLv3))    { CArrayAddObject(enabledSSLMethods, @" SSLv3") ; }
+    if (!(__ssl_options & OPENSSL_SSL_OP_NO_TLSv1))    { CArrayAddObject(enabledSSLMethods, @" TLSv1.0") ; }
+    if (!(__ssl_options & OPENSSL_SSL_OP_NO_TLSv1_1))  { CArrayAddObject(enabledSSLMethods, @" TLSv1.1") ; }
+    if (!(__ssl_options & OPENSSL_SSL_OP_NO_TLSv1_2))  { CArrayAddObject(enabledSSLMethods, @" TLSv1.2") ; }
     
     //get listening ports
     listeningPorts = listeningPortsSortedBySSLAuthMode() ;
@@ -2770,11 +2768,11 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     MHServerLogWithLevel(MHLogDebug, @"* . ADMIN WAITING THREADS :        %8u", __maxAdminWaitingThreads) ;
     MHServerLogWithLevel(MHLogDebug, @"* . BLACKLIST :                    %@", __disableBlacklist ? @"disabled" : @" enabled") ;
     MHServerLogWithLevel(MHLogDebug, @"* . DEFLATE COMPRESSION :          %@", __disableDeflateCompression ? @"disabled" : @" enabled") ;
-    MHServerLogWithLevel(MHLogInfo, @"* . ENABLED SSL METHODS :%@", MSACount(enabledSSLMethods) ? [enabledSSLMethods componentsJoinedByString:@"," ] : @"none") ;
+    MHServerLogWithLevel(MHLogInfo, @"* . ENABLED SSL METHODS :%@", CArrayCount(enabledSSLMethods) ? [(MSArray*)enabledSSLMethods componentsJoinedByString:@"," ] : @"none") ;
     MHServerLogWithLevel(MHLogInfo, @"*") ;
     MHServerLogWithLevel(MHLogInfo, @"**************************************************************") ;
     
-    return result ;
+    RELEASE(enabledSSLMethods);    return result ;
 }
 
 // Look for server abuse
@@ -4051,7 +4049,7 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
         if (!sendChuncks || (sendChuncks && (chunkPosition == CHUNK_SENDING_HEAD)))
         {
             char statusLine[255];
-            char *str ;
+            const char *str ;
             NSEnumerator *enumerator;
             id aKey = nil;
             NSMutableString *stringHeaders = [NSMutableString string];
@@ -4128,17 +4126,13 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
             
             if([stringHeaders length])
             {
-#ifdef WO451
-                CBufferAppendBytes((CBuffer *)data, (void *)[stringHeaders cString], strlen([stringHeaders cString])) ;
-#else
-                CBufferAppendBytes((CBuffer *)data, (void *)[stringHeaders UTF8String], strlen([stringHeaders UTF8String])) ;
-#endif
+                str= [stringHeaders UTF8String];
+                CBufferAppendBytes((CBuffer *)data, (void *)str, strlen(str)) ;
             }
             
             if(body)
             {
                 MSLong contentLength = 0 ;
-                char tmp[21] ;
                 
                 if (canCompress && ([body length] > MINI_RESOURCE_SIZE_FOR_COMPRESSION)) {
                     body = [body compressed] ;
@@ -4150,19 +4144,8 @@ BOOL MHRespondToClientOnSocketWithAdditionalHeadersAndChunks(MHSSLSocket *secure
                 contentLength = sendChuncks ? totalLength : [body length] ;
                 str = "Content-Length: " ;
                 CBufferAppendBytes((CBuffer *)data, (void *)str, strlen(str)) ;
-                
-#ifdef WO451
-                ulltostr(contentLength, tmp, 10) ;
-                
-                CBufferAppendBytes((CBuffer *)data,
-                                   (void *)[[NSString stringWithFormat:@"%s\r\n", tmp] cString],
-                                   strlen([[NSString stringWithFormat:@"%s\r\n", tmp] cString])) ;
-#else
-                tmp[0] = 0 ;
-                CBufferAppendBytes((CBuffer *)data,
-                                   (void *)[[NSString stringWithFormat:@"%lld\r\n", contentLength] UTF8String],
-                                   strlen([[NSString stringWithFormat:@"%lld\r\n", contentLength] UTF8String])) ;
-#endif
+                str = [[NSString stringWithFormat:@"%lld\r\n", contentLength] UTF8String];
+                CBufferAppendBytes((CBuffer *)data, (void *)str, strlen(str)) ;
             }
             
             str = "\r\n" ;

@@ -44,7 +44,11 @@ int MHCheckSocketState(int sock_fd, int writing)
 }
 
 @implementation MHSSLSocket
-
++ (void)load {
+  NEW_POOL;
+  MHInitSSL() ;
+  KILL_POOL;
+}
 - (SOCKET)socket { return _socket ; }
 
 - (BOOL)isBlocking { return _isBlockingIO ; }

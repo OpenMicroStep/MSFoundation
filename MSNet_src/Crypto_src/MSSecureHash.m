@@ -49,7 +49,7 @@
 
 typedef struct {
     long long passAlgorithm, passHardness, challengeAlgorithm, challengeHardness;
-    NSString *passSalt, *challengeSalt, *challenge;
+    NSString *passSalt, *challengeSalt;
 } MSSecureHashChallengeInfo;
 
 static NSString *_computeHash(NSString *content, MSUInt algorithm, MSUInt hardness, NSString *salt);
@@ -228,6 +228,7 @@ static NSCharacterSet *__base64charset = nil;
 
 #pragma mark Algorithms
 
+static NSString * _computeAlgorithm1Hash(NSString *content, MSUInt hardness, NSString * salt);
 
 static NSString *_computeHash(NSString *content, MSUInt algorithm, MSUInt hardness, NSString *salt)
 {
@@ -279,7 +280,6 @@ static BOOL parseChallengeInfo(NSString *challengeInfo, MSSecureHashChallengeInf
     [scanner scanString:@"<" intoString:NULL] &&
     [scanner scanCharactersFromSet:__base64charset intoString:&(outInfo->challengeSalt)] &&
     [scanner scanString:@">" intoString:NULL] &&
-    [scanner scanCharactersFromSet:__base64charset intoString:&(outInfo->challenge)] &&
     [scanner isAtEnd] &&
     outInfo->passAlgorithm > 0 && outInfo->passAlgorithm < MSUIntMax &&
     outInfo->passHardness > 0 && outInfo->passHardness < MSUIntMax &&
@@ -301,10 +301,9 @@ static BOOL parseChallengeInfo(NSString *challengeInfo, MSSecureHashChallengeInf
 
 + (NSString *)fakeChallengeInfo
 {
-    return [NSString stringWithFormat:@"%u:%u<%@>%u:%u<%@>%@",
-            [self defaultAlgorithm], [self defaultHardness], [self generateSalt], // Password info
-            [self defaultAlgorithm], [self defaultHardness], [self generateSalt], // Challenge info
-            [self plainChallenge:[self generateRawChallenge]]];
+    return [NSString stringWithFormat:@"%u:%u<%@>%u:%u<%@>",
+            [self defaultAlgorithm], [self defaultHardness], [self generateSalt],  // Password info
+            [self defaultAlgorithm], [self defaultHardness], [self generateSalt]]; // Challenge info
 }
 
 + (NSString *)challengeResultFor:(NSString *)content withChallengeInfo:(NSString *)challengeInfo
@@ -312,7 +311,7 @@ static BOOL parseChallengeInfo(NSString *challengeInfo, MSSecureHashChallengeInf
     MSSecureHashChallengeInfo i;
     if(parseChallengeInfo(challengeInfo, &i)) {
         NSString *hash1 = _computeHash(content, i.passAlgorithm, i.passHardness, i.passSalt);
-        NSString *hash2 = _computeHash([i.challenge stringByAppendingString:hash1], i.challengeAlgorithm, i.challengeHardness, i.challengeSalt);
+        NSString *hash2 = _computeHash(hash1, i.challengeAlgorithm, i.challengeHardness, i.challengeSalt);
         return hash2;
     }
     return nil;
@@ -321,10 +320,9 @@ static BOOL parseChallengeInfo(NSString *challengeInfo, MSSecureHashChallengeInf
 - (NSString *)challengeInfo
 {
     Class myClass = [self class];
-    return [NSString stringWithFormat:@"%u:%u<%@>%u:%u<%@>%@",
+    return [NSString stringWithFormat:@"%u:%u<%@>%u:%u<%@>",
             _algorithm, _hardness, _salt, // Password info
-            [myClass defaultAlgorithm], [myClass defaultHardness], [myClass generateSalt], // Challenge info
-            [myClass plainChallenge:[myClass generateRawChallenge]]];
+            [myClass defaultAlgorithm], [myClass defaultHardness], [myClass generateSalt]]; // Challenge info
 }
 
 - (BOOL)isValidChallengedResult:(NSString *)result withChallengeInfo:(NSString *)challengeInfo
@@ -333,10 +331,9 @@ static BOOL parseChallengeInfo(NSString *challengeInfo, MSSecureHashChallengeInf
     if(parseChallengeInfo(challengeInfo, &i) &&
        (MSUInt)i.passAlgorithm == _algorithm &&
        (MSUInt)i.passHardness == _hardness &&
-       [_salt isEqualToString:i.passSalt] &&
-       [i.challenge length] > 0)
+       [_salt isEqualToString:i.passSalt])
     {
-        NSString *expectedResult = _computeHash([i.challenge stringByAppendingString:_hash], i.challengeAlgorithm, i.challengeHardness, i.challengeSalt);
+        NSString *expectedResult = _computeHash(_hash, i.challengeAlgorithm, i.challengeHardness, i.challengeSalt);
         return [expectedResult isEqualToString:result];
     }
     return NO;

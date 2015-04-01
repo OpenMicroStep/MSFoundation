@@ -15,7 +15,7 @@ static inline int testDb(BOOL alone)
   err= //testFoundation(NO)           +
        //msdb_obi_validate()          +
        msdb_adaptor_validate()   +
-       msdb_repository_validate()   +
+       //msdb_repository_validate()   +
        0;
   if (alone) {
     if (!err)

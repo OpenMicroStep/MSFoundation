@@ -39,7 +39,7 @@
  
  */
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 static BOOL _btypedValuesEquals(a, b, type)
   _btypedValue a, b; MSByte type;

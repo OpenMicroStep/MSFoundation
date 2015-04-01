@@ -42,7 +42,7 @@
  include <MSDatabase/MSDatabase.h>
  */
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 @implementation MSDBConnectionPool
 
@@ -55,6 +55,7 @@
 {
     if((self= [super init])) {
         _connectionDictionary= [dictionary retain];
+        _idleConnections= [MSArray new];
         mutex_init(_connectionLock);
     }
     return self;
@@ -64,6 +65,7 @@
 {
     mutex_delete(_connectionLock);
     [_connectionDictionary release];
+    [_idleConnections release];
     [super dealloc];
 }
 

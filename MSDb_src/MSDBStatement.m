@@ -6,7 +6,7 @@
 //
 //
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 @implementation MSDBStatement
 

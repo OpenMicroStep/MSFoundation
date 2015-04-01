@@ -21,7 +21,7 @@
     return NO; \
 }
 
-const SQLLEN indNULL = SQL_NULL_DATA;
+static const SQLLEN indNULL = SQL_NULL_DATA;
 
 @implementation MSODBCStatement
 
@@ -103,8 +103,10 @@ BIND_PARAM(bindShort, MSShort, SQL_C_SSHORT, SQL_SMALLINT, 5);
 BIND_PARAM(bindUnsignedShort, MSUShort, SQL_C_SHORT, SQL_SMALLINT, 5);
 BIND_PARAM(bindInt, MSInt, SQL_C_LONG, SQL_INTEGER, 10);
 BIND_PARAM(bindUnsignedInt, MSUInt, SQL_C_ULONG, SQL_INTEGER, 10);
-BIND_PARAM(bindLong, MSLong, SQL_C_SBIGINT, SQL_BIGINT, 19);
-BIND_PARAM(bindUnsignedLong, MSULong, SQL_C_UBIGINT, SQL_BIGINT, 20);
+BIND_PARAM(bindLong, MSLong, SQL_C_LONG, SQL_INTEGER, 10);
+BIND_PARAM(bindUnsignedLong, MSULong, SQL_C_ULONG, SQL_INTEGER, 10);
+//BIND_PARAM(bindLong, MSLong, SQL_C_SBIGINT, SQL_BIGINT, 19);
+//BIND_PARAM(bindUnsignedLong, MSULong, SQL_C_UBIGINT, SQL_BIGINT, 20);
 BIND_PARAM(bindFloat, float, SQL_C_FLOAT, SQL_FLOAT, 15);
 BIND_PARAM(bindDouble, double, SQL_C_DOUBLE, SQL_DOUBLE, 15);
 

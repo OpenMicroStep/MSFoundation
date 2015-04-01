@@ -47,27 +47,10 @@
  these functions.
  */
 
-// TODO: Pas de type openssl dans le .h
-#import <openssl/evp.h>
-
-typedef enum
-{
-    MS_MD5,
-    MS_SHA1,
-    MS_SHA256,
-    MS_SHA512,
-    MS_DSS1,
-    MS_MDC2,
-    MS_RIPEMD160
-} MSDigestType ;
-
-@interface MSDigest : NSObject {
+@interface _MSDigestOpenSSL : NSObject {
     EVP_MD_CTX _mdctx ;
     MSDigestType _type;
 }
-
-+ (id)digestWithType:(MSDigestType)type;
-- (id)initWithType:(MSDigestType)type;
 
 - (void)updateWithBytes:(const void *)bytes length:(NSUInteger)length;
 - (void)updateWithData:(NSData *)data;
@@ -78,5 +61,3 @@ typedef enum
 @end
 
 const EVP_MD *MSDigestToEVP_MD(MSDigestType digest) ;
-
-MSNetExport NSString *MSDigestData(MSDigestType digest, const void *bytes, NSUInteger length) ;

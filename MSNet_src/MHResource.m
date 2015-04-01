@@ -454,7 +454,7 @@ static NSDictionary *__mimeTypes = nil ;
     {
         NSString *fileExtention = [name pathExtension] ;
         int increment = 1 ;
-        NSString *dateDesc = GMTdescriptionRfc1123(GMTNow());
+        NSString *dateDesc = [[MSDate now] descriptionWithCalendarFormat:@"%Y%m%d_%H%M%S_GMT"] ;
         NSString *fileName = [NSString stringWithFormat:@"%@_%@",[name stringByDeletingPathExtension], dateDesc] ;
 
         completePath = [path stringByAppendingPathComponent:[fileName stringByAppendingPathExtension:fileExtention]] ;

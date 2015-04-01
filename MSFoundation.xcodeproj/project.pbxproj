@@ -33,9 +33,9 @@
 			name = All;
 			productName = All;
 		};
-		A6E3A2241A9C72F700F65291 /* All WO451 */ = {
+		A6E3A2241A9C72F700F65291 /* All MSFoundation WO451 */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = A6E3A22D1A9C72F700F65291 /* Build configuration list for PBXAggregateTarget "All WO451" */;
+			buildConfigurationList = A6E3A22D1A9C72F700F65291 /* Build configuration list for PBXAggregateTarget "All MSFoundation WO451" */;
 			buildPhases = (
 			);
 			dependencies = (
@@ -44,7 +44,7 @@
 				A6E3A2331A9C734500F65291 /* PBXTargetDependency */,
 				A6E3A2351A9C734500F65291 /* PBXTargetDependency */,
 			);
-			name = "All WO451";
+			name = "All MSFoundation WO451";
 			productName = All;
 		};
 /* End PBXAggregateTarget section */
@@ -2380,7 +2380,7 @@
 				A6D359771A76D39A00B87986 /* MSFoundationTests */,
 				A6D359911A7798DA00B87986 /* MSTests */,
 				408D25671A7D0CB8007258D4 /* simple */,
-				A6E3A2241A9C72F700F65291 /* All WO451 */,
+				A6E3A2241A9C72F700F65291 /* All MSFoundation WO451 */,
 				A6E3A2381A9C745800F65291 /* MSCore_wo451 */,
 				A6173ADC1A9C6F1400739DB0 /* MSFoundation_wo451 */,
 				A6E3A1F51A9C72D100F65291 /* MSFoundationTests_wo451 */,
@@ -3759,7 +3759,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A6E3A22D1A9C72F700F65291 /* Build configuration list for PBXAggregateTarget "All WO451" */ = {
+		A6E3A22D1A9C72F700F65291 /* Build configuration list for PBXAggregateTarget "All MSFoundation WO451" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A6E3A22E1A9C72F700F65291 /* Debug */,

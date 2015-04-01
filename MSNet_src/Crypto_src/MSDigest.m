@@ -49,78 +49,33 @@
 #define WORKING_BLOCK_SIZE 1024
 
 @implementation MSDigest
++ (id)allocWithZone:(NSZone*)zone
+{
+  return [_MSDigestOpenSSL allocWithZone:zone];
+}
 
 + (id)digestWithType:(MSDigestType)type
 {
-    return AUTORELEASE([ALLOC(self) initWithType:type]);
+    return AUTORELEASE([ALLOC(_MSDigestOpenSSL) initWithType:type]);
 }
 
 - (id)initWithType:(MSDigestType)type
-{
-    OPENSSL_initialize() ;
-    _type = type;
-    OPENSSL_EVP_MD_CTX_init(&_mdctx) ;
-    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
-    {
-        MSRaiseCryptoOpenSSLException();
-    }
-    
-    return self ;
-}
-
-- (void)dealloc
-{
-    OPENSSL_EVP_MD_CTX_cleanup(&_mdctx);
-    [super dealloc];
-}
+{   [self notImplemented:_cmd]; return self ;}
 
 - (void)updateWithBytes:(const void *)bytes length:(NSUInteger)length
-{
-    if(!OPENSSL_EVP_DigestUpdate(&_mdctx, bytes, length))
-    {
-        MSRaiseCryptoOpenSSLException();
-    }
-}
+{   [self notImplemented:_cmd];}
 
 - (void)updateWithData:(NSData *)data
-{
-    [self updateWithBytes:[data bytes] length:[data length]];
-}
+{   [self notImplemented:_cmd];}
 
 - (void)reset
-{
-    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
-        MSRaiseCryptoOpenSSLException();
-}
+{   [self notImplemented:_cmd];}
 
 - (MSBuffer*)digest
-{
-    unsigned char *outBuff;
-    int outLen ;
-    
-    outBuff = (unsigned char *)malloc(EVP_MAX_MD_SIZE * sizeof(unsigned char)) ;
-    if(!outBuff)
-        return nil;
-    if(!OPENSSL_EVP_DigestFinal_ex(&_mdctx, outBuff, &outLen))
-        MSRaiseCryptoOpenSSLException();
-    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
-        MSRaiseCryptoOpenSSLException();
-    
-    return [MSBuffer bufferWithBytesNoCopy:outBuff length:(NSUInteger)outLen] ;
-}
+{   [self notImplemented:_cmd]; return self ;}
 
 - (NSString*)hexEncodedDigest
-{
-    int outLen ;
-    unsigned char outBuff[EVP_MAX_MD_SIZE];
-    
-    if(!OPENSSL_EVP_DigestFinal_ex(&_mdctx, outBuff, &outLen))
-        MSRaiseCryptoOpenSSLException();
-    if(!OPENSSL_EVP_DigestInit_ex(&_mdctx, MSDigestToEVP_MD(_type), NULL))
-        MSRaiseCryptoOpenSSLException();
-    
-    return MSBytesToHexaString(outBuff, (NSUInteger)outLen, NO) ;
-}
+{   [self notImplemented:_cmd]; return self ;}
 
 @end
 

@@ -103,14 +103,12 @@ typedef enum
 - (id)initWithServerParameters:(NSDictionary *)parameters
                         ticket:(NSString *)ticket
 {
-    if ([self initWithServerParameters:parameters])
+    if ((self= [self initWithServerParameters:parameters]))
     {
         ASSIGN(_ticket, ticket) ;
         _authenticationType = MHAuthTicket ;
-        return self ;
     }
-    
-    return nil ;
+    return self ;
 }
 
 - (id)initWithServerParameters:(NSDictionary *)parameters
@@ -124,14 +122,13 @@ typedef enum
             challengedPassword:(NSString *)password
                          login:(NSString *)login
 {
-    if ([self initWithServerParameters:parameters])
+    if ((self= [self initWithServerParameters:parameters]))
     {
         ASSIGN(_login, login) ;
         ASSIGN(_password, password) ;
         _authenticationType = MHAuthChallengedPasswordLogin ;
-        return self ;
     }
-    return nil ;
+    return self ;
 }
 
 - (id)initWithServerParameters:(NSDictionary *)parameters
@@ -139,29 +136,27 @@ typedef enum
                          login:(NSString *)login
                         target:(NSString *)target
 {
-    if ([self initWithServerParameters:parameters])
+    if ((self= [self initWithServerParameters:parameters]))
     {
         ASSIGN(_login, login) ;
         ASSIGN(_password, password) ;
         ASSIGN(_target, target) ;
         _authenticationType = MHAuthChallengedPasswordLoginOnTarget ;
-        return self ;
     }
-    return nil ;
+    return self ;
 }
 
 - (id)initWithServerParameters:(NSDictionary *)parameters
                            urn:(NSString *)urn
                      secretKey:(NSData *)sk
 {
-    if ([self initWithServerParameters:parameters])
+    if ((self= [self initWithServerParameters:parameters]))
     {
         ASSIGN(_sk, sk) ;
         ASSIGN(_urn, urn) ;
         _authenticationType = MHAuthPKChallengeAndURN ;
-        return self ;
     }
-    return nil ;
+    return self ;
 }
 
 - (void)dealloc

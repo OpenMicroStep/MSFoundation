@@ -46,7 +46,7 @@
  include <MSFoundation/MSFoundation.h>
  */
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 static MSDictionary *__adaptors = nil ;
 

@@ -6,12 +6,17 @@
 //  Copyright 2011 LOGITUD Solutions. All rights reserved.
 //
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 @implementation MSDBTransaction
 
 - (BOOL)appendSQLCommand:(NSString *)sql { return [self appendSQLCommand:sql error:NULL] ; }
-- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr { if(errorPtr) *errorPtr= 0; return [[self databaseConnection] executeRawSQL:sql] == MSSQL_OK;}
+- (BOOL)appendSQLCommand:(NSString *)sql error:(MSInt *)errorPtr {
+  BOOL ret= [[self databaseConnection] executeRawSQL:sql] == MSSQL_OK;
+  if (errorPtr) {
+    *errorPtr= ret ? 0 : MSSQL_ERROR;}
+  return ret;
+}
 
 - (void)cancel { [self terminateOperation] ; }
 - (BOOL)save { return [self saveWithError:NULL] ; }

@@ -47,12 +47,12 @@
  these functions.
  */
 
-typedef enum
+typedef enum _MSDigestType
 {
-    MS_MD5,
+  MS_MD5,
 	MS_SHA1,
-    MS_SHA256,
-    MS_SHA512,
+  MS_SHA256,
+  MS_SHA512,
 	MS_DSS1,
 	MS_MDC2,
 	MS_RIPEMD160
@@ -71,4 +71,4 @@ typedef enum
 - (NSString*)hexEncodedDigest;
 @end
 
-MSNetExport NSString *MSDigestData(MSDigestType digest, const void *bytes, NSUInteger length) ;
+MSNetExtern NSString *MSDigestData(MSDigestType digest, const void *bytes, NSUInteger length) ;

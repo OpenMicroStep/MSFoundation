@@ -18,13 +18,33 @@
     return [[[self alloc] initFromBytes:bytes length:length] autorelease] ;
 }
 
+static NSUInteger _parseHEX(char **bytes, MSULong *length)
+{
+    char *b= *bytes;
+    NSUInteger value = 0;
+    while(*length > 0) {
+        if('A' <= *b && *b <= 'Z') {
+            value = value * 16 + (*b - 'A' + 10);}
+        else if('a' <= *b && *b <= 'z') {
+            value = value * 16 + (*b - 'a' + 10);}
+        else if('0' <= *b && *b <= '9') {
+            value = value * 16 + (*b - '0' +  0);}
+        else break;
+        b++;
+        (*length)--;
+    }
+    *bytes= b;
+    return value;
+}
+
 - (id)initFromBytes:(void *)bytes length:(MSUInt)length
 {
     BOOL ok = YES ;
     
-    ASSIGN(_headers, [NSMutableDictionary dictionary]) ;
-    ASSIGN(_content, AUTORELEASE(MSCreateBuffer(0))) ;
-
+    _headers= [NSMutableDictionary new] ;
+    _content= MSCreateBuffer(0) ;
+    
+    // TODO: Fix that shit, follow the RFC, support keep alive, on the fly parsing, insen
     if(length)
     {
         char *headerStart = bytes ;
@@ -82,9 +102,26 @@
             char *bodyStart = headerEnd + 2 ;
             remainingBytes -= 2 ;
             
-            if(remainingBytes && [_headers objectForKey:@"Content-Length"]) //get content
-            {
-                ASSIGN(_content, AUTORELEASE(MSCreateBufferWithBytes((void *)bodyStart, remainingBytes))) ;
+            if(remainingBytes && [_headers objectForKey:@"Content-Length"]) {
+                _content= (MSBuffer*)CCreateBufferWithBytes((void *)bodyStart, remainingBytes) ;}
+            else if(remainingBytes && [@"chunked" isEqual:[_headers objectForKey:@"Transfer-Encoding"]]) {
+                // See: http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html
+                // ((chunk-size[a-zA-Z0-9]+) [chunk-extension] \r\n\bytes{chunk-size}r\n)*0 [chunk-extension] \r\n
+                NSUInteger chunkSize; char *end;
+                CBuffer *content= CCreateBuffer(0);
+                while((chunkSize= _parseHEX(&bodyStart, &remainingBytes)) > 0 && (end= strnstr(bodyStart, "\r\n", remainingBytes))) {
+                    end += 2;
+                    remainingBytes-= end - bodyStart;
+                    bodyStart= end;
+                    if(remainingBytes > chunkSize) {
+                        CBufferAppendBytes(content, bodyStart, chunkSize);
+                        remainingBytes -= chunkSize;
+                        bodyStart += chunkSize; }
+                    if(remainingBytes > 2) { // \r\n
+                        remainingBytes -= 2;
+                        bodyStart+=2;}
+                }
+                _content= (MSBuffer*)content;
             }
             return self ;
         }

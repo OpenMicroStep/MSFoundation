@@ -47,7 +47,7 @@
  include <MSFoundation/MSFoundation.h>
  */
 
-#import "MSDb_Private.h"
+#import "MSDatabase_Private.h"
 
 @implementation MSDBResultSet
 
@@ -83,17 +83,17 @@
 - (id)objectAtColumn:(NSUInteger)idx { return [self notImplemented:_cmd] ; idx= 0; }
 - (MSArray *)allValues
 {
-	NSUInteger columnsCount = [self columnsCount] ;
-    MSArray *values = MSCreateArray(columnsCount) ;
-    if (columnsCount && values) {
-        NSUInteger i ;
-		for (i = 0; i < columnsCount ; i++) {
-            id o = [self objectAtColumn:i] ;
-			if (!o) { o = MSNull ; }
-			MSAAdd(values, o) ;
-        }
+  NSUInteger columnsCount = [self columnsCount] ;
+  CArray *values = CCreateArray(columnsCount) ;
+  if (columnsCount && values) {
+    NSUInteger i ;
+    for (i = 0; i < columnsCount ; i++) {
+      id o = [self objectAtColumn:i] ;
+      if (!o) { o = MSNull ; }
+      CArrayAddObject(values, o) ;
     }
-	return AUTORELEASE(values) ;
+  }
+  return AUTORELEASE(values) ;
 }
 
 - (MSRow *)rowDictionary

@@ -506,7 +506,6 @@
 - (void)closeSession
 {
     lock_sessions_mutex() ;
-    NSLog(@"closeSession %@ %@", _session, [_session sessionID]);
     removeSessionForKey([_session sessionID]) ;
     unlock_sessions_mutex() ;
 }

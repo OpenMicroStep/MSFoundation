@@ -45,11 +45,11 @@
  
  */
 
-#import <MSNet/MSNet.h>
+#import "MSNet_Private.h"
 
 #ifdef WIN32
 
-void ** OPENSSL_Applink(void)
+__declspec(dllexport) void ** OPENSSL_Applink(void)
 {
   return _OPENSSL_Applink() ;
 }
@@ -76,8 +76,6 @@ int main(int argc, const char * argv[])
 {
   MSUInt result;
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init] ;
-  
-  MSSystemInitialize(0, NULL);
   result = MHStartBundleServer(parametersFromArgs(argc, argv)) ;
   [pool release] ;
   return (int)result;
