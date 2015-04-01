@@ -110,7 +110,7 @@
 #   define ULLONG_MAX 18446744073709551615ULL
 # endif
 # ifndef INTPTR_MIN
-#   define INTPTR_MIN (-INTPTR_MAX-1)
+#   define INTPTR_MIN 0
 # endif
 # ifndef INTPTR_MAX
 #   define INTPTR_MAX 2147483647
