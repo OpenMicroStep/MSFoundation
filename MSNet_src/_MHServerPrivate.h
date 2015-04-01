@@ -187,7 +187,7 @@ void MHSendResourceOrHTTPNotModifiedToClientOnSocket(MHSSLSocket *secureSocket, 
 BOOL MHSendResourceToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResource *resource, BOOL isAdmin, MHSession *session, MHHTTPMessage *message, NSDictionary *headers) ;
 BOOL MHReplyWithNewUploadID(MHSSLSocket *secureSocket, MHApplication *application);
 BOOL MHRedirectToURL(MHSSLSocket *secureSocket, NSString *URL, BOOL isPermanent) ;
-BOOL MHCloseBrowserSession(MHSSLSocket *secureSocket, MHSession *session, MSUInt status) ;
+BOOL MHCloseBrowserSession(MHSSLSocket *secureSocket, MHSession *session, MSUInt status, MSBuffer *body, NSDictionary *headers) ;
 
 void _fatal_error(const char *msg, int errcode) ;
 MSUInt _MHIPAddressFromString(NSString *string) ;

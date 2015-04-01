@@ -256,5 +256,7 @@ return ;
 
 - (MSUInt)failureReason ;
 
+- (BOOL)requiresUniqueProcessingThread ;
+
 @end
 

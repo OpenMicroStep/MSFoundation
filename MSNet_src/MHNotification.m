@@ -295,7 +295,7 @@
     BOOL result = NO ;
     if(_message) {
         if (closeSession) {
-            result = MHCloseBrowserSession([_message clientSecureSocket], _session, status) ;
+            result = MHCloseBrowserSession([_message clientSecureSocket], _session, status, body, headers) ;
             [self closeSession] ;
         }
         else {
@@ -516,5 +516,7 @@
 }
 
 - (MSUInt)failureReason { return _failureReason ; }
+
+- (BOOL)requiresUniqueProcessingThread { return [_originalTarget requiresUniqueProcessingThread] ; }
 
 @end

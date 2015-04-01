@@ -97,6 +97,9 @@ typedef	NSString *(*MHTicketFormatterCallback) (MSUShort minTicketSize);
     NSDictionary *_netRepositoryServerParameters ;
 }
 
++ (BOOL)requiresUniqueProcessingThread ; //can be overridden by sub classes
+- (BOOL)requiresUniqueProcessingThread ; //can be overridden by sub classes
+
 + (id)applicationOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters ;
 - (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters ;
 

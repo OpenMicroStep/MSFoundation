@@ -157,6 +157,13 @@ static MSUInt __currentClientProcessingRequestCount = 0;
 static event_t __newClientProcessingQueueEntry ;
 static mutex_t __clientProcessingQueueMutex ;
 
+static BOOL __startSeparatedUniqueProcessingThread = NO ;
+static MHQueue *__clientSeparatedUniqueProcessingQueue ;
+static MSUInt __maxClientSeparatedUniqueProcessingRequests = 0 ;
+static MSUShort __usedClientSeparatedUniqueProcessingThread ;
+static MSUInt __currentClientSeparatedUniqueProcessingRequestCount = 0;
+static event_t __newClientSeparatedUniqueProcessingQueueEntry ;
+
 static MHQueue *__clientWaitingQueue ;
 static MSUShort __maxClientWaitingThreads ;
 static MSUShort __usedClientWaitingThreads ;
@@ -214,7 +221,8 @@ MSUInt currentClientProcessingRequestCount() { return __currentClientProcessingR
 MSUShort maxClientReadingThreads() { return __maxClientReadingThreads ; } 
 MSUShort usedClientReadingThreads() { return __usedClientReadingThreads ; } 
 MSUShort maxClientProcessingThreads() { return __maxClientProcessingThreads ; } 
-MSUShort usedClientProcessingThreads() { return __usedClientProcessingThreads ; } 
+MSUShort usedClientProcessingThreads() { return __usedClientProcessingThreads ; }
+BOOL usedClientSeparatedUniqueProcessingThread() { return __usedClientSeparatedUniqueProcessingThread ; } ;
 MSUShort maxClientWaitingThreads() { return __maxClientWaitingThreads ; } 
 MSUShort usedClientWaitingThreads() { return __usedClientWaitingThreads ; } 
 
@@ -1346,11 +1354,11 @@ static void _MHRunApplicationWithSession(MHApplication *application,
                                                                     retainedAction:@"sessionWillExpire:"
                                                                   notificationType:notificationType
                                                                isAdminNotification:isAdmin] ;
-                    
                     if (!MHProcessingEnqueueNotification(notification)) {
                         _send_error_message(secureSocket, HTTP_503_RESPONSE) ;
                         [notification end] ;
                     }
+                    
                     MHDestroySession(session) ;
                 }
             }
@@ -1666,10 +1674,11 @@ static callback_t _MHProcessingDequeue(void *arg)
             else {
                 __usedClientProcessingThreads++ ;
             }
-            
+          
             NS_DURING
             // If there is always some notifications after dequeue, awake another worker thread
             notification = MHProcessingDequeueNotification(isAdmin) ;
+            MHServerLogWithLevel(MHLogDevel, @"_MHProcessingDequeue notification : %@", notification) ;
             if (notification) {
                 [notification performActionOnTarget] ;
             }
@@ -1696,6 +1705,72 @@ static callback_t _MHProcessingDequeue(void *arg)
             }
             
             MH_LOG_LEAVE(@"_MHProcessingDequeue") ;
+            RELEASE(pool) ;
+        }
+    }
+    return 0;
+}
+
+static callback_t _MHSeparatedUniqueProcessingDequeue(void *arg)
+{
+    MHNotification *notification;
+    event_t newSeparatedUniqueProcessingQueueEntry = NULL ;
+    BOOL isAdmin = (arg != NULL) ;
+    
+/*    if (isAdmin) { //admin mode
+        newSeparatedUniqueProcessingQueueEntry = __newAdminSeparatedUniqueProcessingQueueEntry ;
+    }
+    else { //client mode*/
+        newSeparatedUniqueProcessingQueueEntry = __newClientSeparatedUniqueProcessingQueueEntry ;
+//    }
+    
+    while(1)
+    {
+        notification = nil;
+        
+        if(!event_wait(newSeparatedUniqueProcessingQueueEntry))
+        {
+            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init] ;
+            BOOL errorOccured = NO ;
+            MH_LOG_ENTER(@"_MHSeparatedUniqueProcessingDequeue") ;
+            
+/*            if (isAdmin) { //admin mode
+                __usedAdminSeparatedUniqueProcessingThreads++ ;
+            }
+            else {*/
+                __usedClientSeparatedUniqueProcessingThread = YES ;
+//            }
+            
+            NS_DURING
+            // If there is always some notifications after dequeue, awake another worker thread
+            notification = MHSeparetedUniqueProcessingDequeueNotification(NO) ; //(isAdmin) ;
+            MHServerLogWithLevel(MHLogDevel, @"_MHSeparatedUniqueProcessingDequeue notification : %@", notification) ;
+            if (notification) {
+                [notification performActionOnTarget] ;
+            }
+            NS_HANDLER
+            MHServerLogWithLevel(MHLogWarning, @"_MHSeparatedUniqueProcessingDequeue exception occured : %@ - %@", [localException name], [localException reason]) ;
+            errorOccured = YES ;
+            NS_ENDHANDLER
+            
+            if (notification) {
+                if (errorOccured) {
+                    NS_DURING
+                    _send_error_message([notification clientSecureSocket], HTTP_500_RESPONSE);
+                    NS_HANDLER
+                    NS_ENDHANDLER
+                }
+                RELEASE(notification) ;
+            }
+            
+/*            if (isAdmin) { //admin mode
+                __usedAdminSeparatedUniqueProcessingThreads-- ;
+            }
+            else {*/
+                __usedClientSeparatedUniqueProcessingThread = NO ;
+//            }
+            
+            MH_LOG_LEAVE(@"_MHSeparatedUniqueProcessingDequeue") ;
             RELEASE(pool) ;
         }
     }
@@ -2311,6 +2386,7 @@ static MSInt _MHServerLoadApplicationInstances(NSDictionary *httpServerParams, N
                 }
                 
                 [loadedApplication setBundle:applicationBundle] ;
+                if ([loadedApplication requiresUniqueProcessingThread]) __startSeparatedUniqueProcessingThread = YES ;
                 
                 while((listeningPort = [[listeningPortsEnum nextObject] intValue]))
                 {
@@ -2449,6 +2525,11 @@ static MSInt _MHServerLoadConfigurationFile(NSArray *params)
     
     if((__maxClientProcessingRequests = [[httpServerParams objectForKey:@"maxProcessingRequests"] intValue]) < DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS ) 
         __maxClientProcessingRequests = DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS ;
+
+    if (__startSeparatedUniqueProcessingThread) {
+        if((__maxClientSeparatedUniqueProcessingRequests = [[httpServerParams objectForKey:@"maxProcessingRequests"] intValue]) < DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS )
+            __maxClientSeparatedUniqueProcessingRequests = DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS ;
+    }
     
     if((__maxClientReadingThreads = [[httpServerParams objectForKey:@"maxReadingThreads"] intValue]) < DEFAULT_MAX_CLIENT_READING_THREADS)
         __maxClientReadingThreads = DEFAULT_MAX_CLIENT_READING_THREADS ;
@@ -2596,6 +2677,7 @@ static MSInt _MHServerThreadsPoolsInitialize()
     static BOOL isAdmin = YES ; 
     __newClientConnectionAccepted = NULL ;
     __newClientProcessingQueueEntry = NULL ;
+    __newClientSeparatedUniqueProcessingQueueEntry = NULL ;
     __waitingAcceptedClientSockets = [ALLOC(MSMutableNaturalArray) initWithCapacity:DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS];
     
     /* SERVER INIT FOR CLIENT CONNECTIONS */
@@ -2603,6 +2685,10 @@ static MSInt _MHServerThreadsPoolsInitialize()
     event_create(__newClientConnectionAccepted, 0);
     // Processing Queue is empty at launch
     event_create(__newClientProcessingQueueEntry, 0);
+    if (__startSeparatedUniqueProcessingThread) {
+        // Seperated Unique Processing Queue is empty at launch
+        event_create(__newClientSeparatedUniqueProcessingQueueEntry, 0) ;
+    }
     // Waiting Queue is empty at launch
     event_create(__newClientWaitingQueueEntry, 0);
     
@@ -2611,15 +2697,27 @@ static MSInt _MHServerThreadsPoolsInitialize()
         MHServerLogWithLevel(MHLogCritical, @"Error initializing locks for reading threads") ;
         return EXIT_FAILURE;
     }
-    //launch the client threads of the reading pool 
+    if (__startSeparatedUniqueProcessingThread && !__newClientSeparatedUniqueProcessingQueueEntry)
+    {
+        MHServerLogWithLevel(MHLogCritical, @"Error initializing separated unique locks for processing threads") ;
+        return EXIT_FAILURE;
+    }
+
+    //launch the client threads of the reading pool
     result = _MHCreateNewThreadPool(__maxClientReadingThreads, _MHApplicationRun, "Client Reading pool", nil) ;
     if (result != EXIT_SUCCESS) return result ;
     
     //launch the client threads of the processing pool 
     result = _MHCreateNewThreadPool(__maxClientProcessingThreads, _MHProcessingDequeue, "Client processing pool", nil) ;
     if (result != EXIT_SUCCESS) return result ;
-    
-    //launch the client threads of the waiting pool 
+
+    //launch the client separated unique thread of the processing pool
+    if (__startSeparatedUniqueProcessingThread) {
+        result = _MHCreateNewThreadPool(1, _MHSeparatedUniqueProcessingDequeue, "Client separated unique processing pool", nil) ;
+        if (result != EXIT_SUCCESS) return result ;
+    }
+
+    //launch the client threads of the waiting pool
     result = _MHCreateNewThreadPool(__maxClientWaitingThreads, _MHWaitingDequeue, "Client waiting pool", nil) ;
     if (result != EXIT_SUCCESS) return result ;
     
@@ -2683,6 +2781,7 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     
     /* SERVER INIT FOR CLIENTS */
     __maxClientProcessingRequests = DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS ;
+    __maxClientSeparatedUniqueProcessingRequests = DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS ;
     
     mutex_init(__client_accept_mutex);
     mutex_init(__clientProcessingQueueMutex); // mutex to access the Client Processing Queue
@@ -2721,6 +2820,9 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     
     __clientNotificationsPool = CElementPoolCreate(2*__maxClientProcessingThreads) ;
     __clientProcessingQueue = [MHQueue createQueueWithElementPool:__clientNotificationsPool] ;
+    if (__startSeparatedUniqueProcessingThread) {
+        __clientSeparatedUniqueProcessingQueue = [MHQueue createQueueWithElementPool:__clientNotificationsPool] ;
+    }
     __clientWaitingQueue = [MHQueue createQueueWithElementPool:__clientNotificationsPool] ;
     
     __maxAdminWaitingThreads = (MSUShort)ceil((double)__maxAdminProcessingRequests / MAX_FD_PER_SELECT) ;
@@ -2760,6 +2862,7 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     MHServerLogWithLevel(MHLogDebug, @"* . CLIENT MAX ACCEPTED REQUESTS : %8u", __maxClientProcessingRequests) ;
     MHServerLogWithLevel(MHLogDebug, @"* . CLIENT READING THREADS :       %8u", __maxClientReadingThreads) ;
     MHServerLogWithLevel(MHLogDebug, @"* . CLIENT PROCESSING THREADS :    %8u", __maxClientProcessingThreads) ;
+    if(__startSeparatedUniqueProcessingThread) MHServerLogWithLevel(MHLogDebug, @"* . SEPARATED CLIENT PROCESSING THREAD : YES") ;
     MHServerLogWithLevel(MHLogDebug, @"* . CLIENT WAITING THREADS :       %8u", __maxClientWaitingThreads) ;
     MHServerLogWithLevel(MHLogDebug, @"* . ADMIN LISTENING PORT :         %8u", __adminPort) ;
     MHServerLogWithLevel(MHLogDebug, @"* . ADMIN MAX ACCEPTED REQUESTS :  %8u", __maxAdminProcessingRequests) ;
@@ -2873,7 +2976,7 @@ static void _MHServerSessionClean()
                     [notification end] ;
                     MHServerLogWithLevel(MHLogError, @"Unable to enqueue notification in order to expire session ID '%@'.", [session sessionID]) ;
                 }
-            }            
+            }
 
             //remove session from map, and destroys it
             removeSessionForKey([session sessionID]) ;
@@ -3629,6 +3732,16 @@ void decreaseCurrentClientProcessingRequestCount()
     if (__currentClientProcessingRequestCount) __currentClientProcessingRequestCount-- ;
 }
 
+static void increaseCurrentClientSeparatedUniqueProcessingRequestCount()
+{
+    if (__currentClientSeparatedUniqueProcessingRequestCount != (MSUInt)-1) __currentClientSeparatedUniqueProcessingRequestCount++ ;
+}
+
+void decreaseCurrentClientSeparatedUniqueProcessingRequestCount()
+{
+    if (__currentClientSeparatedUniqueProcessingRequestCount) __currentClientSeparatedUniqueProcessingRequestCount-- ;
+}
+
 static void increaseCurrentAdminProcessingRequestCount()
 {
     if (__currentAdminProcessingRequestCount != (MSUInt)-1) __currentAdminProcessingRequestCount++ ;
@@ -4009,7 +4122,7 @@ BOOL MHSendResourceToClientOnSocket(MHSSLSocket *secureSocket, MHDownloadResourc
                     if (remainingBytesToSend > 0)
                     {
                         [secureSocket close] ;
-                        MSRaise(NSInternalInconsistencyException, @"MHSendResourceToClientOnSocket : could not read from file descriptor to file at path '%@'", [resource resourcePathOndisk]) ;
+                        MSRaise(NSInternalInconsistencyException, @"MHSendResourceToClientOnSocket : could not read from file descriptor to file at path '%@', remainingBytesToSend=%d, readBytes=%d", [resource resourcePathOndisk], (int)remainingBytesToSend, (int)readBytes) ;
                     } else
                     {
                         ret = YES ;
@@ -4207,17 +4320,16 @@ BOOL MHRedirectToURL(MHSSLSocket *secureSocket, NSString *URL, BOOL isPermanent)
     return MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, nil, isPermanent ? HTTPMovedPermanently : HTTPFound , NO, hdrs, nil, NO) ;
 }
 
-BOOL MHCloseBrowserSession(MHSSLSocket *secureSocket, MHSession *session, MSUInt status)
+BOOL MHCloseBrowserSession(MHSSLSocket *secureSocket, MHSession *session, MSUInt status, MSBuffer *body, NSDictionary *headers)
 {
-    NSDictionary * hdrs ;
     NSString * cookieHdr = [NSString stringWithFormat:@"SESS_%@=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/%@; Secure",
                             [[session application] applicationName],
                             [[session application] baseURL]] ;
-    hdrs = [NSDictionary dictionaryWithObjectsAndKeys:cookieHdr, __header_mash_session_id,
-            @"no-cache", @"Pragma",
-            nil] ;
+    NSMutableDictionary *hdrs = [NSMutableDictionary dictionaryWithDictionary:headers] ;
+    [hdrs setObject:cookieHdr forKey:__header_mash_session_id] ;
+    [hdrs setObject:@"no-cache" forKey:@"Pragma"] ;
     
-    return MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, nil, status, NO, hdrs, nil, NO) ;
+    return MHRespondToClientOnSocketWithAdditionalHeaders(secureSocket, body, status, NO, hdrs, nil, NO) ;
 }
 
 MSUInt _MHIPAddressFromString(NSString *string)
@@ -4280,25 +4392,42 @@ BOOL MHProcessingEnqueueNotification(MHNotification *aNotif) //to use to enqueue
 {
     BOOL result = NO ;
     
-    if ([aNotif isAdminNotification]) { //admin mode
-        mutex_lock(__adminProcessingQueueMutex);
-        if (__currentAdminProcessingRequestCount < __maxAdminProcessingRequests)
-        {
-            result = [__adminProcessingQueue enqueue:aNotif] ;
-            if (result) increaseCurrentAdminProcessingRequestCount() ;            
+    if ([aNotif requiresUniqueProcessingThread]) {
+        if ([aNotif isAdminNotification]) { //admin mode
+            MSRaise(NSInternalInconsistencyException, @"Receving an administration notification to enqueue. Not supported.") ;
         }
-        mutex_unlock(__adminProcessingQueueMutex);
-        if(result) event_set(__newAdminProcessingQueueEntry);
-    } 
-    else { //client mode
-        mutex_lock(__clientProcessingQueueMutex);
-        if (__currentClientProcessingRequestCount < __maxClientProcessingRequests)
-        {
-            result = [__clientProcessingQueue enqueue:aNotif] ;
-            if (result) increaseCurrentClientProcessingRequestCount() ;
+        else { //client mode
+            mutex_lock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+            if (!__currentClientSeparatedUniqueProcessingRequestCount)
+            {
+                result = [__clientSeparatedUniqueProcessingQueue enqueue:aNotif] ;
+                if (result) increaseCurrentClientSeparatedUniqueProcessingRequestCount() ;
+            }
+            mutex_unlock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+            if(result) event_set(__newClientSeparatedUniqueProcessingQueueEntry);
         }
-        mutex_unlock(__clientProcessingQueueMutex);
-        if(result) event_set(__newClientProcessingQueueEntry);
+    }
+    else {
+        if ([aNotif isAdminNotification]) { //admin mode
+            mutex_lock(__adminProcessingQueueMutex);
+            if (__currentAdminProcessingRequestCount < __maxAdminProcessingRequests)
+            {
+                result = [__adminProcessingQueue enqueue:aNotif] ;
+                if (result) increaseCurrentAdminProcessingRequestCount() ;
+            }
+            mutex_unlock(__adminProcessingQueueMutex);
+            if(result) event_set(__newAdminProcessingQueueEntry);
+        }
+        else { //client mode
+            mutex_lock(__clientProcessingQueueMutex);
+            if (__currentClientProcessingRequestCount < __maxClientProcessingRequests)
+            {
+                result = [__clientProcessingQueue enqueue:aNotif] ;
+                if (result) increaseCurrentClientProcessingRequestCount() ;
+            }
+            mutex_unlock(__clientProcessingQueueMutex);
+            if(result) event_set(__newClientProcessingQueueEntry);
+        }
     }
     return result ;
 }
@@ -4307,21 +4436,36 @@ BOOL MHProcessingRequeueNotification(MHNotification *aNotif) //to use to requeue
 {
     BOOL result = NO ;
     
-    if ([aNotif isAdminNotification]) { //admin mode
-        mutex_lock(__adminProcessingQueueMutex);
-        result = [__adminProcessingQueue enqueue:aNotif] ;
-        if (result) increaseCurrentAdminProcessingRequestCount() ;
-        mutex_unlock(__adminProcessingQueueMutex);
-        
-        event_set(__newAdminProcessingQueueEntry);
-    } 
-    else { //client mode
-        mutex_lock(__clientProcessingQueueMutex);
-        result = [__clientProcessingQueue enqueue:aNotif] ;
-        if (result) increaseCurrentClientProcessingRequestCount() ;
-        mutex_unlock(__clientProcessingQueueMutex);
-        
-        event_set(__newClientProcessingQueueEntry);
+    if ([aNotif requiresUniqueProcessingThread]) {
+        if ([aNotif isAdminNotification]) { //admin mode
+            MSRaise(NSInternalInconsistencyException, @"Receving an administration notification to requeue. Not supported.") ;
+        }
+        else { //client mode
+            mutex_lock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+            result = [__clientSeparatedUniqueProcessingQueue enqueue:aNotif] ;
+            if (result) increaseCurrentClientSeparatedUniqueProcessingRequestCount() ;
+            mutex_unlock(__clientProcessingQueueMutex);  //shared with __clientProcessingQueue
+            
+            event_set(__newClientSeparatedUniqueProcessingQueueEntry);
+        }
+    }
+    else {
+        if ([aNotif isAdminNotification]) { //admin mode
+            mutex_lock(__adminProcessingQueueMutex);
+            result = [__adminProcessingQueue enqueue:aNotif] ;
+            if (result) increaseCurrentAdminProcessingRequestCount() ;
+            mutex_unlock(__adminProcessingQueueMutex);
+            
+            event_set(__newAdminProcessingQueueEntry);
+        }
+        else { //client mode
+            mutex_lock(__clientProcessingQueueMutex);
+            result = [__clientProcessingQueue enqueue:aNotif] ;
+            if (result) increaseCurrentClientProcessingRequestCount() ;
+            mutex_unlock(__clientProcessingQueueMutex);
+            
+            event_set(__newClientProcessingQueueEntry);
+        }
     }
     
     return result ;
@@ -4350,6 +4494,27 @@ MHNotification *MHProcessingDequeueNotification(BOOL admin)
         }
         if([__clientProcessingQueue count]) event_set(__newClientProcessingQueueEntry);
         mutex_unlock(__clientProcessingQueueMutex);
+    }
+    
+    return notif ;
+}
+
+MHNotification *MHSeparetedUniqueProcessingDequeueNotification(BOOL admin)
+{
+    MHNotification *notif = nil ;
+    
+    if (admin) { //admin mode
+        MSRaise(NSInternalInconsistencyException, @"wants to dequeue an administration notification. Not supported.") ;
+    }
+    else { //client mode
+        mutex_lock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+        if([__clientSeparatedUniqueProcessingQueue count])
+        {
+            notif = (MHNotification *)[__clientSeparatedUniqueProcessingQueue dequeue];
+            if (notif) decreaseCurrentClientSeparatedUniqueProcessingRequestCount();
+        }
+        if([__clientSeparatedUniqueProcessingQueue count]) event_set(__newClientSeparatedUniqueProcessingQueueEntry);
+        mutex_unlock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
     }
     
     return notif ;

@@ -95,6 +95,9 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
 
 @implementation MHApplication
 
++ (BOOL)requiresUniqueProcessingThread { return NO ; }
+- (BOOL)requiresUniqueProcessingThread { return [ISA(self) requiresUniqueProcessingThread] ; }
+
 + (id)applicationOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters
 {
     return [[[self alloc] initOnBaseURL:url instanceName:instanceName withLogger:logger parameters:parameters] autorelease] ;

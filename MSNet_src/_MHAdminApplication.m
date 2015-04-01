@@ -151,6 +151,7 @@ static NSComparisonResult compareSessions(id obj1, id obj2, void *c)
     [htmlDescription appendFormat:@"Client accepted requests : current %u / max %u<br>", currentClientProcessingRequestCount(), maxClientProcessingRequests() ] ;
     [htmlDescription appendFormat:@"Client reading threads : used %u / running %u<br>", usedClientReadingThreads(), maxClientReadingThreads() ] ;
     [htmlDescription appendFormat:@"Client processing threads : used %u / running %u<br>", usedClientProcessingThreads(), maxClientProcessingThreads() ] ;
+    [htmlDescription appendFormat:@"Client separated unique processing threads : used %@>", usedClientSeparatedUniqueProcessingThread() ? @"YES" : @"NO"] ;
     [htmlDescription appendFormat:@"Client waiting threads : used %u / running %u<br>", usedClientWaitingThreads(), maxClientWaitingThreads() ] ;
     [htmlDescription appendFormat:@"Admin listening port : %d<br>", adminPort() ] ;
     [htmlDescription appendFormat:@"Admin accepted requests : current %u / max %u<br>", currentAdminProcessingRequestCount(), maxAdminProcessingRequests() ] ;
