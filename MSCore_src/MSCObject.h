@@ -205,7 +205,7 @@ MSCoreExtern BOOL        _MIsArray        (id obj);
 
 #include <objc/objc-runtime.h>
 #if defined(WIN32)
-  #define ISA(X)         (((id)(X))->isa)
+  #define ISA(X)         ((X)->isa)
   #define NAMEOFCLASS(X) object_getClassName((id)(X))
 #elif defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
   #define ISA(X)         object_getClass(X)
@@ -250,6 +250,9 @@ MSCoreExtern BOOL        _MIsArray        (id obj);
 #undef RELEAZEN
 #endif
 #define RELEAZEN(X) ({ id __x__= (id)X; X= NULL; RELEASE(__x__); })
+#ifdef DESTROY
+#undef DESTROY
+#endif
 #define DESTROY RELEAZEN
 
 // Private for CArrayIsEqual, CBufferIsEqual...

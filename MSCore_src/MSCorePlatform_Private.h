@@ -61,14 +61,14 @@ MSTimeInterval gmt_from_local(MSTimeInterval t);
 #pragma mark _dtm declarations
 
 typedef struct _dtmStruct {
-  unsigned long long year:32;
-  unsigned long long month:4;
-  unsigned long long day:5;
-  unsigned long long hour:5;
-  unsigned long long minute:6;
-  unsigned long long second:6;
-  unsigned long long dayOfWeek:3;
-  unsigned long long :3;
+  unsigned year:32;
+  unsigned month:4;
+  unsigned day:5;
+  unsigned hour:5;
+  unsigned minute:6;
+  unsigned second:6;
+  unsigned dayOfWeek:3;
+  unsigned :3;
   }
 _dtm;
 

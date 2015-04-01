@@ -62,8 +62,12 @@
     #define NSIntegerMin    INTPTR_MIN
     #define NSUIntegerMax   UINTPTR_MAX
   #else
-    typedef int  NSInteger;
-    typedef unsigned int NSUInteger;
+    #ifndef NSInteger
+    #define NSInteger int
+    #endif
+    #ifndef NSUInteger
+    #define NSUInteger unsigned
+    #endif
     #define NSIntegerMax    INT_MAX
     #define NSIntegerMin    INT_MIN
     #define NSUIntegerMax   UINT_MAX

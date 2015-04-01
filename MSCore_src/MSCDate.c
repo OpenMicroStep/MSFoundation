@@ -566,7 +566,7 @@ static BOOL _verifyYMD(unsigned year, unsigned month, unsigned day, BOOL canRais
   return YES;
 }
 
-static inline BOOL _verifyHMS(unsigned hour, unsigned minute, unsigned second, BOOL canRaise)
+static BOOL _verifyHMS(unsigned hour, unsigned minute, unsigned second, BOOL canRaise)
 {
   if (hour > 23 || minute > 59 || second > 59) {
     if (canRaise) MSReportError(MSRangeError, MSFatalError, MSInvalidTimeError,

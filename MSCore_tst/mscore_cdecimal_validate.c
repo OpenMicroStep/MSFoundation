@@ -85,7 +85,7 @@ static void cdecimal_fromSES(test_t *test)
   NSUInteger lg   [10]= {1, 2,1,              2,1,   0,0, 1,    1,   0};
   NSUInteger lgd  [10]= {1, 4,2,              6,3,   3,2, 6,    6,   4};
   MSLong     val  [10]= {0,-1,3,             45,1,   0,0, 0,    0,   0};
-  MSLong     vald [10]= {0,-1,3,450000000000000,2,   0,1,10,10000,3000};
+  MSLong     vald [10]= {0,-1,3,450000000000000LL,2,   0,1,10,10000,3000};
 
   NSUInteger estart[10]= {0,0,0,3,0,0,0,0,0,1};
   NSUInteger elg   [10]= {0,0,1,1,1,0,1,1,1,0};
