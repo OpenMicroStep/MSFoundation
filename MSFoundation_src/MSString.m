@@ -363,13 +363,21 @@ NSRange MSStringFind(NSString *source, NSString *searched)
 	}
 	return @"" ;
 }
-
 - (NSString *)left:(NSUInteger)length
 {
 	if (length) {
 		NSUInteger selfLen = [self length] ;
 		if (length > selfLen) length = selfLen ;
 		if (length) return [self substringWithRange: NSMakeRange(0 , length)] ;
+	}
+	return @"" ;
+}
+- (NSString *)right:(NSUInteger)length
+{
+	if (length) {
+    NSUInteger selfLen = [self length] ;
+		if (length > selfLen) length = selfLen ;
+		if (length) return [self substringWithRange: NSMakeRange(selfLen - length , length)] ;
 	}
 	return @"" ;
 }
