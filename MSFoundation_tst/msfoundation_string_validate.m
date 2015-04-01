@@ -229,6 +229,9 @@ static void string_format(test_t *test)
 #endif
 
   
+  TASSERT_FORMAT(test,"bug decimal 0 0 0 0 0 0 0 0 0 0",
+                "bug decimal %hhd %hd %d %ld %lld %hhu %hu %u %lu %llu", (char)0, (short)0, 0, 0L, 0LL, (unsigned char)0, (unsigned short)0, 0U, 0UL, 0ULL);
+  
   // Test flags, width, precision
   TASSERT_FORMAT(test,"sign: 545 +5641675  5124136",
                      "sign: %d %+d % d", 545, 5641675, 5124136);

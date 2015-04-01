@@ -254,6 +254,7 @@ typedef struct {
     uintmax_t um;
     double dbl;
     long double ldbl;
+    void *ptr;
   } u;
 } FormatArg;
 
@@ -438,81 +439,79 @@ static inline void _formatPrintUTF8(CString *s, const char *cstr, NSUInteger len
   _formatPrintSES(s, MSMakeSESWithBytes(cstr, len, NSUTF8StringEncoding), len, width, flags);
 }
 
+static
+#ifndef WO451 // WO451 is failing inlining this method (SIGSEGV)
+inline
+#endif
+void _formatPrintInteger(CString *s, FormatToken f, BOOL neg, uintmax_t v, uintmax_t radix, int precision, int width, const char *chars)
+{
+  if (f.flags.leadingZeros && !f.flags.hasPrecision) {
+      precision= (f.specifier == 'd' && (neg || f.flags.plus || f.flags.space)) ? width - 1 : width;}
+  
+  // Buffer on stack block
+  {
+    char *pos, *end, buffer[1 + MAX(precision, 22)]; // 22 = ceil(log8(2^64))
+    
+    end= buffer + sizeof(buffer);
+    pos= end - 1;
+    do {
+      *(pos--)= chars[v % radix];
+      v /= radix;}
+    while (v > 0);
+    
+    while(precision >= end - pos) {
+      *(pos--)= '0';}
+    
+    if (f.flags.alternativeForm) {
+      if (f.specifier== 'o') {
+        *pos--= '0';}
+      else if (f.specifier== 'x' || f.specifier== 'X') {
+        *pos--= chars[16];
+        *pos--= '0';}}
+    else if (f.specifier == 'p') {
+      *pos--= 'x';
+      *pos--= '0';}
+    else if(f.specifier == 'd') {
+      if (neg) {
+        *pos--= '-';}
+      else if (f.flags.plus) {
+        *pos--= '+';}
+      else if (f.flags.space) {
+        *pos--= ' ';}}
+    
+    _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);
+  }
+}
+
 static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
 {
-  static const char* charsL="0123456789abcdef";
-  static const char* charsU="0123456789ABCDEF";
+  static const char* charsL="0123456789abcdefx";
+  static const char* charsU="0123456789ABCDEFX";
   int width=     f.widthArg     ? (int)argTypes[f.widthArg - 1].u.im : f.width;
   int precision= f.precisionArg ? (int)argTypes[f.precisionArg - 1].u.im : f.precision;
   switch(f.specifier) {
-    case 'd': case 'i':
+    case 'd':
     {
       intmax_t value; uintmax_t v;
       value= argTypes[f.arg - 1].u.im;
-      if (f.flags.leadingZeros && !f.flags.hasPrecision) {
-        precision= value < 0 || (f.flags.plus || f.flags.space) ? width - 1 : width;}
-      
-      {
-        char *pos, *end, buffer[1 + MAX(precision, 20)]; // 20 = ceil(log10(2^64))
-        end= buffer + sizeof(buffer);
-        pos= end - 1;
-        v= value > 0 ? value : -value;
-        do {
-          *(pos--)= '0' + v % 10LL;
-          v /= 10LL;}
-        while(v > 0);
-        
-        if (precision != MSUShortMax) {
-          while(precision >= end - pos) {
-            *(pos--)= '0'; } }
-        
-        if (value < 0) {
-          *pos--= '-';}
-        else if (f.flags.plus) {
-          *pos--= '+';}
-        else if (f.flags.space) {
-          *pos--= ' ';}
-        _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);
-      }
+      v= value > 0 ? value : -value;
+      _formatPrintInteger(s, f, value < 0, v, 10, precision, width, charsL);
       break;
     }
     case 'p':
+    {
+      uintmax_t v;
+      v= (uintptr_t)(intptr_t)argTypes[f.arg - 1].u.ptr;
+      _formatPrintInteger(s, f, NO, v, 16, precision, width, charsL);
+      break;
+    }
     case 'u': case 'o':
     case 'x': case 'X':{
-      uintmax_t v= argTypes[f.arg - 1].u.um;
-      if (f.flags.leadingZeros && !f.flags.hasPrecision)
-        precision= width;
-      
-      {
-        long long radix;const char* chars;char *pos, *end, buffer[1 + MAX(precision, 22)]; // 22 = ceil(log8(2^64))
-        end= buffer + sizeof(buffer);
-        pos= end - 1;
-        chars= f.specifier == 'X' ? charsU : charsL;
-        radix= f.specifier == 'u' ? 10LL : (f.specifier == 'o' ? 8LL : 16LL);
-        while (v > 0) {
-          *(pos--)= chars[v % radix];
-          v /= radix;}
-        
-        if (precision != MSUShortMax) {
-          while(precision >= end - pos) {
-            *(pos--)= '0';}}
-        
-        if (f.flags.alternativeForm)
-        {
-          if (f.specifier== 'o') {
-            *pos--= '0';}
-          else if (f.specifier== 'x') {
-            *pos--= 'x';
-            *pos--= '0';}
-          else if (f.specifier== 'X') {
-            *pos--= 'X';
-            *pos--= '0';}
-        }
-        else if (f.specifier == 'p') {
-          *pos--= 'x';
-          *pos--= '0';}
-        
-        _formatPrintUTF8(s, pos + 1, end - pos - 1, width, f.flags.leftJustify);}
+      uintmax_t v, radix; const char *chars;
+      v= argTypes[f.arg - 1].u.um;
+      chars= f.specifier == 'X' ? charsU : charsL;
+      radix= f.specifier == 'u' ? 10LL : (f.specifier == 'o' ? 8LL : 16LL);
+      _formatPrintInteger(s, f, NO, v, radix, precision, width, chars);
       break;
     }
     case 'f': case 'F':
@@ -567,13 +566,13 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
     }
     case 's':
     {
-      char *cstr= (char*)argTypes[f.arg - 1].u.um;
-      _formatPrintUTF8(s, cstr, (cstr?strlen(cstr):0), width, f.flags.leftJustify);
+      char *cstr= (char*)argTypes[f.arg - 1].u.ptr;
+      _formatPrintUTF8(s, cstr, strlen(cstr), width, f.flags.leftJustify);
       break;
     }
     case '@':
     {
-      id obj= (id)argTypes[f.arg - 1].u.um;
+      id obj= (id)argTypes[f.arg - 1].u.ptr;
       const CString *str= DESCRIPTION(obj);
       if (str) {
         _formatPrintSES(s, CStringSES(str), CStringLength(str), width, f.flags.leftJustify); }
@@ -638,7 +637,7 @@ void CStringAppendFormatv(CString *self, const char *cfmt, va_list ap)
                 case FormatTypeUM:   LOAD_ARG(uintmax_t, um); break;
                 case FormatTypeST:   LOAD_ARG(size_t, im); break;
                 case FormatTypeUD:   LOAD_ARG(ptrdiff_t, um); break;
-                case FormatTypePTR:  LOAD_ARG(void*, um); break;
+                case FormatTypePTR:  LOAD_ARG(void*, ptr); break;
                 case FormatTypeDBL:  LOAD_ARG(double, dbl); break;
                 case FormatTypeLDBL: LOAD_ARG(long double, ldbl); break;
               }
