@@ -46,4 +46,6 @@
 #import "MSCharsets_Private.h"
 #import "MSNaturalArrayEnumerator_Private.h"
 
+#import <sys/stat.h>
+
 #endif // MSFOUNDATION_PRIVATE_H

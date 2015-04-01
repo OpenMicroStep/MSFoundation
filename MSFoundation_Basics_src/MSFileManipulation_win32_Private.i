@@ -30,6 +30,85 @@ static inline BOOL _MSFileExists(char *path, BOOL *isDirectory)
 #define _MSDeleteFile(X)	DeleteFileA(X)
 #define _MSRemoveDirectory(X)	RemoveDirectoryA(X)
 
+static inline MSFileHandle _MSCreateFileForWritingAtPath(NSString *path)
+{
+    return (MSFileHandle)CreateFile([path cString],         // name of the write
+                                    GENERIC_WRITE,          // open for writing
+                                    0,                      // do not share
+                                    NULL,                   // default security
+                                    CREATE_NEW,             // create new file only
+                                    FILE_ATTRIBUTE_NORMAL,  // normal file
+                                    NULL);                  // no attr. template
+}
+
+static inline MSFileHandle _MSOpenFileForReadingAtPath(NSString *path)
+{
+    return (MSFileHandle)CreateFile([path cString],         // name of the read
+                                    GENERIC_READ,           // open for reading
+                                    FILE_SHARE_READ,        // share read
+                                    NULL,                   // default security
+                                    OPEN_EXISTING,          // existing file only
+                                    FILE_ATTRIBUTE_NORMAL,  // normal file
+                                    NULL);                  // no attr. template
+}
+
+static inline MSFileOperationStatus _MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length)
+{
+    DWORD dwBytesWritten = 0;
+    BOOL bErrorFlag = WriteFile(
+                                file,            // open file handle
+                                ptr,             // start of data to write
+                                length,          // number of bytes to write
+                                &dwBytesWritten, // number of bytes that were written
+                                NULL);           // no overlapped structure
+    
+    if (FALSE == bErrorFlag)
+    {
+        return MSFileOperationFail ;
+    }
+    else
+    {
+        if (dwBytesWritten != length)
+        {
+            // This is an error because a synchronous write that results in
+            // success (WriteFile returns TRUE) should write all data as
+            // requested. This would not necessarily be the case for
+            // asynchronous writes.
+            return MSFileOperationFail ;
+        }
+        else
+        {
+            return MSFileOperationSuccess ;
+        }
+    }
+}
+
+static inline MSFileOperationStatus _MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes)
+{
+    DWORD  dwBytesRead = 0;
+    MSFileOperationStatus ret = MSFileOperationFail ;
+    
+    if (TRUE == ReadFile(file, ptr, length, &dwBytesRead, NULL))
+    {
+        if(dwBytesRead > 0)
+        {
+            if (readBytes)
+            {
+                *readBytes = dwBytesRead ;
+            }
+            ret = MSFileOperationSuccess ;
+        }
+    }
+    
+    return ret ;
+}
+
+static inline MSFileOperationStatus _MSCloseFile(MSFileHandle file)
+{
+    if (CloseHandle(file)) return MSFileOperationSuccess;
+    else return MSFileOperationFail ;
+}
+
 static inline MSFileOperationStatus _MSMoveFile(NSString *sourcePath, NSString *destPath)
 {
     if(MoveFile([sourcePath cString], [destPath cString])) return MSFileOperationSuccess ;
@@ -157,7 +236,7 @@ static inline NSString *_MSTransformPath(NSString *path, int mode)
     NSMutableString *result = [NSMutableString string] ;
     NSString *comp ;
     if (!mode || ![path length]) return path ;
-
+    
     components = [path pathComponents] ;
     count = [components count] ;
     for (i = 0 ; i < count ; i ++) {
@@ -252,7 +331,7 @@ BOOL _MSRemoveRecursiveDirectory(NSString *path)
         [NSException raise: NSInvalidArgumentException
                     format: @"Attempt to remove illegal path"];
     }
-        
+    
     if (lpath == 0 || *lpath == 0)
     {
         [NSException raise: NSGenericException
@@ -261,7 +340,7 @@ BOOL _MSRemoveRecursiveDirectory(NSString *path)
     else
     {
         DWORD res;
-       
+        
         res = GetFileAttributesA(lpath);
         if (res == ((DWORD)0xFFFFFFFF))
         {
@@ -306,7 +385,7 @@ BOOL _MSRemoveRecursiveDirectory(NSString *path)
             next = [path stringByAppendingPathComponent: item];
             result = _MSRemoveRecursiveDirectory(next) ;
             RELEASE(pool);
-
+            
             if (result == NO)
             {
                 return NO;
@@ -315,7 +394,7 @@ BOOL _MSRemoveRecursiveDirectory(NSString *path)
         
         if (RemoveDirectoryA(lpath) < 0)
         {
-           [NSException raise: NSGenericException format:@"failed to remove directory at path %s", lpath] ;
+            [NSException raise: NSGenericException format:@"failed to remove directory at path %s", lpath] ;
         }
         else
         {
@@ -369,26 +448,26 @@ cont:
 char *strnstr(const char *s1, const char *s2, size_t n)
 {
     return (char *)bmh_memmem((const unsigned char *)s1, n,
-                      (const unsigned char *)s2, strlen(s2)) ;
+                              (const unsigned char *)s2, strlen(s2)) ;
 }
 
 static inline BOOL _MSGetFileSize(char *path, MSLong *size)
 {
     BOOL res = NO ;
-	LARGE_INTEGER largeInt ;
+    LARGE_INTEGER largeInt ;
     WIN32_FILE_ATTRIBUTE_DATA info ;
     
     if (GetFileAttributesEx(path, GetFileExInfoStandard, &info))
     {
         largeInt.u.HighPart = info.nFileSizeHigh ;
-		largeInt.u.LowPart = info.nFileSizeLow ;
+        largeInt.u.LowPart = info.nFileSizeLow ;
         
         *size = info.nFileSizeHigh << 32 ;
         *size += info.nFileSizeLow ;
         
         res = YES ;
     }
-	return res ;
+    return res ;
 }
 
 #endif

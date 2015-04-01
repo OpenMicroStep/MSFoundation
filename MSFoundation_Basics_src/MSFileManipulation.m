@@ -1,5 +1,4 @@
 #import "MSFoundation_Private.h"
-//#import "MSStringAdditions.h"
 #ifdef WIN32
 #import "MSFileManipulation_win32_Private.i"
 #else
@@ -28,7 +27,7 @@ BOOL MSIsValidDirectory(NSString *path)
     return (([path length] && (MSFileExistsAtPath(path, &isDir) && isDir)) ? YES : NO) ;
 }
 
-BOOL MSGetFileSize(NSString *path, MSLong *size) 
+BOOL MSGetFileSize(NSString *path, MSLong *size)
 {
     if(size && [path length])
     {
@@ -45,8 +44,7 @@ NSString *MSAbsoluteWindowsPath(NSString *path) { return _MSAbsolutePath(path, 2
 
 NSString *MSPathForCommand(NSString *command)
 {
-#warning MSPathForCommand is missing NSProcessInfo
-    NSDictionary *env = nil; //[[NSProcessInfo processInfo] environment] ;
+    NSDictionary *env = [[NSProcessInfo processInfo] environment] ;
 #ifdef WIN32
     NSString *envPath = [env objectForKey:@"Path"] ;
     NSString *c = ([command hasExtension:@"exe"] ? command : [command stringByAppendingPathExtension:@"exe"]) ;
@@ -64,22 +62,22 @@ NSString *MSPathForCommand(NSString *command)
 }
 
 static int _MSPid(void)
-{ 
+{
 #ifdef WIN32
-	return (int)GetCurrentProcessId();
+    return (int)GetCurrentProcessId();
 #else
-	return (int)getpid() ;
-#endif	
+    return (int)getpid() ;
+#endif
 }
 NSString *MSRandomFile(NSString *extension)
 {
-	unsigned long long ts = (MSULong)ABS(GMTNow()) * 1000UL ;
-	NSString *s = [NSString stringWithFormat:@"%04x%08x%08x%08x", _MSPid(), __increment++, (unsigned int)(ts >> 32), (unsigned int)(ts & 0xffffffff)] ;
-	if ([extension length]) s = [s stringByAppendingPathExtension:extension] ;
-	return s ;
+    unsigned long long ts = (MSULong)ABS(GMTNow()) * 1000UL ;
+    NSString *s = [NSString stringWithFormat:@"%04x%08x%08x%08x", _MSPid(), __increment++, (unsigned int)(ts >> 32), (unsigned int)(ts & 0xffffffff)] ;
+    if ([extension length]) s = [s stringByAppendingPathExtension:extension] ;
+    return s ;
 }
 
-NSString *MSTemporaryDirectory(void) { return nil; /*[NSTemporaryDirectory() stringByResolvingSymlinksInPath] ;*/ }
+NSString *MSTemporaryDirectory(void) { return [NSTemporaryDirectory() stringByResolvingSymlinksInPath] ; }
 
 NSString *MSTemporaryPath(NSString *extension) { return [MSTemporaryDirectory() stringByAppendingPathComponent:MSTemporaryFile(extension)] ; }
 
@@ -143,7 +141,7 @@ BOOL MSCreateRecursiveDirectory(NSString *path)
             }
             else {
                 buildPath = [buildPath stringByAppendingPathComponent:pathComponent] ;
-
+                
                 if(MSFileExistsAtPath(buildPath,&isDir))
                 {
                     if (!isDir) {
@@ -161,23 +159,22 @@ BOOL MSCreateRecursiveDirectory(NSString *path)
     return YES ;
 }
 
-MSFileHandle MSCreateFileForWritingAtPath(NSString *path) { return fopen([path UTF8String], "w+"); }
-MSFileHandle MSOpenFileForReadingAtPath(NSString *path) { return fopen([path UTF8String], "r+") ; }
-MSFileOperationStatus MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length) { return fwrite(ptr, length, 1, file) == length ? MSFileOperationSuccess : MSFileOperationFail ; }
-MSFileOperationStatus MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes) { return (*readBytes= fread(ptr, length, 1, file)) > 0 ? MSFileOperationSuccess : MSFileOperationFail ; }
-MSFileOperationStatus MSCloseFile(MSFileHandle file) { return fclose(file) == 0 ? MSFileOperationSuccess : MSFileOperationFail; }
+MSFileHandle MSCreateFileForWritingAtPath(NSString *path) { return _MSCreateFileForWritingAtPath(path) ; }
+MSFileHandle MSOpenFileForReadingAtPath(NSString *path) { return _MSOpenFileForReadingAtPath(path) ; }
+MSFileOperationStatus MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length) { return _MSWriteToFile(file, ptr, length) ; }
+MSFileOperationStatus MSReadFromFile(MSFileHandle file, void *ptr, NSUInteger length, NSUInteger *readBytes) { return _MSReadFromFile(file, ptr, length, readBytes) ; }
+MSFileOperationStatus MSCloseFile(MSFileHandle file) { return _MSCloseFile(file) ; }
 
-MSFileOperationStatus MSMoveFile(NSString *sourcePath, NSString *destPath) { return rename([sourcePath UTF8String], [destPath UTF8String]) == 0 ? MSFileOperationSuccess : MSFileOperationFail  ; }
+MSFileOperationStatus MSMoveFile(NSString *sourcePath, NSString *destPath) { return _MSMoveFile(sourcePath, destPath) ; }
 
 NSString *MSUNCPath(NSString *path) { return _MSUNCPath(path) ; }
 
 
-typedef id (*IMP_LOCAL)(id, SEL, ...); /// TODO: TO BE REPLACED BY IMP ???
 NSArray * MSDirectoryContentsAtPath(NSString *path) {
     NSDirectoryEnumerator	*direnum;
     NSMutableArray	*content;
-    IMP_LOCAL			nxtImp;
-    IMP_LOCAL			addImp;
+    IMP			nxtImp;
+    IMP			addImp;
     BOOL			is_dir;
     
     /*
@@ -193,19 +190,19 @@ NSArray * MSDirectoryContentsAtPath(NSString *path) {
      can perform some optimisations using this assumption. */
     
     /*direnum = [[NSDirectoryEnumerator alloc] initWithDirectoryPath: path
-                                         recurseIntoSubdirectories: NO
-                                                    followSymlinks: NO
-                                                      justContents: YES
-                                                               for: self];*/
+     recurseIntoSubdirectories: NO
+     followSymlinks: NO
+     justContents: YES
+     for: self];*/
     direnum = [[NSFileManager defaultManager] enumeratorAtPath:path] ;
     content = [NSMutableArray arrayWithCapacity: 128];
     
-    nxtImp = (IMP_LOCAL)[direnum methodForSelector: @selector(nextObject)];
-    addImp = (IMP_LOCAL)[content methodForSelector: @selector(addObject:)];
+    nxtImp = [direnum methodForSelector: @selector(nextObject)];
+    addImp = [content methodForSelector: @selector(addObject:)];
     
-    while ((path = ((id(*)(id, SEL))(*nxtImp))(direnum, @selector(nextObject))) != nil)
+    while ((path = (*nxtImp)(direnum, @selector(nextObject))) != nil)
     {
-        ((id(*)(id, SEL, id))(*addImp))(content, @selector(addObject:), path);
+        (*addImp)(content, @selector(addObject:), path);
     }
     //RELEASE(direnum);
     

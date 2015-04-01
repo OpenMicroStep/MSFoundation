@@ -165,11 +165,6 @@ MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list a
     static inline pid_t gettid() { return syscall(SYS_getpid); }
 #endif
 
-
-///// Definition of MSFileHandle
-typedef FILE* MSFileHandle;
-static const MSFileHandle MSInvalidFileHandle= NULL;
-
 // END Simple platform abstraction
 ////////
 

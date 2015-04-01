@@ -1,9 +1,5 @@
 #ifndef WIN32
 #import "MSFoundation_Private.h"
-#import <sys/stat.h>
-
-// TODO: A revoir dans abstraction
-#include <sys/stat.h>
 
 #define _MSFileSystemRepresentation(X)				(char *)[(X) fileSystemRepresentation]
 
@@ -22,7 +18,7 @@ static inline BOOL _MSFileExists(char *path, BOOL *isDirectory)
 #define _MSRemoveDirectory(X)	((rmdir(X) == 0) ? YES : NO)
 #define _MSCreateDirectory(X)	(mkdir(X, 0777) != 0 ? NO : YES)
 
-static NSString *_MSAbsolutePath(NSString *path, int mode)
+static inline NSString *_MSAbsolutePath(NSString *path, int mode)
 {
 #warning TO BE IMPLEMENTED
     [[NSNull null] notImplemented:nil] ;
@@ -33,7 +29,6 @@ static NSString *_MSAbsolutePath(NSString *path, int mode)
 
 static inline MSFileHandle _MSCreateFileForWritingAtPath(NSString *path)
 {
-  
     MSFileHandle fd = open([path UTF8String], O_CREAT|O_TRUNC|O_WRONLY, S_IRWXU | S_IRGRP | S_IROTH) ;
     fchmod(fd, S_IRWXU | S_IRGRP | S_IROTH);
     return fd ;
@@ -48,7 +43,7 @@ static inline MSFileHandle _MSOpenFileForReadingAtPath(NSString *path)
 static inline MSFileOperationStatus _MSWriteToFile(MSFileHandle file, const void *ptr, NSUInteger length)
 {
     ssize_t writen = write(file, ptr, length);
-
+    
     if (writen>0 && (NSUInteger)writen == length) return MSFileOperationSuccess ;
     else return MSFileOperationFail ;
 }
@@ -78,7 +73,7 @@ static inline MSFileOperationStatus _MSMoveFile(NSString *sourcePath, NSString *
 {
     if(rename([sourcePath UTF8String], [destPath UTF8String])) return MSFileOperationFail ;
     return MSFileOperationSuccess ;
-
+    
 }
 
 static inline NSString *_MSUNCPath(NSString *path) { MSRaise(NSInternalInconsistencyException, @"_MSUNCPath() not implemented!") ; return nil ; path= nil; }
@@ -93,7 +88,7 @@ static inline BOOL _MSRemoveRecursiveDirectory(NSString *path)
         [NSException raise: NSInvalidArgumentException
                     format: @"Attempt to remove illegal path"];
     }
-        
+    
     if (lpath == 0 || *lpath == 0)
     {
         [NSException raise: NSGenericException
@@ -112,14 +107,14 @@ static inline BOOL _MSRemoveRecursiveDirectory(NSString *path)
     
     if (!is_dir)
     {
-            if (unlink(lpath) < 0)
-            {
-                [NSException raise: NSGenericException format:@"failed to remove file at path %@", path] ;
-            }
-            else
-            {
-                return YES;
-            }
+        if (unlink(lpath) < 0)
+        {
+            [NSException raise: NSGenericException format:@"failed to remove file at path %@", path] ;
+        }
+        else
+        {
+            return YES;
+        }
     }
     else
     {
@@ -145,7 +140,7 @@ static inline BOOL _MSRemoveRecursiveDirectory(NSString *path)
         }
         
         if (rmdir(lpath) < 0)
-        {            
+        {
             [NSException raise: NSGenericException format:@"failed to remove directory at path %s", lpath] ;
         }
         else
