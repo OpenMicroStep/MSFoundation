@@ -361,10 +361,10 @@ static id parsePListLogError(NSString *str, MSUInt flags)
 { return parsePListLogError(self, MSPPLParseArray | MSPPLParseSubAll); }
 
 - (NSMutableDictionary *)stringsDictionaryValue
-{ return parsePListLogError(self, MSPPLParseDict | MSPPLParseSubString); }
+{ return parsePListLogError(self, MSPPLParseDict | MSPPLParseSubAll); }
 
 - (NSMutableArray *)stringsArrayValue
-{ return parsePListLogError(self, MSPPLParseArray | MSPPLParseSubString); }
+{ return parsePListLogError(self, MSPPLParseArray | MSPPLParseSubAll); }
 
 @end
 
