@@ -673,7 +673,7 @@ MSBuffer *_MSTDecodeBufferBase64String(unsigned char **pointer, unsigned char *e
 
     *pointer = s ;
     return ret ; //already autoreleased
-    zone= nil; // Unused parameter
+    MSUnused(zone);
 }
 
 MSBuffer *_MSTDecodeBufferHexaString(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSZone *zone)
@@ -704,7 +704,7 @@ MSBuffer *_MSTDecodeBufferHexaString(unsigned char **pointer, unsigned char *end
     
     *pointer = s ;
     return AUTORELEASE(ret) ;
-    zone= nil; // Unused parameter
+    MSUnused(zone);
 }
 
 MSColor *_MSTDecodeColor(unsigned char **pointer, unsigned char *endPointer, NSString *operation, NSZone *zone)
@@ -715,7 +715,7 @@ MSColor *_MSTDecodeColor(unsigned char **pointer, unsigned char *endPointer, NSS
     ret = MSCreateCSSColor(trgbValue) ;
     *pointer = s ;
     return AUTORELEASE(ret) ;
-    zone= nil; // Unused parameter
+    MSUnused(zone);
 }
 
 id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointer, NSString *operation, MSByte tokenType, NSMutableArray *decodedObjects, NSArray *classes, NSArray *keys, MSULong *tokenCount, BOOL allowsUnknownUserClasses, NSZone *zone)

@@ -57,6 +57,16 @@
 #define MSFoundationExtern LIBIMPORT
 #endif
 
+
+///// Definition of MSFileHandle
+#ifdef WIN32
+#define MSFileHandle HANDLE
+#define MSInvalidFileHandle INVALID_HANDLE_VALUE
+#else
+#define MSFileHandle int
+#define MSInvalidFileHandle -1
+#endif
+
 #if defined(WO451)
 /************************ APPLE WO 451 ON WIN32 **********************/
 #define instancetype id
@@ -163,7 +173,7 @@ LIBIMPORT IMP class_lookupMethod(Class, SEL);
 #ifdef ALLOC
 #undef ALLOC
 #endif
-#define ALLOC(XX) [XX allocWithZone:nil]
+#define ALLOC(XX) [XX allocWithZone:NULL]
 
 #ifdef NEW
 #undef NEW

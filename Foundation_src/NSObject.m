@@ -31,7 +31,7 @@
 
 + (instancetype)alloc
 {
-  return [self allocWithZone:nil];
+  return [self allocWithZone:NULL];
 }
 
 + (instancetype)allocWithZone:(NSZone *)zone

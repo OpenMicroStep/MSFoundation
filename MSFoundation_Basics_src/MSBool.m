@@ -60,7 +60,7 @@ MSBool *MSFalse = nil ;
 + (id)trueNumber { return MSTrue ; }
 + (id)falseNumber { return MSFalse ; }
 + (NSNumber *)numberWithBool:(BOOL)value { return (value ? MSTrue : MSFalse) ; }
-+ (id)allocWithZone:(NSZone *)zone { return MSFalse ; zone= nil; }
++ (id)allocWithZone:(NSZone *)zone { return MSFalse ; MSUnused(zone); }
 + (id)alloc { return MSFalse ; }
 + (id)new { return MSFalse ; }
 - (id)retain { return self ; }
@@ -71,17 +71,17 @@ MSBool *MSFalse = nil ;
 - (void)_internalRelease { [ super release] ; }
 - (void)dealloc {if (/* DISABLES CODE */ (0)) [super dealloc];} // No warning
 
-- (id)copyWithZone:(NSZone *)zone { return self ; zone= nil; }
+- (id)copyWithZone:(NSZone *)zone { return self ; MSUnused(zone); }
 - (id)copy{ return self ; }
 
-- (void)encodeWithCoder:(NSCoder *)aCoder { return ; aCoder= nil; }
-- (id)initWithCoder:(NSCoder *)aDecoder{ return self ; aDecoder= nil; }
+- (void)encodeWithCoder:(NSCoder *)aCoder { return ; MSUnused(aCoder); }
+- (id)initWithCoder:(NSCoder *)aDecoder{ return self ; MSUnused(aDecoder); }
 
 - (Class)classForAchiver { return [self class] ; }
 - (Class)classForCoder { return [self class] ; }
 - (Class)classForPortCoder { return [self class] ; }
 
-- (id)replacementObjectForPortCoder:(NSPortCoder *)encoder { return self ; encoder= nil; }
+- (id)replacementObjectForPortCoder:(NSPortCoder *)encoder { return self ; MSUnused(encoder); }
 @end
 
 @implementation _MSFalseBool 
@@ -131,7 +131,7 @@ MSBool *MSFalse = nil ;
 @implementation _MSTrueBool 
 + (void)load { MSTrue = (MSBool *)MSCreateObject(self) ; }
 - (void)getValue:(void *)value { if (value) *((unsigned char *)value) = '\001' ; }
-+ (id)allocWithZone:(NSZone *)zone { return (id)MSTrue ; zone= nil; }
++ (id)allocWithZone:(NSZone *)zone { return (id)MSTrue ; MSUnused(zone); }
 + (id)alloc { return (id)MSTrue ; }
 + (id)new { return (id)MSTrue ; }
 - (char)charValue { return 1 ; }
