@@ -1,4 +1,4 @@
-/* MSCore_Private.h
+/* MSCoreSystem.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -39,18 +39,19 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
- WARNING : this header file IS PRIVATE, don't use it directly
- AND NEVER INCLUDE IT IN MSFoundation framework, it is maint to
- be exclusively used in MSCore standalone mode
- 
  */
 
-#ifndef MSCORE_PRIVATE_H
-#define MSCORE_PRIVATE_H
+#include "MSCore_Private.h"
 
-#include "MSCore_Public.h"
+#ifdef UNIX
 
-// MSCorePlatform
-void uuid_generate_string(char dst[37]);
+#include <uuid/uuid.h>
 
-#endif // MSCORE_PRIVATE_H
+void uuid_generate_string(char dst[37])
+{
+  uuid_t uuid;
+  uuid_generate_random ( uuid );
+  uuid_unparse ( uuid, dst );
+}
+
+#endif

@@ -757,13 +757,10 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 - (instancetype)mutableInitWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error
 { return _stringWithContentsOfFile(nil ,self,YES, path, 0, enc, error);}
 
-+ (id)UUIDString
-  {
-  // TODO: Reimplement
-  //CString *x= CCreateStringWithSES([[[NSUUID UUID] UUIDString] stringEnumeratorStructure]);
-  //return AUTORELEASE((id)x);
-  return nil;
-  }
++ (MSString*)UUIDString
+{
+  return AUTORELEASE(CCreateStringWithGeneratedUUID());
+}
 
 - (void)dealloc
 {

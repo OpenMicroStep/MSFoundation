@@ -33,11 +33,6 @@ enum {
   NSLionOperatingSystem=                307  // 10.7
 };
 
-@interface NSUUID : NSObject <NSCopying, NSCoding>
-+ (NSUUID *)UUID;
-- (NSString *)UUIDString;
-@end
-
 @interface NSNull : NSObject <NSCopying, NSCoding>
 + (NSNull *)null;
 @end

@@ -125,6 +125,13 @@ CString *CCreateStringWithSES(SES ses)
   return x;
 }
 
+CString *CCreateStringWithGeneratedUUID()
+{
+  char uuid[37];
+  uuid_generate_string(uuid);
+  return CCreateStringWithBytes(NSASCIIStringEncoding, uuid, 36);
+}
+
 #pragma mark Management
 
 void CStringGrow(CString *self, NSUInteger n)

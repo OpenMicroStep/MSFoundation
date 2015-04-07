@@ -25,6 +25,12 @@
 #endif
 #endif
 
+#ifndef UNIX
+#if defined(LINUX) || defined(APPLE)
+#define UNIX
+#endif
+#endif
+
 // Lib export
 #ifdef __cplusplus
     #define EXTERN_C extern "C"
@@ -163,7 +169,6 @@ MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list a
 ///// Definition of MSFileHandle
 typedef FILE* MSFileHandle;
 static const MSFileHandle MSInvalidFileHandle= NULL;
-
 
 // END Simple platform abstraction
 ////////

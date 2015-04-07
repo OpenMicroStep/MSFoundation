@@ -70,6 +70,7 @@ MSCoreExtern CString *CCreateStringWithBytes(NSStringEncoding encoding, const vo
 // TODO avec no free comme buffer
 // MSCoreExtern CString *CCreateStringWithUTF8String(const char *s);
 MSCoreExtern CString *CCreateStringWithSES(SES ses);
+MSCoreExtern CString *CCreateStringWithGeneratedUUID();
 
 MSCoreExtern void CStringGrow(CString *self, NSUInteger n);
 MSCoreExtern void CStringAdjustSize(CString *self);

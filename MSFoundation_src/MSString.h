@@ -153,7 +153,7 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (unichar)characterAtIndex:(NSUInteger)index;
 
 
-+ (id)UUIDString;
++ (MSString*)UUIDString;
 - (SES)stringEnumeratorStructure;
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;

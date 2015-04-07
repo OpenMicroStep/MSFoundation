@@ -15,5 +15,5 @@ test_t msfoundation_couple    [10];
 test_t msfoundation_date      [10];
 test_t msfoundation_decimal   [10];
 test_t msfoundation_dictionary[10];
-test_t msfoundation_string    [10];
+test_t msfoundation_string    [20];
 test_t msfoundation_mste      [10];
