@@ -152,8 +152,8 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
   return obj;
 }
 
-#define _esz(X)       (((CGrow*)(X))->flags.elementBytes * 8)
-#define _setEsz(X,SZ)  ((CGrow*)(X))->flags.elementBytes= (MSUInt)(SZ) / 8
+#define _esz(X)       (((CGrow*)(X))->flags.elementBytes)
+#define _setEsz(X,SZ)  ((CGrow*)(X))->flags.elementBytes= (MSUInt)(SZ)
 NSUInteger CGrowElementSize(id self)
 {
   NSUInteger r= 0;
@@ -166,7 +166,7 @@ NSUInteger CGrowElementSize(id self)
       else if ([self isKindOfClass:[MSString      class]]) r= sizeof(unichar);
       else if ([self isKindOfClass:[MSASCIIString class]]) r= sizeof(char);
       else MSRaise(@"CGrowElementSize", @"unknown class %@", c);
-      if (r/8 > 16) MSRaise(@"CGrowElementSize", @"size too big %ld", r);
+      if (r > 16) MSRaise(@"CGrowElementSize", @"size too big %ld", r);
       CDictionarySetObjectForKey(__ElementSize4Class, (id)r, (id)c);}
     _setEsz(self,r);}
   return r;
