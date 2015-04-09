@@ -337,7 +337,8 @@ static inline BOOL _SESWildcardsMatch(struct _sesWildcardsStruct *s, unichar c, 
       nextM= YES;}
     else if (m == (unichar)'*') {
       NSUInteger mIdxNext= mIdx;
-      if (mIdx < s->mEnd && _SESWildcardsMatch(s, c, srcIdx, SESIndexN(s->wildcards, &mIdxNext), mIdxNext)) {
+      unichar mNext= SESIndexN(s->wildcards, &mIdxNext);
+      if (mIdx < s->mEnd && _SESWildcardsMatch(s, c, srcIdx, mNext, mIdxNext)) {
         return YES;}
       nextM= NO;}
     else if (CUnicharEquals(c, m, s->insensitive)) {
