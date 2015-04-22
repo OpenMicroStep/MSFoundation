@@ -190,16 +190,14 @@ id CDateCopy(id self)
 const CString *CDateRetainedDescription(id self)
 {
   _dtm dt= _dtmCast(((CDate*)self)->interval);
-  char buf[20];
   CString *s= CCreateString(20);
-  sprintf(buf, "%04u-%02u-%02u %02u:%02u:%02u",
-    (dt.year   % 10000),
-    (dt.month  % 100),
-    (dt.day    % 100),
-    (dt.hour   % 100),
-    (dt.minute % 100),
-    (dt.second % 100));
-  CStringAppendSES(s, MSMakeSESWithBytes(buf, 19, NSASCIIStringEncoding));
+  CStringAppendFormat(s, "%04u-%02u-%02u %02u:%02u:%02u",
+    (unsigned)(dt.year   % 10000),
+    (unsigned)(dt.month  % 100),
+    (unsigned)(dt.day    % 100),
+    (unsigned)(dt.hour   % 100),
+    (unsigned)(dt.minute % 100),
+    (unsigned)(dt.second % 100));
   return s;
 }
 
