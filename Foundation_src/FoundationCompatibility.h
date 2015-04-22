@@ -3,6 +3,7 @@
 #import <MSFoundation/FoundationTypes.h>
 
 // Core
+#import <MSFoundation/NSObjCRuntime.h>
 #import <MSFoundation/NSObject.h>
 #import <MSFoundation/NSAutoreleasePool.h>
 #import <MSFoundation/NSInvocation.h>
