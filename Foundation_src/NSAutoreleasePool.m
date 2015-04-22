@@ -65,6 +65,7 @@ static inline void drain(CArray *objects)
 -(void)dealloc
 {
   drain(_objects);
+  RELEASE(_objects);
   pthread_setspecific(__currentPool_key, _parent);
   [super dealloc];
 }
