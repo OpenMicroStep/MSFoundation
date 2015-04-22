@@ -37,11 +37,11 @@ NSString *NSStringFromClass(Class cls)
   return _stringFromCStr(class_getName(cls));
 }
 
-FoundationExtern Protocol * NSProtocolFromString (NSString *protoName)
+Protocol * NSProtocolFromString (NSString *protoName)
 {
   return objc_getProtocol([protoName UTF8String]);
 }
-FoundationExtern NSString * NSStringFromProtocol(Protocol *proto)
+NSString * NSStringFromProtocol(Protocol *proto)
 {
   return _stringFromCStr(protocol_getName(proto));
 }

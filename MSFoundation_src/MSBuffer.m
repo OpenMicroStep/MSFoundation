@@ -126,11 +126,11 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 - (id)mutableInitWithBytes:  (const void *)b length:(NSUInteger)l                      {return _initWithBytes(self, YES, b, l,  NO,  NO);}
 - (id)mutableInitWithBytesNoCopy:  (void *)b length:(NSUInteger)l                      {return _initWithBytes(self, YES, b, l, YES,  NO);}
 
-+ (id)bufferWithCString:            (char *)s {return AR([AL(self)        initWithCString:            s]);}
++ (id)bufferWithCString:      (const char *)s {return AR([AL(self)        initWithCString:            s]);}
 + (id)bufferWithCStringNoCopy:      (char *)s {return AR([AL(self)        initWithCStringNoCopy:      s]);}
 + (id)bufferWithCStringNoCopyNoFree:(char *)s {return AR([AL(self)        initWithCStringNoCopyNoFree:s]);}
 + (id)mutableBufferWithCString:     (char *)s {return AR([AL(self) mutableInitWithCString:            s]);}
-- (id)initWithCString:              (char *)s {return _initWithBytes(self,  NO, s, strlen(s),  NO,  NO);}
+- (id)initWithCString:        (const char *)s {return _initWithBytes(self,  NO, s, strlen(s),  NO,  NO);}
 - (id)initWithCStringNoCopy:        (char *)s {return _initWithBytes(self,  NO, s, strlen(s), YES,  NO);}
 - (id)initWithCStringNoCopyNoFree:  (char *)s {return _initWithBytes(self,  NO, s, strlen(s), YES, YES);}
 - (id)mutableInitWithCString:       (char *)s {return _initWithBytes(self, YES, s, strlen(s),  NO,  NO);}

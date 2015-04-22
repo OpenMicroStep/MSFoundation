@@ -2,5 +2,5 @@
 
 NSString *NSStringFromRange(NSRange range)
 {
-   return FMT(@"{%u, %u}", range.location, range.length);
+   return FMT(@"{%lu, %lu}", (unsigned long)range.location, (unsigned long)range.length);
 }

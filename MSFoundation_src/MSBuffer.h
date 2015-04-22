@@ -62,7 +62,7 @@ Herve Malaingre : herve@malaingre.com
 + (id)bufferWithBytesNoCopy:      (void *)bytes length:(NSUInteger)length;
 + (id)bufferWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
 
-+ (id)bufferWithCString:            (char *)cString;
++ (id)bufferWithCString:      (const char *)cString;
 + (id)bufferWithCStringNoCopy:      (char *)cString;
 + (id)bufferWithCStringNoCopyNoFree:(char *)cString;
 
@@ -74,7 +74,7 @@ Herve Malaingre : herve@malaingre.com
 - (id)initWithBytesNoCopy:      (void *)bytes length:(NSUInteger)length;
 - (id)initWithBytesNoCopyNoFree:(void *)bytes length:(NSUInteger)length;
 
-- (id)initWithCString:            (char *)string;
+- (id)initWithCString:      (const char *)string;
 - (id)initWithCStringNoCopy:      (char *)string;
 - (id)initWithCStringNoCopyNoFree:(char *)string;
 
