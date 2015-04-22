@@ -41,10 +41,6 @@
  
  */
 
-#include "MSCore_Private.h"
-
-#ifdef WIN32
-
 #include <Rpc.h>
 
 void uuid_generate_string(char dst[37])
@@ -125,5 +121,3 @@ MSTimeInterval gmt_from_local(MSTimeInterval t)
     tOut= _FileTimeToMSTimeInterval(fts);
   return t;
 }
-
-#endif

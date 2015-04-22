@@ -1,4 +1,4 @@
-/* MSCorePlatform-unix.c
+/* MSCorePlatform-wo451.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -41,51 +41,20 @@
  
  */
 
-#include "MSCore_Private.h"
-
-#ifdef UNIX
-
-#include <uuid/uuid.h>
-#include <sys/time.h>
-
-void uuid_generate_string(char dst[37])
+float strtof(const char *string, char **endPtr)
 {
-  uuid_t uuid;
-  uuid_generate_random ( uuid );
-  uuid_unparse ( uuid, dst );
+    return (float)strtod(string, endPtr) ;
 }
 
-MSLong gmt_micro(void)
+int snprintf(char *str, size_t size, const char *format, ...)
 {
-  MSLong t;
-  struct timeval tv;
-  gettimeofday(&tv,NULL);
-  t= ((MSTimeInterval)tv.tv_sec - CDateSecondsFrom19700101To20010101)*1000000LL + (MSTimeInterval)tv.tv_usec;
-  return t;
+  int ret;
+  va_list ap;
+  va_start(ap, format);
+  ret = (int)_vsnprintf(str, size, format, ap);
+  va_end(ap);
+  return ret;
 }
 
-MSTimeInterval gmt_now(void)
-{
-  MSTimeInterval t;
-  time_t timet= time(NULL);
-  t= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101;
-  return t;
-}
-
-MSTimeInterval gmt_to_local(MSTimeInterval t)
-{
-  struct tm tm;
-  time_t timet= t + CDateSecondsFrom19700101To20010101;
-  (void)localtime_r(&timet, &tm);
-  return (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101 + (MSTimeInterval)(tm.tm_gmtoff);
-}
-
-MSTimeInterval gmt_from_local(MSTimeInterval t)
-{
-  struct tm tm;
-  time_t timet= (time_t)(t + CDateSecondsFrom19700101To20010101);
-  (void)mktime(gmtime_r(&timet, &tm));
-  return t - (MSTimeInterval)tm.tm_gmtoff;
-}
-
-#endif
+int vsnprintf(char *str, size_t size, const char *format, va_list ap)
+{ return _vsnprintf(str, size, format, ap); }

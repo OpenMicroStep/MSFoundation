@@ -62,8 +62,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <limits.h>
+#include <float.h>
 #include <math.h>
 #include <time.h>
 #include <pthread.h>
@@ -168,6 +170,13 @@ MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list a
 #ifdef WIN32
 static inline usleep(int32_t usec) { usec /= 1000; Sleep(usec > 0 ? usec : 1); return 0; }
 #endif
+
+#ifdef APPLE
+MSCoreExtern int pthread_mutex_timedlock(pthread_mutex_t * mutex, const struct timespec * abs_timeout);
+#endif
+
+// TODO: get ms path (ie. /opt/microstep/platform/)
+// TODO: get exe name
 
 // END Simple platform abstraction
 ////////

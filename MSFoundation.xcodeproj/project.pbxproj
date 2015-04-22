@@ -69,8 +69,6 @@
 		40EDED131AF0EBC300F3435C /* MSCorePlatform_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 40EDED101AF0EB9400F3435C /* MSCorePlatform_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		40EDED141AF0EBC500F3435C /* MSCorePlatform_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 40EDED101AF0EB9400F3435C /* MSCorePlatform_Private.h */; };
 		40EDED151AF0EBC600F3435C /* MSCorePlatform_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 40EDED101AF0EB9400F3435C /* MSCorePlatform_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		40EDED161AF1529600F3435C /* MSCorePlatform-unix.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */; };
-		40EDED171AF1529C00F3435C /* MSCorePlatform-win32.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */; };
 		A604A2311A8515B3001DAD54 /* FoundationCompatibility_Private.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */; };
 		A604A2331A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
 		A604A2341A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
@@ -122,7 +120,6 @@
 		A6173B061A9C6F1400739DB0 /* MSTE.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0381A1A76300800A97DA3 /* MSTE.c */; };
 		A6173B071A9C6F1400739DB0 /* mapm_add.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038441A76301700A97DA3 /* mapm_add.c */; };
 		A6173B081A9C6F1400739DB0 /* mapm_cpi.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038451A76301700A97DA3 /* mapm_cpi.c */; };
-		A6173B091A9C6F1400739DB0 /* MSCorePlatform-wo451.c in Sources */ = {isa = PBXBuildFile; fileRef = A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.c */; };
 		A6173B0A1A9C6F1400739DB0 /* mapm_div.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038461A76301700A97DA3 /* mapm_div.c */; };
 		A6173B0B1A9C6F1400739DB0 /* mapm_exp.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038471A76301700A97DA3 /* mapm_exp.c */; };
 		A6173B0C1A9C6F1400739DB0 /* mapm_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038481A76301700A97DA3 /* mapm_fft.c */; };
@@ -212,9 +209,6 @@
 		A6173B621A9C6F1400739DB0 /* MSFoundation_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6173B631A9C6F1400739DB0 /* MSNaturalArrayEnumerator_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038F71A7630CB00A97DA3 /* MSNaturalArrayEnumerator_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A6173B641A9C6F1400739DB0 /* MSCharsets_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038E21A7630CB00A97DA3 /* MSCharsets_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
-		A63EA4D31A9B39D8003059E5 /* MSCorePlatform-wo451.c in Sources */ = {isa = PBXBuildFile; fileRef = A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.c */; };
-		A63EA4D41A9B39D8003059E5 /* MSCorePlatform-wo451.c in Sources */ = {isa = PBXBuildFile; fileRef = A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.c */; };
-		A63EA4D51A9B39D8003059E5 /* MSCorePlatform-wo451.c in Sources */ = {isa = PBXBuildFile; fileRef = A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.c */; };
 		A64D645E1A77DBA400CCA6D7 /* mscore_validate.h in Resources */ = {isa = PBXBuildFile; fileRef = A6E038981A76304600A97DA3 /* mscore_validate.h */; };
 		A64D645F1A77DC4300CCA6D7 /* libMSCore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03A911A7634AA00A97DA3 /* libMSCore.dylib */; };
 		A64D64601A77DE6A00CCA6D7 /* mscore_c_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0388D1A76304600A97DA3 /* mscore_c_validate.c */; };
@@ -340,6 +334,13 @@
 		A66299801A7A8B2600B2B60D /* MSFoundation_Public.h in Headers */ = {isa = PBXBuildFile; fileRef = A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */; };
 		A66299811A7A8B2E00B2B60D /* MSFoundation_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038BF1A7630C200A97DA3 /* MSFoundation_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A66299821A7A8B3700B2B60D /* MSFoundation.h in Headers */ = {isa = PBXBuildFile; fileRef = A6E038C11A7630C200A97DA3 /* MSFoundation.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A6795C031ADEB26400278A52 /* MSCorePlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = A6795C021ADEB26400278A52 /* MSCorePlatform.c */; };
+		A6795C041ADEB26400278A52 /* MSCorePlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = A6795C021ADEB26400278A52 /* MSCorePlatform.c */; };
+		A6795C051ADEB26400278A52 /* MSCorePlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = A6795C021ADEB26400278A52 /* MSCorePlatform.c */; };
+		A6795C061ADEB26400278A52 /* MSCorePlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = A6795C021ADEB26400278A52 /* MSCorePlatform.c */; };
+		A6795C071ADEB26400278A52 /* MSCorePlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = A6795C021ADEB26400278A52 /* MSCorePlatform.c */; };
+		A6795C101ADEB30700278A52 /* MSCorePlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = A6795C021ADEB26400278A52 /* MSCorePlatform.c */; };
+		A6795C111ADEB30800278A52 /* MSCorePlatform.c in Sources */ = {isa = PBXBuildFile; fileRef = A6795C021ADEB26400278A52 /* MSCorePlatform.c */; };
 		A69DE3CE1A7BA29800F2863E /* MSFinishLoading.h in Headers */ = {isa = PBXBuildFile; fileRef = A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A69DE3CF1A7BA29800F2863E /* MSFinishLoading.h in Headers */ = {isa = PBXBuildFile; fileRef = A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A69DE3D01A7BA29800F2863E /* MSFinishLoading.m in Sources */ = {isa = PBXBuildFile; fileRef = A69DE3CD1A7BA29800F2863E /* MSFinishLoading.m */; };
@@ -735,7 +736,6 @@
 		A6E3A2621A9C745800F65291 /* MSCDecimal.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038001A76300800A97DA3 /* MSCDecimal.c */; };
 		A6E3A2631A9C745800F65291 /* MSCDictionary.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038021A76300800A97DA3 /* MSCDictionary.c */; };
 		A6E3A2641A9C745800F65291 /* MSCGrow.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038041A76300800A97DA3 /* MSCGrow.c */; };
-		A6E3A2651A9C745800F65291 /* MSCorePlatform-wo451.c in Sources */ = {isa = PBXBuildFile; fileRef = A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.c */; };
 		A6E3A2661A9C745800F65291 /* MSCObject.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E038061A76300800A97DA3 /* MSCObject.c */; };
 		A6E3A2671A9C745800F65291 /* MSCoreSES.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0380B1A76300800A97DA3 /* MSCoreSES.c */; };
 		A6E3A2681A9C745800F65291 /* MSCoreSystem.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E0380D1A76300800A97DA3 /* MSCoreSystem.c */; };
@@ -791,14 +791,6 @@
 		A6E78EAE1A8CFF2800416AF7 /* foundation_nsdictionary_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E78EAC1A8CFF2800416AF7 /* foundation_nsdictionary_validate.m */; };
 		A6E78EB01A8CFF7400416AF7 /* foundation_nsdata_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */; };
 		A6E78EB11A8CFF7400416AF7 /* foundation_nsdata_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */; };
-		A6E818BD1AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */; };
-		A6E818BE1AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */; };
-		A6E818BF1AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */; };
-		A6E818C01AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */; };
-		A6E818C21AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */; };
-		A6E818C31AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */; };
-		A6E818C41AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */; };
-		A6E818C51AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -977,7 +969,7 @@
 		A604A2351A861639001DAD54 /* foundation_nsautoreleasepool_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsautoreleasepool_validate.m; path = Foundation_tst/foundation_nsautoreleasepool_validate.m; sourceTree = "<group>"; };
 		A604A2381A861B39001DAD54 /* foundation_nsarray_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsarray_validate.m; path = Foundation_tst/foundation_nsarray_validate.m; sourceTree = "<group>"; };
 		A6173B691A9C6F1400739DB0 /* MSFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "MSCorePlatform-wo451.c"; path = "MSCore_src/MSCorePlatform-wo451.c"; sourceTree = "<group>"; };
+		A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = "MSCorePlatform-wo451.i"; path = "MSCore_src/MSCorePlatform-wo451.i"; sourceTree = "<group>"; };
 		A64D646D1A77DF6900CCA6D7 /* msfoundation_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundation_validate.m; path = MSFoundation_tst/msfoundation_validate.m; sourceTree = SOURCE_ROOT; };
 		A64D64AD1A77E96C00CCA6D7 /* msfoundationforcocoa_test.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = msfoundationforcocoa_test.m; path = MSFoundation_tst/msfoundationforcocoa_test.m; sourceTree = SOURCE_ROOT; };
 		A64D64D01A77EDBD00CCA6D7 /* MSFoundationForCocoa-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "MSFoundationForCocoa-Info.plist"; path = "MSFoundation_src/MSFoundationForCocoa-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -1002,6 +994,8 @@
 		A66299791A7A8A9500B2B60D /* FoundationCompatibility_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoundationCompatibility_Private.h; path = Foundation_src/FoundationCompatibility_Private.h; sourceTree = "<group>"; };
 		A662997A1A7A8A9500B2B60D /* FoundationCompatibility_Public.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoundationCompatibility_Public.h; path = Foundation_src/FoundationCompatibility_Public.h; sourceTree = "<group>"; };
 		A662997E1A7A8B2600B2B60D /* MSFoundation_Public.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFoundation_Public.h; path = MSFoundation_src/MSFoundation_Public.h; sourceTree = SOURCE_ROOT; };
+		A6795C021ADEB26400278A52 /* MSCorePlatform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSCorePlatform.c; path = MSCore_src/MSCorePlatform.c; sourceTree = "<group>"; };
+		A6795C081ADEB2F900278A52 /* MSCorePlatform-apple.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = "MSCorePlatform-apple.i"; path = "MSCore_src/MSCorePlatform-apple.i"; sourceTree = "<group>"; };
 		A69163831A7016E6001E42F4 /* MSFoundationForCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundationForCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A69163A81A701754001E42F4 /* MSFoundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MSFoundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A69DE3CC1A7BA29800F2863E /* MSFinishLoading.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MSFinishLoading.h; path = MSFoundation_src/MSFinishLoading.h; sourceTree = SOURCE_ROOT; };
@@ -1227,8 +1221,8 @@
 		A6E78EA81A8CFCEA00416AF7 /* foundation_nsnull_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsnull_validate.m; path = Foundation_tst/foundation_nsnull_validate.m; sourceTree = "<group>"; };
 		A6E78EAC1A8CFF2800416AF7 /* foundation_nsdictionary_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsdictionary_validate.m; path = Foundation_tst/foundation_nsdictionary_validate.m; sourceTree = "<group>"; };
 		A6E78EAF1A8CFF7400416AF7 /* foundation_nsdata_validate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = foundation_nsdata_validate.m; path = Foundation_tst/foundation_nsdata_validate.m; sourceTree = "<group>"; };
-		A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "MSCorePlatform-unix.c"; path = "MSCore_src/MSCorePlatform-unix.c"; sourceTree = "<group>"; };
-		A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = "MSCorePlatform-win32.c"; path = "MSCore_src/MSCorePlatform-win32.c"; sourceTree = "<group>"; };
+		A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = "MSCorePlatform-unix.i"; path = "MSCore_src/MSCorePlatform-unix.i"; sourceTree = "<group>"; };
+		A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = "MSCorePlatform-win32.i"; path = "MSCore_src/MSCorePlatform-win32.i"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1369,9 +1363,11 @@
 			children = (
 				A662995F1A7A88E500B2B60D /* MSCorePlatform.h */,
 				40EDED101AF0EB9400F3435C /* MSCorePlatform_Private.h */,
-				A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */,
-				A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */,
-				A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.c */,
+				A6795C021ADEB26400278A52 /* MSCorePlatform.c */,
+				A6795C081ADEB2F900278A52 /* MSCorePlatform-apple.i */,
+				A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.i */,
+				A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.i */,
+				A63EA4D21A9B39D8003059E5 /* MSCorePlatform-wo451.i */,
 				A6E038121A76300800A97DA3 /* MSCoreTypes.h */,
 				A6E0380E1A76300800A97DA3 /* MSCoreSystem.h */,
 				A6E0380D1A76300800A97DA3 /* MSCoreSystem.c */,
@@ -2530,6 +2526,7 @@
 				A6173AFE1A9C6F1400739DB0 /* MSCDictionary.c in Sources */,
 				A6173AFF1A9C6F1400739DB0 /* MSCGrow.c in Sources */,
 				A6173B001A9C6F1400739DB0 /* MSCoreSES.c in Sources */,
+				A6795C071ADEB26400278A52 /* MSCorePlatform.c in Sources */,
 				A6173B011A9C6F1400739DB0 /* MSCoreSystem.c in Sources */,
 				A6173B021A9C6F1400739DB0 /* MSCoreTools.c in Sources */,
 				A6173B031A9C6F1400739DB0 /* MSCoreToolsCompress.c in Sources */,
@@ -2538,7 +2535,6 @@
 				A6173B061A9C6F1400739DB0 /* MSTE.c in Sources */,
 				A6173B071A9C6F1400739DB0 /* mapm_add.c in Sources */,
 				A6173B081A9C6F1400739DB0 /* mapm_cpi.c in Sources */,
-				A6173B091A9C6F1400739DB0 /* MSCorePlatform-wo451.c in Sources */,
 				A6173B0A1A9C6F1400739DB0 /* mapm_div.c in Sources */,
 				A6173B0B1A9C6F1400739DB0 /* mapm_exp.c in Sources */,
 				A6173B0C1A9C6F1400739DB0 /* mapm_fft.c in Sources */,
@@ -2548,9 +2544,7 @@
 				A6173B101A9C6F1400739DB0 /* mapm_lg2.c in Sources */,
 				A6173B111A9C6F1400739DB0 /* mapm_lg3.c in Sources */,
 				A6173B121A9C6F1400739DB0 /* mapm_lg4.c in Sources */,
-				A6E818C51AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */,
 				A6173B131A9C6F1400739DB0 /* mapm_log.c in Sources */,
-				A6E818C01AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */,
 				A6173B141A9C6F1400739DB0 /* mapm_mul.c in Sources */,
 				A6173B151A9C6F1400739DB0 /* mapm_pow.c in Sources */,
 				A6173B161A9C6F1400739DB0 /* mapm_rcp.c in Sources */,
@@ -2625,7 +2619,6 @@
 				A6E0398D1A76314300A97DA3 /* MSTE.c in Sources */,
 				A6E039461A76313800A97DA3 /* mapm_add.c in Sources */,
 				A6E039471A76313800A97DA3 /* mapm_cpi.c in Sources */,
-				A63EA4D41A9B39D8003059E5 /* MSCorePlatform-wo451.c in Sources */,
 				A6E039481A76313800A97DA3 /* mapm_div.c in Sources */,
 				A6E039491A76313800A97DA3 /* mapm_exp.c in Sources */,
 				A6E0394A1A76313800A97DA3 /* mapm_fft.c in Sources */,
@@ -2636,11 +2629,10 @@
 				A6E0394E1A76313800A97DA3 /* mapm_lg2.c in Sources */,
 				A6E0394F1A76313800A97DA3 /* mapm_lg3.c in Sources */,
 				A6E039501A76313800A97DA3 /* mapm_lg4.c in Sources */,
-				A6E818C31AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */,
 				A6E039511A76313800A97DA3 /* mapm_log.c in Sources */,
-				A6E818BE1AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */,
 				A6E039521A76313800A97DA3 /* mapm_mul.c in Sources */,
 				A6E039531A76313800A97DA3 /* mapm_pow.c in Sources */,
+				A6795C041ADEB26400278A52 /* MSCorePlatform.c in Sources */,
 				A6E039541A76313800A97DA3 /* mapm_rcp.c in Sources */,
 				A6E039551A76313800A97DA3 /* mapm_set.c in Sources */,
 				A6E039561A76313800A97DA3 /* mapm_sin.c in Sources */,
@@ -2691,14 +2683,12 @@
 				A6E039D61A76320700A97DA3 /* mapm_set.c in Sources */,
 				A6E4EAFC1A7FC993002E99FF /* MSLanguage.m in Sources */,
 				A6E4EAFF1A7FC9A0002E99FF /* MSRow.m in Sources */,
-				A6E818BF1AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */,
 				A6E039D71A76320700A97DA3 /* mapm_sin.c in Sources */,
 				A6E039D81A76320700A97DA3 /* mapm5sin.c in Sources */,
 				A6E039D91A76320700A97DA3 /* mapmasin.c in Sources */,
 				A6E039DA1A76320700A97DA3 /* mapmasn0.c in Sources */,
 				A6E039DB1A76320700A97DA3 /* mapmcbrt.c in Sources */,
 				A69DE3D01A7BA29800F2863E /* MSFinishLoading.m in Sources */,
-				A63EA4D51A9B39D8003059E5 /* MSCorePlatform-wo451.c in Sources */,
 				A6E039DC1A76320700A97DA3 /* mapmcnst.c in Sources */,
 				A6E4EB0E1A7FEC65002E99FF /* NSNotification.m in Sources */,
 				A6E039DD1A76320700A97DA3 /* mapmfact.c in Sources */,
@@ -2717,7 +2707,6 @@
 				A6E4EAFE1A7FC99C002E99FF /* MSObjectAdditions.m in Sources */,
 				A6E039EA1A76320700A97DA3 /* MSCArray.c in Sources */,
 				A6E039EB1A76320700A97DA3 /* MSCBuffer.c in Sources */,
-				A6E818C41AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */,
 				A6E039EC1A76320700A97DA3 /* MSCColor.c in Sources */,
 				A6E039ED1A76320700A97DA3 /* MSCCouple.c in Sources */,
 				A6E039EE1A76320700A97DA3 /* MSCDate.c in Sources */,
@@ -2765,6 +2754,7 @@
 				A6E03BE91A76912700A97DA3 /* MSCouple.m in Sources */,
 				A6E03BEA1A76912700A97DA3 /* MSDate.m in Sources */,
 				A6E03BED1A76912700A97DA3 /* MSString.m in Sources */,
+				A6795C051ADEB26400278A52 /* MSCorePlatform.c in Sources */,
 				A6E03BEB1A76912700A97DA3 /* MSDecimal.m in Sources */,
 				A6E4EB021A7FC9A8002E99FF /* MSTEncoder.m in Sources */,
 				A6E03BE81A76912700A97DA3 /* MSColor.m in Sources */,
@@ -2908,7 +2898,6 @@
 				A6E03B121A76363C00A97DA3 /* mapm_set.c in Sources */,
 				40EDED091AD6DF3A00F3435C /* MSCMessage.c in Sources */,
 				A6E03B131A76363C00A97DA3 /* mapm_sin.c in Sources */,
-				A6E818BD1AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */,
 				A6E03B141A76363C00A97DA3 /* mapm5sin.c in Sources */,
 				A6E03B151A76363C00A97DA3 /* mapmasin.c in Sources */,
 				A6E03B161A76363C00A97DA3 /* mapmasn0.c in Sources */,
@@ -2926,7 +2915,6 @@
 				A6E03B221A76363C00A97DA3 /* mapmsqrt.c in Sources */,
 				A6E03B231A76363C00A97DA3 /* mapmutil.c in Sources */,
 				A6E03B241A76363C00A97DA3 /* mapmutl1.c in Sources */,
-				A6E818C21AD428CD008A9497 /* MSCorePlatform-win32.c in Sources */,
 				A6E03B251A76363C00A97DA3 /* mapmutl2.c in Sources */,
 				A6E03B261A76363C00A97DA3 /* MSCArray.c in Sources */,
 				A6E03B271A76363C00A97DA3 /* MSCBuffer.c in Sources */,
@@ -2936,8 +2924,8 @@
 				A6E03B2B1A76363C00A97DA3 /* MSCDecimal.c in Sources */,
 				A6E03B2C1A76363C00A97DA3 /* MSCDictionary.c in Sources */,
 				A6E03B2D1A76363C00A97DA3 /* MSCGrow.c in Sources */,
-				A63EA4D31A9B39D8003059E5 /* MSCorePlatform-wo451.c in Sources */,
 				A6E03B2E1A76363C00A97DA3 /* MSCObject.c in Sources */,
+				A6795C031ADEB26400278A52 /* MSCorePlatform.c in Sources */,
 				A6E03B2F1A76363C00A97DA3 /* MSCoreSES.c in Sources */,
 				A6E03B301A76363C00A97DA3 /* MSCoreSystem.c in Sources */,
 				A6E03B311A76363C00A97DA3 /* MSCoreTools.c in Sources */,
@@ -3017,7 +3005,6 @@
 				A6E3A2481A9C745800F65291 /* mapm_rcp.c in Sources */,
 				A6E3A2491A9C745800F65291 /* mapm_set.c in Sources */,
 				A6E3A24A1A9C745800F65291 /* mapm_sin.c in Sources */,
-				40EDED161AF1529600F3435C /* MSCorePlatform-unix.c in Sources */,
 				A6E3A24B1A9C745800F65291 /* mapm5sin.c in Sources */,
 				A6E3A24C1A9C745800F65291 /* mapmasin.c in Sources */,
 				A6E3A24D1A9C745800F65291 /* mapmasn0.c in Sources */,
@@ -3035,7 +3022,6 @@
 				A6E3A2591A9C745800F65291 /* mapmsqrt.c in Sources */,
 				A6E3A25A1A9C745800F65291 /* mapmutil.c in Sources */,
 				A6E3A25B1A9C745800F65291 /* mapmutl1.c in Sources */,
-				40EDED171AF1529C00F3435C /* MSCorePlatform-win32.c in Sources */,
 				A6E3A25C1A9C745800F65291 /* mapmutl2.c in Sources */,
 				A6E3A25D1A9C745800F65291 /* MSCArray.c in Sources */,
 				A6E3A25E1A9C745800F65291 /* MSCBuffer.c in Sources */,
@@ -3045,8 +3031,8 @@
 				A6E3A2621A9C745800F65291 /* MSCDecimal.c in Sources */,
 				A6E3A2631A9C745800F65291 /* MSCDictionary.c in Sources */,
 				A6E3A2641A9C745800F65291 /* MSCGrow.c in Sources */,
-				A6E3A2651A9C745800F65291 /* MSCorePlatform-wo451.c in Sources */,
 				A6E3A2661A9C745800F65291 /* MSCObject.c in Sources */,
+				A6795C061ADEB26400278A52 /* MSCorePlatform.c in Sources */,
 				A6E3A2671A9C745800F65291 /* MSCoreSES.c in Sources */,
 				A6E3A2681A9C745800F65291 /* MSCoreSystem.c in Sources */,
 				A6E3A2691A9C745800F65291 /* MSCoreTools.c in Sources */,
