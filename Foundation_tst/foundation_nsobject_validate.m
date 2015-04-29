@@ -216,10 +216,11 @@ pthread_t _launchThread(test_t *test, void *(*start_routine)(void *), void* data
 {
   pthread_attr_t attr;
   pthread_t      thread= 0;
-  TASSERT(test, !pthread_attr_init(&attr),"error");
-  TASSERT(test, !pthread_attr_setdetachstate(&attr, what==TEST_JOIN?PTHREAD_CREATE_JOINABLE:PTHREAD_CREATE_DETACHED),"error");
-  TASSERT(test, !pthread_create(&thread, &attr, start_routine, data), "error");
-  TASSERT(test, !pthread_attr_destroy(&attr),"error");
+  BOOL okAttr, ok;
+  ok= okAttr= TASSERT(test, !pthread_attr_init(&attr),"error");
+  if (ok) ok= TASSERT(test, !pthread_attr_setdetachstate(&attr, what==TEST_JOIN?PTHREAD_CREATE_JOINABLE:PTHREAD_CREATE_DETACHED),"error");
+  if (ok) ok= TASSERT(test, !pthread_create(&thread, &attr, start_routine, data), "error");
+  if (okAttr) TASSERT(test, !pthread_attr_destroy(&attr),"error");
   return thread;
 }
 
@@ -290,7 +291,7 @@ static void object_threadRetain(test_t *test)
     TASSERT_EQUALS(test, [o retainCount], 1, "retainCount %u != expected %u");
     TASSERT(test, d1.collision + d2.collision > 0, "release collisions 1:%ld 2:%ld", d1.collision, d2.collision);
     //printf("release collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
-  }
+    }
   RELEASE(o);
 }
 
