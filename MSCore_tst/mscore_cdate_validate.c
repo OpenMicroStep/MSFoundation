@@ -2,158 +2,91 @@
 
 #include "mscore_validate.h"
 
-static inline void cdate_print(CDate *d)
-  {
-  fprintf(stdout, "%u/%02u/%02u-%02u:%02u:%02d %lld\n",CDateYearOfCommonEra(d), CDateMonthOfYear(d), CDateDayOfMonth(d), CDateHourOfDay(d), CDateMinuteOfHour(d), CDateSecondOfMinute(d),d->interval);
-  }
-
-static int cdate_constants(void)
+static void cdate_constants(test_t *test)
 {
-  int err= 0;
-  if (!CDateDistantPast) {
-    fprintf(stdout, "D1-No distantPast\n"); err++;}
-  if (!CDateDistantFuture) {
-    fprintf(stdout, "D2-No distantFuture\n"); err++;}
-  if (!CDate19700101) {
-    fprintf(stdout, "D3-No 19700101\n"); err++;}
-  if (!CDate20010101) {
-    fprintf(stdout, "D4-No 20010101\n"); err++;}
-  return err;
+  TASSERT(test, CDateDistantPast  , "No distantPast");
+  TASSERT(test, CDateDistantFuture, "No distantFuture");
+  TASSERT(test, CDate19700101     , "No 19700101");
+  TASSERT(test, CDate20010101     , "No 20010101");
 }
 
-static int cdate_create(void)
+static void cdate_create(test_t *test)
   {
-  int err= 0;
   CDate *c,*d,*e,*f,*g;
   c= CCreateDateNow();
   d= CCreateDayDate(c);
   e= CCreateDateToday();
-  if (RETAINCOUNT(c)!=1) {
-    fprintf(stdout, "A1-Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A2-Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (RETAINCOUNT(e)!=1) {
-    fprintf(stdout, "A3-Bad retain count: %lu\n",WLU(RETAINCOUNT(e))); err++;}
-  if (CDateEquals(c, d)) {
-    fprintf(stdout, "A4-c & d are equals\n");     err++;}
-  if (!CDateEquals(d, e)) {
-    fprintf(stdout, "A5-d & e are not equals\n"); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 1, "Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT_EQUALS(test, RETAINCOUNT(e), 1, "Bad retain count: %lu",WLU(RETAINCOUNT(e)));
+  TASSERT(test, !CDateEquals(c, d), "c & d are equals");
+  TASSERT(test,  CDateEquals(d, e), "d & e are not equals");
   RELEASE(c);
   RELEASE(d);
   RELEASE(e);
-  if (CVerifyYMD(0,1,1)) {
-    fprintf(stdout, "A10-1/1/0 is valid !\n");     err++;}
-  if (CVerifyYMD(10,13,13)) {
-    fprintf(stdout, "A11-13/13/10 is valid !\n");  err++;}
-  if (CVerifyYMD(2001,2,29)) {
-    fprintf(stdout, "A12-29/2/2001 is valid !\n"); err++;}
+  TASSERT(test, !CVerifyYMD(   0, 1, 1), "1/1/0 is valid !");
+  TASSERT(test, !CVerifyYMD(  10,13,13), "13/13/10 is valid !");
+  TASSERT(test, !CVerifyYMD(2001, 2,29), "29/2/2001 is valid !");
   c= CCreateDateWithYMD(1, 1, 1);
   d= CCreateDateWithYMD(1, 2, 28);
   f= CCreateDateWithYMDHMS(2000, 12, 31, 23,59,50);
   e= CCreateDayDate(f);
   g= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
 //fprintf(stdout, "1/1/1-0:0 %lld %lld %lld\n",d->interval,d->interval/86400,(d->interval/730485)*730485);
-  if (c->interval!=-63113904000LL) {
-    fprintf(stdout, "A21-%lld\n",c->interval); err++;}
-  if (d->interval!=-63113904000LL+(31LL+28LL-1LL)*86400LL) {
-    fprintf(stdout, "A22-%lld\n",d->interval); err++;}
-  if (e->interval!=-86400LL) {
-    fprintf(stdout, "A23-%lld\n",e->interval); err++;}
-  if (f->interval!=-10LL) {
-    fprintf(stdout, "A24-%lld\n",f->interval); err++;}
-  if (g->interval!=0LL) {
-    fprintf(stdout, "A25-%lld\n",g->interval); err++;}
+  TASSERT_EQUALS(test, c->interval, -63113904000LL, "%lld != %lld");
+  TASSERT_EQUALS(test, d->interval, -63113904000LL+(31LL+28LL-1LL)*86400LL, "%lld != %lld");
+  TASSERT_EQUALS(test, e->interval,       -86400LL, "%lld != %lld");
+  TASSERT_EQUALS(test, f->interval,          -10LL, "%lld != %lld");
+  TASSERT_EQUALS(test, g->interval,            0LL, "%lld != %lld");
 
-  if (CDateDayOfWeek(c)!=0) {
-    fprintf(stdout, "A26-%u\n",CDateDayOfWeek(c)); err++;}
-  if (CDateDayOfWeek(d)!=2) {
-    fprintf(stdout, "A27-%u\n",CDateDayOfWeek(d)); err++;}
-  if (CDateDayOfWeek(e)!=6) {
-    fprintf(stdout, "A28-%u\n",CDateDayOfWeek(e)); err++;}
-  if (CDateDayOfWeek(f)!=6) {
-    fprintf(stdout, "A29-%u\n",CDateDayOfWeek(f)); err++;}
-  if (CDateDayOfWeek(g)!=0) {
-    fprintf(stdout, "A30-%u\n",CDateDayOfWeek(g)); err++;}
+  TASSERT_EQUALS(test, CDateDayOfWeek(c), 0, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfWeek(d), 2, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfWeek(e), 6, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfWeek(f), 6, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfWeek(g), 0, "%u != %u");
 
-  if (CDateDayOfMonth(c)!=1) {
-    fprintf(stdout, "A31-%u\n",CDateDayOfMonth(c)); err++;}
-  if (CDateDayOfMonth(d)!=28) {
-    fprintf(stdout, "A32-%u\n",CDateDayOfMonth(d)); err++;}
-  if (CDateDayOfMonth(e)!=31) {
-    fprintf(stdout, "A33-%u\n",CDateDayOfMonth(e)); err++;}
-  if (CDateDayOfMonth(f)!=31) {
-    fprintf(stdout, "A34-%u\n",CDateDayOfMonth(f)); err++;}
-  if (CDateDayOfMonth(g)!=1) {
-    fprintf(stdout, "A35-%u\n",CDateDayOfMonth(g)); err++;}
+  TASSERT_EQUALS(test, CDateDayOfMonth(c),  1, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfMonth(d), 28, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfMonth(e), 31, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfMonth(f), 31, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfMonth(g),  1, "%u != %u");
 
-  if (CDateDayOfYear(c)!=1) {
-    fprintf(stdout, "A36-%u\n",CDateDayOfYear(c)); err++;}
-  if (CDateDayOfYear(d)!=31+28) {
-    fprintf(stdout, "A37-%u\n",CDateDayOfYear(d)); err++;}
-  if (CDateDayOfYear(e)!=366) {
-    fprintf(stdout, "A38-%u\n",CDateDayOfYear(e)); err++;}
-  if (CDateDayOfYear(f)!=366) {
-    fprintf(stdout, "A39-%u\n",CDateDayOfYear(f)); err++;}
-  if (CDateDayOfYear(g)!=1) {
-    fprintf(stdout, "A40-%u\n",CDateDayOfYear(g)); err++;}
+  TASSERT_EQUALS(test, CDateDayOfYear(c),     1, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfYear(d), 31+28, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfYear(e),   366, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfYear(f),   366, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfYear(g),     1, "%u != %u");
 
-  if (CDateDayOfCommonEra(c)!=1) {
-    fprintf(stdout, "A41-%u\n",CDateDayOfCommonEra(c)); err++;}
-  if (CDateDayOfCommonEra(d)!=31+28) {
-    fprintf(stdout, "A42-%u\n",CDateDayOfCommonEra(d)); err++;}
-  if ((int)CDateDayOfCommonEra(e)!=CDateDaysBetweenDates(c,e,NO)+1) {
-    fprintf(stdout, "A43-%u %d\n",CDateDayOfCommonEra(e),CDateDaysBetweenDates(c,e,NO));
-    err++;}
-  if ((int)CDateDayOfCommonEra(f)!=CDateDaysBetweenDates(c,f,NO)+1) {
-    fprintf(stdout, "A44-%u %d\n",CDateDayOfCommonEra(f),CDateDaysBetweenDates(c,f,NO));
-    err++;}
-  if ((int)CDateDayOfCommonEra(g)!=CDateDaysBetweenDates(c,g,NO)+1) {
-    fprintf(stdout, "A45-%u %d\n",CDateDayOfCommonEra(g),CDateDaysBetweenDates(c,g,NO));
-    err++;}
+  TASSERT_EQUALS(test, CDateDayOfCommonEra(c),     1, "%u != %u");
+  TASSERT_EQUALS(test, CDateDayOfCommonEra(d), 31+28, "%u != %u");
+  TASSERT_EQUALS(test, (int)CDateDayOfCommonEra(e), CDateDaysBetweenDates(c,e,NO)+1, "%u != %d");
+  TASSERT_EQUALS(test, (int)CDateDayOfCommonEra(f), CDateDaysBetweenDates(c,f,NO)+1, "%u != %d");
+  TASSERT_EQUALS(test, (int)CDateDayOfCommonEra(g), CDateDaysBetweenDates(c,g,NO)+1, "%u != %d");
+   
 
-  if (CDateWeekOfYear(c)!=1) {
-    fprintf(stdout, "A46-%u\n",CDateWeekOfYear(c)); err++;}
-  if (CDateWeekOfYear(d)!=9) {
-    fprintf(stdout, "A47-%u\n",CDateWeekOfYear(d)); err++;}
-  if (CDateWeekOfYear(e)!=52) {
-    fprintf(stdout, "A48-%u\n",CDateWeekOfYear(e)); err++;}
-  if (CDateWeekOfYear(f)!=52) {
-    fprintf(stdout, "A49-%u\n",CDateWeekOfYear(f)); err++;}
-  if (CDateWeekOfYear(g)!=1) {
-    fprintf(stdout, "A50-%u\n",CDateWeekOfYear(g)); err++;}
+  TASSERT_EQUALS(test, CDateWeekOfYear(c),  1, "%u != %u");
+  TASSERT_EQUALS(test, CDateWeekOfYear(d),  9, "%u != %u");
+  TASSERT_EQUALS(test, CDateWeekOfYear(e), 52, "%u != %u");
+  TASSERT_EQUALS(test, CDateWeekOfYear(f), 52, "%u != %u");
+  TASSERT_EQUALS(test, CDateWeekOfYear(g),  1, "%u != %u");
 
-  if (CDateMonthOfYear(c)!=1) {
-    fprintf(stdout, "A51-%u\n",CDateMonthOfYear(c)); err++;}
-  if (CDateMonthOfYear(d)!=2) {
-    fprintf(stdout, "A52-%u\n",CDateMonthOfYear(d)); err++;}
-  if (CDateMonthOfYear(e)!=12) {
-    fprintf(stdout, "A53-%u\n",CDateMonthOfYear(e)); err++;}
-  if (CDateMonthOfYear(f)!=12) {
-    fprintf(stdout, "A54-%u\n",CDateMonthOfYear(f)); err++;}
-  if (CDateMonthOfYear(g)!=1) {
-    fprintf(stdout, "A55-%u\n",CDateMonthOfYear(g)); err++;}
+  TASSERT_EQUALS(test, CDateMonthOfYear(c),  1, "%u != %u");
+  TASSERT_EQUALS(test, CDateMonthOfYear(d),  2, "%u != %u");
+  TASSERT_EQUALS(test, CDateMonthOfYear(e), 12, "%u != %u");
+  TASSERT_EQUALS(test, CDateMonthOfYear(f), 12, "%u != %u");
+  TASSERT_EQUALS(test, CDateMonthOfYear(g),  1, "%u != %u");
 
-  if (CDateYearOfCommonEra(c)!=1) {
-    fprintf(stdout, "A56-%u\n",CDateYearOfCommonEra(c)); err++;}
-  if (CDateYearOfCommonEra(d)!=1) {
-    fprintf(stdout, "A57-%u\n",CDateYearOfCommonEra(d)); err++;}
-  if (CDateYearOfCommonEra(e)!=2000) {
-    fprintf(stdout, "A58-%u\n",CDateYearOfCommonEra(e)); err++;}
-  if (CDateYearOfCommonEra(f)!=2000) {
-    fprintf(stdout, "A59-%u\n",CDateYearOfCommonEra(f)); err++;}
-  if (CDateYearOfCommonEra(g)!=2001) {
-    fprintf(stdout, "A60-%u\n",CDateYearOfCommonEra(g)); err++;}
+  TASSERT_EQUALS(test, CDateYearOfCommonEra(c),    1, "%u != %u");
+  TASSERT_EQUALS(test, CDateYearOfCommonEra(d),    1, "%u != %u");
+  TASSERT_EQUALS(test, CDateYearOfCommonEra(e), 2000, "%u != %u");
+  TASSERT_EQUALS(test, CDateYearOfCommonEra(f), 2000, "%u != %u");
+  TASSERT_EQUALS(test, CDateYearOfCommonEra(g), 2001, "%u != %u");
 
-  if (CDateIsLeapYear(c)) {
-    fprintf(stdout, "A61-%d\n",CDateIsLeapYear(c)); err++;}
-  if (CDateIsLeapYear(d)) {
-    fprintf(stdout, "A62-%d\n",CDateIsLeapYear(d)); err++;}
-  if (!CDateIsLeapYear(e)) {
-    fprintf(stdout, "A63-%d\n",CDateIsLeapYear(e)); err++;}
-  if (!CDateIsLeapYear(f)) {
-    fprintf(stdout, "A64-%d\n",CDateIsLeapYear(f)); err++;}
-  if (CDateIsLeapYear(g)) {
-    fprintf(stdout, "A65-%d\n",CDateIsLeapYear(g)); err++;}
+  TASSERT(test, !CDateIsLeapYear(c), "%d");
+  TASSERT(test, !CDateIsLeapYear(d), "%d");
+  TASSERT(test,  CDateIsLeapYear(e), "%d");
+  TASSERT(test,  CDateIsLeapYear(f), "%d");
+  TASSERT(test, !CDateIsLeapYear(g), "%d");
 
   RELEASE(c);
   RELEASE(d);
@@ -161,20 +94,18 @@ static int cdate_create(void)
   RELEASE(f);
   RELEASE(g);
   c= CCreateDateWithYMD(2013, 10, 25);
-  if (CDateDayOfWeek(c)!=4) {
-    fprintf(stdout, "A70-%u\n",CDateDayOfWeek (c)); err++;}
-  if (CDateWeekOfYear(c)!=43) {
-    fprintf(stdout, "A71-%u\n",CDateWeekOfYear(c)); err++;}
+  TASSERT_EQUALS(test, CDateDayOfWeek(c) ,  4, "A70-%u != %u");
+  TASSERT_EQUALS(test, CDateWeekOfYear(c), 43, "A71-%u != %u");
   RELEASE(c);
-  return err;
   }
 
 #define M1 10000
-static int cdate_create2(void)
+static void cdate_create2(test_t *test)
   {
-  int err= 0,i;
+  int i;
   MSTimeInterval t;
   CDate *c[M1],*d,*e; // last date: 3432/07/11-02:51:40
+  CString *s; CBuffer *b;
   
   for (t= -63113904000LL, i= 0; i<M1; i++) { //-63113904000LL
     c[i]= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
@@ -184,34 +115,29 @@ static int cdate_create2(void)
        i +
        i*(i/4);
     c[i]->interval= t;}
-//cdate_print(c[M1-1]);
   for (i= 0; i<M1; i++) {
-    if (!CVerifyYMD(CDateYearOfCommonEra(c[i]), CDateMonthOfYear(c[i]), CDateDayOfMonth(c[i]))) {
-      fprintf(stdout, "B1-%d-bad date ",i);
-      cdate_print(c[i]);
-      err++;}
-    else {
+    s= CCreateString(0);
+    CStringAppendFormat(s, "%@", c[i]);
+    b= CCreateBufferWithString(s, NSUTF8StringEncoding);
+    if (TASSERT(test, CVerifyYMD(CDateYearOfCommonEra(c[i]), CDateMonthOfYear(c[i]), CDateDayOfMonth(c[i])),
+                "%d-bad date %s",i, CBufferCString(b))) {
       d= CCreateDateWithYMD(CDateYearOfCommonEra(c[i]), CDateMonthOfYear(c[i]), CDateDayOfMonth(c[i]));
       e= CCreateDayDate(c[i]);
-      if (!CDateEquals(d, e)) {
-        fprintf(stdout, "B2-%d-d & e are not equals %lld %lld %lld\n",i,d->interval,e->interval,d->interval-e->interval);
-        cdate_print(c[i]);
-        cdate_print(d);
-        cdate_print(e);
-        err++;}
-      RELEASE(d); RELEASE(e);}}
-  for (i= 0; i<M1; i++) {
-    RELEASE(c[i]);
-  }
-  return err;
+      CStringAppendFormat(s, " %@ %@", d, e);
+      RELEASE(b); b= CCreateBufferWithString(s, NSUTF8StringEncoding);
+      TASSERT(test, CDateEquals(d, e), "%d-d & e are not equals %lld %lld %lld %s",
+              i,d->interval,e->interval,d->interval-e->interval,CBufferCString(b));
+      RELEASE(d); RELEASE(e);}
+    RELEASE(b); RELEASE(s);}
+  for (i= 0; i<M1; i++) RELEASE(c[i]);
   }
 
 #define M2 200000 // last date: 3834/01/27
-static int cdate_week(void)
+static void cdate_week(test_t *test)
   {
-  int err= 0,i; unsigned w;
+  int i; unsigned w;
   MSTimeInterval t;
-  CDate *c,*d;
+  CDate *c,*d; CBuffer *b;
   
   c= CCreateDateWithYMD(1, 1, 1);
   d= CCreateDateWithYMD(1, 1, 1);
@@ -219,19 +145,17 @@ static int cdate_week(void)
   w= CDateDayOfMonth(c)<=4 ? 1 : 2;
   for (t= c->interval, i= 0; i<M2; i++) {
     d->interval= c->interval+7LL*86400LL-1LL;
-    if (CDateWeekOfYear(d)!=w) {
-      fprintf(stdout, "C1-%d-bad week %d expected %d ",i,CDateWeekOfYear(d),w); cdate_print(d);
-      err++;}
+    b= CCreateUTF8BufferWithObjectDescription((id)d);
+    TASSERT_EQUALS(test, CDateWeekOfYear(d), w, "%d-%s bad week %d expected %d ",i,CBufferCString(b));
+    RELEASE(b);
     d->interval= c->interval+2LL*(7LL*86400LL);
     if (4 < CDateDayOfYear(d) && CDateDayOfYear(d) <= 11) w= 1;
     else w+= 1;
     c->interval+= 7LL*86400LL;
-    if (CDateWeekOfYear(c)!=w) {
-      fprintf(stdout, "C2-%d-bad week %d expected %d ",i,CDateWeekOfYear(c),w); cdate_print(c);
-      err++;}}
-//cdate_print(c);
+    b= CCreateUTF8BufferWithObjectDescription((id)d);
+    TASSERT_EQUALS(test, CDateWeekOfYear(c), w, "%d-%s bad week %d expected %d ",i,CBufferCString(b));
+    RELEASE(b);}
   RELEASE(c); RELEASE(d);
-  return err;
   }
 
 test_t mscore_cdate[]= {

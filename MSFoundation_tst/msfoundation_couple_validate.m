@@ -2,44 +2,25 @@
 
 #include "msfoundation_validate.h"
 
-static int couple_create(void)
+static void couple_create(test_t *test)
   {
-  int err= 0;
-  MSCouple *c,*d,*e;
+  MSCouple *c,*d,*e; id ds,x;
   c= MSCreateCouple(  nil,  nil);
   d= MSCreateCouple((id)c,  nil);
-  if (RETAINCOUNT(c)!=2) {
-    fprintf(stdout, "A1-Bad retain count: %lu\n",WLU(RETAINCOUNT(c)));
-    err++;}
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A2-Bad retain count: %lu\n",WLU(RETAINCOUNT(d)));
-    err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 2, "A1-Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "A2-Bad retain count: %lu",WLU(RETAINCOUNT(d)));
   e= MSCreateCouple((id)c,(id)d);
-  if (RETAINCOUNT(c)!=3) {
-    fprintf(stdout, "A1'-Bad retain count: %lu\n",WLU(RETAINCOUNT(c)));
-    err++;}
-  if (RETAINCOUNT(d)!=2) {
-    fprintf(stdout, "A2'-Bad retain count: %lu\n",WLU(RETAINCOUNT(d)));
-    err++;}
-  if (ISEQUAL(c, d)) {
-    fprintf(stdout, "A3-c & d are equals\n");
-    err++;}
-  if (ISEQUAL(d, e)) {
-    fprintf(stdout, "A4-d & e are equals\n");
-    err++;}
-  if (!ISEQUAL([d firstMember], c)) {
-    fprintf(stdout, "A5-MSC1(d) & c not equals\n");
-    err++;}
-  if (!ISEQUAL(d, [e secondMember])) {
-    fprintf(stdout, "A6-d & CCoupleSecondMember(e) not equals\n");
-    err++;}
-  if (!ISEQUAL([d allObjects], ARRAY c END)) {
-    NSLog(@"A7-d allObjects %@ not equals c",[d allObjects]);
-    err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 3, "A1'-Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 2, "A2'-Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT_ISNOTEQUAL(test, c, d, "A3-c & d are equals");
+  TASSERT_ISNOTEQUAL(test, d, e, "A4-d & e are equals");
+  TASSERT_ISEQUAL(test, [d firstMember], c, "A5-MSC1(d) & c not equals");
+  TASSERT_ISEQUAL(test, d, [e secondMember], "A6-d & CCoupleSecondMember(e) not equals");
+  ds= [d allObjects]; x= ARRAY c END;
+  TASSERT_ISEQUAL(test, ds, x, "A7-d allObjects %s not equals c",[[ds description] UTF8String]);
   RELEASE(c);
   RELEASE(d);
   RELEASE(e);
-  return err;
   }
 
 test_t msfoundation_couple[]= {

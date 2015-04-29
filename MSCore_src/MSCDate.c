@@ -203,6 +203,17 @@ const CString *CDateRetainedDescription(id self)
   return s;
 }
 
+void CStringAppendCDateDescription(CString *s, CDate *d) // + context de description ?
+{
+  _dtm dt= _dtmCast(d->interval);
+  CStringAppendFormat(s,"%04u-%02u-%02u %02u:%02u:%02u",
+    (dt.year   % 10000),
+    (dt.month  % 100),
+    (dt.day    % 100),
+    (dt.hour   % 100),
+    (dt.minute % 100),
+    (dt.second % 100));
+}
 #pragma mark Equality
 
 BOOL CDateEquals(const CDate *self, const CDate *other)

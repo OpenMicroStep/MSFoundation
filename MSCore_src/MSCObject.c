@@ -150,6 +150,14 @@ const CString* _CObjectRetainedDescription(id obj)
     return nil;}
 }
 
+MSCoreExtern BOOL _CIsArray(id obj)
+{
+  if (!obj) return NO;
+  return CISA(obj)==__allClasses+CArrayClassIndex;
+}
+
+int _MSEnv() {return 0;}
+
 void _CObjectInitialize(void); // used in MSFinishLoadingCore
 void _CObjectInitialize()
 {

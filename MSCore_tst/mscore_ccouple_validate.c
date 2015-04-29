@@ -2,35 +2,21 @@
 
 #include "mscore_validate.h"
 
-static int ccouple_create(void)
+static void ccouple_create(test_t *test)
   {
-  int err= 0;
   CCouple *c,*d,*e;
   c= CCreateCouple(  nil,  nil);
   d= CCreateCouple((id)c,  nil);
   e= CCreateCouple((id)c,(id)d);
-  if (RETAINCOUNT(c)!=3) {
-    fprintf(stdout, "A1-Bad retain count: %lu\n",WLU(RETAINCOUNT(c)));
-    err++;}
-  if (RETAINCOUNT(d)!=2) {
-    fprintf(stdout, "A2-Bad retain count: %lu\n",WLU(RETAINCOUNT(d)));
-    err++;}
-  if (CCoupleEquals(c, d)) {
-    fprintf(stdout, "A3-c & d are equals\n");
-    err++;}
-  if (CCoupleEquals(d, e)) {
-    fprintf(stdout, "A4-d & e are equals\n");
-    err++;}
-  if (!ISEQUAL(CCoupleFirstMember(d), c)) {
-    fprintf(stdout, "A5-MSC1(d) & c not equals\n");
-    err++;}
-  if (!ISEQUAL(d, CCoupleSecondMember(e))) {
-    fprintf(stdout, "A6-d & CCoupleSecondMember(e) not equals\n");
-    err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 3, "A1-Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 2, "A2-Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT(test, !CCoupleEquals(c, d), "A3-c & d are equals");
+  TASSERT(test, !CCoupleEquals(d, e), "A4-d & e are equals");
+  TASSERT_ISEQUAL(test, CCoupleFirstMember(d), c, "A5-MSC1(d) & c not equals");
+  TASSERT_ISEQUAL(test, d, CCoupleSecondMember(e), "A6-d & CCoupleSecondMember(e) not equals");
   RELEASE(c);
   RELEASE(d);
   RELEASE(e);
-  return err;
   }
 
 test_t mscore_ccouple[]= {

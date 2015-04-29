@@ -7645,7 +7645,7 @@
 22A3;LEFT TACK;Sm;0;ON;;;;;Y;;;;;
 22A4;DOWN TACK;Sm;0;ON;;;;;N;;;;;
 22A5;UP TACK;Sm;0;ON;;;;;N;;;;;
-22A6;ASSERTION;Sm;0;ON;;;;;Y;;;;;
+22A6;TASSERTION;Sm;0;ON;;;;;Y;;;;;
 22A7;MODELS;Sm;0;ON;;;;;Y;;;;;
 22A8;TRUE;Sm;0;ON;;;;;Y;;;;;
 22A9;FORCES;Sm;0;ON;;;;;Y;;;;;

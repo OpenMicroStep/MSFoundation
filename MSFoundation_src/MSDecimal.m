@@ -158,6 +158,7 @@
 
 - (MSDecimal*)floorDecimal
 {
+//ASSERT(0 == 1, "%d != %d",0,1);
   return AUTORELEASE((id)CCreateDecimalFloor((CDecimal*)self));
 }
 - (MSDecimal*)ceilDecimal

@@ -49,7 +49,8 @@
 
 #ifdef MSFOUNDATION_FORCOCOA
 #define MSCORE_NSOBJECT_ATTRIBUTES \
-  Class isa;
+  Class isa; \
+//int32_t _noRefCount;
 
 #else
 #define MSCORE_NSOBJECT_ATTRIBUTES \
@@ -57,6 +58,9 @@
   int32_t refCount;
 
 #endif
+
+// Return 0 for MSCORE_STANDALONE, 1 for MSFOUNDATION_FORCOCOA, 2 for MSFOUNDATION
+MSCoreExtern int _MSEnv(void);
 
 typedef struct CStringStruct     CString;
 
@@ -144,6 +148,7 @@ MSCoreExtern NSUInteger  _CObjectHash     (id obj);
 MSCoreExtern NSUInteger  _CObjectHashDepth(id obj, unsigned depth);
 MSCoreExtern id          _CObjectCopy     (id obj);
 MSCoreExtern const CString* _CObjectRetainedDescription(id obj);
+MSCoreExtern BOOL        _CIsArray        (id obj);
 
 #define ISA(X)         ((X)->isa)
 #define NAMEOFCLASS(X) (ISA(X)->className)
@@ -158,8 +163,16 @@ MSCoreExtern const CString* _CObjectRetainedDescription(id obj);
 #define HASHDEPTH(X,D) _CObjectHashDepth((id)(X),(D))
 #define COPY(X)        _CObjectCopy     ((id)(X))
 #define DESCRIPTION(X) _CObjectRetainedDescription((id)(X))
+#define ISARRAY(X)     _CIsArray        ((id)(X))
 
 #else // ---------------------------------------------------- !MSCORE_STANDALONE
+
+MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
+
+// A retained CString made from [X description]
+#define DESCRIPTION(X) _MObjectRetainedDescription((id)(X))
+
+#ifdef MSCORE_FORFOUNDATION                              // MSCORE_FORFOUNDATION
 
 MSCoreExtern Class       _MIsa            (id obj);
 MSCoreExtern const char *_MNameOfClass    (id obj);
@@ -171,12 +184,7 @@ MSCoreExtern BOOL        _MObjectIsEqual  (id obj1, id obj2);
 MSCoreExtern NSUInteger  _MObjectHash     (id obj);
 MSCoreExtern NSUInteger  _MObjectHashDepth(id obj, unsigned depth);
 MSCoreExtern id          _MObjectCopy     (id obj);
-MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
-
-// A retained CString made from [X description]
-#define DESCRIPTION(X) _MObjectRetainedDescription((id)(X))
-
-#ifdef MSCORE_FORFOUNDATION                              // MSCORE_FORFOUNDATION
+MSCoreExtern BOOL        _MIsArray        (id obj);
 
 #define ISA(X)         _MIsa        ((id)(X))
 #define NAMEOFCLASS(X) _MNameOfClass((id)(X))
@@ -190,6 +198,8 @@ MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
 #define HASH(X)        _MObjectHash     ((id)(X))
 #define HASHDEPTH(X,D) _MObjectHashDepth((id)(X),(D))
 #define COPY(X)        _MObjectCopy     ((id)(X))
+
+#define ISARRAY(X)     _MIsArray        ((id)(X))
 
 #else                                                              // FOUNDATION
 
@@ -218,6 +228,8 @@ MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
 #define HASHDEPTH(X,D) [(id)(X) hash:(D)]
 #define COPY(X)        [(id)(X) copyWithZone:NULL]
 
+#define ISARRAY(X)     [(id)(X) isKindOfClass:[NSArray class]]
+
 #endif                                      // MSCORE_FORFOUNDATION & FOUNDATION
 
 #endif // ---------------------------------------------------- MSCORE_STANDALONE
@@ -231,7 +243,7 @@ MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
 #define ASSIGN(X,Y) ({ \
   id __x__= (id)X, __y__= (id)(Y); \
   if (__x__ != __y__) { \
-    X=  (__y__ ? RETAIN(__y__) : nil); \
+    X= (id)(__y__ ? RETAIN(__y__) : nil); \
     if (__x__) RELEASE(__x__); }})
 
 #ifdef RELEAZEN

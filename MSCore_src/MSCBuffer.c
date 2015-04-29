@@ -162,6 +162,15 @@ CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationE
   return b;
 }
 
+CBuffer* CCreateUTF8BufferWithObjectDescription(id o)
+{
+  CString *s; CBuffer *b;
+  s= CCreateString(0);
+  CStringAppendFormat(s, "%@", o);
+  b= CCreateBufferWithString(s, NSUTF8StringEncoding);
+  return b;
+}
+
 #pragma mark Management
 
 void CBufferGrow(CBuffer *self, NSUInteger n, BOOL verifMut)

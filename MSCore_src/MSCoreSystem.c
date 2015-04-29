@@ -237,6 +237,7 @@ static M_APM _MS_APM_Allocate(void)
 void _CObjectInitialize();
 void _CDateInitialize();
 void _MSTEInitialize();
+void _CMessageInitialize();
 
 #if defined(WO451)
 // WO451 is so old that this is a non existing feature. So call MSFinishLoadingCore by yourself...
@@ -266,5 +267,6 @@ void MSFinishLoadingCore()
     M_init_mapm_constants();
     _CDateInitialize();
     _MSTEInitialize();
+    _CMessageInitialize();
     }
 }

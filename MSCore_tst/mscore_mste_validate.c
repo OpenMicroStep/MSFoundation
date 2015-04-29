@@ -34,8 +34,8 @@ static int _test(void)
   int err= 0;
   CBuffer *src;
   
-  _ke= MCSCreate("error");
-  _kd= MCSCreate("description");
+  _ke= CSCreate("error");
+  _kd= CSCreate("description");
   // Decode sans source
   err+= _testError(nil, "MSTE-1-", 1);
   // Decode erreur MSTE0102    [ "MSTE0101" ,8, "CRCbda1803f", 1,\"C\",Z,KKK,T]"
@@ -75,15 +75,15 @@ static int _decode(char *ssrc, id ret)
   src= CCreateBufferWithBytes(ssrc, strlen(ssrc));
   o= MSTECreateRootObjectFromBuffer(src, nil, &error);
   if (error) {
-    ke= (id)MCSCreate("error");
-    kd= (id)MCSCreate("description");
+    ke= (id)CSCreate("error");
+    kd= (id)CSCreate("description");
     v= CDictionaryObjectForKey(error, (id)ke);
     d= CDictionaryObjectForKey(error, (id)kd);
     buf= CCreateBufferWithString((CString*)d, NSUTF8StringEncoding);
     printf("B1: %ld %s\n",(long)CDecimalLongValue((CDecimal*)v), CBufferCString(buf)); err++;
     RELEAZEN(ke); RELEAZEN(o); RELEAZEN(buf);}
   else if (!ISEQUAL(ret, o)) {
-    s= (id)MCSCreate(NULL);
+    s= (id)CSCreate(NULL);
     if (ISEQUAL(ISA(o), ISA(s))) {
       buf= CCreateBufferWithString((CString*)o, NSUTF8StringEncoding);
       printf("B2: %s\n",CBufferCString(buf));
@@ -112,11 +112,11 @@ static int mste_decode(void)
   err+= _decode("[\"MSTE0101\",9,\"CRC63ee54c2\",1,\"FirstClass\",1,\"OneKey\",3,\"12.34\"]",o1);
   RELEAZEN(o1);
 
-  o1= (id)MCSCreate("My beautiful string éè");
+  o1= (id)CSCreate("My beautiful string éè");
   err+= _decode("[\"MSTE0101\",9,\"CRC3108fd09\",1,\"FirstClass\",1,\"OneKey\",4,\"My beautiful string éè\"]",o1);
   RELEAZEN(o1);
 
-  o1= (id)MCSCreate("Json \\a/b\"cÆ"); // Json \a/b"cÆ
+  o1= (id)CSCreate("Json \\a/b\"cÆ"); // Json \a/b"cÆ
   buf= CCreateBufferWithString((CString*)o1, NSUTF8StringEncoding);
 //printf("B %s\n",CBufferCString(buf));
   RELEAZEN(buf);
@@ -124,7 +124,7 @@ static int mste_decode(void)
   err+= _decode("[\"MSTE0101\",9,\"CRCc8e768a6\",1,\"FirstClass\",1,\"OneKey\",4,\"Json \\\\a\\/b\\\"c\\u00C6\"]",o1);
   RELEAZEN(o1);
 
-  o1= (id)MCSCreate("Æ?"); // Badly-formed last character
+  o1= (id)CSCreate("Æ?"); // Badly-formed last character
 //["MSTE0101",7,"CRC609231cb",0,0,4,"\u00C6\u"]
   err+= _decode("[\"MSTE0101\",7,\"CRC609231cb\",0,0,4,\"\\u00C6\\u\"]",o1);
   RELEAZEN(o1);

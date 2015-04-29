@@ -4,21 +4,17 @@
 
 //http://www.fileformat.info/tool/hash.htm?text=A
 //http://www.statman.info/conversions/hexadecimal.html
-static inline int crc(char *txt, MSUInt r)
+static inline void crc(test_t *test, char *txt, MSUInt r)
   {
-  int err= 0;
   MSUInt crc;
   crc= MSBytesLargeCRC(txt, strlen(txt));
-  err+= ASSERT_EQUALS(crc, r, "A1-Bad crc. Expected:%3$u Calculated:%2$u for %1$s",txt);
-  return err;
+  TASSERT_EQUALS(test, crc, r, "A1-Bad crc. Expected:%3$u Calculated:%2$u for %1$s",txt);
   }
 
-static int tools_crc(void)
+static void tools_crc(test_t *test)
   {
-  int err= 0;
-  err+= crc("A",3554254475U);
-  err+= crc("[\"MSTE0101\",5,\"CRC00000000\",0,0]",945492452U);
-  return err;
+  crc(test, "A",3554254475U);
+  crc(test, "[\"MSTE0101\",5,\"CRC00000000\",0,0]",945492452U);
   }
 
 test_t mscore_tools[]= {

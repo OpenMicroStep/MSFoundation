@@ -462,18 +462,18 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 
 - (void)encodeWithCoder:(NSCoder*)aCoder
   {
-  BOOL immutable=CGrowIsForeverImmutable(self), mutable=CGrowIsForeverMutable(self), noRR= _flags.noRetainRelease, nilItems= _flags.nilItems;
+  BOOL immut=CGrowIsForeverImmutable(self), mut=CGrowIsForeverMutable(self), noRR= _flags.noRetainRelease, nilItems= _flags.nilItems;
   if ([aCoder allowsKeyedCoding]) {
     [aCoder  encodeUnsignedInteger:_size forKey:@"capacity"];
-    if (immutable) [aCoder encodeBool:YES forKey:@"immutable"];
-    if (mutable)   [aCoder encodeBool:YES forKey:@"mutable"];
+    if (immut) [aCoder encodeBool:YES forKey:@"immutable"];
+    if (mut)   [aCoder encodeBool:YES forKey:@"mutable"];
     if (noRR)      [aCoder encodeBool:YES forKey:@"noRetainRelease"];
     if (nilItems)  [aCoder encodeBool:YES forKey:@"nilItems"];
     if (_pointers) {
       [aCoder encodeCArray:(CArray*)self forKey:@"ms-array"];}}
   else {
-    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&immutable];
-    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&mutable];
+    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&immut];
+    [aCoder encodeValueOfObjCType:@encode(BOOL) at:&mut];
     [aCoder encodeValueOfObjCType:@encode(BOOL) at:&noRR];
     [aCoder encodeValueOfObjCType:@encode(BOOL) at:&nilItems];
     [aCoder encodeValueOfObjCType:@encode(NSUInteger) at:&_count];
@@ -484,17 +484,17 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 
 - (id)initWithCoder:(NSCoder*)aCoder
   {
-  BOOL immutable= NO, mutable=NO, noRR= NO,  nilItems= NO;
+  BOOL immut= NO, mut=NO, noRR= NO,  nilItems= NO;
   if ([aCoder allowsKeyedCoding]) {
-    immutable= [aCoder decodeBoolForKey:@"immutable"];
-    mutable=   [aCoder decodeBoolForKey:@"mutable"];
+    immut= [aCoder decodeBoolForKey:@"immutable"];
+    mut=   [aCoder decodeBoolForKey:@"mutable"];
     noRR=      [aCoder decodeBoolForKey:@"noRetainRelease"];
     nilItems=  [aCoder decodeBoolForKey:@"nilItems"];
     [aCoder decodeInCArray:(CArray*)self retainObjects:!_flags.noRetainRelease forKey:@"ms-array"];}
   else {
     NSUInteger n;
-    [aCoder decodeValueOfObjCType:@encode(BOOL) at:&immutable];
-    [aCoder decodeValueOfObjCType:@encode(BOOL) at:&mutable];
+    [aCoder decodeValueOfObjCType:@encode(BOOL) at:&immut];
+    [aCoder decodeValueOfObjCType:@encode(BOOL) at:&mut];
     [aCoder decodeValueOfObjCType:@encode(BOOL) at:&noRR];
     [aCoder decodeValueOfObjCType:@encode(BOOL) at:&nilItems];
     [aCoder decodeValueOfObjCType:@encode(NSUInteger) at:&n];
@@ -503,8 +503,8 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
       CArrayGrow((CArray*)self, n);
       for (i= 0; i < n; i++) {
         CArrayAddObject((CArray*)self, [aCoder decodeObject]);}}}
-    if    (immutable) CGrowSetForeverImmutable(self);
-    else if (mutable) CGrowSetForeverMutable(self);
+    if    (immut) CGrowSetForeverImmutable(self);
+    else if (mut) CGrowSetForeverMutable(self);
     _flags.noRetainRelease= noRR;
     _flags.nilItems=        nilItems;
   return self;

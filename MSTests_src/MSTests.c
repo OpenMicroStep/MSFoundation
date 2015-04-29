@@ -5,94 +5,57 @@
 //  Copyright (c) 2015 OpenMicroStep. All rights reserved.
 //
 
-#include "MSCorePlatform.h"
+#include <MSCore/MSCore.h>
 #include "MSTests.h"
-#include <signal.h>
 
-static const int __testPadding= 28;
-
-#ifndef WO451
-const char *__prefix = "../tests/lib";
-const char *__suffix = "Tests.dylib";
-#else
-const char *__prefix = "";
-const char *__suffix = "Tests.dll";
-#endif
-
-test_t *__currentTest= NULL;
 pthread_mutex_t __mutex= PTHREAD_MUTEX_INITIALIZER;
 
-static inline const char *_basename(const char *path)
-{
-  const char* basename;
-  basename= strrchr(path, '/');
-  return basename ? basename + 1 : path;
-}
+CString* CMessageTest;
+CString* TTag1, *TTag2;
+CArray*  TTags;
 
-int imp_testAssert(int result, const char *assert, const char *file, int line, const char *msg, ...)
-{
-  if (!result) {
-    va_list ap;int spaces;const char *name;
+mutable CDictionary *imp_TCtx(test_t *t, const char *assert,
+  const char *file, int line, const char *function, const char *method)
+  {
+  mutable CDictionary* ctx= CCreateCtx(file, line, function, method, TTags);
+  CString *a=  CSCreate((char*)assert);
+  CDictionarySetObjectForKey(ctx, (id)a, (id)KAssert);
+  RELEASE(a);
+  if (t) {
     mutex_lock(__mutex);
-    name= __currentTest ? __currentTest->name : "NO CONTEXT";
-    spaces= 0;
-    fprintf(stderr, "%-*sX %s\n", spaces, "", name);
-    fprintf(stderr, "%-*sX  assertion: %s\n", spaces, "", assert);
-    fprintf(stderr, "%-*sX         at: %s:%d\n", spaces, "", _basename(file), line);
-    fprintf(stderr, "%-*sX     reason: ", spaces, "");
-    va_start (ap, msg);
-    vfprintf(stderr, msg, ap);
-    va_end(ap);
-    fprintf(stderr, "\n");
-    mutex_unlock(__mutex);
+    if (!t->errCtxs) t->errCtxs= CCreateArray(0);
+    CArrayAddObject(t->errCtxs, (id)ctx);
+    t->err++;
+    mutex_unlock(__mutex);}
+  return ctx;
   }
-  return !result ? 1 : 0;
-}
-
-#include <sys/time.h> // for gettimeofday
-static long _GMTMicro(void)
+void imp_TAdvise(mutable CDictionary* ctx, const char *msgFmt, ...)
 {
-  long t;
-  struct timeval tv;
-  gettimeofday(&tv,NULL);
-  t= (tv.tv_sec)*1000000 + tv.tv_usec;
-  return t;
+  va_list vp;
+  va_start(vp, msgFmt);
+  CMessageAdvisev(CMessageTest, ctx, msgFmt, vp);
+  va_end(vp);
 }
-
-int bindFct(dl_handle_t handle, const char *name, void * imp)
-{
-  void *fct;
-  if (!(fct= dlsym(handle, name))) {
-    fprintf(stderr, "Unable to find symbol %s", name);
-  }
-  else {
-    *(void **)fct= imp;
-  }
-  return fct != 0;
-}
-
-///////////////////////////////////////////
 
 // L'erreur retournée est la somme des erreurs survenues
-int test_(test_t *tests)
+static int test_(test_t *tests)
 {
-  int err= 0, testErr;
+  int err= 0;
   test_t *test;
   if (tests) for (test= tests; test->name; test++) {
-    __currentTest= test;
-    testErr= 0;
     test->c0= clock();
     test->t0= _GMTMicro();
-    testErr+= test_(test->subTests);
-    if (test->leafFunction) testErr+= test->leafFunction();
-    err+= test->err= testErr;
+    test->err+= test_(test->subTests);
+    if (test->leafFunction) test->leafFunction(test); // in TAssert test->err++;
+    err+= test->err;
     test->c1= clock();
     test->t1= _GMTMicro();}
   return err;
 }
 
-void test_print(int level,test_t *tests)
+static void test_print(int level,test_t *tests)
 {
+  static const int __testPadding= 28;
   test_t *test;
   double clocks,seconds; int subs,levelMax;
   levelMax= 0;
@@ -104,13 +67,42 @@ void test_print(int level,test_t *tests)
       fprintf(stdout, "%-*s%s%-*s validate: %s clock:%.3f s time:%.3f s\n",
         level*2, "", (subs?"+ ":". "), __testPadding - level*2, test->name,
         test->err ? "FAIL" : "PASS", clocks, seconds);
-      test_print(level+1,test->subTests);
-      }}
+      if (test->errCtxs) {
+        NSUInteger n,i; CString *s; CBuffer *b; CDictionary *ctx; int space;
+        s= CCreateString(0); space= level*2 + 2;
+        for (n= CArrayCount(test->errCtxs), i= 0; i<n; i++) {
+          ctx= (CDictionary*)CArrayObjectAtIndex(test->errCtxs, i);
+          CStringAppendFormat(s, "\n%-*s assertion: ", space, "");
+          CStringAppendString(s, (const CString*)CDictionaryObjectForKey(ctx, (id)KAssert));
+          CStringAppendFormat(s, "\n");
+          CStringAppendFormat(s, "%-*s at       : ", space, "");
+          CStringAppendContextWhere(s, ctx);
+          CStringAppendFormat(s, "\n");
+          CStringAppendFormat(s, "%-*s reason   : ", space, "");
+          CStringAppendString(s, (const CString*)CDictionaryObjectForKey(ctx, (id)KMessage));
+///////// CBuffer *ts= CCreateUTF8BufferWithObjectDescription(CDictionaryObjectForKey(ctx, (id)KTags));
+///////// CStringAppendFormat(s, "\ntags: %s", CBufferCString(ts));
+///////// RELEASE(ts);
+          CStringAppendFormat(s, "\n");}
+        b= CCreateBufferWithString(s, NSUTF8StringEncoding);
+        fprintf(stdout, "%s\n", CBufferCString(b));
+        RELEASE(b);
+        RELEASE(s);}
+      test_print(level+1,test->subTests);}}
 }
 
-int test_module(const char *module, const char *prefix, const char *suffix)
+static int bindFct(dl_handle_t handle, const char *name, void * imp)
 {
-  int err= 0;
+  void *fct;
+  if (!(fct= dlsym(handle, name)))
+    fprintf(stderr, "Unable to find symbol %s", name);
+  else *(void **)fct= imp;
+  return fct != 0;
+}
+
+static int test_module(const char *module, const char *prefix, const char *suffix)
+{
+  int err= 0, e;
   test_t *tests;
   dl_handle_t testLib;
   char path[strlen(prefix) + strlen(module) + strlen(suffix)];
@@ -119,7 +111,7 @@ int test_module(const char *module, const char *prefix, const char *suffix)
   strcpy(path + strlen(prefix) + strlen(module), suffix);
 //printf("Loading tests for %s (%s)\n", module, path);
   
-  testLib = dlopen(path, RTLD_LAZY);
+  testLib= dlopen(path, RTLD_LAZY);
   tests= NULL;
   if (!testLib) {
     printf("Unable to load lib %s\n", path);
@@ -130,12 +122,16 @@ int test_module(const char *module, const char *prefix, const char *suffix)
       printf("Unable to find 'RootTests' in %s\n", path);
       err++;}}
   if (!err) {
-    if (!bindFct(testLib, "testAssert", imp_testAssert)) {
-      printf("Unable to find 'RootTests' in %s\n", path);
+    if (!bindFct(testLib, "TCtx", imp_TCtx)) {
+      printf("Unable to find 'TCtx' in %s\n", path);
       err++;}}
   if (!err) {
-    int e= test_(tests);
+    if (!bindFct(testLib, "TAdvise", imp_TAdvise)) {
+      printf("Unable to find 'TAdvise' in %s\n", path);
+      err++;}}
+  if (!err) {
     printf("********** Test of %-42s **********\n", module);
+    e= test_(tests);
     test_print(0,tests);
     if (!e) printf("********** ALL THE TESTS ARE SUCCESSFUL !!!                   **********\n\n");
     else    printf("********** FAIL *** FAIL *** FAIL *** FAIL *** FAIL *** FAIL  **********\n\n");
@@ -143,10 +139,36 @@ int test_module(const char *module, const char *prefix, const char *suffix)
   return err;
 }
 
-int test(int argc, const char * argv[])
+#ifndef WO451
+const char *__prefix= "../tests/lib";
+const char *__suffix= "Tests.dylib";
+#else
+const char *__prefix= "";
+const char *__suffix= "Tests.dll";
+#endif
+
+static void CBehaviorTest(CDictionary* ctx, CString* msg)
+  {
+  CDictionarySetObjectForKey(ctx, (id)msg, (id)KMessage);
+  }
+
+int main(int argc, const char * argv[])
 {
   int err= 0, argi;
+  CMessageTest= CSCreate("CMessageTest");
+  TTag1= CSCreate("tag 1");
+  TTag2= CSCreate("tag 2");
+  TTags= CCreateArrayWithObject((id)TTag1);
+  CArrayAddObject(TTags, (id)TTag2);
+  CMessageAddBehaviorForType(CBehaviorTest, CMessageTest);
   for (argi= 1; argi < argc; ++argi)
     err += test_module(argv[argi], __prefix, __suffix);
+//ASSERTF(0 == 1, "%d != %d",0,1);
+//BOOL on= CMessageDebugOn;
+//CMessageDebugOn= YES;
+//CMESSAGEDEBUG(imp_TCtx(NULL, NULL, CTX_FCT), "Debug");
+//CMessageDebugOn= on;
+  RELEASE(CMessageTest);
+  RELEASE(TTag1); RELEASE(TTag2); RELEASE(TTags);
   return err;
 }

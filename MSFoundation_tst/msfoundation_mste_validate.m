@@ -336,9 +336,9 @@ static inline int _decode(char *ssrc, id ret)
   NS_ENDHANDLER
   
   if (error) {
-    printf("B1: %s\n", [error UTF8String]); err++; }
+    printf("B1: %s", [error UTF8String]); err++; }
   else if (!ISEQUAL(ret, o)) {
-    printf("B3: Bad result for %s -> %s (expected : %s)\n",ssrc, [[o description] UTF8String], [[ret description] UTF8String]);
+    printf("B3: Bad result for %s -> %s (expected : %s)",ssrc, [[o description] UTF8String], [[ret description] UTF8String]);
     err++; }
   
   error= nil;
@@ -353,10 +353,10 @@ static inline int _decode(char *ssrc, id ret)
   NS_ENDHANDLER
   
   if (error) {
-    printf("E1: %s\n", [error UTF8String]); err++;
+    printf("E1: %s", [error UTF8String]); err++;
   }
   else if (ret && !ISEQUAL(ret, o)) {
-    printf("E3: Bad result for %s -> %s -> %s (expected : %s)\n",
+    printf("E3: Bad result for %s -> %s -> %s (expected : %s)",
            [[ret description] UTF8String],
            [[[[NSString alloc] initWithData:enc encoding:NSUTF8StringEncoding] autorelease] UTF8String],
            [[o description] UTF8String],
@@ -370,7 +370,7 @@ static inline int _decode(char *ssrc, id ret)
   return err;
 }
 
-int mste_some(void)
+static void mste_some(test_t *test)
 {
   int err= 0; clock_t t0= clock(), t1; double seconds;
 
@@ -493,7 +493,7 @@ int mste_some(void)
     
   t1= clock(); seconds= (double)(t1-t0)/CLOCKS_PER_SEC;
   fprintf(stdout, "=> %-14s validate: %s (%.3f s)\n","MSTE (MSF)",(err?"FAIL":"PASS"),seconds);
-  return err;
+  TASSERT_EQUALS(test, err, 0, "mste errors %d",err);
 }
 
 test_t msfoundation_mste[]= {

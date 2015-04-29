@@ -140,6 +140,18 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 
 /* Intentionnellement non implémentée car pour l'utilisateur, il n'est pas clair
    si le NSTimeInterval doit être exprimé en GMT ou en Local.
+   Raise ?
++ (instancetype)dateWithTimeIntervalSinceReferenceDate:(NSTimeInterval)ti
+{
+  return AUTORELEASE([[self alloc] initWithTimeIntervalSinceReferenceDate:ti]);
+}
+
+// ti is in GMT0
+- (id)initWithTimeIntervalSinceReferenceDate:(NSTimeInterval)ti
+{
+  self->_interval= GMTToLocal(ti);
+  return self;
+}
 - (id)initWithTimeIntervalSince1970:(NSTimeInterval)secs
 {
   [self initWithSeconds:(MSTimeInterval)secs sinceDate:[MSDate dateWithYear:1970 month:1 day:1]];

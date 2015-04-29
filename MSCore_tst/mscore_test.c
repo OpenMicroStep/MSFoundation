@@ -4,16 +4,14 @@
 
 EXTERN_TESTS_BASE
 
-static int testOn()
+static void testOn(test_t *test)
 {
 #ifdef WO451
   MSFinishLoadingCore();
 #endif
-  return 0;
 }
-static int testOff()
+static void testOff(test_t *test)
 {
-  return 0;
 }
 
 test_t RootTests[]= {

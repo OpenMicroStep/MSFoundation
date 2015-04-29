@@ -1,82 +1,57 @@
 // msfoundation_dictionary_validate.m, ecb, 130911
 
 #include "msfoundation_validate.h"
-/*
-static inline void cdictionary_print(MSDictionary *d)
+
+static void dictionary_create(test_t *test)
   {
-  fprintf(stdout, "%lu\n",WLU([d count]));
-  }
-*/
-static int dictionary_create(void)
-  {
-  int err= 0;
   MSDictionary *c,*m; MSDictionary *d; id k,o,x; int i;
   c= [MSDictionary new];
   d= [[MSDictionary alloc] init];
-  if (RETAINCOUNT(c)!=1) {
-    fprintf(stdout, "A1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A2 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (![c isEqual:d]) {
-    fprintf(stdout, "A3 c & d are not equals\n"); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 1, "A1 Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "A2 Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT(test, [c isEqual:d], "A3 c & d are not equals");
   RELEASE(d);
   k= [[MSBuffer alloc] initWithBytes:"key1" length:4];
   o= [[MSBuffer alloc] initWithBytes:"obj1" length:4];
   [c setObject:o forKey:k];
-  if (RETAINCOUNT(k)!=2) { // k copied but immutable => retained
-    fprintf(stdout, "A10 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if (RETAINCOUNT(o)!=2) {
-    fprintf(stdout, "A11 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
+  // k copied but immutable => retained
+  TASSERT_EQUALS(test, RETAINCOUNT(k), 2, "A10 Bad retain count: %lu",WLU(RETAINCOUNT(k)));
+  TASSERT_EQUALS(test, RETAINCOUNT(o), 2, "A11 Bad retain count: %lu",WLU(RETAINCOUNT(o)));
 //d= [MSDictionary new]; [d setObject:k forKey:k];
 //d= [[MSDictionary alloc] initWithObject:k forKey:k];
   d= [[MSDictionary alloc] initWithObjects:&k forKeys:&k count:1];
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A12 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (RETAINCOUNT(k)!=4) {
-    fprintf(stdout, "A13 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if ([c isEqual:d]) {
-    fprintf(stdout, "A14 c & d are equals\n"); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "A12 Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT_EQUALS(test, RETAINCOUNT(k), 4, "A13 Bad retain count: %lu",WLU(RETAINCOUNT(k)));
+  TASSERT(test, ![c isEqual:d], "A14 c & d are equals");
   m= [d mutableCopy]; RELEASE(d); [m setObject:o forKey:k]; d= [m copy]; RELEASE(m);
-  if (RETAINCOUNT(k)!=3) {
-    fprintf(stdout, "A15 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if (RETAINCOUNT(o)!=3) {
-    fprintf(stdout, "A16 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
-  if (![c isEqual:d]) {
-    fprintf(stdout, "A17 c & d are not equals\n"); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(k), 3, "A15 Bad retain count: %lu",WLU(RETAINCOUNT(k)));
+  TASSERT_EQUALS(test, RETAINCOUNT(o), 3, "A16 Bad retain count: %lu",WLU(RETAINCOUNT(o)));
+  TASSERT(test, [c isEqual:d], "A17 c & d are not equals");
   m= [d mutableCopy];
   RELEASE(d);
   x= [[MSBuffer alloc] mutableInitWithBytes:"a key" length:5];
   [m setObject:o forKey:x];
-  if ([m count]!=2) {
-    fprintf(stdout, "A20 Bad count: %lu\n",WLU([m count])); err++;}
-  if ([c isEqual:m]) {
-    fprintf(stdout, "A21 c & d are equals\n"); err++;}
+  TASSERT_EQUALS(test, [m count], 2, "A20 Bad count: %lu",WLU([m count]));
+  TASSERT(test, ![c isEqual:m], "A21 c & d are equals");
   [m removeObjectForKey:x];
-  if (![c isEqual:m]) {
-    fprintf(stdout, "A22 c & d are not equals\n"); err++;}
+  TASSERT(test, [c isEqual:m], "A22 c & d are not equals");
   for (i= 0; i<100; i++) {
     CBufferAppendByte((CBuffer*)x, (MSByte)i);
     [m setObject:o forKey:x];}
-  if (RETAINCOUNT(o)!=103) {
-    fprintf(stdout, "A23 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(o), 103, "A23 Bad retain count: %lu",WLU(RETAINCOUNT(o)));
 //printf("1\n");
   RELEASE(x);
   RELEASE(c);
-  if (RETAINCOUNT(m)!=1) {
-    fprintf(stdout, "A41 Bad retain count: %lu\n",WLU(RETAINCOUNT(m))); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(m), 1, "A41 Bad retain count: %lu",WLU(RETAINCOUNT(m)));
   RELEASE(m);
-  if (RETAINCOUNT(k)!=1) {
-    fprintf(stdout, "A42 Bad retain count: %lu\n",WLU(RETAINCOUNT(k))); err++;}
-  if (RETAINCOUNT(o)!=1) {
-    fprintf(stdout, "A43 Bad retain count: %lu\n",WLU(RETAINCOUNT(o))); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(k), 1, "A42 Bad retain count: %lu",WLU(RETAINCOUNT(k)));
+  TASSERT_EQUALS(test, RETAINCOUNT(o), 1, "A43 Bad retain count: %lu",WLU(RETAINCOUNT(o)));
   RELEASE(k);
   RELEASE(o);
-  return err;
   }
 
-static int dictionary_enum(void)
+static void dictionary_enum(test_t *test)
   {
-  int err= 0;
   MSDictionary *c,*d; id ks[1000],os[1000],k,o; int i,n,fd; MSDictionaryEnumerator *de;
   k= [[MSBuffer alloc] mutableInitWithBytes:"a key" length:5];
   o= [[MSBuffer alloc] mutableInitWithBytes:"an object" length:9];
@@ -86,8 +61,7 @@ static int dictionary_enum(void)
   RELEASE(k);
   RELEASE(o);
   d= [[MSDictionary alloc] initWithObjects:os forKeys:ks count:1000];
-  if ([d count]!=1000) {
-    fprintf(stdout, "B1 Bad count: %lu\n",WLU([d count])); err++;}
+  TASSERT_EQUALS(test, [d count], 1000, "B1 Bad count: %lu",WLU([d count]));
 
   c= [d copy];
   RELEASE(d);
@@ -99,49 +73,42 @@ static int dictionary_enum(void)
     k= [de currentKey];
     for (i= 0; i<1000; i++) {
       if (ISEQUAL(k, ks[i])) fd++;}
-    if (fd!=n+1) {
-      fprintf(stdout, "B2 Bad fd: %lu %lu\n",WLI(fd),WLI(n)); err++;}}
-  if (n!=1000) {
-    fprintf(stdout, "B3 Bad n: %lu\n",WLI(n)); err++;}
+    TASSERT_EQUALS(test, fd, n+1, "B2 Bad fd: %lu %lu",WLI(fd),WLI(n));}
+  TASSERT_EQUALS(test, n, 1000, "B3 Bad n: %lu",WLI(n));
 
   de= [d dictionaryEnumerator];
   for (n= 0, fd= 0; (k= [de nextKey]); n++) {
     o= [de currentObject];
     for (i= 0; i<1000; i++) {
       if (ISEQUAL(o, os[i])) fd++;}
-    if (fd!=n+1) {
-      fprintf(stdout, "B4 Bad fd: %lu %lu\n",WLI(fd),WLI(n)); err++;}}
-  if (n!=1000) {
-    fprintf(stdout, "B5 Bad n: %lu\n",WLI(n)); err++;}
+    TASSERT_EQUALS(test, fd, n+1, "B4 Bad fd: %lu %lu",WLI(fd),WLI(n));}
+  TASSERT_EQUALS(test, n, 1000, "B5 Bad n: %lu",WLI(n));
 
   for (i= 0; i<1000; i++) {
     RELEASE(ks[i]); RELEASE(os[i]);}
   RELEASE(d);
-  return err;
   }
 
-static int dictionary_init(void)
+static void dictionary_init(test_t *test)
   {
-  int err= 0;
   NSDictionary *o;
   MSDictionary *d, *d2;
   o= [NSDictionary dictionaryWithObjectsAndKeys:@"obj1", @"key1", @"obj2", @"key2", nil];
   d= [MSDictionary dictionaryWithDictionary:o];
-  err+= ASSERT_ISEQUAL([d objectForKey:@"key1"], @"obj1", "dictionary are equals");
-  err+= ASSERT_ISEQUAL([d objectForKey:@"key2"], @"obj2", "dictionary are equals");
-  err+= ASSERT_ISEQUAL([o objectForKey:@"key1"], @"obj1", "dictionary are equals");
-  err+= ASSERT_ISEQUAL([o objectForKey:@"key2"], @"obj2", "dictionary are equals");
-  err+= ASSERT_EQUALS([d count], [o count], "dictionary are equals");
-  err+= ASSERT([d isEqual:o], "dictionary are equals");
-  err+= ASSERT([o isEqual:d], "dictionary are equals");
+  TASSERT_ISEQUAL(test, [d objectForKey:@"key1"], @"obj1", "dictionary are equals");
+  TASSERT_ISEQUAL(test, [d objectForKey:@"key2"], @"obj2", "dictionary are equals");
+  TASSERT_ISEQUAL(test, [o objectForKey:@"key1"], @"obj1", "dictionary are equals");
+  TASSERT_ISEQUAL(test, [o objectForKey:@"key2"], @"obj2", "dictionary are equals");
+  TASSERT_EQUALS(test, [d count], [o count], "dictionary are equals");
+  TASSERT(test, [d isEqual:o], "dictionary are equals");
+  TASSERT(test, [o isEqual:d], "dictionary are equals");
   
   d2= [MSDictionary dictionaryWithDictionary:d];
-  err+= ASSERT_EQUALS([d2 count], [o count], "dictionary are equals");
-  err+= ASSERT([d2 isEqual:o], "dictionary are equals");
-  err+= ASSERT([o isEqual:d2], "dictionary are equals");
-  err+= ASSERT([d2 isEqual:d], "dictionary are equals");
-  err+= ASSERT([d isEqual:d2], "dictionary are equals");
-  return err;
+  TASSERT_EQUALS(test, [d2 count], [o count], "dictionary are equals");
+  TASSERT(test, [d2 isEqual:o], "dictionary are equals");
+  TASSERT(test, [o isEqual:d2], "dictionary are equals");
+  TASSERT(test, [d2 isEqual:d], "dictionary are equals");
+  TASSERT(test, [d isEqual:d2], "dictionary are equals");
   }
 
 test_t msfoundation_dictionary[]= {

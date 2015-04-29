@@ -67,6 +67,8 @@
 #import <MSFoundation/m_apm.h>
 #import <MSFoundation/MSCDictionary.h>
 
+#import <MSFoundation/MSCMessage.h>
+
 #import <MSFoundation/MSFoundationDefines.h>
 #import <MSFoundation/MSFoundationPlatform.h>
 #import <MSFoundation/MSFinishLoading.h>

@@ -185,6 +185,10 @@ static unichar _asciiStringCharacterAtIndex(id self, NSUInteger i) { return ((MS
     return (const char *)ret ;
 }
 
+- (const char *)UTF8String
+{
+  return (const char *)CBufferCString((CBuffer*)self);
+}
 
 - (const void *)bytes { return (const void *)_buf ; }
 

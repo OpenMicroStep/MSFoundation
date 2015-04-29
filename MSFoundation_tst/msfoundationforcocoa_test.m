@@ -5,19 +5,17 @@
 EXTERN_TESTS_BASE
 
 static id _mainPool= nil;
-static int testOff()
+static void testOff()
 {
   RELEAZEN(_mainPool);
-  return 0;
 }
-static int testOn()
+static void testOn()
 {
 #ifdef WO451
   MSFinishLoadingCore();
 #endif
   if (_mainPool) testOff();
   _mainPool= [[NSAutoreleasePool alloc] init];
-  return 0;
 }
 
 test_t MSFoundationForCocoaComplete[]= {

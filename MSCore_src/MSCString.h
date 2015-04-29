@@ -51,7 +51,6 @@ struct CStringStruct {
   NSUInteger size;
   NSUInteger length;};
 
-
 MSCoreExtern void           CStringFreeInside(id self); // for MSArray dealloc
 MSCoreExtern BOOL           CStringIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CStringHash(id self, unsigned depth);
@@ -61,7 +60,7 @@ MSCoreExtern const CString* CStringRetainedDescription(id self);
 //  retained in self, they are not retained in the copy. If nilItems are
 //  allowed in self, they are also allowed in the copy.
 
-MSCoreExtern id         CStringInitCopyWithMutability(CString *self, const CString *copied, BOOL isMutable);
+MSCoreExtern id CStringInitCopyWithMutability(CString *self, const CString *copied, BOOL isMutable);
 
 MSCoreExtern BOOL CStringEquals           (const CString *s1, const CString *s2);
 MSCoreExtern BOOL CStringInsensitiveEquals(const CString *s1, const CString *s2);
@@ -105,8 +104,8 @@ MSCoreExtern BOOL CStringAppendURLBytes(CString *self, const void *bytes, NSUInt
 MSCoreExtern BOOL CStringAppendTextNumber(CString *self, MSLong n, MSLanguage language);
 MSCoreExtern MSUInt CStringSizeOfCharacterForEncoding(NSStringEncoding srcEncoding);
 
-// MCSCreate car retourne un CString. MSCreateString est défini dans MSString.h
-#define MCSCreate(S) ({ \
+// CSCreate car retourne un CString. MSCreateString est défini dans MSString.h
+#define CSCreate(S) ({ \
   char *__x__= (S); __x__?CCreateStringWithBytes(NSUTF8StringEncoding, __x__, strlen(__x__)):CCreateString(0);})
 
 #endif

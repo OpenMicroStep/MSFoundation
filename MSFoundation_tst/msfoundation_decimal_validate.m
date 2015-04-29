@@ -2,55 +2,37 @@
 
 #include "msfoundation_validate.h"
 
-static inline void decimal_print(MSDecimal *d)
+static void decimal_create(test_t *test)
   {
-  char str[256];
-  m_apm_to_string(str, 6, (CDecimal*)d);
-  fprintf(stdout, "%s\n",str);
-  }
-
-static int decimal_create(void)
-  {
-  int err= 0;
   MSDecimal *c,*d,*e,*f;
   c= MSCreateObjectWithClassIndex(CDecimalClassIndex);
   m_apm_init((CDecimal*)c);
   d= [[MSDecimal alloc] initWithLongLong:0LL];
-  if (RETAINCOUNT(c)!=1) {
-    fprintf(stdout, "A1 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A2 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (![c isEqualToDecimal:d]) {
-    fprintf(stdout, "A3 c & d are not equals\n"); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 1, "A1 Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "A2 Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT(test, [c isEqualToDecimal:d], "A3 c & d are not equals");
   RELEASE(c);
   RELEASE(d);
   c= [[MSDecimal alloc] initWithUTF8String:"3.14"];
   d= [[MSDecimal alloc] initWithDouble:3.14];
 //decimal_print(c);
 //decimal_print(d);
-  if (RETAINCOUNT(c)!=1) {
-    fprintf(stdout, "A5 Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
-  if (RETAINCOUNT(d)!=1) {
-    fprintf(stdout, "A6 Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (![c isEqualToDecimal:d]) {
-    fprintf(stdout, "A7 c & d are not equals\n"); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 1, "A5 Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "A6 Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT(test, [c isEqualToDecimal:d], "A7 c & d are not equals");
   e= [[MSDecimal alloc] initWithLongLong:3LL];
-  if ([d isEqualToDecimal:e]) {
-    fprintf(stdout, "A8 d & e are equals\n"); err++;}
+  TASSERT(test, ![d isEqualToDecimal:e], "A8 d & e are equals");
   f= RETAIN([d floorDecimal]);
-  if (![e isEqual:f]) {
-    fprintf(stdout, "A9 e & f are not equals\n"); err++;}
+  TASSERT(test, [e isEqual:f], "A9 e & f are not equals");
   RELEASE(c);
   RELEASE(d);
   RELEASE(e);
   RELEASE(f);
-  return err;
   }
 
-static int decimal_op(void)
+static void decimal_op(test_t *test)
   {
-  int err= 0, i;
-  MSDecimal *c[10],*d;
+  int i; MSDecimal *c[10],*d;
   c[0]= [[MSDecimal alloc] initWithUTF8String:"3."];
   c[1]= [[MSDecimal alloc] initWithUTF8String:"3.1"];
   c[2]= [[MSDecimal alloc] initWithUTF8String:"3.14"];
@@ -63,12 +45,9 @@ static int decimal_op(void)
   c[9]= [[MSDecimal alloc] initWithUTF8String:"3.141592653"];
   for (i=1; i<10; i++) {
     d= [MSD_PI decimalByDividingBy:MSD_One decimalPlaces:i-1]; // TODO: look why -1
-    if (![c[i] isEqual:d]) {
-      decimal_print(c[i]); decimal_print(d);
-      fprintf(stdout, "B1-%d c & d are not equals\n",i); err++;}
-    }
+    TASSERT(test, [c[i] isEqual:d], "B1-%d c & d are not equals %s %s",i,
+      [[c[i] description] UTF8String],[[d description] UTF8String]);}
   for (i=0; i<10; i++) RELEASE(c[i]);
-  return err;
   }
 
 test_t msfoundation_decimal[]= {

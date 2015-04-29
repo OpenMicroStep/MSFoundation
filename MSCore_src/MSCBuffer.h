@@ -84,6 +84,7 @@ MSCoreExtern CBuffer *CCreateBufferWithBytesNoCopyNoFree(const void *bytes, NSUI
   // appending is forbidden and an exception is raised.
   // Also, CBufferCString returns NULL.
 MSCoreExtern CBuffer *CCreateBufferWithString(const CString *s, NSStringEncoding destinationEncoding);
+MSCoreExtern CBuffer* CCreateUTF8BufferWithObjectDescription(id o);
 
 MSCoreExtern void CBufferGrow(CBuffer *self, NSUInteger n, BOOL verifMut);
 MSCoreExtern void CBufferAdjustSize(CBuffer *self);

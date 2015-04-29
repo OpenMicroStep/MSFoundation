@@ -51,6 +51,7 @@
 #endif
 
 #define MSUnused(X) (void)X;
+#define mutable
 
 #ifndef NSINTEGER_DEFINED
   #define NSINTEGER_DEFINED

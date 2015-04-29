@@ -71,23 +71,23 @@ id _MSTEBinaryObject(NSUInteger type, void *pValue);
 void _MSTEInitialize(void)
 {
   id classKey; CDictionary *d; CString *s;
-  classKey= (id)MCSCreate("MSTE-Class");
+  classKey= (id)CSCreate("MSTE-Class");
   d= CCreateDictionary(1);
-  s= MCSCreate("NULL");
+  s= CSCreate("NULL");
   CDictionarySetObjectForKey(d, (id)s, classKey); RELEAZEN(s);
   MSTENull= (id)d;
   d= CCreateDictionary(1);
-  s= MCSCreate("TRUE");
+  s= CSCreate("TRUE");
   CDictionarySetObjectForKey(d, (id)s, classKey); RELEAZEN(s);
   MSTETrue= (id)d;
   d= CCreateDictionary(1);
-  s= MCSCreate("FALSE");
+  s= CSCreate("FALSE");
   CDictionarySetObjectForKey(d, (id)s, classKey); RELEAZEN(s);
   MSTEFalse= (id)d;
   RELEAZEN(classKey);
   MSTEDistantPast=   (id)CDateDistantPast;
   MSTEDistantFuture= (id)CDateDistantFuture;
-  MSTEEmptyString= (id)MCSCreate(NULL);
+  MSTEEmptyString= (id)CSCreate(NULL);
   _MSTEInitializeCommon();
 }
 
@@ -95,15 +95,15 @@ id _MSTEBinaryObject(NSUInteger type, void *pValue)
 {
   static size_t sz[10]= {1,1,2,2,4,4,8,8,4,8};
   id k; CDictionary *d; CString *s; CBuffer *b; CDecimal *i;
-  k= (id)MCSCreate("MSTE-Class");
+  k= (id)CSCreate("MSTE-Class");
   d= CCreateDictionary(3);
-  s= MCSCreate("Binary");
+  s= CSCreate("Binary");
   CDictionarySetObjectForKey(d, (id)s, k); RELEAZEN(s); RELEAZEN(k);
-  k= (id)MCSCreate("MSTE-Buffer");
+  k= (id)CSCreate("MSTE-Buffer");
   b= CCreateBuffer(sz[type-MSTE_CHAR_VALUE]);
   CBufferAppendBytes(b, pValue, sz[type-MSTE_CHAR_VALUE]);
   CDictionarySetObjectForKey(d, (id)b, k); RELEAZEN(b); RELEAZEN(k);
-  k= (id)MCSCreate("MSTE-Type");
+  k= (id)CSCreate("MSTE-Type");
   i= CCreateDecimalWithLongLong((MSLong)type);
   CDictionarySetObjectForKey(d, (id)i, k); RELEAZEN(i); RELEAZEN(s);
   return (id)d;
@@ -198,13 +198,13 @@ static inline CDictionary *_err(int num, char *fmt, ...)
 {
   CDictionary *d; id k,v; va_list args;
   d= CCreateDictionary(0);
-  k= (id)MCSCreate("error");
+  k= (id)CSCreate("error");
   v= (id)CCreateDecimalWithLongLong(num);
   CDictionarySetObjectForKey(d, v, k);
   RELEASE(k); RELEASE(v);
   if (fmt) {
-    k= (id)MCSCreate("description");
-    v= (id)MCSCreate(NULL);
+    k= (id)CSCreate("description");
+    v= (id)CSCreate(NULL);
     va_start(args, fmt);
     CStringAppendFormatv((CString*)v, fmt, args);
     va_end(args);

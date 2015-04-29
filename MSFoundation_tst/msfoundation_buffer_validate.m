@@ -2,73 +2,42 @@
 
 #include "msfoundation_validate.h"
 
-static int buffer_create(void)
+static void buffer_create(test_t *test)
   {
-  int err= 0;
   MSBuffer *b;
   b= MSCreateBuffer(0);
-  if (RETAINCOUNT(b)!=1) {
-    fprintf(stdout, "A1-Bad retain count: %lu\n",WLU(RETAINCOUNT(b)));
-    err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(b), 1, "A1-Bad retain count: %lu",WLU(RETAINCOUNT(b)));
   CBufferAppendBytes  ((CBuffer*)b,"123456789 123456789 123456789 123456789 123456789 123456789 ",60);
   CBufferAppendCString((CBuffer*)b,"-********** Test of the Microstep MSCore Library **********-");
-  if ([b length]!=120) {
-    fprintf(stdout, "A2-Bad length: %lu\n",WLU([b length]));
-    err++;}
-  if (CBufferByteAtIndex((CBuffer*)b,72)!='T') {
-    fprintf(stdout, "A3-Bad byte: %c\n",CBufferByteAtIndex((CBuffer*)b,72));
-    err++;}
-  if (CBufferIndexOfByte((CBuffer*)b,'M')!=84) {
-    fprintf(stdout, "A4-Bad index: %lu\n",WLU(CBufferIndexOfByte((CBuffer*)b,'M')));
-    err++;}
-  if (CBufferIndexOfBytes((CBuffer*)b,"MS-",2)!=94) {
-    fprintf(stdout, "A5-Bad index: %lu\n",WLU(CBufferIndexOfBytes((CBuffer*)b,"MS-",2)));
-    err++;}
-  if (CBufferIndexOfCStringInRange((CBuffer*)b,"Lib",NSMakeRange(60, 1000))!=101) {
-    fprintf(stdout, "A6-Bad index: %lu\n",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"Lib",NSMakeRange(60, 1000))));
-    err++;}
-  if (CBufferIndexOfCString((CBuffer*)b,"**********")!=61) {
-    fprintf(stdout, "A7-Bad index: %lu\n",WLU(CBufferIndexOfCString((CBuffer*)b,"**********")));
-    err++;}
-  if (CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(61, 1000))!=61) {
-    fprintf(stdout, "A8-Bad index: %lu\n",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(61, 1000))));
-    err++;}
-  if (CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(62, 1000))!=109) {
-    fprintf(stdout, "A9-Bad index: %lu\n",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(62, 1000))));
-    err++;}
-  if (!ISA(b)) {
-    fprintf(stdout, "A10-Bad isa\n");
-    err++;}
-  if (!NAMEOFCLASS(b)) {
-    fprintf(stdout, "A11-Bad nameof\n");
-    err++;}
+  TASSERT_EQUALS(test, [b length], 120, "A2-Bad length: %lu",WLU([b length]));
+  TASSERT_EQUALS(test, CBufferByteAtIndex((CBuffer*)b,72), 'T', "A3-Bad byte: %c",CBufferByteAtIndex((CBuffer*)b,72));
+  TASSERT_EQUALS(test, CBufferIndexOfByte((CBuffer*)b,'M'), 84, "A4-Bad index: %lu",WLU(CBufferIndexOfByte((CBuffer*)b,'M')));
+  TASSERT_EQUALS(test, CBufferIndexOfBytes((CBuffer*)b,"MS-",2), 94, "A5-Bad index: %lu",WLU(CBufferIndexOfBytes((CBuffer*)b,"MS-",2)));
+  TASSERT_EQUALS(test, CBufferIndexOfCStringInRange((CBuffer*)b,"Lib",NSMakeRange(60, 1000)), 101, "A6-Bad index: %lu",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"Lib",NSMakeRange(60, 1000))));
+  TASSERT_EQUALS(test, CBufferIndexOfCString((CBuffer*)b,"**********"), 61, "A7-Bad index: %lu",WLU(CBufferIndexOfCString((CBuffer*)b,"**********")));
+  TASSERT_EQUALS(test, CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(61, 1000)), 61, "A8-Bad index: %lu",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(61, 1000))));
+  TASSERT_EQUALS(test, CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(62, 1000)), 109, "A9-Bad index: %lu",WLU(CBufferIndexOfCStringInRange((CBuffer*)b,"**********",NSMakeRange(62, 1000))));
+  TASSERT(test, ISA(b), "A10-Bad isa");
+  TASSERT(test, NAMEOFCLASS(b), "A11-Bad nameof");
   RELEASE(b);
-  return err;
   }
 
-static inline int cbuffer_b64_(int no, char *str, NSUInteger lstr, char *enc)
+static void cbuffer_b64_(test_t *test, int no, char *str, NSUInteger lstr, char *enc)
   {
-  int err= 0;
   MSBuffer *a,*b,*c; NSUInteger lb,lc,lenc;
   lenc= strlen(enc);
   a= MSCreateBufferWithBytesNoCopyNoFree(str, lstr);
   b= [a encodedToBase64];
-  if ((lb= [b length])!=lenc || memcmp(((CBuffer*)b)->buf, enc, lenc)) {
-    fprintf(stdout, "B%d-%d-Bad encode: %s %s\n",no,2,enc,CBufferCString((CBuffer*)b));
-    err++;}
-  c= nil;
-  if (!(c= [b decodedFromBase64])) {
-    fprintf(stdout, "B%d-%d-Bad decode: %s %s\n",no,3,enc,CBufferCString((CBuffer*)c));
-    err++;}
-  if ((lc= [c length])!=lstr || (c && memcmp(((CBuffer*)c)->buf, str, lstr))) {
-    fprintf(stdout, "B%d-%d-Bad decode: %s %s\n",no,4,str,CBufferCString((CBuffer*)c));
-    err++;}
+  lb= [b length];
+  TASSERT(test, lb==lenc && memcmp(((CBuffer*)b)->buf, enc, lenc)==0, "B%d-%d-Bad encode: %s %s",no,2,enc,CBufferCString((CBuffer*)b));
+  c= [b decodedFromBase64];
+  TASSERT(test, c, "B%d-%d-Bad decode: %s %s",no,3,enc,CBufferCString((CBuffer*)c));
+  lc= [c length];
+  TASSERT(test, lc==lstr && !(c && memcmp(((CBuffer*)c)->buf, str, lstr)), "B%d-%d-Bad decode: %s %s",no,4,str,CBufferCString((CBuffer*)c));
   RELEASE(a);
-  return err;
   }
-static int buffer_b64(void)
+static void buffer_b64(test_t *test)
   {
-  int err= 0;
   int i; char str[257], *enc1,*enc2;
   enc1= "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJSktMTU5PUFFSU"
   "1RVVldYWVpbXF1eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fSAhIiMkJSYnKCkqKywt"
@@ -83,83 +52,69 @@ static int buffer_b64(void)
   "tLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX"
   "2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7"
   "/P3+/w==";
-  err+= cbuffer_b64_(0, ""    , 0, "");
-  err+= cbuffer_b64_(1, "A"   , 1, "QQ==");
-  err+= cbuffer_b64_(2, "AB"  , 2, "QUI=");
-  err+= cbuffer_b64_(3, "ABC" , 3, "QUJD");
-  err+= cbuffer_b64_(4, "ABCD", 4, "QUJDRA==");
+  cbuffer_b64_(test, 0, ""    , 0, "");
+  cbuffer_b64_(test, 1, "A"   , 1, "QQ==");
+  cbuffer_b64_(test, 2, "AB"  , 2, "QUI=");
+  cbuffer_b64_(test, 3, "ABC" , 3, "QUJD");
+  cbuffer_b64_(test, 4, "ABCD", 4, "QUJDRA==");
   for (i=0; i<256; i++) str[i]= ' '+i%('~'-' ');
   str[256]= 0x00;
-  err+= cbuffer_b64_(5, str, 256, enc1);
+  cbuffer_b64_(test, 5, str, 256, enc1);
   for (i=0; i<256; i++) str[i]= (char)i;
-  err+= cbuffer_b64_(6, str, 256, enc2);
-  return err;
+  cbuffer_b64_(test, 6, str, 256, enc2);
   }
 
-static inline int buffer_compress_(int no, char *str, NSUInteger lstr, NSUInteger cstr)
+static void buffer_compress_(test_t *test, int no, char *str, NSUInteger lstr, NSUInteger cstr)
   {
-  int err= 0;
   MSBuffer *a,*b,*c;
   a= MSCreateBufferWithBytesNoCopyNoFree(str, lstr);
-  if (!(b= [a compressed])) {
-    fprintf(stdout, "B%d-%d-Bad compress: %s\n",no,1,str);
-    err++;}
-  if ([b length]!=cstr) {
-    fprintf(stdout, "B%d-%d-Bad compress: %s %s\n",no,2,str,CBufferCString((CBuffer*)b));
-    err++;}
-//fprintf(stdout, "B%d-%d-Compress: %lu %lu\n",no,1,lstr,b->length);
-  if (!(c= [b decompressed])) {
-    fprintf(stdout, "B%d-%d-Bad decompress: %s\n",no,3,CBufferCString((CBuffer*)c));
-    err++;}
-  if ([c length]!=lstr || memcmp(((CBuffer*)c)->buf, str, lstr)) {
-    fprintf(stdout, "B%d-%d-Bad decompress: %s %s\n",no,4,str,CBufferCString((CBuffer*)c));
-    err++;}
+  b= [a compressed];
+  TASSERT(test, b, "%d Bad compress: %s",no,str);
+  TASSERT_EQUALS(test, [b length], cstr, "%d Bad compress: %s %s",no,str,CBufferCString((CBuffer*)b));
+  c= [b decompressed];
+  TASSERT(test, c, "%d Bad decompress: %s",no,CBufferCString((CBuffer*)c));
+  TASSERT(test, [c length]==lstr && memcmp(((CBuffer*)c)->buf, str, lstr)==0, "%d Bad decompress: %s %s",no,str,CBufferCString((CBuffer*)c));
   RELEASE(a);
-  return err;
   }
-static int buffer_compress(void)
+static void buffer_compress(test_t *test)
   {
-  int err= 0;
   int i; char str[257];
-  err+= buffer_compress_(0, ""    , 0, 0);
-  err+= buffer_compress_(1, "A"   , 1, 12);
-  err+= buffer_compress_(2, "AB"  , 2, 13);
-  err+= buffer_compress_(3, "ABC" , 3, 14);
-  err+= buffer_compress_(4, "ABCD", 4, 15);
+  buffer_compress_(test, 0, ""    , 0, 0);
+  buffer_compress_(test, 1, "A"   , 1, 12);
+  buffer_compress_(test, 2, "AB"  , 2, 13);
+  buffer_compress_(test, 3, "ABC" , 3, 14);
+  buffer_compress_(test, 4, "ABCD", 4, 15);
   for (i=0; i<256; i++) str[i]= ' '+i%('~'-' ');
   str[256]= 0x00;
-  err+= buffer_compress_(5, str, 256, 110);
+  buffer_compress_(test, 5, str, 256, 110);
   for (i=0; i<256; i++) str[i]= (char)i;
-  err+= buffer_compress_(6, str, 256, 267);
-  return err;
+  buffer_compress_(test, 6, str, 256, 267);
   }
 
-static int buffer_replace()
+static void buffer_replace(test_t *test)
   {
-  int err= 0;
   MSBuffer *b,*c;
   b= [[MSBuffer alloc] mutableInitWithBytes:"ACBDE" length:5];
   [b appendBytes:"F" length:1];
   c= [[MSBuffer alloc] initWithBytesNoCopyNoFree:"ACBDEF" length:6];
-  err+= ASSERT_ISEQUAL(b, c, "not equals");
-  err+= ASSERT(strcmp((char*)[b cString], (char*)[c cString])==0, "cStrings not equals");
+  TASSERT_ISEQUAL(test, b, c, "not equals");
+  TASSERT(test, strcmp((char*)[b cString], (char*)[c cString])==0, "cStrings not equals");
   RELEASE(c);
   [b replaceBytesInRange:NSMakeRange(3, 2) withBytes:"G" length:1];
   c= [[MSBuffer alloc] initWithBytesNoCopyNoFree:"ACBGF" length:5];
-  err+= ASSERT_ISEQUAL(b, c, "not equals %s %s",[b cString],[c cString]);
+  TASSERT_ISEQUAL(test, b, c, "not equals %s %s",[b cString],[c cString]);
   RELEASE(c);
   [b replaceBytesInRange:NSMakeRange(2, 2) withBytes:"HIJ" length:3];
   c= [[MSBuffer alloc] initWithBytesNoCopyNoFree:"ACHIJF" length:6];
-  err+= ASSERT_ISEQUAL(b, c, "not equals %s %s",[b cString],[c cString]);
+  TASSERT_ISEQUAL(test, b, c, "not equals %s %s",[b cString],[c cString]);
   RELEASE(c);
   RELEASE(b);
-  return err;
   }
 
 test_t msfoundation_buffer[]= {
-  {"create"  ,NULL,buffer_create   ,INTITIALIZE_TEST_T_END},
+  {"create"  ,NULL,buffer_create  ,INTITIALIZE_TEST_T_END},
   {"b64"     ,NULL,buffer_b64     ,INTITIALIZE_TEST_T_END},
   {"compress",NULL,buffer_compress,INTITIALIZE_TEST_T_END},
-  {"replace" ,NULL,buffer_replace,INTITIALIZE_TEST_T_END},
+  {"replace" ,NULL,buffer_replace ,INTITIALIZE_TEST_T_END},
   {NULL}
 };

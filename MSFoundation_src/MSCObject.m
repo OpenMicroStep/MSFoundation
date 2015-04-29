@@ -122,6 +122,20 @@ const CString* _MObjectRetainedDescription(id obj)
   return CCreateStringWithSES(SESFromString(d));
 }
 
+MSCoreExtern BOOL _MIsArray(id obj)
+{
+  return [obj isKindOfClass:[NSArray class]];
+}
+
+int _MSEnv()
+{
+#ifdef MSFOUNDATION_FORCOCOA
+  return 1;
+#else
+  return 2;
+#endif
+}
+
 static Class        __Class4ClassIndex[CClassIndexMax+1]= {0};
 static CDictionary *__ElementSize4Class= NULL;
 

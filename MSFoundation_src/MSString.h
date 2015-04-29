@@ -160,4 +160,4 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 
 @end
 
-#define MSCreateString(S) (MSString*)MCSCreate(S)
+#define MSCreateString(S) (MSString*)CSCreate(S)

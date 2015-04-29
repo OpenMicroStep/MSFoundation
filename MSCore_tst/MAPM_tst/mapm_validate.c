@@ -2938,7 +2938,7 @@ static inline int mapm_test_special_set(void)
  *
  */
 
-int mapm_validate()
+static void mapm_validate(test_t *test)
 {
   int    total_pass;
   
@@ -2991,7 +2991,7 @@ int mapm_validate()
   total_pass += mapm_test_special_fpf();
   total_pass += mapm_test_special_set();
   
-  return total_pass;
+  TASSERT(test, !total_pass, "mapm nb err %d", total_pass);
 }
 
 /****************************************************************************/

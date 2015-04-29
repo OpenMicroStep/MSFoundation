@@ -2,144 +2,85 @@
 
 #include "msfoundation_validate.h"
 
-static inline void date_print(MSDate *d)
+static void date_create(test_t *test)
   {
-  fprintf(stdout, "%u-%02u-%02u %02u:%02u:%02d %lld\n",[d yearOfCommonEra], [d monthOfYear], [d dayOfMonth], [d hourOfDay], [d minuteOfHour], [d secondOfMinute],[d secondsSinceLocalReferenceDate]);
-  }
-
-static int date_create(void)
-  {
-  int err= 0;
   MSDate *c,*d,*e,*f,*g;
   c= RETAIN([MSDate now]);
   d= RETAIN([c dateWithoutTime]);
   e= RETAIN([MSDate today]);
-  if (RETAINCOUNT(c)!=2) {
-    fprintf(stdout, "A1-Bad retain count: %lu\n",WLU(RETAINCOUNT(c))); err++;}
-  if (RETAINCOUNT(d)!=2) {
-    fprintf(stdout, "A2-Bad retain count: %lu\n",WLU(RETAINCOUNT(d))); err++;}
-  if (RETAINCOUNT(e)!=2) {
-    fprintf(stdout, "A3-Bad retain count: %lu\n",WLU(RETAINCOUNT(e))); err++;}
-  if ([c isEqual:d]) {
-    fprintf(stdout, "A4-c & d are equals\n");     err++;}
-  if (![d isEqualToDate:e]) {
-    fprintf(stdout, "A5-d & e are not equals\n"); err++;}
+  TASSERT_EQUALS(test, RETAINCOUNT(c), 2, "A1-Bad retain count: %lu",WLU(RETAINCOUNT(c)));
+  TASSERT_EQUALS(test, RETAINCOUNT(d), 2, "A2-Bad retain count: %lu",WLU(RETAINCOUNT(d)));
+  TASSERT_EQUALS(test, RETAINCOUNT(e), 2, "A3-Bad retain count: %lu",WLU(RETAINCOUNT(e)));
+  TASSERT_ISNOTEQUAL(test, c, d, "A4-c & d are equals");
+  TASSERT(test, [d isEqualToDate:e], "A5-d & e are not equals");
   RELEASE(c);
   RELEASE(d);
   RELEASE(e);
-  if ([MSDate verifyYear:0 month:1 day:1]) {
-    fprintf(stdout, "A10-1/1/0 is valid !\n");     err++;}
-  if ([MSDate verifyYear:10 month:13 day:13]) {
-    fprintf(stdout, "A11-13/13/10 is valid !\n");  err++;}
-  if ([MSDate verifyYear:2001 month:2 day:29]) {
-    fprintf(stdout, "A12-29/2/2001 is valid !\n"); err++;}
+  TASSERT(test, ![MSDate verifyYear:0 month:1 day:1], "A10-1/1/0 is valid !");
+  TASSERT(test, ![MSDate verifyYear:10 month:13 day:13], "A11-13/13/10 is valid !");
+  TASSERT(test, ![MSDate verifyYear:2001 month:2 day:29], "A12-29/2/2001 is valid !");
   c= RETAIN(YMD(1,1, 1));
   d= RETAIN(YMD(1,2,28));
   f= RETAIN(YMDHMS(2000, 12, 31, 23,59,50));
   e= RETAIN([f dateWithoutTime]);
   g= MSCreateObjectWithClassIndex(CDateClassIndex);
 //fprintf(stdout, "1/1/1-0:0 %lld %lld %lld\n",d->interval,d->interval/86400,(d->interval/730485)*730485);
-  if ([c secondsSinceLocalReferenceDate]!=-63113904000LL) {
-    fprintf(stdout, "A21-%lld\n",[c secondsSinceLocalReferenceDate]); err++;}
-  if ([d secondsSinceLocalReferenceDate]!=-63113904000LL+(31LL+28LL-1LL)*86400LL) {
-    fprintf(stdout, "A22-%lld\n",[d secondsSinceLocalReferenceDate]); err++;}
-  if ([e secondsSinceLocalReferenceDate]!=-86400LL) {
-    fprintf(stdout, "A23-%lld\n",[e secondsSinceLocalReferenceDate]); err++;}
-  if ([f secondsSinceLocalReferenceDate]!=-10LL) {
-    fprintf(stdout, "A24-%lld\n",[f secondsSinceLocalReferenceDate]); err++;}
-  if ([g secondsSinceLocalReferenceDate]!=0LL) {
-    fprintf(stdout, "A25-%lld\n",[g secondsSinceLocalReferenceDate]); err++;}
+  TASSERT_EQUALS(test, [c secondsSinceLocalReferenceDate], -63113904000LL, "A21-%lld",[c secondsSinceLocalReferenceDate]);
+  TASSERT_EQUALS(test, [d secondsSinceLocalReferenceDate], -63113904000LL+(31LL+28LL-1LL)*86400LL, "A22-%lld",[d secondsSinceLocalReferenceDate]);
+  TASSERT_EQUALS(test, [e secondsSinceLocalReferenceDate], -86400LL, "A23-%lld",[e secondsSinceLocalReferenceDate]);
+  TASSERT_EQUALS(test, [f secondsSinceLocalReferenceDate], -10LL, "A24-%lld",[f secondsSinceLocalReferenceDate]);
+  TASSERT_EQUALS(test, [g secondsSinceLocalReferenceDate], 0LL, "A25-%lld",[g secondsSinceLocalReferenceDate]);
 
-  if ([c dayOfWeek]!=0) {
-    fprintf(stdout, "A26-%u\n",[c dayOfWeek]); err++;}
-  if ([d dayOfWeek]!=2) {
-    fprintf(stdout, "A27-%u\n",[d dayOfWeek]); err++;}
-  if ([e dayOfWeek]!=6) {
-    fprintf(stdout, "A28-%u\n",[e dayOfWeek]); err++;}
-  if ([f dayOfWeek]!=6) {
-    fprintf(stdout, "A29-%u\n",[f dayOfWeek]); err++;}
-  if ([g dayOfWeek]!=0) {
-    fprintf(stdout, "A30-%u\n",[g dayOfWeek]); err++;}
+  TASSERT_EQUALS(test, [c dayOfWeek], 0, "A26-%u",[c dayOfWeek]);
+  TASSERT_EQUALS(test, [d dayOfWeek], 2, "A27-%u",[d dayOfWeek]);
+  TASSERT_EQUALS(test, [e dayOfWeek], 6, "A28-%u",[e dayOfWeek]);
+  TASSERT_EQUALS(test, [f dayOfWeek], 6, "A29-%u",[f dayOfWeek]);
+  TASSERT_EQUALS(test, [g dayOfWeek], 0, "A30-%u",[g dayOfWeek]);
 
-  if ([c dayOfMonth]!=1) {
-    fprintf(stdout, "A31-%u\n",[c dayOfMonth]); err++;}
-  if ([d dayOfMonth]!=28) {
-    fprintf(stdout, "A32-%u\n",[d dayOfMonth]); err++;}
-  if ([e dayOfMonth]!=31) {
-    fprintf(stdout, "A33-%u\n",[e dayOfMonth]); err++;}
-  if ([f dayOfMonth]!=31) {
-    fprintf(stdout, "A34-%u\n",[f dayOfMonth]); err++;}
-  if ([g dayOfMonth]!=1) {
-    fprintf(stdout, "A35-%u\n",[g dayOfMonth]); err++;}
+  TASSERT_EQUALS(test, [c dayOfMonth], 1, "A31-%u",[c dayOfMonth]);
+  TASSERT_EQUALS(test, [d dayOfMonth], 28, "A32-%u",[d dayOfMonth]);
+  TASSERT_EQUALS(test, [e dayOfMonth], 31, "A33-%u",[e dayOfMonth]);
+  TASSERT_EQUALS(test, [f dayOfMonth], 31, "A34-%u",[f dayOfMonth]);
+  TASSERT_EQUALS(test, [g dayOfMonth], 1, "A35-%u",[g dayOfMonth]);
 
-  if ([c dayOfYear]!=1) {
-    fprintf(stdout, "A36-%u\n",[c dayOfYear]); err++;}
-  if ([d dayOfYear]!=31+28) {
-    fprintf(stdout, "A37-%u\n",[d dayOfYear]); err++;}
-  if ([e dayOfYear]!=366) {
-    fprintf(stdout, "A38-%u\n",[e dayOfYear]); err++;}
-  if ([f dayOfYear]!=366) {
-    fprintf(stdout, "A39-%u\n",[f dayOfYear]); err++;}
-  if ([g dayOfYear]!=1) {
-    fprintf(stdout, "A40-%u\n",[g dayOfYear]); err++;}
+  TASSERT_EQUALS(test, [c dayOfYear], 1, "A36-%u",[c dayOfYear]);
+  TASSERT_EQUALS(test, [d dayOfYear], 31+28, "A37-%u",[d dayOfYear]);
+  TASSERT_EQUALS(test, [e dayOfYear], 366, "A38-%u",[e dayOfYear]);
+  TASSERT_EQUALS(test, [f dayOfYear], 366, "A39-%u",[f dayOfYear]);
+  TASSERT_EQUALS(test, [g dayOfYear], 1, "A40-%u",[g dayOfYear]);
 
-  if ([c dayOfCommonEra]!=1) {
-    fprintf(stdout, "A41-%u\n",[c dayOfCommonEra]); err++;}
-  if ([d dayOfCommonEra]!=31+28) {
-    fprintf(stdout, "A42-%u\n",[d dayOfCommonEra]); err++;}
-  if ((int)[e dayOfCommonEra]!=[e daysSinceDate:c usesTime:NO]+1) {
-    fprintf(stdout, "A43-%u %d\n",[e dayOfCommonEra],[e daysSinceDate:c usesTime:NO]);
-    err++;}
-  if ((int)[f dayOfCommonEra]!=[f daysSinceDate:c usesTime:NO]+1) {
-    fprintf(stdout, "A44-%u %d\n",[f dayOfCommonEra],[f daysSinceDate:c usesTime:NO]);
-    err++;}
-  if ((int)[g dayOfCommonEra]!=[g daysSinceDate:c usesTime:NO]+1) {
-    fprintf(stdout, "A45-%u %d\n",[g dayOfCommonEra],[g daysSinceDate:c usesTime:NO]);
-    err++;}
+  TASSERT_EQUALS(test, [c dayOfCommonEra], 1, "A41-%u",[c dayOfCommonEra]);
+  TASSERT_EQUALS(test, [d dayOfCommonEra], 31+28, "A42-%u",[d dayOfCommonEra]);
+  TASSERT_EQUALS(test, (int)[e dayOfCommonEra], [e daysSinceDate:c usesTime:NO]+1, "A43-%u %d",[e dayOfCommonEra],[e daysSinceDate:c usesTime:NO]);
+   
+  TASSERT_EQUALS(test, (int)[f dayOfCommonEra], [f daysSinceDate:c usesTime:NO]+1, "A44-%u %d",[f dayOfCommonEra],[f daysSinceDate:c usesTime:NO]);
+   
+  TASSERT_EQUALS(test, (int)[g dayOfCommonEra], [g daysSinceDate:c usesTime:NO]+1, "A45-%u %d",[g dayOfCommonEra],[g daysSinceDate:c usesTime:NO]);
+   
 
-  if ([c weekOfYear]!=1) {
-    fprintf(stdout, "A46-%u\n",[c weekOfYear]); err++;}
-  if ([d weekOfYear]!=9) {
-    fprintf(stdout, "A47-%u\n",[d weekOfYear]); err++;}
-  if ([e weekOfYear]!=52) {
-    fprintf(stdout, "A48-%u\n",[e weekOfYear]); err++;}
-  if ([f weekOfYear]!=52) {
-    fprintf(stdout, "A49-%u\n",[f weekOfYear]); err++;}
-  if ([g weekOfYear]!=1) {
-    fprintf(stdout, "A50-%u\n",[g weekOfYear]); err++;}
+  TASSERT_EQUALS(test, [c weekOfYear], 1, "A46-%u",[c weekOfYear]);
+  TASSERT_EQUALS(test, [d weekOfYear], 9, "A47-%u",[d weekOfYear]);
+  TASSERT_EQUALS(test, [e weekOfYear], 52, "A48-%u",[e weekOfYear]);
+  TASSERT_EQUALS(test, [f weekOfYear], 52, "A49-%u",[f weekOfYear]);
+  TASSERT_EQUALS(test, [g weekOfYear], 1, "A50-%u",[g weekOfYear]);
 
-  if ([c monthOfYear]!=1) {
-    fprintf(stdout, "A51-%u\n",[c monthOfYear]); err++;}
-  if ([d monthOfYear]!=2) {
-    fprintf(stdout, "A52-%u\n",[d monthOfYear]); err++;}
-  if ([e monthOfYear]!=12) {
-    fprintf(stdout, "A53-%u\n",[e monthOfYear]); err++;}
-  if ([f monthOfYear]!=12) {
-    fprintf(stdout, "A54-%u\n",[f monthOfYear]); err++;}
-  if ([g monthOfYear]!=1) {
-    fprintf(stdout, "A55-%u\n",[g monthOfYear]); err++;}
+  TASSERT_EQUALS(test, [c monthOfYear], 1, "A51-%u",[c monthOfYear]);
+  TASSERT_EQUALS(test, [d monthOfYear], 2, "A52-%u",[d monthOfYear]);
+  TASSERT_EQUALS(test, [e monthOfYear], 12, "A53-%u",[e monthOfYear]);
+  TASSERT_EQUALS(test, [f monthOfYear], 12, "A54-%u",[f monthOfYear]);
+  TASSERT_EQUALS(test, [g monthOfYear], 1, "A55-%u",[g monthOfYear]);
 
-  if ([c yearOfCommonEra]!=1) {
-    fprintf(stdout, "A56-%u\n",[c yearOfCommonEra]); err++;}
-  if ([d yearOfCommonEra]!=1) {
-    fprintf(stdout, "A57-%u\n",[d yearOfCommonEra]); err++;}
-  if ([e yearOfCommonEra]!=2000) {
-    fprintf(stdout, "A58-%u\n",[e yearOfCommonEra]); err++;}
-  if ([f yearOfCommonEra]!=2000) {
-    fprintf(stdout, "A59-%u\n",[f yearOfCommonEra]); err++;}
-  if ([g yearOfCommonEra]!=2001) {
-    fprintf(stdout, "A60-%u\n",[g yearOfCommonEra]); err++;}
+  TASSERT_EQUALS(test, [c yearOfCommonEra], 1, "A56-%u",[c yearOfCommonEra]);
+  TASSERT_EQUALS(test, [d yearOfCommonEra], 1, "A57-%u",[d yearOfCommonEra]);
+  TASSERT_EQUALS(test, [e yearOfCommonEra], 2000, "A58-%u",[e yearOfCommonEra]);
+  TASSERT_EQUALS(test, [f yearOfCommonEra], 2000, "A59-%u",[f yearOfCommonEra]);
+  TASSERT_EQUALS(test, [g yearOfCommonEra], 2001, "A60-%u",[g yearOfCommonEra]);
 
-  if ([c isLeapYear]) {
-    fprintf(stdout, "A61-%d\n",[c isLeapYear]); err++;}
-  if ([d isLeapYear]) {
-    fprintf(stdout, "A62-%d\n",[d isLeapYear]); err++;}
-  if (![e isLeapYear]) {
-    fprintf(stdout, "A63-%d\n",[e isLeapYear]); err++;}
-  if (![f isLeapYear]) {
-    fprintf(stdout, "A64-%d\n",[f isLeapYear]); err++;}
-  if ([g isLeapYear]) {
-    fprintf(stdout, "A65-%d\n",[g isLeapYear]); err++;}
+  TASSERT(test, ![c isLeapYear], "A61-%d",[c isLeapYear]);
+  TASSERT(test, ![d isLeapYear], "A62-%d",[d isLeapYear]);
+  TASSERT(test, [e isLeapYear], "A63-%d",[e isLeapYear]);
+  TASSERT(test, [f isLeapYear], "A64-%d",[f isLeapYear]);
+  TASSERT(test, ![g isLeapYear], "A65-%d",[g isLeapYear]);
 
   RELEASE(c);
   RELEASE(d);
@@ -147,18 +88,15 @@ static int date_create(void)
   RELEASE(f);
   RELEASE(g);
   c= RETAIN(YMD(2013, 10, 25));
-  if ([c dayOfWeek]!=4) {
-    fprintf(stdout, "A70-%u\n",[c dayOfWeek]); err++;}
-  if ([c weekOfYear]!=43) {
-    fprintf(stdout, "A71-%u\n",[c weekOfYear]); err++;}
+  TASSERT_EQUALS(test, [c dayOfWeek], 4, "A70-%u",[c dayOfWeek]);
+  TASSERT_EQUALS(test, [c weekOfYear], 43, "A71-%u",[c weekOfYear]);
   RELEASE(c);
-  return err;
   }
 
 #define M1 10000
-static int date_create2(void)
+static void date_create2(test_t *test)
   {
-  int err= 0,i;
+  int i;
   MSTimeInterval t;
   MSDate *c[M1],*d= nil,*e= nil; // last date: 3432/07/11-02:51:40
   
@@ -172,30 +110,24 @@ static int date_create2(void)
     ((CDate*)c[i])->interval= t;}
 //cdate_print(c[M1-1]);
   for (i= 0; i<M1; i++) {
-    if (![MSDate verifyYear:[c[i] yearOfCommonEra] month:[c[i] monthOfYear] day:[c[i] dayOfMonth] hour:[c[i] hourOfDay] minute:[c[i] minuteOfHour] second:[c[i] secondOfMinute]]) {
-      fprintf(stdout, "B1-%d-bad date ",i);
-      date_print(c[i]);
-      err++;}
-    else {
+    if (TASSERT(test,
+          [MSDate verifyYear:[c[i] yearOfCommonEra] month:[c[i] monthOfYear] day:[c[i] dayOfMonth]
+            hour:[c[i] hourOfDay] minute:[c[i] minuteOfHour] second:[c[i] secondOfMinute]],
+          "B1-%d-bad date %s",i,[[c[i] description] UTF8String])) {
       d= RETAIN(YMD([c[i] yearOfCommonEra], [c[i] monthOfYear], [c[i] dayOfMonth]));
       e= RETAIN([c[i] dateWithoutTime]);
-      if (![d isEqualToDate:e]) {
-        fprintf(stdout, "B2-%d-d & e are not equals %lld %lld %lld\n",i,[d secondsSinceLocalReferenceDate],[e secondsSinceLocalReferenceDate],[d secondsSinceLocalReferenceDate]-[e secondsSinceLocalReferenceDate]);
-        date_print(c[i]);
-        date_print(d);
-        date_print(e);
-        err++;}}
+      TASSERT(test, [d isEqualToDate:e],
+        "B2-%d-d & e are not equals %lld %lld %lld %s %s %s",i,
+        [d secondsSinceLocalReferenceDate],[e secondsSinceLocalReferenceDate],[d secondsSinceLocalReferenceDate]-[e secondsSinceLocalReferenceDate],
+        [[c[i] description] UTF8String],[[d description] UTF8String],[[e description] UTF8String]);}
     RELEASE(d); RELEASE(e);}
-    for (i= 0; i<M1; i++) {
-        RELEASE(c[i]);
-    }
-  return err;
+    for (i= 0; i<M1; i++) RELEASE(c[i]);
   }
 
 #define M2 200000 // last date: 3834/01/27
-static int date_week(void)
+static void date_week(test_t *test)
   {
-  int err= 0,i; unsigned w;
+  int i; unsigned w;
   MSTimeInterval t;
   MSDate *c,*d;
   
@@ -207,98 +139,66 @@ static int date_week(void)
   w= [c dayOfMonth]<=4 ? 1 : 2;
   for (t= [c secondsSinceLocalReferenceDate], i= 0; i<M2; i++) {
     ASSIGN(d, [c dateByAddingHours:0 minutes:0 seconds:7*86400-1]);
-    if ([d weekOfYear]!=w) {
-      fprintf(stdout, "C1-%d-bad week %d expected %d ",i,[d weekOfYear],w); date_print(d);
-      err++;}
+    TASSERT_EQUALS(test, [d weekOfYear], w, "C1-%d-bad week %d expected %d %s",i,[d weekOfYear],w,[[d description] UTF8String]);
     ASSIGN(d, [c dateByAddingHours:0 minutes:0 seconds:2*7*86400]);
     if (4 < [d dayOfYear] && [d dayOfYear] <= 11) w= 1;
     else w+= 1;
     ASSIGN(c, [c dateByAddingYears:0 months:0 days:7]);
-    if ([c weekOfYear]!=w) {
-      fprintf(stdout, "C2-%d-bad week %d expected %d ",i,[c weekOfYear],w); date_print(c);
-      err++;}}
-//date_print(c);
+    TASSERT_EQUALS(test, [c weekOfYear], w, "C2-%d-bad week %d expected %d %s",i,[c weekOfYear],w,[[c description] UTF8String]);}
   RELEASE(c); RELEASE(d);
-  return err;
   }
 
-static int date_firstLast(void)
+static void date_firstLast(test_t *test)
   {
-  int err= 0;
   MSDate *d,*e,*f;
 
   d= [MSDate now];
   e= [d dateOfFirstDayOfYear];
   f= [[d dateWithoutTime] dateByAddingYears:0 months:0 days:-(int)[d dayOfYear]+1];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "D1-bad fisrt day of year\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [e isEqualToDate:f], "D1-bad fisrt day of year %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   e= [d dateOfLastDayOfYear];
   f= [[d dateWithoutTime] dateByAddingYears:0 months:0 days:365+([d isLeapYear]?1:0)-(int)[d dayOfYear]];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "D2-bad last day of year\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [e isEqualToDate:f], "D2-bad last day of year %s %s",[[e description] UTF8String],[[f description] UTF8String]);
 
   e= [d dateOfFirstDayOfMonth];
   f= [[d dateWithoutTime] dateByAddingYears:0 months:0 days:-(int)[d dayOfMonth]+1];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "D3-bad fisrt day of month\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [e isEqualToDate:f], "D3-bad fisrt day of month %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   e= [d dateOfLastDayOfMonth];
   f= [[d dateWithoutTime] dateByAddingYears:0 months:0 days:(int)[d lastDayOfMonth]-(int)[d dayOfMonth]];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "D4-bad last day of month\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [e isEqualToDate:f], "D4-bad last day of month %s %s",[[e description] UTF8String],[[f description] UTF8String]);
 
   e= [d dateOfFirstDayOfWeek];
   f= [[d dateWithoutTime] dateByAddingYears:0 months:0 days:-(int)[d dayOfWeek]];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "D5-bad fisrt day of week\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [e isEqualToDate:f], "D5-bad fisrt day of week %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   e= [d dateOfLastDayOfWeek];
   f= [[d dateWithoutTime] dateByAddingYears:0 months:0 days:6-(int)[d dayOfWeek]];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "D6-bad last day of week\n");
-    date_print(e); date_print(f); err++;}
-
-  return err;
+  TASSERT(test, [e isEqualToDate:f], "D6-bad last day of week %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   }
 
-static int date_replacing(void)
+static void date_replacing(test_t *test)
   {
-  int err= 0;
   MSDate *d,*e,*f; unsigned j;
 
   d= YMDHMS(777, 7, 7, 7, 7, 7);
   e= [d dateByReplacingYear:0 month:0 day:1];
   f= [d dateByAddingYears:0 months:0 days:-6];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "E1-bad replacing\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [e isEqualToDate:f], "E1-bad replacing %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   e= [d dateByReplacingYear:1 month:1 day:1];
   f= YMD(1, 1, 1);
-  if (![[e dateWithoutTime] isEqualToDate:f]) {
-    fprintf(stdout, "E2-bad replacing\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [[e dateWithoutTime] isEqualToDate:f], "E2-bad replacing %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   e= [d dateByReplacingWeek:2];
   j= [d dayOfWeek];
   f= YMDHMS(777, 1, 1, 7, 7, 7);
   while ([f dayOfWeek]!=j || [f weekOfYear]!=2) {
     f= [f dateByAddingYears:0 months:0 days:1];}
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "E3-bad replacing\n");
-    date_print(e); date_print(f); err++;}
+  TASSERT(test, [e isEqualToDate:f], "E3-bad replacing %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   e= [d dateByReplacingHour:2 minute:1 second:0];
   f= [d dateByAddingHours:-5 minutes:-6 seconds:-7];
-  if (![e isEqualToDate:f]) {
-    fprintf(stdout, "E4-bad replacing\n");
-    date_print(e); date_print(f); err++;}
-  return err;
+  TASSERT(test, [e isEqualToDate:f], "E4-bad replacing %s %s",[[e description] UTF8String],[[f description] UTF8String]);
   }
 
-static int date_now(void)
+static void date_now(test_t *test)
   {
-  int err= 0;
   MSDate *d1,*d2m; NSDate *d2; MSTimeInterval dt1m,dt2m; NSTimeInterval dt1n,dt2n;
 
   d1= [MSDate now];
@@ -308,20 +208,12 @@ static int date_now(void)
   dt1n= [d1 timeIntervalSinceReferenceDate];
   dt2n= [d2 timeIntervalSinceReferenceDate];
   d2m= [MSDate dateWithSecondsSinceLocalReferenceDate:dt2m];
-  if (ABS(dt1m-dt2m)>1) {
-    fprintf(stdout, "F1-bad now\n");
-    date_print(d1);
-    date_print(d2m);
-    err++;}
-  if (ABS(dt1n-dt2n)>1) {
-    fprintf(stdout, "F2-bad now %f %f %f %lld %lld %lld\n",dt1n,dt2n,dt1n-dt2n,dt1m,dt2m,dt1m-dt2m);
-    //NSLog(@"%@ %@ %@",d2,[d2 descriptionWithCalendarFormat:@"%Y/%m/%d-%H:%M:%S" timeZone:nil locale:nil],[NSCalendarDate calendarDate]);
-    NSLog(@"%@ %@",[d1 descriptionRfc1123],[d1 descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S"]);
-    //NSLog(@"%@",[[NSUserDefaults standardUserDefaults] dictionaryRepresentation]);
-    date_print(d1);
-    date_print(d2m);
-    err++;}
-  return err;
+  TASSERT(test, ABS(dt1m-dt2m)<=1, "F1-bad now %s %s",[[d1 description] UTF8String],[[d2m description] UTF8String]);
+  TASSERT(test, ABS(dt1n-dt2n)<=1, "F2-bad now %f %f %f %lld %lld %lld %s %s %s %s",
+    dt1n,dt2n,dt1n-dt2n,dt1m,dt2m,dt1m-dt2m,
+    [[d1 descriptionRfc1123] UTF8String],
+    [[d1 descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S"] UTF8String],
+    [[d1 description] UTF8String],[[d2m description] UTF8String]);
   }
 
 test_t msfoundation_date[]= {

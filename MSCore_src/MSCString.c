@@ -559,7 +559,7 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
     case 's':
     {
       char *cstr= (char*)argTypes[f.arg - 1].u.um;
-      _formatPrintUTF8(s, cstr, strlen(cstr), width, f.flags.leftJustify);
+      _formatPrintUTF8(s, cstr, (cstr?strlen(cstr):0), width, f.flags.leftJustify);
       break;
     }
     case '@':

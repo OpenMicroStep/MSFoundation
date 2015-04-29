@@ -81,4 +81,6 @@
 //#include "MSCMutex.h"
 //#include "MSCNaturalArray.h"
 
+#include "MSCMessage.h"
+
 #endif // MSCORE_PUBLIC_H

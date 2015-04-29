@@ -481,6 +481,7 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
 	return [NSString string] ;
 }
 
+// TODO: If mutable, returns an immutable copy ?
 - (NSString *)toString { return self ; }
 
 static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL sourceMethod)
