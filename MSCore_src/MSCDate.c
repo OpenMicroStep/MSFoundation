@@ -88,22 +88,6 @@ static inline unsigned _lastDayOfMonth(unsigned year, unsigned month)
   return (month == 2 && _isLeap(year)) ? 29 : __daysInMonth[month];
 }
 
-#pragma mark _dtm declarations
-
-typedef struct _dtmStruct {
-  unsigned long long year:32;
-  unsigned long long month:4;
-  unsigned long long day:5;
-  unsigned long long hour:5;
-  unsigned long long minute:6;
-  unsigned long long second:6;
-  unsigned long long dayOfWeek:3;
-  unsigned long long :3;
-  }
-_dtm;
-
-static _dtm _dtmCast(MSTimeInterval ref);
-
 #pragma mark _tm declarations
 
 // Algorithm used is a modification of Rata Die algorithm described by Peter
@@ -262,118 +246,18 @@ CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s)
   return d;
 }
 
-
-#ifdef WIN32
-// this **!@** structure count by 100 nanoseconds steps since 1st january 1601
-#define _MSTimeIntervalSince1601 12622780800ull
-
-static inline void FileTimeToMicro(FILETIME ft, MSLong *t)
-{
-  MSULong d;
-  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
-  *t = (MSTimeInterval)(d - _MSTimeIntervalSince1601*10000000) / 10;
-}
-static inline void FileTimeToMSTimeInterval(FILETIME ft, MSTimeInterval *t)
-{
-  MSULong d;
-  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
-  d /= 10000000;
-  *t = (MSTimeInterval)(d) - _MSTimeIntervalSince1601;
-}
-
-static inline void MSTimeIntervalToFileTime(MSTimeInterval t, FILETIME * ft)
-{
-  MSULong d;
-  d = t + _MSTimeIntervalSince1601;
-  d *= 10000000;
-  ft->dwLowDateTime  = (MSUInt) (d & 0xFFFFFFFF );
-  ft->dwHighDateTime = (MSUInt) (d >> 32 );
-}
-#endif
-
-#ifdef WO451 
-// Apple System headers doesn't provide this method because it was introduced in WinXP/WinServer2003
-// Linking with Apple won't work either, one workaround is to link with a newer version of libKernel32.a
-// A version compatible with the old wo451 linker can be found in the MinGW package.
-// The name of the lib for linker can't be Kernel32 due to linker not looking at libKernel32.a with such name.
-BOOL WINAPI TzSpecificLocalTimeToSystemTime(void* lpTimeZoneInformation,void* lpLocalTime,void* lpUniversalTime);
-#endif
-
-#ifndef WIN32
-#include <sys/time.h> // for gettimeofday
-#endif
-
 MSLong _GMTMicro(void)
 {
-  MSLong t;
-#ifdef WIN32
-  FILETIME fts;
-  GetSystemTimeAsFileTime(&fts);
-  FileTimeToMicro(fts, &t);
-#else
-  struct timeval tv;
-  gettimeofday(&tv,NULL);
-  t= ((MSTimeInterval)tv.tv_sec - CDateSecondsFrom19700101To20010101)*1000000 + tv.tv_usec;
-#endif
-  return t;
-}
-static MSTimeInterval _GMTNow(void)
-{
-  MSTimeInterval t;
-#ifdef WIN32
-  FILETIME fts;
-  GetSystemTimeAsFileTime(&fts);
-  FileTimeToMSTimeInterval(fts, &t);
-#else
-  time_t timet= time(NULL);
-  t= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101;
-#endif
-  return t;
-}
-static MSTimeInterval _GMTToLocal(MSTimeInterval tIn)
-{
-  MSTimeInterval tOut;
-#ifdef WIN32
-  FILETIME fts, ftl;
-  SYSTEMTIME sts, stl;
-  MSTimeIntervalToFileTime(tIn, &fts);
-  if (FileTimeToSystemTime(&fts, &sts) && // According to MSDN, this is a necessary conversion to take daylight into account
-      SystemTimeToTzSpecificLocalTime(NULL /* uses the currently active time zone */, &sts, &stl) &&
-      SystemTimeToFileTime(&stl, &ftl))
-    FileTimeToMSTimeInterval(ftl, &tOut);
-  else tOut = tIn;
-#else
-  struct tm tm;
-  time_t timet= tIn + CDateSecondsFrom19700101To20010101;
-  (void)localtime_r(&timet, &tm);
-  tOut= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101 + (MSTimeInterval)(tm.tm_gmtoff);
-//printf("%ld %lld %lld %lld %lld\n",tm.tm_gmtoff,t,rt,GMTFromLocal(rt),t-rt);
-#endif
-  return tOut;
+  return gmt_micro();
 }
 
 NSTimeInterval GMTNow(void)
 {
-  return (NSTimeInterval)_GMTNow();
+  return (NSTimeInterval)gmt_now();
 }
 NSTimeInterval GMTFromLocal(MSTimeInterval t)
 {
-#ifdef WIN32
-  FILETIME fts, ftl;
-  SYSTEMTIME sts, stl;
-  MSTimeIntervalToFileTime(t, &ftl);
-  if (FileTimeToSystemTime(&ftl, &stl) && // According to MSDN, this is a necessary conversion to take daylight into account
-      TzSpecificLocalTimeToSystemTime(NULL /* uses the currently active time zone */, &stl, &sts) &&
-      SystemTimeToFileTime(&sts, &fts))
-    FileTimeToMSTimeInterval(fts, &t);
-#else
-  _dtm dtm= _dtmCast(t);
-  struct tm tm= {dtm.second,dtm.minute,dtm.hour,
-                 dtm.day,dtm.month-1,(int)(dtm.year-1900),0,0,-1,0,NULL};
-  time_t timet= mktime(&tm);
-  t= (MSTimeInterval)timet-CDateSecondsFrom19700101To20010101;
-#endif
-  return (NSTimeInterval)t;
+  return (NSTimeInterval)gmt_from_local(t);
 }
 
 NSTimeInterval GMTWithYMDHMS(
@@ -385,13 +269,13 @@ NSTimeInterval GMTWithYMDHMS(
 
 MSTimeInterval GMTToLocal(NSTimeInterval t)
 {
-  return _GMTToLocal((MSTimeInterval)(t>=0 ? t+.5 :  t-.5));
+  return gmt_to_local((MSTimeInterval)(t>=0 ? t+.5 :  t-.5));
 }
 static MSTimeInterval _CDateSecondsOfNow(void)
 // NO needs to be public
 // TODO: @ECB Utility?
 {
-  return _GMTToLocal(_GMTNow());
+  return gmt_to_local(gmt_now());
 }
 
 CDate* CDateInitNow(CDate* self)
@@ -695,7 +579,7 @@ static inline BOOL _verifyHMS(unsigned hour, unsigned minute, unsigned second, B
 
 // Inverse algorithm in order to get back our date information from our
 // reference time
-static _dtm _dtmCast(MSTimeInterval t)
+_dtm _dtmCast(MSTimeInterval t)
 {
   _dtm dt;
   int Z,CENTURY,CENTURY_MQUART,Y,Y365,DAYS_IN_Y,MONTH_IN_Y;

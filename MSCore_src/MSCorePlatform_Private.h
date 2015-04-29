@@ -1,4 +1,4 @@
-/* MSCorePlatform-wo451.c
+/* MSCorePlatform_Private.h
  
  This file is is a part of the MicroStep Framework.
  
@@ -39,28 +39,39 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : this header file IS PRIVATE, don't use it directly
+ AND NEVER INCLUDE IT IN MSFoundation framework, it is maint to
+ be exclusively used in MSCore standalone mode
+ 
  */
 
-#include "MSCore_Private.h"
+#ifndef MSCORE_PLATFORM_PRIVATE_H
+#define MSCORE_PLATFORM_PRIVATE_H
 
-#ifdef WO451
+void uuid_generate_string(char dst[37]);
 
-float strtof(const char *string, char **endPtr)
-{
-    return (float)strtod(string, endPtr) ;
-}
+MSLong         gmt_micro(void);
+MSTimeInterval gmt_now(void);
+MSTimeInterval gmt_to_local(MSTimeInterval tIn);
+MSTimeInterval gmt_from_local(MSTimeInterval t);
 
-int snprintf(char *str, size_t size, const char *format, ...)
-{
-  int ret;
-  va_list ap;
-  va_start(ap, format);
-  ret = (int)_vsnprintf(str, size, format, ap);
-  va_end(ap);
-  return ret;
-}
 
-int vsnprintf(char *str, size_t size, const char *format, va_list ap)
-{ return _vsnprintf(str, size, format, ap); }
+// Needed for UNIX-gmt_from_local()
+// Implemented in MSCDate.c
+#pragma mark _dtm declarations
 
-#endif
+typedef struct _dtmStruct {
+  unsigned long long year:32;
+  unsigned long long month:4;
+  unsigned long long day:5;
+  unsigned long long hour:5;
+  unsigned long long minute:6;
+  unsigned long long second:6;
+  unsigned long long dayOfWeek:3;
+  unsigned long long :3;
+  }
+_dtm;
+
+_dtm _dtmCast(MSTimeInterval ref);
+
+#endif // MSCORE_PLATFORM_PRIVATE_H

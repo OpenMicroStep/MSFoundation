@@ -50,7 +50,6 @@
 
 #include "MSCore_Public.h"
 
-// MSCorePlatform
-void uuid_generate_string(char dst[37]);
+#include "MSCorePlatform_Private.h"
 
 #endif // MSCORE_PRIVATE_H

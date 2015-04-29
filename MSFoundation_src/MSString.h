@@ -117,6 +117,8 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (instancetype)initWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error;
 + (instancetype)stringWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error;
 
++ (instancetype)UUIDString;
+
 #pragma mark Mutable creation
 
 - (instancetype)mutableInit;
@@ -153,7 +155,6 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (unichar)characterAtIndex:(NSUInteger)index;
 
 
-+ (MSString*)UUIDString;
 - (SES)stringEnumeratorStructure;
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;

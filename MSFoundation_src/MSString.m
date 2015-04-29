@@ -757,7 +757,8 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 - (instancetype)mutableInitWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error
 { return _stringWithContentsOfFile(nil ,self,YES, path, 0, enc, error);}
 
-+ (MSString*)UUIDString
+
++ (instancetype)UUIDString
 {
   return AUTORELEASE(CCreateStringWithGeneratedUUID());
 }

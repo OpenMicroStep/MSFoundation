@@ -351,20 +351,18 @@ static void string_plist(test_t *test)
     [s UTF8String],[[e description] UTF8String],[[a description] UTF8String]);
   KILL_POOL;
 }
-static int string_uuid(void)
+static void string_uuid(test_t *test)
 {
-  int err= 0;
   MSString *uuid1, *uuid2;
   NEW_POOL;
   
   uuid1 = [MSString UUIDString];
   uuid2 = [MSString UUIDString];
-  err += ASSERT_EQUALS([uuid1 length], 36, "uuid1 string length must be 36");
-  err += ASSERT_EQUALS([uuid2 length], 36, "uuid2 string length must be 36");
-  err += ASSERT_ISNOTEQUAL(uuid1, uuid2, "uuid must not be equals ever");
+  TASSERT_EQUALS(test, [uuid1 length], 36, "uuid1 string length must be 36");
+  TASSERT_EQUALS(test, [uuid2 length], 36, "uuid2 string length must be 36");
+  TASSERT_ISNOTEQUAL(test, uuid1, uuid2, "uuid must not be equals ever");
   
   KILL_POOL;
-  return err;
 }
 
 test_t msfoundation_string[]= {

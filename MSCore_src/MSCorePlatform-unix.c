@@ -1,4 +1,4 @@
-/* MSCoreSystem.c
+/* MSCorePlatform-unix.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -46,12 +46,50 @@
 #ifdef UNIX
 
 #include <uuid/uuid.h>
+#include <sys/time.h> // for gettimeofday
 
 void uuid_generate_string(char dst[37])
 {
   uuid_t uuid;
   uuid_generate_random ( uuid );
   uuid_unparse ( uuid, dst );
+}
+
+MSLong gmt_micro(void)
+{
+  MSLong t;
+  struct timeval tv;
+  gettimeofday(&tv,NULL);
+  t= ((MSTimeInterval)tv.tv_sec - CDateSecondsFrom19700101To20010101)*1000000 + tv.tv_usec;
+  return t;
+}
+
+MSTimeInterval gmt_now(void)
+{
+  MSTimeInterval t;
+  time_t timet= time(NULL);
+  t= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101;
+  return t;
+}
+
+MSTimeInterval gmt_to_local(MSTimeInterval tIn)
+{
+  MSTimeInterval tOut;
+  struct tm tm;
+  time_t timet= tIn + CDateSecondsFrom19700101To20010101;
+  (void)localtime_r(&timet, &tm);
+  tOut= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101 + (MSTimeInterval)(tm.tm_gmtoff);
+  return tOut;
+}
+
+MSTimeInterval gmt_from_local(MSTimeInterval t)
+{
+  _dtm dtm= _dtmCast(t);
+  struct tm tm= {dtm.second,dtm.minute,dtm.hour,
+                 dtm.day,dtm.month-1,(int)(dtm.year-1900),0,0,-1,0,NULL};
+  time_t timet= mktime(&tm);
+  t= (MSTimeInterval)timet-CDateSecondsFrom19700101To20010101;
+  return t;
 }
 
 #endif

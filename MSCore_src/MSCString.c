@@ -127,9 +127,11 @@ CString *CCreateStringWithSES(SES ses)
 
 CString *CCreateStringWithGeneratedUUID()
 {
-  char uuid[37];
+  char uuid[37]; CString *x;
   uuid_generate_string(uuid);
-  return CCreateStringWithBytes(NSASCIIStringEncoding, uuid, 36);
+  x= CCreateStringWithBytes(NSASCIIStringEncoding, uuid, 36);
+  CGrowSetForeverImmutable((id)x);
+  return x;
 }
 
 #pragma mark Management

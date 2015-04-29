@@ -1,4 +1,4 @@
-/* MSCoreSystem.c
+/* MSCorePlatform-win32.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -56,4 +56,83 @@ void uuid_generate_string(char dst[37])
   strncpy(dst, str, 37);
   RpcStringFree(&str);
 }
+
+// this **!@** structure count by 100 nanoseconds steps since 1st january 1601
+#define _MSTimeIntervalSince1601 12622780800ull
+
+static inline void _FileTimeToMicro(FILETIME ft, MSLong *t)
+{
+  MSULong d;
+  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
+  *t = (MSTimeInterval)(d - _MSTimeIntervalSince1601*10000000) / 10;
+}
+static inline void _FileTimeToMSTimeInterval(FILETIME ft, MSTimeInterval *t)
+{
+  MSULong d;
+  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
+  d /= 10000000;
+  *t = (MSTimeInterval)(d) - _MSTimeIntervalSince1601;
+}
+
+static inline void _MSTimeIntervalToFileTime(MSTimeInterval t, FILETIME * ft)
+{
+  MSULong d;
+  d = t + _MSTimeIntervalSince1601;
+  d *= 10000000;
+  ft->dwLowDateTime  = (MSUInt) (d & 0xFFFFFFFF );
+  ft->dwHighDateTime = (MSUInt) (d >> 32 );
+}
+
+#ifdef WO451 
+// Apple System headers doesn't provide this method because it was introduced in WinXP/WinServer2003
+// Linking with Apple won't work either, one workaround is to link with a newer version of libKernel32.a
+// A version compatible with the old wo451 linker can be found in the MinGW package.
+// The name of the lib for linker can't be Kernel32 due to linker not looking at libKernel32.a with such name.
+BOOL WINAPI TzSpecificLocalTimeToSystemTime(void* lpTimeZoneInformation,void* lpLocalTime,void* lpUniversalTime);
+#endif
+
+MSLong gmt_micro(void)
+{
+  MSLong t;
+  FILETIME fts;
+  GetSystemTimeAsFileTime(&fts);
+  _FileTimeToMicro(fts, &t);
+  return t;
+}
+
+MSTimeInterval gmt_now(void)
+{
+  MSTimeInterval t;
+  FILETIME fts;
+  GetSystemTimeAsFileTime(&fts);
+  _FileTimeToMSTimeInterval(fts, &t);
+  return t;
+}
+
+MSTimeInterval gmt_to_local(MSTimeInterval tIn)
+{
+  MSTimeInterval tOut;
+  FILETIME fts, ftl;
+  SYSTEMTIME sts, stl;
+  _MSTimeIntervalToFileTime(tIn, &fts);
+  if (FileTimeToSystemTime(&fts, &sts) && // According to MSDN, this is a necessary conversion to take daylight into account
+      SystemTimeToTzSpecificLocalTime(NULL /* uses the currently active time zone */, &sts, &stl) &&
+      SystemTimeToFileTime(&stl, &ftl))
+    _FileTimeToMSTimeInterval(ftl, &tOut);
+  else tOut = tIn;
+  return tOut;
+}
+
+MSTimeInterval gmt_from_local(MSTimeInterval t)
+{
+  FILETIME fts, ftl;
+  SYSTEMTIME sts, stl;
+  _MSTimeIntervalToFileTime(t, &ftl);
+  if (FileTimeToSystemTime(&ftl, &stl) && // According to MSDN, this is a necessary conversion to take daylight into account
+      TzSpecificLocalTimeToSystemTime(NULL /* uses the currently active time zone */, &stl, &sts) &&
+      SystemTimeToFileTime(&sts, &fts))
+    _FileTimeToMSTimeInterval(fts, &t);
+  return t;
+}
+
 #endif
