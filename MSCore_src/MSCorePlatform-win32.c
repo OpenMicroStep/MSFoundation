@@ -49,36 +49,31 @@
 
 void uuid_generate_string(char dst[37])
 {
+  unsigned char *str;
   UUID uuid;
-  UuidCreate (&uuid);
-  const char *str;
+  UuidCreate(&uuid);
   UuidToString(&uuid, &str);
   strncpy(dst, str, 37);
   RpcStringFree(&str);
 }
 
-// this **!@** structure count by 100 nanoseconds steps since 1st january 1601
-#define _MSTimeIntervalSince1601 12622780800ull
+// WIN32 count by 100 nanoseconds steps since 1st january 1601
+#define _MSTimeIntervalSince1601 12622780800ULL
 
-static inline void _FileTimeToMicro(FILETIME ft, MSLong *t)
+static inline MSLong _FileTimeToMicro(FILETIME ft
 {
-  MSULong d;
-  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
-  *t = (MSTimeInterval)(d - _MSTimeIntervalSince1601*10000000) / 10;
+  MSULong d= ((((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime) / 10;
+  return (MSTimeInterval)d - _MSTimeIntervalSince1601*1000000;
 }
-static inline void _FileTimeToMSTimeInterval(FILETIME ft, MSTimeInterval *t)
+static inline MSTimeInterval _FileTimeToMSTimeInterval(FILETIME ft)
 {
-  MSULong d;
-  d = (((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
-  d /= 10000000;
-  *t = (MSTimeInterval)(d) - _MSTimeIntervalSince1601;
+  MSULong d= ((((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime) / 10000000;
+  return (MSTimeInterval)(d) - _MSTimeIntervalSince1601;
 }
 
 static inline void _MSTimeIntervalToFileTime(MSTimeInterval t, FILETIME * ft)
 {
-  MSULong d;
-  d = t + _MSTimeIntervalSince1601;
-  d *= 10000000;
+  MSULong d= (t + _MSTimeIntervalSince1601) * 10000000;
   ft->dwLowDateTime  = (MSUInt) (d & 0xFFFFFFFF );
   ft->dwHighDateTime = (MSUInt) (d >> 32 );
 }
@@ -93,20 +88,16 @@ BOOL WINAPI TzSpecificLocalTimeToSystemTime(void* lpTimeZoneInformation,void* lp
 
 MSLong gmt_micro(void)
 {
-  MSLong t;
   FILETIME fts;
   GetSystemTimeAsFileTime(&fts);
-  _FileTimeToMicro(fts, &t);
-  return t;
+  return _FileTimeToMicro(fts);
 }
 
 MSTimeInterval gmt_now(void)
 {
-  MSTimeInterval t;
   FILETIME fts;
   GetSystemTimeAsFileTime(&fts);
-  _FileTimeToMSTimeInterval(fts, &t);
-  return t;
+  return _FileTimeToMSTimeInterval(fts);
 }
 
 MSTimeInterval gmt_to_local(MSTimeInterval tIn)
@@ -118,7 +109,7 @@ MSTimeInterval gmt_to_local(MSTimeInterval tIn)
   if (FileTimeToSystemTime(&fts, &sts) && // According to MSDN, this is a necessary conversion to take daylight into account
       SystemTimeToTzSpecificLocalTime(NULL /* uses the currently active time zone */, &sts, &stl) &&
       SystemTimeToFileTime(&stl, &ftl))
-    _FileTimeToMSTimeInterval(ftl, &tOut);
+    tOut= _FileTimeToMSTimeInterval(ftl);
   else tOut = tIn;
   return tOut;
 }
@@ -131,7 +122,7 @@ MSTimeInterval gmt_from_local(MSTimeInterval t)
   if (FileTimeToSystemTime(&ftl, &stl) && // According to MSDN, this is a necessary conversion to take daylight into account
       TzSpecificLocalTimeToSystemTime(NULL /* uses the currently active time zone */, &stl, &sts) &&
       SystemTimeToFileTime(&sts, &fts))
-    _FileTimeToMSTimeInterval(fts, &t);
+    tOut= _FileTimeToMSTimeInterval(fts);
   return t;
 }
 

@@ -52,26 +52,7 @@ void uuid_generate_string(char dst[37]);
 
 MSLong         gmt_micro(void);
 MSTimeInterval gmt_now(void);
-MSTimeInterval gmt_to_local(MSTimeInterval tIn);
+MSTimeInterval gmt_to_local(MSTimeInterval t);
 MSTimeInterval gmt_from_local(MSTimeInterval t);
-
-
-// Needed for UNIX-gmt_from_local()
-// Implemented in MSCDate.c
-#pragma mark _dtm declarations
-
-typedef struct _dtmStruct {
-  unsigned year:32;
-  unsigned month:4;
-  unsigned day:5;
-  unsigned hour:5;
-  unsigned minute:6;
-  unsigned second:6;
-  unsigned dayOfWeek:3;
-  unsigned :3;
-  }
-_dtm;
-
-_dtm _dtmCast(MSTimeInterval ref);
 
 #endif // MSCORE_PLATFORM_PRIVATE_H

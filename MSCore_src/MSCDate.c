@@ -88,6 +88,22 @@ static inline unsigned _lastDayOfMonth(unsigned year, unsigned month)
   return (month == 2 && _isLeap(year)) ? 29 : __daysInMonth[month];
 }
 
+#pragma mark _dtm declarations
+
+typedef struct _dtmStruct {
+  unsigned year:32;
+  unsigned month:4;
+  unsigned day:5;
+  unsigned hour:5;
+  unsigned minute:6;
+  unsigned second:6;
+  unsigned dayOfWeek:3;
+  unsigned :3;
+  }
+_dtm;
+
+_dtm _dtmCast(MSTimeInterval ref);
+
 #pragma mark _tm declarations
 
 // Algorithm used is a modification of Rata Die algorithm described by Peter
@@ -271,17 +287,11 @@ MSTimeInterval GMTToLocal(NSTimeInterval t)
 {
   return gmt_to_local((MSTimeInterval)(t>=0 ? t+.5 :  t-.5));
 }
-static MSTimeInterval _CDateSecondsOfNow(void)
-// NO needs to be public
-// TODO: @ECB Utility?
-{
-  return gmt_to_local(gmt_now());
-}
 
 CDate* CDateInitNow(CDate* self)
 {
   if (!self) return nil;
-  self->interval= _CDateSecondsOfNow();
+  self->interval= gmt_to_local(gmt_now());
   return self;
 }
 

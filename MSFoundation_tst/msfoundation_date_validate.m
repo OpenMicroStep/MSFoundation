@@ -201,6 +201,21 @@ static void date_now(test_t *test)
   {
   MSDate *d1,*d2m; NSDate *d2; MSTimeInterval dt1m,dt2m; NSTimeInterval dt1n,dt2n;
 
+  
+  // Europe/Paris DST test
+  // TODO: Force tz to be Europe/Paris
+  d1= [MSDate dateWithYear:2015 month:3 day:29 hour:3 minute:0 second:0];
+  TASSERT_EQUALS(test, [d1 secondsSinceLocalReferenceDate], 449290800,
+    "invalid local time for 03:00:00 Sunday March 29, 2015 in Europe/Paris");
+  TASSERT_EQUALS(test, [d1 timeIntervalSinceReferenceDate], 449283600,
+    "invalid gmt time for 03:00:00 Sunday March 29, 2015 in Europe/Paris");
+  
+  d1= [MSDate dateWithYear:2015 month:3 day:29 hour:1 minute:59 second:59];
+  TASSERT_EQUALS(test, [d1 secondsSinceLocalReferenceDate], 449287199,
+    "invalid local time for 01:59:59 Sunday March 29, 2015 in Europe/Paris");
+  TASSERT_EQUALS(test, [d1 timeIntervalSinceReferenceDate], 449283599,
+    "invalid gmt time for 01:59:59 Sunday March 29, 2015 in Europe/Paris");
+  
   d1= [MSDate now];
   d2= [NSDate date];
   dt1m= [d1 secondsSinceLocalReferenceDate];

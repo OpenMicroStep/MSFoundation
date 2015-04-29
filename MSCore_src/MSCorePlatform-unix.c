@@ -46,7 +46,7 @@
 #ifdef UNIX
 
 #include <uuid/uuid.h>
-#include <sys/time.h> // for gettimeofday
+#include <sys/time.h>
 
 void uuid_generate_string(char dst[37])
 {
@@ -60,7 +60,7 @@ MSLong gmt_micro(void)
   MSLong t;
   struct timeval tv;
   gettimeofday(&tv,NULL);
-  t= ((MSTimeInterval)tv.tv_sec - CDateSecondsFrom19700101To20010101)*1000000 + tv.tv_usec;
+  t= ((MSTimeInterval)tv.tv_sec - CDateSecondsFrom19700101To20010101)*1000000LL + (MSTimeInterval)tv.tv_usec;
   return t;
 }
 
@@ -72,24 +72,20 @@ MSTimeInterval gmt_now(void)
   return t;
 }
 
-MSTimeInterval gmt_to_local(MSTimeInterval tIn)
+MSTimeInterval gmt_to_local(MSTimeInterval t)
 {
-  MSTimeInterval tOut;
   struct tm tm;
-  time_t timet= tIn + CDateSecondsFrom19700101To20010101;
+  time_t timet= t + CDateSecondsFrom19700101To20010101;
   (void)localtime_r(&timet, &tm);
-  tOut= (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101 + (MSTimeInterval)(tm.tm_gmtoff);
-  return tOut;
+  return (MSTimeInterval)timet - CDateSecondsFrom19700101To20010101 + (MSTimeInterval)(tm.tm_gmtoff);
 }
 
 MSTimeInterval gmt_from_local(MSTimeInterval t)
 {
-  _dtm dtm= _dtmCast(t);
-  struct tm tm= {dtm.second,dtm.minute,dtm.hour,
-                 dtm.day,dtm.month-1,(int)(dtm.year-1900),0,0,-1,0,NULL};
-  time_t timet= mktime(&tm);
-  t= (MSTimeInterval)timet-CDateSecondsFrom19700101To20010101;
-  return t;
+  struct tm tm;
+  time_t timet= (time_t)(t + CDateSecondsFrom19700101To20010101);
+  (void)mktime(gmtime_r(&timet, &tm));
+  return t - (MSTimeInterval)tm.tm_gmtoff;
 }
 
 #endif
