@@ -204,8 +204,8 @@ MSCoreExtern BOOL        _MIsArray        (id obj);
 #else                                                              // FOUNDATION
 
 #include <objc/objc-runtime.h>
-#if defined(WIN32)
-  #define ISA(X)         ((X)->isa)
+#if defined(WO451)
+  #define ISA(X)         (((id)(X))->isa)
   #define NAMEOFCLASS(X) object_getClassName((id)(X))
 #elif defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
   #define ISA(X)         object_getClass(X)

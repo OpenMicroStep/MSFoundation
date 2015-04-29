@@ -8,7 +8,9 @@
 #include <MSCore/MSCore.h>
 #include "MSTests.h"
 
-pthread_mutex_t __mutex= PTHREAD_MUTEX_INITIALIZER;
+EXTERN_TESTS_BASE
+
+mutex_t __mutex;
 
 CString* CMessageTest;
 CString* TTag1, *TTag2;
@@ -155,6 +157,7 @@ static void CBehaviorTest(CDictionary* ctx, CString* msg)
 int main(int argc, const char * argv[])
 {
   int err= 0, argi;
+  mutex_init(__mutex);
   CMessageTest= CSCreate("CMessageTest");
   TTag1= CSCreate("tag 1");
   TTag2= CSCreate("tag 2");
@@ -170,5 +173,6 @@ int main(int argc, const char * argv[])
 //CMessageDebugOn= on;
   RELEASE(CMessageTest);
   RELEASE(TTag1); RELEASE(TTag2); RELEASE(TTags);
+  mutex_delete(__mutex);
   return err;
 }

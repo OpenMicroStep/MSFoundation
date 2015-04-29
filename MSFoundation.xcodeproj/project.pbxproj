@@ -69,6 +69,8 @@
 		40EDED131AF0EBC300F3435C /* MSCorePlatform_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 40EDED101AF0EB9400F3435C /* MSCorePlatform_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		40EDED141AF0EBC500F3435C /* MSCorePlatform_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 40EDED101AF0EB9400F3435C /* MSCorePlatform_Private.h */; };
 		40EDED151AF0EBC600F3435C /* MSCorePlatform_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 40EDED101AF0EB9400F3435C /* MSCorePlatform_Private.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		40EDED161AF1529600F3435C /* MSCorePlatform-unix.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818BC1AD428AF008A9497 /* MSCorePlatform-unix.c */; };
+		40EDED171AF1529C00F3435C /* MSCorePlatform-win32.c in Sources */ = {isa = PBXBuildFile; fileRef = A6E818C11AD428CD008A9497 /* MSCorePlatform-win32.c */; };
 		A604A2311A8515B3001DAD54 /* FoundationCompatibility_Private.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2301A8515B3001DAD54 /* FoundationCompatibility_Private.m */; };
 		A604A2331A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
 		A604A2341A852951001DAD54 /* foundation_nsstring_validate.m in Sources */ = {isa = PBXBuildFile; fileRef = A604A2321A852951001DAD54 /* foundation_nsstring_validate.m */; };
@@ -2361,7 +2363,7 @@
 						wo451 = {
 							addIncludePaths = 3rdparty/wo451/include;
 							addLibraryPaths = 3rdparty/wo451/lib;
-							addLinkerFlags = "-lkernel32.mingw";
+							addLinkerFlags = "-lkernel32.mingw -lRpcrt4 -lpthreadGC2";
 							delCompilationFlags = "-Wconversion;-Wselector;-Wshadow";
 							delLinkerFlags = "-lobjc";
 							wo451BinariesPath = "D:\\MicroStep3\\Executables";
@@ -3015,6 +3017,7 @@
 				A6E3A2481A9C745800F65291 /* mapm_rcp.c in Sources */,
 				A6E3A2491A9C745800F65291 /* mapm_set.c in Sources */,
 				A6E3A24A1A9C745800F65291 /* mapm_sin.c in Sources */,
+				40EDED161AF1529600F3435C /* MSCorePlatform-unix.c in Sources */,
 				A6E3A24B1A9C745800F65291 /* mapm5sin.c in Sources */,
 				A6E3A24C1A9C745800F65291 /* mapmasin.c in Sources */,
 				A6E3A24D1A9C745800F65291 /* mapmasn0.c in Sources */,
@@ -3032,6 +3035,7 @@
 				A6E3A2591A9C745800F65291 /* mapmsqrt.c in Sources */,
 				A6E3A25A1A9C745800F65291 /* mapmutil.c in Sources */,
 				A6E3A25B1A9C745800F65291 /* mapmutl1.c in Sources */,
+				40EDED171AF1529C00F3435C /* MSCorePlatform-win32.c in Sources */,
 				A6E3A25C1A9C745800F65291 /* mapmutl2.c in Sources */,
 				A6E3A25D1A9C745800F65291 /* MSCArray.c in Sources */,
 				A6E3A25E1A9C745800F65291 /* MSCBuffer.c in Sources */,

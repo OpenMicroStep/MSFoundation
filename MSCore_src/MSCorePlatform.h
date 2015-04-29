@@ -66,13 +66,13 @@
 #include <limits.h>
 #include <math.h>
 #include <time.h>
+#include <pthread.h>
 
 #ifdef WIN32
     #include <windows.h>
 #else
     #include <sys/syscall.h>
     #include <unistd.h>
-    #include <pthread.h>
     #include <fcntl.h>
     #include <signal.h>
 #endif
@@ -163,6 +163,10 @@ MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list a
     static inline pid_t gettid() { return GetCurrentThreadId(); }
 #elif defined(APPLE)
     static inline pid_t gettid() { return syscall(SYS_getpid); }
+#endif
+
+#ifdef WIN32
+static inline usleep(int32_t usec) { usec /= 1000; Sleep(usec > 0 ? usec : 1); return 0; }
 #endif
 
 // END Simple platform abstraction
