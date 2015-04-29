@@ -125,7 +125,6 @@ static void object_perform(test_t *test)
 }
 
 
-#include <assert.h>
 typedef struct atom_t {
   long            value;
   pthread_mutex_t mutex;
@@ -224,12 +223,27 @@ pthread_t _launchThread(test_t *test, void *(*start_routine)(void *), void* data
   return thread;
 }
 
+#ifdef WO451
+@interface NSObjectTestsThreadFakeLauncher : NSObject
+- (void)fakeLaunch:(id)parameters ;
+@end
+@implementation NSObjectTestsThreadFakeLauncher
+- (void)fakeLaunch:(id)parameters {}
+@end
+#endif
+
 static void object_threadRetain(test_t *test)
 {
   id o;
   int state;
   struct pthread_data_t d1, d2, d3;
   struct atom_t struct_atom= STRUCT_ATOM_INITIALIZER(0);
+  
+#ifdef WO451
+  //force some initializations under WO451
+  [NSThread detachNewThreadSelector:@selector(fakeLaunch:) toTarget:[NSObjectTestsThreadFakeLauncher new] withObject:nil];
+#endif
+
   o= [[NSObject alloc] init];
   d1.no= 1; d1.o= o; d1.atom= NULL;
   d2.no= 2; d2.o= o; d2.atom= NULL;
