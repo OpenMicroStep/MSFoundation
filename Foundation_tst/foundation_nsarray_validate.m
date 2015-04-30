@@ -96,8 +96,24 @@ static void array_subarray(test_t *test)
   RELEASE(o);
 }
 
+static void array_enum(test_t *test)
+{
+  id a,e,o,o0,o1,oi; NSUInteger i;
+  o0= @"1"; o1= @"2";
+  a= [NSArray arrayWithObjects:o0, o1, nil];
+  e= [a objectEnumerator];
+  for (i= 0 ; (o= [e nextObject]); i++) {
+    oi= (i==0?o0:o1);
+    TASSERT_ISEQUAL(test, o, oi, "%s != %s",[o UTF8String],[oi UTF8String]);}
+  e= [a reverseObjectEnumerator];
+  for (i= 0 ; (o= [e nextObject]); i++) {
+    oi= (i==0?o1:o0);
+    TASSERT_ISEQUAL(test, o, oi, "%s != %s",[o UTF8String],[oi UTF8String]);}
+}
+
 test_t foundation_array[]= {
-  {"create"    ,NULL,array_create  ,INTITIALIZE_TEST_T_END},
-  {"mutability",NULL,array_mutate  ,INTITIALIZE_TEST_T_END},
-  {"subarray"  ,NULL,array_subarray,INTITIALIZE_TEST_T_END},
+  {"create"     ,NULL,array_create  ,INTITIALIZE_TEST_T_END},
+  {"mutability" ,NULL,array_mutate  ,INTITIALIZE_TEST_T_END},
+  {"subarray"   ,NULL,array_subarray,INTITIALIZE_TEST_T_END},
+  {"enumeration",NULL,array_enum    ,INTITIALIZE_TEST_T_END},
   {NULL}};
