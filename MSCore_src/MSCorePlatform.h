@@ -8,7 +8,7 @@
 
 // Platform detection
 #ifndef LINUX
-#ifdef __LINUX__
+#ifdef __linux__
 #define LINUX
 #endif
 #endif
@@ -163,7 +163,7 @@ MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list a
     typedef DWORD pid_t;
     static inline pid_t getpid() { return GetCurrentProcessId(); }
     static inline pid_t gettid() { return GetCurrentThreadId(); }
-#elif defined(APPLE)
+#elif defined(UNIX)
     static inline pid_t gettid() { return syscall(SYS_getpid); }
 #endif
 

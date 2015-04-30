@@ -19,6 +19,7 @@
 #import <MSFoundation/NSEnumerator.h>
 #import <MSFoundation/NSData.h>
 #import <MSFoundation/NSDate.h>
+#import <MSFoundation/NSRange.h>
 #import <MSFoundation/NSNull.h>
 
 #import <MSFoundation/NSCoder.h>

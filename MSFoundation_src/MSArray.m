@@ -39,7 +39,6 @@
  */
 
 #import "MSFoundation_Private.h"
-#import <objc/objc-runtime.h>
 
 #pragma mark Private
 

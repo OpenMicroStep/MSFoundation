@@ -203,7 +203,7 @@ MSCoreExtern BOOL        _MIsArray        (id obj);
 
 #else                                                              // FOUNDATION
 
-#include <objc/objc-runtime.h>
+#include <objc/runtime.h>
 #if defined(WO451)
   #define ISA(X)         (((id)(X))->isa)
   #define NAMEOFCLASS(X) object_getClassName((id)(X))
