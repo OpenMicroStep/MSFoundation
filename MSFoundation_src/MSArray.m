@@ -50,29 +50,11 @@
 - (BOOL)_isMS;
 @end
 
-@interface _MSArrayEnumerator : NSEnumerator
-{
-@public
-  CArray*    _array;
-  NSUInteger _next;
-}
-@end
-
-@interface _MSArrayReverseEnumerator : _MSArrayEnumerator
-@end
-
 @implementation NSArray (Private)
 - (BOOL)_isMS {return NO;}
 @end
 @implementation MSArray (Private)
 - (BOOL)_isMS {return YES;}
-@end
-@implementation _MSArrayEnumerator
-- (id)nextObject {return _next < _array->count ? _array->pointers[_next++] : nil;}
-- (void)dealloc  {RELEASE((id)_array); [super dealloc];}
-@end
-@implementation _MSArrayReverseEnumerator
-- (id)nextObject {return _next > 0 ? _array->pointers[--_next] : nil;}
 @end
 
 #pragma mark Public
@@ -141,15 +123,15 @@ static inline id _initFoArgs(id a, BOOL m, id o, va_list l)
   id ret; \
   va_list ap; \
   va_start(ap, O); \
-  ret= CL ? AL(CL) : A; \
+  ret= CL ? AL((id)CL) : A; \
   ret= _initFoArgs(ret,M, O,ap); \
   va_end(ap); \
   return CL ? AR(ret) : ret
 
 + (id)arrayWithObjects:       (id)firstObject, ... {_arrayOs(self, nil,  NO, firstObject);}
 + (id)mutableArrayWithObjects:(id)firstObject, ... {_arrayOs(self, nil, YES, firstObject);}
-- (id)initWithObjects:        (id)firstObject, ... {_arrayOs(nil ,self,  NO, firstObject);}
-- (id)mutableInitWithObjects: (id)firstObject, ... {_arrayOs(nil ,self, YES, firstObject);}
+- (id)initWithObjects:        (id)firstObject, ... {_arrayOs(Nil ,self,  NO, firstObject);}
+- (id)mutableInitWithObjects: (id)firstObject, ... {_arrayOs(Nil ,self, YES, firstObject);}
 
 static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
   {
@@ -329,31 +311,30 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 
 - (NSEnumerator*)objectEnumerator
   {
-  _MSArrayEnumerator *e= MSAllocateObject([_MSArrayEnumerator class],0,nil);
-  e->_array= (CArray*)RETAIN(self);
+  MSArrayEnumerator *e= MSAllocateObject([MSArrayEnumerator class],0,nil);
+  [e initWithArray:self reverse:NO];
   return AUTORELEASE(e);
   }
 
 - (NSEnumerator*)reverseObjectEnumerator
   {
-  _MSArrayReverseEnumerator *e= MSAllocateObject([_MSArrayReverseEnumerator class],0,nil);
-  e->_array= (CArray*)RETAIN(self);
-  e->_next= _count;
+  MSArrayEnumerator *e= MSAllocateObject([MSArrayEnumerator class],0,nil);
+  [e initWithArray:self reverse:YES];
   return AUTORELEASE(e);
   }
+
 - (void)getObjects:(id*)objects
   {
-  if (objects && _count) memcpy(objects, _pointers, _count*sizeof(id));
+  GArrayGetObject(NULL, self, 0, _count, objects);
   }
 
 - (void)getObjects:(id*)objects range:(NSRange)rg
   {
-  if (rg.location + rg.length > _count) {
+  NSUInteger n= GArrayGetObject(NULL, self, rg.location, rg.length, objects);
+  if (n != rg.length) {
     MSReportError(MSInvalidArgumentError, MSFatalError, MSIndexOutOfRangeError,
       "%s: range %s out of range (0, %lu)",
-      sel_getName(_cmd), [NSStringFromRange(rg) UTF8String], WLU(_count));
-    return;}
-  if (objects && rg.length) memcpy(objects, _pointers+rg.location, rg.length*sizeof(id));
+      sel_getName(_cmd), [NSStringFromRange(rg) UTF8String], WLU(_count));}
   }
 
 #pragma mark Search
@@ -362,7 +343,7 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
   {
   return CArrayIndexOfObject((CArray*)self, o, 0, _count) == NSNotFound ? NO : YES;
   }
-- (BOOL)containsIdenticalObject:(id)o
+- (BOOL)containsObjectIdenticalTo:(id)o
   {
   return CArrayIndexOfIdenticalObject((CArray*)self, o, 0, _count) == NSNotFound ? NO : YES;
   }
@@ -440,10 +421,18 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 - (NSString *)jsonRepresentation { return CArrayJsonRepresentation((CArray *)self); }
 */
 
-- (NSString*)toString                                                             {return [self description];}
-- (NSString*)description                                                          {return [(id)CArrayRetainedDescription(self) autorelease];}
-- (NSString*)descriptionWithLocale:(NSDictionary*)locale                          {return [self description]; locale= NULL;}
-- (NSString*)descriptionWithLocale:(NSDictionary*)locale indent:(NSUInteger)level {return [self description]; locale= NULL; level= 0;}
+- (NSString*)toString
+  {return [self description];}
+- (NSString*)description
+{
+  CString *s= CCreateString(0);
+  CStringAppendGArrayDescription(s, NULL, self);
+  return [(id)s autorelease];
+}
+- (NSString*)descriptionWithLocale:(NSDictionary*)locale
+  {return [self description]; locale= NULL;}
+- (NSString*)descriptionWithLocale:(NSDictionary*)locale indent:(NSUInteger)level
+  {return [self description]; locale= NULL; level= 0;}
 
 #pragma mark NSCoding protocol
 
@@ -650,4 +639,40 @@ static NSComparisonResult _internalCompareFunction2(id e1, id e2, void *selector
   if (_count > 1 ) MSObjectSort(_pointers, _count, _internalCompareFunction2, (void*)comparator);
 }
 
+@end
+
+@implementation NSArrayEnumerator
+
+- (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse
+{
+  return [self initWithArray:a pfs:GArrayPfs count:GArrayPfs->count(a) reverse:reverse];
+}
+
+- (id)initWithArray:(NSArray*)a pfs:(array_pfs_t)pfs count:(NSUInteger)c reverse:(BOOL)reverse
+{
+  GArrayEnumeratorInit(&_arrayEnumerator, pfs, a, 0, c);
+  RETAIN(_arrayEnumerator.array);
+  _reverse= reverse;
+  return self;
+}
+
+- (void)dealloc
+{
+  RELEASE(_arrayEnumerator.array);
+  [super dealloc];
+}
+
+- (id)nextObject
+{
+  return _reverse ? GArrayEnumeratorPreviousObject(&_arrayEnumerator, NULL) :
+                    GArrayEnumeratorNextObject(&_arrayEnumerator, NULL);
+}
+
+@end
+
+@implementation MSArrayEnumerator
+- (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse
+{
+  return [super initWithArray:a pfs:NULL count:((CArray*)a)->count reverse:reverse];
+}
 @end

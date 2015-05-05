@@ -189,29 +189,25 @@ id CDateCopy(id self)
 
 const CString *CDateRetainedDescription(id self)
 {
-  _dtm dt= _dtmCast(((CDate*)self)->interval);
   CString *s= CCreateString(20);
-  CStringAppendFormat(s, "%04u-%02u-%02u %02u:%02u:%02u",
-    (unsigned)(dt.year   % 10000),
-    (unsigned)(dt.month  % 100),
-    (unsigned)(dt.day    % 100),
-    (unsigned)(dt.hour   % 100),
-    (unsigned)(dt.minute % 100),
-    (unsigned)(dt.second % 100));
+  CStringAppendCDateDescription(s, (CDate*)self);
   return s;
 }
 
 void CStringAppendCDateDescription(CString *s, CDate *d) // + context de description ?
 {
-  _dtm dt= _dtmCast(d->interval);
-  CStringAppendFormat(s,"%04u-%02u-%02u %02u:%02u:%02u",
-    (dt.year   % 10000),
-    (dt.month  % 100),
-    (dt.day    % 100),
-    (dt.hour   % 100),
-    (dt.minute % 100),
-    (dt.second % 100));
+  if (!d) CStringAppendFormat(s,"nil");
+  else {
+    _dtm dt= _dtmCast(d->interval);
+    CStringAppendFormat(s,"%04u-%02u-%02u %02u:%02u:%02u",
+      (dt.year   % 10000),
+      (dt.month  % 100),
+      (dt.day    % 100),
+      (dt.hour   % 100),
+      (dt.minute % 100),
+      (dt.second % 100));}
 }
+
 #pragma mark Equality
 
 BOOL CDateEquals(const CDate *self, const CDate *other)

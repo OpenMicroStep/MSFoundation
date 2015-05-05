@@ -28,9 +28,9 @@
   return [ALLOC(NSMutableArray) initWithArray:self];
 }
 
-- (id)objectAtIndex:(NSUInteger)index
-{ [self notImplemented:_cmd]; return 0; }
 - (NSUInteger)count
+{ [self notImplemented:_cmd]; return 0; }
+- (id)objectAtIndex:(NSUInteger)index
 { [self notImplemented:_cmd]; return 0; }
 @end
 
@@ -59,6 +59,7 @@
 @end
 
 @implementation _MSMArray
+
 + (void)load {MSFinishLoadingAddClass(self);}
 + (void)finishLoading
 {
@@ -80,6 +81,137 @@
 - (BOOL)isKindOfClass:(Class)aClass
 {
   return (aClass == [NSMutableArray class]) || [super isKindOfClass:aClass];
+}
+
+@end
+
+@interface NSArray (Private)
+- (BOOL)_isMS;
+@end
+
+@implementation NSArray (NSExtendedArray)
+
+- (BOOL)isEqualToArray:(NSArray*)otherArray
+  {
+  array_pfs_t sPfs= [self       _isMS] ? NULL : GArrayPfs;
+  array_pfs_t oPfs= [otherArray _isMS] ? NULL : GArrayPfs;
+  return GArrayEquals(sPfs, self, oPfs, otherArray);
+  }
+- (BOOL)isEqual:(id)object
+  {
+  if (object == (id)self) return YES;
+  if (!object) return NO;
+  if ([object isKindOfClass:[NSArray class]]) {
+    array_pfs_t sPfs= [self   _isMS] ? NULL : GArrayPfs;
+    array_pfs_t oPfs= [object _isMS] ? NULL : GArrayPfs;
+    return GArrayEquals(sPfs, self, oPfs, object);}
+  return NO;
+  }
+
+- (NSString*)description
+{
+  CString *s= CCreateString(0);
+  CStringAppendGArrayDescription(s, GArrayPfs, self);
+  return [(id)s autorelease];
+}
+
+- (id)firstObject
+{
+  return GArrayFirstObject(GArrayPfs, self);
+}
+
+- (id)lastObject
+{
+  return GArrayLastObject(GArrayPfs, self);
+}
+
+- (BOOL)containsObject:(id)o
+{
+  return GArrayIndexOfObject(GArrayPfs, self, o, 0, GArrayPfs->count(self)) == NSNotFound ? NO : YES;
+}
+- (BOOL)containsObjectIdenticalTo:(id)o
+{
+  return GArrayIndexOfIdenticalObject(GArrayPfs, self, o, 0, GArrayPfs->count(self)) == NSNotFound ? NO : YES;
+}
+
+- (NSUInteger)indexOfObject:(id)anObject
+{
+  return GArrayIndexOfObject(GArrayPfs, self, anObject, 0, GArrayPfs->count(self));
+}
+- (NSUInteger)indexOfObject:(id)anObject inRange:(NSRange)range
+{
+  return GArrayIndexOfObject(GArrayPfs, self, anObject, range.location, range.length);
+}
+
+- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject
+{
+  return GArrayIndexOfIdenticalObject(GArrayPfs, self, anObject, 0, GArrayPfs->count(self));
+}
+- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)range
+{
+  return GArrayIndexOfIdenticalObject(GArrayPfs, self, anObject, range.location, range.length);
+}
+
+- (NSEnumerator*)objectEnumerator
+{
+  NSArrayEnumerator *e= MSAllocateObject([NSArrayEnumerator class],0,nil);
+  [e initWithArray:self reverse:NO];
+  return AUTORELEASE(e);
+}
+
+- (NSEnumerator*)reverseObjectEnumerator
+  {
+  NSArrayEnumerator *e= MSAllocateObject([NSArrayEnumerator class],0,nil);
+  [e initWithArray:self reverse:YES];
+  return AUTORELEASE(e);
+  }
+
+- (void)getObjects:(id*)objects
+  {
+  GArrayGetObject(GArrayPfs, self, 0, GArrayPfs->count(self), objects);
+  }
+- (void)getObjects:(id*)objects range:(NSRange)rg
+  {
+  GArrayGetObject(GArrayPfs, self, rg.location, rg.length, objects);
+  }
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector
+  {
+  id e= [self objectEnumerator], o;
+  while ((o= [e nextObject])) (*((void (*)(id, SEL))objc_msgSend))(o, aSelector);
+  }
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object
+  {
+  id e= [self objectEnumerator], o;
+  while ((o= [e nextObject])) (*((void (*)(id, SEL, id))objc_msgSend))(o, aSelector, object);
+  }
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2
+  {
+  id e= [self objectEnumerator], o;
+  while ((o= [e nextObject])) (*((void (*)(id, SEL, id, id))objc_msgSend))(o, aSelector, object1, object2);
+  }
+
+@end
+
+@implementation NSArray (NSExtendedNewArray)
+
+- (NSArray*)arrayByAddingObject:(id)anObject
+{
+  NSUInteger n= [self count];
+  id os[n+1];
+  [self getObjects:os];
+  os[n]= anObject;
+  return AUTORELEASE([[[self class] alloc] initWithObjects:os count:n+1]);
+}
+
+- (NSArray*)arrayByAddingObjectsFromArray:(NSArray *)otherArray
+{
+  NSUInteger n= [self count], m=[otherArray count];
+  id os[n+m];
+  [self getObjects:os]; [otherArray getObjects:os+n];
+  return AUTORELEASE([[[self class] alloc] initWithObjects:os count:n+m]);
 }
 
 @end

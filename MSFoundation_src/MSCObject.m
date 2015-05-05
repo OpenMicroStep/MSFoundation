@@ -122,10 +122,25 @@ const CString* _MObjectRetainedDescription(id obj)
   return CCreateStringWithSES(SESFromString(d));
 }
 
-MSCoreExtern BOOL _MIsArray(id obj)
+BOOL _MIsArray(id obj)
 {
   return [obj isKindOfClass:[NSArray class]];
 }
+
+NSUInteger _GCount(id array)
+{
+  return [array count];
+}
+id _GObjectAtIndex(id array, NSUInteger i)
+{
+  return [array objectAtIndex:i];
+}
+struct array_pfs_s GArrayPfsStruct= {
+  _GCount,
+  _GObjectAtIndex,
+  NULL
+  };
+array_pfs_t GArrayPfs= &GArrayPfsStruct;
 
 int _MSEnv()
 {

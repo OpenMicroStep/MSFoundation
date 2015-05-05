@@ -111,9 +111,154 @@ static void array_enum(test_t *test)
     TASSERT_ISEQUAL(test, o, oi, "%s != %s",[o UTF8String],[oi UTF8String]);}
 }
 
+#pragma mark Subclass
+
+@interface MyArray : NSArray
+@end
+
+id _o1= @"first object";
+id _o2= @"second object";
+@implementation MyArray
+- (NSUInteger)count
+{
+  return 2;
+}
+- (id)objectAtIndex:(NSUInteger)index
+{
+  return index==0 ? _o1 : index==1 ? _o2 : nil;
+}
+@end
+
+@interface MyFastArray : NSArray
+@end
+
+NSUInteger _MyFastArrayCount(id array)
+{
+  return 2;
+}
+id _MyFastArrayObjectAtIndex(id array, NSUInteger index)
+{
+  return index==0 ? _o1 : index==1 ? _o2 : nil;
+}
+NSUInteger _MyFastArrayGet(id array, NSUInteger start, NSUInteger count, id *objects)
+{
+  NSUInteger end, i;
+  start= MIN(start, 2);
+  end= MIN(start+count, 2);
+  for (i= start; i<end; i++) objects[i]= (i==0 ? _o1 : _o2);
+  return end-start;
+}
+struct array_pfs_s MyFastArrayPfsStruct= {
+  _MyFastArrayCount,
+  _MyFastArrayObjectAtIndex,
+  _MyFastArrayGet
+  };
+array_pfs_t MyFastArrayPfs= &MyFastArrayPfsStruct;
+
+// Sans les primitives méthodes pour être sûr de bien passer par les fonctions.
+@implementation MyFastArray
+#ifndef MICROSTEP // Sinon, en COCOA makeObjectsPerformSelector va demander count sur MyFastArray
+- (NSUInteger)count
+{ return _MyFastArrayCount(self); }
+- (id)objectAtIndex:(NSUInteger)index
+{ return _MyFastArrayObjectAtIndex(self, index); }
+#endif
+- (NSString*)description
+{
+  CString *s= CCreateString(0);
+  CStringAppendGArrayDescription(s, MyFastArrayPfs, self);
+  return [(id)s autorelease];
+}
+- (id)firstObject {return GArrayFirstObject(MyFastArrayPfs, self);}
+- (id)lastObject  {return GArrayLastObject(MyFastArrayPfs, self);}
+- (BOOL)containsObject:(id)o
+{return GArrayIndexOfObject(MyFastArrayPfs, self, o, 0, MyFastArrayPfs->count(self)) == NSNotFound ? NO : YES;}
+- (BOOL)containsObjectIdenticalTo:(id)o
+{return GArrayIndexOfIdenticalObject(MyFastArrayPfs, self, o, 0, MyFastArrayPfs->count(self)) == NSNotFound ? NO : YES;}
+- (NSUInteger)indexOfObject:(id)anObject
+{return GArrayIndexOfObject(MyFastArrayPfs, self, anObject, 0, MyFastArrayPfs->count(self));}
+- (NSUInteger)indexOfObject:(id)anObject inRange:(NSRange)range
+{return GArrayIndexOfObject(MyFastArrayPfs, self, anObject, range.location, range.length);}
+- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject
+{return GArrayIndexOfIdenticalObject(MyFastArrayPfs, self, anObject, 0, MyFastArrayPfs->count(self));}
+- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)range
+{return GArrayIndexOfIdenticalObject(MyFastArrayPfs, self, anObject, range.location, range.length);}
+
+- (NSEnumerator*)objectEnumerator
+{
+  NSArrayEnumerator *e= MSAllocateObject([NSArrayEnumerator class],0,nil);
+  [e initWithArray:self pfs:MyFastArrayPfs count:MyFastArrayPfs->count(self) reverse:NO];
+  return AUTORELEASE(e);
+}
+- (NSEnumerator*)reverseObjectEnumerator
+  {
+  NSArrayEnumerator *e= MSAllocateObject([NSArrayEnumerator class],0,nil);
+  [e initWithArray:self pfs:MyFastArrayPfs count:MyFastArrayPfs->count(self) reverse:YES];
+  return AUTORELEASE(e);
+  }
+
+- (void)getObjects:(id*)objects
+  {
+  GArrayGetObject(MyFastArrayPfs, self, 0, MyFastArrayPfs->count(self), objects);
+  }
+- (void)getObjects:(id*)objects range:(NSRange)rg
+  {
+  GArrayGetObject(MyFastArrayPfs, self, rg.location, rg.length, objects);
+  }
+
+@end
+
+static void _array_subclass(test_t *test, Class cl)
+{
+  id o,d,e,x,y,os[2]; int i;
+  o= [[cl alloc] init];
+  if (cl==[MyArray class]) TASSERT_EQUALS(test, [o count], 2, "count is %llu, expected %llu");
+  d= [o description];
+  x= @"(\n    \"first object\",\n    \"second object\"\n)"; // Cocoa
+  y= @"(first object, second object)";
+  TASSERT(test, [d isEqual:x] || [d isEqual:y], "%s",[d UTF8String]);
+  TASSERT_ISEQUAL(test, [o firstObject], _o1, "%s != %s",[[o firstObject] UTF8String],"first object");
+  TASSERT_ISEQUAL(test, [o lastObject], _o2, "%s != %s",[[o lastObject] UTF8String],"second object");
+  TASSERT(test, [o containsObject:_o1], "%d");
+  TASSERT(test, [o containsObjectIdenticalTo:_o2], "%d");
+  TASSERT_EQUALS(test, [o indexOfObject:_o1], 0, "%llu != %llu");
+  TASSERT_EQUALS(test, [o indexOfObject:_o1 inRange:((NSRange){0,1})],          0, "%llu != %llu");
+  TASSERT_EQUALS(test, [o indexOfObject:_o1 inRange:((NSRange){1,1})], NSNotFound, "%llu != %llu");
+  TASSERT_EQUALS(test, [o indexOfObject:_o2], 1, "%llu != %llu");
+  TASSERT_EQUALS(test, [o indexOfObject:_o2 inRange:((NSRange){0,1})], NSNotFound, "%llu != %llu");
+  TASSERT_EQUALS(test, [o indexOfObject:_o2 inRange:((NSRange){1,1})],          1, "%llu != %llu");
+  TASSERT_EQUALS(test, [o indexOfObjectIdenticalTo:_o1], 0, "%llu != %llu");
+  TASSERT_EQUALS(test, [o indexOfObjectIdenticalTo:_o2 inRange:((NSRange){1,1})],1, "%llu != %llu");
+  e= [o objectEnumerator];
+  for (i= 0; (x= [e nextObject]); i++) {
+    TASSERT_ISEQUAL(test, x, (i==0?_o1:_o2), "%s %d",[x UTF8String],i);}
+  TASSERT_EQUALS(test, i, 2, "count is %llu, expected %llu");
+  e= [o reverseObjectEnumerator];
+  for (i= 0; (x= [e nextObject]); i++) {
+    TASSERT_ISEQUAL(test, x, (i==0?_o2:_o1), "%s %d",[x UTF8String],i);}
+  TASSERT_EQUALS(test, i, 2, "count is %llu, expected %llu");
+  [o makeObjectsPerformSelector:@selector(length)];
+  [o getObjects:os];
+  TASSERT_ISEQUAL(test, os[0], _o1, "%s != %s",[os[0] UTF8String],"first object");
+  TASSERT_ISEQUAL(test, os[1], _o2, "%s != %s",[os[1] UTF8String],"second object");
+  RELEASE(o);
+}
+
+static void array_subclass(test_t *test)
+{
+  _array_subclass(test, [MyArray class]);
+}
+
+static void array_fast_subclass(test_t *test)
+{
+  _array_subclass(test, [MyFastArray class]);
+}
+
 test_t foundation_array[]= {
-  {"create"     ,NULL,array_create  ,INTITIALIZE_TEST_T_END},
-  {"mutability" ,NULL,array_mutate  ,INTITIALIZE_TEST_T_END},
-  {"subarray"   ,NULL,array_subarray,INTITIALIZE_TEST_T_END},
-  {"enumeration",NULL,array_enum    ,INTITIALIZE_TEST_T_END},
+  {"create"       ,NULL,array_create       ,INTITIALIZE_TEST_T_END},
+  {"mutability"   ,NULL,array_mutate       ,INTITIALIZE_TEST_T_END},
+  {"subarray"     ,NULL,array_subarray     ,INTITIALIZE_TEST_T_END},
+  {"enumeration"  ,NULL,array_enum         ,INTITIALIZE_TEST_T_END},
+  {"subclass"     ,NULL,array_subclass     ,INTITIALIZE_TEST_T_END},
+  {"fast subclass",NULL,array_fast_subclass,INTITIALIZE_TEST_T_END},
   {NULL}};

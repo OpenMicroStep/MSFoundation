@@ -160,7 +160,7 @@
 #pragma mark Search
 
 - (BOOL)containsObject:(id)o;
-- (BOOL)containsIdenticalObject:(id)o;
+- (BOOL)containsObjectIdenticalTo:(id)o;
 - (NSUInteger)indexOfObject:(id)o;
 - (NSUInteger)indexOfObject:(id)o inRange:(NSRange)range;
 - (NSUInteger)indexOfObjectIdenticalTo:(id)o;
@@ -236,3 +236,18 @@
 // TODO: To be removed
 #define MSCreateArray(C) (MSArray*)CCreateArray(C)
 //MSMutableArray *MSCreateMutableArray(NSUInteger capacity);
+
+@interface NSArrayEnumerator : NSEnumerator
+{
+@private
+  GArrayEnumerator _arrayEnumerator;
+  BOOL _reverse;
+}
+- (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse;
+- (id)initWithArray:(NSArray*)a pfs:(array_pfs_t)pfs count:(NSUInteger)c reverse:(BOOL)reverse;
+- (id)nextObject;
+@end
+@interface MSArrayEnumerator : NSArrayEnumerator
+{
+}
+@end

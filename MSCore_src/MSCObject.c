@@ -150,7 +150,8 @@ const CString* _CObjectRetainedDescription(id obj)
     return nil;}
 }
 
-MSCoreExtern BOOL _CIsArray(id obj)
+array_pfs_t GArrayPfs= NULL;
+BOOL _CIsArray(id obj)
 {
   if (!obj) return NO;
   return CISA(obj)==__allClasses+CArrayClassIndex;

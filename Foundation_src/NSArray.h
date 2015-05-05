@@ -2,40 +2,54 @@
 
 @interface NSArray : NSObject <NSCopying, NSMutableCopying/*, NSSecureCoding, NSFastEnumeration*/>
 
-- (NSUInteger) count;
+- (NSUInteger)count;
 - (id)objectAtIndex:(NSUInteger)index;
+- (instancetype)initWithObjects:(const id [])objects count:(NSUInteger)cnt;
 
 @end
 
 @interface NSArray (NSExtendedArray)
 
-- (NSArray *)arrayByAddingObject:(id)anObject;
-- (NSArray *)arrayByAddingObjectsFromArray:(NSArray *)otherArray;
-- (NSString *)componentsJoinedByString:(NSString *)separator;
+- (BOOL)isEqualToArray:(NSArray*)otherArray;
+- (NSString*)description;
+- (id)firstObject;
+- (id)lastObject;
 - (BOOL)containsObject:(id)anObject;
-- (NSString *)description;
-- (NSString *)descriptionWithLocale:(id)locale;
-- (NSString *)descriptionWithLocale:(id)locale indent:(NSUInteger)level;
-- (id)firstObjectCommonWithArray:(NSArray *)otherArray;
-- (void)getObjects:(id*)objects range:(NSRange)range;
+- (BOOL)containsObjectIdenticalTo:(id)o;
 - (NSUInteger)indexOfObject:(id)anObject;
 - (NSUInteger)indexOfObject:(id)anObject inRange:(NSRange)range;
 - (NSUInteger)indexOfObjectIdenticalTo:(id)anObject;
 - (NSUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)range;
-- (BOOL)isEqualToArray:(NSArray *)otherArray;
-- (id)firstObject;
-- (id)lastObject;
-- (NSEnumerator *)objectEnumerator;
-- (NSEnumerator *)reverseObjectEnumerator;
+- (NSEnumerator*)objectEnumerator;
+- (NSEnumerator*)reverseObjectEnumerator;
+- (void)getObjects:(id*)objects;
+- (void)getObjects:(id*)objects range:(NSRange)range;
+
+- (void)makeObjectsPerformSelector:(SEL)aSelector;
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)argument;
+- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2;
+
+@end
+
+@interface NSArray (NSExtendedNewArray)
+
+- (NSArray*)arrayByAddingObject:(id)anObject;
+- (NSArray*)arrayByAddingObjectsFromArray:(NSArray *)otherArray;
+
+@end
+
+@interface NSArray (NSExtendedArrayUndone)
+
+- (NSString *)componentsJoinedByString:(NSString *)separator;
+- (NSString *)descriptionWithLocale:(id)locale;
+- (NSString *)descriptionWithLocale:(id)locale indent:(NSUInteger)level;
+- (id)firstObjectCommonWithArray:(NSArray *)otherArray;
 - (NSData *)sortedArrayHint;
 - (NSArray *)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator context:(void *)context;
 - (NSArray *)sortedArrayUsingFunction:(NSInteger (*)(id, id, void *))comparator context:(void *)context hint:(NSData *)hint;
 - (NSArray *)sortedArrayUsingSelector:(SEL)comparator;
 - (NSArray *)subarrayWithRange:(NSRange)range;
 - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile;
-
-- (void)makeObjectsPerformSelector:(SEL)aSelector;
-- (void)makeObjectsPerformSelector:(SEL)aSelector withObject:(id)argument;
 
 - (id)objectAtIndexedSubscript:(NSUInteger)idx;
 
@@ -55,7 +69,6 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 + (instancetype)arrayWithArray:(NSArray *)array;
 
 - (instancetype)init;
-- (instancetype)initWithObjects:(const id [])objects count:(NSUInteger)cnt;
 - (instancetype)initWithCoder:(NSCoder *)aDecoder;
 - (instancetype)initWithObjects:(id)firstObj, ... NS_REQUIRES_NIL_TERMINATION;
 - (instancetype)initWithArray:(NSArray *)array;
