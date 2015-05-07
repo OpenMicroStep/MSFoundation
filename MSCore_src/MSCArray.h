@@ -164,39 +164,39 @@ MSCoreExtern CString *CArrayToString(CArray *self);
 
 #pragma mark Generic
 
-typedef NSUInteger (*array_count_f        )(id);
-typedef id         (*array_objectAtIndex_f)(id, NSUInteger);
-typedef NSUInteger (*array_get_f          )(id, NSUInteger, NSUInteger, id*);
-typedef struct array_pfs_s { // type for array primitive functions
-  array_count_f         count;
-  array_objectAtIndex_f objectAtIndex;
-  array_get_f           get;} // not needed
-*array_pfs_t;
+typedef NSUInteger (*garray_count_f        )(id);
+typedef id         (*garray_objectAtIndex_f)(id, NSUInteger);
+typedef NSUInteger (*garray_get_f          )(id, NSUInteger, NSUInteger, id*);
+typedef struct garray_pfs_s { // type for array primitive functions
+  garray_count_f         count;
+  garray_objectAtIndex_f objectAtIndex;
+  garray_get_f           get;} // not needed
+*garray_pfs_t;
 
-MSCoreExtern array_pfs_t GArrayPfs;
+MSCoreExtern garray_pfs_t GArrayPfs;
 
 typedef struct GArrayEnumeratorStruct { // not a c-like object, no retain
-  array_pfs_t fs;
+  garray_pfs_t fs;
   id array;
   NSUInteger start, end;}
 GArrayEnumerator;
 
 MSCoreExtern void GArrayEnumeratorInit(GArrayEnumerator *e,
-  array_pfs_t fs, const id array, NSUInteger start, NSUInteger count);
+  garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count);
 // 'ended' is needed when niltems are accepted
 MSCoreExtern id GArrayEnumeratorNextObject(GArrayEnumerator *e, BOOL *ended);
 MSCoreExtern id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended);
 
-MSCoreExtern NSUInteger GArrayHash(array_pfs_t fs, const id self, unsigned depth);
-MSCoreExtern BOOL GArrayIdenticals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2);
-MSCoreExtern BOOL GArrayEquals(    array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2);
-MSCoreExtern void CStringAppendGArrayDescription(CString *s, array_pfs_t fs, const id a); // + context de description ?
-MSCoreExtern id GArrayFirstObject(array_pfs_t fs, const id self);
-MSCoreExtern id GArrayLastObject(array_pfs_t fs, const id self);
+MSCoreExtern NSUInteger GArrayHash(garray_pfs_t fs, const id self, unsigned depth);
+MSCoreExtern BOOL GArrayIdenticals(garray_pfs_t fs1, const id a1, garray_pfs_t fs2, const id a2);
+MSCoreExtern BOOL GArrayEquals(    garray_pfs_t fs1, const id a1, garray_pfs_t fs2, const id a2);
+MSCoreExtern void CStringAppendGArrayDescription(CString *s, garray_pfs_t fs, const id a); // + context de description ?
+MSCoreExtern id GArrayFirstObject(garray_pfs_t fs, const id self);
+MSCoreExtern id GArrayLastObject(garray_pfs_t fs, const id self);
 
-MSCoreExtern NSUInteger GArrayIndexOfIdenticalObject(array_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count);
-MSCoreExtern NSUInteger GArrayIndexOfObject(array_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count);
+MSCoreExtern NSUInteger GArrayIndexOfIdenticalObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count);
+MSCoreExtern NSUInteger GArrayIndexOfObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count);
 
-MSCoreExtern NSUInteger GArrayGetObject(array_pfs_t fs, const id self, NSUInteger start, NSUInteger count, id *objects);
+MSCoreExtern NSUInteger GArrayGetObject(garray_pfs_t fs, const id self, NSUInteger start, NSUInteger count, id *objects);
 
 #endif // MSCORE_ARRAY_H

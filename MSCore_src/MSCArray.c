@@ -52,7 +52,7 @@
 #define GARRAY_OAI( g,a,i) (!g ? _COAI(a,i) : _GOAI(g,a,i))
 
 void GArrayEnumeratorInit(GArrayEnumerator *e,
-  array_pfs_t fs, const id array, NSUInteger start, NSUInteger count)
+  garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count)
 {
   if (!e) return;
   e->fs=    fs;
@@ -84,7 +84,7 @@ id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended)
 // A t'on vraiment besoin d'un hash pour les arrays ?
 // De plus, s'il change, son hash change (même si on ne garde que le count).
 // TODO: Si ce n'est jamais utilisé, considérer sa suppression.
-NSUInteger GArrayHash(array_pfs_t g, id self, unsigned depth)
+NSUInteger GArrayHash(garray_pfs_t g, id self, unsigned depth)
 {
   NSUInteger count= GARRAY_COUNT(g, self);
   if (!count || depth == MSMaxHashingHop) return count;
@@ -101,7 +101,7 @@ NSUInteger GArrayHash(array_pfs_t g, id self, unsigned depth)
       HASHDEPTH(GARRAY_OAI(g, self, count-1), depth);}
 }
 
-BOOL GArrayIdenticals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2)
+BOOL GArrayIdenticals(garray_pfs_t fs1, const id a1, garray_pfs_t fs2, const id a2)
 {
   NSUInteger i,c;
   if ( a1 ==  a2) return YES;
@@ -112,7 +112,7 @@ BOOL GArrayIdenticals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2
   return YES;
 }
 
-BOOL GArrayEquals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2)
+BOOL GArrayEquals(garray_pfs_t fs1, const id a1, garray_pfs_t fs2, const id a2)
 {
   NSUInteger i,c;
   if ( a1 ==  a2) return YES;
@@ -123,7 +123,7 @@ BOOL GArrayEquals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2)
   return YES;
 }
 
-void CStringAppendGArrayDescription(CString *s, array_pfs_t fs, const id a) // + context de description ?
+void CStringAppendGArrayDescription(CString *s, garray_pfs_t fs, const id a) // + context de description ?
 {
   if (!a) CStringAppendFormat(s,"nil");
   else {
@@ -140,20 +140,20 @@ void CStringAppendGArrayDescription(CString *s, array_pfs_t fs, const id a) // +
     CStringAppendCharacter(s, ')');}
 }
 
-id GArrayFirstObject(array_pfs_t fs, const id self)
+id GArrayFirstObject(garray_pfs_t fs, const id self)
 {
   if (!self || !GARRAY_COUNT(fs, (id)self)) return nil;
   return GARRAY_OAI(fs, (id)self, 0);
 }
 
-id GArrayLastObject(array_pfs_t fs, const id self)
+id GArrayLastObject(garray_pfs_t fs, const id self)
 {
   NSUInteger n;
   if (!self || !(n= GARRAY_COUNT(fs, (id)self))) return nil;
   return GARRAY_OAI(fs, (id)self, n-1);
 }
 
-NSUInteger GArrayIndexOfIdenticalObject(array_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
+NSUInteger GArrayIndexOfIdenticalObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
 {
   GArrayEnumerator e; BOOL ended; id o;
   GArrayEnumeratorInit(&e, fs, self, start, count);
@@ -162,7 +162,7 @@ NSUInteger GArrayIndexOfIdenticalObject(array_pfs_t fs, const id self, const id 
   return NSNotFound;
 }
 
-NSUInteger GArrayIndexOfObject(array_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
+NSUInteger GArrayIndexOfObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
 {
   GArrayEnumerator e; BOOL ended; id o;
   GArrayEnumeratorInit(&e, fs, self, start, count);
@@ -171,7 +171,7 @@ NSUInteger GArrayIndexOfObject(array_pfs_t fs, const id self, const id object, N
   return NSNotFound;
 }
 
-NSUInteger GArrayGetObject(array_pfs_t fs, const id self, NSUInteger start, NSUInteger count, id *objects)
+NSUInteger GArrayGetObject(garray_pfs_t fs, const id self, NSUInteger start, NSUInteger count, id *objects)
 {
   NSUInteger end,i;
   if (fs && fs->get) return fs->get(self, start, count, objects);

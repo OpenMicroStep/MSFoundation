@@ -244,7 +244,7 @@
   BOOL _reverse;
 }
 - (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse;
-- (id)initWithArray:(NSArray*)a pfs:(array_pfs_t)pfs count:(NSUInteger)c reverse:(BOOL)reverse;
+- (id)initWithArray:(NSArray*)a pfs:(garray_pfs_t)pfs count:(NSUInteger)c reverse:(BOOL)reverse;
 - (id)nextObject;
 @end
 @interface MSArrayEnumerator : NSArrayEnumerator

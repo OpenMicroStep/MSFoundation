@@ -148,12 +148,12 @@ NSUInteger _MyFastArrayGet(id array, NSUInteger start, NSUInteger count, id *obj
   for (i= start; i<end; i++) objects[i]= (i==0 ? _o1 : _o2);
   return end-start;
 }
-struct array_pfs_s MyFastArrayPfsStruct= {
+struct garray_pfs_s MyFastArrayPfsStruct= {
   _MyFastArrayCount,
   _MyFastArrayObjectAtIndex,
   _MyFastArrayGet
   };
-array_pfs_t MyFastArrayPfs= &MyFastArrayPfsStruct;
+garray_pfs_t MyFastArrayPfs= &MyFastArrayPfsStruct;
 
 // Sans les primitives méthodes pour être sûr de bien passer par les fonctions.
 @implementation MyFastArray

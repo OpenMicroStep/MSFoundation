@@ -143,21 +143,21 @@ MSCoreExtern id CDictionarySetObjectFromHandlerIfKeyAbsent(CDictionary *self, CD
 
 #pragma mark Generic
 
-typedef NSUInteger (*dict_count_f        )(id);
-typedef id         (*dict_objectForKey_f )(id, id);
-typedef id         (*dict_keyEnumerator_f)(id);
-typedef id         (*dict_nextKey_f      )(id);
+typedef NSUInteger (*gdict_count_f        )(id);
+typedef id         (*gdict_objectForKey_f )(id, id);
+typedef id         (*gdict_keyEnumerator_f)(id);
+typedef id         (*gdict_nextKey_f      )(id);
 typedef struct dict_pfs_s { // type for dict primitive functions
-  dict_count_f         count;
-  dict_objectForKey_f  objectForKey;
-  dict_keyEnumerator_f keyEnumerator;
-  dict_nextKey_f       nextKey;}
-*dict_pfs_t;
+  gdict_count_f         count;
+  gdict_objectForKey_f  objectForKey;
+  gdict_keyEnumerator_f keyEnumerator;
+  gdict_nextKey_f       nextKey;}
+*gdict_pfs_t;
 
-MSCoreExtern dict_pfs_t GDictionaryPfs;
+MSCoreExtern gdict_pfs_t GDictionaryPfs;
 
-MSCoreExtern NSUInteger GDictionaryHash(dict_pfs_t fs, const id dict, unsigned depth);
-MSCoreExtern BOOL GDictionaryEquals(dict_pfs_t fs1, const id dd1, dict_pfs_t fs2, const id dd2);
-MSCoreExtern void CStringAppendGDictionaryDescription(CString *s, dict_pfs_t fs, const id d); // + context de description ?
+MSCoreExtern NSUInteger GDictionaryHash(gdict_pfs_t fs, const id dict, unsigned depth);
+MSCoreExtern BOOL GDictionaryEquals(gdict_pfs_t fs1, const id dd1, gdict_pfs_t fs2, const id dd2);
+MSCoreExtern void CStringAppendGDictionaryDescription(CString *s, gdict_pfs_t fs, const id d); // + context de description ?
 
 #endif

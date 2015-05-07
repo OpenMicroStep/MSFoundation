@@ -91,8 +91,8 @@
 
 - (BOOL)isEqualToDictionary:(NSDictionary*)otherDict
   {
-  dict_pfs_t sPfs= [self      _isMS] ? NULL : GDictionaryPfs;
-  dict_pfs_t oPfs= [otherDict _isMS] ? NULL : GDictionaryPfs;
+  gdict_pfs_t sPfs= [self      _isMS] ? NULL : GDictionaryPfs;
+  gdict_pfs_t oPfs= [otherDict _isMS] ? NULL : GDictionaryPfs;
   return GDictionaryEquals(sPfs, self, oPfs, otherDict);
   }
 - (BOOL)isEqual:(id)object
@@ -100,8 +100,8 @@
   if (object == (id)self) return YES;
   if (!object) return NO;
   if ([object isKindOfClass:[NSDictionary class]]) {
-    dict_pfs_t sPfs= [self   _isMS] ? NULL : GDictionaryPfs;
-    dict_pfs_t oPfs= [object _isMS] ? NULL : GDictionaryPfs;
+    gdict_pfs_t sPfs= [self   _isMS] ? NULL : GDictionaryPfs;
+    gdict_pfs_t oPfs= [object _isMS] ? NULL : GDictionaryPfs;
     return GDictionaryEquals(sPfs, self, oPfs, object);}
   return NO;
   }

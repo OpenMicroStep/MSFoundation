@@ -135,12 +135,12 @@ id _GObjectAtIndex(id array, NSUInteger i)
 {
   return [array objectAtIndex:i];
 }
-struct array_pfs_s GArrayPfsStruct= {
+struct garray_pfs_s GArrayPfsStruct= {
   _GCount,
   _GObjectAtIndex,
   NULL
   };
-array_pfs_t GArrayPfs= &GArrayPfsStruct;
+garray_pfs_t GArrayPfs= &GArrayPfsStruct;
 
 id _GObjectForKey(id dict, id k)
 {
@@ -160,7 +160,7 @@ struct dict_pfs_s GDictPfsStruct= {
   _GKeyEnumerator,
   _GNextObject
   };
-dict_pfs_t GDictionaryPfs= &GDictPfsStruct;
+gdict_pfs_t GDictionaryPfs= &GDictPfsStruct;
 
 int _MSEnv()
 {

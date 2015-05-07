@@ -96,8 +96,8 @@
 
 - (BOOL)isEqualToArray:(NSArray*)otherArray
   {
-  array_pfs_t sPfs= [self       _isMS] ? NULL : GArrayPfs;
-  array_pfs_t oPfs= [otherArray _isMS] ? NULL : GArrayPfs;
+  garray_pfs_t sPfs= [self       _isMS] ? NULL : GArrayPfs;
+  garray_pfs_t oPfs= [otherArray _isMS] ? NULL : GArrayPfs;
   return GArrayEquals(sPfs, self, oPfs, otherArray);
   }
 - (BOOL)isEqual:(id)object
@@ -105,8 +105,8 @@
   if (object == (id)self) return YES;
   if (!object) return NO;
   if ([object isKindOfClass:[NSArray class]]) {
-    array_pfs_t sPfs= [self   _isMS] ? NULL : GArrayPfs;
-    array_pfs_t oPfs= [object _isMS] ? NULL : GArrayPfs;
+    garray_pfs_t sPfs= [self   _isMS] ? NULL : GArrayPfs;
+    garray_pfs_t oPfs= [object _isMS] ? NULL : GArrayPfs;
     return GArrayEquals(sPfs, self, oPfs, object);}
   return NO;
   }

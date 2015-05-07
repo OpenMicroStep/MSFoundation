@@ -150,7 +150,7 @@ const CString* _CObjectRetainedDescription(id obj)
     return nil;}
 }
 
-array_pfs_t GArrayPfs= NULL;
+garray_pfs_t GArrayPfs= NULL;
 BOOL _CIsArray(id obj)
 {
   if (!obj) return NO;

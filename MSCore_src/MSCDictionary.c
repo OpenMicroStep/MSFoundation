@@ -80,13 +80,13 @@ _node;
 #define _GOFK(g,d,k) (g->objectForKey(d,k))
 #define GDICT_OFK(g,e,d,k) (!g ? _COFK(e,d,k) : _GOFK(g,d,k))
 
-NSUInteger GDictionaryHash(dict_pfs_t fs, const id dict, unsigned depth)
+NSUInteger GDictionaryHash(gdict_pfs_t fs, const id dict, unsigned depth)
 {
   return GDICT_COUNT(fs, dict);
   MSUnused(depth);
 }
 
-BOOL GDictionaryEquals(dict_pfs_t fs1, const id dd1, dict_pfs_t fs2, const id dd2)
+BOOL GDictionaryEquals(gdict_pfs_t fs1, const id dd1, gdict_pfs_t fs2, const id dd2)
 {
   NSUInteger c; id e,k,kstop; CDictionaryEnumerator de; id d1= dd1, d2= dd2; BOOL objs= YES;
   if ( d1 ==  d2) return YES;
@@ -99,7 +99,7 @@ BOOL GDictionaryEquals(dict_pfs_t fs1, const id dd1, dict_pfs_t fs2, const id dd
   else if (!fs1 && (!CDICT_KEYS_ARE_OBJS(d1) || !CDICT_OBJS_ARE_OBJS(d1))) return NO;
   else if (!fs2 && (!CDICT_KEYS_ARE_OBJS(d2) || !CDICT_OBJS_ARE_OBJS(d2))) return NO;
   // On privilégie l'énumération du CDictionary
-  if (!fs2) {dict_pfs_t fs= fs1; const id d= d1; fs1= fs2; d1= d2; fs2= fs; d2= d;}
+  if (!fs2) {gdict_pfs_t fs= fs1; const id d= d1; fs1= fs2; d1= d2; fs2= fs; d2= d;}
   e= GDICT_ENUM(fs1, d1, de); kstop= GDICT_STOPKEY(fs1,d1);
   while ((k= GDICT_NEXTKEY(fs1, e))!=kstop) {
     if (!_EQUALS(objs, GDICT_OFK(fs1, e, d1, k), GDICT_OFK(fs2, nil, d2, k))) return NO;}
@@ -128,7 +128,7 @@ unichar _indentChai(const void *src, NSUInteger *pos)
 
 // TODO: long indentWhites dans context de description ?
 // TODO: non cross-references safe.
-void CStringAppendGDictionaryDescription(CString *s, dict_pfs_t fs, const id dict)
+void CStringAppendGDictionaryDescription(CString *s, gdict_pfs_t fs, const id dict)
 {
   if (!dict) CStringAppendFormat(s,"nil");
   else {
