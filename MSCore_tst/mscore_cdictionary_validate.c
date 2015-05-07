@@ -48,7 +48,7 @@ static void cdictionary_create(test_t *test)
 
 static void cdictionary_enum(test_t *test)
   {
-  CDictionary *c,*d; id ks[1000],os[1000],k,o; int i,n,fd; CDictionaryEnumerator *de;
+  CDictionary *c,*d; id ks[1000],os[1000],k,o; int i,n,fd; CDictionaryEnumerator de;
   k= (id)CCreateBufferWithBytes("a key", 5);
   o= (id)CCreateBufferWithBytes("an object", 9);
   for (i=0; i<1000; i++) {
@@ -64,22 +64,20 @@ static void cdictionary_enum(test_t *test)
   d= (CDictionary*)CDictionaryCopy((id)c);
   RELEASE(c);
 
-  de= CDictionaryEnumeratorAlloc(d);
-  for (n= 0, fd= 0; (o= (id)CDictionaryEnumeratorNextObject(de)); n++) {
-    k= CDictionaryEnumeratorCurrentKey(de);
+  CDictionaryEnumeratorInit(&de, d);
+  for (n= 0, fd= 0; (o= (id)CDictionaryEnumeratorNextObject(&de)); n++) {
+    k= CDictionaryEnumeratorCurrentKey(&de);
     for (i= 0; i<1000; i++) {
       if (ISEQUAL(k, ks[i])) fd++;}
     TASSERT_EQUALS(test, fd, n+1, "B2 Bad fd: %lu %lu",WLI(fd),WLI(n));}
   TASSERT_EQUALS(test, n, 1000, "B3 Bad n: %lu",WLI(n));
-  CDictionaryEnumeratorFree(de);
-  de= CDictionaryEnumeratorAlloc(d);
-  for (n= 0, fd= 0; (k= (id)CDictionaryEnumeratorNextKey(de)); n++) {
-    o= CDictionaryEnumeratorCurrentObject(de);
+  CDictionaryEnumeratorInit(&de, d);
+  for (n= 0, fd= 0; (k= (id)CDictionaryEnumeratorNextKey(&de)); n++) {
+    o= CDictionaryEnumeratorCurrentObject(&de);
     for (i= 0; i<1000; i++) {
       if (ISEQUAL(o, os[i])) fd++;}
     TASSERT_EQUALS(test, fd, n+1, "B4 Bad fd: %lu %lu",WLI(fd),WLI(n));}
   TASSERT_EQUALS(test, n, 1000, "B5 Bad n: %lu",WLI(n));
-  CDictionaryEnumeratorFree(de);
   for (i= 0; i<1000; i++) {
     RELEASE(ks[i]); RELEASE(os[i]);}
   RELEASE(d);
@@ -108,7 +106,7 @@ static void cdictionary_naturalsOrNotZero(test_t *test, BOOL notZero)
   TASSERT_EQUALS(test, CDictionaryObjectForKey(c, (id)(first+999)) , (id)(first+1)   , "bad natural 5 %lu %lu");
   TASSERT_EQUALS(test, CDictionaryObjectForKey(c, (id)(first+1000)), (id)(first+0)   , "bad natural 6 %lu %lu");
   TASSERT_EQUALS(test, CDictionaryObjectForKey(c, (id)(first+2000)), (id)notAMarker  , "bad natural 7 %lu %lu");
-  de= CDictionaryEnumeratorAlloc(c);
+  de= CDictionaryEnumeratorAllocInit(c);
   for (i= 0; CDictionaryEnumeratorNextKey(de)!=(id)notAMarker; i++);
   CDictionaryEnumeratorFree(de);
   TASSERT_EQUALS(test, i, 1001, "bad natural enumeration %lu != %lu");

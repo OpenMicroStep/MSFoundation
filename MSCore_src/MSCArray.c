@@ -45,10 +45,11 @@
 
 #define _CCOUNT(  a) (((CArray*)(a))->count)
 #define _GCOUNT(g,a) (g->count(a))
-#define _COUNT( g,a) (!g ? _CCOUNT(a) : _GCOUNT(g,a))
+#define GARRAY_COUNT( g,a) (!g ? _CCOUNT(a) : _GCOUNT(g,a))
+
 #define _COAI(  a,i) (((CArray*)(a))->pointers[i])
 #define _GOAI(g,a,i) (g->objectAtIndex(a,i))
-#define _OAI( g,a,i) (!g ? _COAI(a,i) : _GOAI(g,a,i))
+#define GARRAY_OAI( g,a,i) (!g ? _COAI(a,i) : _GOAI(g,a,i))
 
 void GArrayEnumeratorInit(GArrayEnumerator *e,
   array_pfs_t fs, const id array, NSUInteger start, NSUInteger count)
@@ -58,7 +59,7 @@ void GArrayEnumeratorInit(GArrayEnumerator *e,
   e->array= array;
   if (!array) e->start= e->end= 0;
   else {
-    NSUInteger n= _COUNT(fs, array);
+    NSUInteger n= GARRAY_COUNT(fs, array);
     e->start= MIN(start, n);
     e->end=   MIN(start + count, n);}
 }
@@ -67,7 +68,7 @@ id GArrayEnumeratorNextObject(GArrayEnumerator *e, BOOL *ended)
 {
   id o;
   if (e && e->start < e->end) {
-    o= _OAI(e->fs, e->array, e->start++); if (ended) *ended= NO;}
+    o= GARRAY_OAI(e->fs, e->array, e->start++); if (ended) *ended= NO;}
   else {o= nil; if (ended) *ended= YES;}
   return o;
 }
@@ -75,7 +76,7 @@ id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended)
 {
   id o;
   if (e && e->start < e->end) {
-    o= _OAI(e->fs, e->array, --e->end); if (ended) *ended= NO;}
+    o= GARRAY_OAI(e->fs, e->array, --e->end); if (ended) *ended= NO;}
   else {o= nil; if (ended) *ended= YES;}
   return o;
 }
@@ -85,19 +86,19 @@ id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended)
 // TODO: Si ce n'est jamais utilisé, considérer sa suppression.
 NSUInteger GArrayHash(array_pfs_t g, id self, unsigned depth)
 {
-  NSUInteger count= _COUNT(g, self);
+  NSUInteger count= GARRAY_COUNT(g, self);
   if (!count || depth == MSMaxHashingHop) return count;
   depth++;
   switch (count) {
     case 1: return count ^
-      HASHDEPTH(_OAI(g, self, 0), depth);
+      HASHDEPTH(GARRAY_OAI(g, self, 0), depth);
     case 2: return count ^
-      HASHDEPTH(_OAI(g, self, 0), depth) ^
-      HASHDEPTH(_OAI(g, self, 1), depth);
+      HASHDEPTH(GARRAY_OAI(g, self, 0), depth) ^
+      HASHDEPTH(GARRAY_OAI(g, self, 1), depth);
     default: return count ^
-      HASHDEPTH(_OAI(g, self,       0), depth) ^
-      HASHDEPTH(_OAI(g, self, count/2), depth) ^
-      HASHDEPTH(_OAI(g, self, count-1), depth);}
+      HASHDEPTH(GARRAY_OAI(g, self,       0), depth) ^
+      HASHDEPTH(GARRAY_OAI(g, self, count/2), depth) ^
+      HASHDEPTH(GARRAY_OAI(g, self, count-1), depth);}
 }
 
 BOOL GArrayIdenticals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2)
@@ -105,9 +106,9 @@ BOOL GArrayIdenticals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2
   NSUInteger i,c;
   if ( a1 ==  a2) return YES;
   if (!a1 || !a2) return NO;
-  if ((c= _COUNT(fs1, a1)) != _COUNT(fs2, a2)) return NO;
+  if ((c= GARRAY_COUNT(fs1, a1)) != GARRAY_COUNT(fs2, a2)) return NO;
   for (i= 0; i < c; i++) {
-    if (_OAI(fs1, a1, i) != _OAI(fs2, a2, i)) return NO;}
+    if (GARRAY_OAI(fs1, a1, i) != GARRAY_OAI(fs2, a2, i)) return NO;}
   return YES;
 }
 
@@ -116,39 +117,40 @@ BOOL GArrayEquals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2)
   NSUInteger i,c;
   if ( a1 ==  a2) return YES;
   if (!a1 || !a2) return NO;
-  if ((c= _COUNT(fs1, a1)) != _COUNT(fs2, a2)) return NO;
+  if ((c= GARRAY_COUNT(fs1, a1)) != GARRAY_COUNT(fs2, a2)) return NO;
   for (i= 0; i < c; i++) {
-    if (!ISEQUAL(_OAI(fs1, a1, i), _OAI(fs2, a2, i))) return NO;}
+    if (!ISEQUAL(GARRAY_OAI(fs1, a1, i), GARRAY_OAI(fs2, a2, i))) return NO;}
   return YES;
 }
 
-void CStringAppendGArrayDescription(CString *s, array_pfs_t fs, id a) // + context de description ?
+void CStringAppendGArrayDescription(CString *s, array_pfs_t fs, const id a) // + context de description ?
 {
   if (!a) CStringAppendFormat(s,"nil");
   else {
     GArrayEnumerator e; NSUInteger i,n; const CString *d;
     CStringAppendCharacter(s, '(');
-    GArrayEnumeratorInit(&e, fs, a, 0, _COUNT(fs, a));
-    for (i= 0, n= _COUNT(fs, a); i < n; i++) {
+    GArrayEnumeratorInit(&e, fs, a, 0, (n= GARRAY_COUNT(fs, a)));
+    for (i= 0; i < n; i++) {
       if (i>0) CStringAppendFormat(s, ", ");
-      // TODO: APPEND_DESCRIPTION(_OAI(fs, a,i));
-      d= DESCRIPTION(_OAI(fs, a, i));
+      // TODO: APPEND_DESCRIPTION(GARRAY_OAI(fs, a,i));
+      d= DESCRIPTION(GARRAY_OAI(fs, a, i));
       if (!d) CStringAppendFormat(s,"nil");
-      else CStringAppendString(s, d);}
+      else CStringAppendString(s, d);
+      RELEASE(d);}
     CStringAppendCharacter(s, ')');}
 }
 
 id GArrayFirstObject(array_pfs_t fs, const id self)
 {
-  if (!self || !_COUNT(fs, (id)self)) return nil;
-  return _OAI(fs, (id)self, 0);
+  if (!self || !GARRAY_COUNT(fs, (id)self)) return nil;
+  return GARRAY_OAI(fs, (id)self, 0);
 }
 
 id GArrayLastObject(array_pfs_t fs, const id self)
 {
   NSUInteger n;
-  if (!self || !(n= _COUNT(fs, (id)self))) return nil;
-  return _OAI(fs, (id)self, n-1);
+  if (!self || !(n= GARRAY_COUNT(fs, (id)self))) return nil;
+  return GARRAY_OAI(fs, (id)self, n-1);
 }
 
 NSUInteger GArrayIndexOfIdenticalObject(array_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
@@ -173,7 +175,7 @@ NSUInteger GArrayGetObject(array_pfs_t fs, const id self, NSUInteger start, NSUI
 {
   NSUInteger end,i;
   if (fs && fs->get) return fs->get(self, start, count, objects);
-  if (!objects || start >= (end= MIN(start+count, _COUNT(fs, self)))) return 0;
+  if (!objects || start >= (end= MIN(start+count, GARRAY_COUNT(fs, self)))) return 0;
   if (!fs) memcpy(objects, (((CArray*)(self))->pointers)+start, (end-start)*sizeof(id));
   else for (i= start; i<end; i++) *objects++= fs->objectAtIndex(self, i);
   return end-start;

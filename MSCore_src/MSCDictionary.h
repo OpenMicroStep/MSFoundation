@@ -79,13 +79,14 @@ typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
   void *jnode;}
 CDictionaryEnumerator;
 
-MSCoreExtern CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self);
+MSCoreExtern CDictionaryEnumerator *CDictionaryEnumeratorAllocInit(const CDictionary *self);
 MSCoreExtern void CDictionaryEnumeratorFree(CDictionaryEnumerator *de);
 
-MSCoreExtern id CDictionaryEnumeratorNextObject   (CDictionaryEnumerator *de);
-MSCoreExtern id CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
-MSCoreExtern id CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
-MSCoreExtern id CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
+MSCoreExtern void CDictionaryEnumeratorInit         (CDictionaryEnumerator *de, const CDictionary *d);
+MSCoreExtern id   CDictionaryEnumeratorNextObject   (CDictionaryEnumerator *de);
+MSCoreExtern id   CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
+MSCoreExtern id   CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
+MSCoreExtern id   CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
 
 MSCoreExtern CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
 MSCoreExtern CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);
@@ -95,8 +96,9 @@ MSCoreExtern BOOL           CDictionaryIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CDictionaryHash(id self, unsigned depth);
 MSCoreExtern id             CDictionaryCopy(id self);
 MSCoreExtern const CString* CDictionaryRetainedDescription(id self);
+MSCoreExtern void CStringAppendCDictionaryDescription(CString *s, CDictionary *d); // + context de description ?
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).
-// Attention Dnas le Core le COPY copie la mutability et pas dans le .m: pas cohérent. Réécrire un COPY avec un arg ?)
+// Attention Dans le Core le COPY copie la mutability et pas dans le .m: pas cohérent. Réécrire un COPY avec un arg ?)
   MSCoreExtern id         CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems);
   MSCoreExtern id         CDictionaryInitCopyWithMutability(CDictionary *self, const CDictionary *copied, BOOL isMutable);
 
@@ -139,6 +141,23 @@ MSCoreExtern id CDictionarySetObjectIfKeyAbsent(CDictionary *self, id o, id k, B
 typedef id (*CDictionarySetHandler)(void*);
 MSCoreExtern id CDictionarySetObjectFromHandlerIfKeyAbsent(CDictionary *self, CDictionarySetHandler h, void *arg, id k, BOOL *added);
 
-// TODO: description functions
+#pragma mark Generic
+
+typedef NSUInteger (*dict_count_f        )(id);
+typedef id         (*dict_objectForKey_f )(id, id);
+typedef id         (*dict_keyEnumerator_f)(id);
+typedef id         (*dict_nextKey_f      )(id);
+typedef struct dict_pfs_s { // type for dict primitive functions
+  dict_count_f         count;
+  dict_objectForKey_f  objectForKey;
+  dict_keyEnumerator_f keyEnumerator;
+  dict_nextKey_f       nextKey;}
+*dict_pfs_t;
+
+MSCoreExtern dict_pfs_t GDictionaryPfs;
+
+MSCoreExtern NSUInteger GDictionaryHash(dict_pfs_t fs, const id dict, unsigned depth);
+MSCoreExtern BOOL GDictionaryEquals(dict_pfs_t fs1, const id dd1, dict_pfs_t fs2, const id dd2);
+MSCoreExtern void CStringAppendGDictionaryDescription(CString *s, dict_pfs_t fs, const id d); // + context de description ?
 
 #endif

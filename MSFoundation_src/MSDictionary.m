@@ -40,26 +40,43 @@
 
 #import "MSFoundation_Private.h"
 
+#pragma mark Private
+
+@interface NSDictionary (Private)
+- (BOOL)_isMS;
+@end
+
+@interface MSDictionary (Private)
+- (BOOL)_isMS;
+@end
+
+@implementation NSDictionary (Private)
+- (BOOL)_isMS {return NO;}
+@end
+@implementation MSDictionary (Private)
+- (BOOL)_isMS {return YES;}
+@end
+
+#pragma mark Public
 @implementation MSDictionaryEnumerator
 - (id)initWithDictionary:(MSDictionary*)d forKeys:(BOOL)forKeys
 {
-  _dictionaryEnumerator= CDictionaryEnumeratorAlloc((CDictionary*)d);
-  RETAIN(_dictionaryEnumerator->dictionary);
+  CDictionaryEnumeratorInit(&_dictionaryEnumerator, (CDictionary*)d);
+  RETAIN(_dictionaryEnumerator.dictionary);
   _forKeys= forKeys;
   return self;
 }
 - (void)dealloc
 {
-  RELEASE(_dictionaryEnumerator->dictionary);
-  CDictionaryEnumeratorFree(_dictionaryEnumerator);
+  RELEASE(_dictionaryEnumerator.dictionary);
   [super dealloc];
 }
 - (id)nextObject    {return _forKeys?
-                            CDictionaryEnumeratorNextKey      (_dictionaryEnumerator):
-                            CDictionaryEnumeratorNextObject   (_dictionaryEnumerator);}
-- (id)nextKey       {return CDictionaryEnumeratorNextKey      (_dictionaryEnumerator);}
-- (id)currentObject {return CDictionaryEnumeratorCurrentObject(_dictionaryEnumerator);}
-- (id)currentKey    {return CDictionaryEnumeratorCurrentKey   (_dictionaryEnumerator);}
+                            CDictionaryEnumeratorNextKey      (&_dictionaryEnumerator):
+                            CDictionaryEnumeratorNextObject   (&_dictionaryEnumerator);}
+- (id)nextKey       {return CDictionaryEnumeratorNextKey      (&_dictionaryEnumerator);}
+- (id)currentObject {return CDictionaryEnumeratorCurrentObject(&_dictionaryEnumerator);}
+- (id)currentKey    {return CDictionaryEnumeratorCurrentKey   (&_dictionaryEnumerator);}
 @end
 
 #define MS_DICTIONARY_LAST_VERSION 101

@@ -41,20 +41,139 @@
 
 #include "MSCore_Private.h"
 
-#define CDICT_KEYS_ARE_OBJS(D) (((CDictionary*)(D))->flags.keyType==CDictionaryObject)
-#define CDICT_OBJS_ARE_OBJS(D) (((CDictionary*)(D))->flags.objType==CDictionaryObject)
-#define CDICT_KEYS_ARE_NATS(D) (((CDictionary*)(D))->flags.keyType==CDictionaryNatural)
-#define CDICT_OBJS_ARE_NATS(D) (((CDictionary*)(D))->flags.objType==CDictionaryNatural)
+#pragma mark CDictionary OBJS or NATS
 
-#define _NOT_A_MARKER(IS_NAT) ((IS_NAT) ? (void*)NSNotFound : nil)
-#define _HASH(   IS_OBJ,X)    ((IS_OBJ) ? HASH(X)           : MSPointerHash(X))
+#define CDICT(D)               ((CDictionary*)(D))
+#define CDICT_KEYS_ARE_OBJS(D) (CDICT(D)->flags.keyType==CDictionaryObject)
+#define CDICT_OBJS_ARE_OBJS(D) (CDICT(D)->flags.objType==CDictionaryObject)
+#define CDICT_KEYS_ARE_NATS(D) (CDICT(D)->flags.keyType==CDictionaryNatural)
+#define CDICT_OBJS_ARE_NATS(D) (CDICT(D)->flags.objType==CDictionaryNatural)
+
+#define _NOT_A_MARKER(IS_NAT)  ((IS_NAT) ? (void*)NSNotFound : nil)
+#define _EQUALS( IS_OBJ,A,B)   ((IS_OBJ) ? ISEQUAL((A),(B))  : (A)==(B))
+
+#define CDICT_NOT_A_KEY(D)     _NOT_A_MARKER(CDICT_KEYS_ARE_NATS(D))
+
+typedef struct _nodeStruct {
+   id key;
+   id value;
+   struct _nodeStruct *next;}
+_node;
+
+#pragma mark Generic
+
+#define _CCOUNT(  d) (CDICT(d)->count)
+#define _GCOUNT(g,d) (g->count(d))
+#define GDICT_COUNT(g,d) (!g ? _CCOUNT(d) : _GCOUNT(g,d))
+
+#define _CENUM(  d,de) (CDictionaryEnumeratorInit(&de, (CDictionary*)d), (id)&de)
+#define _GENUM(g,d   ) (g->keyEnumerator(d))
+#define GDICT_ENUM(g,d,de) (!g ? _CENUM(d,de) : _GENUM(g,d))
+
+#define _CNEXTKEY(  e) (CDictionaryEnumeratorNextKey((CDictionaryEnumerator*)(e)))
+#define _GNEXTKEY(g,e) (g->nextKey(e))
+#define GDICT_NEXTKEY(g,e) (!g ? _CNEXTKEY(e) : _GNEXTKEY(g,e))
+
+#define GDICT_STOPKEY(g,d) (!g ? CDICT_NOT_A_KEY(d) : nil)
+
+#define _COFK(e,d,k) (e ? ((_node*)(((CDictionaryEnumerator*)(e))->jnode))->value : CDictionaryObjectForKey(CDICT(d),k))
+#define _GOFK(g,d,k) (g->objectForKey(d,k))
+#define GDICT_OFK(g,e,d,k) (!g ? _COFK(e,d,k) : _GOFK(g,d,k))
+
+NSUInteger GDictionaryHash(dict_pfs_t fs, const id dict, unsigned depth)
+{
+  return GDICT_COUNT(fs, dict);
+  MSUnused(depth);
+}
+
+BOOL GDictionaryEquals(dict_pfs_t fs1, const id dd1, dict_pfs_t fs2, const id dd2)
+{
+  NSUInteger c; id e,k,kstop; CDictionaryEnumerator de; id d1= dd1, d2= dd2; BOOL objs= YES;
+  if ( d1 ==  d2) return YES;
+  if (!d1 || !d2) return NO;
+  if ((c= GDICT_COUNT(fs1, d1)) != GDICT_COUNT(fs2, d2)) return NO;
+  if (!fs1 && !fs2) { // les types doivent être les mêmes
+    if (CDICT(d1)->flags.keyType != CDICT(d2)->flags.keyType) return NO;
+    if (CDICT(d1)->flags.objType != CDICT(d2)->flags.objType) return NO;
+    objs= CDICT(d1)->flags.objType==CDictionaryObject;}
+  else if (!fs1 && (!CDICT_KEYS_ARE_OBJS(d1) || !CDICT_OBJS_ARE_OBJS(d1))) return NO;
+  else if (!fs2 && (!CDICT_KEYS_ARE_OBJS(d2) || !CDICT_OBJS_ARE_OBJS(d2))) return NO;
+  // On privilégie l'énumération du CDictionary
+  if (!fs2) {dict_pfs_t fs= fs1; const id d= d1; fs1= fs2; d1= d2; fs2= fs; d2= d;}
+  e= GDICT_ENUM(fs1, d1, de); kstop= GDICT_STOPKEY(fs1,d1);
+  while ((k= GDICT_NEXTKEY(fs1, e))!=kstop) {
+    if (!_EQUALS(objs, GDICT_OFK(fs1, e, d1, k), GDICT_OFK(fs2, nil, d2, k))) return NO;}
+  return YES;
+}
+
+typedef struct {
+  const void *source;
+  CHAI chai;
+  MSByte counter;}
+_indentChaiSrc;
+
+unichar _indentChai(const void *src, NSUInteger *pos)
+{
+  unichar c; _indentChaiSrc *s;
+  s= (_indentChaiSrc *)src;
+  if (s->counter > 0) {
+    c= ' ';
+    s->counter--;}
+  else {
+    c= s->chai(s->source, pos);
+    if (c == (unichar)'\n') {
+      s->counter= 2;}}
+  return c;
+}
+
+// TODO: long indentWhites dans context de description ?
+// TODO: non cross-references safe.
+void CStringAppendGDictionaryDescription(CString *s, dict_pfs_t fs, const id dict)
+{
+  if (!dict) CStringAppendFormat(s,"nil");
+  else {
+    CDictionaryEnumerator de; id e,k,kstop; BOOL keysAreObjs= YES, objsAreObjs= YES;
+    CStringAppendFormat(s,"{\n");
+    if (!fs) {
+      keysAreObjs= CDICT(dict)->flags.keyType==CDictionaryObject;
+      objsAreObjs= CDICT(dict)->flags.objType==CDictionaryObject;}
+    e= GDICT_ENUM(fs, dict, de);  kstop= GDICT_STOPKEY(fs,dict);
+    while ((k= GDICT_NEXTKEY(fs, e))!=kstop) {
+      const CString *d;
+      CStringAppendFormat(s,"  ");
+      // TODO: APPEND_DESCRIPTION(s,k);
+      // TODO: Si k not an obj, ne pas utiliser description !
+      d= DESCRIPTION(k);
+      if (!d) CStringAppendFormat(s,"nil");
+      else CStringAppendString(s, d);
+      RELEASE(d);
+      CStringAppendFormat(s," = ");
+      // TODO: Si o not an obj, ne pas utiliser description !
+      d= DESCRIPTION(GDICT_OFK(fs, e, dict, k));
+      if (!d) CStringAppendFormat(s,"nil");
+      else {
+        SES ses; _indentChaiSrc identChai;
+        ses= CStringSES(d);
+        identChai.source= ses.source;
+        identChai.chai= ses.chai;
+        identChai.counter= 0;
+        ses.encoding= 0;
+        ses.source= &identChai;
+        ses.chai= _indentChai;
+        CStringAppendSES(s, ses);}
+      RELEASE(d);
+      CStringAppendCharacter(s, '\n');}
+    CStringAppendCharacter(s, '}');}
+}
+
+#pragma mark CDictionary
+
+#define _KHASH(  IS_OBJ,X)    ((IS_OBJ) ? HASH(X)           : MSPointerHash(X))
 #define _COPY(   IS_OBJ,X)    ((IS_OBJ) ? COPY(X)           : (X))
-#define _EQUALS( IS_OBJ,A,B)  ((IS_OBJ) ? ISEQUAL((A),(B))  : (A)==(B))
 #define _RETAIN( IS_OBJ,X)    ((IS_OBJ) ? RETAIN(X)         : (X))
 #define _RELEASE(IS_OBJ,X)    ((IS_OBJ) ? RELEASE(X)        : (void)0)
 
-#define CDICT_NOT_A_KEY(D)      _NOT_A_MARKER(CDICT_KEYS_ARE_NATS(D))
-#define CDICT_KEY_HASH(D,K)     _HASH(   CDICT_KEYS_ARE_OBJS(D),(K))
+#define CDICT_KEY_HASH(D,K)     _KHASH(  CDICT_KEYS_ARE_OBJS(D),(K))
 #define CDICT_KEY_COPY(D,K)     _COPY(   CDICT_KEYS_ARE_OBJS(D),(K))
 #define CDICT_KEY_EQUALS(D,A,B) _EQUALS( CDICT_KEYS_ARE_OBJS(D),(A),(B))
 #define CDICT_KEY_RETAIN(D,K)   _RETAIN( CDICT_KEYS_ARE_OBJS(D),(K))
@@ -64,12 +183,6 @@
 #define CDICT_OBJ_EQUALS(D,A,B) _EQUALS( CDICT_OBJS_ARE_OBJS(D),(A),(B))
 #define CDICT_OBJ_RETAIN(D,O)   _RETAIN( CDICT_OBJS_ARE_OBJS(D),(O))
 #define CDICT_OBJ_RELEASE(D,O)  _RELEASE(CDICT_OBJS_ARE_OBJS(D),(O))
-
-typedef struct _nodeStruct {
-   id key;
-   id value;
-   struct _nodeStruct *next;}
-_node;
 
 #pragma mark static
 
@@ -165,29 +278,7 @@ BOOL CDictionaryIsEqual(id self, id other)
 
 NSUInteger CDictionaryHash(id self, unsigned depth)
 {
-  NSUInteger count= ((CDictionary*)self)->count;
-  return count;
-  MSUnused(depth);
-// TOTO: find something cool !
-/*
-  if (!count || depth == MSMaxHashingHop) return count;
-  
-  depth++;
-  
-  switch (count) {
-    case 1:
-      return count ^
-        HASHDEPTH(((CDictionary*)self)->pointers[0], depth);
-    case 2:
-      return count ^
-        HASHDEPTH(((CArray*)self)->pointers[0], depth) ^
-        HASHDEPTH(((CArray*)self)->pointers[1], depth);
-    default:
-      return count ^
-        HASHDEPTH(((CArray*)self)->pointers[0], depth) ^
-        HASHDEPTH(((CArray*)self)->pointers[count/2], depth) ^
-        HASHDEPTH(((CArray*)self)->pointers[count-1], depth);}
-*/
+  return GDictionaryHash(NULL, self, depth);
 }
 
 id CDictionaryInitCopyWithMutability(CDictionary *self, const CDictionary *copied, BOOL isMutable)
@@ -201,15 +292,14 @@ id CDictionaryInitCopyWithMutability(CDictionary *self, const CDictionary *copie
 
 id CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyItems)
 {
-  CDictionaryEnumerator *de; id k,o;
+  CDictionaryEnumerator de; id k,o;
   if (!self) return nil;
   if (copied && copied->count) {
     CDictionaryGrow(self, copied->count);
-    de= CDictionaryEnumeratorAlloc(copied);
-    while ((k= CDictionaryEnumeratorNextKey(de))) {
-      if ((o= CDictionaryEnumeratorCurrentObject(de)) && copyItems) o= COPY(o);
-      _setObjectForKey(self,o,k,YES,NO,NULL,NULL,NULL);}
-    CDictionaryEnumeratorFree(de);}
+    CDictionaryEnumeratorInit(&de, copied);
+    while ((k= CDictionaryEnumeratorNextKey(&de))) {
+      if ((o= CDictionaryEnumeratorCurrentObject(&de)) && copyItems) o= COPY(o);
+      _setObjectForKey(self,o,k,YES,NO,NULL,NULL,NULL);}}
   return (id)self;
 }
 id CDictionaryCopy(id self)
@@ -220,68 +310,24 @@ id CDictionaryCopy(id self)
   return CDictionaryInitCopy(d, (CDictionary*)self, NO);
 }
 
-typedef struct {
-  const void *source;
-  CHAI chai;
-  MSByte counter;
-} _indentChaiSrc;
-
-unichar _indentChai(const void *src, NSUInteger *pos) {
-  unichar c; _indentChaiSrc *s;
-  s= (_indentChaiSrc *)src;
-  if(s->counter > 0) {
-    c= ' ';
-    s->counter--; }
-  else {
-    c= s->chai(s->source, pos);
-    if(c == (unichar)'\n') {
-      s->counter= 2; }}
-  return c;
-}
-
-// TODO:
-// CStringAppendCDictionaryDescription(CString *s, CDictionary *s, long indentWhites)
-// Et c'est cette fonction qui devient polymorphe.
-
 const CString* CDictionaryRetainedDescription(id self)
 {
-  if(!self) return nil;
-  else {
-    id k, o; const CString *d; SES ses; _indentChaiSrc identChai;
-    CDictionaryEnumerator *e= CDictionaryEnumeratorAlloc((CDictionary*)self);
-    CString *s= CCreateString(0);
-    CStringAppendCharacter(s, '{');
-    CStringAppendCharacter(s, '\n');
-    while ((k= CDictionaryEnumeratorNextKey(e)) && (o= CDictionaryEnumeratorCurrentObject(e))) {
-      CStringAppendCharacter(s, ' ');
-      CStringAppendCharacter(s, ' ');
-      d= DESCRIPTION(k);
-      CStringAppendString(s, d);
-      RELEASE(d);
-      CStringAppendCharacter(s, ' ');
-      CStringAppendCharacter(s, '=');
-      CStringAppendCharacter(s, ' ');
-      d= DESCRIPTION(o);
-      ses= CStringSES(d);
-      identChai.source= ses.source;
-      identChai.chai= ses.chai;
-      identChai.counter= 0;
-      ses.encoding= 0;
-      ses.source= &identChai;
-      ses.chai= _indentChai;
-      CStringAppendSES(s, ses);
-      RELEASE(d);
-      CStringAppendCharacter(s, '\n');
-    }
-    CDictionaryEnumeratorFree(e);
-    CStringAppendCharacter(s, '}');
-    return s;}
+  CString *s= CCreateString(20);
+  CStringAppendCDictionaryDescription(s, (CDictionary*)self);
+  return s;
+}
+
+void CStringAppendCDictionaryDescription(CString *s, CDictionary *d) // + context de description ?
+{
+  CStringAppendGDictionaryDescription(s, NULL, (id)d);
 }
 
 #pragma mark Equality
 
 BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other)
 {
+  return GDictionaryEquals(NULL, (id)self, NULL, (id)other);
+/*
   BOOL ret= NO;
   if (self == other) return YES;
   if (self && other) {
@@ -291,6 +337,7 @@ BOOL CDictionaryEquals(const CDictionary *self, const CDictionary *other)
       for (j= self->buckets[i]; ret && j != NULL; j= j->next) {
         ret= CDICT_OBJ_EQUALS(self, j->value, CDictionaryObjectForKey(other, j->key)); }}}
   return ret;
+*/
 }
 
 #pragma mark Creation
@@ -378,9 +425,7 @@ id CDictionarySetObjectFromHandlerIfKeyAbsent(CDictionary *self, CDictionarySetH
 
 #pragma mark Enumeration
 
-// We only provide the allocation concept due to the flexibility it provides
-// If there is any proven performances issues, we will reconsider this decision
-CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self)
+CDictionaryEnumerator *CDictionaryEnumeratorAllocInit(const CDictionary *self)
 {
   CDictionaryEnumerator *de;
   if (!self) return NULL;
@@ -388,9 +433,7 @@ CDictionaryEnumerator *CDictionaryEnumeratorAlloc(const CDictionary *self)
     MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode,
       "CDictionaryEnumerator allocation error");
     return NULL;}
-  de->dictionary= self;
-  de->iBucket=    0;
-  de->jnode=      NULL;
+  CDictionaryEnumeratorInit(de, self);
   return de;
 }
 
@@ -399,15 +442,22 @@ void CDictionaryEnumeratorFree(CDictionaryEnumerator *de)
   MSFree(de, "CDictionaryEnumeratorFree");
 }
 
+void CDictionaryEnumeratorInit(CDictionaryEnumerator *de, const CDictionary *d)
+{
+  if (de) {
+    de->dictionary= d;
+    de->iBucket=    0;
+    de->jnode=      NULL;}
+}
+
 static inline void _moveForward(CDictionaryEnumerator *de)
 {
   NSUInteger n;
-//NSUInteger i= de->iBucket;
-  if (de && de->dictionary && (n= de->dictionary->nBuckets)) {
+  if (de) {
     if (de->jnode != NULL) de->jnode= ((_node*)(de->jnode))->next;
-    while (de->jnode == NULL && de->iBucket < n) {
-      de->jnode= de->dictionary->buckets[de->iBucket++];}}
-//if (i==de->iBucket) printf(" +"); else printf("\n%lu",de->iBucket);
+    if (de->jnode == NULL && de->dictionary && de->iBucket < (n= de->dictionary->nBuckets)) {
+      do de->jnode= de->dictionary->buckets[de->iBucket++];
+      while (de->jnode == NULL && de->iBucket < n);}}
 }
 id CDictionaryEnumeratorNextObject(CDictionaryEnumerator *de)
 {
@@ -430,30 +480,26 @@ id CDictionaryEnumeratorCurrentKey(CDictionaryEnumerator *de)
 
 CArray *CCreateArrayOfDictionaryKeys(CDictionary *d)
 {
-  CArray *a; BOOL noRetainRelease, nilItems; CDictionaryEnumerator *de; id k,stop;
+  CArray *a; BOOL noRetainRelease, nilItems; CDictionaryEnumerator de; id k,stop;
   if (!d) return NULL;
   noRetainRelease= d->flags.keyType!=CDictionaryObject;
   nilItems=        d->flags.keyType==CDictionaryNatural;
   a= CCreateArrayWithOptions(CDictionaryCount(d), noRetainRelease, nilItems);
-  de= CDictionaryEnumeratorAlloc(d);
+  CDictionaryEnumeratorInit(&de, d);
   stop= CDICT_NOT_A_KEY(d);
-  while ((k= CDictionaryEnumeratorNextKey(de))!=stop) CArrayAddObject(a, k);
-  CDictionaryEnumeratorFree(de);
+  while ((k= CDictionaryEnumeratorNextKey(&de))!=stop) CArrayAddObject(a, k);
   return a;
 }
 
 CArray *CCreateArrayOfDictionaryObjects(CDictionary *d)
 {
-  CArray *a; BOOL noRetainRelease, nilItems; CDictionaryEnumerator *de; id o,stop;
+  CArray *a; BOOL noRetainRelease, nilItems; CDictionaryEnumerator de; id o,stop;
   if (!d) return NULL;
   noRetainRelease= d->flags.objType!=CDictionaryObject;
   nilItems=        d->flags.objType==CDictionaryNatural;
   a= CCreateArrayWithOptions(CDictionaryCount(d), noRetainRelease, nilItems);
-  de= CDictionaryEnumeratorAlloc(d);
+  CDictionaryEnumeratorInit(&de, d);
   stop= CDICT_NOT_AN_OBJ(d);
-  while ((o= CDictionaryEnumeratorNextObject(de))!=stop) CArrayAddObject(a, o);
-  CDictionaryEnumeratorFree(de);
+  while ((o= CDictionaryEnumeratorNextObject(&de))!=stop) CArrayAddObject(a, o);
   return a;
 }
-
-#pragma mark Description

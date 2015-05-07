@@ -8,7 +8,7 @@
 
 @end
 
-@interface NSArray (NSExtendedArray)
+@interface NSArray (NSGenericArray)
 
 - (BOOL)isEqualToArray:(NSArray*)otherArray;
 - (NSString*)description;
@@ -31,7 +31,7 @@
 
 @end
 
-@interface NSArray (NSExtendedNewArray)
+@interface NSArray (NSGenericNewArray)
 
 - (NSArray*)arrayByAddingObject:(id)anObject;
 - (NSArray*)arrayByAddingObjectsFromArray:(NSArray *)otherArray;

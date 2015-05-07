@@ -170,8 +170,8 @@ typedef NSUInteger (*array_get_f          )(id, NSUInteger, NSUInteger, id*);
 typedef struct array_pfs_s { // type for array primitive functions
   array_count_f         count;
   array_objectAtIndex_f objectAtIndex;
-  array_get_f           get; // not needed
-  } *array_pfs_t;
+  array_get_f           get;} // not needed
+*array_pfs_t;
 
 MSCoreExtern array_pfs_t GArrayPfs;
 
@@ -190,7 +190,7 @@ MSCoreExtern id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended)
 MSCoreExtern NSUInteger GArrayHash(array_pfs_t fs, const id self, unsigned depth);
 MSCoreExtern BOOL GArrayIdenticals(array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2);
 MSCoreExtern BOOL GArrayEquals(    array_pfs_t fs1, const id a1, array_pfs_t fs2, const id a2);
-MSCoreExtern void CStringAppendGArrayDescription(CString *s, array_pfs_t fs, id a); // + context de description ?
+MSCoreExtern void CStringAppendGArrayDescription(CString *s, array_pfs_t fs, const id a); // + context de description ?
 MSCoreExtern id GArrayFirstObject(array_pfs_t fs, const id self);
 MSCoreExtern id GArrayLastObject(array_pfs_t fs, const id self);
 

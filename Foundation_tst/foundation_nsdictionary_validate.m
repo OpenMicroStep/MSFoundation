@@ -106,8 +106,61 @@ static void dictionary_enum(test_t *test)
   RELEASE(d);
 }
 
+#pragma mark Subclass
+
+@interface MyDict : NSDictionary
+@end
+@interface MyDictEnum : NSEnumerator
+{ int _idx; }
+@end
+
+static id _k1= @"key 1";
+static id _k2= @"key 2";
+static id _o1= @"first object";
+static id _o2= @"second object";
+@implementation MyDict
+- (NSUInteger)count
+{ return 2; }
+- (id)objectForKey:(id)k
+{ return k==_k1 ? _o1 : k==_k2 ? _o2 : nil; }
+- (NSEnumerator*)keyEnumerator
+{ return [[[MyDictEnum alloc] init] autorelease]; }
+@end
+@implementation MyDictEnum
+- (id)init
+{ _idx= 0; return self; }
+- (id)nextObject
+{ _idx++; return _idx==1 ? _k1 : _idx==2 ? _k2 : nil; }
+@end
+
+static void _dictionary_subclass(test_t *test, Class cl)
+{
+  id o,d,e,x,y,m; int i;
+  o= [[cl alloc] init];
+  if (cl==[MyDict class]) TASSERT_EQUALS(test, [o count], 2, "count is %llu, expected %llu");
+  d= [o description];
+  x= @"{\n    \"key 1\" = \"first object\";\n    \"key 2\" = \"second object\";\n}"; // Cocoa
+  y= @"{\n  key 1 = first object\n  key 2 = second object\n}";
+  TASSERT(test, [d isEqual:x] || [d isEqual:y], "%s",[d UTF8String]);
+  TASSERT_ISEQUAL(test, [o objectForKey:_k1], _o1, "%s != %s",[[o objectForKey:_k1] UTF8String],"first object");
+  TASSERT_ISEQUAL(test, [o objectForKey:_k2], _o2, "%s != %s",[[o objectForKey:_k2] UTF8String],"second object");
+  e= [o keyEnumerator];
+  for (i= 0; (x= [e nextObject]); i++) {
+    TASSERT_ISEQUAL(test, x, (i==0?_k1:_k2), "%s %d",[x UTF8String],i);}
+  m= [MSDictionary dictionaryWithObjectsAndKeys:_o1,_k1,_o2,_k2,nil];
+  TASSERT_ISEQUAL(test, o, m, "%s != %s",[o UTF8String],[m UTF8String]);
+  TASSERT_ISEQUAL(test, m, o, "%s != %s",[m UTF8String],[o UTF8String]);
+  RELEASE(o);
+}
+
+static void dictionary_subclass(test_t *test)
+{
+  _dictionary_subclass(test, [MyDict class]);
+}
+
 test_t foundation_dictionary[]= {
-  {"create",NULL,dictionary_create,INTITIALIZE_TEST_T_END},
-  {"init"  ,NULL,dictionary_init  ,INTITIALIZE_TEST_T_END},
-  {"enum"  ,NULL,dictionary_enum  ,INTITIALIZE_TEST_T_END},
+  {"create"  ,NULL,dictionary_create  ,INTITIALIZE_TEST_T_END},
+  {"init"    ,NULL,dictionary_init    ,INTITIALIZE_TEST_T_END},
+  {"enum"    ,NULL,dictionary_enum    ,INTITIALIZE_TEST_T_END},
+  {"subclass",NULL,dictionary_subclass,INTITIALIZE_TEST_T_END},
   {NULL}};

@@ -2,7 +2,13 @@
 @interface NSDictionary : NSObject
 - (NSUInteger)count;
 - (id)objectForKey:(id)aKey;
-- (NSEnumerator *)keyEnumerator;
+- (NSEnumerator*)keyEnumerator;
+@end
+
+@interface NSDictionary (NSGenericDictionary)
+
+- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict;
+
 @end
 
 @interface NSDictionary (NSDictionaryCreation)

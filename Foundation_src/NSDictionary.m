@@ -35,8 +35,9 @@
 { [self notImplemented:_cmd]; return 0; }
 - (id)objectForKey:(id)aKey
 { [self notImplemented:_cmd]; return 0; }
-- (NSEnumerator *)keyEnumerator
+- (NSEnumerator*)keyEnumerator
 { [self notImplemented:_cmd]; return 0; }
+
 @end
 
 @implementation NSMutableDictionary
@@ -79,6 +80,37 @@
 - (BOOL)isKindOfClass:(Class)aClass
 {
   return (aClass == [NSMutableDictionary class]) || [super isKindOfClass:aClass];
+}
+
+@end
+@interface NSDictionary (Private)
+- (BOOL)_isMS;
+@end
+
+@implementation NSDictionary (NSGenericDictionary)
+
+- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict
+  {
+  dict_pfs_t sPfs= [self      _isMS] ? NULL : GDictionaryPfs;
+  dict_pfs_t oPfs= [otherDict _isMS] ? NULL : GDictionaryPfs;
+  return GDictionaryEquals(sPfs, self, oPfs, otherDict);
+  }
+- (BOOL)isEqual:(id)object
+  {
+  if (object == (id)self) return YES;
+  if (!object) return NO;
+  if ([object isKindOfClass:[NSDictionary class]]) {
+    dict_pfs_t sPfs= [self   _isMS] ? NULL : GDictionaryPfs;
+    dict_pfs_t oPfs= [object _isMS] ? NULL : GDictionaryPfs;
+    return GDictionaryEquals(sPfs, self, oPfs, object);}
+  return NO;
+  }
+
+- (NSString*)description
+{
+  CString *s= CCreateString(0);
+  CStringAppendGDictionaryDescription(s, GDictionaryPfs, self);
+  return [(id)s autorelease];
 }
 
 @end

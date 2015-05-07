@@ -32,6 +32,9 @@
 { [self notImplemented:_cmd]; return 0; }
 - (id)objectAtIndex:(NSUInteger)index
 { [self notImplemented:_cmd]; return 0; }
+- (instancetype)initWithObjects:(const id [])objects count:(NSUInteger)cnt
+{ [self notImplemented:_cmd]; return nil; }
+
 @end
 
 @implementation NSMutableArray
@@ -89,7 +92,7 @@
 - (BOOL)_isMS;
 @end
 
-@implementation NSArray (NSExtendedArray)
+@implementation NSArray (NSGenericArray)
 
 - (BOOL)isEqualToArray:(NSArray*)otherArray
   {
@@ -195,7 +198,7 @@
 
 @end
 
-@implementation NSArray (NSExtendedNewArray)
+@implementation NSArray (NSGenericNewArray)
 
 - (NSArray*)arrayByAddingObject:(id)anObject
 {

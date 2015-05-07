@@ -127,9 +127,9 @@ BOOL _MIsArray(id obj)
   return [obj isKindOfClass:[NSArray class]];
 }
 
-NSUInteger _GCount(id array)
+NSUInteger _GCount(id container)
 {
-  return [array count];
+  return [container count];
 }
 id _GObjectAtIndex(id array, NSUInteger i)
 {
@@ -141,6 +141,26 @@ struct array_pfs_s GArrayPfsStruct= {
   NULL
   };
 array_pfs_t GArrayPfs= &GArrayPfsStruct;
+
+id _GObjectForKey(id dict, id k)
+{
+  return [dict objectForKey:k];
+}
+id _GKeyEnumerator(id dict)
+{
+  return [dict keyEnumerator];
+}
+id _GNextObject(id enumerator)
+{
+  return [enumerator nextObject];
+}
+struct dict_pfs_s GDictPfsStruct= {
+  _GCount,
+  _GObjectForKey,
+  _GKeyEnumerator,
+  _GNextObject
+  };
+dict_pfs_t GDictionaryPfs= &GDictPfsStruct;
 
 int _MSEnv()
 {

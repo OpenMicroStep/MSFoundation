@@ -43,7 +43,7 @@
 @interface MSDictionaryEnumerator : NSEnumerator
 {
 @private
-  CDictionaryEnumerator *_dictionaryEnumerator;
+  CDictionaryEnumerator _dictionaryEnumerator;
   BOOL _forKeys;
 }
 - (id)initWithDictionary:(MSDictionary*)d forKeys:(BOOL)forKeys;
