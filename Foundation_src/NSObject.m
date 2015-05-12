@@ -176,17 +176,32 @@
 
 - (id)copy
 {
-  if ([self respondsToSelector:@selector(copyWithZone:)])
-    return [(id <NSCopying>)self copyWithZone:nil];
-  MSRaise(@"NSObject", @"copyWithZone not implemented");
-  return nil;
+  return [(id <NSCopying>)self copyWithZone:nil];
 }
 
 - (id)mutableCopy
 {
-  if ([self respondsToSelector:@selector(mutableCopyWithZone:)])
-    return [(id <NSMutableCopying>)self mutableCopyWithZone:nil];
-  MSRaise(@"NSObject", @"mutableCopyWithZone not implemented");
-  return nil;
+  return [(id <NSMutableCopying>)self mutableCopyWithZone:nil];
 }
+
++ (instancetype)retain
+{
+  return self;
+}
+
++ (oneway void)release
+{
+}
+
++ (id)copy
+{
+  return self;
+}
+
++ (id)copyWithZone:(NSZone *)zone
+{
+  MSUnused(zone);
+  return self;
+}
+
 @end
