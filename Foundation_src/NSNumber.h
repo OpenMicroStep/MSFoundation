@@ -3,8 +3,6 @@
   
 }
 
-- (const char*)objCType;
-
 - (char)charValue;
 - (unsigned char)unsignedCharValue;
 - (short)shortValue;
@@ -18,6 +16,7 @@
 - (float)floatValue;
 - (double)doubleValue;
 - (BOOL)boolValue;
+- (NSString *)stringValue;
 
 @end
 

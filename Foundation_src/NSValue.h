@@ -1,13 +1,5 @@
 
 @interface NSValue : NSObject <NSCopying, NSSecureCoding> {
-@protected
-  const char *_objctype;
-  union {
-    void *ptr;
-    MSLong i8;
-    MSULong u8;
-    double dbl;
-  } value;
 }
 
 - (void)getValue:(void *)value;
