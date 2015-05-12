@@ -19,7 +19,7 @@
 @interface NSConditionLock : NSObject <NSLocking> {
 @private
   NSInteger _condition;
-  mutex_t _lock;
+  pthread_mutex_t _lock;
   pthread_cond_t _cond;
 }
 
@@ -37,7 +37,7 @@
 
 @interface NSRecursiveLock : NSObject <NSLocking> {
 @private
-  mutex_t _lock;
+  pthread_mutex_t _lock;
 }
 
 - (BOOL)tryLock;
@@ -47,7 +47,7 @@
 
 @interface NSCondition : NSObject <NSLocking> {
 @private
-  mutex_t _lock;
+  pthread_mutex_t _lock;
   pthread_cond_t _cond;
 }
 
