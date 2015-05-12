@@ -48,7 +48,7 @@
  */
 
 typedef struct CNaturalArrayStruct {
-    Class isa ; /* here only to bind this structure to an objective-c object */
+    MSCORE_NSOBJECT_ATTRIBUTES
     NSUInteger *pointers ;
     NSUInteger count ;
     NSUInteger size ;

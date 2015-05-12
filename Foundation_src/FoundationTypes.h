@@ -2,7 +2,7 @@
 
 #define MICROSTEP
 
-#ifdef FOUNDATION_PRIVATE_H
+#if defined(FOUNDATION_PRIVATE_H) || defined(MSFOUNDATION_PRIVATE_H)
 #define FoundationExtern LIBEXPORT
 #else
 #define FoundationExtern LIBIMPORT
@@ -30,6 +30,10 @@
   // Both recent version of GCC & Clang support the va_arg formatting compilation check
   #define NS_FORMAT_ARGUMENT(A) __attribute__ ((format_arg(A)))
 #endif*/
+
+#ifndef __has_feature
+#define __has_feature(x) 0
+#endif
 
 #if !__has_feature(objc_instancetype)
 #undef instancetype

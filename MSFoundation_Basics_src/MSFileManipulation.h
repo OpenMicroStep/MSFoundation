@@ -42,8 +42,10 @@ MSFoundationExtern NSArray *MSDirectoryContentsAtPath(NSString *path) ;
 
 MSFoundationExtern const unsigned char *bmh_memmem(const unsigned char *haystack, size_t hlen, const unsigned char *needle, size_t nlen) ;
 
-#ifdef WIN32
+#ifdef WO451
 MSFoundationExtern char *strtok_r(char *s, const char *delim, char **last) ;
+#endif
+#ifdef WIN32
 MSFoundationExtern char *strnstr(const char *s1, const char *s2, size_t n) ;
 #endif
 

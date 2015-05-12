@@ -404,6 +404,7 @@ BOOL _MSRemoveRecursiveDirectory(NSString *path)
     return NO ;
 }
 
+#ifdef WO451
 // Taken from the OpenBSD's libc
 // not available in WebObjects
 char *strtok_r(char *s, const char *delim, char **last)
@@ -444,6 +445,7 @@ cont:
         } while (sc != 0);
     }
 }
+#endif
 
 char *strnstr(const char *s1, const char *s2, size_t n)
 {

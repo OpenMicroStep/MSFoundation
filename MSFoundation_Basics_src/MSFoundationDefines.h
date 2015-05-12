@@ -51,7 +51,7 @@
 
 #define MSFOUNDATION
 
-#ifdef MSFOUNDATION_PRIVATE_H
+#if defined(MSFOUNDATION_PRIVATE_H) || defined(FOUNDATION_PRIVATE_H)
 #define MSFoundationExtern LIBEXPORT
 #else
 #define MSFoundationExtern LIBIMPORT

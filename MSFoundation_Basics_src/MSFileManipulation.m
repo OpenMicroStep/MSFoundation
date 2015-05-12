@@ -172,11 +172,8 @@ NSString *MSUNCPath(NSString *path) { return _MSUNCPath(path) ; }
 typedef id (*MY_IMP)(id, SEL, ...);
 NSArray * MSDirectoryContentsAtPath(NSString *path) {
     NSDirectoryEnumerator	*direnum;
-    NSMutableArray	*content;
-    MY_IMP nxtImp;
-    MY_IMP addImp;
-    BOOL   is_dir;
-    
+    CArray	*content;
+    BOOL			is_dir;
     /*
      * See if this is a directory (don't follow links).
      */
@@ -195,18 +192,15 @@ NSArray * MSDirectoryContentsAtPath(NSString *path) {
      justContents: YES
      for: self];*/
     direnum = [[NSFileManager defaultManager] enumeratorAtPath:path] ;
-    content = [NSMutableArray arrayWithCapacity: 128];
+    content = CCreateArray(128);
     
-    nxtImp = (MY_IMP)[direnum methodForSelector: @selector(nextObject)];
-    addImp = (MY_IMP)[content methodForSelector: @selector(addObject:)];
-    
-    while ((path = (*nxtImp)(direnum, @selector(nextObject))) != nil)
+    while ((path = [direnum nextObject]))
     {
-        (*addImp)(content, @selector(addObject:), path);
+      CArrayAddObject(content, path);
     }
     //RELEASE(direnum);
     
-    return content ;
+    return AUTORELEASE(content) ;
 }
 
 // Boyer–Moore–Horspool memmem

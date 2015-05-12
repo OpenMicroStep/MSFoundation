@@ -49,14 +49,14 @@ void uuid_generate_string(char dst[37])
   UUID uuid;
   UuidCreate(&uuid);
   UuidToString(&uuid, &str);
-  strncpy(dst, str, 37);
+  strncpy(dst, (const char *)str, 37);
   RpcStringFree(&str);
 }
 
 // WIN32 count by 100 nanoseconds steps since 1st january 1601
 #define _MSTimeIntervalSince1601 12622780800ULL
 
-static inline MSLong _FileTimeToMicro(FILETIME ft
+static inline MSLong _FileTimeToMicro(FILETIME ft)
 {
   MSULong d= ((((MSULong) ft.dwHighDateTime) << 32) + ft.dwLowDateTime) / 10;
   return (MSTimeInterval)d - _MSTimeIntervalSince1601*1000000;
@@ -118,6 +118,6 @@ MSTimeInterval gmt_from_local(MSTimeInterval t)
   if (FileTimeToSystemTime(&ftl, &stl) && // According to MSDN, this is a necessary conversion to take daylight into account
       TzSpecificLocalTimeToSystemTime(NULL /* uses the currently active time zone */, &stl, &sts) &&
       SystemTimeToFileTime(&sts, &fts))
-    tOut= _FileTimeToMSTimeInterval(fts);
+    t= _FileTimeToMSTimeInterval(fts);
   return t;
 }

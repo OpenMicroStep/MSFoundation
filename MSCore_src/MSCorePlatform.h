@@ -14,7 +14,7 @@
 #endif
 
 #ifndef WIN32
-#ifdef __WIN32__
+#ifdef _WIN32
 #define WIN32
 #endif
 #endif
@@ -46,7 +46,7 @@
     #define LIBIMPORT EXTERN_C
 #endif
 
-#if defined(MSCORE_PRIVATE_H) || defined(MSFOUNDATION_PRIVATE_H)
+#if defined(MSCORE_PRIVATE_H) || defined(FOUNDATION_PRIVATE_H) || defined(MSFOUNDATION_PRIVATE_H)
 #define MSCoreExtern LIBEXPORT
 #else
 #define MSCoreExtern LIBIMPORT
@@ -151,8 +151,8 @@ MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list a
     #define RTLD_NOW  1
     typedef HMODULE dl_handle_t;
     static inline dl_handle_t dlopen(const char *path, int mode)       { return LoadLibrary(path); }
-    static inline int dlclose(dl_handle_t *handle)                     { return FreeLibrary(handle) ? 0 : -1; }
-    static inline void* dlsym(dl_handle_t *handle, const char *symbol) { return GetProcAddress(handle, symbol); }
+    static inline int dlclose(dl_handle_t handle)                     { return FreeLibrary(handle) ? 0 : -1; }
+    static inline void* dlsym(dl_handle_t handle, const char *symbol) { return GetProcAddress(handle, symbol); }
 #else
     #include <dlfcn.h>
     typedef void* dl_handle_t;
@@ -160,15 +160,13 @@ MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list a
 
 // getpid/gettid
 #ifdef WIN32
-    typedef DWORD pid_t;
-    static inline pid_t getpid() { return GetCurrentProcessId(); }
     static inline pid_t gettid() { return GetCurrentThreadId(); }
 #elif defined(UNIX)
     static inline pid_t gettid() { return syscall(SYS_getpid); }
 #endif
 
 #ifdef WIN32
-static inline usleep(int32_t usec) { usec /= 1000; Sleep(usec > 0 ? usec : 1); return 0; }
+static inline int usleep(int32_t usec) { usec /= 1000; Sleep(usec > 0 ? usec : 1); return 0; }
 #endif
 
 #ifdef APPLE

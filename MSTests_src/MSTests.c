@@ -141,7 +141,7 @@ static int test_module(const char *module, const char *prefix, const char *suffi
   return err;
 }
 
-#ifndef WO451
+#ifndef _WIN32
 const char *__prefix= "../tests/lib";
 const char *__suffix= "Tests.dylib";
 #else

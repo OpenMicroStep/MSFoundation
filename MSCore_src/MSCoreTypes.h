@@ -46,6 +46,10 @@
 #ifndef MSCORE_TYPES_H
 #define MSCORE_TYPES_H
 
+
+// MSCORE_STANDALONE means that the core is build in standalone mode
+// MSCORE_FORFOUNDATION means that the core is build for objective-c usage and that their is no objective-c in this context
+
 #if !defined(MSCORE_STANDALONE) && !defined(__OBJC__)
 #define MSCORE_FORFOUNDATION 1
 #endif
@@ -98,7 +102,16 @@ typedef MSLong MSTimeInterval; // Time in seconds T0=01/01/2001
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION) || !defined(MSFOUNDATION_FORCOCOA)
 
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
-typedef signed char BOOL;
+
+// windef.h do a "typedef WINBOOL BOOL;".
+// We prevent any unwanted behavior by changing the BOOL usage to objective-c usage.
+// If you want to access windows BOOL definition, use the explicit typedef WINBOOL
+#ifdef BOOL
+#undef BOOL
+#endif
+typedef signed char OBJC_BOOL;
+#define BOOL OBJC_BOOL
+
 #else
 #include <objc/objc.h>
 #endif
