@@ -61,7 +61,7 @@
 @implementation MSDictionaryEnumerator
 - (id)initWithDictionary:(MSDictionary*)d forKeys:(BOOL)forKeys
 {
-  CDictionaryEnumeratorInit(&_dictionaryEnumerator, (CDictionary*)d);
+  _dictionaryEnumerator= CMakeDictionaryEnumerator((CDictionary*)d);
   RETAIN(_dictionaryEnumerator.dictionary);
   _forKeys= forKeys;
   return self;
@@ -75,8 +75,8 @@
                             CDictionaryEnumeratorNextKey      (&_dictionaryEnumerator):
                             CDictionaryEnumeratorNextObject   (&_dictionaryEnumerator);}
 - (id)nextKey       {return CDictionaryEnumeratorNextKey      (&_dictionaryEnumerator);}
-- (id)currentObject {return CDictionaryEnumeratorCurrentObject(&_dictionaryEnumerator);}
-- (id)currentKey    {return CDictionaryEnumeratorCurrentKey   (&_dictionaryEnumerator);}
+- (id)currentObject {return CDictionaryEnumeratorCurrentObject( _dictionaryEnumerator);}
+- (id)currentKey    {return CDictionaryEnumeratorCurrentKey   ( _dictionaryEnumerator);}
 @end
 
 #define MS_DICTIONARY_LAST_VERSION 101

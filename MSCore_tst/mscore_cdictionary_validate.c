@@ -5,12 +5,14 @@
 static void cdictionary_create(test_t *test)
   {
   CDictionary *c,*d,*m; id k,o,x; int i;
+  // c= {}, d= {}
   c= (CDictionary*)MSCreateObjectWithClassIndex(CDictionaryClassIndex);
   d= CCreateDictionary(0);
   TASSERT_EQUALS(test, RETAINCOUNT(c), 1, "A1-Bad retain count: %lu != %lu");
   TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "A2-Bad retain count: %lu != %lu");
   TASSERT(test, CDictionaryEquals(c, d), "A3 c & d are not equals");
   RELEASE(d);
+  // c= {key1: obj1}, d= {key1: key1}
   k= (id)CCreateBufferWithBytes("key1", 4);
   o= (id)CCreateBufferWithBytes("obj1", 4);
   CDictionarySetObjectForKey(c, o, k);
@@ -20,6 +22,7 @@ static void cdictionary_create(test_t *test)
   TASSERT_EQUALS(test, RETAINCOUNT(d), 1, "A12-Bad retain count: %lu != %lu");
   TASSERT_EQUALS(test, RETAINCOUNT(k), 2, "A13-Bad retain count: %lu != %lu");
   TASSERT(test, !CDictionaryEquals(c, d), "A14 c & d are equals");
+  // c= {key1: obj1}, d= {key1: obj1}
   CDictionarySetObjectForKey(d, o, k);
   TASSERT_EQUALS(test, RETAINCOUNT(k), 1, "A15-Bad retain count: %lu != %lu");
   TASSERT_EQUALS(test, RETAINCOUNT(o), 3, "A16-Bad retain count: %lu != %lu");
@@ -64,16 +67,17 @@ static void cdictionary_enum(test_t *test)
   d= (CDictionary*)CDictionaryCopy((id)c);
   RELEASE(c);
 
-  CDictionaryEnumeratorInit(&de, d);
-  for (n= 0, fd= 0; (o= (id)CDictionaryEnumeratorNextObject(&de)); n++) {
-    k= CDictionaryEnumeratorCurrentKey(&de);
+  de= CMakeDictionaryEnumerator(d);
+  TASSERT_EQUALS(test, de.dictionary, d, "Error");
+  for (n= 0, fd= 0; (o= CDictionaryEnumeratorNextObject(&de)); n++) {
+    k= CDictionaryEnumeratorCurrentKey(de);
     for (i= 0; i<1000; i++) {
       if (ISEQUAL(k, ks[i])) fd++;}
     TASSERT_EQUALS(test, fd, n+1, "B2 Bad fd: %lu %lu",WLI(fd),WLI(n));}
   TASSERT_EQUALS(test, n, 1000, "B3 Bad n: %lu",WLI(n));
-  CDictionaryEnumeratorInit(&de, d);
+  de= CMakeDictionaryEnumerator(d);
   for (n= 0, fd= 0; (k= (id)CDictionaryEnumeratorNextKey(&de)); n++) {
-    o= CDictionaryEnumeratorCurrentObject(&de);
+    o= CDictionaryEnumeratorCurrentObject(de);
     for (i= 0; i<1000; i++) {
       if (ISEQUAL(o, os[i])) fd++;}
     TASSERT_EQUALS(test, fd, n+1, "B4 Bad fd: %lu %lu",WLI(fd),WLI(n));}
@@ -91,7 +95,7 @@ static id hndl(void* arg)
   {return (id)3000;}
 static void cdictionary_naturalsOrNotZero(test_t *test, BOOL notZero)
   {
-  CDictionary *c; long i; CDictionaryEnumerator *de; CArray *a;
+  CDictionary *c; long i; CDictionaryEnumerator de; CArray *a;
   int type= notZero ? CDictionaryNaturalNotZero : CDictionaryNatural;
   NSUInteger first=      notZero ? 1 : 0;
   NSUInteger notAMarker= notZero ? 0 : NSNotFound;
@@ -106,9 +110,8 @@ static void cdictionary_naturalsOrNotZero(test_t *test, BOOL notZero)
   TASSERT_EQUALS(test, CDictionaryObjectForKey(c, (id)(first+999)) , (id)(first+1)   , "bad natural 5 %lu %lu");
   TASSERT_EQUALS(test, CDictionaryObjectForKey(c, (id)(first+1000)), (id)(first+0)   , "bad natural 6 %lu %lu");
   TASSERT_EQUALS(test, CDictionaryObjectForKey(c, (id)(first+2000)), (id)notAMarker  , "bad natural 7 %lu %lu");
-  de= CDictionaryEnumeratorAllocInit(c);
-  for (i= 0; CDictionaryEnumeratorNextKey(de)!=(id)notAMarker; i++);
-  CDictionaryEnumeratorFree(de);
+  de= CMakeDictionaryEnumerator(c);
+  for (i= 0; CDictionaryEnumeratorNextKey(&de)!=(id)notAMarker; i++);
   TASSERT_EQUALS(test, i, 1001, "bad natural enumeration %lu != %lu");
   CDictionarySetObjectForKey(c, (id)notAMarker, (id)10);
   TASSERT_EQUALS(test, CDictionaryCount(c), 1000, "bad count %lu != %lu");

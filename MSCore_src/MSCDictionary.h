@@ -79,14 +79,11 @@ typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
   void *jnode;}
 CDictionaryEnumerator;
 
-MSCoreExtern CDictionaryEnumerator *CDictionaryEnumeratorAllocInit(const CDictionary *self);
-MSCoreExtern void CDictionaryEnumeratorFree(CDictionaryEnumerator *de);
-
-MSCoreExtern void CDictionaryEnumeratorInit         (CDictionaryEnumerator *de, const CDictionary *d);
+MSCoreExtern CDictionaryEnumerator CMakeDictionaryEnumerator(const CDictionary *d);
 MSCoreExtern id   CDictionaryEnumeratorNextObject   (CDictionaryEnumerator *de);
 MSCoreExtern id   CDictionaryEnumeratorNextKey      (CDictionaryEnumerator *de);
-MSCoreExtern id   CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator *de);
-MSCoreExtern id   CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator *de);
+MSCoreExtern id   CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator de);
+MSCoreExtern id   CDictionaryEnumeratorCurrentKey   (CDictionaryEnumerator de);
 
 MSCoreExtern CArray *CCreateArrayOfDictionaryKeys(CDictionary *d);
 MSCoreExtern CArray *CCreateArrayOfDictionaryObjects(CDictionary *d);

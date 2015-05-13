@@ -51,17 +51,17 @@
 #define _GOAI(g,a,i) (g->objectAtIndex(a,i))
 #define GARRAY_OAI( g,a,i) (!g ? _COAI(a,i) : _GOAI(g,a,i))
 
-void GArrayEnumeratorInit(GArrayEnumerator *e,
-  garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count)
+GArrayEnumerator GMakeArrayEnumerator(garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count)
 {
-  if (!e) return;
-  e->fs=    fs;
-  e->array= array;
-  if (!array) e->start= e->end= 0;
+  GArrayEnumerator e;
+  e.fs=    fs;
+  e.array= array;
+  if (!array) e.start= e.end= 0;
   else {
     NSUInteger n= GARRAY_COUNT(fs, array);
-    e->start= MIN(start, n);
-    e->end=   MIN(start + count, n);}
+    e.start= MIN(start, n);
+    e.end=   MIN(start + count, n);}
+  return e;
 }
 // Ended is needed when niltems are accepted
 id GArrayEnumeratorNextObject(GArrayEnumerator *e, BOOL *ended)
@@ -129,7 +129,7 @@ void CStringAppendGArrayDescription(CString *s, garray_pfs_t fs, const id a) // 
   else {
     GArrayEnumerator e; NSUInteger i,n; const CString *d;
     CStringAppendCharacter(s, '(');
-    GArrayEnumeratorInit(&e, fs, a, 0, (n= GARRAY_COUNT(fs, a)));
+    e= GMakeArrayEnumerator(fs, a, 0, (n= GARRAY_COUNT(fs, a)));
     for (i= 0; i < n; i++) {
       if (i>0) CStringAppendFormat(s, ", ");
       // TODO: APPEND_DESCRIPTION(GARRAY_OAI(fs, a,i));
@@ -156,7 +156,7 @@ id GArrayLastObject(garray_pfs_t fs, const id self)
 NSUInteger GArrayIndexOfIdenticalObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
 {
   GArrayEnumerator e; BOOL ended; id o;
-  GArrayEnumeratorInit(&e, fs, self, start, count);
+  e= GMakeArrayEnumerator(fs, self, start, count);
   for (; (o= GArrayEnumeratorNextObject(&e, &ended)) || !ended; start++) {
     if (o == object) return start;}
   return NSNotFound;
@@ -165,7 +165,7 @@ NSUInteger GArrayIndexOfIdenticalObject(garray_pfs_t fs, const id self, const id
 NSUInteger GArrayIndexOfObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
 {
   GArrayEnumerator e; BOOL ended; id o;
-  GArrayEnumeratorInit(&e, fs, self, start, count);
+  e= GMakeArrayEnumerator(fs, self, start, count);
   for (; (o= GArrayEnumeratorNextObject(&e, &ended)) || !ended; start++) {
     if (ISEQUAL(o, object)) return start;}
   return NSNotFound;

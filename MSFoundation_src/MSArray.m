@@ -650,7 +650,7 @@ static NSComparisonResult _internalCompareFunction2(id e1, id e2, void *selector
 
 - (id)initWithArray:(NSArray*)a pfs:(garray_pfs_t)pfs count:(NSUInteger)c reverse:(BOOL)reverse
 {
-  GArrayEnumeratorInit(&_arrayEnumerator, pfs, a, 0, c);
+  _arrayEnumerator= GMakeArrayEnumerator(pfs, a, 0, c);
   RETAIN(_arrayEnumerator.array);
   _reverse= reverse;
   return self;

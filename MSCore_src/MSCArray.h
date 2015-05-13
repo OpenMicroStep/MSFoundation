@@ -181,8 +181,7 @@ typedef struct GArrayEnumeratorStruct { // not a c-like object, no retain
   NSUInteger start, end;}
 GArrayEnumerator;
 
-MSCoreExtern void GArrayEnumeratorInit(GArrayEnumerator *e,
-  garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count);
+MSCoreExtern GArrayEnumerator GMakeArrayEnumerator(garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count);
 // 'ended' is needed when niltems are accepted
 MSCoreExtern id GArrayEnumeratorNextObject(GArrayEnumerator *e, BOOL *ended);
 MSCoreExtern id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended);
