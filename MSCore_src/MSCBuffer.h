@@ -63,6 +63,7 @@ MSCoreExtern void           CBufferFreeInside(id self); // for MSBuffer dealloc
 MSCoreExtern BOOL           CBufferIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CBufferHash(id self, unsigned depth);
 MSCoreExtern id             CBufferCopy(id self);
+MSCoreExtern void           CBufferDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CBufferRetainedDescription(id self);
 
 MSCoreExtern void CBufferInitWithBytes(CBuffer *self, void *bytes, NSUInteger length);

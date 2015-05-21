@@ -61,6 +61,7 @@ MSCoreExtern void           CDecimalFreeInside(id self);
 MSCoreExtern BOOL           CDecimalIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CDecimalHash(id self, unsigned depth);
 MSCoreExtern id             CDecimalCopy(id self);
+MSCoreExtern void           CDecimalDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CDecimalRetainedDescription(id self);
 
 MSCoreExtern BOOL CDecimalEquals(const CDecimal *self, const CDecimal *other);

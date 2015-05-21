@@ -310,6 +310,35 @@ id CDictionaryCopy(id self)
   return CDictionaryInitCopy(d, (CDictionary*)self, NO);
 }
 
+CArray* CCreateArrayOfDictionarySubs(id self, mutable CDictionary *ctx)
+{
+  return CCreateArrayOfDictionaryObjects((CDictionary*)self);
+  MSUnused(ctx);
+}
+
+void CDictionaryDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+  gdict_pfs_t fs= nil;
+  id dict= self;
+  CString *s= (CString*)result;
+  NSUInteger i; CDictionaryEnumerator de; id e,k,kstop; BOOL keysAreObjs= YES, objsAreObjs= YES;
+  CStringAppendCharacter(s, '{');
+  if (!fs) {
+    keysAreObjs= CDICT(dict)->flags.keyType==CDictionaryObject;
+    objsAreObjs= CDICT(dict)->flags.objType==CDictionaryObject;}
+  e= GDICT_ENUM(fs, dict, de);  kstop= GDICT_STOPKEY(fs,dict);
+  while ((k= GDICT_NEXTKEY(fs, e))!=kstop) {
+    CStringAppendCharacter(s, '\n');
+    for (i= 0; i<=level; i++) CStringAppendFormat(s,"  ");
+    // TODO: Si k not an obj, ne pas utiliser description !
+    CDescribe(k, result, level+1, ctx);
+    CStringAppendFormat(s,": ");
+    // TODO: Si o not an obj, ne pas utiliser description !
+    CDescribe(GDICT_OFK(fs, e, dict, k), result, level+1, ctx);
+    CStringAppendCharacter(s, ';');}
+  CStringAppendCharacter(s, '}');
+}
+
 const CString* CDictionaryRetainedDescription(id self)
 {
   CString *s= CCreateString(20);

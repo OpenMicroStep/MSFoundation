@@ -78,6 +78,11 @@ id CStringCopy(id self)
   return CStringInitCopyWithMutability(s, (CString*)self, !CGrowIsForeverImmutable(self));
 }
 
+void CStringDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+  CStringAppendString((CString*)result, (CString*)self);
+}
+
 const CString* CStringRetainedDescription(id self)
 {
   return (const CString*)RETAIN(self);
@@ -572,8 +577,10 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
     }
     case '@':
     {
+      // TODO: Passer par _DESCRIBE ou CDescribe.
+      // De plus ce n'est pas CStringLength qu'on veut mais le nombre de glyphs.
       id obj= (id)argTypes[f.arg - 1].u.ptr;
-      const CString *str= DESCRIPTION(obj);
+      const CString *str= CCreateDescription(obj);
       if (str) {
         _formatPrintSES(s, CStringSES(str), CStringLength(str), width, f.flags.leftJustify); }
       else {

@@ -77,6 +77,10 @@ id CBufferCopy(id self)
   return CBufferInitCopyWithMutability(a, (CBuffer*)self, CGrowIsForeverImmutable(self));
 }
 
+void CBufferDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+}
+
 const CString* CBufferRetainedDescription(id self)
 {
   static const char* hex= "0123456789abcdef";

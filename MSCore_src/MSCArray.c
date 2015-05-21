@@ -261,6 +261,26 @@ id CArrayCopy(id self)
   return CArrayInitCopyWithMutability(a, (CArray*)self, !CGrowIsForeverImmutable(self));
 }
 
+CArray* CCreateArrayOfArraySubs(id self, mutable CDictionary *ctx)
+{
+  return (CArray*)RETAIN(self);
+  MSUnused(ctx);
+}
+
+void CArrayDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+  garray_pfs_t fs= nil;
+  id array= self;
+  CString *s= (CString*)result;
+  NSUInteger i,n; GArrayEnumerator e;
+  CStringAppendCharacter(s, '(');
+  e= GMakeArrayEnumerator(fs, array, 0, (n= GARRAY_COUNT(fs, array)));
+  for (i= 0; i < n; i++) {
+    if (i>0) CStringAppendFormat(s, ", ");
+    CDescribe(GARRAY_OAI(fs, array, i), result, level+1, ctx);}
+  CStringAppendCharacter(s, ')');
+}
+
 const CString* CArrayRetainedDescription(id self)
 {
   CString *s= CCreateString(20);

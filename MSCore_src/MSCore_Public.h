@@ -77,6 +77,9 @@
 #include "MSCDecimal.h"
 #include "m_apm.h"
 #include "MSCDictionary.h"
+
+#include "MSCTraverse.h"
+
 #include "MSTE.h"
 //#include "MSCMutex.h"
 //#include "MSCNaturalArray.h"

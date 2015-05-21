@@ -863,6 +863,11 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 - (id)mutableCopyWithZone:(NSZone*)z
 {return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CStringInitCopyWithMutability);}
 
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CStringDescribe(self, result, level, (CDictionary*)ctx);
+}
+
 - (BOOL)isEqualToString:(NSString*)s
   {
   return SESEquals(SESFromString(self), SESFromString(s));

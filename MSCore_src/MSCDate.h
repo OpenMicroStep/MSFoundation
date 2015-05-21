@@ -65,6 +65,7 @@ MSCoreExtern void           CDateFreeInside(id self);
 MSCoreExtern BOOL           CDateIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CDateHash(id self, unsigned depth);
 MSCoreExtern id             CDateCopy(id self);
+MSCoreExtern void           CDateDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CDateRetainedDescription(id self);
 MSCoreExtern void CStringAppendCDateDescription(CString *s, CDate *d); // + context de description ?
 

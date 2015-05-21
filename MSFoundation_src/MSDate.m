@@ -172,6 +172,11 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
   return !zone || zone == [self zone] ? RETAIN(self) : CDateCopy(self);
 }
 
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CDateDescribe(self, result, level, (CDictionary*)ctx);
+}
+
 #pragma mark Standard methods
 
 - (BOOL)isEqual:(id)o

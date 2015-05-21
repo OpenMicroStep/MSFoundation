@@ -55,6 +55,7 @@ MSCoreExtern void           CStringFreeInside(id self); // for MSArray dealloc
 MSCoreExtern BOOL           CStringIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CStringHash(id self, unsigned depth);
 MSCoreExtern id             CStringCopy(id self);
+MSCoreExtern void           CStringDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CStringRetainedDescription(id self);
 //  Warning: the copy follows the options of self: if objects are not
 //  retained in self, they are not retained in the copy. If nilItems are

@@ -237,6 +237,7 @@ static M_APM _MS_APM_Allocate(void)
 void _CObjectInitialize();
 void _CDateInitialize();
 void _MSTEInitialize();
+void _CTraverseInitialize();
 void _CMessageInitialize();
 
 #if defined(WO451)
@@ -267,6 +268,7 @@ void MSFinishLoadingCore()
     M_init_mapm_constants();
     _CDateInitialize();
     _MSTEInitialize();
+    _CTraverseInitialize();
     _CMessageInitialize();
     }
 }

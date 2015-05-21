@@ -21,5 +21,6 @@ test_t MSCoreTests[]= {
   {"cdictionary",mscore_cdictionary,NULL,INTITIALIZE_TEST_T_END},
   {"ses"        ,mscore_ses        ,NULL,INTITIALIZE_TEST_T_END},
   {"cstring"    ,mscore_cstring    ,NULL,INTITIALIZE_TEST_T_END},
+  {"ctraverse"  ,mscore_ctraverse  ,NULL,INTITIALIZE_TEST_T_END},
 //{"mste"       ,mscore_mste       ,NULL,INTITIALIZE_TEST_T_END},
   {NULL}};

@@ -77,6 +77,20 @@ id CCoupleCopy(id self)
   return (id)newCpl;
 }
 
+CArray* CCreateArrayOfCoupleSubs(id self, mutable CDictionary *ctx)
+{
+  CArray *a;
+  CCreateArray(2);
+  if (((CCouple*)self)->members[0]) CArrayAddObject(a, ((CCouple*)self)->members[0]);
+  if (((CCouple*)self)->members[1]) CArrayAddObject(a, ((CCouple*)self)->members[1]);
+  return a;
+  MSUnused(ctx);
+}
+
+void CCoupleDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+}
+
 const CString* CCoupleRetainedDescription(id self)
 {
   CString *s; const CCouple *a;

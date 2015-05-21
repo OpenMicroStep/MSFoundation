@@ -17,4 +17,5 @@ extern test_t mscore_cdecimal   [10];
 extern test_t mscore_cdictionary[10];
 extern test_t mscore_ses        [10];
 extern test_t mscore_cstring    [10];
+extern test_t mscore_ctraverse  [10];
 extern test_t mscore_mste       [10];

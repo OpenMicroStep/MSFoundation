@@ -259,6 +259,15 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 - (id)mutableCopyWithZone:(NSZone*)z
 {return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CDictionaryInitCopyWithMutability);}
 
+- (MSArray*)retainedSubs:(MSDictionary*)ctx
+{
+  return (MSArray*)CCreateArrayOfDictionarySubs(self, (CDictionary*)ctx);
+}
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CDictionaryDescribe(self, result, level, (CDictionary*)ctx);
+}
+
 /*
 - (BOOL)isEqualToDictionary:(NSDictionary*)otherDict
   {

@@ -50,6 +50,20 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		4047ABCC1B0CA35F00CA7454 /* MSCTraverse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4047ABCB1B0CA33800CA7454 /* MSCTraverse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4047ABCD1B0CA36100CA7454 /* MSCTraverse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4047ABCB1B0CA33800CA7454 /* MSCTraverse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4047ABCE1B0CA36200CA7454 /* MSCTraverse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4047ABCB1B0CA33800CA7454 /* MSCTraverse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4047ABCF1B0CA36500CA7454 /* MSCTraverse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4047ABCB1B0CA33800CA7454 /* MSCTraverse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4047ABD01B0CA36700CA7454 /* MSCTraverse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4047ABCB1B0CA33800CA7454 /* MSCTraverse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4047ABD11B0CA38600CA7454 /* MSCTraverse.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABCA1B0CA33800CA7454 /* MSCTraverse.c */; };
+		4047ABD21B0CA38700CA7454 /* MSCTraverse.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABCA1B0CA33800CA7454 /* MSCTraverse.c */; };
+		4047ABD31B0CA38A00CA7454 /* MSCTraverse.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABCA1B0CA33800CA7454 /* MSCTraverse.c */; };
+		4047ABD41B0CA38B00CA7454 /* MSCTraverse.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABCA1B0CA33800CA7454 /* MSCTraverse.c */; };
+		4047ABD51B0CA38D00CA7454 /* MSCTraverse.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABCA1B0CA33800CA7454 /* MSCTraverse.c */; };
+		4047ABD71B0CB6A700CA7454 /* mscore_ctraverse_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABD61B0CB67F00CA7454 /* mscore_ctraverse_validate.c */; };
+		4047ABD81B0CB6A800CA7454 /* mscore_ctraverse_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABD61B0CB67F00CA7454 /* mscore_ctraverse_validate.c */; };
+		4047ABD91B0CB6AC00CA7454 /* mscore_ctraverse_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABD61B0CB67F00CA7454 /* mscore_ctraverse_validate.c */; };
+		4047ABDA1B0CB6B100CA7454 /* mscore_ctraverse_validate.c in Sources */ = {isa = PBXBuildFile; fileRef = 4047ABD61B0CB67F00CA7454 /* mscore_ctraverse_validate.c */; };
 		408D256B1A7D0CB8007258D4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 408D256A1A7D0CB8007258D4 /* main.m */; };
 		408D25711A7D0D77007258D4 /* MSFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A69163A81A701754001E42F4 /* MSFoundation.framework */; };
 		408D25721A7D1289007258D4 /* libobjc.4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A6E03BFB1A7697F300A97DA3 /* libobjc.4.6.dylib */; };
@@ -956,6 +970,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4047ABCA1B0CA33800CA7454 /* MSCTraverse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = MSCTraverse.c; path = MSCore_src/MSCTraverse.c; sourceTree = "<group>"; };
+		4047ABCB1B0CA33800CA7454 /* MSCTraverse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MSCTraverse.h; path = MSCore_src/MSCTraverse.h; sourceTree = "<group>"; };
+		4047ABD61B0CB67F00CA7454 /* mscore_ctraverse_validate.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = mscore_ctraverse_validate.c; path = MSCore_tst/mscore_ctraverse_validate.c; sourceTree = "<group>"; };
 		408D25681A7D0CB8007258D4 /* simple */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = simple; sourceTree = BUILT_PRODUCTS_DIR; };
 		408D256A1A7D0CB8007258D4 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		408D25751A7E9C37007258D4 /* MSTests.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = MSTests.c; path = MSTests_src/MSTests.c; sourceTree = "<group>"; };
@@ -1407,6 +1424,8 @@
 				A6E038131A76300800A97DA3 /* MSCoreUnichar.c */,
 				A6E038191A76300800A97DA3 /* MSCString.h */,
 				A6E038181A76300800A97DA3 /* MSCString.c */,
+				4047ABCB1B0CA33800CA7454 /* MSCTraverse.h */,
+				4047ABCA1B0CA33800CA7454 /* MSCTraverse.c */,
 				A6E0381B1A76300800A97DA3 /* MSTE.h */,
 				A6E0381A1A76300800A97DA3 /* MSTE.c */,
 			);
@@ -1610,6 +1629,7 @@
 				A6E038941A76304600A97DA3 /* mscore_cdictionary_validate.c */,
 				A6A569B21A8B950C0054F346 /* mscore_ses_validate.c */,
 				A6E038951A76304600A97DA3 /* mscore_cstring_validate.c */,
+				4047ABD61B0CB67F00CA7454 /* mscore_ctraverse_validate.c */,
 				A6E038961A76304600A97DA3 /* mscore_mste_validate.c */,
 			);
 			name = Tests;
@@ -1857,6 +1877,7 @@
 				A6173B481A9C6F1400739DB0 /* MSFileManipulation.h in Headers */,
 				A6173B491A9C6F1400739DB0 /* MSFoundationDefines.h in Headers */,
 				A6173B4A1A9C6F1400739DB0 /* MSFinishLoading.h in Headers */,
+				4047ABD01B0CA36700CA7454 /* MSCTraverse.h in Headers */,
 				A6173B4B1A9C6F1400739DB0 /* MSLanguage.h in Headers */,
 				A6173B4C1A9C6F1400739DB0 /* MSFoundationPlatform.h in Headers */,
 				A6173B4D1A9C6F1400739DB0 /* MSMutex.h in Headers */,
@@ -1918,6 +1939,7 @@
 				A6E03A341A76328400A97DA3 /* MSFileManipulation.h in Headers */,
 				A6E03A351A76328400A97DA3 /* MSFoundationDefines.h in Headers */,
 				A69DE3CF1A7BA29800F2863E /* MSFinishLoading.h in Headers */,
+				4047ABCD1B0CA36100CA7454 /* MSCTraverse.h in Headers */,
 				A6E03A361A76328400A97DA3 /* MSLanguage.h in Headers */,
 				A6C366191A95E85C00288B24 /* MSFoundationPlatform.h in Headers */,
 				A6E03A371A76328400A97DA3 /* MSMutex.h in Headers */,
@@ -1954,6 +1976,7 @@
 			files = (
 				A64D64711A77E4B700CCA6D7 /* MSCArray.h in Headers */,
 				A64D64721A77E4B700CCA6D7 /* MSCBuffer.h in Headers */,
+				4047ABCE1B0CA36200CA7454 /* MSCTraverse.h in Headers */,
 				A64D64731A77E4B700CCA6D7 /* MSCColor.h in Headers */,
 				A64D64741A77E4B700CCA6D7 /* MSCCouple.h in Headers */,
 				A64D64751A77E4B700CCA6D7 /* MSCDate.h in Headers */,
@@ -2071,6 +2094,7 @@
 				A6E03B3A1A76364E00A97DA3 /* MSCColor.h in Headers */,
 				A6E03B3B1A76364E00A97DA3 /* MSCCouple.h in Headers */,
 				A6E03B3C1A76364E00A97DA3 /* MSCDate.h in Headers */,
+				4047ABCC1B0CA35F00CA7454 /* MSCTraverse.h in Headers */,
 				A6E03B3D1A76364E00A97DA3 /* MSCDecimal.h in Headers */,
 				40EDED071AD6DF3A00F3435C /* MSCMessage.h in Headers */,
 				A6E03B3E1A76364E00A97DA3 /* MSCDictionary.h in Headers */,
@@ -2103,6 +2127,7 @@
 			files = (
 				A6E3A2701A9C745800F65291 /* m_apm.h in Headers */,
 				A6E3A2711A9C745800F65291 /* MSCore.h in Headers */,
+				4047ABCF1B0CA36500CA7454 /* MSCTraverse.h in Headers */,
 				A6E3A2721A9C745800F65291 /* m_apm_lc.h in Headers */,
 				A6E3A2731A9C745800F65291 /* MSCArray.h in Headers */,
 				A6E3A2741A9C745800F65291 /* MSCoreUnichar_Private.h in Headers */,
@@ -2518,6 +2543,7 @@
 				A6173AF61A9C6F1400739DB0 /* MSCoderAdditions.m in Sources */,
 				A6173AF71A9C6F1400739DB0 /* MSExceptionAdditions.m in Sources */,
 				A6173AF81A9C6F1400739DB0 /* MSCArray.c in Sources */,
+				4047ABD51B0CA38D00CA7454 /* MSCTraverse.c in Sources */,
 				A6173AF91A9C6F1400739DB0 /* MSCBuffer.c in Sources */,
 				A6173AFA1A9C6F1400739DB0 /* MSCColor.c in Sources */,
 				A6173AFB1A9C6F1400739DB0 /* MSCCouple.c in Sources */,
@@ -2585,6 +2611,7 @@
 				A6E039BD1A76318200A97DA3 /* MSDecimal.m in Sources */,
 				A6E039BF1A76318200A97DA3 /* MSDictionary.m in Sources */,
 				A6E039C61A76318200A97DA3 /* MSString.m in Sources */,
+				4047ABD21B0CA38700CA7454 /* MSCTraverse.c in Sources */,
 				A6E0399B1A76317A00A97DA3 /* MSFileManipulation.m in Sources */,
 				A6E0399E1A76317A00A97DA3 /* MSLanguage.m in Sources */,
 				A6E039A01A76317A00A97DA3 /* MSMutex.m in Sources */,
@@ -2683,6 +2710,8 @@
 				A6E039D61A76320700A97DA3 /* mapm_set.c in Sources */,
 				A6E4EAFC1A7FC993002E99FF /* MSLanguage.m in Sources */,
 				A6E4EAFF1A7FC9A0002E99FF /* MSRow.m in Sources */,
+				4047ABD31B0CA38A00CA7454 /* MSCTraverse.c in Sources */,
+				A6E818BF1AD428AF008A9497 /* MSCorePlatform-unix.c in Sources */,
 				A6E039D71A76320700A97DA3 /* mapm_sin.c in Sources */,
 				A6E039D81A76320700A97DA3 /* mapm5sin.c in Sources */,
 				A6E039D91A76320700A97DA3 /* mapmasin.c in Sources */,
@@ -2770,6 +2799,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4047ABDA1B0CB6B100CA7454 /* mscore_ctraverse_validate.c in Sources */,
 				A64D64DF1A78FA2B00CCA6D7 /* foundation_nsobject_validate.m in Sources */,
 				A64D649F1A77E76300CCA6D7 /* msfoundation_array_validate.m in Sources */,
 				A604A2341A852951001DAD54 /* foundation_nsstring_validate.m in Sources */,
@@ -2818,6 +2848,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4047ABD81B0CB6A800CA7454 /* mscore_ctraverse_validate.c in Sources */,
 				A64D64C21A77EB0600CCA6D7 /* msfoundation_array_validate.m in Sources */,
 				A64D64C31A77EB0600CCA6D7 /* msfoundation_buffer_validate.m in Sources */,
 				A604A2331A852951001DAD54 /* foundation_nsstring_validate.m in Sources */,
@@ -2870,6 +2901,7 @@
 				A6D359CD1A77D65F00B87986 /* mscore_cdecimal_validate.c in Sources */,
 				A6D359CE1A77D65F00B87986 /* mscore_cdictionary_validate.c in Sources */,
 				A6D359CF1A77D65F00B87986 /* mscore_cstring_validate.c in Sources */,
+				4047ABD71B0CB6A700CA7454 /* mscore_ctraverse_validate.c in Sources */,
 				A6D359D01A77D65F00B87986 /* mscore_mste_validate.c in Sources */,
 				A6D359D11A77D65F00B87986 /* mscore_tools_validate.c in Sources */,
 				A6D359D31A77D65F00B87986 /* mscore_validate.c in Sources */,
@@ -2885,6 +2917,7 @@
 				A6E03B051A76363C00A97DA3 /* mapm_div.c in Sources */,
 				A6E03B061A76363C00A97DA3 /* mapm_exp.c in Sources */,
 				A6E03B071A76363C00A97DA3 /* mapm_fft.c in Sources */,
+				4047ABD11B0CA38600CA7454 /* MSCTraverse.c in Sources */,
 				A6E03B081A76363C00A97DA3 /* mapm_flr.c in Sources */,
 				A6E03B091A76363C00A97DA3 /* mapm_fpf.c in Sources */,
 				A6E03B0A1A76363C00A97DA3 /* mapm_gcd.c in Sources */,
@@ -2948,6 +2981,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4047ABD91B0CB6AC00CA7454 /* mscore_ctraverse_validate.c in Sources */,
 				A6E3A1F91A9C72D100F65291 /* msfoundation_array_validate.m in Sources */,
 				A6E3A1FA1A9C72D100F65291 /* msfoundation_buffer_validate.m in Sources */,
 				A6E3A1FB1A9C72D100F65291 /* foundation_nsstring_validate.m in Sources */,
@@ -3023,6 +3057,7 @@
 				A6E3A25A1A9C745800F65291 /* mapmutil.c in Sources */,
 				A6E3A25B1A9C745800F65291 /* mapmutl1.c in Sources */,
 				A6E3A25C1A9C745800F65291 /* mapmutl2.c in Sources */,
+				4047ABD41B0CA38B00CA7454 /* MSCTraverse.c in Sources */,
 				A6E3A25D1A9C745800F65291 /* MSCArray.c in Sources */,
 				A6E3A25E1A9C745800F65291 /* MSCBuffer.c in Sources */,
 				A6E3A25F1A9C745800F65291 /* MSCColor.c in Sources */,

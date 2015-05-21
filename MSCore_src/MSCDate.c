@@ -187,6 +187,10 @@ id CDateCopy(id self)
   return (id)newDate;
 }
 
+void CDateDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+}
+
 const CString *CDateRetainedDescription(id self)
 {
   CString *s= CCreateString(20);

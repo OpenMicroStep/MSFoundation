@@ -47,6 +47,8 @@
 
 @interface NSObject (Private)
 - (NSUInteger)hash:(unsigned)depth;
+- (MSArray*)retainedSubs:(MSDictionary*)ctx;
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx;
 @end
 
 void MSFinishLoadingCore();
@@ -60,6 +62,10 @@ void MSFinishLoadingCore();
 + (void)load {MSFinishLoadingConfigure(LOAD_COUNT, MSFinishLoadingCore, NULL);}
 
 - (NSUInteger)hash:(unsigned)depth {return [self hash]; MSUnused(depth);}
+
+- (MSArray*)retainedSubs:(MSDictionary*)ctx {return nil; MSUnused(ctx);}
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+   {MSUnused(result); MSUnused(level); MSUnused(ctx);}
 @end
 
 #pragma mark MSCore compatibility
@@ -113,6 +119,16 @@ NSUInteger _MObjectHash(id obj)
 id _MObjectCopy(id obj)
 {
   return [obj copyWithZone:NULL];
+}
+
+CArray *_MObjectSubs(id obj, mutable CDictionary *ctx)
+{
+  return (CArray*)[obj retainedSubs:(MSDictionary*)ctx];
+}
+
+void _MObjectDescribe(id obj, id result, int level, mutable CDictionary *ctx)
+{
+  [obj describeIn:result level:level context:(MSDictionary*)ctx];
 }
 
 const CString* _MObjectRetainedDescription(id obj)

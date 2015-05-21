@@ -65,13 +65,12 @@ typedef struct CDictionaryFlagsStruct {
   MSUInt _reserved:6;}
 CDictionaryFlags;
 
-typedef struct CDictionaryStruct {
+struct CDictionaryStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   CDictionaryFlags flags;
   void **          buckets;
   NSUInteger       nBuckets;
-  NSUInteger       count;}
-CDictionary;
+  NSUInteger       count;};
 
 typedef struct CDictionaryEnumeratorStruct { // not a c-like object, no retain
   const CDictionary *dictionary;
@@ -92,6 +91,8 @@ MSCoreExtern void           CDictionaryFreeInside(id self);
 MSCoreExtern BOOL           CDictionaryIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CDictionaryHash(id self, unsigned depth);
 MSCoreExtern id             CDictionaryCopy(id self);
+MSCoreExtern CArray*        CCreateArrayOfDictionarySubs(id self, mutable CDictionary *context);
+MSCoreExtern void           CDictionaryDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CDictionaryRetainedDescription(id self);
 MSCoreExtern void CStringAppendCDictionaryDescription(CString *s, CDictionary *d); // + context de description ?
 // TODO: Le BOOL cpy doit être remplacé par un autre paradigme de copie (qui copie la mutability ? Dont on décrit la mutability ?).

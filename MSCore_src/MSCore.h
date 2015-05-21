@@ -69,6 +69,8 @@
 #include <MSCore/m_apm.h>
 #include <MSCore/MSCDictionary.h>
 
+#include <MSCore/MSCTraverse.h>
+
 #include <MSCore/MSCMessage.h>
 
 #endif

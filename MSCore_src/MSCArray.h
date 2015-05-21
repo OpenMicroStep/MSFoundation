@@ -56,13 +56,12 @@ typedef struct CArrayFlagsStruct {
   MSUInt _reserved:6;}
 CArrayFlags;
 
-typedef struct CArrayStruct {
+struct CArrayStruct {
   MSCORE_NSOBJECT_ATTRIBUTES
   CArrayFlags flags;
   id*         pointers;
   NSUInteger  size;
-  NSUInteger  count;}
-CArray;
+  NSUInteger  count;};
 
 // HM: 27/08/13 void return and report error to be conform to ObjC error reporting
 
@@ -70,6 +69,8 @@ MSCoreExtern void           CArrayFreeInside(id self); // for MSArray dealloc
 MSCoreExtern BOOL           CArrayIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CArrayHash(id self, unsigned depth);
 MSCoreExtern id             CArrayCopy(id self);
+MSCoreExtern CArray*        CCreateArrayOfArraySubs(id self, mutable CDictionary *context);
+MSCoreExtern void           CArrayDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CArrayRetainedDescription(id self);
 MSCoreExtern void CStringAppendCArrayDescription(CString *s, CArray *a); // + context de description ?
 //  Warning: the copy follows the options of self: if objects are not

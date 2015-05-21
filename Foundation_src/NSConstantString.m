@@ -72,6 +72,11 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
   return self;
 }
 
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CStringAppendSES((CString*)result, CSSES(self));
+}
+
 - (instancetype)retain     { return self; }
 - (oneway void)release     { }
 - (instancetype)autorelease{ return self; }

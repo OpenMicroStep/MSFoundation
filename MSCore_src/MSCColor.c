@@ -74,6 +74,10 @@ id CColorCopy(id self)
   return (id)newObject;
 }
 
+void CColorDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+}
+
 const CString* CColorRetainedDescription(id self)
 {
   CString *s; const CColor *a;

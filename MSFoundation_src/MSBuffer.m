@@ -154,6 +154,11 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 - (id)mutableCopyWithZone:(NSZone*)z
 {return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CBufferInitCopyWithMutability);}
 
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CBufferDescribe(self, result, level, (CDictionary*)ctx);
+}
+
 #pragma mark Primitives
 
 - (NSUInteger)hash:(unsigned)depth {return CBufferHash(self, depth);}

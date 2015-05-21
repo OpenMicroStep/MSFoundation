@@ -205,6 +205,16 @@ static inline id _initA(id a, BOOL m, id aa, BOOL copy)
 - (id)mutableCopyWithZone:(NSZone*)z
 {return MSGrowCopyWithZone(z,self,YES,(MSGrowInitCopyMethod)CArrayInitCopyWithMutability);}
 
+- (MSArray*)retainedSubs:(MSDictionary*)ctx
+{
+  return (MSArray*)CCreateArrayOfArraySubs(self, (CDictionary*)ctx);
+  MSUnused(ctx);
+}
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CArrayDescribe(self, result, level, (CDictionary*)ctx);
+}
+
 - (BOOL)isTrue
   {
   if (_count) {

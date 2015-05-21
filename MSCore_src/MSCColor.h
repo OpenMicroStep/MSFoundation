@@ -57,6 +57,7 @@ MSCoreExtern void           CColorFreeInside(id self);
 MSCoreExtern BOOL           CColorIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CColorHash(id self, unsigned depth);
 MSCoreExtern id             CColorCopy(id self);
+MSCoreExtern void           CColorDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CColorRetainedDescription(id self);
 
 MSCoreExtern BOOL CColorEquals(const CColor *self, const CColor *other);

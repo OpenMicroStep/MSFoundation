@@ -115,6 +115,16 @@ MSCouple *MSCreateCouple(id first, id second)
   return [[MSMutableCouple allocWithZone:zone] initWithCouple:self];
 }
 
+- (MSArray*)retainedSubs:(MSDictionary*)ctx
+{
+  return (MSArray*)CCreateArrayOfCoupleSubs(self, (CDictionary*)ctx);
+  MSUnused(ctx);
+}
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CCoupleDescribe(self, result, level, (CDictionary*)ctx);
+}
+
 #pragma mark Standard methods
 
 - (id)firstMember  {return CCoupleFirstMember ((CCouple*)self);}

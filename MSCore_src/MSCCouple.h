@@ -54,6 +54,8 @@ MSCoreExtern void           CCoupleFreeInside(id self);
 MSCoreExtern BOOL           CCoupleIsEqual(id self, id other);
 MSCoreExtern NSUInteger     CCoupleHash(id self, unsigned depth);
 MSCoreExtern id             CCoupleCopy(id self);
+MSCoreExtern CArray*        CCreateArrayOfCoupleSubs(id self, mutable CDictionary *context);
+MSCoreExtern void           CCoupleDescribe(id self, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* CCoupleRetainedDescription(id self);
 
 MSCoreExtern BOOL CCoupleEquals(const CCouple *self, const CCouple *other);

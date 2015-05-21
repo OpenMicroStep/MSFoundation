@@ -62,6 +62,8 @@
 // Return 0 for MSCORE_STANDALONE, 1 for MSFOUNDATION_FORCOCOA, 2 for MSFOUNDATION
 MSCoreExtern int _MSEnv(void);
 
+typedef struct CArrayStruct      CArray;
+typedef struct CDictionaryStruct CDictionary;
 typedef struct CStringStruct     CString;
 
 #if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
@@ -138,16 +140,19 @@ typedef NSComparisonResult (*MSObjectComparator)(id, id, void*);
 #ifdef MSCORE_STANDALONE // ---------------------------------- MSCORE_STANDALONE
 // No autorelease in Core. Not needed, not a priority.
 
-MSCoreExtern NSUInteger  _CRetainCount    (id obj);
-MSCoreExtern id          _CRetain         (id obj);
-MSCoreExtern void        _CRelease        (id obj);
-//MSCoreExtern id        _CAutorelease    (id obj);
-MSCoreExtern BOOL        _CObjectIsEqual  (id obj1, id obj2);
-MSCoreExtern NSUInteger  _CObjectHash     (id obj);
-MSCoreExtern NSUInteger  _CObjectHashDepth(id obj, unsigned depth);
-MSCoreExtern id          _CObjectCopy     (id obj);
+MSCoreExtern NSUInteger  _CRetainCount     (id obj);
+MSCoreExtern id          _CRetain          (id obj);
+MSCoreExtern void        _CRelease         (id obj);
+//MSCoreExtern id        _CAutorelease     (id obj);
+MSCoreExtern BOOL        _CObjectIsEqual   (id obj1, id obj2);
+MSCoreExtern NSUInteger  _CObjectHash      (id obj);
+MSCoreExtern NSUInteger  _CObjectHashDepth (id obj, unsigned depth);
+MSCoreExtern id          _CObjectCopy      (id obj);
+MSCoreExtern CArray*     _CObjectSubs      (id obj, mutable CDictionary *ctx);
+MSCoreExtern void        _CObjectDescribe  (id obj, id result, int level, mutable CDictionary *ctx);
+MSCoreExtern id          _CObjectActionDesc(id obj, id value, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern const CString* _CObjectRetainedDescription(id obj);
-MSCoreExtern BOOL        _CIsArray        (id obj);
+MSCoreExtern BOOL        _CIsArray         (id obj);
 
 #define ISA(X)         ((X)->isa)
 #define NAMEOFCLASS(X) (ISA(X)->className)
@@ -161,8 +166,11 @@ MSCoreExtern BOOL        _CIsArray        (id obj);
 #define HASH(X)        _CObjectHash     ((id)(X))
 #define HASHDEPTH(X,D) _CObjectHashDepth((id)(X),(D))
 #define COPY(X)        _CObjectCopy     ((id)(X))
-#define DESCRIPTION(X) _CObjectRetainedDescription((id)(X))
 #define ISARRAY(X)     _CIsArray        ((id)(X))
+
+#define SUBS               _CObjectSubs
+#define _DESCRIBE(O,R,L,C) _CObjectDescribe((O),(R),(L),(C)) // only for CDescribe
+#define DESCRIPTION(X) _CObjectRetainedDescription((id)(X))
 
 #else // ---------------------------------------------------- !MSCORE_STANDALONE
 
@@ -183,6 +191,8 @@ MSCoreExtern BOOL        _MObjectIsEqual  (id obj1, id obj2);
 MSCoreExtern NSUInteger  _MObjectHash     (id obj);
 MSCoreExtern NSUInteger  _MObjectHashDepth(id obj, unsigned depth);
 MSCoreExtern id          _MObjectCopy     (id obj);
+MSCoreExtern CArray*     _MObjectSubs     (id obj, mutable CDictionary *ctx);
+MSCoreExtern void        _MObjectDescribe (id obj, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern BOOL        _MIsArray        (id obj);
 
 #define ISA(X)         _MIsa        ((id)(X))
@@ -197,8 +207,10 @@ MSCoreExtern BOOL        _MIsArray        (id obj);
 #define HASH(X)        _MObjectHash     ((id)(X))
 #define HASHDEPTH(X,D) _MObjectHashDepth((id)(X),(D))
 #define COPY(X)        _MObjectCopy     ((id)(X))
-
 #define ISARRAY(X)     _MIsArray        ((id)(X))
+
+#define SUBS               _MObjectSubs
+#define _DESCRIBE(O,R,L,C) _MObjectDescribe((O),(R),(L),(C)) // only for CDescribe
 
 #else                                                              // FOUNDATION
 

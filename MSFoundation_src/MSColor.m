@@ -133,6 +133,11 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
   zone= NULL; // unused parameter
 }
 
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CColorDescribe(self, result, level, (CDictionary*)ctx);
+}
+
 #pragma mark Standard methods
 
 - (BOOL)isTrue { return ([self opacity] > 0 ? YES : NO); }

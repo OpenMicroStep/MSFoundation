@@ -74,6 +74,10 @@ id CDecimalCopy(id self)
   return (id)newDecimal;
 }
 
+void CDecimalDescribe(id self, id result, int level, mutable CDictionary *ctx)
+{
+}
+
 const CString* CDecimalRetainedDescription(id self)
 {
   if (!self) return nil;
