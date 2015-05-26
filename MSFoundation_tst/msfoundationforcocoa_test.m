@@ -24,7 +24,7 @@ test_t MSFoundationForCocoaComplete[]= {
   {"MSFoundation",MSFoundationTests,NULL,INTITIALIZE_TEST_T_END},
   {NULL}};
 
-test_t RootTests[]= {
+LIBEXPORT test_t RootTests[]= {
   {"_",NULL,testOn ,INTITIALIZE_TEST_T_END},
   {"MSFoundationForCocoaComplete",MSFoundationForCocoaComplete,NULL,INTITIALIZE_TEST_T_END},
   {"_",NULL,testOff,INTITIALIZE_TEST_T_END},

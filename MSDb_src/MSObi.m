@@ -382,7 +382,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
     if (t!=[[vs objectAtIndex:0] timestamp]) {
       for (ni= n-1, end= NO; !end && ni>0;) {
         ti= [[vs objectAtIndex: ni-1] timestamp];
-        if (ti!=t) end= TRUE; else ni--;}
+        if (ti!=t) end= YES; else ni--;}
       vs= [vs subarrayWithRange:NSMakeRange(ni, n-ni)];
       }}
   return vs;
@@ -396,7 +396,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
     vi= [vs objectAtIndex:n-1];
     ti= [vi timestamp];
     if (!v || t==ti) {v= vi; t= ti;}
-    else end= TRUE;}
+    else end= YES;}
   return v;
   }
 - (NSArray*)typedValuesForCid:(MSOid*)cid

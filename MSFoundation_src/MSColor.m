@@ -48,6 +48,25 @@
 #define DARKER(X)    -(X)*(X)/(float)3.0+(float)5.0*(X)/(float)6.0
 #define OPAQUE_COLOR ((MSUInt)0xff)
 
+@interface _MSRGBAColor : MSColor
+{ 
+@protected
+  struct {
+  MSUInt r:8;
+  MSUInt g:8;
+  MSUInt b:8;
+  MSUInt a:8;
+  } _rgba;
+}
+@end
+@interface _MSIndexedColor : _MSRGBAColor
+{
+@private
+  NSString *_name;
+  int _colorIndex;
+}
+@end
+
 #pragma mark Create functions
 
 MSColor *MSCreateColor(MSUInt rgba)
@@ -81,7 +100,6 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
   return AUTORELEASE(_MSCreateComponentsColor(rf, gf, bf, af));
 }
 
-@class _MSRGBAColor;
 @implementation MSColor
 
 + (void)load          {MSFinishLoadingAddClass(self);}
@@ -291,24 +309,6 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 
 #pragma mark ********** Clusters classes **********
 
-@interface _MSRGBAColor : MSColor
-{ 
-@protected
-  struct {
-  MSUInt r:8;
-  MSUInt g:8;
-  MSUInt b:8;
-  MSUInt a:8;
-  } _rgba;
-}
-@end
-@interface _MSIndexedColor : _MSRGBAColor
-{
-@private
-  NSString *_name;
-  int _colorIndex;
-}
-@end
 #define MS_RGBACOLOR_LAST_VERSION  301
 
 @implementation _MSRGBAColor : MSColor

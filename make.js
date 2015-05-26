@@ -1,391 +1,627 @@
 module.exports = {
   name : "OpenMicroStep", // Name of the workspace
-  profile: "OpenMicroStep", // Profile used as base configuration for the workspace
-  buildOptions: {
-    "FORCOCOA" : { type : "boolean", value:false }
-  },
-  supportedToolchains : [
-    "darwin-x86_64-clang",
-    "debian7-x86_64-clang"
-  ],
-  supportedBuildOptions: [
-    { options:{ "FORCOCOA" : false } },
-    { options:{ "FORCOCOA" : true }, toolchains : ["darwin-x86_64-clang"] }
-  ],
-  files : {
-    "MSCore" : {
-      "Headers" : [
-        "MSCore_src/MSCore.h",
-        "MSCore_src/MSCore_Public.h",
-        "MSCore_src/MSCore_Private.h",
-      ],
-      "Abstraction" :[
-         "MSCore_src/MSCorePlatform.h",
-         "MSCore_src/MSCorePlatform.c",
-         "MSCore_src/MSCorePlatform-apple.i",
-         "MSCore_src/MSCorePlatform-unix.i",
-         "MSCore_src/MSCorePlatform-win32.i",
-         "MSCore_src/MSCorePlatform-wo451.i",
-         "MSCore_src/MSCoreTypes.h",
-         "MSCore_src/MSCoreSystem.h",
-         "MSCore_src/MSCoreSystem.c",
-         "MSCore_src/MSCoreTools.h",
-         "MSCore_src/MSCoreTools.c",
-         "MSCore_src/MSCoreToolsCompress.c",
-      ],
-      "Sources" :[
-        "MSCore_src/MSCArray.h",
-        "MSCore_src/MSCArray.c",
-        "MSCore_src/MSCBuffer.c",
-        "MSCore_src/MSCArray.md",
-        "MSCore_src/MSCColor.c",
-        "MSCore_src/MSCBuffer.h",
-        "MSCore_src/MSCCouple.c",
-        "MSCore_src/MSCColor.h",
-        "MSCore_src/MSCDate.c",
-        "MSCore_src/MSCCouple.h",
-        "MSCore_src/MSCDate.h",
-        "MSCore_src/MSCDecimal.h",
-        "MSCore_src/MSCDecimal.c",
-        "MSCore_src/MSCDictionary.h",
-        "MSCore_src/MSCDictionary.c",
-        "MSCore_src/MSCGrow.h",
-        "MSCore_src/MSCGrow.c",
-        "MSCore_src/MSCMessage.h",
-        "MSCore_src/MSCMessage.c",
-        "MSCore_src/MSCObject.h",
-        "MSCore_src/MSCObject.c",
-        "MSCore_src/MSCString.h",
-        "MSCore_src/MSCString.c",
-        "MSCore_src/MSCoreSES.h",
-        "MSCore_src/MSCoreSES.c",
-        "MSCore_src/MSCoreUnichar.h",
-        "MSCore_src/MSCoreUnichar.c",
-        "MSCore_src/MSCoreUnichar_Private.h",
-        "MSCore_src/MSTE.h",
-        "MSCore_src/MSTE.c"
-      ],
-      "MAPM" : [
-        "MSCore_src/MAPM_src/m_apm.h",
-        "MSCore_src/MAPM_src/m_apm_lc.h",
-        "MSCore_src/MAPM_src/mapm5sin.c",
-        "MSCore_src/MAPM_src/mapm_add.c",
-        "MSCore_src/MAPM_src/mapm_cpi.c",
-        "MSCore_src/MAPM_src/mapm_div.c",
-        "MSCore_src/MAPM_src/mapm_exp.c",
-        "MSCore_src/MAPM_src/mapm_fft.c",
-        "MSCore_src/MAPM_src/mapm_flr.c",
-        "MSCore_src/MAPM_src/mapm_fpf.c",
-        "MSCore_src/MAPM_src/mapm_gcd.c",
-        "MSCore_src/MAPM_src/mapm_lg2.c",
-        "MSCore_src/MAPM_src/mapm_lg3.c",
-        "MSCore_src/MAPM_src/mapm_lg4.c",
-        "MSCore_src/MAPM_src/mapm_log.c",
-        "MSCore_src/MAPM_src/mapm_mul.c",
-        "MSCore_src/MAPM_src/mapm_pow.c",
-        "MSCore_src/MAPM_src/mapm_rcp.c",
-        "MSCore_src/MAPM_src/mapm_set.c",
-        "MSCore_src/MAPM_src/mapm_sin.c",
-        "MSCore_src/MAPM_src/mapmasin.c",
-        "MSCore_src/MAPM_src/mapmasn0.c",
-        "MSCore_src/MAPM_src/mapmcbrt.c",
-        "MSCore_src/MAPM_src/mapmcnst.c",
-        "MSCore_src/MAPM_src/mapmfact.c",
-        "MSCore_src/MAPM_src/mapmfmul.c",
-        "MSCore_src/MAPM_src/mapmgues.c",
-        "MSCore_src/MAPM_src/mapmhasn.c",
-        "MSCore_src/MAPM_src/mapmhsin.c",
-        "MSCore_src/MAPM_src/mapmipwr.c",
-        "MSCore_src/MAPM_src/mapmistr.c",
-        "MSCore_src/MAPM_src/mapmpwr2.c",
-        "MSCore_src/MAPM_src/mapmrsin.c",
-        "MSCore_src/MAPM_src/mapmsqrt.c",
-        "MSCore_src/MAPM_src/mapmutil.c",
-        "MSCore_src/MAPM_src/mapmutl1.c",
-        "MSCore_src/MAPM_src/mapmutl2.c",
-      ],
-      "Tests": [
-        "MSCore_tst/MAPM_tst/mapm_validate.c",
-        "MSCore_tst/mscore_c_validate.c",
-        "MSCore_tst/mscore_carray_validate.c",
-        "MSCore_tst/mscore_cbuffer_validate.c",
-        "MSCore_tst/mscore_ccolor_validate.c",
-        "MSCore_tst/mscore_ccouple_validate.c",
-        "MSCore_tst/mscore_cdate_validate.c",
-        "MSCore_tst/mscore_cdictionary_validate.c",
-        "MSCore_tst/mscore_cstring_validate.c",
-        //"MSCore_tst/mscore_mste_validate.c",
-        "MSCore_tst/mscore_ses_validate.c",
-        "MSCore_tst/mscore_test.c",
-        "MSCore_tst/mscore_tools_validate.c",
-        "MSCore_tst/mscore_validate.c",
-        "MSCore_tst/mscore_cdecimal_validate.c",
-        "MSCore_tst/mscore_validate.h",
-      ]
+  environments: {
+    "openmicrostep-base" : {
+      compiler: "clang"
     },
-    "Foundation" : {
-      "Headers" : [
-        "Foundation_src/Foundation-Info.plist",
-        "Foundation_src/FoundationCompatibility.h",
-        "Foundation_src/FoundationCompatibility_Private.h",
-        "Foundation_src/FoundationCompatibility_Private.m",
-        "Foundation_src/FoundationCompatibility_Public.h",
-        "Foundation_src/FoundationTypes.h",
-      ],
-      "Sources" : [
-        "Foundation_src/NSArray.h",
-        "Foundation_src/NSArray.m",
-        "Foundation_src/NSAutoreleasePool.h",
-        "Foundation_src/NSAutoreleasePool.m",
-        "Foundation_src/NSCoder.h",
-        "Foundation_src/NSCoder.m",
-        "Foundation_src/NSCoding.h",
-        "Foundation_src/NSConstantString.m",
-        "Foundation_src/NSCopying.h",
-        "Foundation_src/NSData.h",
-        "Foundation_src/NSData.m",
-        "Foundation_src/NSDate.h",
-        "Foundation_src/NSDate.m",
-        "Foundation_src/NSDictionary.h",
-        "Foundation_src/NSDictionary.m",
-        "Foundation_src/NSEnumerator.h",
-        "Foundation_src/NSEnumerator.m",
-        "Foundation_src/NSException.h",
-        "Foundation_src/NSException.m",
-        "Foundation_src/NSInvocation.h",
-        "Foundation_src/NSInvocation.m",
-        "Foundation_src/NSLock.h",
-        "Foundation_src/NSLock.m",
-        "Foundation_src/NSNotification.h",
-        "Foundation_src/NSNotification.m",
-        "Foundation_src/NSNotificationCenter.h",
-        "Foundation_src/NSNotificationCenter.m",
-        "Foundation_src/NSNull.h",
-        "Foundation_src/NSNull.m",
-        "Foundation_src/NSNumber.h",
-        "Foundation_src/NSNumber.m",
-        "Foundation_src/NSObjCRuntime.h",
-        "Foundation_src/NSObjCRuntime.m",
-        "Foundation_src/NSObject.h",
-        "Foundation_src/NSObject.m",
-        "Foundation_src/NSRange.h",
-        "Foundation_src/NSRange.m",
-        "Foundation_src/NSString.h",
-        "Foundation_src/NSString.m",
-        "Foundation_src/NSTimeZone.h",
-        "Foundation_src/NSTimeZone.m",
-        "Foundation_src/NSValue.h",
-        "Foundation_src/NSValue.m",
-        "Foundation_src/NSZone.h",
-        "Foundation_src/NSZone.m",
-      ],
-      "Tests": [
-        "Foundation_tst/foundation_nsarray_validate.m",
-        "Foundation_tst/foundation_nsdata_validate.m",
-        "Foundation_tst/foundation_nsdictionary_validate.m",
-        "Foundation_tst/foundation_nsnull_validate.m",
-        "Foundation_tst/foundation_nsstring_validate.m",
-        "Foundation_tst/foundation_validate.m",
-        "Foundation_tst/foundation_validate.h",
-        "Foundation_tst/foundation_nsautoreleasepool_validate.m",
-        "Foundation_tst/foundation_nsobject_validate.m",
-      ]
-    },
-    "MSFoundation" : {
-      "Headers" : [
-        "MSFoundation_src/MSFoundation.h",
-        "MSFoundation_src/MSFoundation_Public.h",
-        "MSFoundation_src/MSFoundation_Private.h",
-        "MSFoundation_src/MSFoundation-Info.plist",
-        "MSFoundation_src/MSFoundationForCocoa-Info.plist",
-      ],
-      "Sources" : [
-        "MSFoundation_src/MSCObject.m",
-        "MSFoundation_src/MSFinishLoading.h",
-        "MSFoundation_src/MSFinishLoading.m",
-        "MSFoundation_src/MSArray.h",
-        "MSFoundation_src/MSArray.m",
-        "MSFoundation_src/MSBuffer.h",
-        "MSFoundation_src/MSBuffer.m",
-        "MSFoundation_src/MSColor.h",
-        "MSFoundation_src/MSColor.m",
-        "MSFoundation_src/MSCouple.h",
-        "MSFoundation_src/MSCouple.m",
-        "MSFoundation_src/MSDate.h",
-        "MSFoundation_src/MSDate.m",
-        "MSFoundation_src/MSDecimal.h",
-        "MSFoundation_src/MSDecimal.m",
-        "MSFoundation_src/MSDictionary.h",
-        "MSFoundation_src/MSDictionary.m",
-        "MSFoundation_src/MSFoundationPlatform.h",
-        "MSFoundation_src/MSFoundationPlatform.m",
-        "MSFoundation_src/MSString.h",
-        "MSFoundation_src/MSString.m",
-        "MSFoundation_src/MSStringBooleanAdditions_Private.i",
-      ],
-      "Basics" : [
-        "MSFoundation_Basics_src/MSASCIIString.h",
-        "MSFoundation_Basics_src/MSASCIIString.m",
-        "MSFoundation_Basics_src/MSBool.h",
-        "MSFoundation_Basics_src/MSBool.m",
-        "MSFoundation_Basics_src/MSCNaturalArray.h",
-        "MSFoundation_Basics_src/MSCNaturalArray.m",
-        "MSFoundation_Basics_src/MSCharsets_Private.h",
-        "MSFoundation_Basics_src/MSCharsets_Private.m",
-        "MSFoundation_Basics_src/MSCoderAdditions.h",
-        "MSFoundation_Basics_src/MSCoderAdditions.m",
-        "MSFoundation_Basics_src/MSExceptionAdditions.h",
-        "MSFoundation_Basics_src/MSExceptionAdditions.m",
-        "MSFoundation_Basics_src/MSFileManipulation.h",
-        //"MSFoundation_Basics_src/MSFileManipulation.m",
-        // "MSFoundation_Basics_src/MSFileManipulation_unix_Private.i",
-        // "MSFoundation_Basics_src/MSFileManipulation_win32_Private.i",
-        "MSFoundation_Basics_src/MSFoundationDefines.h",
-        "MSFoundation_Basics_src/MSLanguage.h",
-        "MSFoundation_Basics_src/MSLanguage.m",
-        "MSFoundation_Basics_src/MSMutex.h",
-        "MSFoundation_Basics_src/MSMutex.m",
-        "MSFoundation_Basics_src/MSNaturalArray.h",
-        "MSFoundation_Basics_src/MSNaturalArray.m",
-        "MSFoundation_Basics_src/MSNaturalArrayEnumerator.h",
-        "MSFoundation_Basics_src/MSNaturalArrayEnumerator.m",
-        "MSFoundation_Basics_src/MSNaturalArrayEnumerator_Private.h",
-        "MSFoundation_Basics_src/MSObjectAdditions.h",
-        "MSFoundation_Basics_src/MSObjectAdditions.m",
-        "MSFoundation_Basics_src/MSRow.h",
-        "MSFoundation_Basics_src/MSRow.m",
-        "MSFoundation_Basics_src/MSStringParsing.h",
-        "MSFoundation_Basics_src/MSStringParsing.m",
-        "MSFoundation_Basics_src/MSStringParsing_Private.h",
-        "MSFoundation_Basics_src/MSTDecoder.h",
-        "MSFoundation_Basics_src/MSTDecoder.m",
-        "MSFoundation_Basics_src/MSTEncoder.h",
-        "MSFoundation_Basics_src/MSTEncoder.m",
-      ],
-      "Tests": [
-        "MSFoundation_tst/msfoundation_array_validate.m",
-        "MSFoundation_tst/msfoundation_buffer_validate.m",
-        "MSFoundation_tst/msfoundation_color_validate.m",
-        "MSFoundation_tst/msfoundation_couple_validate.m",
-        "MSFoundation_tst/msfoundation_decimal_validate.m",
-        "MSFoundation_tst/msfoundation_dictionary_validate.m",
-        "MSFoundation_tst/msfoundation_test.m",
-        "MSFoundation_tst/msfoundationforcocoa_test.m",
-        "MSFoundation_tst/msfoundation_string_validate.m",
-        "MSFoundation_tst/msfoundation_validate.m",
-        "MSFoundation_tst/msfoundation_mste_validate.m",
-        "MSFoundation_tst/msfoundation_date_validate.m",
-        "MSFoundation_tst/msfoundation_validate.h",
-      ]
-    },
-    "MSTests" : [
-      "MSTests_src/MSTests.h",
-      "MSTests_src/MSTests.c",
+
+    "openmicrostep-core-i386-darwin"            :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-darwin"          :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-core-univ-darwin"            :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-core-i386-linux"             :{"arch": "i386"       , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-linux"           :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-core-i386-mingw-w64"         :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-mingw-w64"       :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-core": [
+      "openmicrostep-core-i386-darwin"   , "openmicrostep-core-x86_64-darwin", //"openmicrostep-core-univ-darwin",
+      /*"openmicrostep-core-i386-linux"    ,*/ "openmicrostep-core-x86_64-linux",
+      "openmicrostep-core-i386-mingw-w64", "openmicrostep-core-x86_64-mingw-w64",
+    ],
+
+    "openmicrostep-foundation-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-i386-linux"       :{"arch": "i386"       , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-foundation": [
+      "openmicrostep-foundation-i386-darwin"   , "openmicrostep-foundation-x86_64-darwin", //"openmicrostep-foundation-univ-darwin",
+      /*"openmicrostep-foundation-i386-linux"    ,*/ "openmicrostep-foundation-x86_64-linux",
+      "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64",
+    ],
+
+    "openmicrostep-cocoa-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
+    "openmicrostep-cocoa-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
+    "openmicrostep-cocoa-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
+    "openmicrostep-cocoa": [
+      "openmicrostep-cocoa-i386-darwin", "openmicrostep-cocoa-x86_64-darwin", //"openmicrostep-cocoa-univ-darwin",
     ]
   },
+  files: [
+    {group: "MSCore", files:[
+      {group: "Headers", files:[
+        {file: "MSCore_src/MSCore.h", tags: ["MSCorePublicHeader"]},
+        {file: "MSCore_src/MSCore_Public.h"},
+        {file: "MSCore_src/MSCore_Private.h"},
+      ]},
+      {group:"Abstraction", files: [
+        {file: "MSCore_src/MSCorePlatform.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCorePlatform.c"},
+        {file: "MSCore_src/MSCorePlatform-apple.i"},
+        {file: "MSCore_src/MSCorePlatform-unix.i"},
+        {file: "MSCore_src/MSCorePlatform-win32.i"},
+        {file: "MSCore_src/MSCorePlatform-wo451.i"},
+        {file: "MSCore_src/MSCoreTypes.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCoreSystem.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCoreSystem.c"},
+        {file: "MSCore_src/MSCoreTools.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCoreTools.c"},
+        {file: "MSCore_src/MSCoreToolsCompress.c"},
+      ]},
+      {group:"Sources", files: [
+        {file: "MSCore_src/MSCArray.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCArray.c"},
+        {file: "MSCore_src/MSCBuffer.c"},
+        {file: "MSCore_src/MSCArray.md"},
+        {file: "MSCore_src/MSCColor.c"},
+        {file: "MSCore_src/MSCBuffer.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCCouple.c"},
+        {file: "MSCore_src/MSCColor.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCDate.c"},
+        {file: "MSCore_src/MSCCouple.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCDate.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCDecimal.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCDecimal.c"},
+        {file: "MSCore_src/MSCDictionary.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCDictionary.c"},
+        {file: "MSCore_src/MSCGrow.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCGrow.c"},
+        {file: "MSCore_src/MSCMessage.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCMessage.c"},
+        {file: "MSCore_src/MSCObject.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCString.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCString.c"},
+        {file: "MSCore_src/MSCoreSES.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCoreSES.c"},
+        {file: "MSCore_src/MSCoreUnichar.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCoreUnichar_Private.h"},
+        {file: "MSCore_src/MSCoreUnichar.c"},
+        {file: "MSCore_src/MSTE.h"},
+        {file: "MSCore_src/MSTE.c"},
+      ]},
+      {group:"MAPM", files: [
+        {file: "MSCore_src/MAPM_src/m_apm.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MAPM_src/m_apm_lc.h"},
+        {file: "MSCore_src/MAPM_src/mapm5sin.c"},
+        {file: "MSCore_src/MAPM_src/mapm_add.c"},
+        {file: "MSCore_src/MAPM_src/mapm_cpi.c"},
+        {file: "MSCore_src/MAPM_src/mapm_div.c"},
+        {file: "MSCore_src/MAPM_src/mapm_exp.c"},
+        {file: "MSCore_src/MAPM_src/mapm_fft.c"},
+        {file: "MSCore_src/MAPM_src/mapm_flr.c"},
+        {file: "MSCore_src/MAPM_src/mapm_fpf.c"},
+        {file: "MSCore_src/MAPM_src/mapm_gcd.c"},
+        {file: "MSCore_src/MAPM_src/mapm_lg2.c"},
+        {file: "MSCore_src/MAPM_src/mapm_lg3.c"},
+        {file: "MSCore_src/MAPM_src/mapm_lg4.c"},
+        {file: "MSCore_src/MAPM_src/mapm_log.c"},
+        {file: "MSCore_src/MAPM_src/mapm_mul.c"},
+        {file: "MSCore_src/MAPM_src/mapm_pow.c"},
+        {file: "MSCore_src/MAPM_src/mapm_rcp.c"},
+        {file: "MSCore_src/MAPM_src/mapm_set.c"},
+        {file: "MSCore_src/MAPM_src/mapm_sin.c"},
+        {file: "MSCore_src/MAPM_src/mapmasin.c"},
+        {file: "MSCore_src/MAPM_src/mapmasn0.c"},
+        {file: "MSCore_src/MAPM_src/mapmcbrt.c"},
+        {file: "MSCore_src/MAPM_src/mapmcnst.c"},
+        {file: "MSCore_src/MAPM_src/mapmfact.c"},
+        {file: "MSCore_src/MAPM_src/mapmfmul.c"},
+        {file: "MSCore_src/MAPM_src/mapmgues.c"},
+        {file: "MSCore_src/MAPM_src/mapmhasn.c"},
+        {file: "MSCore_src/MAPM_src/mapmhsin.c"},
+        {file: "MSCore_src/MAPM_src/mapmipwr.c"},
+        {file: "MSCore_src/MAPM_src/mapmistr.c"},
+        {file: "MSCore_src/MAPM_src/mapmpwr2.c"},
+        {file: "MSCore_src/MAPM_src/mapmrsin.c"},
+        {file: "MSCore_src/MAPM_src/mapmsqrt.c"},
+        {file: "MSCore_src/MAPM_src/mapmutil.c"},
+        {file: "MSCore_src/MAPM_src/mapmutl1.c"},
+        {file: "MSCore_src/MAPM_src/mapmutl2.c"},
+      ]},
+      {group:"Tests", files: [
+        {file: "MSCore_tst/MAPM_tst/mapm_validate.c"},
+        {file: "MSCore_tst/mscore_c_validate.c"},
+        {file: "MSCore_tst/mscore_carray_validate.c"},
+        {file: "MSCore_tst/mscore_cbuffer_validate.c"},
+        {file: "MSCore_tst/mscore_ccolor_validate.c"},
+        {file: "MSCore_tst/mscore_ccouple_validate.c"},
+        {file: "MSCore_tst/mscore_cdate_validate.c"},
+        {file: "MSCore_tst/mscore_cdictionary_validate.c"},
+        {file: "MSCore_tst/mscore_cstring_validate.c"},
+        {file: "MSCore_tst/mscore_mste_validate.c" },
+        {file: "MSCore_tst/mscore_ses_validate.c"},
+        {file: "MSCore_tst/mscore_tools_validate.c"},
+        {file: "MSCore_tst/mscore_validate.c"},
+        {file: "MSCore_tst/mscore_cdecimal_validate.c"},
+        {file: "MSCore_tst/mscore_validate.h"},
+      ]},
+      {group:"Object", files: [
+        {file: "MSCore_src/MSCObject.c"},
+      ]},
+    ]},
+    {group:"Foundation", files: [
+      {group:"Headers", files:[
+        {file: "Foundation_src/Foundation-Info.plist"},
+        {file: "Foundation_src/FoundationCompatibility.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/FoundationCompatibility_Private.h"},
+        {file: "Foundation_src/FoundationCompatibility_Private.m"},
+        {file: "Foundation_src/FoundationCompatibility_Public.h"},
+        {file: "Foundation_src/FoundationTypes.h", tags: ["MSPublicHeaders"]},
+      ]},
+      {group:"Sources", files: [
+        {file: "Foundation_src/NSArray.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSArray.m"},
+        {file: "Foundation_src/NSAutoreleasePool.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSAutoreleasePool.m"},
+        {file: "Foundation_src/NSBundle.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSBundle.m"},
+        {file: "Foundation_src/NSCoder.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSCoder.m"},
+        {file: "Foundation_src/NSCoding.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSConstantString.m"},
+        {file: "Foundation_src/NSCopying.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSData.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSData.m"},
+        {file: "Foundation_src/NSDate.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSDate.m"},
+        {file: "Foundation_src/NSDictionary.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSDictionary.m"},
+        {file: "Foundation_src/NSEnumerator.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSEnumerator.m"},
+        {file: "Foundation_src/NSException.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSException.m"},
+        {file: "Foundation_src/NSInvocation.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSInvocation.m"},
+        {file: "Foundation_src/NSLock.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSLock.m"},
+        {file: "Foundation_src/NSNotification.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSNotification.m"},
+        {file: "Foundation_src/NSNotificationCenter.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSNotificationCenter.m"},
+        {file: "Foundation_src/NSNull.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSNull.m"},
+        {file: "Foundation_src/NSNumber.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSNumber.m"},
+        {file: "Foundation_src/NSObjCRuntime.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSObjCRuntime.m"},
+        {file: "Foundation_src/NSObject.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSObject.m"},
+        {file: "Foundation_src/NSRange.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSRange.m"},
+        {file: "Foundation_src/NSString.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSString.m"},
+        {file: "Foundation_src/NSTimeZone.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSTimeZone.m"},
+        {file: "Foundation_src/NSThread.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSThread.m"},
+        {file: "Foundation_src/NSValue.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSValue.m"},
+        {file: "Foundation_src/NSZone.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSZone.m"},
+      ]},
+      {group:"Tests", files: [
+        {file: "Foundation_tst/foundation_nsarray_validate.m"},
+        {file: "Foundation_tst/foundation_nsdata_validate.m"},
+        {file: "Foundation_tst/foundation_nsdictionary_validate.m"},
+        {file: "Foundation_tst/foundation_nsnull_validate.m"},
+        {file: "Foundation_tst/foundation_nsstring_validate.m"},
+        {file: "Foundation_tst/foundation_validate.m"},
+        {file: "Foundation_tst/foundation_validate.h"},
+        {file: "Foundation_tst/foundation_nsautoreleasepool_validate.m"},
+        {file: "Foundation_tst/foundation_nsobject_validate.m"},
+      ]}
+    ]},
+    {group:"MSFoundation", files: [
+      {group:"Headers", files: [
+        {file: "MSFoundation_src/MSFoundation.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSFoundation_Public.h"},
+        {file: "MSFoundation_src/MSFoundation_Private.h"},
+        {file: "MSFoundation_src/MSFoundation-Info.plist"},
+        {file: "MSFoundation_src/MSFoundationForCocoa-Info.plist"},
+      ]},
+      {group:"Sources", files: [
+        {file: "MSFoundation_src/MSCObject.m"},
+        {file: "MSFoundation_src/MSFinishLoading.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSFinishLoading.m"},
+        {file: "MSFoundation_src/MSArray.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSArray.m"},
+        {file: "MSFoundation_src/MSBuffer.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSBuffer.m"},
+        {file: "MSFoundation_src/MSColor.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSColor.m"},
+        {file: "MSFoundation_src/MSCouple.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSCouple.m"},
+        {file: "MSFoundation_src/MSDate.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSDate.m"},
+        {file: "MSFoundation_src/MSDecimal.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSDecimal.m"},
+        {file: "MSFoundation_src/MSDictionary.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSDictionary.m"},
+        {file: "MSFoundation_src/MSFoundationPlatform.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSFoundationPlatform.m"},
+        {file: "MSFoundation_src/MSString.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSString.m"},
+        {file: "MSFoundation_src/MSStringBooleanAdditions_Private.i"},
+      ]},
+      {group:"Basics", files: [
+        {file: "MSFoundation_Basics_src/MSASCIIString.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSASCIIString.m"},
+        {file: "MSFoundation_Basics_src/MSBool.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSBool.m"},
+        {file: "MSFoundation_Basics_src/MSCNaturalArray.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSCNaturalArray.m"},
+        {file: "MSFoundation_Basics_src/MSCharsets_Private.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSCharsets_Private.m"},
+        {file: "MSFoundation_Basics_src/MSCoderAdditions.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSCoderAdditions.m"},
+        {file: "MSFoundation_Basics_src/MSExceptionAdditions.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSExceptionAdditions.m"},
+        {file: "MSFoundation_Basics_src/MSFileManipulation.h", tags: ["MSPublicHeaders"]},
+        //{ file:"MSFoundation_Basics_src/MSFileManipulation.m"},
+        //{ file: "MSFoundation_Basics_src/MSFileManipulation_unix_Private.i"},
+        //{ file: "MSFoundation_Basics_src/MSFileManipulation_win32_Private.i"},
+        {file: "MSFoundation_Basics_src/MSFoundationDefines.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSLanguage.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSLanguage.m"},
+        {file: "MSFoundation_Basics_src/MSMutex.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSMutex.m"},
+        {file: "MSFoundation_Basics_src/MSNaturalArray.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSNaturalArray.m"},
+        {file: "MSFoundation_Basics_src/MSNaturalArrayEnumerator.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSNaturalArrayEnumerator.m"},
+        {file: "MSFoundation_Basics_src/MSNaturalArrayEnumerator_Private.h"},
+        {file: "MSFoundation_Basics_src/MSObjectAdditions.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSObjectAdditions.m"},
+        {file: "MSFoundation_Basics_src/MSRow.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSRow.m"},
+        {file: "MSFoundation_Basics_src/MSStringParsing.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSStringParsing.m"},
+        {file: "MSFoundation_Basics_src/MSStringParsing_Private.h"},
+        {file: "MSFoundation_Basics_src/MSTDecoder.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSTDecoder.m"},
+        {file: "MSFoundation_Basics_src/MSTEncoder.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_Basics_src/MSTEncoder.m"},
+      ]},
+      {group:"Tests", files: [
+        {file: "MSFoundation_tst/msfoundation_array_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_buffer_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_color_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_couple_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_decimal_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_dictionary_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_string_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_mste_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_date_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_validate.h"},
+      ]},
+    ]},
+    {group:"Test libs", files: [
+      {file: "MSCore_tst/mscore_test.c", tags:["MSCoreTest"]},
+      {file: "MSFoundation_tst/msfoundation_test.m", tags:["MSFoundationTest"]},
+      {file: "MSFoundation_tst/msfoundationforcocoa_test.m", tags:["MSFoundationForCocoaTest"]},
+    ]},
+    {group:"MSTests", files: [
+      {file: "MSTests_src/MSTests.c"},
+      {file: "MSTests_src/MSTests.h", tags: ["MSPublicHeaders"]},
+    ]},
+    {group:"MSNet", files: [
+      {group:"Crypto", files: [
+        {file: "MSNet_src/Crypto_src/_MSCipherPrivate.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/_MSDigest.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/_MSDigest.m"},
+        {file: "MSNet_src/Crypto_src/_RSACipher.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/_RSACipher.m"},
+        {file: "MSNet_src/Crypto_src/_SymmetricCipher.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/_SymmetricCipher.m"},
+        {file: "MSNet_src/Crypto_src/_SymmetricRSACipher.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/_SymmetricRSACipher.m"},
+        {file: "MSNet_src/Crypto_src/MSCertificate.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/MSCertificate.m"},
+        {file: "MSNet_src/Crypto_src/MSCipher.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/MSCipher.m"},
+        {file: "MSNet_src/Crypto_src/MSDigest.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/MSDigest.m"},
+        {file: "MSNet_src/Crypto_src/MSSecureHash.h", tags: ["MSPublicHeaders"]},
+        {file: "MSNet_src/Crypto_src/MSSecureHash.m"},
+      ]},
+      {file:"MSNet_src/_CHTTPMessagePrivate.h"},
+      {file:"MSNet_src/_CNotificationPrivate.h"},
+      {file:"MSNet_src/_MHAdminApplication.h"},
+      {file:"MSNet_src/_MHAdminApplication.m"},
+      {file:"MSNet_src/_MHApplicationClientPrivate.h"},
+      {file:"MSNet_src/_MHApplicationClientPrivate.m"},
+      {file:"MSNet_src/_MHApplicationPrivate.h"},
+      {file:"MSNet_src/_MHApplicationPrivate.m"},
+      {file:"MSNet_src/_MHBunchAllocatorPrivate.h"},
+      {file:"MSNet_src/_MHBunchAllocatorPrivate.m"},
+      {file:"MSNet_src/_MHBunchRegisterPrivate.h"},
+      {file:"MSNet_src/_MHBunchRegisterPrivate.m"},
+      {file:"MSNet_src/_MHContext.h"},
+      {file:"MSNet_src/_MHContext.m"},
+      {file:"MSNet_src/_MHHTTPMessagePrivate.h"},
+      {file:"MSNet_src/_MHHTTPMessagePrivate.m"},
+      {file:"MSNet_src/_MHNotificationPrivate.h"},
+      {file:"MSNet_src/_MHNotificationPrivate.m"},
+      {file:"MSNet_src/_MHOpenSSLPrivate.h"},
+      {file:"MSNet_src/_MHOpenSSLPrivate.m"},
+      {file:"MSNet_src/_MHPostProcessingDelegate.h"},
+      {file:"MSNet_src/_MHPostProcessingDelegate.m"},
+      {file:"MSNet_src/_MHQueuePrivate.h"},
+      {file:"MSNet_src/_MHQueuePrivate.m"},
+      {file:"MSNet_src/_MHResourcePrivate.h"},
+      {file:"MSNet_src/_MHResourcePrivate.m"},
+      {file:"MSNet_src/_MHServerPrivate.h"},
+      {file:"MSNet_src/_MHServerPrivate.m"},
+      {file:"MSNet_src/_MHSession.h"},
+      {file:"MSNet_src/_MHSession.m"},
+      {file:"MSNet_src/_MHSSLSocketPrivate.h"},
+      {file:"MSNet_src/_MHSSLSocketPrivate.m"},
+      {file:"MSNet_src/_MHThreadPrivate.h"},
+      {file:"MSNet_src/_MHThreadPrivate.m"},
+      {file:"MSNet_src/MHApplication.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHApplication.m"},
+      {file:"MSNet_src/MHApplicationClient.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHApplicationClient.m"},
+      {file:"MSNet_src/MHBunchableObject.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHBunchableObject.m"},
+      {file:"MSNet_src/MHHTTPMessage.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHHTTPMessage.m"},
+      {file:"MSNet_src/MHLogging.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHLogging.m"},
+      {file:"MSNet_src/MHNotification.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHNotification.m"},
+      {file:"MSNet_src/MHPublicProtocols.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHResource.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHResource.m"},
+      {file:"MSNet_src/MHServer.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHServer.m"},
+      {file:"MSNet_src/MHSSLSocket.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MHSSLSocket.m"},
+      {file:"MSNet_src/MSCSSLInterface.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSCSSLInterface.m"},
+      {file:"MSNet_src/MSCurlHandler.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSCurlHandler.m"},
+      {file:"MSNet_src/MSCurlInterface_Private.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSCurlInterface_Private.m"},
+      {file:"MSNet_src/MSCurlSendMail.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSCurlSendMail.m"},
+      {file:"MSNet_src/MSHttpApplication.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSHttpClientRequest.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSHttpClientResponse.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSHTTPRequest.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSHTTPRequest.m"},
+      {file:"MSNet_src/MSHTTPResponse.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSHTTPResponse.m"},
+      {file:"MSNet_src/MSJSONEncoder.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSJSONEncoder.m"},
+      {file:"MSNet_src/MSNet.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSNet_Private.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSNet_Public.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSNetPlatform.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSThreadSafeProxy.h", tags: ["MSPublicHeaders"]},
+      {file:"MSNet_src/MSThreadSafeProxy.m"},
+    ]},
+    {group:"MSDatabase", files: [
+      {group:"MySQLAdaptor", files: []},
+      {group:"SQLCipherAdaptor", files: [
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherAdaptor-Info.plist"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherAdaptorKit.h"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherConnection.h"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherConnection.m"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherResultSet.h"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherResultSet.m"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherStatement.h"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/MSSQLCipherStatement.m"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/sqlite3.h"},
+        {file:"MSDBAdaptors_src/MSSQLCipherAdaptor/sqlite3.c"},
+      ]},
+      {group:"ODBCAdaptor", files: [
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCAdaptor-Info.plist"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCAdaptorKit.h"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/_MSODBCConnectionPrivate.h"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCConnection.h"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCConnection.m"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/_MSODBCResultSetPrivate.h"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCResultSet.h"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCResultSet.m"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCStatement.h"},
+        {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCStatement.m"},
+      ]},
+      {group:"OracleAdaptor", files: []},
+      {group:"Headers", files: [
+        {file:"MSDb_src/MSDatabase.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDatabase_Public.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDatabase_Private.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDatabaseDefines.h", tags: ["MSPublicHeaders"]},
+      ]},
+      {group:"Sources", files: [
+        {file:"MSDb_src/MSDBConnection.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDBConnectionPool.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDBGenericConnection.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDBOperation.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDBResultSet.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDBStatement.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDBTransaction.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSObi.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSOdb.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSOid.h", tags: ["MSPublicHeaders"]},
+        {file:"MSDb_src/MSDBConnection.m"},
+        {file:"MSDb_src/MSDBConnectionPool.m"},
+        {file:"MSDb_src/MSDBGenericConnection.m"},
+        {file:"MSDb_src/MSDBOperation.m"},
+        {file:"MSDb_src/MSDBResultSet.m"},
+        {file:"MSDb_src/MSDBStatement.m"},
+        {file:"MSDb_src/MSDBTransaction.m"},
+        {file:"MSDb_src/MSObi.m"},
+        {file:"MSDb_src/MSOdb.m"},
+        {file:"MSDb_src/MSOid.m"}
+      ]}
+    ]}
+  ],
   targets : [
     {
       "name" : "MSCore",
       "type" : "Library",
-      "configure": function(MSCore, /** @type TargetBuildOptions */ options, callback) {
-        MSCore.addFiles(this.files.MSCore.Headers);
-        MSCore.addFiles(this.files.MSCore.Abstraction);
-        MSCore.addFiles(this.files.MSCore.Sources);
-        MSCore.addFiles(this.files.MSCore.MAPM);
-        MSCore.addPublicHeaders(_.filter(MSCore.files, function(v) { return /\/\w+\.h$/.test(v); }));
-        MSCore.addIncludeDirectoriesOfFiles();
-        MSCore.addDefines("MSCORE_STANDALONE");
-        MSCore.addLinkMiddleware(function linkMiddleware(options, task, next) {
-          if(options.toolchain.platform === "linux") {
-            task.addFlags(['-lm', '-luuid', '-ldl']);
-          }
-          next();
-        });
-        callback();
+      "environments" : ["openmicrostep-core"],
+      "files": ["MSCore.Headers", "MSCore.Abstraction", "MSCore.Sources", "MSCore.Object", "MSCore.MAPM"],
+      "publicHeaders": ["?MSCorePublicHeader", "MSCore?MSPublicHeaders"],
+      "defines": ["MSCORE_STANDALONE"],
+      "configure": function(target) {
+        if (target.platform === "linux") {
+          target.addLibraries(['-lm', '-luuid', '-ldl']);
+        }
+        else if (target.platform === "win32") {
+          target.addLibraries(['-lRpcrt4']);
+        }
+      },
+      exports: {
+        "defines":["MSCORE_STANDALONE"]
       }
-      // TODO: Some target that depends on MSCore headers can't receive such a define
-      /*"exports" : function(MSCore, MSCore_options, target, target_options, callback) {
-        target.addDefines("MSCORE_STANDALONE");
-        callback();
-      }*/
     },
     {
       "name" : "MSCoreTests",
       "type" : "Library",
-      "dependencies" : ["MSCore", /* for the headers > */ "MSTests"],
-      "configure": function(MSCoreTests, /** @type TargetBuildOptions */ options, callback) {
-        MSCoreTests.addFiles(this.files.MSCore.Tests)
-        MSCoreTests.addDefines("MSCORE_STANDALONE"); // TODO: MSCore should provide this automatically (options on the dependencies ?)
-        MSCoreTests.addIncludeDirectoriesOfFiles();
-        callback();
+      "environments" : ["openmicrostep-core"],
+      "dependencies" : ["MSCore", "MSTests"],
+      "files": ["MSCore.Tests", "MSCore.Test", "Test libs?MSCoreTest"],
+      "includeDirectoriesOfFiles": ["MSCore", "MSTests"]
+    },
+    {
+      "name" : "MSTests",
+      "type" : "Executable",
+      "environments" : ["openmicrostep-core"],
+      "dependencies" : ["MSCore"],
+      "files": ["MSTests"],
+      "publicHeaders": ["MSTests?MSPublicHeaders"],
+      "configure": function(target) {
+        if(target.platform === "linux") {
+          target.addLibraries(['-ldl']);
+        }
       }
     },
     {
       "name" : "MSFoundation",
       "type" : "Framework",
-      "dependencies" : [{
-        workspace: 'deps/msobjclib',
-        target:'msobjclib',
-        condition: function(options) { return !options.buildOptions.FORCOCOA; }
-      }],
-      "configure": function(MSFoundation, /** @type TargetBuildOptions */ options, callback) {
-        MSFoundation.addFiles(this.files.MSCore.Abstraction);
-        MSFoundation.addFiles(_.filter(this.files.MSCore.Sources, function(v) { return !v.endsWith("MSCObject.c")}));
-        MSFoundation.addFiles(this.files.MSCore.MAPM);
-        if(!options.buildOptions.FORCOCOA) {
-          MSFoundation.addFiles(this.files.Foundation.Headers);
-          MSFoundation.addFiles(this.files.Foundation.Sources);
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies" : [
+        {workspace: 'deps/msobjclib', target:'msobjclib', condition:function(target) { return !target.env.cocoa; }}
+      ],
+      "files" : [
+        "MSCore.Abstraction", "MSCore.Sources", "MSCore.MAPM",
+        "MSFoundation.Headers", "MSFoundation.Sources", "MSFoundation.Basics",
+
+      ],
+      "publicHeaders": ["?MSFoundationPublicHeader", "MSCore?MSPublicHeaders", "MSFoundation?MSPublicHeaders"],
+      "configure": function(target) {
+        if(target.env.cocoa) {
+          target.addFrameworks(["Foundation"]);
+          target.addDefines(["MSFOUNDATION_FORCOCOA=1"]);
         }
         else {
-          MSFoundation.addFrameworks("Foundation");
-          MSFoundation.addDefines("MSFOUNDATION_FORCOCOA");
+          target.addWorkspaceFiles(["Foundation.Headers", "Foundation.Sources"]);
+          target.addWorkspacePublicHeaders(["Foundation?MSPublicHeaders"]);
         }
-        MSFoundation.addFiles(this.files.MSFoundation.Headers);
-        MSFoundation.addFiles(this.files.MSFoundation.Sources);
-        MSFoundation.addFiles(this.files.MSFoundation.Basics);
-        MSFoundation.addPublicHeaders(_.filter(MSFoundation.files, function(v) { return /\/\w+\.h$/.test(v); }));
-        MSFoundation.addIncludeDirectoriesOfFiles();
-        callback();
+
+        if (target.platform === "linux") {
+          target.addLibraries(['-lm', '-luuid', '-ldl']);
+        }
+        else if (target.platform === "win32") {
+          target.addLibraries(['-lRpcrt4']);
+        }
+        target.addLibraries(['-lpthread']);
       },
-      "exports" : function(MSFoundation, MSFoundation_options, target, target_options, callback) {
-        if(MSFoundation_options.buildOptions.FORCOCOA) {
-          target.addFrameworks("Foundation");
-          target.addDefines("MSFOUNDATION_FORCOCOA");
+      "exports": {
+        configure: function(other_target, target) {
+          if(target.env.cocoa) {
+            other_target.addFrameworks(["Foundation"]);
+            other_target.addDefines(["MSFOUNDATION_FORCOCOA=1"]);
+          }
         }
-        callback();
       }
     },
     {
       "name" : "MSFoundationTests",
       "type" : "Library",
-      "dependencies" : ["MSFoundation", /* for the headers > */ "MSCore", "MSTests"],
-      "configure": function(MSFoundationTests, /** @type TargetBuildOptions */ options, callback) {
-        MSFoundationTests.addFiles(_.filter(this.files.MSCore.Tests, function(v) {
-          return !v.endsWith("/mscore_test.c");
-        }));
-        MSFoundationTests.addFiles(this.files.Foundation.Tests);
-        var filter = options.buildOptions.FORCOCOA ? "/msfoundation_test.m" : "/msfoundationforcocoa_test.m";
-        MSFoundationTests.addFiles(_.filter(this.files.MSFoundation.Tests, function(v) {
-          return !v.endsWith(filter);
-        }));
-        MSFoundationTests.addIncludeDirectoriesOfFiles();
-        callback();
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies" : ["MSFoundation"],
+      "files": ["MSCore.Tests", "Foundation.Tests", "MSFoundation.Tests"],
+      "includeDirectoriesOfFiles": ["MSCore", "MSTests", "MSFoundation", "Foundation"],
+      "configure": function(target) {
+        if(target.env.cocoa)
+          target.addWorkspaceFiles(["Test libs?MSFoundationTest"]);
+        else
+          target.addWorkspaceFiles(["Test libs?MSFoundationForCocoaTest"]);
+        target.addLibraries(['-lpthread']);
       }
     },
     {
-      "name" : "MSTests",
-      "type" : "Executable",
-      "dependencies" : ["MSCore"],
-      "configure": function(/** @type Executable */ MSTests, /** @type TargetBuildOptions */ options, callback) {
-        MSTests.addFiles(this.files.MSTests);
-        MSTests.addDefines("MSCORE_STANDALONE"); // TODO: MSCore should provide this automatically (options on the dependencies ?)
-        MSTests.addIncludeDirectoriesOfFiles();
-        callback();
-      },
-      "exports" : function(mstests, mstests_options, target, target_options, callback) {
-        target.addIncludeDirectory(require('path').join(mstests.workspace.directory, "MSTests_src"));
-        callback();
+      "name" : "MSNet",
+      "type" : "Framework",
+      "environments" : [/*"openmicrostep-foundation", "openmicrostep-cocoa"*/],
+      "dependencies" : ["MSFoundation"],
+      "files" : ["MSNet"],
+      "configure": function(target) {
       }
-    }
+    },
+    {
+      "name" : "MSDatabase",
+      "type" : "Framework",
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies" : ["MSFoundation"],
+      "files" : ["MSDatabase.Sources"],
+      "publicHeaders": ["MSDatabase?MSPublicHeaders"]
+    },
+    {
+      "name" : "SQLCipherAdaptor",
+      "type" : "Bundle",
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies" : [
+        "MSFoundation",
+        "MSDatabase",
+        {workspace: 'deps/openssl', target:'openssl'}
+      ],
+      "bundleInfo": {
+        "CFBundleIdentifier": "org.microstep.dbadaptor.sqlcipher",
+        "NSPrincipalClass": "MSSQLCipherConnection"
+      },
+      "bundleExtension": "dbadaptor",
+      "defines":["SQLITE_HAS_CODEC", "SQLITE_TEMP_STORE=2"], // TODO: Find a nice way to apply those defines to a subset of files
+      "files" : ["MSDatabase.SQLCipherAdaptor"],
+      "configure": function(target) {
+        target.output = target.getDependency("MSDatabase").buildResourcesPath();
+      }
+    },
+    {
+      "name" : "ODBCAdaptor",
+      "type" : "Bundle",
+      "environments" : ["openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64"],
+      "dependencies" : [
+        "MSFoundation",
+        "MSDatabase"
+      ],
+      "bundleInfo": {
+        "CFBundleIdentifier": "org.microstep.dbadaptor.odbc",
+        "NSPrincipalClass": "MSODBCConnection"
+      },
+      "bundleExtension": "dbadaptor",
+      "defines":["SQLITE_HAS_CODEC", "SQLITE_TEMP_STORE=2"], // TODO: Find a nice way to apply those defines to a subset of files
+      "files" : ["MSDatabase.ODBCAdaptor"],
+      "configure": function(target) {
+        target.output = target.getDependency("MSDatabase").buildResourcesPath();
+        target.addLibraries(['-lodbc32']);
+      }
+    },
   ]
 };

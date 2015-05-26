@@ -438,7 +438,7 @@ extern void M_arctan_large_input(M_APM, int, const M_APM);
 extern void M_log_basic_iteration(M_APM, int, const M_APM);
 extern void M_log_solve_cubic(M_APM, int, const M_APM);
 extern void M_check_log_places(int);
-extern void M_log_AGM_R_func(M_APM, int, M_APM, M_APM);
+MSCoreExtern void M_log_AGM_R_func(M_APM, int, M_APM, M_APM);
 extern void M_get_div_rem(int,UCHAR *, UCHAR *);
 extern void M_get_div_rem_10(int, UCHAR *, UCHAR *);
 extern void M_apm_normalize(M_APM);

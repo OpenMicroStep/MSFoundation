@@ -14,7 +14,7 @@ static void testOff(test_t *test)
 {
 }
 
-test_t RootTests[]= {
+LIBEXPORT test_t RootTests[]= {
   {"_"     ,NULL       ,testOn ,INTITIALIZE_TEST_T_END},
   {"MSCore",MSCoreTests,NULL   ,INTITIALIZE_TEST_T_END},
   {"_"     ,NULL       ,testOff,INTITIALIZE_TEST_T_END},

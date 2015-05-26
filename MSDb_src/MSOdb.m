@@ -696,8 +696,7 @@ static inline id _obi(id l, _DS d, BOOL creatFromName)
   id obi= nil, oid= nil; unichar u;
   if ([l isKindOfClass:[MSOid class]]) oid= l;
   else if (![l length]) oid= nil;
-  else if ((u= [l characterAtIndex:0])==(unichar)'-' ||
-           [[NSCharacterSet decimalDigitCharacterSet] characterIsMember:u]) {
+  else if ((u= [l characterAtIndex:0])==(unichar)'-' || CUnicharIsIsoDigit(u)) {
     oid= [MSOid oidWithLongLongValue:[l longLongValue]];}
   if (oid) {
     obi= [d.all objectForKey:oid];

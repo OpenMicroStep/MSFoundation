@@ -1,6 +1,6 @@
 // mscore_validate.h, ecb, 130911
 
-#include <MSCore/MSCore.h>
+#include "MSCore_Public.h"
 #import "MSTests.h"
 
 extern test_t MSCoreTests       [20];

@@ -1,8 +1,6 @@
 
 #import "FoundationCompatibility_Private.h"
 
-#warning Write tests for NSAutoreleasePool
-
 @interface NSAutoreleasePool (Private)
 - (void)_drainTree;
 @end

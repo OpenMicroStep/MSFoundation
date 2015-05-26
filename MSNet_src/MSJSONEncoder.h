@@ -48,7 +48,7 @@
 @interface MSJSONEncoder : NSObject
 {
 	MSString *_content ;
-    NSMapTable *_jsonEncodedObjectReferences ;
+  CDictionary *_jsonEncodedObjectReferences ;
 }
 
 + (id)encoder ;

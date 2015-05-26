@@ -60,8 +60,13 @@
 #ifndef NSINTEGER_DEFINED
   #define NSINTEGER_DEFINED
   #ifndef WO451
-    typedef long  NSInteger;
-    typedef unsigned long NSUInteger;
+    #ifdef WIN64 // Windows is LLP64 
+      typedef int64_t  NSInteger;
+      typedef uint64_t NSUInteger;
+    #else
+      typedef long  NSInteger;
+      typedef unsigned long NSUInteger;
+    #endif
     #define NSIntegerMax    INTPTR_MAX
     #define NSIntegerMin    INTPTR_MIN
     #define NSUIntegerMax   UINTPTR_MAX

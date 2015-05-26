@@ -31,6 +31,12 @@
   #define NS_FORMAT_ARGUMENT(A) __attribute__ ((format_arg(A)))
 #endif*/
 
+#ifdef __clang__
+    #define NS_ROOT_CLASS __attribute__((objc_root_class))
+#else
+    #define NS_ROOT_CLASS
+#endif
+
 #ifndef __has_feature
 #define __has_feature(x) 0
 #endif

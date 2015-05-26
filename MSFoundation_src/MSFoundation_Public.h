@@ -45,11 +45,13 @@
 
 #ifdef MSFOUNDATION_FORCOCOA
 #import <Foundation/Foundation.h>
-#else
-#import "FoundationCompatibility_Public.h"
 #endif
 
 #import "MSCore_Public.h"
+
+#ifndef MSFOUNDATION_FORCOCOA
+#import "FoundationCompatibility_Public.h"
+#endif
 
 #import "MSFoundationDefines.h"
 #import "MSFoundationPlatform.h"

@@ -19,9 +19,10 @@ void FoundationCompatibilityExtendClass(char type, Class dstClass, SEL dstSel, C
     else {
       class_addMethod(dstClass, dstSel, method_getImplementation(srcMethod), method_getTypeEncoding(srcMethod)); }}
   if(error) {
-    fprintf(stderr, "Unable to add %1$c[%2$s %3$s] from %1$c[%4$s %5$s], %6$s\n",
+    fprintf(stderr, "Unable to add %c[%s %s] from %c[%s %s], %s\n",
             type,
             class_getName(dstClass), sel_getName(dstSel),
+            type,
             class_getName(srcClass), sel_getName(srcSel),
             error); }
 }

@@ -90,62 +90,52 @@
 }
 
 - (void)encodeUnsignedChar:(unsigned char)c
-{   
-  NSString *json = [NSString stringWithFormat:@"%u", c] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+{
+  CStringAppendFormat((CString*)_content, "%hhu", c);
 }
 
 - (void)encodeChar:(char)c
 {   
-  NSString *json = [NSString stringWithFormat:@"%d", c] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%hhd", c);
 }
 
 - (void)encodeUnsignedShort:(unsigned short)s
 {   
-  NSString *json = [NSString stringWithFormat:@"%u", s] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%hu", s);
 }
 
 - (void)encodeShort:(short)s
 {
-  NSString *json = [NSString stringWithFormat:@"%d", s] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%hd", s);
 }
 
 - (void)encodeUnsignedInt:(unsigned int)i
 {
-  NSString *json = [NSString stringWithFormat:@"%u", i] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%u", i);
 }
 
 - (void)encodeInt:(int)i
 {
-  NSString *json = [NSString stringWithFormat:@"%d", i] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%d", i);
 }
 
 - (void)encodeUnsignedLongLong:(unsigned long long)l
 {
-  NSString *json = [NSString stringWithFormat:@"%llu", l] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%llu", l);
 }
 
 - (void)encodeLongLong:(long long)l
 {
-  NSString *json = [NSString stringWithFormat:@"%lld", l] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%lld", l);
 }
 
 - (void)encodeFloat:(float)f
 {
-  NSString *json = [NSString stringWithFormat:@"%f", f] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%f", f);
 }
 - (void)encodeDouble:(double)d
 {
-  NSString *json = [NSString stringWithFormat:@"%f", d] ;
-  CStringAppendSES((CString*)_content, SESFromString(json));
+  CStringAppendFormat((CString*)_content, "%f", d);
 }
 
 - (void)encodeObject:(id)anObject withReference:(unsigned)reference

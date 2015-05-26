@@ -43,8 +43,6 @@
 
 #ifdef MSFOUNDATION_FORCOCOA
 #import <Foundation/Foundation.h>
-#else
-#import <MSFoundation/FoundationCompatibility.h>
 #endif
 
 #import <MSFoundation/MSCorePlatform.h>
@@ -68,6 +66,10 @@
 #import <MSFoundation/MSCDictionary.h>
 
 #import <MSFoundation/MSCMessage.h>
+
+#ifndef MSFOUNDATION_FORCOCOA
+#import <MSFoundation/FoundationCompatibility.h>
+#endif
 
 #import <MSFoundation/MSFoundationDefines.h>
 #import <MSFoundation/MSFoundationPlatform.h>

@@ -129,18 +129,12 @@ static void string_cast(test_t *test)
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT, ...) ({\
   NSString *__f= [ALLOC(NSString) initWithFormat:@FORMAT, ## __VA_ARGS__]; \
   int __n= snprintf(NULL, 0, FORMAT, ## __VA_ARGS__); \
-  char __b[__n + 1]; \
-  snprintf(__b, __n + 1, FORMAT, ## __VA_ARGS__); \
-  TASSERT(TEST, strcmp(EXPECT, __b) == 0, "expected: '%s', got: '%s'", EXPECT, __b); \
   TASSERT(TEST, [@EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
   RELEASE(__f);})
 #else
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT...) ({\
   NSString *__f= [ALLOC(NSString) initWithFormat:@ ## FORMAT]; \
   int __n= snprintf(NULL, 0, FORMAT); \
-  char __b[__n + 1]; \
-  snprintf(__b, __n + 1, FORMAT); \
-  TASSERT(TEST, strcmp(EXPECT, __b) == 0, "expected: '%s', got: '%s'", EXPECT, __b); \
   TASSERT(TEST, [@ ## EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
   RELEASE(__f);})
 #endif

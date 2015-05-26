@@ -95,8 +95,7 @@ typedef enum {
 CClassIndex;
 #define CClassIndexMax ((NSUInteger)CStringClassIndex)
 
-
-id MSCreateObjectWithClassIndex(CClassIndex classIndex);
+MSCoreExtern id MSCreateObjectWithClassIndex(CClassIndex classIndex);
 
 typedef NSComparisonResult (*MSObjectComparator)(id, id, void*);
 #define MSObjectSort(P,N,CMP,CTX) \
@@ -207,7 +206,7 @@ MSCoreExtern BOOL        _MIsArray        (id obj);
 #if defined(WO451)
   #define ISA(X)         (((id)(X))->isa)
   #define NAMEOFCLASS(X) object_getClassName((id)(X))
-#elif defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE)
+#elif defined(__APPLE__) || defined(FOUNDATION_STATIC_INLINE) || defined(__GNUSTEP_RUNTIME__)
   #define ISA(X)         object_getClass(X)
   #define NAMEOFCLASS(X) object_getClassName(X)
 #else
