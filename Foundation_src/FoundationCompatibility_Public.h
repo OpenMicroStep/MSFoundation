@@ -34,5 +34,6 @@
 #import "NSNotification.h"
 #import "NSNotificationCenter.h"
 #import "NSLock.h"
+#import "NSThread.h"
 
 #endif

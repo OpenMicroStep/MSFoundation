@@ -31,3 +31,4 @@
 #import <MSFoundation/NSNotification.h>
 #import <MSFoundation/NSNotificationCenter.h>
 #import <MSFoundation/NSLock.h>
+#import <MSFoundation/NSThread.h>
