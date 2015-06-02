@@ -40,7 +40,13 @@
 
 #include "MSCore_Private.h"
 
-const SES MSInvalidSES= {NULL,InvalidCHAI,NSNotFound,0,0};
+const SES MSInvalidSES= {
+  .source=NULL,
+  .chai=InvalidCHAI,
+  .chaip=InvalidCHAI,
+  .start=NSNotFound,
+  .length=0,
+  .encoding=0};
 
 #pragma mark Encoding and Unicode
 
@@ -48,6 +54,7 @@ typedef struct _encodingStuffStruct {
   unichar *toUnicode; // 256
 //unichar (*char2Unichar)(unsigned short); // to be removed ?
   CHAI chai;
+  CHAI chaip;
   MSUInt chsize;
   }
 _encodingStuff;
@@ -76,6 +83,13 @@ static inline unichar _aSimpleChaiN(const void *src, NSUInteger *pos, NSStringEn
   return _encodingStuffForEncoding(encoding)->toUnicode[c];
   }
 
+static inline unichar _aSimpleChaiP(const void *src, NSUInteger *pos, NSStringEncoding encoding)
+// A chai for encoding with a table[256] transformation
+  {
+  unsigned char c= ((unsigned char*)src)[--(*pos)];
+  return _encodingStuffForEncoding(encoding)->toUnicode[c];
+  }
+
 // TODO: à revoir pour les NSString -stringEnumeratorStructure
 typedef unichar (*BasicCHAI)(const void *, NSUInteger);
 unichar chaiN4BasicChai(BasicCHAI c, const void *src, NSUInteger *pos);
@@ -96,46 +110,60 @@ static unichar __MSMacRomanToUnicode   [256];
 static unichar __MSDOSToUnicode        [256];
 
 static unichar _asciiChaiN   (const void *src, NSUInteger *pos) {return (unichar)((char   *)src)[(*pos)++];}
+static unichar _asciiChaiP   (const void *src, NSUInteger *pos) {return (unichar)((char   *)src)[--(*pos)];}
 static unichar _unicodeChaiN (const void *src, NSUInteger *pos) {return (unichar)((unichar*)src)[(*pos)++];}
+static unichar _unicodeChaiP (const void *src, NSUInteger *pos) {return (unichar)((unichar*)src)[--(*pos)];}
 static unichar _nextstepChaiN(const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSNEXTSTEPStringEncoding     );}
+static unichar _nextstepChaiP(const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSNEXTSTEPStringEncoding     );}
 static unichar _symbolChaiN  (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSSymbolStringEncoding       );}
+static unichar _symbolChaiP  (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSSymbolStringEncoding       );}
 static unichar _latin2ChaiN  (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSISOLatin2StringEncoding    );}
+static unichar _latin2ChaiP  (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSISOLatin2StringEncoding    );}
 static unichar _w1251ChaiN   (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSWindowsCP1251StringEncoding);}
+static unichar _w1251ChaiP   (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSWindowsCP1251StringEncoding);}
 static unichar _ansiChaiN    (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSWindowsCP1252StringEncoding);}
+static unichar _ansiChaiP    (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSWindowsCP1252StringEncoding);}
 static unichar _w1253ChaiN   (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSWindowsCP1253StringEncoding);}
+static unichar _w1253ChaiP   (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSWindowsCP1253StringEncoding);}
 static unichar _w1254ChaiN   (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSWindowsCP1254StringEncoding);}
+static unichar _w1254ChaiP   (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSWindowsCP1254StringEncoding);}
 static unichar _w1250ChaiN   (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSWindowsCP1250StringEncoding);}
+static unichar _w1250ChaiP   (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSWindowsCP1250StringEncoding);}
 static unichar _macChaiN     (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSMacOSRomanStringEncoding   );}
+static unichar _macChaiP     (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSMacOSRomanStringEncoding   );}
 static unichar _dosChaiN     (const void *src, NSUInteger *pos) {return _aSimpleChaiN(src,pos,NSDOSStringEncoding          );}
+static unichar _dosChaiP     (const void *src, NSUInteger *pos) {return _aSimpleChaiP(src,pos,NSDOSStringEncoding          );}
 static unichar _bigChaiN     (const void *src, NSUInteger *pos) {return MSFromBig16   (((unichar*)src)[(*pos)++]);}
+static unichar _bigChaiP     (const void *src, NSUInteger *pos) {return MSFromBig16   (((unichar*)src)[--(*pos)]);}
 static unichar _littleChaiN  (const void *src, NSUInteger *pos) {return MSFromLittle16(((unichar*)src)[(*pos)++]);}
+static unichar _littleChaiP  (const void *src, NSUInteger *pos) {return MSFromLittle16(((unichar*)src)[--(*pos)]);}
 
 static _encodingStuff _encoding[]= {
-  {NULL                    , InvalidCHAI   , sizeof(char)    }, //  0
-  {NULL                    , _asciiChaiN   , sizeof(char)    }, //  1 NSASCIIStringEncoding=          1, // 0..127 only
-  {__MSNextstepToUnicode   , _nextstepChaiN, sizeof(char)    }, //  2 NSNEXTSTEPStringEncoding=       2,
-  {NULL                    , InvalidCHAI   , sizeof(char)    }, //  3 NSJapaneseEUCStringEncoding=    3,
-  {NULL                    , utf8ChaiN     , sizeof(char)    }, //  4 NSUTF8StringEncoding=           4,
-  {NULL                    , _asciiChaiN   , sizeof(char)    }, //  5 NSISOLatin1StringEncoding=      5,
-  {__MSAdobeSymbolToUnicode, _symbolChaiN  , sizeof(char)    }, //  6 NSSymbolStringEncoding=         6,
-  {NULL                    , _asciiChaiN   , sizeof(char)    }, //  7 NSNonLossyASCIIStringEncoding=  7,
-  {NULL                    , InvalidCHAI   , sizeof(char)    }, //  8 NSShiftJISStringEncoding=       8, // kCFStringEncodingDOSJapanese
-  {__MSIsoLatin2ToUnicode  , _latin2ChaiN  , sizeof(char)    }, //  9 NSISOLatin2StringEncoding=      9,
-  {NULL                    , _unicodeChaiN , sizeof(unichar) }, // 10 NSUnicodeStringEncoding=       10,
-  {__MSWindows1251ToUnicode, _w1251ChaiN   , sizeof(char)    }, // 11 NSWindowsCP1251StringEncoding= 11, // Cyrillic; same as AdobeStandardCyrillic
-  {__MSAnsiToUnicode       , _ansiChaiN    , sizeof(char)    }, // 12 NSWindowsCP1252StringEncoding= 12, // WinLatin1
-  {__MSWindows1253ToUnicode, _w1253ChaiN   , sizeof(char)    }, // 13 NSWindowsCP1253StringEncoding= 13, // Greek
-  {__MSWindows1254ToUnicode, _w1254ChaiN   , sizeof(char)    }, // 14 NSWindowsCP1254StringEncoding= 14, // Turkish
-  {__MSWindows1250ToUnicode, _w1250ChaiN   , sizeof(char)    }, // 15 NSWindowsCP1250StringEncoding= 15, // WinLatin2
+  {NULL                    , InvalidCHAI   , InvalidCHAI   , sizeof(char)    }, //  0
+  {NULL                    , _asciiChaiN   , _asciiChaiP   , sizeof(char)    }, //  1 NSASCIIStringEncoding=          1, // 0..127 only
+  {__MSNextstepToUnicode   , _nextstepChaiN, _nextstepChaiP, sizeof(char)    }, //  2 NSNEXTSTEPStringEncoding=       2,
+  {NULL                    , InvalidCHAI   , InvalidCHAI   , sizeof(char)    }, //  3 NSJapaneseEUCStringEncoding=    3,
+  {NULL                    , utf8ChaiN     , utf8ChaiP     , sizeof(char)    }, //  4 NSUTF8StringEncoding=           4,
+  {NULL                    , _asciiChaiN   , _asciiChaiP   , sizeof(char)    }, //  5 NSISOLatin1StringEncoding=      5,
+  {__MSAdobeSymbolToUnicode, _symbolChaiN  , _symbolChaiP  , sizeof(char)    }, //  6 NSSymbolStringEncoding=         6,
+  {NULL                    , _asciiChaiN   , _asciiChaiP   , sizeof(char)    }, //  7 NSNonLossyASCIIStringEncoding=  7,
+  {NULL                    , InvalidCHAI   , InvalidCHAI   , sizeof(char)    }, //  8 NSShiftJISStringEncoding=       8, // kCFStringEncodingDOSJapanese
+  {__MSIsoLatin2ToUnicode  , _latin2ChaiN  , _latin2ChaiP  , sizeof(char)    }, //  9 NSISOLatin2StringEncoding=      9,
+  {NULL                    , _unicodeChaiN , _unicodeChaiP , sizeof(unichar) }, // 10 NSUnicodeStringEncoding=       10,
+  {__MSWindows1251ToUnicode, _w1251ChaiN   , _w1251ChaiP   , sizeof(char)    }, // 11 NSWindowsCP1251StringEncoding= 11, // Cyrillic; same as AdobeStandardCyrillic
+  {__MSAnsiToUnicode       , _ansiChaiN    , _ansiChaiP    , sizeof(char)    }, // 12 NSWindowsCP1252StringEncoding= 12, // WinLatin1
+  {__MSWindows1253ToUnicode, _w1253ChaiN   , _w1253ChaiP   , sizeof(char)    }, // 13 NSWindowsCP1253StringEncoding= 13, // Greek
+  {__MSWindows1254ToUnicode, _w1254ChaiN   , _w1254ChaiP   , sizeof(char)    }, // 14 NSWindowsCP1254StringEncoding= 14, // Turkish
+  {__MSWindows1250ToUnicode, _w1250ChaiN   , _w1250ChaiP   , sizeof(char)    }, // 15 NSWindowsCP1250StringEncoding= 15, // WinLatin2
 
-  {NULL                    , InvalidCHAI   , sizeof(char)    }, // 16 NSISO2022JPStringEncoding=     21, // ISO 2022 Japanese encoding for e-mail
-  {__MSMacRomanToUnicode   , _macChaiN     , sizeof(char)    }, // 17 NSMacOSRomanStringEncoding=    30,
-  {__MSDOSToUnicode        , _dosChaiN     , sizeof(char)    }, // 18 NSDOSStringEncoding=           0x20000, // DOS: Added to NS...Encoding constants
+  {NULL                    , InvalidCHAI   , InvalidCHAI   , sizeof(char)    }, // 16 NSISO2022JPStringEncoding=     21, // ISO 2022 Japanese encoding for e-mail
+  {__MSMacRomanToUnicode   , _macChaiN     , _macChaiP     , sizeof(char)    }, // 17 NSMacOSRomanStringEncoding=    30,
+  {__MSDOSToUnicode        , _dosChaiN     , _dosChaiP     , sizeof(char)    }, // 18 NSDOSStringEncoding=           0x20000, // DOS: Added to NS...Encoding constants
   
-  {NULL                    , InvalidCHAI   , sizeof(unichar) }, // 19 NSUTF16StringEncoding= NSUnicodeStringEncoding, // An alias for NSUnicodeStringEncoding
+  {NULL                    , InvalidCHAI   , InvalidCHAI   , sizeof(unichar) }, // 19 NSUTF16StringEncoding= NSUnicodeStringEncoding, // An alias for NSUnicodeStringEncoding
   
-  {NULL                    , _bigChaiN     , sizeof(unichar) }, // 20 NSUTF16BigEndianStringEncoding=    0x90000100,  // explicit endianness
-  {NULL                    , _littleChaiN  , sizeof(unichar) }  // 21 NSUTF16LittleEndianStringEncoding= 0x94000100,  // explicit endianness
+  {NULL                    , _bigChaiN     , _bigChaiP     , sizeof(unichar) }, // 20 NSUTF16BigEndianStringEncoding=    0x90000100,  // explicit endianness
+  {NULL                    , _littleChaiN  , _littleChaiP  , sizeof(unichar) }  // 21 NSUTF16LittleEndianStringEncoding= 0x94000100,  // explicit endianness
 };
 
 /*
@@ -157,8 +185,8 @@ MSUInt CStringSizeOfCharacterForEncoding(NSStringEncoding srcEncoding)
 
 SES MSMakeSESWithBytes(const void *src, NSUInteger srcLength, NSStringEncoding srcEncoding)
 {
-  CHAI chai= _encodingStuffForEncoding(srcEncoding)->chai;
-  return src && srcLength && chai ? MSMakeSES(src,chai,0,srcLength,srcEncoding) : MSInvalidSES;
+  _encodingStuff *s= _encodingStuffForEncoding(srcEncoding);
+  return src && srcLength && s->chai && s->chaip ? MSMakeSES(src, s->chai, s->chaip, 0, srcLength, srcEncoding) : MSInvalidSES;
 }
 
 #pragma mark UTF8
@@ -202,6 +230,56 @@ unichar utf8ChaiN(const void *src, NSUInteger *pos)
 //printf("C %hu\n",u);
   return u;
   }
+
+unichar utf8ChaiP(const void *src, NSUInteger *pos)
+{
+  unichar u= 0; unsigned char c0, c1, c2;
+  if ((c0= ((unsigned char*)src)[--(*pos)]) < 0x80 /* 1000 0000 */) { // 1 byte: 1 to 7 bits
+    u= (unichar)c0;}
+  else if (c0 < 0xc0) { // c0 is valid ((c0 & 0xC0) == 0x80)
+    if ((c1= ((unsigned char*)src)[--(*pos)]) >= 0xc0 /* 1100 0000 */) { // 2 bytes: 8 to 11 bits
+      if (c1 < 0xe0) { //c1 is valid ((c1 & 0xE0) == 0xc0)
+        u= ( ((unichar)(c1 & 0x1F /* 0001 1111 */) << 6) 
+           | ((unichar)(c0 & 0x3F /* 0011 1111 */)     ));}}
+    else if (c1 < 0xc0) { // c1 is valid ((c0 & 0xC0) == 0x80)
+      if ((c2= ((unsigned char*)src)[--(*pos)]) & 0xe0 /* 1110 0000 */) { // 3 bytes: 12 to 16 bits
+        if (c2 < 0xf0) { // c2 is valid
+          u= ( ((unichar)(c2 & 0x0F /* 0000 1111 */) << 12)
+             | ((unichar)(c1 & 0x3F /* 0011 1111 */) <<  6) 
+             | ((unichar)(c0 & 0x3f /* 0011 1111 */)      ));}}
+      else { // 4 bytes: 17 to 21bits
+        --(*pos);}}}
+  return u;
+}
+
+// Optimised char -> action for utf8JsonStringChaiP
+// C99 notation, non provided index are set to 0 by the compiler
+static unsigned char _utf8JsonStringChaiPAction[] = { 
+  ['0']=0x80, ['1']=0x80, ['2']=0x80, ['3']=0x80, ['4']=0x80, ['5']=0x80, ['6']=0x80, ['7']=0x80, ['8']=0x80, ['9']=0x80, 
+  ['A']=0x80, ['B']=0x80, ['C']=0x80, ['D']=0x80, ['E']=0x80, ['F']=0x80,
+  ['a']=0x80, ['b']=0x80 | '\b', ['c']=0x80, ['d']=0x80, ['e']=0x80, ['f']=0x80 | '\f',
+  ['\"']= 1,
+  ['\\']= '\\', ['/']= '/', ['n']= '\n', ['r']= '\r',  ['t']= '\t'
+};
+unichar utf8JsonStringChaiP(const void *src, NSUInteger *pos)
+// Return 0xFFFF on begin or end of string ("), but return " on \"
+{
+  unichar u; unsigned char action;
+  u= utf8ChaiP(src, pos);
+  if (u < sizeof(_utf8JsonStringChaiPAction)/sizeof(unsigned char)) {
+    action= _utf8JsonStringChaiPAction[u];
+    if (action & 0x80) { // [A-Fa-f0-9]
+      if (*pos >= 5 && ((unsigned char*)src)[*pos - 5] == '\\' && ((unsigned char*)src)[*pos - 4] == 'u') {
+        u= (unichar)MSHexaStringToULong(src + *pos - 3, 4);
+        *pos-= 5;}}
+    if (action == 1) { // ["]
+      if (*pos < 1 || ((unsigned char*)src)[*pos - 1] != '\\') {
+        u= 0xFFFF;}}
+    else if ((action=(action & 0x7F))) { // [\/bfnrt]
+      if (*pos >= 1 && ((unsigned char*)src)[*pos - 1] == '\\') {
+        u= (unichar)action;}}}
+  return u;
+}
 
 unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
 // Return 0xFFFF on begin or end of string ("), but return " on \"
@@ -295,14 +373,6 @@ SES SESInsensitiveCommonPrefix(SES src, SES comparator)
   return _SESPrefix(src, comparator, YES);
 }
 
-static unichar SESIndexP(SES src, NSUInteger *pos)
-  {
-  unichar u= 0;
-  if (*pos>0) {
-    NSUInteger p= --(*pos);
-    u= SESIndexN(src, &p);}
-  return u;
-  }
 SES SESExtractPart(SES src, CUnicharChecker matchingChar)
 {
   SES ret= MSInvalidSES;

@@ -56,7 +56,9 @@ typedef unichar (*CHAI)(const void *, NSUInteger*);
 #define InvalidCHAI (CHAI)0
 
 MSCoreExtern unichar utf8ChaiN          (         const void *src, NSUInteger *pos);
+MSCoreExtern unichar utf8ChaiP          (         const void *src, NSUInteger *pos);
 MSCoreExtern unichar utf8JsonStringChaiN(         const void *src, NSUInteger *pos);
+MSCoreExtern unichar utf8JsonStringChaiP(         const void *src, NSUInteger *pos);
 // For UTF8 and UTF8 JSON String encoding.
 // These chai returns 0x00 on badly-formed character. And pos-1 is the error position.
 // if you're not sure that the string is well-formed
@@ -71,6 +73,7 @@ MSCoreExtern unichar utf8JsonStringChaiN(         const void *src, NSUInteger *p
 typedef struct SESStruct {
   const void *source;
   CHAI chai;
+  CHAI chaip;
   NSUInteger start;
   NSUInteger length;
   NSStringEncoding encoding;}
@@ -78,11 +81,12 @@ SES;
 
 MSCoreExtern const SES MSInvalidSES;
 
-static inline SES MSMakeSES(const void *source, CHAI funct, NSUInteger start, NSUInteger length, NSStringEncoding encoding)
+static inline SES MSMakeSES(const void *source, CHAI chai, CHAI chaip, NSUInteger start, NSUInteger length, NSStringEncoding encoding)
 {
   SES ret;
   ret.source=   source;
-  ret.chai=     funct;
+  ret.chai=     chai;
+  ret.chaip=    chaip;
   ret.start=    start;
   ret.length=   length;
   ret.encoding= encoding;
@@ -142,17 +146,23 @@ MSCoreExtern SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSp
 
 MSCoreExtern NSUInteger SESHash(SES ses);
 
-#define CHAIOK(X)      ((X) != InvalidCHAI)
-#define SESOK(X)       ({SES __x__= (X);  \
-  (__x__.source != NULL) && CHAIOK(__x__.chai) && \
-  (__x__.start != NSNotFound) && (__x__.length > 0);})
-#define SESSource(X)   ((X).source)
-#define SESCHAI(X)     ((X).chai)
-#define SESStart(X)    ((X).start)
-#define SESLength(X)   ((X).length)
-#define SESIndexN(X,PI)({SES __x__= (X); __x__.chai(__x__.source,(PI));})
-// Attention SESIndexN prend comme deuxième argument un pointeur sur un index et
-// non simplement l'index. Voir ci-dessus CHAI.
-#define SESEnd(X)      ((X).start + (X).length)
+static inline BOOL SESCHAIOK(CHAI chai) { return chai != InvalidCHAI; }
+static inline BOOL SESOK(SES ses) { return 
+  (ses.source != NULL) && SESCHAIOK(ses.chai) && SESCHAIOK(ses.chaip) &&
+  (ses.start != NSNotFound) && (ses.length > 0); }
+static inline const void* SESSource(SES ses) { return ses.source; }
+static inline CHAI SESCHAI(SES ses) { return ses.chai; }
+static inline CHAI SESCHAIP(SES ses) { return ses.chaip; }
+static inline NSUInteger SESStart(SES ses) { return ses.start; }
+static inline NSUInteger SESLength(SES ses) { return ses.length; }
+static inline NSUInteger SESEnd(SES ses) { return ses.start + ses.length; }
+static inline unichar SESIndexN(SES ses, NSUInteger *pos) { 
+  //assert(*pos >= SESStart(ses)); 
+  //assert(*pos < SESEnd(ses)); 
+  return ses.chai(ses.source,pos);}
+static inline unichar SESIndexP(SES ses, NSUInteger *pos) { 
+  //assert(*pos > SESStart(ses)); 
+  //assert(*pos <= SESEnd(ses)); 
+  return ses.chaip(ses.source,pos);}
 
 #endif /* MSCORE_SES_H */

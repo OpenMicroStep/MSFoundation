@@ -4,11 +4,24 @@ static void ses_index(test_t *test)
 {
   CString *c= CCreateStringWithBytes(NSUTF8StringEncoding,"abcdef",6);
   SES a= CStringSES(c);
-  NSUInteger i= SESStart(a);
+  NSUInteger p, i= SESStart(a);
   NSUInteger end= SESEnd(a);
   TASSERT(test, i < end, "There is still chars to tests");
   TASSERT(test, SESIndexN(a, &i) == (unichar)'a', "There is still chars to tests");
   TASSERT(test, i < end, "There is still chars to tests");
+  TASSERT(test, SESIndexP(a, &i) == (unichar)'a', "There is still chars to tests");
+  TASSERT(test, i == SESStart(a), "There is still chars to tests");
+  TASSERT(test, SESIndexN(a, &i) == (unichar)'a', "There is still chars to tests");
+  TASSERT(test, i < end, "There is still chars to tests");
+  p= i;
+  TASSERT(test, SESIndexN(a, &i) == (unichar)'b', "There is still chars to tests");
+  TASSERT(test, i < end, "There is still chars to tests");
+  TASSERT(test, SESIndexP(a, &i) == (unichar)'b', "There is still chars to tests");
+  TASSERT(test, i == p, "There is still chars to tests");
+  TASSERT(test, SESIndexP(a, &i) == (unichar)'a', "There is still chars to tests");
+  TASSERT(test, i < end, "There is still chars to tests");
+  TASSERT(test, SESIndexN(a, &i) == (unichar)'a', "There is still chars to tests");
+  TASSERT(test, i == p, "There is still chars to tests");
   TASSERT(test, SESIndexN(a, &i) == (unichar)'b', "There is still chars to tests");
   TASSERT(test, i < end, "There is still chars to tests");
   TASSERT(test, SESIndexN(a, &i) == (unichar)'c', "There is still chars to tests");
@@ -17,6 +30,11 @@ static void ses_index(test_t *test)
   TASSERT(test, i < end, "There is still chars to tests");
   TASSERT(test, SESIndexN(a, &i) == (unichar)'e', "There is still chars to tests");
   TASSERT(test, i < end, "There is still chars to tests");
+  p= i;
+  TASSERT(test, SESIndexN(a, &i) == (unichar)'f', "There is still chars to tests");
+  TASSERT(test, i == end, "There is no more chars to tests");
+  TASSERT(test, SESIndexP(a, &i) == (unichar)'f', "There is still chars to tests");
+  TASSERT(test, i == p, "There is still chars to tests");
   TASSERT(test, SESIndexN(a, &i) == (unichar)'f', "There is still chars to tests");
   TASSERT(test, i == end, "There is no more chars to tests");
   RELEASE(c);

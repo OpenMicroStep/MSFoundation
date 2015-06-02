@@ -134,7 +134,9 @@ CDecimal *CCreateDecimalWithSES(SES src, BOOL intOnly, CUnicharChecker leftSpace
           idx= _move(src, &exp, end, '+', '-');
           if (idx == exp) err= YES;}}} // rien après le e
     if (!err && idx == num) err= YES; // pas de chiffres
-    ret= MSMakeSES(src.source, src.chai, num0, idx - num0, src.encoding);
+    ret= src;
+    ret.start= num0;
+    ret.length= idx-num0;
     if (!err && idx > num0) {
       char txt[idx-num0+1];
       for (i=0, x= num0; x<idx; i++) txt[i]= (char)SESIndexN(src, &x);

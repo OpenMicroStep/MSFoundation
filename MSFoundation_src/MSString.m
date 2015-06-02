@@ -313,13 +313,17 @@ static inline NSString *_createStringWithContentsOfUTF8File(NSString *file)
   return (const char *)CBufferCString(b);
 }
 
-static unichar _slowChai(const void *self, NSUInteger *pos)
+static unichar _slowChaiN(const void *self, NSUInteger *pos)
 {
   return [(NSString*)self characterAtIndex:(*pos)++];
 }
+static unichar _slowChaiP(const void *self, NSUInteger *pos)
+{
+  return [(NSString*)self characterAtIndex:--(*pos)];
+}
 - (SES)stringEnumeratorStructure
 {
-  return MSMakeSES((const void*)self, _slowChai, 0,[self length], 0);
+  return MSMakeSES((const void*)self, _slowChaiN, _slowChaiP, 0,[self length], 0);
 }
 
 - (NSMutableString *)replaceOccurrencesOfString:(NSString *)tag withString:(NSString *)replace
