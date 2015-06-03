@@ -8,19 +8,33 @@
 + (void)load {MSFinishLoadingAddClass(self);}
 + (void)finishLoading {
   if (self==[NSString class]) {
-    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(string));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithString:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithCharacters:length:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithUTF8String:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithFormat:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(localizedStringWithFormat:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSString class], @selector(stringWithCString:encoding:));
+    Class fromClass= [MSString class];
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(string));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithString:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithCharacters:length:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithUTF8String:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithFormat:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(localizedStringWithFormat:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithCString:encoding:));
 
-    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(lowercaseString));
-    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(uppercaseString));
-    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(capitalizedString));
-    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(isEqualToString:));
-    FoundationCompatibilityExtendClass('-', self, 0, [MSString class], @selector(description));}
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(lowercaseString));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(uppercaseString));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(capitalizedString));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isEqualToString:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(description));
+
+    // Path extension
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(pathWithComponents:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(pathComponents));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(fileSystemRepresentation));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isAbsolutePath));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(lastPathComponent));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(pathExtension));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingPathComponent:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingPathExtension:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByDeletingLastPathComponent));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByDeletingPathExtension));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringsByAppendingPaths:));}
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {

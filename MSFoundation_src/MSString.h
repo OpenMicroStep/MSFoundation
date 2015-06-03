@@ -164,6 +164,19 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;
 
+#pragma mark Path
+
++ (NSString *)pathWithComponents:(NSArray *)components;
+- (NSArray *)pathComponents;
+- (BOOL)isAbsolutePath;
+- (NSString *)lastPathComponent;
+- (NSString *)pathExtension;
+- (NSString *)stringByAppendingPathComponent:(NSString *)aString;
+- (NSString *)stringByAppendingPathExtension:(NSString *)ext;
+- (NSString *)stringByDeletingLastPathComponent;
+- (NSString *)stringByDeletingPathExtension;
+- (NSArray *)stringsByAppendingPaths:(NSArray *)paths;
+
 @end
 
 #define MSCreateString(S) (MSString*)CSCreate(S)

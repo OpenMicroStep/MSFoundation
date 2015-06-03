@@ -215,8 +215,78 @@ static void string_format(test_t *test)
   
 }
 
+static void string_path(test_t *test)
+{
+  NSArray *components, *expect;
+  NEW_POOL;
+
+  // pathWithComponents
+  components= [NSArray arrayWithObjects:@"/", @"a", @"b", @"cd", nil];
+  TASSERT_EQUALS_OBJ(test, [NSString pathWithComponents:components], @"/a/b/cd");
+
+  components= [NSArray arrayWithObjects:@"c", @"b", @"ad", nil];
+  TASSERT_EQUALS_OBJ(test, [NSString pathWithComponents:components], @"c/b/ad");
+
+  // pathComponents
+  TASSERT_EQUALS_OBJ(test, [@"tmp/scratch"  pathComponents], ([NSArray arrayWithObjects:@"tmp", @"scratch", nil]));
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch" pathComponents], ([NSArray arrayWithObjects:@"/", @"tmp", @"scratch", nil]));
+
+  // lastPathComponent
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch.tiff" lastPathComponent], @"scratch.tiff");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch"      lastPathComponent], @"scratch");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/"             lastPathComponent], @"tmp");
+  TASSERT_EQUALS_OBJ(test, [@"scratch///"        lastPathComponent], @"scratch");
+  TASSERT_EQUALS_OBJ(test, [@"/"                 lastPathComponent], @"/");
+
+  // pathExtension
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch.tiff"  pathExtension], @"tiff");
+  TASSERT_EQUALS_OBJ(test, [@".scratch.tiff"      pathExtension], @"tiff");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch"       pathExtension], @"");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/"              pathExtension], @"");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch..tiff" pathExtension], @"tiff");
+
+  // stringByAppendingPathComponenta
+  TASSERT_EQUALS_OBJ(test, [@"/tmp"  stringByAppendingPathComponent:@"scratch.tiff"], @"/tmp/scratch.tiff");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/" stringByAppendingPathComponent:@"scratch.tiff"], @"/tmp/scratch.tiff");
+  TASSERT_EQUALS_OBJ(test, [@"/"     stringByAppendingPathComponent:@"scratch.tiff"], @"/scratch.tiff");
+  TASSERT_EQUALS_OBJ(test, [@""      stringByAppendingPathComponent:@"scratch.tiff"], @"scratch.tiff");
+
+  // stringsByAppendingPaths
+  components= [NSArray arrayWithObjects:@"a/b", @"c", @"/d" , nil];
+  expect= [NSArray arrayWithObjects:@"/tmp/a/b", @"/tmp/c", @"/tmp/d", nil];
+  TASSERT_EQUALS_OBJ(test, [@"/tmp" stringsByAppendingPaths:components], expect);
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/" stringsByAppendingPaths:components], expect);
+  TASSERT_EQUALS_OBJ(test, [@"/tmp//" stringsByAppendingPaths:components], expect);
+
+  // stringByAppendingPathExtension
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch.old" stringByAppendingPathExtension:@"tiff"], @"/tmp/scratch.old.tiff");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch."    stringByAppendingPathExtension:@"tiff"], @"/tmp/scratch..tiff");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/"            stringByAppendingPathExtension:@"tiff"], @"/tmp.tiff");
+  TASSERT_EQUALS_OBJ(test, [@"scratch"          stringByAppendingPathExtension:@"tiff"], @"scratch.tiff");
+  TASSERT_EQUALS_OBJ(test, [@"1"                stringByAppendingPathExtension:@"sql" ], @"1.sql");
+
+  // stringByDeletingLastPathComponent
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch.tiff" stringByDeletingLastPathComponent], @"/tmp");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/lock/"        stringByDeletingLastPathComponent], @"/tmp");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/"             stringByDeletingLastPathComponent], @"/");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp"              stringByDeletingLastPathComponent], @"/");
+  TASSERT_EQUALS_OBJ(test, [@"/"                 stringByDeletingLastPathComponent], @"/");
+  TASSERT_EQUALS_OBJ(test, [@"scratch.tiff"      stringByDeletingLastPathComponent], @"");
+
+  // stringByDeletingPathExtension
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/scratch.tiff" stringByDeletingPathExtension], @"/tmp/scratch");
+  TASSERT_EQUALS_OBJ(test, [@"/tmp/"             stringByDeletingPathExtension], @"/tmp");
+  TASSERT_EQUALS_OBJ(test, [@"scratch.bundle/"   stringByDeletingPathExtension], @"scratch");
+  TASSERT_EQUALS_OBJ(test, [@"scratch..tiff"     stringByDeletingPathExtension], @"scratch.");
+  TASSERT_EQUALS_OBJ(test, [@".tiff"             stringByDeletingPathExtension], @".tiff");
+  TASSERT_EQUALS_OBJ(test, [@"/"                 stringByDeletingPathExtension], @"/");
+
+  KILL_POOL;
+}
+
 test_t foundation_string[]= {
   {"equal" ,NULL,string_eq    ,INTITIALIZE_TEST_T_END},
   {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
   {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
+  {"path"  ,NULL,string_path  ,INTITIALIZE_TEST_T_END},
   {NULL}};

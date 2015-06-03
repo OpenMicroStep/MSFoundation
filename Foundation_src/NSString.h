@@ -58,8 +58,21 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (NSString *)capitalizedString;
 @end
 
-@interface NSMutableString : NSString
+@interface NSString (NSStringPathExtension)
++ (NSString *)pathWithComponents:(NSArray *)components;
+- (const char *)fileSystemRepresentation;
+- (NSArray *)pathComponents;
+- (BOOL)isAbsolutePath;
+- (NSString *)lastPathComponent;
+- (NSString *)pathExtension;
+- (NSString *)stringByAppendingPathComponent:(NSString *)aString;
+- (NSString *)stringByAppendingPathExtension:(NSString *)ext;
+- (NSString *)stringByDeletingLastPathComponent ;
+- (NSString *)stringByDeletingPathExtension;
+- (NSArray *)stringsByAppendingPaths:(NSArray *)paths;
+@end
 
+@interface NSMutableString : NSString
 @end
 
 @interface NSConstantString : NSString

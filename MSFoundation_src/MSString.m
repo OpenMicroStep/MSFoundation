@@ -983,6 +983,203 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
 */
 #pragma mark Path
 
+static inline BOOL _isPathSeparator(unichar u)
+{
+#ifdef WIN32
+  return u == '/' || u == '\\';
+#else
+  return u == '/';
+#endif
+}
+
+- (const char *)fileSystemRepresentation
+{ return [self UTF8String]; }
+
++ (NSString *)pathWithComponents:(NSArray *)components
+{
+  NSUInteger i, len; CString *ret; BOOL sep= NO; NSString *o;
+  ret= CCreateString(0);
+  for (i= 0, len= [components count]; i < len; ++i) {
+    if (sep)
+      CStringAppendCharacter(ret, '/');
+    o= [components objectAtIndex:i];
+    CStringAppendSES(ret, SESFromString(o));
+    if (i!= 0 || [o length] != 1 || !_isPathSeparator([o characterAtIndex:0]))
+      sep= YES;
+  }
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+- (NSArray *)pathComponents
+{
+  CArray *ret; CString *cur; SES ses; NSUInteger pos; unichar u; BOOL first= YES;
+  ret= CCreateArray(0);
+  cur= CCreateString(0);
+  ses= SESFromString(self);
+  for (pos= SESStart(ses); pos < SESEnd(ses);) {
+    u= SESIndexN(ses, &pos);
+    if (_isPathSeparator(u)) {
+      if (first) {
+        CArrayAddObject(ret, @"/");}
+      else if(CStringLength(cur) > 0){
+        CGrowSetForeverImmutable((id)cur);
+        CArrayAddObject(ret, (id)cur);
+        RELEASE(cur);
+        cur= CCreateString(0);}
+    }
+    else {
+      CStringAppendCharacter(cur, u);
+    }
+    first= NO;
+  }
+  if(CStringLength(cur) > 0){
+    CGrowSetForeverImmutable((id)cur);
+    CArrayAddObject(ret, (id)cur);}
+  RELEASE(cur);
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+
+- (BOOL)isAbsolutePath
+{
+  SES ses; NSUInteger i;
+  ses= SESFromString(self);
+  i= SESStart(ses);
+#ifdef WIN32 // '^[A-Za-z]:'
+  return CUnicharIsLetter(SESIndexN(ses, &i)) && SESIndexN(ses, &i) == ':';
+#else // '^/'
+  return SESIndexN(ses, &i) == '/';
+#endif
+}
+
+- (NSString *)lastPathComponent
+{
+  SES ses;  NSUInteger i, s, e; NSString *ret= self;
+  ses= SESFromString(self);
+  s= SESStart(ses);
+  i= e= SESEnd(ses); 
+  while (i > SESStart(ses) && _isPathSeparator(SESIndexP(ses, &i)))
+    e= i; // skip [/\]*$
+  while (i > SESStart(ses) && !_isPathSeparator(SESIndexP(ses, &i)))
+    s= i; // skip [^/\]*
+  if ((SESStart(ses) != s || SESEnd(ses) != e) && e > s) {
+    ses.start= s;
+    ses.length= e - s;
+    ret= AUTORELEASE(CCreateStringWithSES(ses));
+    CGrowSetForeverImmutable(ret);}
+  return ret;
+}
+
+- (NSString *)pathExtension
+{
+  SES ses;  NSUInteger i; NSString *ret= @"";
+  ses= SESFromString(self);
+  i= SESEnd(ses); 
+  while (i > SESStart(ses) && SESIndexP(ses, &i) != (unichar)'.')
+    ; // skip [^.]*
+  if (SESIndexN(ses, &i) == (unichar)'.') {
+    ses.length-= i - ses.start;
+    ses.start= i;
+    ret= AUTORELEASE(CCreateStringWithSES(ses));
+    CGrowSetForeverImmutable(ret);}
+  return ret;
+}
+
+static inline CString *_stringByAppendingPathComponent(NSString *self, NSString *aString)
+{
+  CString *ret; SES ses, ses2; NSUInteger i, i2;
+  ret= CCreateStringWithSES(SESFromString(self));
+  i= CStringLength(ret);
+  ses2= SESFromString(aString);
+  if (SESOK(ses2) && i > 0) {
+    while (i > 0 && _isPathSeparator(ret->buf[--i]))
+      ;
+    if (i > 0) 
+      ++i;
+    CStringReplaceInRangeWithSES(ret, NSMakeRange(i, ret->length - i), MSMakeSESWithBytes("/", 1, NSUTF8StringEncoding));}
+  if (SESOK(ses2)) {
+    i2= SESStart(ses2);
+    while (i2 < SESEnd(ses2) && _isPathSeparator(SESIndexN(ses2, &i2)))
+      ;
+    SESIndexP(ses2, &i2);
+    ses2.length-= i2 - ses2.start;
+    ses2.start= i2;
+    CStringAppendSES(ret, ses2);}
+  return ret;
+}
+- (NSString *)stringByAppendingPathComponent:(NSString *)aString
+{
+  id ret= AUTORELEASE(_stringByAppendingPathComponent(self, aString));
+  CGrowSetForeverImmutable(ret);
+  return ret;
+}
+
+- (NSString *)stringByAppendingPathExtension:(NSString *)ext
+{
+  CString *ret; SES ses, ses2; NSUInteger i;
+  ret= CCreateStringWithSES(SESFromString(self));
+  i= CStringLength(ret);
+  ses2= SESFromString(ext);
+  if (SESOK(ses2) && i > 0) {
+    while (i > 0 && _isPathSeparator(ret->buf[--i]))
+      ;
+    if (!_isPathSeparator(ret->buf[i])) 
+      ++i;
+    CStringReplaceInRangeWithSES(ret, NSMakeRange(i, ret->length - i), MSMakeSESWithBytes(".", 1, NSUTF8StringEncoding));}
+  CStringAppendSES(ret, ses2);
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+- (NSString *)stringByDeletingLastPathComponent 
+{
+  SES ses;  NSUInteger i, s; id ret;
+  ses= SESFromString(self);
+  i= SESEnd(ses);
+  while (i > SESStart(ses) && _isPathSeparator(SESIndexP(ses, &i)))
+    ; // skip [/\]*$
+  while (i > SESStart(ses) && !_isPathSeparator(SESIndexP(ses, &i)))
+    ; // skip [^/\]*
+  ses.length= i - SESStart(ses);
+  if(ses.length == 0) {
+    i= SESStart(ses);
+    if(_isPathSeparator(SESIndexN(ses, &i))) {
+      ses.length= i - SESStart(ses);}}
+  ret= AUTORELEASE(CCreateStringWithSES(ses));
+  CGrowSetForeverImmutable(ret);
+  return ret;
+}
+
+- (NSString *)stringByDeletingPathExtension
+{
+  SES ses;  NSUInteger i, e; NSString *ret= self; unichar u;
+  ses= SESFromString(self);
+  i= e= SESEnd(ses);
+  while (i > SESStart(ses) && _isPathSeparator(u= SESIndexP(ses, &i)))
+    e= i; // skip [/\]*$
+  while (u != (unichar)'.' && i > SESStart(ses))
+    u= SESIndexP(ses, &i); // skip [^.]*
+  if (u != (unichar)'.' && SESEnd(ses) != e) {
+    i= e;} // Remove [/\]* that are at the end of the string
+  if (i > SESStart(ses)) {
+    ses.length= i - ses.start;
+    ret= AUTORELEASE(CCreateStringWithSES(ses));
+    CGrowSetForeverImmutable(ret);}
+  return ret;
+}
+
+- (NSArray *)stringsByAppendingPaths:(NSArray *)paths
+{
+  NSUInteger i, len; CArray *ret; CString *str;
+  len= [paths count];
+  ret= CCreateArray(len);
+  for (i= 0; i < len; ++i) {
+    str= _stringByAppendingPathComponent(self, [paths objectAtIndex:i]);
+    CArrayAddObject(ret, (id)str);
+    RELEASE(str);
+  }
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
 /* DEBUG
 - (NSArray *)pathComponents                           _logAndDo(pathComponents)
 - (const char *)fileSystemRepresentation              _logAndDo(fileSystemRepresentation)
