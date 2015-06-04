@@ -4,8 +4,7 @@
 @end
 
 @implementation NSDate
-+ (void)load{ MSFinishLoadingAddClass(self); }
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[NSDate class]) {
     FoundationCompatibilityExtendClass('+', self, 0, [MSDate class], @selector(date));

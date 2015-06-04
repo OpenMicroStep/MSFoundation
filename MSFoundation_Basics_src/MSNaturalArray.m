@@ -47,8 +47,7 @@
 #define MS_NATURALARRAY_LAST_VERSION	102
 
 @implementation MSNaturalArray
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSNaturalArray setVersion:MS_NATURALARRAY_LAST_VERSION];}
++ (void)initialize {[MSNaturalArray setVersion:MS_NATURALARRAY_LAST_VERSION];}
 
 // ====================== ALLOCATIONS, CREATIONS AND DEALLOCATIONS ============================
 + (id)alloc { return MSCreateObject(self) ; }

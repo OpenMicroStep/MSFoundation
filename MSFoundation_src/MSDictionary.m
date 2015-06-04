@@ -82,8 +82,8 @@
 #define MS_DICTIONARY_LAST_VERSION 101
 
 @implementation MSDictionary
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSDictionary setVersion:MS_DICTIONARY_LAST_VERSION];}
++ (void)load          {MSFinishLoadingDec();}
++ (void)initialize {[MSDictionary setVersion:MS_DICTIONARY_LAST_VERSION];}
 
 #pragma mark alloc / init
 

@@ -50,8 +50,7 @@ static unichar _asciiStringCharacterAtIndex(id self, NSUInteger i) { return ((MS
 
 
 @implementation MSASCIIString
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSASCIIString setVersion:MS_ASCIISTRING_LAST_VERSION];}
++ (void)initialize {[MSASCIIString setVersion:MS_ASCIISTRING_LAST_VERSION];}
 
 + (id)alloc { return MSCreateObject([self class]) ; }
 + (id)allocWithZone:(NSZone *)zone { return MSAllocateObject([self class], 0, zone) ; }

@@ -5,8 +5,7 @@
 @end
 
 @implementation NSDictionary
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[NSDictionary class]) {
     FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionary));
@@ -59,8 +58,7 @@
 @end
 
 @implementation _MSMDictionary
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[_MSMDictionary class]) {
     FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}

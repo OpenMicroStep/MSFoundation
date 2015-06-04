@@ -5,8 +5,7 @@
 @end
 
 @implementation NSString
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {
++ (void)initialize {
   if (self==[NSString class]) {
     Class fromClass= [MSString class];
     FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(string));
@@ -71,8 +70,7 @@
 @end
 
 @implementation _MSMString
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[_MSMString class]) {
     FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}

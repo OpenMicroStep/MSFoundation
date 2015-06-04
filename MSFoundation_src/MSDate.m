@@ -57,8 +57,8 @@ MSDate *MSCreateYMDHMS(unsigned year,  unsigned month,   unsigned day,
 }
 
 @implementation MSDate
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSDate setVersion:MS_DATE_LAST_VERSION];}
++ (void)load          {MSFinishLoadingDec();}
++ (void)initialize {[MSDate setVersion:MS_DATE_LAST_VERSION];}
 
 #pragma mark Initialisation
 

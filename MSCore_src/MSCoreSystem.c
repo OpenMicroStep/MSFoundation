@@ -247,7 +247,7 @@ void _CMessageInitialize();
 // Because it's the only point where MSCoreC lib use lib initialization, it's safe to use any part of MSCore in this
 __attribute__((constructor))
 #else
-// MSFinishLoadingConfigure(foundationClassCount, MSFinishLoadingCore, NULL) is used (see MSCObject.m)
+// MSFinishLoadingConfigure(foundationClassCount, MSFinishLoadingCore) is used (see MSCObject.m)
 // MSFinishLoadingCore is executed when all the foundation class added via MSFinishLoadingAddClass
 // are loaded, but before they receive there finishLoading method. They are nevertheless operational
 // for the bridge.

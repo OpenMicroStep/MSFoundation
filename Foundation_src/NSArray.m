@@ -5,8 +5,7 @@
 @end
 
 @implementation NSArray
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[NSArray class]) {
     FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(array));
@@ -63,8 +62,7 @@
 
 @implementation _MSMArray
 
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[_MSMArray class]) {
     FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}

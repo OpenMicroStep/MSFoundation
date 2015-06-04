@@ -45,8 +45,8 @@
 #define MS_DECIMAL_LAST_VERSION 301
 
 @implementation MSDecimal
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSDecimal setVersion:MS_DECIMAL_LAST_VERSION];}
++ (void)load          {MSFinishLoadingDec();}
++ (void)initialize {[MSDecimal setVersion:MS_DECIMAL_LAST_VERSION];}
 
 #pragma mark Initialisation
 

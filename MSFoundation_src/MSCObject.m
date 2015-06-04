@@ -52,14 +52,14 @@
 @end
 
 void MSFinishLoadingCore();
+static void MSFinishLoadingFoundation() {
+  MSFinishLoadingCore();
+  [MSColor class];
+}
+
 @implementation NSObject (Private)
 
-#ifdef MSFOUNDATION_FORCOCOA
-#define LOAD_COUNT 14
-#else
-#define LOAD_COUNT 23
-#endif
-+ (void)load {MSFinishLoadingConfigure(LOAD_COUNT, MSFinishLoadingCore, NULL);}
++ (void)load {MSFinishLoadingConfigure(8, MSFinishLoadingFoundation);}
 
 - (NSUInteger)hash:(unsigned)depth {return [self hash]; MSUnused(depth);}
 

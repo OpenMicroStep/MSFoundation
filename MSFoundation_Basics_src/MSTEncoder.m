@@ -83,8 +83,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 @end
 
 @implementation MSTEncoder
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSTEncoder setVersion:MSTEncoderLastVersion];}
++ (void)initialize {[MSTEncoder setVersion:MSTEncoderLastVersion];}
 + (id)encoder
 {
     return [[[self alloc] init] autorelease];

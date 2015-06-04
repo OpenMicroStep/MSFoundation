@@ -67,8 +67,8 @@
 #define MS_ARRAY_LAST_VERSION 101
 
 @implementation MSArray
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSArray setVersion:MS_ARRAY_LAST_VERSION];}
++ (void)load          {MSFinishLoadingDec();}
++ (void)initialize {[MSArray setVersion:MS_ARRAY_LAST_VERSION];}
 
 #pragma mark alloc / init
 

@@ -5,8 +5,7 @@
 @end
 
 @implementation NSData
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[NSData class]) {
     FoundationCompatibilityExtendClass('+', self, 0, [MSBuffer class], @selector(data));
@@ -58,8 +57,7 @@
 @end
 
 @implementation _MSMBuffer
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 {
   if (self==[_MSMBuffer class]) {
     FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));

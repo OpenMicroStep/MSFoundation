@@ -102,8 +102,11 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 
 @implementation MSColor
 
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[MSColor setVersion:MS_COLOR_LAST_VERSION];}
++ (void)initialize {
+  if (self==[MSColor class]) {
+    [MSColor setVersion:MS_COLOR_LAST_VERSION];
+    [_MSIndexedColor class];}
+}
 
 #pragma mark Class methods
 
@@ -317,8 +320,8 @@ static inline MSColor *_MSAutoComponentsColor(float rf, float gf, float bf, floa
 #define MS_RGBACOLOR_LAST_VERSION  301
 
 @implementation _MSRGBAColor : MSColor
-+ (void)load          {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading {[_MSRGBAColor setVersion:MS_RGBACOLOR_LAST_VERSION];}
++ (void)load          {MSFinishLoadingDec();}
++ (void)initialize {[_MSRGBAColor setVersion:MS_RGBACOLOR_LAST_VERSION];}
 
 - (NSString *)listItemString { return [self toString]; }
 - (NSString *)displayString  { return [self toString]; }
@@ -511,8 +514,7 @@ MSColor *MSColorNamed(NSString *name)
 #define MS_INDEXEDCOLOR_LAST_VERSION  401
 
 @implementation _MSIndexedColor
-+ (void)load {MSFinishLoadingAddClass(self);}
-+ (void)finishLoading
++ (void)initialize
 { 
   struct _MSColorDefinition entry; int i;
   _MSIndexedColor *c;
