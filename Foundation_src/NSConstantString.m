@@ -14,7 +14,7 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
 {
   unichar c= 0;
   ++relativeIndex;
-  while(relativeIndex > 0 && *sIdx < SESLength(ses)) {
+  while(relativeIndex > 0 && *sIdx < SESEnd(ses)) {
     c= SESIndexN(ses, sIdx);
     --relativeIndex;
   }
@@ -23,8 +23,8 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
 
 - (NSUInteger)length
 {
-  NSUInteger i=0, len=0; SES ses= CSSES(self);
-  while(i < SESLength(ses)) {
+  SES ses= CSSES(self); NSUInteger i=SESStart(ses), len=0;
+  while(i < SESEnd(ses)) {
     SESIndexN(ses, &i);
     ++len;
   }
@@ -33,17 +33,17 @@ static inline unichar characterAtRelativeIndex(SES ses, NSUInteger *sIdx, NSUInt
 
 - (unichar)characterAtIndex:(NSUInteger)index
 {
-  NSUInteger i=0; SES ses= CSSES(self);
+  SES ses= CSSES(self); NSUInteger i=SESStart(ses);
   return characterAtRelativeIndex(ses, &i, index);
 }
 
 - (void)getCharacters:(unichar*)buffer range:(NSRange)rg
 {
-  NSUInteger i=0; SES ses= CSSES(self);
+  SES ses= CSSES(self); NSUInteger i=SESStart(ses);
   if (rg.length > 0) {
     *buffer++= characterAtRelativeIndex(ses, &i, rg.location);
     rg.length--;
-    while (rg.length > 0 && i < SESLength(ses)) {
+    while (rg.length > 0 && i < SESEnd(ses)) {
       *buffer++= SESIndexN(ses, &i);
       rg.length--;}}
 }

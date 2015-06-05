@@ -107,8 +107,8 @@ MSCoreExtern SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength,
 // Use this function to make a SES from a source.
 // To obtain the unichar suite equivalent to a source use:
 // SES ses= MSMakeSESWithBytes(cmySource, mySourceLength, mySourceEncoding);
-// NSUInteger i,n; unichar u;
-// for (i= SESStart(ses), n= SESLength(ses); i<n;) u= SESIndexN(ses, &i);
+// NSUInteger i,e; unichar u;
+// for (i= SESStart(ses), e= SESEnd(ses); i<e;) u= SESIndexN(ses, &i);
 // Or CCreateStringWithBytes()
 
 MSCoreExtern BOOL SESEquals(SES a, SES b);
@@ -119,6 +119,9 @@ MSCoreExtern SES SESInsensitiveFind(SES src, SES searched);
 
 MSCoreExtern SES SESCommonPrefix(SES src, SES comparator);
 MSCoreExtern SES SESInsensitiveCommonPrefix(SES src, SES comparator);
+
+MSCoreExtern SES SESCommonSuffix(SES src, SES comparator);
+MSCoreExtern SES SESInsensitiveCommonSuffix(SES src, SES comparator);
 // Retourne en tant que SES sur src le plus grand préfixe entre les deux chaînes.
 // Retourne MSInvalidSES si pas de préfixe commun.
 
@@ -143,19 +146,25 @@ MSCoreExtern SES SESExtractToken(SES src, CUnicharChecker matchingChar, CUnichar
 struct CDecimalStruct;
 MSCoreExtern SES SESExtractDecimal(SES src, BOOL intOnly, CUnicharChecker leftSpaces, struct CDecimalStruct**decimalPtr);
 
-
 MSCoreExtern NSUInteger SESHash(SES ses);
 
 static inline BOOL SESCHAIOK(CHAI chai) { return chai != InvalidCHAI; }
 static inline BOOL SESOK(SES ses) { return 
   (ses.source != NULL) && SESCHAIOK(ses.chai) && SESCHAIOK(ses.chaip) &&
   (ses.start != NSNotFound) && (ses.length > 0); }
-static inline const void* SESSource(SES ses) { return ses.source; }
-static inline CHAI SESCHAI(SES ses) { return ses.chai; }
-static inline CHAI SESCHAIP(SES ses) { return ses.chaip; }
-static inline NSUInteger SESStart(SES ses) { return ses.start; }
-static inline NSUInteger SESLength(SES ses) { return ses.length; }
-static inline NSUInteger SESEnd(SES ses) { return ses.start + ses.length; }
+static inline const void*      SESSource   (SES ses) { return ses.source; }
+static inline NSStringEncoding SESEncoding (SES ses) { return ses.encoding; }
+static inline CHAI             SESCHAI     (SES ses) { return ses.chai; }
+static inline CHAI             SESCHAIP    (SES ses) { return ses.chaip; }
+static inline NSUInteger       SESStart    (SES ses) { return ses.start; }
+static inline NSUInteger       SESLength   (SES ses) { return ses.length; }
+static inline NSUInteger       SESEnd      (SES ses) { return ses.start + ses.length; }
+#define SESSetStart(ses, start) SESPSetStart(&ses, start)
+#define SESSetLength(ses, length) SESPSetLength(&ses, length)
+#define SESSetEnd(ses, end) SESPSetEnd(&ses, end)
+static inline void SESPSetStart (SES *pses, NSUInteger start ) { pses->length+= pses->start - start; pses->start= start; }
+static inline void SESPSetLength(SES *pses, NSUInteger length) { pses->length= length; }
+static inline void SESPSetEnd   (SES *pses, NSUInteger end   ) { pses->length= end - pses->start; }
 static inline unichar SESIndexN(SES ses, NSUInteger *pos) { 
   //assert(*pos >= SESStart(ses)); 
   //assert(*pos < SESEnd(ses)); 

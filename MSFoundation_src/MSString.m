@@ -897,9 +897,9 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
   SES ses; NSUInteger i= 0; CString *s;
   ses= [self stringEnumeratorStructure];
   s= CCreateString([self length]);
-  if (i < SESLength(ses)) {
+  if (i < SESEnd(ses)) {
     CStringAppendCharacter(s, firstChar(SESIndexN(ses, &i)));}
-  while (i < SESLength(ses)) {
+  while (i < SESEnd(ses)) {
     CStringAppendCharacter(s, otherChars(SESIndexN(ses, &i)));}
   return AUTORELEASE((id)s);
 }

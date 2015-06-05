@@ -202,8 +202,8 @@ void CStringAppendSES(CString *self, SES ses)
     NSUInteger i, end, lg= SESLength(ses);
     if (self->size < self->length+lg) CStringGrow(self, lg);
     if (ses.encoding==NSUnicodeStringEncoding) {
-      memmove(self->buf+self->length, SESSource(ses)+SESStart(ses), lg*sizeof(unichar));
-      self->length+= SESLength(ses);}
+      memmove(self->buf+self->length, SESSource(ses) + SESStart(ses)*sizeof(unichar), lg*sizeof(unichar));
+      self->length+= lg;}
     else for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
       unichar u= SESIndexN(ses, &i);
       self->buf[self->length++]= (u?u:'?');
@@ -603,16 +603,16 @@ void CStringAppendFormatv(CString *self, const char *cfmt, va_list ap)
     FormatArg argTypes[argsOnStack];
     FormatArg *argType;
     NSUInteger argLoadIdx= 0, argParseIdx= 0;
-    NSUInteger pos=0, positionalPassPos= 0, startPos;
+    NSUInteger pos=SESStart(fmt), positionalPassPos= 0, startPos;
     BOOL positionalFormating= NO, firstPass= YES;
     // tmp
     FormatToken f; unichar u;
     memset(argTypes, 0, sizeof(argTypes));
     while(1) {
-      while (pos < SESLength(fmt)) {
+      while (pos < SESEnd(fmt)) {
         startPos= pos;
         u= SESIndexN(fmt, &pos);
-        if (u == (unichar)'%' && pos < SESLength(fmt)) {
+        if (u == (unichar)'%' && pos < SESEnd(fmt)) {
           f= _formatParse(fmt, &pos);
           if (f.specifier == '%') {
             if (!positionalPassPos) CStringAppendCharacter((CString*)self, '%'); }

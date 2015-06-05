@@ -305,7 +305,7 @@ void CBufferAppendSES(CBuffer *self, SES ses, NSStringEncoding destinationEncodi
   if(!self) return;
   if (destinationEncoding==NSUnicodeStringEncoding) {
     if (ses.encoding==NSUnicodeStringEncoding) {
-      _append(self, SESSource(ses), SESLength(ses)*sizeof(unichar));}
+      _append(self, SESSource(ses) + SESStart(ses)*sizeof(unichar), SESLength(ses)*sizeof(unichar));}
     else for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
       u= SESIndexN(ses, &i);
       _append(self, &u, sizeof(unichar));}}

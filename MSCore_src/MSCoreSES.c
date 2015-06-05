@@ -301,49 +301,116 @@ unichar utf8JsonStringChaiN(const void *src, NSUInteger *pos)
       if (!c) u= 0;
       else u= (unichar)MSHexaStringToULong((char*)hex, 4);
       break;
-    default: u= u; break;} // invalid char ?
+    default: break;} // invalid char ?
   return u;
 }
 
 #pragma mark Finding
 
+// Compilers do optimise out things that aren't useful to the caller
+// assume SESOK(src) && SESOK(prefix) && src.start <= srcIdx < src.end
+static inline BOOL _SESPrefixAlg(SES src, NSUInteger srcIdx, NSUInteger *pSrcIdxN, NSUInteger *pSrcPrefixEnd, SES prefix, BOOL insensitive, NSUInteger *pPrefixLength)
+{
+  NSUInteger prefixIdx, prefixEnd, srcIdxN, srcEnd; BOOL fd;
+  srcEnd= SESEnd(src);
+  prefixIdx=SESStart(prefix), prefixEnd= SESEnd(prefix);
+  fd= CUnicharEquals(SESIndexN(src, &srcIdx), SESIndexN(prefix, &prefixIdx), insensitive);
+  srcIdxN= srcIdx; // for _SESFind
+  *pPrefixLength= 1;
+  while (fd && prefixIdx < prefixEnd && srcIdx < srcEnd) {
+    fd= CUnicharEquals(SESIndexN(src, &srcIdx), SESIndexN(prefix, &prefixIdx), insensitive);
+    ++(*pPrefixLength);}
+  fd= fd && prefixIdx == prefixEnd;
+  if (fd) {
+    *pSrcPrefixEnd= srcIdx;}
+  else {
+    *pSrcIdxN= srcIdxN;}
+  return fd;
+}
+static inline BOOL _SESSuffixAlg(SES src, NSUInteger srcIdx, NSUInteger *pSrcIdxP, NSUInteger *pSrcPrefixEnd, SES prefix, BOOL insensitive, NSUInteger *pSuffixLength)
+{
+  NSUInteger prefixStart, prefixIdx, srcIdxP, srcStart; BOOL fd;
+  srcStart= SESStart(src);
+  prefixIdx=SESEnd(prefix), prefixStart= SESStart(prefix);
+  fd= CUnicharEquals(SESIndexP(src, &srcIdx), SESIndexP(prefix, &prefixIdx), insensitive);
+  srcIdxP= srcIdx; // for _SESFind
+  *pSuffixLength= 1;
+  while (fd && prefixStart < prefixIdx && srcStart < srcIdx) {
+    fd= CUnicharEquals(SESIndexP(src, &srcIdx), SESIndexP(prefix, &prefixIdx), insensitive);
+    ++(*pSuffixLength);}
+  fd= fd && prefixIdx == prefixStart;
+  if (fd) {
+    *pSrcPrefixEnd= srcIdx;}
+  else {
+    *pSrcIdxP= srcIdxP;}
+  return fd;
+}
+
+static SES _SESSuffix(SES src, SES comparator, BOOL insensitive)
+{
+  SES ret= MSInvalidSES;
+  if (SESOK(src) && SESOK(comparator)) {
+    NSUInteger s1, e1= SESEnd(src), lg= 0;
+    if (_SESSuffixAlg(src, e1, &e1, &s1, comparator, insensitive, &lg)) {
+      ret= src;
+      SESSetStart(ret, s1);}}
+  return ret;
+}
+
 static SES _SESPrefix(SES src, SES comparator, BOOL insensitive)
 {
   SES ret= MSInvalidSES;
   if (SESOK(src) && SESOK(comparator)) {
-    NSUInteger i1,i2,end1,end2,n; BOOL fd;
-    i1= SESStart(src); i2= SESStart(comparator);
-    end1= SESEnd(src); end2= SESEnd(comparator);
-    for (fd= YES, n=0; fd && i1 < end1 && i2 < end2;) {
-      if (CUnicharEquals(SESIndexN(src, &i1), SESIndexN(comparator, &i2), insensitive)) n++;
-      else fd= NO;}
-    if (n) {
+    NSUInteger i1, e1, lg= 0;
+    i1= SESStart(src); 
+    if (_SESPrefixAlg(src, i1, &i1, &e1, comparator, insensitive, &lg)) {
       ret= src;
-      ret.length= n;}}
+      SESSetEnd(ret, e1);}}
   return ret;
 }
 
-static SES _SESFind(SES src, SES searched, BOOL insensitive)
+static inline NSUInteger SESRealLength(SES ses, NSUInteger idx, NSUInteger end) {
+  NSUInteger n= 0;
+  while (idx < end) {
+    SESIndexN(ses, &idx);
+    ++n;}
+  return n;
+}
+
+SES _SESFind(SES src, SES searched, BOOL insensitive, BOOL backward, BOOL anchored, NSRange *range)
 {
   SES ret= MSInvalidSES;
-  if (SESOK(src) && SESOK(searched) && searched.length <= src.length) {
-    SES ses; NSUInteger i,l;
-    ses= src; ses.length= searched.length; l= src.length-searched.length;
-    for (i= 0; ret.start==NSNotFound && i<=l; i++, ses.start++) {
-      if (_SESPrefix(ses, searched, insensitive).length==ses.length) ret= ses;}}
+  if (SESOK(src) && SESOK(searched)) {
+    NSUInteger i, n, e, end, start, realPos=0, realLength= 0; BOOL fd= NO;
+    if (backward) {
+      realPos= range ? SESRealLength(src, SESStart(src), SESEnd(src)) : SESEnd(src);
+      for (n= SESEnd(src), start= anchored ? n - 1 : SESStart(src); !fd && (i= n) > start;) {
+        fd= _SESSuffixAlg(src, i, &n, &e, searched, insensitive, &realLength);
+        --realPos;}}
+    else {
+      for (n= SESStart(src), end= anchored ? n + 1 : SESEnd(src); !fd && (i= n) < end;) {
+        fd= _SESPrefixAlg(src, i, &n, &e, searched, insensitive, &realLength);
+        ++realPos;}}
+    if (fd) {
+      ret= src;
+      SESSetStart(ret, i);
+      SESSetEnd(ret, e);
+      if(range) {
+        *range= NSMakeRange(backward ? realPos - realLength : realPos, realLength);}}
+    else if(range) {
+      *range= NSMakeRange(NSNotFound, 0);}
+  }
   return ret;
 }
 
 static inline BOOL _SESEquals(SES a, SES b, BOOL insensitive)
 {
   BOOL equals= YES; NSUInteger aIdx, bIdx, aEnd, bEnd;
-  if(!SESOK(a)) return !SESOK(b);
-  if(!SESOK(b)) return NO;
-  aIdx= SESStart(a);
-  bIdx= SESStart(b);
-  aEnd= SESEnd(a);
-  bEnd= SESEnd(b);
-  while(equals && aIdx < aEnd && bIdx < bEnd) {
+  if (!SESOK(a)) return !SESOK(b);
+  if (!SESOK(b)) return NO;
+  aIdx= SESStart(a); aEnd= SESEnd(a);
+  bIdx= SESStart(b); bEnd= SESEnd(b);
+  while (equals && aIdx < aEnd && bIdx < bEnd) {
     equals= CUnicharEquals(SESIndexN(a, &aIdx), SESIndexN(b, &bIdx), insensitive); }
   
   return equals && aIdx == aEnd && bIdx == bEnd;
@@ -357,11 +424,11 @@ BOOL SESInsensitiveEquals(SES a, SES b)
 
 SES SESFind(SES src, SES searched)
 {
-  return _SESFind(src, searched, NO);
+  return _SESFind(src, searched, NO, NO, NO, NULL);
 }
 SES SESInsensitiveFind(SES src, SES searched)
 {
-  return _SESFind(src, searched, YES);
+  return _SESFind(src, searched, YES, NO, NO, NULL);
 }
 
 SES SESCommonPrefix(SES src, SES comparator)
@@ -371,6 +438,14 @@ SES SESCommonPrefix(SES src, SES comparator)
 SES SESInsensitiveCommonPrefix(SES src, SES comparator)
 {
   return _SESPrefix(src, comparator, YES);
+}
+SES SESCommonSuffix(SES src, SES comparator)
+{
+  return _SESSuffix(src, comparator, YES);
+}
+SES SESInsensitiveCommonSuffix(SES src, SES comparator)
+{
+  return _SESSuffix(src, comparator, YES);
 }
 
 SES SESExtractPart(SES src, CUnicharChecker matchingChar)
@@ -503,10 +578,10 @@ NSUInteger SESHash(SES ses)
   
   if (!SESOK(ses)) return 0;
   
-  i= 0;
-  while (i < SESLength(ses)) {
+  i= SESStart(ses);
+  while (i < SESEnd(ses)) {
     c1= SESIndexN(ses, &i);
-    if(i < SESLength(ses)) {
+    if(i < SESEnd(ses)) {
       c2= SESIndexN(ses, &i);
       hash+= c1;
       tmp= (c2 << 11) ^ hash;

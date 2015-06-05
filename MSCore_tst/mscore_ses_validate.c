@@ -40,6 +40,35 @@ static void ses_index(test_t *test)
   RELEASE(c);
 }
 
+static void ses_utf8(test_t *test)
+{
+  unichar u1, u2; NSUInteger i;
+  const unichar u2s[]= {233, 232, 224, 244, 161, 174, 339, 177, 256, 1023, 7680, 9471, 10495, 12991, 65131, 0};
+  const char u1s[]= "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫";
+  NSUInteger u2l= (sizeof(u2s)/sizeof(unichar))-1;
+  NSUInteger u1l= (sizeof(u1s)/sizeof(char))-1;
+  SES s1= MSMakeSESWithBytes(u1s, u1l, NSUTF8StringEncoding);
+  SES s2= MSMakeSESWithBytes(u2s, u2l, NSUnicodeStringEncoding);
+  NSUInteger i1= SESStart(s1), e1= SESEnd(s1);
+  NSUInteger i2= SESStart(s2), e2= SESEnd(s2);
+
+  TASSERT(test, e1 > e2, "utf8 contains multibyte characters, %d > %d", (int)e1, (int)e2);
+  TASSERT(test, u1l == 35, "there is 35 bytes to tests, %d > %d", (int)u2l, (int)35);
+  TASSERT(test, u2l == 15, "there is 15 characters to tests, %d > %d", (int)u2l, (int)15);
+
+  for (i= 0; i < 15; ++i) {
+    TASSERT(test, i1 < e1 && i2 < e2, "There is still chars to tests");
+    TASSERT(test, (u1= SESIndexN(s1, &i1)) == (u2= SESIndexN(s2, &i2)), "utf8=%d must equal utf16=%d", (int)u1, (int)u2);
+    TASSERT(test, u1 == u2s[i]                                        , "utf8=%d must equal utf16=%d", (int)u1, (int)u2s[i]);
+    TASSERT(test, (u1= SESIndexP(s1, &i1)) == (u2= SESIndexP(s2, &i2)), "utf8=%d must equal utf16=%d", (int)u1, (int)u2);
+    TASSERT(test, u1 == u2s[i]                                        , "utf8=%d must equal utf16=%d", (int)u1, (int)u2s[i]);
+    TASSERT(test, (u1= SESIndexN(s1, &i1)) == (u2= SESIndexN(s2, &i2)), "utf8=%d must equal utf16=%d", (int)u1, (int)u2);
+    TASSERT(test, u1 == u2s[i]                                        , "utf8=%d must equal utf16=%d", (int)u1, (int)u2s[i]);
+  }
+  TASSERT(test, i1 == e1, "There is no more utf8 chars to tests");
+  TASSERT(test, i2 == e2, "There is no more utf16 chars to tests");
+}
+
 static void ses_equals(test_t *test)
 {
   NSUInteger i= 0;
@@ -139,5 +168,6 @@ test_t mscore_ses[]= {
   {"index"  ,NULL,ses_index  ,INTITIALIZE_TEST_T_END},
   {"equals" ,NULL,ses_equals ,INTITIALIZE_TEST_T_END},
   {"extract",NULL,ses_extract,INTITIALIZE_TEST_T_END},
+  {"utf8"   ,NULL,ses_utf8   ,INTITIALIZE_TEST_T_END},
   {NULL}
 };
