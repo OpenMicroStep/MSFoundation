@@ -163,6 +163,19 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;
 
+#pragma mark Combining strings
+
+- (NSString *)stringByAppendingFormat:(NSString *)format, ...;
+- (NSString *)stringByAppendingString:(NSString *)aString;
+- (NSString *)stringByPaddingToLength:(NSUInteger)newLength withString:(NSString *)padString startingAtIndex:(NSUInteger)padIndex;
+
+#pragma mark Identifying and comparing strings
+
+- (NSComparisonResult)caseInsensitiveCompare:(NSString *)aString;
+- (NSComparisonResult)compare:(NSString *)aString;
+- (BOOL)hasPrefix:(NSString *)aString;
+- (BOOL)hasSuffix:(NSString *)aString;
+
 #pragma mark Path
 
 + (NSString *)pathWithComponents:(NSArray *)components;

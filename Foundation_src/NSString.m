@@ -22,6 +22,11 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isEqualToString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(description));
 
+    // Combining strings
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingFormat:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingString:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByPaddingToLength:withString:startingAtIndex:));
+    
     // Compare strings
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(caseInsensitiveCompare:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(compare:));

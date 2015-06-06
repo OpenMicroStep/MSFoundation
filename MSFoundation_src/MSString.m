@@ -981,6 +981,43 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
   return [WHO initWithCStringNoCopy:cString length:length freeWhenDone:flag];
 }
 */
+#pragma mark Combining strings
+
+- (NSString *)stringByAppendingFormat:(NSString *)format, ...
+{
+  CString *ret; va_list vp;
+  ret= CCreateStringWithSES(SESFromString(self));
+  va_start(vp, format);
+  CStringAppendFormatv(ret, [format UTF8String], vp);
+  va_end(vp);
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+- (NSString *)stringByAppendingString:(NSString *)aString
+{
+  CString *ret;
+  ret= CCreateStringWithSES(SESFromString(self));
+  CStringAppendSES(ret, SESFromString(aString));
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+- (NSString *)stringByPaddingToLength:(NSUInteger)newLength withString:(NSString *)padString startingAtIndex:(NSUInteger)padIndex
+{
+  CString *ret; SES ses; NSUInteger i;
+  ret= CCreateStringWithSES(SESFromString(self));
+  if(CStringLength(ret) < newLength) {
+    ses= SESFromString(padString);
+    for(i= SESStart(ses); padIndex > 0; --padIndex) {
+      SESIndexN(ses, &i);}
+    padIndex= i;
+    while(CStringLength(ret) < newLength) {
+      if(i == SESEnd(ses)) {
+        i= SESStart(ses);}
+      CStringAppendCharacter(ret, SESIndexN(ses, &i));}}
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+
 #pragma mark Identifying and comparing strings
 
 - (NSComparisonResult)caseInsensitiveCompare:(NSString *)aString

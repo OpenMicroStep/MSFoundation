@@ -65,6 +65,12 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (BOOL)hasSuffix:(NSString *)aString;
 @end
 
+@interface NSString (NSStringCombineExtension)
+- (NSString *)stringByAppendingFormat:(NSString *)format, ...;
+- (NSString *)stringByAppendingString:(NSString *)aString;
+- (NSString *)stringByPaddingToLength:(NSUInteger)newLength withString:(NSString *)padString startingAtIndex:(NSUInteger)padIndex;
+@end
+
 @interface NSString (NSStringPathExtension)
 + (NSString *)pathWithComponents:(NSArray *)components;
 - (const char *)fileSystemRepresentation;

@@ -284,6 +284,21 @@ static void string_format(test_t *test)
   
 }
 
+static void string_combine(test_t *test)
+{
+  NEW_POOL;
+  TASSERT_EQUALS_OBJ(test, ([@"ab" stringByAppendingFormat:@"c%s%@%d", "d", @"e", (int)345]), @"abcde345");
+  
+  TASSERT_EQUALS_OBJ(test, [@"ab" stringByAppendingString:@"cde"], @"abcde");
+
+  TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:3 withString:@"." startingAtIndex:0], @"ab.");
+  TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:5 withString:@"." startingAtIndex:0], @"ab...");
+  TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:0], @"ab.,:.");
+  TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:2], @"ab:.,:");
+  TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:3], @"ab.,:.");
+  KILL_POOL;
+}
+
 static void string_path(test_t *test)
 {
   NSArray *components, *expect;
@@ -359,4 +374,5 @@ test_t foundation_string[]= {
   {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
   {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
   {"path"  ,NULL,string_path  ,INTITIALIZE_TEST_T_END},
+  {"combine" ,NULL,string_combine ,INTITIALIZE_TEST_T_END},
   {NULL}};
