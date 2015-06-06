@@ -22,6 +22,7 @@
 #import <MSFoundation/NSRange.h>
 #import <MSFoundation/NSNull.h>
 
+#import <MSFoundation/NSBundle.h>
 #import <MSFoundation/NSCoder.h>
 #import <MSFoundation/NSException.h>
 #import <MSFoundation/NSValue.h>

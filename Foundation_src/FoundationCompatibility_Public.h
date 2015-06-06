@@ -25,6 +25,7 @@
 #import "NSRange.h"
 #import "NSNull.h"
 
+#import "NSBundle.h"
 #import "NSCoder.h"
 #import "NSException.h"
 #import "NSValue.h"
