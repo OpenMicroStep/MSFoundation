@@ -163,6 +163,16 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;
 
+#pragma mark Finding characters and substrings
+
+- (NSRange)rangeOfString:(NSString *)aString;
+- (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask;
+
+#pragma mark Determining line ranges
+
+- (void)getLineStart:(NSUInteger *)startIndex end:(NSUInteger *)lineEndIndex contentsEnd:(NSUInteger *)contentsEndIndex forRange:(NSRange)aRange;
+- (NSRange)lineRangeForRange:(NSRange)aRange;
+
 #pragma mark Dividing strings
 
 - (NSArray *)componentsSeparatedByString:(NSString *)separator;

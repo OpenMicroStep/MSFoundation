@@ -58,11 +58,21 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (NSString *)capitalizedString;
 @end
 
+@interface NSString (NSStringSearchExtension)
+- (NSRange)rangeOfString:(NSString *)aString;
+- (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask;
+@end
+
 @interface NSString (NSStringCompareExtension)
 - (NSComparisonResult)caseInsensitiveCompare:(NSString *)aString;
 - (NSComparisonResult)compare:(NSString *)aString;
 - (BOOL)hasPrefix:(NSString *)aString;
 - (BOOL)hasSuffix:(NSString *)aString;
+@end
+
+@interface NSString (NSStringLineExtension)
+- (void)getLineStart:(NSUInteger *)startIndex end:(NSUInteger *)lineEndIndex contentsEnd:(NSUInteger *)contentsEndIndex forRange:(NSRange)aRange;
+- (NSRange)lineRangeForRange:(NSRange)aRange;
 @end
 
 @interface NSString (NSStringDividingExtension)

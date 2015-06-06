@@ -22,6 +22,14 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isEqualToString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(description));
 
+    // Search
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(rangeOfString:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(rangeOfString:options:));
+    
+    // Line range
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(getLineStart:end:contentsEnd:forRange:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(lineRangeForRange:));
+
     // Dividing strings
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(componentsSeparatedByString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(substringFromIndex:));

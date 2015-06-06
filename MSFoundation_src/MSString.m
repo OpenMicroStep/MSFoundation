@@ -976,6 +976,59 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
   return [WHO initWithCStringNoCopy:cString length:length freeWhenDone:flag];
 }
 */
+#pragma mark Finding characters and substrings
+
+SES _SESFind(SES src, SES searched, BOOL insensitive, BOOL backward, BOOL anchored, NSRange *range);
+
+- (NSRange)rangeOfString:(NSString *)aString
+{
+  NSRange r;
+  _SESFind(SESFromString(self), SESFromString(aString), NO, NO, NO, &r);
+  return r;
+}
+
+- (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask
+{
+  NSRange r;
+  _SESFind(SESFromString(self), SESFromString(aString), (mask & NSCaseInsensitiveSearch) > 0, (mask & NSBackwardsSearch) > 0, (mask & NSAnchoredSearch) > 0, &r);
+  return r;
+}
+
+#pragma mark Determining line ranges
+
+static inline NSUInteger SESForwardN(SES ses, NSUInteger idx, NSUInteger amount) {
+  while (amount > 0 && idx < SESEnd(ses)) {
+    SESIndexN(ses, &idx);
+    --amount;}
+  return idx;
+}
+
+- (void)getLineStart:(NSUInteger *)startIndex end:(NSUInteger *)lineEndIndex contentsEnd:(NSUInteger *)contentsEndIndex forRange:(NSRange)aRange
+{
+  SES ses; NSUInteger s, si, ci, ei, e;
+  ses= SESFromString(self);
+  s= SESStart(ses); e= SESEnd(ses);
+  si= SESForwardN(ses, s, aRange.location);
+  ci= SESForwardN(ses, si, aRange.length);
+  while (s < si && !CUnicharIsEOL(SESIndexP(ses, &si)))
+      ; // move si backward until EOL is reached
+  while (ci < e && !CUnicharIsEOL(SESIndexN(ses, &ci)))
+      ; // move ci forward until EOL is reached
+  ei= ci;
+  while (ei < e && CUnicharIsEOL(SESIndexN(ses, &ei)))
+      ; // move ei forward until EOL is over
+  if (startIndex)       *startIndex= si;
+  if (lineEndIndex)     *lineEndIndex= ei;
+  if (contentsEndIndex) *contentsEndIndex= ci;
+}
+- (NSRange)lineRangeForRange:(NSRange)aRange
+{
+  NSRange r; NSUInteger s, e;
+  [self getLineStart:&r.location end:&e contentsEnd:NULL forRange:aRange];
+  r.length= e - r.location;
+  return r;
+}
+
 #pragma mark Dividing strings
 
 - (NSArray *)componentsSeparatedByString:(NSString *)separator

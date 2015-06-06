@@ -100,6 +100,89 @@ static void string_compare(test_t *test)
   TASSERT_STRING_EQUALS(LLD, test, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasSuffix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NO);
   KILL_POOL;
 }
+
+#define TASSERT_EQUALS_RNG(   W, A, B) TASSERT_F(W, NSEqualRanges, A, B, "[%lld,%lld] != [%lld,%lld]", (long long)__a.location, (long long)__a.length, (long long)__b.location, (long long)__b.length)
+static void string_find(test_t *test)
+{
+  NEW_POOL;
+
+  TASSERT_STRING_EQUALS(RNG, test, ""    , rangeOfString, "a"   , NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS(RNG, test, "a"   , rangeOfString, ""    , NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS(RNG, test, "a"   , rangeOfString, "a"   , NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS(RNG, test, "a"   , rangeOfString, "aa"  , NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS(RNG, test, "aa"  , rangeOfString, "a"   , NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS(RNG, test, "abc" , rangeOfString, "abc" , NSMakeRange(0,3));
+  TASSERT_STRING_EQUALS(RNG, test, "abca", rangeOfString, "bc"  , NSMakeRange(1,2));
+  TASSERT_STRING_EQUALS(RNG, test, "abcd", rangeOfString, "bcd" , NSMakeRange(1,3));
+  TASSERT_STRING_EQUALS(RNG, test, "abcd", rangeOfString, "bcc" , NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "èàô¡®œ±ĀϿḀ⓿⣿㊿", NSMakeRange(1,13));
+  TASSERT_STRING_EQUALS(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "àô¡®œ±ĀϿḀ⓿⣿", NSMakeRange(2,11));
+
+  TASSERT_STRING_EQUALS_OPT(RNG, test, ""    ,rangeOfString, "a"   , options:0, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, ""    , options:0, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, "a"   , options:0, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, "aa"  , options:0, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "aa"  ,rangeOfString, "a"   , options:0, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abc" ,rangeOfString, "abc" , options:0, NSMakeRange(0,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abca",rangeOfString, "bc"  , options:0, NSMakeRange(1,2));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcd",rangeOfString, "bcd" , options:0, NSMakeRange(1,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcd",rangeOfString, "bcc" , options:0, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫",rangeOfString, "èàô¡®œ±ĀϿḀ⓿⣿㊿", options:0, NSMakeRange(1,13));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫",rangeOfString, "àô¡®œ±ĀϿḀ⓿⣿", options:0, NSMakeRange(2,11));
+
+  TASSERT_STRING_EQUALS_OPT(RNG, test, ""    ,rangeOfString, "a"   , options:NSCaseInsensitiveSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, ""    , options:NSCaseInsensitiveSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, "A"   , options:NSCaseInsensitiveSearch, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, "aa"  , options:NSCaseInsensitiveSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "aa"  ,rangeOfString, "A"   , options:NSCaseInsensitiveSearch, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abc" ,rangeOfString, "aBc" , options:NSCaseInsensitiveSearch, NSMakeRange(0,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abca",rangeOfString, "bC"  , options:NSCaseInsensitiveSearch, NSMakeRange(1,2));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcd",rangeOfString, "BcD" , options:NSCaseInsensitiveSearch, NSMakeRange(1,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcd",rangeOfString, "bcc" , options:NSCaseInsensitiveSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫",rangeOfString, "èàô¡®œ±ĀϿḀ⓿⣿㊿", options:NSCaseInsensitiveSearch, NSMakeRange(1,13));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫",rangeOfString, "àô¡®œ±ĀϿḀ⓿⣿", options:NSCaseInsensitiveSearch, NSMakeRange(2,11));
+
+  TASSERT_STRING_EQUALS_OPT(RNG, test, ""    ,rangeOfString, "a"   , options:NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, ""    , options:NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, "a"   , options:NSBackwardsSearch, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   ,rangeOfString, "aa"  , options:NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "aa"  ,rangeOfString, "a"   , options:NSBackwardsSearch, NSMakeRange(1,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abab",rangeOfString, "ab"  , options:NSBackwardsSearch, NSMakeRange(2,2));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abab",rangeOfString, "ba"  , options:NSBackwardsSearch, NSMakeRange(1,2));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫",rangeOfString, "èàô¡®œ±ĀϿḀ⓿⣿㊿", options:NSBackwardsSearch, NSMakeRange(1,13));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫",rangeOfString, "àô¡®œ±ĀϿḀ⓿⣿", options:NSBackwardsSearch, NSMakeRange(2,11));
+
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcde",rangeOfString, "abc" , options:NSAnchoredSearch, NSMakeRange(0,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, ""    , rangeOfString, ""    , options:NSAnchoredSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, ""    , rangeOfString, "a"   , options:NSAnchoredSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   , rangeOfString, ""    , options:NSAnchoredSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   , rangeOfString, "a"   , options:NSAnchoredSearch, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   , rangeOfString, "aa"  , options:NSAnchoredSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "aa"  , rangeOfString, "a"   , options:NSAnchoredSearch, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abc" , rangeOfString, "abc" , options:NSAnchoredSearch, NSMakeRange(0,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abca", rangeOfString, "abcb", options:NSAnchoredSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcd", rangeOfString, "abcb", options:NSAnchoredSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch, NSMakeRange(0,15));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", options:NSAnchoredSearch,  NSMakeRange(0,14));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", rangeOfString, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch, NSMakeRange(NSNotFound,0));
+
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcde",rangeOfString, "cde" , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(2,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, ""    , rangeOfString, ""    , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, ""    , rangeOfString, "a"   , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   , rangeOfString, ""    , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   , rangeOfString, "a"   , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(0,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "a"   , rangeOfString, "aa"  , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "aa"  , rangeOfString, "a"   , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(1,1));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abc" , rangeOfString, "abc" , options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(0,3));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abca", rangeOfString, "abcb", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "abcd", rangeOfString, "abcb", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(0,15));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(1,14));
+  TASSERT_STRING_EQUALS_OPT(RNG, test, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
+
+  KILL_POOL;
+}
+
 static void string_cast(test_t *test)
 {
   int intValue;
@@ -400,6 +483,7 @@ test_t foundation_string[]= {
   {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
   {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
   {"path"  ,NULL,string_path  ,INTITIALIZE_TEST_T_END},
+  {"find",NULL,string_find,INTITIALIZE_TEST_T_END},
   {"dividing",NULL,string_dividing,INTITIALIZE_TEST_T_END},
   {"combine" ,NULL,string_combine ,INTITIALIZE_TEST_T_END},
   {NULL}};
