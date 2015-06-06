@@ -29,6 +29,77 @@ static void string_eq(test_t *test)
   RELEASE(ms);
   }
 
+#define TASSERT_STRING_EQUALS(FMT, T, A, M, B, E) TASSERT_STRING_EQUALS_OPT(FMT, T, A, M, B, , E)
+#define TASSERT_STRING_EQUALS_OPT(FMT, T, A, M, B, M2, E) \
+  TASSERT_EQUALS_ ## FMT(T, [@A M: @B M2], E); \
+  TASSERT_EQUALS_ ## FMT(T, [[NSString stringWithUTF8String:A] M:[NSString stringWithUTF8String:B] M2], E); \
+  TASSERT_EQUALS_ ## FMT(T, [@A M:[NSString stringWithUTF8String:B] M2], E); \
+  TASSERT_EQUALS_ ## FMT(T, [[NSString stringWithUTF8String:A] M:@B M2], E)
+
+static void string_compare(test_t *test)
+{
+  NEW_POOL;
+  TASSERT_STRING_EQUALS(LLD, test, ""    , compare, ""    , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, ""    , compare, "a"   , NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , compare, ""    , NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , compare, "a"   , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , compare, "aa"  , NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "aa"  , compare, "a"   , NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "abc" , compare, "abc" , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "abca", compare, "abcb", NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "abcd", compare, "abcb", NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", compare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", compare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", compare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedAscending);
+
+  TASSERT_STRING_EQUALS(LLD, test, ""    , caseInsensitiveCompare, ""    , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, ""    , caseInsensitiveCompare, "a"   , NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , caseInsensitiveCompare, ""    , NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , caseInsensitiveCompare, "a"   , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , caseInsensitiveCompare, "aa"  , NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "aa"  , caseInsensitiveCompare, "a"   , NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "abc" , caseInsensitiveCompare, "abc" , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "abca", caseInsensitiveCompare, "abcb", NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "abcd", caseInsensitiveCompare, "abcb", NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , caseInsensitiveCompare, "A"   , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "abc" , caseInsensitiveCompare, "AbC" , NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "abca", caseInsensitiveCompare, "ABCB", NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "ABCB", caseInsensitiveCompare, "abca", NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "abcd", caseInsensitiveCompare, "ABCB", NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "ABCB", caseInsensitiveCompare, "abcd", NSOrderedAscending);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", caseInsensitiveCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedSame);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", caseInsensitiveCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", NSOrderedDescending);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", caseInsensitiveCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedAscending);
+
+  TASSERT_STRING_EQUALS(LLD, test, "abcde",hasPrefix, "abc" ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, ""    , hasPrefix, ""    , NO);
+  TASSERT_STRING_EQUALS(LLD, test, ""    , hasPrefix, "a"   , NO);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , hasPrefix, ""    , NO);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , hasPrefix, "a"   ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , hasPrefix, "aa"  , NO);
+  TASSERT_STRING_EQUALS(LLD, test, "aa"  , hasPrefix, "a"   ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, "abc" , hasPrefix, "abc" ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, "abca", hasPrefix, "abcb", NO);
+  TASSERT_STRING_EQUALS(LLD, test, "abcd", hasPrefix, "abcb", NO);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasPrefix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", YES);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasPrefix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", YES);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", hasPrefix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NO);
+
+  TASSERT_STRING_EQUALS(LLD, test, "abcde",hasSuffix, "cde" ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, ""    , hasSuffix, ""    , NO);
+  TASSERT_STRING_EQUALS(LLD, test, ""    , hasSuffix, "a"   , NO);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , hasSuffix, ""    , NO);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , hasSuffix, "a"   ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, "a"   , hasSuffix, "aa"  , NO);
+  TASSERT_STRING_EQUALS(LLD, test, "aa"  , hasSuffix, "a"   ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, "abc" , hasSuffix, "abc" ,YES);
+  TASSERT_STRING_EQUALS(LLD, test, "abca", hasSuffix, "abcb", NO);
+  TASSERT_STRING_EQUALS(LLD, test, "abcd", hasSuffix, "abcb", NO);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasSuffix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", YES);
+  TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasSuffix, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", YES);
+  TASSERT_STRING_EQUALS(LLD, test, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasSuffix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NO);
+  KILL_POOL;
+}
 static void string_cast(test_t *test)
 {
   int intValue;
@@ -81,13 +152,11 @@ static void string_cast(test_t *test)
 #ifndef WO451
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT, ...) ({\
   NSString *__f= [ALLOC(NSString) initWithFormat:@FORMAT, ## __VA_ARGS__]; \
-  int __n= snprintf(NULL, 0, FORMAT, ## __VA_ARGS__); \
   TASSERT(TEST, [@EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
   RELEASE(__f);})
 #else
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT...) ({\
   NSString *__f= [ALLOC(NSString) initWithFormat:@ ## FORMAT]; \
-  int __n= snprintf(NULL, 0, FORMAT); \
   TASSERT(TEST, [@ ## EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
   RELEASE(__f);})
 #endif
@@ -286,6 +355,7 @@ static void string_path(test_t *test)
 
 test_t foundation_string[]= {
   {"equal" ,NULL,string_eq    ,INTITIALIZE_TEST_T_END},
+  {"compare" ,NULL,string_compare,INTITIALIZE_TEST_T_END},
   {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
   {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
   {"path"  ,NULL,string_path  ,INTITIALIZE_TEST_T_END},

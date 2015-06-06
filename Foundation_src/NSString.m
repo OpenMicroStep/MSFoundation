@@ -22,6 +22,12 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isEqualToString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(description));
 
+    // Compare strings
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(caseInsensitiveCompare:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(compare:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(hasPrefix:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(hasSuffix:));
+
     // Path extension
     FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(pathWithComponents:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(pathComponents));

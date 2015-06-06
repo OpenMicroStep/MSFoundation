@@ -981,6 +981,18 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
   return [WHO initWithCStringNoCopy:cString length:length freeWhenDone:flag];
 }
 */
+#pragma mark Identifying and comparing strings
+
+- (NSComparisonResult)caseInsensitiveCompare:(NSString *)aString
+{ return SESInsensitiveCompare(SESFromString(self), SESFromString(aString)); }
+- (NSComparisonResult)compare:(NSString *)aString
+{ return SESCompare(SESFromString(self), SESFromString(aString)); }
+- (BOOL)hasPrefix:(NSString *)aString
+{ return SESOK(SESCommonPrefix(SESFromString(self), SESFromString(aString))); }
+- (BOOL)hasSuffix:(NSString *)aString
+{ return SESOK(SESCommonSuffix(SESFromString(self), SESFromString(aString))); }
+
+
 #pragma mark Path
 
 static inline BOOL _isPathSeparator(unichar u)

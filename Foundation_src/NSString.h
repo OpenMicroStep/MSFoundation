@@ -58,6 +58,13 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (NSString *)capitalizedString;
 @end
 
+@interface NSString (NSStringCompareExtension)
+- (NSComparisonResult)caseInsensitiveCompare:(NSString *)aString;
+- (NSComparisonResult)compare:(NSString *)aString;
+- (BOOL)hasPrefix:(NSString *)aString;
+- (BOOL)hasSuffix:(NSString *)aString;
+@end
+
 @interface NSString (NSStringPathExtension)
 + (NSString *)pathWithComponents:(NSArray *)components;
 - (const char *)fileSystemRepresentation;
