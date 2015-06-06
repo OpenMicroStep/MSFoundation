@@ -38,7 +38,6 @@
  
  */
 
-#define SESFromString(X)    ({ __typeof__(X) __x = (X); (__x ? [__x stringEnumeratorStructure] : MSInvalidSES); })
 MSFoundationExtern BOOL MSStringIsTrue(NSString *s);
 MSFoundationExtern BOOL MSEqualStrings(NSString *s1, NSString *s2);
 MSFoundationExtern BOOL MSInsensitiveEqualStrings(NSString *s1, NSString *s2);
@@ -179,4 +178,5 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 
 @end
 
+static inline SES SESFromString(NSString *str) { return str ? [str stringEnumeratorStructure] : MSInvalidSES; }
 #define MSCreateString(S) (MSString*)CSCreate(S)
