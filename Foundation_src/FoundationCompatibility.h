@@ -33,3 +33,9 @@
 #import <MSFoundation/NSNotificationCenter.h>
 #import <MSFoundation/NSLock.h>
 #import <MSFoundation/NSThread.h>
+#import <MSFoundation/NSTimer.h>
+#import <MSFoundation/NSRunLoop.h>
+#import <MSFoundation/NSFileHandle.h>
+#import <MSFoundation/NSTask.h>
+#import <MSFoundation/NSProcessInfo.h>
+#import <MSFoundation/NSFileManager.h>

@@ -36,5 +36,11 @@
 #import "NSNotificationCenter.h"
 #import "NSLock.h"
 #import "NSThread.h"
+#import "NSTimer.h"
+#import "NSRunLoop.h"
+#import "NSFileHandle.h"
+#import "NSTask.h"
+#import "NSProcessInfo.h"
+#import "NSFileManager.h"
 
 #endif
