@@ -65,7 +65,10 @@ static void MSFinishLoadingFoundation() {
 
 - (MSArray*)retainedSubs:(MSDictionary*)ctx {return nil; MSUnused(ctx);}
 - (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
-   {MSUnused(result); MSUnused(level); MSUnused(ctx);}
+{
+  CStringAppendSES((CString*)result, SESFromString([self description]));
+  MSUnused(level); MSUnused(ctx);
+}
 @end
 
 #pragma mark MSCore compatibility

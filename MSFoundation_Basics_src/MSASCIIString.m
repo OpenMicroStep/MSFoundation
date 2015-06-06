@@ -382,6 +382,10 @@ static inline void _copyASCIIToUnichars(unichar *dest, MSByte *source, NSUIntege
 
 - (SES)stringEnumeratorStructure { return MSASCIIStringSES(self) ; }
 
+- (void)describeIn:(id)result level:(int)level context:(MSDictionary*)ctx
+{
+  CStringAppendSES((CString*)result, MSASCIIStringSES(self));
+}
 
 @end
 
