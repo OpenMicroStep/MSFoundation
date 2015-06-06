@@ -24,6 +24,12 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isEqualToString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(description));
 
+    // Encoding
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(cStringUsingEncoding:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(cStringUsingEncoding:allowLossyConversion:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(dataUsingEncoding:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(dataUsingEncoding:allowLossyConversion:));
+    
     // Search
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(rangeOfString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(rangeOfString:options:));

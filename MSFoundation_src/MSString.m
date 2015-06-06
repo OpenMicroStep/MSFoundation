@@ -297,6 +297,7 @@ static inline NSString *_createStringWithContentsOfUTF8File(NSString *file)
 }
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file { return AUTORELEASE(_createStringWithContentsOfUTF8File(file)) ; }
 
+#ifdef WO451
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)allowLossyConversion
 {
   MSBuffer *buf= nil;
@@ -312,6 +313,7 @@ static inline NSString *_createStringWithContentsOfUTF8File(NSString *file)
   AUTORELEASE((MSBuffer*)b);
   return (const char *)CBufferCString(b);
 }
+#endif
 
 static unichar _slowChaiN(const void *self, NSUInteger *pos)
 {
@@ -464,7 +466,7 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
 }
 - (NSString *)stringWithURLEncoding
 {
-    return [self stringWithURLEncoding:NSISOLatin1StringEncoding] ;
+    return [self stringWithURLEncoding:NSUTF8StringEncoding] ;
 }
 
 - (NSString *)stringByAppendingURLComponent:(NSString *)urlComponent
@@ -910,19 +912,30 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
 
 #pragma mark encoding
 
+static inline CBuffer* _dataUsingEncoding(NSString *self, NSStringEncoding encoding) {
+  CBuffer *ret= CCreateBuffer(0);
+  CBufferAppendSES(ret, SESFromString(self), encoding);
+  return ret;
+} 
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding
+{ return [self cStringUsingEncoding:encoding allowLossyConversion:YES]; }
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag
 {
-  CBuffer *b= CCreateBufferWithString((CString*)self, encoding);
+  CBuffer *b= _dataUsingEncoding(self, encoding);
   AUTORELEASE((MSBuffer*)b);
-//NSLog(@"cStringUsingEncoding %lu",encoding);
+  return (const char *)CBufferCString(b);
+}
+- (const char *)UTF8String
+{
+  CBuffer *b= _dataUsingEncoding(self, NSUTF8StringEncoding);
+  AUTORELEASE((MSBuffer*)b);
   return (const char *)CBufferCString(b);
 }
 
-- (const char *)UTF8String
-{
-  return [self cStringUsingEncoding:NSUTF8StringEncoding];
-}
-
+- (NSData *)dataUsingEncoding:(NSStringEncoding)encoding
+{ return [self dataUsingEncoding:encoding allowLossyConversion:YES]; }
+- (NSData *)dataUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag
+{ return AUTORELEASE(_dataUsingEncoding(self, encoding)); }
 /* DEBUG
 
 #define WHO super // [NSString stringWithString:self] // super

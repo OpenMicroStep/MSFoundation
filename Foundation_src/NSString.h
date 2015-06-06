@@ -64,6 +64,13 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (NSRange)rangeOfString:(NSString *)aString options:(NSStringCompareOptions)mask;
 @end
 
+@interface NSString (NSStringEncodingExtension)
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
+- (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag;
+- (NSData *)dataUsingEncoding:(NSStringEncoding)encoding;
+- (NSData *)dataUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag;
+@end
+
 @interface NSString (NSStringCompareExtension)
 - (NSComparisonResult)caseInsensitiveCompare:(NSString *)aString;
 - (NSComparisonResult)compare:(NSString *)aString;
