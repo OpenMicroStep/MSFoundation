@@ -299,9 +299,9 @@ module.exports = {
         {file: "MSFoundation_Basics_src/MSExceptionAdditions.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_Basics_src/MSExceptionAdditions.m"},
         {file: "MSFoundation_Basics_src/MSFileManipulation.h", tags: ["MSPublicHeaders"]},
-        //{ file:"MSFoundation_Basics_src/MSFileManipulation.m"},
-        //{ file: "MSFoundation_Basics_src/MSFileManipulation_unix_Private.i"},
-        //{ file: "MSFoundation_Basics_src/MSFileManipulation_win32_Private.i"},
+        {file: "MSFoundation_Basics_src/MSFileManipulation.m"},
+        {file: "MSFoundation_Basics_src/MSFileManipulation_unix_Private.i"},
+        {file: "MSFoundation_Basics_src/MSFileManipulation_win32_Private.i"},
         {file: "MSFoundation_Basics_src/MSFoundationDefines.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_Basics_src/MSLanguage.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_Basics_src/MSLanguage.m"},
@@ -422,15 +422,12 @@ module.exports = {
       {file:"MSNet_src/MHSSLSocket.m"},
       {file:"MSNet_src/MSCSSLInterface.h", tags: ["MSPublicHeaders"]},
       {file:"MSNet_src/MSCSSLInterface.m"},
-      {file:"MSNet_src/MSCurlHandler.h", tags: ["MSPublicHeaders"]},
-      {file:"MSNet_src/MSCurlHandler.m"},
-      {file:"MSNet_src/MSCurlInterface_Private.h", tags: ["MSPublicHeaders"]},
-      {file:"MSNet_src/MSCurlInterface_Private.m"},
-      {file:"MSNet_src/MSCurlSendMail.h", tags: ["MSPublicHeaders"]},
-      {file:"MSNet_src/MSCurlSendMail.m"},
-      {file:"MSNet_src/MSHttpApplication.h", tags: ["MSPublicHeaders"]},
-      {file:"MSNet_src/MSHttpClientRequest.h", tags: ["MSPublicHeaders"]},
-      {file:"MSNet_src/MSHttpClientResponse.h", tags: ["MSPublicHeaders"]},
+      //{file:"MSNet_src/MSCurlHandler.h", tags: ["MSPublicHeaders"]},
+      //{file:"MSNet_src/MSCurlHandler.m"},
+      //{file:"MSNet_src/MSCurlInterface_Private.h", tags: ["MSPublicHeaders"]},
+      //{file:"MSNet_src/MSCurlInterface_Private.m"},
+      //{file:"MSNet_src/MSCurlSendMail.h", tags: ["MSPublicHeaders"]},
+      //{file:"MSNet_src/MSCurlSendMail.m"},
       {file:"MSNet_src/MSHTTPRequest.h", tags: ["MSPublicHeaders"]},
       {file:"MSNet_src/MSHTTPRequest.m"},
       {file:"MSNet_src/MSHTTPResponse.h", tags: ["MSPublicHeaders"]},
@@ -443,6 +440,10 @@ module.exports = {
       {file:"MSNet_src/MSNetPlatform.h", tags: ["MSPublicHeaders"]},
       {file:"MSNet_src/MSThreadSafeProxy.h", tags: ["MSPublicHeaders"]},
       {file:"MSNet_src/MSThreadSafeProxy.m"},
+    ]},
+    {group:"MSServer", files: [
+      {file:"MHServer_src/MASHServer.config"},
+      {file:"MHServer_src/MASHServer_main.m"},
     ]},
     {group:"MSDatabase", files: [
       {group:"MySQLAdaptor", files: []},
@@ -499,7 +500,70 @@ module.exports = {
         {file:"MSDb_src/MSOdb.m"},
         {file:"MSDb_src/MSOid.m"}
       ]}
-    ]}
+    ]},
+    {group:"MHMessenger", files: [
+      {group:"Framework", files: [
+        {file:"MHMessenger_src/MHMessenger-Info.plist"},
+        {file:"MHMessenger_src/MHMessenger.h", tags: ["MSPublicHeaders"]},
+        {file:"MHMessenger_src/MHMessenger_Public.h"},
+        {file:"MHMessenger_src/MHMessenger_Private.h"},
+        {file:"MHMessenger_src/_MHMessengerMessagePrivate.h"},
+        {file:"MHMessenger_src/_MHMessengerMessagePrivate.m"},
+        {file:"MHMessenger_src/MHMessengerClient.h", tags: ["MSPublicHeaders"]},
+        {file:"MHMessenger_src/MHMessengerClient.m"},
+        {file:"MHMessenger_src/MHMessengerDBAccessor.h", tags: ["MSPublicHeaders"]},
+        {file:"MHMessenger_src/MHMessengerDBAccessor.m"},
+        {file:"MHMessenger_src/MHMessengerMessage.h", tags: ["MSPublicHeaders"]},
+        {file:"MHMessenger_src/MHMessengerMessage.m"},
+        {file:"MHMessenger_src/DBMessengerMessage.h", tags: ["MSPublicHeaders"]},
+        {file:"MHMessenger_src/DBMessengerMessage.m"},
+      ]},
+      {group:"WebApp", files: [
+        {file:"MHMessenger_src/MHMessengerApp-Info.plist"},
+        {file:"MHMessenger_src/MHMessengerApp.h"},
+        {file:"MHMessenger_src/MHMessengerApp.m"},
+      ]},
+      {group:"Resources", files: [
+        {file:"MHMessenger_src/Resources/1.sql"},
+        {file:"MHMessenger_src/Resources/bundle.config"},
+        {file:"MHMessenger_src/Resources/version.config"},
+      ]}
+    ]},
+    {group:"MHRepository", files: [
+      {group:"Framework", files: [
+        {file:"MHRepository_src/MHRepository-Info.plist"},
+        {file:"MHRepository_src/MHRepositoryApi.h", tags: ["MSPublicHeaders"]},
+        {file:"MHRepository_src/MHRepository.h", tags: ["MSPublicHeaders"]},
+        {file:"MHRepository_src/MHRepositoryDefines.h", tags: ["MSPublicHeaders"]},
+        {file:"MHRepository_src/MHRepository_Public.h"},
+        {file:"MHRepository_src/MHRepository_Private.h"},
+        {file:"MHRepository_src/MHRepository.m"},
+        {file:"MHRepository_src/MHRepository.i"},
+        {file:"MHRepository_src/MHRepositoryLibs.h", tags: ["MSPublicHeaders"]},
+        {file:"MHRepository_src/MHRepositoryLibs.m"},
+        {file:"MHRepository_src/MHNetRepositoryClient.h", tags: ["MSPublicHeaders"]},
+        {file:"MHRepository_src/MHNetRepositoryClient.m"},
+      ]},
+      {group:"Server", files: [
+        {group:"Config example", files: [
+          {file:"MHRepositoryServer_src/MHNetRepositoryServer.config"}
+        ]},
+        {file:"MHRepositoryServer_src/MHRepositoryServer-Info.plist"},
+        {file:"MHRepositoryServer_src/MHNetRepository.h"},
+        {file:"MHRepositoryServer_src/MHNetRepositoryApplication.h"},
+        {file:"MHRepositoryServer_src/MHNetRepositoryApplication.m"},
+        {file:"MHRepositoryServer_src/MHNetRepositoryServer_main.m"},
+        {file:"MHRepositoryServer_src/MHRepositoryServer_Private.h"},
+      ]},
+      {group:"WebApp", files: [
+        {file:"MHRepositoryAdministrator_src/MHRepositoryAdministrator-Info.plist"},
+        {file:"MHRepositoryAdministrator_src/MHRepositoryAdministrator.h"},
+        {file:"MHRepositoryAdministrator_src/MHRepositoryAdministrator.m"},
+        {file:"MHRepositoryAdministrator_src/MHRepositoryAdministratorKit.h"},
+        {file:"MHRepositoryAdministrator_src/NetRepositoryTreeObject.h"},
+        {file:"MHRepositoryAdministrator_src/NetRepositoryTreeObject.m"},
+      ]}
+    ]},
   ],
   targets : [
     {
@@ -583,10 +647,10 @@ module.exports = {
       }
     },
     {
-      "name" : "MSFoundationTests",
-      "type" : "Library",
-      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
-      "dependencies" : ["MSFoundation"],
+      "name": "MSFoundationTests",
+      "type": "Library",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation"],
       "files": ["MSCore.Tests", "Foundation.Tests", "MSFoundation.Tests"],
       "includeDirectoriesOfFiles": ["MSCore", "MSTests", "MSFoundation", "Foundation"],
       "configure": function(target) {
@@ -600,25 +664,43 @@ module.exports = {
     {
       "name" : "MSNet",
       "type" : "Framework",
-      "environments" : [/*"openmicrostep-foundation", "openmicrostep-cocoa"*/],
-      "dependencies" : ["MSFoundation"],
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies" : [
+        "MSFoundation",
+        {workspace: 'deps/openssl', target:'openssl'}
+      ],
       "files" : ["MSNet"],
+      "publicHeaders": ["MSNet?MSPublicHeaders"],
+      "configure": function(target) {
+        target.addBundleResources([{from: "MSNet_src/Resources", to:""}]);
+        if (target.platform === "win32") {
+          target.addLibraries(['-lWs2_32']);
+        }
+      }
+    },
+    {
+      "name" : "MASHServer",
+      "type" : "Executable",
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies" : ["MSFoundation", "MSNet", {workspace: 'deps/openssl', target:'openssl'}],
+      "files" : ["MSServer"],
+      "includeDirectoriesOfFiles": ["MSNet"],
       "configure": function(target) {
       }
     },
     {
-      "name" : "MSDatabase",
-      "type" : "Framework",
-      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
-      "dependencies" : ["MSFoundation"],
-      "files" : ["MSDatabase.Sources"],
+      "name": "MSDatabase",
+      "type": "Framework",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation"],
+      "files": ["MSDatabase.Sources"],
       "publicHeaders": ["MSDatabase?MSPublicHeaders"]
     },
     {
-      "name" : "SQLCipherAdaptor",
-      "type" : "Bundle",
-      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
-      "dependencies" : [
+      "name": "MSSQLCipherAdaptor",
+      "type": "Bundle",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": [
         "MSFoundation",
         "MSDatabase",
         {workspace: 'deps/openssl', target:'openssl'}
@@ -629,16 +711,16 @@ module.exports = {
       },
       "bundleExtension": "dbadaptor",
       "defines":["SQLITE_HAS_CODEC", "SQLITE_TEMP_STORE=2"], // TODO: Find a nice way to apply those defines to a subset of files
-      "files" : ["MSDatabase.SQLCipherAdaptor"],
+      "files": ["MSDatabase.SQLCipherAdaptor"],
       "configure": function(target) {
         target.output = target.getDependency("MSDatabase").buildResourcesPath();
       }
     },
     {
-      "name" : "ODBCAdaptor",
-      "type" : "Bundle",
-      "environments" : ["openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64"],
-      "dependencies" : [
+      "name": "ODBCAdaptor",
+      "type": "Bundle",
+      "environments": ["openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64"],
+      "dependencies": [
         "MSFoundation",
         "MSDatabase"
       ],
@@ -648,10 +730,69 @@ module.exports = {
       },
       "bundleExtension": "dbadaptor",
       "defines":["SQLITE_HAS_CODEC", "SQLITE_TEMP_STORE=2"], // TODO: Find a nice way to apply those defines to a subset of files
-      "files" : ["MSDatabase.ODBCAdaptor"],
+      "files": ["MSDatabase.ODBCAdaptor"],
       "configure": function(target) {
         target.output = target.getDependency("MSDatabase").buildResourcesPath();
         target.addLibraries(['-lodbc32']);
+      }
+    },
+    {
+      "name": "MHMessenger",
+      "type": "Framework",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation", "MSDatabase", "MSNet"],
+      "files": ["MHMessenger.Framework"],
+      "publicHeaders": ["MHMessenger.Framework?MSPublicHeaders"],
+      "bundleResources": ["MHMessenger.Resources"],
+      "configure": function(target) {
+        target.addBundleResources([{from: "MHMessenger_src/Resources", to:""}]);
+      }
+    },
+    {
+      "name": "MASHMessenger",
+      "type": "Bundle",
+      "bundleInfo": {
+        "CFBundleIdentifier": "org.microstep.net.messenger",
+        "NSPrincipalClass": "MHMessengerApplication"
+      },
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation", "MHMessenger", "MHRepository", "MSNet"],
+      "files": ["MHMessenger.WebApp"],
+      "configure": function(target) {
+        target.addBundleResources([{from: "MHMessenger_src/Resources", to:""}]);
+      }
+    },
+    {
+      "name": "MHRepository",
+      "type": "Framework",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation", "MSDatabase", "MSNet"],
+      "files": ["MHRepository.Framework"],
+      "publicHeaders": ["MHRepository.Framework?MSPublicHeaders"],
+      "configure": function(target) {
+      }
+    },
+    {
+      "name": "MASHRepositoryServer",
+      "type": "Executable",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation", "MSDatabase", "MSNet", "MHRepository"],
+      "files": ["MHRepository.Server"],
+      "configure": function(target) {
+      }
+    },
+    {
+      "name": "MASHRepositoryAdministrator",
+      "type": "Bundle",
+      "bundleInfo": {
+        "CFBundleIdentifier": "org.microstep.net.repository",
+        "NSPrincipalClass": "MHRepositoryAdministrator"
+      },
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation", "MSDatabase", "MSNet", "MHRepository"],
+      "files": ["MHRepository.WebApp"],
+      "configure": function(target) {
+        target.addBundleResources([{from:"MHRepositoryAdministrator_src/Resources", to:""}]);
       }
     },
   ]

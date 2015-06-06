@@ -57,8 +57,8 @@
 #import <MSNet/MSJSONEncoder.h>
 #import <MSNet/MSHTTPRequest.h>
 #import <MSNet/MSHTTPResponse.h>
-#import <MSNet/MSCurlHandler.h>
-#import <MSNet/MSCurlSendMail.h>
+//#import <MSNet/MSCurlHandler.h>
+//#import <MSNet/MSCurlSendMail.h>
 
 #import <MSNet/MSCipher.h>
 

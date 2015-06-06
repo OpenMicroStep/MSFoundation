@@ -50,7 +50,7 @@
 - (void)changeActionToFailReceiveData:(MSShort)failureReason ;
 - (MHSSLSocket *)clientSecureSocket ;
 
-- (NSMapTable *)waitingNotifications ;
+- (CDictionary *)waitingNotifications ;
 - (void)lockWaitingNotifications ;
 - (void)unlockWaitingNotifications ;
 

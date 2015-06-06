@@ -64,20 +64,20 @@
 #ifdef WO451
     return [[[NSString alloc] initWithCStringNoCopy:((CBuffer*)data)->buf length:((CBuffer*)data)->length freeWhenDone:YES] autorelease] ;
 #else
-	return [[[NSString alloc] initWithBytesNoCopy:((CBuffer*)data)->buf length:((CBuffer*)data)->length encoding:NSASCIIStringEncoding freeWhenDone:YES] autorelease] ;
+    return [[[NSString alloc] initWithBytesNoCopy:((CBuffer*)data)->buf length:((CBuffer*)data)->length encoding:NSASCIIStringEncoding freeWhenDone:YES] autorelease] ;
 #endif
 }
 
 - (NSString *)_X509StringFromASN1String:(void *)str
 {
-	char *buffer ;
+    char *buffer ;
     MSInt len ;
     
-	if ((len = OPENSSL_ASN1_STRING_to_UTF8((unsigned char**)&buffer, str)) < 0) { return nil ; }
+    if ((len = OPENSSL_ASN1_STRING_to_UTF8((unsigned char**)&buffer, str)) < 0) { return nil ; }
 #ifdef WO451
     return [[[NSString alloc] initWithCStringNoCopy:buffer length:len freeWhenDone:YES] autorelease] ;
 #else
-	return [[[NSString alloc] initWithBytesNoCopy:buffer length:len encoding:NSUTF8StringEncoding freeWhenDone:YES] autorelease] ;
+    return [[[NSString alloc] initWithBytesNoCopy:buffer length:len encoding:NSUTF8StringEncoding freeWhenDone:YES] autorelease] ;
 #endif
 }
 
@@ -226,19 +226,76 @@
     return [dic description] ;
 }
 
+static BOOL _SESExtractU4OfLen(SES ses, NSUInteger *pos, NSUInteger len, unsigned *pv)
+{
+    BOOL ret= YES; NSUInteger p= *pos;
+    unsigned v= 0; unichar u;
+    if (SESOK(ses)) {
+        while (ret && len > 0 && p < SESEnd(ses)) {
+            if(CUnicharIsIsoDigit(u= SESIndexN(ses, &p)))
+                v= v * 10 + v;
+            else
+                ret= NO;
+            --len;
+        }
+        ret= ret && len == 0;
+    }
+    if(ret) {
+        *pos= p;
+        if(pv) 
+            *pv= v;
+    }
+    return ret;
+}
 - (MSDate *)_dateFromASN1_TIME:(void *)asn1Time
 {
+    SES ses;
     ASN1_GENERALIZEDTIME *generalizedTime ;
-    NSString *strDate ;
-    NSCalendarDate *date ;
-    
+    CDate *date = nil ;
     generalizedTime = OPENSSL_ASN1_TIME_to_generalizedtime(asn1Time, NULL) ;
-    strDate = [MSASCIIString stringWithBytes:generalizedTime->data length:generalizedTime->length] ;
-#warning TODO A revoir c est GMT ou non ?
-    date = [NSCalendarDate dateWithString:strDate calendarFormat:@"%Y%m%d%H%M%SZ"] ;
-
-    //return [MSDate dateWithDate:date] ;
-    return [MSDate dateWithSecondsSinceLocalReferenceDate:GMTToLocal([date timeIntervalSinceReferenceDate])];
+    ses= MSMakeSESWithBytes(generalizedTime->data, generalizedTime->length, NSUTF8StringEncoding);
+    if(SESOK(ses)) {
+        NSUInteger pos= SESStart(ses); BOOL ok= YES; unichar u;
+        unsigned year, month,  day, hour, minute= 0, second= 0; MSTimeInterval offset =0;
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 4, &year);
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &month);
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &day);
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &hour);
+        if (ok && _SESExtractU4OfLen(ses, &pos, 2, &minute)) { // [MM[SS[.fff]]]
+            if (_SESExtractU4OfLen(ses, &pos, 2, &second)) {
+                if ((u= SESIndexN(ses, pos)) == (unichar)'.') { // [.fff]
+                    ok= _SESExtractU4OfLen(ses, &pos, 3, NULL);
+                }
+            }
+        }
+        if (ok) {
+            if (pos < SESLength(ses)) {
+                u= SESIndexN(ses, pos);
+                if (u == (unichar)'+' || u == (unichar)'-') {
+                    unsigned hh, mm;
+                    ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &hh);
+                    ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &mm);
+                    offset= (MSTimeInterval)((hh + mm * 60) * 60);
+                    if(u == (unichar)'-')
+                        offset= -offset;
+                }
+                else {
+                    ok= (u == (unichar)'Z');
+                }
+            }
+            ok= ok && pos == SESLength(ses);
+        }
+        if (ok) {
+            date= CCreateDateWithYMDHMS(year, month, day, hour, minute, second);
+            if (u == (unichar)'Z') { // UTC time
+                date->interval = GMTToLocal(date->interval);
+            }
+            else if (u == (unichar)'+' || u == (unichar)'-') { // Offset of UTC time
+                date->interval = GMTToLocal(date->interval) + offset;
+            }
+        }
+    }
+    return AUTORELEASE(date);
 }
 
 - (MSDate *)notValidAfter

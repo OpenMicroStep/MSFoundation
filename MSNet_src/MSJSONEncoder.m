@@ -143,7 +143,7 @@
     if (!anObject)
         CStringAppendSES((CString*)_content, SESFromString(@"null"));
     else {
-        NSUInteger ref = (NSUInteger)NSMapGet(_jsonEncodedObjectReferences, (const void *)anObject) ;
+        NSUInteger ref = (NSUInteger)CDictionaryObjectForKey(_jsonEncodedObjectReferences, anObject) ;
         
         if (ref) {
             if (reference) {
@@ -155,14 +155,14 @@
             }
         }
         else {
-            ref = NSCountMapTable(_jsonEncodedObjectReferences) + 1 ;
+            ref = CDictionaryCount(_jsonEncodedObjectReferences) + 1 ;
             
-            NSMapInsertKnownAbsent(_jsonEncodedObjectReferences, (const void *)anObject, (const void *)ref) ;
+            CDictionarySetObjectForKey(_jsonEncodedObjectReferences, (id)(intptr_t)ref, anObject) ;
             
             [anObject encodeWithJSONEncoder:self withReference:(reference ? ref : 0)] ;
 
             if (!reference) {
-                NSMapRemove(_jsonEncodedObjectReferences, (const void *)anObject) ;
+                CDictionarySetObjectForKey(_jsonEncodedObjectReferences, nil, anObject) ;
             }
         }
     }
@@ -170,11 +170,9 @@
 
 - (MSString *)encodeRootObject:(id)anObject withReferences:(BOOL)manageReferences
 {
-    
-    NSZone *zone = [self zone] ;
     MSString *ret = nil ;
 
-    _jsonEncodedObjectReferences = NSCreateMapTableWithZone(NSIntegerMapKeyCallBacks, NSIntegerMapValueCallBacks, 128, zone) ;
+    _jsonEncodedObjectReferences = CCreateDictionaryWithOptions(128, CDictionaryNatural, CDictionaryNatural);
 
     _content = (MSString*)CCreateString(65536) ;
     
@@ -238,10 +236,7 @@
 
 - (void)_clean
 {
-    if (_jsonEncodedObjectReferences) {
-        NSFreeMapTable(_jsonEncodedObjectReferences) ;   
-        _jsonEncodedObjectReferences = (NSMapTable *)nil ;
-    }
+    DESTROY(_jsonEncodedObjectReferences) ;
     DESTROY(_content) ;
 }
 
@@ -292,7 +287,7 @@
         register NSUInteger i, estimatedLen = (len * 1.1) + 2 ;
 		CHAI characterAtIndex = SESCHAI(ses) ;
         CString *uEscapedString = CCreateString(estimatedLen) ; //memory optimization (by default approximatively 10% characters can be escaped)
-        for (i = 0 ; i < len ; i++) {
+        for (i = SESStart(ses) ; i < SESEnd(ses) ; i++) {
             unichar c = characterAtIndex(self,i) ;
 
             if (uEscapedString->length == (uEscapedString->size-2)) {
@@ -362,6 +357,7 @@
 }
 @end
 
+#ifdef MSFOUNDATION_FORCOCOA
 @implementation NSDecimalNumber (MSJSONEncoding)
 - (void)encodeWithJSONEncoder:(MSJSONEncoder *)encoder withReference:(unsigned)reference
 {
@@ -386,6 +382,7 @@
     [encoder endObjectEncodingWithReference:reference isSimple:NO] ;
 }
 @end
+#endif
 
 @implementation NSDictionary (MSJSONEncoding)
 - (NSDictionary *)msSnapshot { return self; }

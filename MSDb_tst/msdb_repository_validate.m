@@ -420,7 +420,7 @@ id localParameters()
     @"adaptor",  @"mysql",
     @"database", @"repository",
     nil];
-  id host= [[NSHost currentHost] name];
+  id host= [[NSProcessInfo processInfo] hostName];
   if ([host isEqualToString:@"EcbNewBook"]) { // Parameters for SQL MAMP
     [dbParams setObject:[NSNumber numberWithInt:8889]              forKey:@"port"];
     [dbParams setObject:@"/Applications/MAMP/tmp/mysql/mysql.sock" forKey:@"socket"];

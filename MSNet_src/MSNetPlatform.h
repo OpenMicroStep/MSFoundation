@@ -50,10 +50,15 @@
 #endif
 
 #ifdef WIN32
-
 #include <winsock.h>
-
 #else
+
+
+#ifdef LINUX
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
 
 typedef int SOCKET;
 

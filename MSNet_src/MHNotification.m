@@ -95,7 +95,6 @@
     return secureSocket ;
 }
 
-
 - (MHSocketSendingStatus)sendData:(MSBuffer *)data onSocket:(MSInt)fd retainedTarget:(id)target retainedReceiverDelegate:(id<MHSocketReceiver>)delegate action:(NSString *)action timeout:(MSUInt)seconds allowsDelayedSending:(BOOL)canDelay
 {
     if (data && fd && target && action) {
@@ -112,7 +111,7 @@
         else _expirationDate = 0 ;
 
         [self lockWaitingNotifications] ;
-        waitingNotification = NSMapGet([self waitingNotifications], (const void *)(intptr_t)fd) ;
+        waitingNotification = CDictionaryObjectForKey([self waitingNotifications], (id)(intptr_t)fd) ;
 
         if (waitingNotification) {
             //there is already a notification waiting on this socket! waiting...
@@ -135,7 +134,7 @@
             }
         }
 
-        NSMapInsert([self waitingNotifications], (const void *)(intptr_t)fd, self) ;
+        CDictionarySetObjectForKey([self waitingNotifications], (id)(intptr_t)fd, self);
         [self unlockWaitingNotifications] ;
 
         result = MHSendDataOnConnectedSocket(data, fd, &error) ;
@@ -148,7 +147,7 @@
         }
         else {
             [self lockWaitingNotifications] ;
-            NSMapRemove([self waitingNotifications], (const void *)(intptr_t)fd) ;
+            CDictionarySetObjectForKey([self waitingNotifications], (id)(intptr_t)fd, nil);
             MHCancelAllProcessingNotificationsForClientSocket(fd, _isAdminNotification);
             [self unlockWaitingNotifications] ;
             if (error) {
@@ -180,7 +179,7 @@
         else _expirationDate = 0 ;
 
         [self lockWaitingNotifications] ;
-        waitingNotification = NSMapGet([self waitingNotifications], (const void *)(intptr_t)_fd) ;
+        waitingNotification = CDictionaryObjectForKey([self waitingNotifications], (id)(intptr_t)_fd) ;
       
         if (waitingNotification) {
             //there is already a notification waiting on this socket! waiting...
@@ -203,7 +202,7 @@
             }
         }
 
-        NSMapInsert([self waitingNotifications], (const void *)(intptr_t)_fd, self) ;
+        CDictionarySetObjectForKey([self waitingNotifications], (id)(intptr_t)_fd, self);
         [self unlockWaitingNotifications] ;
 
         result = MHSendDataOnConnectedSSLSocket(data, secureSocket, &error) ;
@@ -216,7 +215,7 @@
         }
         else {
             [self lockWaitingNotifications] ;
-            NSMapRemove([self waitingNotifications], (const void *)(intptr_t)_fd) ;
+            CDictionarySetObjectForKey([self waitingNotifications], (id)(intptr_t)_fd, nil);
             [self unlockWaitingNotifications] ;
             if (error) {
                 MHServerLogWithLevel(MHLogError, @"[MHNotification sendData:onSSLSocket:retainedReceiverTarget:action:timeout:] : Unable to send data on ssl socket (%@)", error) ;
@@ -265,10 +264,10 @@
 {
     [self lockWaitingNotifications] ;
     if (_secureSocket) {
-        NSMapRemove([self waitingNotifications], (const void *)(intptr_t)[_secureSocket socket]) ;
+        CDictionarySetObjectForKey([self waitingNotifications], (id)(intptr_t)[_secureSocket socket], nil);
     }
     else {
-        NSMapRemove([self waitingNotifications], (const void *)(intptr_t)_fd) ;
+        CDictionarySetObjectForKey([self waitingNotifications], (id)(intptr_t)_fd, nil);
     }
     [self unlockWaitingNotifications] ;
     

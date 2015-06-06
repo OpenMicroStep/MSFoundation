@@ -252,7 +252,7 @@ static NSComparisonResult compareSessions(id obj1, id obj2, void *c)
     }
 
     temp = [NSString stringWithFormat:@"<html><head><title>%@</title></head><body><p>%@</body></html>", [[self applicationFullName] htmlRepresentation], htmlBody] ;
-#ifdef WIN32
+#ifdef WO451
     buf = [MSBuffer bufferWithCString:(char *)[temp cString]] ;
 #else    
     buf = [MSBuffer bufferWithCString:(char *)[temp UTF8String]] ;

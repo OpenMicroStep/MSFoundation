@@ -5,7 +5,6 @@
 
 #import <MSNet/MSNet.h>
 #import <MSDatabase/MSDatabase.h>
-#import <MHRepository/MHRepositoryApi.h>
 
 #import <MHMessenger/MHMessengerMessage.h>
 #import <MHMessenger/MHMessengerClient.h>

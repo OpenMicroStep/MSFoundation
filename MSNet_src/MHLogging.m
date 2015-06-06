@@ -66,13 +66,8 @@
     {
         //open log file
         _logFile = [NSFileHandle fileHandleForUpdatingAtPath:path] ;
-        if(!_logFile)
-        {
-#ifdef WO451
-            [@"" writeToFile:path atomically:YES] ;
-#else
-            [@"" writeToFile:path atomically:YES encoding:NSUTF8StringEncoding error:nil] ;
-#endif
+        if(!_logFile) {
+            [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
             _logFile = [NSFileHandle fileHandleForUpdatingAtPath:path] ;
         }
         
@@ -135,7 +130,7 @@
         if([log length])
         {
             NSString *finalLog = nil ;
-            NSString *dateStr = [[NSCalendarDate date] descriptionWithCalendarFormat:_dateFormat] ;
+            NSString *dateStr = [[NSDate date] description] ;
             NSString *levelStr = NULL;
 
             switch (level) {

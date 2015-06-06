@@ -43,15 +43,15 @@
 
 #import "MSNet_Private.h"
 
-static NSMapTable *__waitingNotifications = NULL ;
-static mutex_t __waitingNotificationsMutex ;
+static CDictionary *__waitingNotifications = NULL ;
+static mtx_t __waitingNotificationsMutex ;
 
 @implementation MHNotification (Private)
 
 + (void)load {
     if (!__waitingNotifications) {
-        __waitingNotifications = NSCreateMapTable(NSIntegerMapKeyCallBacks, NSObjectMapValueCallBacks, 64) ;
-        mutex_init(__waitingNotificationsMutex) ;
+        __waitingNotifications = CCreateDictionaryWithOptions(64, CDictionaryNatural, CDictionaryPointer);
+        mtx_init(&__waitingNotificationsMutex, mtx_plain) ;
     }
 }
 
@@ -78,14 +78,14 @@ static mutex_t __waitingNotificationsMutex ;
     
     [self lockWaitingNotifications] ;
     if (_secureSocket) {
-        NSMapRemove(__waitingNotifications, (const void *)(intptr_t)[_secureSocket socket]) ;
+        CDictionarySetObjectForKey(__waitingNotifications, (id)(intptr_t)[_secureSocket socket], nil) ;
         
         [[_message clientSecureSocket] close] ;
         
         DESTROY(_secureSocket) ;
     }
     else {
-        NSMapRemove(__waitingNotifications, (const void *)(intptr_t)_fd) ;
+        CDictionarySetObjectForKey(__waitingNotifications, (id)(intptr_t)_fd, nil) ;
 
         MHCloseSocket(_fd) ;
     }
@@ -96,9 +96,9 @@ static mutex_t __waitingNotificationsMutex ;
 
 - (MHSSLSocket *)clientSecureSocket { return [_message clientSecureSocket] ; }
 
-- (NSMapTable *)waitingNotifications { return __waitingNotifications ; }
-- (void)lockWaitingNotifications { mutex_lock(__waitingNotificationsMutex) ; }
-- (void)unlockWaitingNotifications { mutex_unlock(__waitingNotificationsMutex) ; }
+- (CDictionary *)waitingNotifications { return __waitingNotifications ; }
+- (void)lockWaitingNotifications { mtx_lock(&__waitingNotificationsMutex) ; }
+- (void)unlockWaitingNotifications { mtx_unlock(&__waitingNotificationsMutex) ; }
 
 - (MSInt)applicationSocket
 {

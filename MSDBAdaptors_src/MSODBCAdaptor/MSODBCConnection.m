@@ -244,12 +244,12 @@
     if (aString) {
         SES ses = SESFromString(aString) ;
         if (SESOK(ses)) {
-            NSUInteger i, len = SESLength(ses) ;
-            CString *result = CCreateString(len+(withQuotes?2:0)) ;
+            NSUInteger i;
+            CString *result = CCreateString(SESLength(ses)+(withQuotes?2:0)) ;
             unichar c ;
             
             if (withQuotes) { CStringAppendCharacter(result, 0x0027) ; }
-            for (i = 0 ; i < len ; ) {
+            for (i = SESStart(ses) ; i < SESEnd(ses) ; ) {
                 c = SESIndexN(ses, &i) ;
                 CStringAppendCharacter(result, c) ;
                 if (c == 0x0027) { CStringAppendCharacter(result, 0x0027) ; }

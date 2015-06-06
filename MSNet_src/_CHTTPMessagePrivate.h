@@ -53,7 +53,7 @@ typedef struct CHTTPMessageStruct CHTTPMessage ;
 
 struct CHTTPMessageStruct
 {
-    Class isa ; /* here only to bind this structure to an objective-c object */
+    MSCORE_NSOBJECT_ATTRIBUTES
     CBunch *bunch ;
     MSULong localRetainCount ;
     MHSSLSocket *secureSocket ;

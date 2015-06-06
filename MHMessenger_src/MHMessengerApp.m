@@ -41,12 +41,9 @@
  
  */
 
-//#import <MASH/MASH.h>
-//#import "DBMessengerMessage.h"
-//#import "MHMessengerDBAccessor.h"
-//#import "MHMessenger.h"
-
-#import "MHMessenger_Private.h"
+#import <MSNet/MSNet.h>
+#import <MHMessenger/MHMessenger.h>
+#import <MHRepository/MHRepositoryApi.h>
 #import "MHMessengerApp.h"
 
 #define SESSION_PARAM_URN           @"__MH_SESS_URN__"
@@ -130,7 +127,7 @@
     dbVersion = [_messengerDBAccessor getDBVersion] ;
     scriptPath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"%d",++dbVersion] ofType:@"sql"] ;
     if(scriptPath) { //update script exist, backup current db
-        NSString *backupFileName = [NSString stringWithFormat:@"messengerDB_%@.bak",[[NSCalendarDate date] descriptionWithCalendarFormat:@"%Y%m%d%H%M%S"]] ;
+        NSString *backupFileName = [NSString stringWithFormat:@"messengerDB_%@.bak",[[NSDate date] description]] ;
         MSBuffer *dbBuf = [MSBuffer bufferWithContentsOfFile:dbPath] ;
         [dbBuf writeToFile:[dbDirectoryPath stringByAppendingPathComponent:backupFileName] atomically:YES] ;
     }
@@ -461,7 +458,6 @@
         mutex_lock(_netRepositoryClientMutex);
         allowedRecipients = [_netRepositoryClient allowedApplicationUrnsForAuthenticable:GET_SESSION_MEMBER(SESSION_PARAM_URN)] ;
         mutex_unlock(_netRepositoryClientMutex);
-        allowedRecipients = allowedRecipients ? [NSSet setWithArray:allowedRecipients] : [NSSet set];
         SET_SESSION_MEMBER(allowedRecipients, SESSION_PARAM_ALLOWED_RECIPIENTS);
     }
     return [allowedRecipients containsObject:recipientUrn];

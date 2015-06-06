@@ -48,8 +48,13 @@
 #import <openssl/crypto.h>
 #import <openssl/err.h>
 #import <openssl/rand.h>
+#import <openssl/ssl.h>
 
-#import <curl/curl.h>
+#ifdef WIN32
+   typedef int socklen_t;
+#endif
+
+//#import <curl/curl.h>
 
 #import "MSCSSLInterface.h"
 #import "_MSDigest.h"
@@ -75,6 +80,6 @@
 #import "_MHPostProcessingDelegate.h"
 #import "_MHAdminApplication.h"
 #import "_MHApplicationClientPrivate.h"
-#import "MSCurlInterface_Private.h"
+//#import "MSCurlInterface_Private.h"
 
 #endif // MSNET_PRIVATE_H

@@ -85,12 +85,14 @@
   #define timeout_t                        DWORD
   #define timeout_set(T,X)                 (T=X*1000)
 
-  #define ECONNABORTED WSAECONNABORTED
-  #define ECONNRESET   WSAECONNRESET
-  #define ETIMEDOUT    WSAETIMEDOUT
-  #define EINPROGRESS  WSAEINPROGRESS
+  #ifdef WO451 // Recent sysroot known thoose
+    #define ECONNABORTED WSAECONNABORTED
+    #define ECONNRESET   WSAECONNRESET
+    #define ETIMEDOUT    WSAETIMEDOUT
+    #define EINPROGRESS  WSAEINPROGRESS
 
-  #define EWOULDBLOCK  WSAEWOULDBLOCK
+    #define EWOULDBLOCK  WSAEWOULDBLOCK
+  #endif
   
 
   #ifndef S_ISREG

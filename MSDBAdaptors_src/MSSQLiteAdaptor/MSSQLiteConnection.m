@@ -166,13 +166,13 @@
 	if (aString) {
 		SES ses = SESFromString(aString) ;
 		if (SESOK(ses)) {
-			register NSUInteger i, len = SESLength(ses) ;
+			NSUInteger i;
 			CHAI characterAtIndex = SESCHAI(ses) ;
-			MSUnicodeString *result = MSCreateUnicodeString(len+(withQuotes?2:0)) ;
+			MSUnicodeString *result = MSCreateUnicodeString(SESLength(ses)+(withQuotes?2:0)) ;
 			unichar c ;
 
 			if (withQuotes) { MSUAddUnichar(result, 0x0027) ; }
-			for (i = 0 ; i < len ; i++) {
+			for (i = SESStart(ses) ; i < SESEnd(ses) ; i++) {
 				c = characterAtIndex(aString,i) ;
 				MSUAddUnichar(result, c) ;
 				if (c == 0x0027) { MSUAddUnichar(result, 0x0027) ; }

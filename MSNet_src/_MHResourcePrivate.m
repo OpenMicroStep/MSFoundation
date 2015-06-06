@@ -50,7 +50,7 @@
 
 @implementation MHResource (Private)
 
-- (void)setURL:(NSString *)url { ASSIGN(_url, [url stringWithURLEncoding:NSISOLatin1StringEncoding]) ; }
+- (void)setURL:(NSString *)url { ASSIGN(_url, [url stringWithURLEncoding:NSUTF8StringEncoding]) ; }
 
 - (MSLong)bigResourceSize { return MHRESOURCE_BIGRESOURCE_LENGTH ; }
 - (BOOL)isBigResource { return [self size] > MHRESOURCE_BIGRESOURCE_LENGTH ; }

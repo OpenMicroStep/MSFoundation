@@ -176,19 +176,16 @@ static MSUInt __authenticatedApplicationDefaultAuthenticationMethods = MHAuthNon
     NSString* action = [self _actionFromURL:[notification message]] ;
     SEL sel= NSSelectorFromString(action);
     
-    if(!action) {
-        [self logWithLevel:MHAppError log:@"awakeOnRequest: cannot create action selector from URL : %@", [[notification message] getHeader:MHHTTPUrl]] ;
-    }
-    else if(!sel) {
-        [self logWithLevel:MHAppError log:@"awakeOnRequest: cannot create action selector from action : %@", action] ;
+    if(!action || !sel) {
+        [self logWithLevel:MHAppError log:@"awakeOnRequest: cannot create action selector (action=%@, url=%@)", action, [[notification message] getHeader:MHHTTPUrl]] ;
     }
     else if([self respondsToSelector:sel]) {
-        [self logWithLevel:MHAppDebug log:@"awakeOnRequest: perform action on %@", action] ;
+        [self logWithLevel:MHAppDebug log:@"awakeOnRequest: perform (action=%@, url=%@)", action, [[notification message] getHeader:MHHTTPUrl]] ;
         [self performSelector:sel withObject:notification] ;
         badRequest= NO;
     }
     else {
-        [self logWithLevel:MHAppError log:@"awakeOnRequest: action not supported : %@", action] ;
+        [self logWithLevel:MHAppError log:@"awakeOnRequest: action not supported (action=%@, url=%@)", action, [[notification message] getHeader:MHHTTPUrl]] ;
     }
     if(badRequest) {
         MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;

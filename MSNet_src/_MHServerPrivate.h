@@ -100,6 +100,7 @@ MSUShort maxClientReadingThreads(void) ;
 MSUShort usedClientReadingThreads(void) ;
 MSUShort maxClientProcessingThreads(void) ;
 MSUShort usedClientProcessingThreads(void) ;
+BOOL usedClientSeparatedUniqueProcessingThread(void) ;
 MSUShort maxClientWaitingThreads(void) ;
 MSUShort usedClientWaitingThreads(void) ;
 
@@ -199,6 +200,7 @@ void MHEnqueueWaitingNotification(MHNotification *aNotif) ;
 BOOL MHProcessingEnqueueNotification(MHNotification *aNotif) ; //to use to enqueue a new incoming request
 BOOL MHProcessingRequeueNotification(MHNotification *aNotif) ; //to use to requeue a waiting request
 MHNotification *MHProcessingDequeueNotification(BOOL admin) ; //to use to dequeue a new incoming request
+MHNotification *MHSeparetedUniqueProcessingDequeueNotification(BOOL admin);
 void MHCancelAllProcessingNotificationsForClientSocket(SOCKET fd, BOOL isAdminNotification) ;
 
 //login functions

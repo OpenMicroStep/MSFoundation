@@ -129,11 +129,14 @@ SOCKET MHNewSocketOnServerPort(NSString *aServer, MSUInt aPort, BOOL isBlocking,
 #endif
     }
     
-#ifndef WIN32
+#ifdef APPLE
     if (setsockopt(socketID, SOL_SOCKET, SO_NOSIGPIPE, &set_option, sizeof(set_option)) == SOCKET_ERROR)
     {
         _fatal_error("client setsockopt()", cerrno);
     }
+#endif
+#ifdef LINUX
+    signal(SIGPIPE, SIG_IGN);
 #endif
     
     memset((char*)&adr, 0, sizeof(adr)) ;

@@ -49,7 +49,7 @@ typedef struct CNotificationStruct CNotification ;
 
 struct CNotificationStruct
 {
-    Class isa ; /* here only to bind this structure to an objective-c object */
+    MSCORE_NSOBJECT_ATTRIBUTES
     CBunch *bunch ;
     MSULong localRetainCount ;
     MHHTTPMessage *message ;

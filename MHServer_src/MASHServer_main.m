@@ -47,14 +47,6 @@
 
 #import "MSNet_Private.h"
 
-#ifdef WIN32
-
-__declspec(dllexport) void ** OPENSSL_Applink(void)
-{
-  return _OPENSSL_Applink() ;
-}
-#endif
-
 static NSArray *parametersFromArgs(int argc, const char *argv[])
 {
   NSMutableArray *params = [NSMutableArray array] ;

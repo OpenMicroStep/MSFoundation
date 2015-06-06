@@ -47,7 +47,6 @@
  */
 
 #import "MSNet_Private.h"
-#import <openssl/ssl.h>
 
 @implementation MHSSLSocket (Private)
 
@@ -223,11 +222,7 @@ static int __mh_ssl_twoWay_auth_id_ctx = 2 ;
 
 - (id)initWithContext:(SSL_CTX *)ctx andSocket:(SOCKET)sd isBlockingIO:(BOOL)isBlockingIO {
     struct sockaddr_in sin ;
-#ifdef WO451
-    int addrlen = sizeof(sin) ;
-#else
     socklen_t addrlen = sizeof(sin) ;
-#endif
     _ssl_ctx = ctx ;
     [self setSSLSocket:OPENSSL_SSL_new(_ssl_ctx)] ;
     OPENSSL_SSL_set_fd(_secureSocket, sd);

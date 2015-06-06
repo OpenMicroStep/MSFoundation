@@ -95,22 +95,22 @@ static NSString *__serverLogFile = nil ;
 
 static NSDictionary *__netRepositoryConfigurations = nil ;
 
-static NSMapTable *__applicationsByPort = NULL ;
+static CDictionary *__applicationsByPort = NULL ;
 static MSArray *__applications = nil ;
 
 static NSMutableArray *__applicationsInfos = nil ;
 static mutex_t __applicationsMutex ;
 
-static NSMapTable *__sessions = NULL ;
+static CDictionary *__sessions = NULL ;
 static mutex_t __sessionsMutex ;
 
-static NSMapTable *__sessionContexts = NULL ;
+static CDictionary *__sessionContexts = NULL ;
 static mutex_t __sessionContextsMutex ;
 
-static NSMapTable *__resourcesCache = NULL ;
+static CDictionary *__resourcesCache = NULL ;
 static mutex_t __resourcesCacheMutex ;
 
-static NSMapTable *__authenticationTickets = NULL ;
+static CDictionary *__authenticationTickets = NULL ;
 static mutex_t __authenticationTicketsMutex ;
 
 static unsigned int __currentUploadId = 0 ;
@@ -1447,13 +1447,12 @@ static callback_t _MHApplicationRun(void *arg)
                 char byte[10] ;
                 int one = 1;             // need this for setsockopt
                 timeout_t timeout ;
-#ifdef WO451
+#ifdef WIN32
                 unsigned long nonblocking = 1 ;
-                int addrlen = sizeof(sin) ;
 #else
-                socklen_t addrlen = sizeof(sin) ;
                 int flags ;
 #endif
+                socklen_t addrlen = sizeof(sin) ;
                 timeout_set(timeout, RECV_TIMEOUT);
                 
                 if(getsockname(sock, (struct sockaddr *)&sin, &addrlen) == -1) { MHServerLogWithLevel(MHLogError, @"getsockname error, cannot get information from socket") ; break ; }
@@ -1471,7 +1470,9 @@ static callback_t _MHApplicationRun(void *arg)
                     (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,(char*)&one, sizeof(one))==SOCKET_ERROR))
 #else
                 if ((setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) == SOCKET_ERROR) ||
+#ifndef LINUX
                     (setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (char*)&one, sizeof(one)) == SOCKET_ERROR) ||
+#endif
                     (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,(char*)&one, sizeof(one))==SOCKET_ERROR))
 #endif
                 {
@@ -2069,7 +2070,7 @@ static MSInt _MHServerLoadPortsFromConfiguration()
         }
         
         appPortCtx->ssl_ctx = MHCreateServerSSLContext(__ssl_options, twoWayAuth) ;
-        appPortCtx->applications = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 32, NSDefaultMallocZone()) ;
+        appPortCtx->applications = CCreateDictionaryWithOptions(32, CDictionaryObject, CDictionaryObject);
         appPortCtx->twoWayAuth = twoWayAuth ;
         
         //load server certificate
@@ -2618,7 +2619,7 @@ static MSInt _MHServerLoadConfigurationFile(NSArray *params)
             ips = [range componentsSeparatedByString:@"-"] ;
             if([ips count] == 2)
             {
-#ifdef WIN32
+#ifdef WO451
                 ip = [[[ips objectAtIndex:0] trim] cString] ;
 #else
                 ip = [[[ips objectAtIndex:0] trim] UTF8String] ;
@@ -2629,7 +2630,7 @@ static MSInt _MHServerLoadConfigurationFile(NSArray *params)
                     if(netaddr == INADDR_NONE) continue;
                     min = htonl(netaddr);
                 }
-#ifdef WIN32
+#ifdef WO451
                 ip = [[[ips objectAtIndex:1] trim] cString] ;
 #else
                 ip = [[[ips objectAtIndex:1] trim] UTF8String] ;
@@ -2649,7 +2650,7 @@ static MSInt _MHServerLoadConfigurationFile(NSArray *params)
             }
             else if([ips count] == 1)
             {
-#ifdef WIN32
+#ifdef WO451
                 ip = [[[ips objectAtIndex:0] trim] cString] ;
 #else
                 ip = [[[ips objectAtIndex:0] trim] UTF8String] ;
@@ -2765,12 +2766,12 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     
     __staticApplication = staticApplication ;
     __baseUrlComponentsCount = (__staticApplication) ? BASE_URL_COMPONENT_COUNT_STATIC_MODE : BASE_URL_COMPONENT_COUNT_BUNDLE_MODE ;
-    __applicationsByPort = NSCreateMapTableWithZone(NSIntegerMapKeyCallBacks, NSIntegerMapValueCallBacks, 32, defaultZone) ;
+    __applicationsByPort = CCreateDictionaryWithOptions(32, CDictionaryNatural, CDictionaryNatural);
     __applications = [MSArray mutableArray] ;
-    __sessions = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 32, defaultZone) ;
-    __sessionContexts = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 64, defaultZone) ;
-    __resourcesCache = NSCreateMapTableWithZone(NSObjectMapKeyCallBacks, NSObjectMapValueCallBacks, 128, defaultZone) ;
-    __authenticationTickets = NSCreateMapTableWithZone(NSIntegerMapKeyCallBacks, NSObjectMapValueCallBacks, 32, defaultZone) ;
+    __sessions = CCreateDictionaryWithOptions(32, CDictionaryObject, CDictionaryObject);
+    __sessionContexts = CCreateDictionaryWithOptions(64, CDictionaryObject, CDictionaryObject);
+    __resourcesCache = CCreateDictionaryWithOptions(128, CDictionaryObject, CDictionaryObject);
+    __authenticationTickets = CCreateDictionaryWithOptions(32, CDictionaryNatural, CDictionaryObject);
     
     mutex_init(__sessionsMutex) ;
     mutex_init(__applicationsMutex) ;
@@ -3274,7 +3275,7 @@ MSInt MHMainThread()
     
     SOCKET *listeningSockets = (SOCKET *)malloc(listeningPortCount * sizeof(SOCKET)) ;
     int *listeningPortNumbers = (int *)malloc(listeningPortCount * sizeof(int)) ;
-    struct fd_set fds ;
+    fd_set fds ;
     MSInt nbActivity ;
     MSInt maxSocketNumberPlusOne = 0 ;
     struct timeval selectTimeout = {60 , 0} ;
@@ -3385,7 +3386,12 @@ MSInt MHMainThread()
                             (setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR,(char*)&one, sizeof(int))==SOCKET_ERROR))
 #else
                         if ((setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout)) == SOCKET_ERROR) ||
-                            (setsockopt(clientSocket, SOL_SOCKET, SO_NOSIGPIPE, (char*)&one, sizeof(one)) == SOCKET_ERROR))
+#ifdef LINUX
+                            1
+#else                            
+                            (setsockopt(clientSocket, SOL_SOCKET, SO_NOSIGPIPE, (char*)&one, sizeof(one)) == SOCKET_ERROR)
+#endif                            
+                            )
 #endif
                         {
                             _fatal_error("server setsockopt()", cerrno);
@@ -3413,19 +3419,16 @@ MSInt MHMainThread()
 }
 
 NSArray *allApplicationPorts() {
-    NSMutableArray *array = [NSMutableArray array] ;
-    NSMapEnumerator mapEnum = NSEnumerateMapTable(__applicationsByPort) ;
-    
-    MSInt *key ;
-    APPLICATION_PORT_CTX *ctx ;
-    
-    while (NSNextMapEnumeratorPair(&mapEnum, (void **)&key, (void **)&ctx)) { [array addObject:[NSNumber numberWithInt:(MSInt)key]] ; }
-    return array ;
+    CArray *arr= CCreateArray(0);
+    CDictionaryEnumerator e= CMakeDictionaryEnumerator(__applicationsByPort);
+    while(CDictionaryEnumeratorNextObject(&e) != NSNotFound)
+        CArrayAddObject(arr, [NSNumber numberWithInt:(MSInt)CDictionaryEnumeratorCurrentKey(e)]);
+    return AUTORELEASE(arr);
 }
 
 NSArray *allApplicationsForPort(MSInt listeningPort) {
     if (listeningPort) {
-        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
+        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)CDictionaryObjectForKey(__applicationsByPort, (id)(intptr_t)listeningPort) ;
         if(appCtx) return appCtx->applications ;
     }
     return nil ;
@@ -3433,7 +3436,7 @@ NSArray *allApplicationsForPort(MSInt listeningPort) {
 
 APPLICATION_PORT_CTX *applicationCtxForPort(MSInt listeningPort) {
     if(listeningPort > 0) {
-        return (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
+        return (APPLICATION_PORT_CTX *)CDictionaryObjectForKey(__applicationsByPort, (id)(intptr_t)listeningPort) ;
     }
     return NULL ;
 }
@@ -3441,10 +3444,10 @@ APPLICATION_PORT_CTX *applicationCtxForPort(MSInt listeningPort) {
 MHApplication *applicationForPortAndKey(MSInt listeningPort, NSString *key) {
     if(key && listeningPort)
     {
-        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
+        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)CDictionaryObjectForKey(__applicationsByPort, (id)(intptr_t)listeningPort) ;
         
         if(appCtx && appCtx->applications) {
-            return (MHApplication *)NSMapGet((NSMapTable *)appCtx->applications, (const void *)key) ;
+            return (MHApplication *)CDictionaryObjectForKey(appCtx->applications, (id)key) ;
         }
     }
     return nil ;
@@ -3460,7 +3463,7 @@ MSCouple *listeningPortsSortedBySSLAuthMode()
     
     while((listeningPort = [portEnum nextObject]))
     {
-        APPLICATION_PORT_CTX *portCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)[listeningPort intValue]) ;
+        APPLICATION_PORT_CTX *portCtx = (APPLICATION_PORT_CTX *)CDictionaryObjectForKey(__applicationsByPort, (id)(intptr_t)[listeningPort intValue]) ;
         if(portCtx)
         {
             (portCtx->twoWayAuth) ? [twoWayAuth addObject:listeningPort] : [oneWayAuth addObject:listeningPort] ;
@@ -3472,21 +3475,21 @@ MSCouple *listeningPortsSortedBySSLAuthMode()
 }
 
 
-void addApplicationPortCtxForPort(MSInt listeningPort, APPLICATION_PORT_CTX *appCtx) { if(listeningPort && appCtx) NSMapInsertKnownAbsent(__applicationsByPort, (const void *)(intptr_t)listeningPort, (const void *)(intptr_t)appCtx) ; }
+void addApplicationPortCtxForPort(MSInt listeningPort, APPLICATION_PORT_CTX *appCtx) { if(listeningPort && appCtx) CDictionarySetObjectForKey(__applicationsByPort, (id)(intptr_t)appCtx, (id)(intptr_t)listeningPort) ; }
 
 void setApplicationForPortAndKey(MSInt listeningPort, MHApplication *application, NSString *key) {
     if(application && key && listeningPort)
     {
-        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)NSMapGet((NSMapTable *)__applicationsByPort, (const void *)(intptr_t)listeningPort) ;
+        APPLICATION_PORT_CTX *appCtx = (APPLICATION_PORT_CTX *)CDictionaryObjectForKey(__applicationsByPort, (id)(intptr_t)listeningPort) ;
         
         if(appCtx && appCtx->applications) {
-            NSMapInsertKnownAbsent(appCtx->applications, (const void *)key, (const void *)application) ;
+            CDictionarySetObjectForKey(appCtx->applications, application, key) ;
         }
     }
 }
 
-NSArray *allSessions() { return NSAllMapTableValues((NSMapTable *)__sessions) ; }
-MHSession *sessionForKey(NSString *key) { return (MHSession *)NSMapGet((NSMapTable *)__sessions, (const void *)key) ; }
+NSArray *allSessions() { return AUTORELEASE(CCreateArrayOfDictionaryObjects(__sessions)) ; }
+MHSession *sessionForKey(NSString *key) { return (MHSession *)CDictionaryObjectForKey(__sessions, (id)key) ; }
 
 MHSession *sessionWithKeyForApplication(NSString *key, MHApplication *application)
 {
@@ -3506,7 +3509,7 @@ MHSession *sessionWithKeyForApplication(NSString *key, MHApplication *applicatio
         {
             if([[cookie objectAtIndex:0] isEqualToString:[NSString stringWithFormat:@"SESS_%@", [application applicationName]]])
             {
-                session = (MHSession *)NSMapGet((NSMapTable *)__sessions, (const void *)[[cookie objectAtIndex:1] description]) ;
+                session = (MHSession *)CDictionaryObjectForKey(__sessions, (id)[[cookie objectAtIndex:1] description]) ;
                 if([session application] == application)
                 {
                     return session ;
@@ -3520,7 +3523,7 @@ MHSession *sessionWithKeyForApplication(NSString *key, MHApplication *applicatio
 
 void setSessionForKey(MHSession *session, NSString *key)
 {
-    if (key && session) NSMapInsertKnownAbsent(__sessions, (const void *)key, (const void *)session) ;
+    if (key && session) CDictionarySetObjectForKey(__sessions, session, key) ;
 }
 
 void changeSessionIDForKey(MHSession *session, NSString *key, NSString *newKey)
@@ -3532,31 +3535,31 @@ void changeSessionIDForKey(MHSession *session, NSString *key, NSString *newKey)
     }
 }
 
-void removeSessionForKey(NSString *key) { NSMapRemove(__sessions, (const void *)key) ; }
+void removeSessionForKey(NSString *key) { CDictionarySetObjectForKey(__sessions, nil, key) ; }
 void lock_sessions_mutex() { mutex_lock(__sessionsMutex) ; }
 void unlock_sessions_mutex() { mutex_unlock(__sessionsMutex) ; }
 
-MHContext *contextForKey(NSString *key) { return (MHContext *)NSMapGet((NSMapTable *)__sessionContexts, (const void *)key) ; }
-void setContextForKey(MHContext *context, NSString *key) { if (key && context) { NSMapInsertKnownAbsent(__sessionContexts, (const void *)key, (const void *)context) ; } }
-void removeContextForKey(NSString *key) { NSMapRemove(__sessionContexts, (const void *)key) ; }
+MHContext *contextForKey(NSString *key) { return (MHContext *)CDictionaryObjectForKey(__sessionContexts, key) ; }
+void setContextForKey(MHContext *context, NSString *key) { if (key && context) { CDictionarySetObjectForKey(__sessionContexts, context, key) ; } }
+void removeContextForKey(NSString *key) { CDictionarySetObjectForKey(__sessionContexts, nil, key) ; }
 void lock_contexts_mutex() { mutex_lock(__sessionContextsMutex) ; }
 void unlock_contexts_mutex() { mutex_unlock(__sessionContextsMutex) ; }
 
-NSArray *allResources() { return NSAllMapTableValues((NSMapTable *)__resourcesCache) ; }
-MHResource *resourceForKey(NSString *key) { return (MHResource *)NSMapGet((NSMapTable *)__resourcesCache, (const void *)key) ; }
-void setResourceForKey(MHResource *resource, NSString *key) { if (key && resource) { NSMapInsertIfAbsent(__resourcesCache, (const void *)key, (const void *)resource) ; } }
-void removeResourceForKey(NSString *key) { NSMapRemove(__resourcesCache, (const void *)key) ; }
+NSArray *allResources() { return AUTORELEASE(CCreateArrayOfDictionaryObjects(__resourcesCache)) ; }
+MHResource *resourceForKey(NSString *key) { return (MHResource *)CDictionaryObjectForKey(__resourcesCache, key) ; }
+void setResourceForKey(MHResource *resource, NSString *key) { if (key && resource) { CDictionarySetObjectForKey(__resourcesCache, resource, key) ; } }
+void removeResourceForKey(NSString *key) { CDictionarySetObjectForKey(__resourcesCache, nil, key) ; }
 void lock_resources_mutex() { mutex_lock(__resourcesCacheMutex) ; }
 void unlock_resources_mutex() { mutex_unlock(__resourcesCacheMutex) ; }
 
 NSMutableDictionary *ticketsForApplication(MHApplication *application)
 {
-    NSMutableDictionary *tickets = (NSMutableDictionary *)NSMapGet((NSMapTable *)__authenticationTickets, (const void *)(intptr_t)application) ;
+    NSMutableDictionary *tickets = (NSMutableDictionary *)CDictionaryObjectForKey(__authenticationTickets, (id)(intptr_t)application) ;
     
     if (!tickets)
     {
         tickets = [NSMutableDictionary dictionary] ;
-        NSMapInsertKnownAbsent(__authenticationTickets, (const void *)application, (const void *)tickets) ;
+        CDictionarySetObjectForKey(__authenticationTickets, tickets, application) ;
     }
     
     return tickets ;
@@ -3585,7 +3588,7 @@ static NSString *_uniqueTicketID(MHApplication *application, MHTicketFormatterCa
     return ticket ;
 }
 
-NSArray *allApplicationsTickets(void) { return NSAllMapTableValues((NSMapTable *)__authenticationTickets) ; }
+NSArray *allApplicationsTickets(void) { return AUTORELEASE(CCreateArrayOfDictionaryObjects(__authenticationTickets)) ; }
 
 NSString *ticketForValidityAndLinkedSession(MHApplication *application, MSTimeInterval duration, NSString *linkedSessionID, BOOL useOnce, MHTicketFormatterCallback ticketFormatterCallback)
 {
@@ -3649,7 +3652,7 @@ void setTicketsForApplication(MHApplication *application, NSDictionary *tickets)
     NSMutableDictionary *applicationTickets = (tickets) ? [tickets mutableCopy] : [NSMutableDictionary dictionary] ;
     
     lock_authentication_tickets_mutex() ;
-    NSMapInsertKnownAbsent(__authenticationTickets, (const void *)application, (const void *)applicationTickets) ;
+    CDictionarySetObjectForKey(__authenticationTickets, application, applicationTickets) ;
     unlock_authentication_tickets_mutex() ;
 }
 
@@ -4337,6 +4340,7 @@ MSUInt _MHIPAddressFromString(NSString *string)
     MSUInt adr = MHBadAddress ;
     if ([string length]) {
         adr = ntohl(inet_addr([string UTF8String])) ;
+#ifdef MSFOUNDATION_FORCOCOA        
         if (adr == MHBadAddress) {
             NSHost *host = [NSHost hostWithName:string] ;
             NSArray *adresses = [host addresses] ;
@@ -4349,6 +4353,7 @@ MSUInt _MHIPAddressFromString(NSString *string)
                 
             }
         }
+#endif        
     }
     return adr ;
 }
