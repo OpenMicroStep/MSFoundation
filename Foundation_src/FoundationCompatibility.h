@@ -24,6 +24,8 @@
 
 #import <MSFoundation/NSBundle.h>
 #import <MSFoundation/NSCoder.h>
+#import <MSFoundation/NSArchiver.h>
+#import <MSFoundation/NSUnarchiver.h>
 #import <MSFoundation/NSException.h>
 #import <MSFoundation/NSValue.h>
 #import <MSFoundation/NSNumber.h>

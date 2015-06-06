@@ -27,6 +27,8 @@
 
 #import "NSBundle.h"
 #import "NSCoder.h"
+#import "NSArchiver.h"
+#import "NSUnarchiver.h"
 #import "NSException.h"
 #import "NSValue.h"
 #import "NSNumber.h"
