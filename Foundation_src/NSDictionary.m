@@ -21,6 +21,18 @@
   if (self == [NSDictionary class]) return [[MSDictionary class] allocWithZone:zone];
   return [super allocWithZone:zone];
 }
+
++ (NSDictionary *)dictionaryWithContentsOfFile:(NSString *)path
+{ 
+  NSString *contents= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
+  return [contents dictionaryValue];
+}
+- (NSDictionary *)initWithContentsOfFile:(NSString *)path
+{
+  DESTROY(self);
+  return [[NSDictionary dictionaryWithContentsOfFile:path] retain];
+}
+
 -(id)copyWithZone:(NSZone *)zone
 {
   return [self retain];

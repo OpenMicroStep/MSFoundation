@@ -15,6 +15,8 @@
     FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithFormat:));
     FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(localizedStringWithFormat:));
     FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithCString:encoding:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithContentsOfFile:encoding:error:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(stringWithContentsOfFile:usedEncoding:error:));
 
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(lowercaseString));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(uppercaseString));

@@ -25,3 +25,9 @@
 - (instancetype)initWithTimeInterval:(NSTimeInterval)secsToBeAdded sinceDate:(NSDate *)date;
 
 @end
+
+@interface NSDate (NSDateExtendedMethods)
+
+- (NSTimeInterval)timeIntervalSinceDate:(NSDate *)anotherDate;
+
+@end

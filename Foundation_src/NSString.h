@@ -1,6 +1,4 @@
-@class NSLocale, NSData;
-
-typedef uint16_t unichar;
+@class NSLocale, NSData, NSArray, NSError;
 
 typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
     NSCaseInsensitiveSearch = 1,
@@ -35,7 +33,8 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (instancetype)initWithBytes:(const void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding;
 - (instancetype)initWithBytesNoCopy:(void *)bytes length:(NSUInteger)len encoding:(NSStringEncoding)encoding freeWhenDone:(BOOL)freeBuffer;	/* "NoCopy" is a hint */
 - (instancetype)initWithCString:(const char *)nullTerminatedCString encoding:(NSStringEncoding)encoding;
-
+- (instancetype)initWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error;
+- (instancetype)initWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error;
 + (instancetype)string;
 + (instancetype)stringWithString:(NSString *)string;
 + (instancetype)stringWithCharacters:(const unichar *)characters length:(NSUInteger)length;
@@ -43,6 +42,8 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 + (instancetype)stringWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
 + (instancetype)localizedStringWithFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
 + (instancetype)stringWithCString:(const char *)cString encoding:(NSStringEncoding)enc;
++ (instancetype)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error;
++ (instancetype)stringWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error;
 @end
 
 @interface NSString (NSStringExtensionMethods)

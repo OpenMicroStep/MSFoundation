@@ -34,6 +34,7 @@ typedef NS_OPTIONS(NSUInteger, NSDataReadingOptions) {
 - (void)getBytes:(void *)buffer range:(NSRange)range;
 - (BOOL)isEqualToData:(NSData *)other;
 - (NSData *)subdataWithRange:(NSRange)range;
+- (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile;
 
 @end
 

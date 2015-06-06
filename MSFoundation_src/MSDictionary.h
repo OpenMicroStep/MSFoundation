@@ -65,7 +65,7 @@
 // Attention, alloc et new retourne des instances mutables.
 + (id)new;
 
-#if WIN32
+#ifdef WIN32
 #define COPY_PT
 #else
 #define COPY_PT <NSCopying>
@@ -118,6 +118,11 @@
 + (id)mutableDictionaryWithDictionary:(id)otherDictionary copyItems:(BOOL)flag;
 - (id)initWithDictionary:(id)otherDictionary copyItems:(BOOL)flag;
 - (id)mutableInitWithDictionary:(id)otherDictionary copyItems:(BOOL)flag;
+
+#pragma mark Helpers
+
++ (NSDictionary *)dictionaryWithContentsOfFile:(NSString *)path;
++ (MSDictionary *)mutableDictionaryWithContentsOfFile:(NSString *)path;
 
 #pragma mark Standard methods
 
