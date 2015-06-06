@@ -94,6 +94,59 @@ static void ses_equals(test_t *test)
   RELEASE(cla); RELEASE(clb); RELEASE(cua); RELEASE(csa);
 }
 
+
+// We could use the compiler to compute the length, but the readability of the test would be horrible without horrible tricks
+static SES SESFromUTF8(const char *utf8)
+{ return MSMakeSESWithBytes(utf8, strlen(utf8), NSUTF8StringEncoding); }
+static SES SESFromUTF16(const unichar *utf16)
+{ 
+  const unichar *end;
+  for (end= utf16; *end; ++end) {}
+  return MSMakeSESWithBytes(utf16, (NSUInteger)(end - utf16), NSUnicodeStringEncoding); 
+}
+
+// It's good to tests SES with different source type (UTF8 & UTF16)
+#define TASSERT_SES_EQUALS(FMT, T, F, A, B, E) TASSERT_SES_EQUALS_OPT(FMT, T, F, A, B, , E)
+#define TASSERT_SES_EQUALS_OPT(FMT, T, F, A, B, O, E) \
+  TASSERT_EQUALS_ ## FMT(T, F(SESFromUTF8(A), SESFromUTF8(B) O), E); \
+  TASSERT_EQUALS_ ## FMT(T, F(SESFromUTF16(u ## A), SESFromUTF16(u ## B) O), E); \
+  TASSERT_EQUALS_ ## FMT(T, F(SESFromUTF8(A), SESFromUTF16(u ## B) O), E); \
+  TASSERT_EQUALS_ ## FMT(T, F(SESFromUTF16(u ## A), SESFromUTF8(B) O), E)
+
+static void ses_compare(test_t *test)
+{
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, ""    , ""    , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, ""    , "a"   , NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "a"   , ""    , NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "a"   , "a"   , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "a"   , "aa"  , NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "aa"  , "a"   , NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "abc" , "abc" , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "abca", "abcb", NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "abcd", "abcb", NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", "éèàô¡®œ±ĀϿḀ⓿⣿㊿", NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedAscending);
+
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, ""    , ""    , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, ""    , "a"   , NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "a"   , ""    , NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "a"   , "a"   , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "a"   , "aa"  , NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "aa"  , "a"   , NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "abc" , "abc" , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "abca", "abcb", NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "abcd", "abcb", NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "a"   , "A"   , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "abc" , "AbC" , NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "abca", "ABCB", NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "ABCB", "abca", NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "abcd", "ABCB", NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "ABCB", "abcd", NSOrderedAscending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedSame);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", "éèàô¡®œ±ĀϿḀ⓿⣿㊿", NSOrderedDescending);
+  TASSERT_SES_EQUALS(LLD, test, SESInsensitiveCompare, "éèàô¡®œ±ĀϿḀ⓿⣿㊿", "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NSOrderedAscending);
+}
 static BOOL ses_extract_test1(unichar c)
 { return (unichar)'b' <= c && c <= (unichar)'f'; }
 static BOOL ses_extract_test2(unichar c)
@@ -167,6 +220,7 @@ static void ses_extract(test_t *test)
 test_t mscore_ses[]= {
   {"index"  ,NULL,ses_index  ,INTITIALIZE_TEST_T_END},
   {"equals" ,NULL,ses_equals ,INTITIALIZE_TEST_T_END},
+  {"compare",NULL,ses_compare,INTITIALIZE_TEST_T_END},
   {"extract",NULL,ses_extract,INTITIALIZE_TEST_T_END},
   {"utf8"   ,NULL,ses_utf8   ,INTITIALIZE_TEST_T_END},
   {NULL}

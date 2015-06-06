@@ -72,6 +72,7 @@ MSCoreExtern unichar CUnicharToUpper(unichar c);
 MSCoreExtern unichar CUnicharToLower(unichar c);
 
 MSCoreExtern BOOL               CUnicharEquals(unichar ca, unichar cb, BOOL insensitive);
+MSCoreExtern NSComparisonResult CUnicharCompare(unichar ca, unichar cb, BOOL insensitive);
 MSCoreExtern BOOL               CUnicharInsensitiveEquals (unichar ca, unichar cb);
 MSCoreExtern NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb);
 

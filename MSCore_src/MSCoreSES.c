@@ -379,48 +379,57 @@ static inline NSUInteger SESRealLength(SES ses, NSUInteger idx, NSUInteger end) 
 
 SES _SESFind(SES src, SES searched, BOOL insensitive, BOOL backward, BOOL anchored, NSRange *range)
 {
-  SES ret= MSInvalidSES;
+  SES ret= MSInvalidSES; BOOL fd= NO;
   if (SESOK(src) && SESOK(searched)) {
-    NSUInteger i, n, e, end, start, realPos=0, realLength= 0; BOOL fd= NO;
+    NSUInteger i, n, e, end, start, realPos, realLength= 0;
     if (backward) {
       realPos= range ? SESRealLength(src, SESStart(src), SESEnd(src)) : SESEnd(src);
       for (n= SESEnd(src), start= anchored ? n - 1 : SESStart(src); !fd && (i= n) > start;) {
         fd= _SESSuffixAlg(src, i, &n, &e, searched, insensitive, &realLength);
-        --realPos;}}
+        if(!fd) --realPos;}}
     else {
+      realPos= 0;
       for (n= SESStart(src), end= anchored ? n + 1 : SESEnd(src); !fd && (i= n) < end;) {
         fd= _SESPrefixAlg(src, i, &n, &e, searched, insensitive, &realLength);
-        ++realPos;}}
+        if(!fd) ++realPos;}}
     if (fd) {
       ret= src;
       SESSetStart(ret, i);
       SESSetEnd(ret, e);
       if(range) {
         *range= NSMakeRange(backward ? realPos - realLength : realPos, realLength);}}
-    else if(range) {
-      *range= NSMakeRange(NSNotFound, 0);}
   }
+  if(!fd && range) {
+    *range= NSMakeRange(NSNotFound, 0);}
   return ret;
 }
 
-static inline BOOL _SESEquals(SES a, SES b, BOOL insensitive)
+static inline NSComparisonResult SESCompareWithOptions(SES a, SES b, BOOL insensitive)
 {
-  BOOL equals= YES; NSUInteger aIdx, bIdx, aEnd, bEnd;
-  if (!SESOK(a)) return !SESOK(b);
-  if (!SESOK(b)) return NO;
+  NSComparisonResult res= NSOrderedSame; NSUInteger aIdx, bIdx, aEnd, bEnd;
+  if (!SESOK(a)) return SESOK(b) ? NSOrderedAscending : NSOrderedSame;
+  if (!SESOK(b)) return NSOrderedDescending;
   aIdx= SESStart(a); aEnd= SESEnd(a);
   bIdx= SESStart(b); bEnd= SESEnd(b);
-  while (equals && aIdx < aEnd && bIdx < bEnd) {
-    equals= CUnicharEquals(SESIndexN(a, &aIdx), SESIndexN(b, &bIdx), insensitive); }
-  
-  return equals && aIdx == aEnd && bIdx == bEnd;
+  while (res == NSOrderedSame && aIdx < aEnd && bIdx < bEnd) {
+    res= CUnicharCompare(SESIndexN(a, &aIdx), SESIndexN(b, &bIdx), insensitive); }
+  if (res == NSOrderedSame) {
+    if (aIdx < aEnd) {
+      res= NSOrderedDescending;}
+    else if (bIdx < bEnd) {
+      res= NSOrderedAscending;}}
+  return res;
 }
 
-BOOL SESEquals(SES a, SES b)
-{ return _SESEquals(a, b, NO); }
+NSComparisonResult SESCompare(SES a, SES b)
+{ return SESCompareWithOptions(a, b, NO); }
+NSComparisonResult SESInsensitiveCompare(SES a, SES b)
+{ return SESCompareWithOptions(a, b, YES); }
 
+BOOL SESEquals(SES a, SES b)
+{ return SESCompareWithOptions(a, b, NO) == NSOrderedSame; }
 BOOL SESInsensitiveEquals(SES a, SES b)
-{ return _SESEquals(a, b, YES); }
+{ return SESCompareWithOptions(a, b, YES) == NSOrderedSame; }
 
 SES SESFind(SES src, SES searched)
 {

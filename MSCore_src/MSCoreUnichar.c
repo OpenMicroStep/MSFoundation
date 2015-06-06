@@ -181,6 +181,13 @@ BOOL CUnicharEquals(unichar ca, unichar cb, BOOL insensitive)
   return (ca==cb || (insensitive && _unicharBase(ca)==_unicharBase(cb)));
 }
 
+NSComparisonResult CUnicharCompare(unichar ca, unichar cb, BOOL insensitive)
+{
+  if (insensitive) return CUnicharInsensitiveCompare(ca, cb);
+  if (ca < cb) return NSOrderedAscending;
+  if (ca > cb) return NSOrderedDescending;
+  return NSOrderedSame;
+}
 NSComparisonResult CUnicharInsensitiveCompare(unichar ca, unichar cb)
 {
   if (ca != cb) {

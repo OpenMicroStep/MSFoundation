@@ -114,6 +114,9 @@ MSCoreExtern SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength,
 MSCoreExtern BOOL SESEquals(SES a, SES b);
 MSCoreExtern BOOL SESInsensitiveEquals(SES a, SES b);
 
+MSCoreExtern NSComparisonResult SESCompare(SES a, SES b);
+MSCoreExtern NSComparisonResult SESInsensitiveCompare(SES a, SES b);
+
 MSCoreExtern SES SESFind(SES src, SES searched);
 MSCoreExtern SES SESInsensitiveFind(SES src, SES searched);
 
