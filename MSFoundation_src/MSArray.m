@@ -400,34 +400,19 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
   return nil;
   }
 
-/* TODO:
 - (NSString *)componentsJoinedByString:(NSString *)separator
 {
-  if (_count > 0) {
-    if (_count > 1) {
-      MSUnicodeString *s = MSCreateUnicodeString(128);
-      NSUInteger i, slen = [separator length];
-      if (!slen) {
-        for (i = 0; i < _count; i++) { MSUAddString(s, [_pointers[i] toString]); }
-        if (MSULength(s)) { return AUTORELEASE(s); }
-        RELEASE(s);
-      }
-      else {
-        MSUAddString(s, [_pointers[0] toString]);
-        for (i = 1; i < _count; i++) {
-          MSUAddString(s, separator);
-          MSUAddString(s, [_pointers[i] toString]);
-        }
-        return AUTORELEASE(s); // can never be empty here
-      }
-    }
-    else {
-      NSString *ret = [_pointers[0] toString];
-      if ([ret length]) return ret;
-    }
-  }
-  return @"";
+  CString *ret; NSUInteger i= 0; SES ses;
+  ret= CCreateString(0);
+  ses= SESFromString(separator);
+  if (i < _count)
+    CStringAppendSES(ret, SESFromString([CArrayObjectAtIndex((CArray*)self, i++) description]));
+  while (i < _count) {
+    CStringAppendSES(ret, ses);
+    CStringAppendSES(ret, SESFromString([CArrayObjectAtIndex((CArray*)self, i++) description]));}
+  return AUTORELEASE(ret);
 }
+/*
 - (NSString *)jsonRepresentation { return CArrayJsonRepresentation((CArray *)self); }
 */
 
