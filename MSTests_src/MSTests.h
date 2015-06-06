@@ -34,6 +34,17 @@
 #define TASSERT_ISEQUAL(   W, A, B, MSG...) TASSERT_F(W,  ISEQUAL, A, B, MSG)
 #define TASSERT_ISNOTEQUAL(W, A, B, MSG...) TASSERT_F(W, !ISEQUAL, A, B, MSG)
 
+#define TASSERT_EQUALS_STR(   W, A, B) TASSERT_OP(W, A, == ,B, "%s != %s")
+#define TASSERT_EQUALS_PTR(   W, A, B) TASSERT_OP(W, A, == ,B, "%p != %p")
+#define TASSERT_EQUALS_LLD(   W, A, B) TASSERT_OP(W, A, == ,B, "%lld != %lld", (long long)__a, (long long)__b)
+#define TASSERT_EQUALS_LLU(   W, A, B) TASSERT_OP(W, A, == ,B, "%llu != %llu", (unsigned long long)__a, (unsigned long long)__b)
+#define TASSERT_EQUALS_OBJ(   W, A, B) TASSERT_F( W, ISEQUAL,A,B, "%s != %s",[[__a description] UTF8String],[[__b description] UTF8String])
+#define TASSERT_NOTEQUALS_STR(W, A, B) TASSERT_OP(W, A, != ,B, "%s == %s")
+#define TASSERT_NOTEQUALS_PTR(W, A, B) TASSERT_OP(W, A, != ,B, "%p == %p")
+#define TASSERT_NOTEQUALS_LLD(W, A, B) TASSERT_OP(W, A, != ,B, "%lld == %lld", (long long)__a, (long long)__b)
+#define TASSERT_NOTEQUALS_LLU(W, A, B) TASSERT_OP(W, A, != ,B, "%llu == %llu", (unsigned long long)__a, (unsigned long long)__b)
+#define TASSERT_NOTEQUALS_OBJ(W, A, B) TASSERT_F( W,!ISEQUAL,A,B, "%s == %s",[[__a description] UTF8String],[[__b description] UTF8String])
+
 typedef struct struct_test test_t;
 struct struct_test {
   char *name;
