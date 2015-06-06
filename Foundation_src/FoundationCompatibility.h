@@ -36,6 +36,8 @@
 #import <MSFoundation/NSTimer.h>
 #import <MSFoundation/NSRunLoop.h>
 #import <MSFoundation/NSFileHandle.h>
+#import <MSFoundation/NSCharacterSet.h>
+#import <MSFoundation/NSScanner.h>
 #import <MSFoundation/NSTask.h>
 #import <MSFoundation/NSProcessInfo.h>
 #import <MSFoundation/NSFileManager.h>

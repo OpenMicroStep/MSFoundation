@@ -39,6 +39,8 @@
 #import "NSTimer.h"
 #import "NSRunLoop.h"
 #import "NSFileHandle.h"
+#import "NSCharacterSet.h"
+#import "NSScanner.h"
 #import "NSTask.h"
 #import "NSProcessInfo.h"
 #import "NSFileManager.h"
