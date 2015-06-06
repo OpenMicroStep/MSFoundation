@@ -137,6 +137,8 @@
 
  **/
 
+MSFoundationExtern id SESParsePList(SES ses, MSUInt flags, NSString **error);
+
 @interface NSString (MSPPPLParsing)
 
 - (NSMutableDictionary *)dictionaryValue ;

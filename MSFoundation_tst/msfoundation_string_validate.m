@@ -335,7 +335,7 @@ static void string_plist(test_t *test)
   CBufferAppendByte(b, 0xcd);
   CBufferAppendByte(b, 0xab);
   CBufferAppendByte(b, 0xcd);
-  s= @"( /** 1 **/ { /**/ thread = \"-\\\"re\n\"; /* 3 */ \"modelVersion\" = 1;\"diffExpirationInDay\" = 30;}, AZERTY_azerty_0123456789/*f*/, <ff 00 abcd AB CD>)";
+  s= @"( /** 1 **/ { /**/ thread = \"-\\\"re\n\"; /* 3 */ // tests \n/* 4 */ \"modelVersion\" = 1;\"diffExpirationInDay\" = 30;}, AZERTY_azerty_0123456789/*f*/, <ff 00 abcd AB CD>)";
   e= [NSArray arrayWithObjects:[NSDictionary dictionaryWithObjectsAndKeys:
                                 @"-\"re\n", @"thread",
                                 @"1", @"modelVersion",

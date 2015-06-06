@@ -52,27 +52,65 @@ typedef struct _ParseContext
 {
   SES ses;
   MSUInt flags;
-  NSUInteger pos;
+  NSUInteger pos, col, line;
   NSUInteger nextWordCharCounter;
+  BOOL nextIsCurrent;
   NSDictionary *classMap;
   unichar c;
   id error;
 } ParseContext;
 
+typedef struct _ParseContextPos
+{
+  NSUInteger pos, col, line;
+  unichar c;
+} ParseContextPos;
+
 
 static inline unichar ParseContextNextTmp(ParseContext *context)
 {
   NSUInteger pos = context->pos;
-  return context->pos < SESLength(context->ses) ? SESIndexN(context->ses, &pos) : 0;
+  return context->pos < SESEnd(context->ses) ? SESIndexN(context->ses, &pos) : 0;
 }
 
 static inline BOOL ParseContextNext(ParseContext *context)
 {
-  BOOL ret= context->pos < SESLength(context->ses);
-  if (ret) {
-    context->c= SESIndexN(context->ses, &context->pos);
-  }
+  BOOL ret;
+  if (context->nextIsCurrent) {
+    context->nextIsCurrent= NO;
+    ret= YES;}
+  else {
+    ret= context->pos < SESEnd(context->ses);
+    if (ret) {
+      context->c= SESIndexN(context->ses, &context->pos);
+      if (context->c == '\n') {
+        context->line++;
+        context->col= 1;}
+      else {
+        context->col++;}}}
   return ret;
+}
+
+static inline void ParseContextNextIsCurrent(ParseContext *context)
+{
+  context->nextIsCurrent= 1;
+}
+
+static inline ParseContextPos ParseContextStorePosition(ParseContext *context)
+{
+  ParseContextPos pos;
+  pos.pos= context->pos;
+  pos.col= context->col;
+  pos.line= context->line;
+  pos.c= context->c;
+  return pos;
+}
+static inline void ParseContextRestorePosition(ParseContext *context, ParseContextPos pos)
+{
+  context->pos= pos.pos;
+  context->col= pos.col;
+  context->line= pos.line;
+  context->c= pos.c;
 }
 
 static BOOL ParseContextNextWord(ParseContext *context)
@@ -83,11 +121,10 @@ static BOOL ParseContextNextWord(ParseContext *context)
   while (next && (ret= ParseContextNext(context))) {
     context->nextWordCharCounter++;
     if (context->c == (unichar)'/') {
-      NSUInteger ppos = context->pos;
+      ParseContextPos ppos= ParseContextStorePosition(context);
       if (!ParseContextNext(context)) ret= YES;
       else if (context->c == (unichar)'/') { // Single Line Comment
         while ((ret= ParseContextNext(context)) && !CUnicharIsEOL(context->c));
-        next= NO;
       }
       else if (context->c == (unichar)'*') { // Multiline comment
         BOOL canClose= NO;
@@ -96,7 +133,7 @@ static BOOL ParseContextNextWord(ParseContext *context)
             canClose= YES;}
       }
       else {
-        context->pos = ppos;
+        ParseContextRestorePosition(context, ppos);
         next= NO;
       }
     }
@@ -111,7 +148,7 @@ static BOOL ParseContextNextWord(ParseContext *context)
 static void ParseContextError(ParseContext *context, NSString* object, NSString *expect)
 {
   if (!context->error)
-    context->error= FMT(@"Error while parsing %@, %@ was expected at %lld", object, expect, (MSLong)context->pos);
+    context->error= FMT(@"Error while parsing %s, %s was expected at %lld:%lld", [object UTF8String], [expect UTF8String], (MSLong)context->line, (MSLong)context->col);
 }
 
 #pragma mark Common
@@ -143,14 +180,15 @@ static MSLong parseInt64(ParseContext *context, int *state) {
   return neg ? -v : v;
 }
 
-static id parsePList(NSString *str, MSUInt flags, NSString **error)
+id SESParsePList(SES ses, MSUInt flags, NSString **error)
 {
   id ret= nil;
   ParseContext context;
-  context.ses= SESFromString(str);
+  memset(&context, 0, sizeof(context));
+  context.line= 1;
+  context.col= 1;
+  context.ses= ses;
   context.flags= flags > 0 ? flags & MSPPLParseAll : MSPPLParseAll;
-  context.pos= 0;
-  context.error= nil;
   if (SESOK(context.ses)) {
     if (!ParseContextNextWord(&context)) ParseContextError(&context, @"Object", @"Something");
     else {
@@ -164,6 +202,11 @@ static id parsePList(NSString *str, MSUInt flags, NSString **error)
       *error= context.error;
   }
   return AUTORELEASE(ret);
+}
+
+static id parsePList(NSString *str, MSUInt flags, NSString **error)
+{
+  return SESParsePList(SESFromString(str), flags, error);
 }
 
 static inline BOOL parseObjectIfAllowed(ParseContext *context, id *obj, BOOL isRoot, BOOL (*parseMethod)(ParseContext*, id*), MSUInt rootFlags, NSString* desc)
@@ -367,7 +410,7 @@ static BOOL parseQuotedString(ParseContext *context, id *obj)
   if (state != STATE_END) {
     ParseContextError(context, @"String", expect);
     DESTROY(ret);}
-    *obj= (id)ret;
+  *obj= (id)ret;
   return state == STATE_END;
 }
 
@@ -382,18 +425,18 @@ static BOOL parseSimpleStringCharExt(unichar c)
 }
 static BOOL parseSimpleString(ParseContext *context, id *obj)
 {
-  parsechar_t parseChar; int state= 0; CString *ret; NSUInteger ppos;
+  parsechar_t parseChar; int state= 0; CString *ret;
   
   ret= CCreateString(0);
-  parseChar = (context->flags & MSPPLStrictMode) > 0 ? parseSimpleStringCharExt : parseSimpleStringCharNoExt;
-  ppos = context->pos;
+  parseChar = (context->flags & MSPPLStrictMode) == 0 ? parseSimpleStringCharExt : parseSimpleStringCharNoExt;
   while (!state && parseChar(context->c)) {
     CStringAppendCharacter(ret, context->c);
-    ppos = context->pos;
     if (!ParseContextNext(context)) state= STATE_END;}
-  context->pos = ppos;
+  ParseContextNextIsCurrent(context);
+  if (!CStringLength(ret))
+    DESTROY(ret);
   *obj= (id)ret;
-  return YES;
+  return ret != nil;
 }
 
 #pragma mark User class
