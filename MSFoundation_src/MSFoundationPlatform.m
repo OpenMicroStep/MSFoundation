@@ -119,6 +119,12 @@ static id NSPlaceholderString_myimp_initWithFormat(id self, SEL _cmd, NSString*f
 @implementation NSError
 @end
 
+
+IMP method_getImplementation(Method m)
+{
+  return m ? m->method_imp : NULL;
+}
+
 typedef struct _OSVERSIONINFOEX {
   DWORD dwOSVersionInfoSize;
   DWORD dwMajorVersion;
@@ -132,6 +138,10 @@ typedef struct _OSVERSIONINFOEX {
   BYTE wProductType;
   BYTE wReserved;
 } OSVERSIONINFOEX,  *POSVERSIONINFOEX,  *LPOSVERSIONINFOEX;
+
+#endif
+
+#ifdef WIN32
 
 #define VER_NT_WORKSTATION 0x0000001
 
@@ -201,7 +211,7 @@ NSUInteger MSOperatingSystem(void)
         case 0: return NSWindows2000OperatingSystem ;
         case 1: return NSWindowsXPOperatingSystem ;
         case 2: return NSWindowsServer2003OperatingSystem ;
-        default: return NSWindowsNTOperatingSystem ;
+        default: return NSWindowsNT4OperatingSystem ;
       }
     case 4:
       if (!(dwVersion & 0x80000000)) return NSWindowsNT4OperatingSystem ;
@@ -231,39 +241,5 @@ NSString *MSFindDLL(NSString *dll)
 		}
 	}
   return nil ;
-}
-
-HINSTANCE MSLoadDLL(NSString *dllName)
-{
-	NSString *dllPath = MSFindDLL(dllName) ;
-	HINSTANCE dll = (HINSTANCE)NULL ;
-	if ([dllPath length]) {
-		dll = LoadLibrary([dllPath fileSystemRepresentation]) ;
-    
-    if (!dll) {
-      char *lpMsgBuf;
-      int lastError = GetLastError() ;
-      
-      lpMsgBuf = (LPVOID)"Unknown error";
-      if (FormatMessageA(
-                         FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                         FORMAT_MESSAGE_FROM_SYSTEM |
-                         FORMAT_MESSAGE_IGNORE_INSERTS,
-                         NULL, lastError,
-                         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                         (LPTSTR)&lpMsgBuf, 0, NULL))
-      {
-        NSLog(@"MSLoadDLL Error while loading %@ : %d - %s", dllName, lastError, lpMsgBuf) ;
-        LocalFree(lpMsgBuf);
-      } else
-        NSLog(@"MSLoadDLL Error while loading %@ : %d", dllName, lastError) ;
-    }
-	}
-	return dll ;
-}
-
-IMP method_getImplementation(Method m)
-{
-  return m ? m->method_imp : NULL;
 }
 #endif

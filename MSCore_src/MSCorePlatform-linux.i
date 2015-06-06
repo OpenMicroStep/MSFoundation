@@ -1,4 +1,4 @@
-/* MSCoreSystem.c
+/* MSCorePlatform-unix.c
  
  This file is is a part of the MicroStep Framework.
  
@@ -41,72 +41,56 @@
  
  */
 
-#include <sys/time.h>
-#include <errno.h>
-#include <libproc.h>
-#include <sched.h>
-#include <mach-o/dyld.h>
+#include <link.h>
 
-static const struct timespec __pthread_mutex_timedlock_interval = { .tv_sec = 0, .tv_nsec = 10000000 };
-
-int pthread_mutex_timedlock(pthread_mutex_t *restrict mutex, const struct timespec *restrict abs_timeout)
-{
-  int ret;
-  struct timeval time;
-  
-  while((ret= pthread_mutex_trylock(mutex)) == EBUSY)
-  {
-    gettimeofday(&time, NULL);
-    if(time.tv_sec >= abs_timeout->tv_sec && time.tv_usec * 1000 >= abs_timeout->tv_nsec)
-      return ETIMEDOUT;
-    
-    nanosleep(&__pthread_mutex_timedlock_interval, NULL);
-  }
-  
-  return ret;
-}
-
-static const char* __ms_executable_path_ptr = NULL;
-static char __ms_executable_path[PROC_PIDPATHINFO_MAXSIZE];
-
-static __attribute__((constructor)) void init_ms_executable_path()
-{
-  int ret; pid_t pid;
-
-  pid= getpid();
-  ret= proc_pidpath(pid, __ms_executable_path, sizeof(__ms_executable_path));
-  if (ret > 0)
-    __ms_executable_path_ptr = __ms_executable_path;
-}
-
+#if __has_include(<sys/auxv.h>) // recent linux glic have auxiliary channel api
+#include <sys/auxv.h>
 const char* ms_get_current_process_path()
 {
-  return __ms_executable_path_ptr;
+  return (const char*)getauxval(AT_EXECFN);
 }
+#else
+static char __ms_get_current_process_path[PATH_MAX] = {0};
+static __attribute__((constructor)) void ms_get_current_process_path_init()
+{
+  ssize_t sz;
+  if ((sz= readlink ("/proc/self/exe", __ms_get_current_process_path, sizeof(__ms_get_current_process_path) - 1)) > 0) {
+    __ms_get_current_process_path[sz] = '\0';
+  }
+}
+const char* ms_get_current_process_path()
+{
+  return __ms_get_current_process_path;
+}
+#endif
 
+struct ms_shared_object_iterate_data 
+{
+  void (*callback)(const char *name, void *data);
+  void *data;
+};
+
+static int ms_shared_object_iterate_cb(struct dl_phdr_info *info, size_t size, void *data)
+{
+  struct ms_shared_object_iterate_data d = *(struct ms_shared_object_iterate_data*)data;
+  d.callback(info->dlpi_name, d.data);
+  return 0;
+}
+ 
 void ms_shared_object_iterate(void (*callback)(const char *name, void *data), void *data)
 {
-  uint32_t i, count;
-  for (i=0, count= _dyld_image_count(); i < count; ++i) {
-    callback(_dyld_get_image_name(i), data);
-  }
+  struct ms_shared_object_iterate_data d;
+  d.callback = callback;
+  d.data = data;
+  dl_iterate_phdr(ms_shared_object_iterate_cb, &d);
 }
 
 int timespec_get(struct timespec *ts, int base)
 {
-  if (base == TIME_UTC) {
-      struct timeval now;
-      int rv = gettimeofday(&now, NULL);
-      if (rv == 0) {
-        ts->tv_sec = now.tv_sec;
-        ts->tv_nsec= now.tv_usec * 1000;
-        return base;
-      }
-  }
-  return 0;
+  return (base == TIME_UTC && clock_gettime(CLOCK_REALTIME, ts) == 0) ? base : 0;
 }
 
 void thrd_yield()
 {
-  sched_yield();
+  pthread_yield();
 }

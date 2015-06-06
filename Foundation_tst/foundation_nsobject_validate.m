@@ -124,54 +124,16 @@ static void object_perform(test_t *test)
   [obj release];
 }
 
-
-typedef struct atom_t {
-  long            value;
-  pthread_mutex_t mutex;
-  pthread_cond_t  cond;
-}
-* atom;
-#define STRUCT_ATOM_INITIALIZER(V) {(V),PTHREAD_MUTEX_INITIALIZER,PTHREAD_COND_INITIALIZER}
-void atom_set(atom a, long value)
-{
-  if (a) {
-    a->value= value;
-    pthread_mutex_init(&(a->mutex), NULL);
-    pthread_cond_init(&(a->cond), NULL);}
-}
-void atom_unset(atom a)
-{
-  if (a) {
-    a->value= 0;
-    pthread_mutex_destroy(&(a->mutex));
-    pthread_cond_destroy(&(a->cond));}
-}
-void atom_add_and_signal(atom a, long toBeAdded)
-{
-  if (a) {
-    __sync_add_and_fetch(&(a->value), toBeAdded);
-    pthread_cond_signal(&(a->cond));}
-}
-void atom_wait_count(atom a, long count)
-{
-  if (a) {
-    pthread_mutex_lock(&(a->mutex));
-    while (a->value < count) {
-      pthread_cond_wait(&(a->cond), &(a->mutex));}
-    pthread_mutex_unlock(&(a->mutex));}
-}
-
 #define RCOUNT 1000000
-struct pthread_data_t {
+struct thrd_data_t {
   long no;
   id o;
-  atom atom;
-  pthread_t thread;
+  thrd_t thread;
   long collision;};
 
-void* _concurentRetain(void* data)
+int _concurentRetain(void* data)
 {
-  struct pthread_data_t *d= (struct pthread_data_t *)data;
+  struct thrd_data_t *d= (struct thrd_data_t *)data;
   id o= d->o;
   NSUInteger r0,r,collision,i;
   r0= [o retainCount]; collision= 0;
@@ -185,12 +147,11 @@ void* _concurentRetain(void* data)
     //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
   }
   d->collision= collision;
-  atom_add_and_signal(d->atom, 1);
-  return NULL;
+  return 0;
 }
-void* _concurentRelease(void* data)
+int _concurentRelease(void* data)
 {
-  struct pthread_data_t *d= (struct pthread_data_t *)data;
+  struct thrd_data_t *d= (struct thrd_data_t *)data;
   id o= d->o;
   NSUInteger r0,r,collision,i;
   r0= [o retainCount]; collision= 0;
@@ -204,24 +165,13 @@ void* _concurentRelease(void* data)
     //else printf("   %d %lu %lu\n", d->m==&_m1?1:2, i, r);
   }
   d->collision= collision;
-  atom_add_and_signal(d->atom, 1);
-  return NULL;
+  return 0;
 }
 
-#define TEST_JOIN  1
-#define TEST_SLEEP 2
-#define TEST_ATOM  3
-
-pthread_t _launchThread(test_t *test, void *(*start_routine)(void *), void* data, int what)
+static BOOL _launchThread(test_t *test, thrd_t *thr, thrd_start_t func, void *arg)
 {
-  pthread_attr_t attr;
-  pthread_t      thread= 0;
-  BOOL okAttr, ok;
-  ok= okAttr= TASSERT(test, !pthread_attr_init(&attr),"error");
-  if (ok) ok= TASSERT(test, !pthread_attr_setdetachstate(&attr, what==TEST_JOIN?PTHREAD_CREATE_JOINABLE:PTHREAD_CREATE_DETACHED),"error");
-  if (ok) ok= TASSERT(test, !pthread_create(&thread, &attr, start_routine, data), "error");
-  if (okAttr) TASSERT(test, !pthread_attr_destroy(&attr),"error");
-  return thread;
+  int ret= thrd_create(thr, func, arg);
+  return TASSERT(test, ret == thrd_success, "error");
 }
 
 #ifdef WO451
@@ -236,62 +186,44 @@ pthread_t _launchThread(test_t *test, void *(*start_routine)(void *), void* data
 static void object_threadRetain(test_t *test)
 {
   id o;
-  int state;
-  struct pthread_data_t d1, d2, d3;
-  struct atom_t struct_atom= STRUCT_ATOM_INITIALIZER(0);
-  
+  BOOL canWait;
+  struct thrd_data_t d1, d2, d3;  
 #ifdef WO451
   //force some initializations under WO451
   [NSThread detachNewThreadSelector:@selector(fakeLaunch:) toTarget:[NSObjectTestsThreadFakeLauncher new] withObject:nil];
 #endif
 
   o= [[NSObject alloc] init];
-  d1.no= 1; d1.o= o; d1.atom= NULL;
-  d2.no= 2; d2.o= o; d2.atom= NULL;
-  d3.no= 3; d3.o= o; d3.atom= NULL;
-  
-  for (state=TEST_JOIN; state<=TEST_ATOM; state++) {
-    if (state>TEST_JOIN) {d1.atom= &struct_atom; d2.atom= &struct_atom; d3.atom= &struct_atom;}
-    struct_atom.value= 0; d1.collision= 0; d2.collision= 0; d3.collision= 0;
-    d1.thread= _launchThread(test, _concurentRetain, &d1, state);
-    d2.thread= _launchThread(test, _concurentRetain, &d2, state);
-    d3.thread= _launchThread(test, _concurentRetain, &d3, state);
-    if (d1.thread && d2.thread && d3.thread) {
-      if (state==TEST_JOIN) {
-        if (d1.thread) pthread_join(d1.thread,NULL);
-        if (d2.thread) pthread_join(d2.thread,NULL);
-        if (d3.thread) pthread_join(d3.thread,NULL);}
-      else if (state==TEST_SLEEP) {
-        while (struct_atom.value!=3) {
-          struct timespec t= {0,1000};
-          int e= nanosleep(&t, NULL);
-          if (e) printf("nanosleep sig abort\n");}}
-      else if (state==TEST_ATOM) {
-        atom_wait_count(&struct_atom, 3);}}
+  d1.no= 1; d1.o= o;
+  d2.no= 2; d2.o= o;
+  d3.no= 3; d3.o= o;
+
+  canWait= YES; d1.collision= 0; d2.collision= 0; d3.collision= 0;
+  canWait= canWait && _launchThread(test, &d1.thread, _concurentRetain, &d1);
+  canWait= canWait && _launchThread(test, &d2.thread, _concurentRetain, &d2);
+  canWait= canWait && _launchThread(test, &d3.thread, _concurentRetain, &d3);
+  if (canWait) {
+    TASSERT(test, thrd_join(d1.thread,NULL) == thrd_success, "thrd_join");
+    TASSERT(test, thrd_join(d2.thread,NULL) == thrd_success, "thrd_join");
+    TASSERT(test, thrd_join(d3.thread,NULL) == thrd_success, "thrd_join");
     TASSERT_EQUALS(test, [o retainCount], 3*RCOUNT+1, "retainCount %u != expected %u");
     TASSERT(test, d1.collision + d2.collision > 0, "retain  collisions 1:%ld 2:%ld", d1.collision, d2.collision);
     //printf("retain  collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
-    
-    struct_atom.value= 0; d1.collision= 0; d2.collision= 0; d3.collision= 0;
-    d1.thread= _launchThread(test, _concurentRelease, &d1, state);
-    d2.thread= _launchThread(test, _concurentRelease, &d2, state);
-    d3.thread= _launchThread(test, _concurentRelease, &d3, state);
-    if (d1.thread && d2.thread && d3.thread) {
-      if (state==TEST_JOIN) {
-        if (d1.thread) pthread_join(d1.thread,NULL);
-        if (d2.thread) pthread_join(d2.thread,NULL);
-        if (d3.thread) pthread_join(d3.thread,NULL);}
-      else if (state==TEST_SLEEP) {
-        while (struct_atom.value!=3) {
-          struct timespec t= {0,1000};
-          int e= nanosleep(&t, NULL);
-          if (e) printf("nanosleep sig abort\n");}}
-      else if (state==TEST_ATOM) {
-        atom_wait_count(&struct_atom, 3);}}
+  }
+
+  canWait= YES; d1.collision= 0; d2.collision= 0; d3.collision= 0;
+  canWait= canWait && _launchThread(test, &d1.thread, _concurentRelease, &d1);
+  canWait= canWait && _launchThread(test, &d2.thread, _concurentRelease, &d2);
+  canWait= canWait && _launchThread(test, &d3.thread, _concurentRelease, &d3);
+  if (canWait) {
+    TASSERT(test, thrd_join(d1.thread,NULL) == thrd_success, "thrd_join");
+    TASSERT(test, thrd_join(d2.thread,NULL) == thrd_success, "thrd_join");
+    TASSERT(test, thrd_join(d3.thread,NULL) == thrd_success, "thrd_join");
     TASSERT_EQUALS(test, [o retainCount], 1, "retainCount %u != expected %u");
     TASSERT(test, d1.collision + d2.collision > 0, "release collisions 1:%ld 2:%ld", d1.collision, d2.collision);
     //printf("release collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
-    }
+  }
+
   RELEASE(o);
 }
 

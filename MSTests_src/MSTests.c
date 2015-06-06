@@ -93,10 +93,10 @@ static void test_print(int level,test_t *tests)
       test_print(level+1,test->subTests);}}
 }
 
-static int bindFct(dl_handle_t handle, const char *name, void * imp)
+static int bindFct(ms_shared_object_t handle, const char *name, void * imp)
 {
   void *fct;
-  if (!(fct= dlsym(handle, name)))
+  if (!(fct= ms_shared_object_symbol(handle, name)))
     fprintf(stderr, "Unable to find symbol %s", name);
   else *(void **)fct= imp;
   return fct != 0;
@@ -106,20 +106,32 @@ static int test_module(const char *module, const char *prefix, const char *suffi
 {
   int err= 0, e;
   test_t *tests;
-  dl_handle_t testLib;
-  char path[strlen(prefix) + strlen(module) + strlen(suffix)];
+  ms_shared_object_t testLib;
+  char path[strlen(prefix) + strlen(module) + strlen(suffix) + 1];
   strcpy(path, prefix);
   strcpy(path + strlen(prefix), module);
   strcpy(path + strlen(prefix) + strlen(module), suffix);
+
+#ifdef WIN32
+  char *sepPos = MAX(strrchr(module, '/'), strrchr(module, '\\'));
+  if(sepPos) {
+    int len = sepPos - module;
+    char dir[len + 1];
+    memcpy(dir, module, len);
+    dir[len] = '\0';
+    SetDllDirectoryA(dir);
+  }
+#endif
+
 //printf("Loading tests for %s (%s)\n", module, path);
   
-  testLib= dlopen(path, RTLD_LAZY);
+  testLib= ms_shared_object_open(path);
   tests= NULL;
   if (!testLib) {
     printf("Unable to load lib %s\n", path);
     err++;}
   if (!err) {
-    tests= dlsym(testLib, "RootTests");
+    tests= ms_shared_object_symbol(testLib, "RootTests");
     if (!tests) {
       printf("Unable to find 'RootTests' in %s\n", path);
       err++;}}
@@ -137,7 +149,7 @@ static int test_module(const char *module, const char *prefix, const char *suffi
     test_print(0,tests);
     if (!e) printf("********** ALL THE TESTS ARE SUCCESSFUL !!!                   **********\n\n");
     else    printf("********** FAIL *** FAIL *** FAIL *** FAIL *** FAIL *** FAIL  **********\n\n");
-    dlclose(testLib);}
+    ms_shared_object_close(testLib);}
   return err;
 }
 
@@ -164,8 +176,9 @@ int main(int argc, const char * argv[])
   TTags= CCreateArrayWithObject((id)TTag1);
   CArrayAddObject(TTags, (id)TTag2);
   CMessageAddBehaviorForType(CBehaviorTest, CMessageTest);
-  for (argi= 1; argi < argc; ++argi)
-    err += test_module(argv[argi], __prefix, __suffix);
+  for (argi= 1; argi < argc; ++argi) {
+    err += test_module(argv[argi], "", "");
+  }
 //ASSERTF(0 == 1, "%d != %d",0,1);
 //BOOL on= CMessageDebugOn;
 //CMessageDebugOn= YES;

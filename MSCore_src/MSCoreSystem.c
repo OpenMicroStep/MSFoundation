@@ -200,12 +200,12 @@ MSInt MSCurrentTimezoneOffset(void)
 
 MSInt MSCurrentProcessID(void)
 {
-    return (MSInt)getpid();
+    return (MSInt)ms_get_current_process_id();
 }
 
 MSInt  MSCurrentThreadID(void)
 {
-    return (MSInt)gettid();
+    return (MSInt)ms_get_current_thread_id();
 }
 /*
 MSLong MSCurrentHostID(void)

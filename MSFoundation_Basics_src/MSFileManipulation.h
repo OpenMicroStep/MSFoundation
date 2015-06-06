@@ -22,11 +22,11 @@ MSFoundationExtern BOOL MSRemoveDirectory(NSString *directory) ;
 MSFoundationExtern BOOL MSRemoveRecursiveDirectory(NSString *directory) ;
 
 
-MSFoundationExtern NSString *MSRandomFile(NSString *extension) ;
-MSFoundationExtern NSString *MSTemporaryDirectory(void) ;
-MSFoundationExtern NSString *MSTemporaryPath(NSString *extension) ;
-MSFoundationExtern NSString *MSDisposableFolder(NSString *extension) ;
-MSFoundationExtern NSString *MSTemporaryFile(NSString *extension) ;
+//MSFoundationExtern NSString *MSRandomFile(NSString *extension) ;
+//MSFoundationExtern NSString *MSTemporaryDirectory(void) ;
+//MSFoundationExtern NSString *MSTemporaryPath(NSString *extension) ;
+//MSFoundationExtern NSString *MSDisposableFolder(NSString *extension) ;
+//MSFoundationExtern NSString *MSTemporaryFile(NSString *extension) ;
 
 MSFoundationExtern MSFileHandle MSCreateFileForWritingAtPath(NSString *path) ;
 MSFoundationExtern MSFileHandle MSOpenFileForReadingAtPath(NSString *path) ;
@@ -45,7 +45,7 @@ MSFoundationExtern const unsigned char *bmh_memmem(const unsigned char *haystack
 #ifdef WO451
 MSFoundationExtern char *strtok_r(char *s, const char *delim, char **last) ;
 #endif
-#ifdef WIN32
+#ifndef APPLE
 MSFoundationExtern char *strnstr(const char *s1, const char *s2, size_t n) ;
 #endif
 

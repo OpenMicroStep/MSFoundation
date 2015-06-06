@@ -61,18 +61,11 @@ NSString *MSPathForCommand(NSString *command)
     return nil ;
 }
 
-static int _MSPid(void)
-{
-#ifdef WIN32
-    return (int)GetCurrentProcessId();
-#else
-    return (int)getpid() ;
-#endif
-}
+/*
 NSString *MSRandomFile(NSString *extension)
 {
     unsigned long long ts = (MSULong)ABS(GMTNow()) * 1000UL ;
-    NSString *s = [NSString stringWithFormat:@"%04x%08x%08x%08x", _MSPid(), __increment++, (unsigned int)(ts >> 32), (unsigned int)(ts & 0xffffffff)] ;
+    NSString *s = [NSString stringWithFormat:@"%04x%08x%08x%08x", ms_get_current_process_id(), __increment++, (unsigned int)(ts >> 32), (unsigned int)(ts & 0xffffffff)] ;
     if ([extension length]) s = [s stringByAppendingPathExtension:extension] ;
     return s ;
 }
@@ -95,7 +88,7 @@ NSString *MSDisposableFolder(NSString *extension)
 
 NSString *MSTemporaryFile(NSString *extension)
 { return [MSTemporaryDirectory() stringByAppendingPathComponent:MSRandomFile(extension)] ; }
-
+*/
 
 BOOL MSDeleteFile(NSString *file) { return _MSDeleteFile(_MSFileSystemRepresentation(file)) ; }
 BOOL MSRemoveDirectory(NSString *directory) { return _MSRemoveDirectory(_MSFileSystemRepresentation(directory)) ; }
@@ -202,6 +195,14 @@ NSArray * MSDirectoryContentsAtPath(NSString *path) {
     
     return AUTORELEASE(content) ;
 }
+
+#ifndef APPLE
+char *strnstr(const char *s1, const char *s2, size_t n)
+{
+    return (char *)bmh_memmem((const unsigned char *)s1, n,
+                              (const unsigned char *)s2, strlen(s2)) ;
+}
+#endif
 
 // Boyer–Moore–Horspool memmem
 const unsigned char * bmh_memmem(const unsigned char* haystack, size_t hlen,

@@ -32,7 +32,7 @@ static inline BOOL _MSFileExists(char *path, BOOL *isDirectory)
 
 static inline MSFileHandle _MSCreateFileForWritingAtPath(NSString *path)
 {
-    return (MSFileHandle)CreateFile([path cString],         // name of the write
+    return (MSFileHandle)CreateFile([path UTF8String],         // name of the write
                                     GENERIC_WRITE,          // open for writing
                                     0,                      // do not share
                                     NULL,                   // default security
@@ -43,7 +43,7 @@ static inline MSFileHandle _MSCreateFileForWritingAtPath(NSString *path)
 
 static inline MSFileHandle _MSOpenFileForReadingAtPath(NSString *path)
 {
-    return (MSFileHandle)CreateFile([path cString],         // name of the read
+    return (MSFileHandle)CreateFile([path UTF8String],         // name of the read
                                     GENERIC_READ,           // open for reading
                                     FILE_SHARE_READ,        // share read
                                     NULL,                   // default security
@@ -111,7 +111,7 @@ static inline MSFileOperationStatus _MSCloseFile(MSFileHandle file)
 
 static inline MSFileOperationStatus _MSMoveFile(NSString *sourcePath, NSString *destPath)
 {
-    if(MoveFile([sourcePath cString], [destPath cString])) return MSFileOperationSuccess ;
+    if(MoveFile([sourcePath UTF8String], [destPath UTF8String])) return MSFileOperationSuccess ;
     return MSFileOperationFail ;
 }
 
@@ -124,31 +124,21 @@ typedef DWORD (__stdcall *WNetCloseEnumProto)(HANDLE) ;
 static inline unsigned _systemIsWinNt2kXpVistaCompatible()
 {
     unsigned int winVersion = MSOperatingSystem();
-    switch (winVersion) {
-        case NSWindows2000OperatingSystem: return 1;
-        case NSWindowsXPOperatingSystem: return 1;
-        case NSWindowsServer2003OperatingSystem: return 1;
-        case NSWindowsVistaOperatingSystem: return 1;
-        case NSWindowsServer2008OperatingSystem: return 1;
-        case NSWindowsNTOperatingSystem: return 1;
-        case NSWindowsSevenOperatingSystem: return 1;
-        case NSWindowsServer2008R2OperatingSystem: return 1;
-        default: return 0;
-    }
+    return winVersion > NSWindows2000OperatingSystem && winVersion < NSLinuxOperatingSystem;
 }
 
 static inline NSDictionary *_MSWinNetDrives()
 {
     if (!_drives && _systemIsWinNt2kXpVistaCompatible()) {
-        HINSTANCE mprDLL =  (HINSTANCE) NULL ;
+        ms_shared_object_t mprDLL =  (HINSTANCE) NULL ;
         _drives = NEW(NSMutableDictionary) ;
         
-        mprDLL = MSLoadDLL(@"MPR.DLL") ;
+        mprDLL = ms_shared_object_open("MPR.DLL") ;
         
         if (mprDLL) {
-            WNetOpenEnumAProto WNetOpenEnumA = (WNetOpenEnumAProto)GetProcAddress(mprDLL, "WNetOpenEnumA") ;
+            WNetOpenEnumAProto WNetOpenEnumA = (WNetOpenEnumAProto)ms_shared_object_symbol(mprDLL, "WNetOpenEnumA") ;
             WNetEnumResourceAProto WNetEnumResourceA = (WNetEnumResourceAProto)GetProcAddress(mprDLL, "WNetEnumResourceA") ;
-            WNetCloseEnumProto WNetCloseEnum = (WNetCloseEnumProto)GetProcAddress(mprDLL, "WNetCloseEnum") ;
+            WNetCloseEnumProto WNetCloseEnum = (WNetCloseEnumProto)ms_shared_object_symbol(mprDLL, "WNetCloseEnum") ;
             
             if (WNetOpenEnumA && WNetEnumResourceA && WNetCloseEnum) {
                 DWORD success = 0;
@@ -446,12 +436,6 @@ cont:
     }
 }
 #endif
-
-char *strnstr(const char *s1, const char *s2, size_t n)
-{
-    return (char *)bmh_memmem((const unsigned char *)s1, n,
-                              (const unsigned char *)s2, strlen(s2)) ;
-}
 
 static inline BOOL _MSGetFileSize(char *path, MSLong *size)
 {

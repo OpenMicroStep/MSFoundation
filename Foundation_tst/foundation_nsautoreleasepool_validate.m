@@ -39,36 +39,16 @@ static void pool_some(test_t *test)
 }
 
 
-typedef struct atom_t {
-  long            value;
-  pthread_mutex_t mutex;
-  pthread_cond_t  cond;}
-* atom;
-
-#define STRUCT_ATOM_INITIALIZER(V) {(V),PTHREAD_MUTEX_INITIALIZER,PTHREAD_COND_INITIALIZER}
-void atom_set(atom a, long value);
-void atom_unset(atom a);
-void atom_add_and_signal(atom a, long toBeAdded);
-void atom_wait_count(atom a, long count);
-pthread_t _launchThread(test_t *test, void *(*start_routine)(void *), void* data, int what);
-
-#ifdef WO451
-// WO451 fails if RCOUNT is too heavy, the reason for this is still unknown
-#define RCOUNT 1000
-#else
 #define RCOUNT 1000000
-#endif
-
-struct pthread_data_t {
+struct thrd_data_t {
   long no;
   id o;
-  atom atom;
-  pthread_t thread;
+  thrd_t thread;
   long collision;};
 
-static void* _concurentAutorelease(void* data)
+static int _concurentAutorelease(void* data)
 {
-  struct pthread_data_t *d= (struct pthread_data_t *)data;
+  struct thrd_data_t *d= (struct thrd_data_t *)data;
   id o= d->o;
   NSAutoreleasePool *pool, *pool2;
   NSUInteger r0,r,collision,i;
@@ -86,13 +66,8 @@ static void* _concurentAutorelease(void* data)
   [pool2 release];
   [pool release];
   d->collision= collision;
-  atom_add_and_signal(d->atom, 1);
-  return NULL;
+  return 0;
 }
-
-#define TEST_JOIN  1
-#define TEST_SLEEP 2
-#define TEST_ATOM  3
 
 #ifdef WO451
 @interface NSAutoreleaseTestsThreadFakeLauncher : NSObject
@@ -103,12 +78,17 @@ static void* _concurentAutorelease(void* data)
 @end
 #endif
 
+static BOOL _launchThread(test_t *test, thrd_t *thr, thrd_start_t func, void *arg)
+{
+  int ret= thrd_create(thr, func, arg);
+  return TASSERT(test, ret == thrd_success, "error");
+}
+
 static void pool_threadAutorelease(test_t *test)
 {
   id o;
-  int state;
-  struct pthread_data_t d1, d2, d3;
-  struct atom_t struct_atom= STRUCT_ATOM_INITIALIZER(0);
+  BOOL canWait;
+  struct thrd_data_t d1, d2, d3;
   
 #ifdef WO451
   //force some initializations under WO451
@@ -116,30 +96,23 @@ static void pool_threadAutorelease(test_t *test)
 #endif
 
   o= [[NSObject alloc] init];
-  d1.no= 1; d1.o= o; d1.atom= NULL;
-  d2.no= 2; d2.o= o; d2.atom= NULL;
-  d3.no= 3; d3.o= o; d3.atom= NULL;
+  d1.no= 1; d1.o= o;
+  d2.no= 2; d2.o= o;
+  d3.no= 3; d3.o= o;
 
-  for (state=TEST_JOIN; state<=TEST_ATOM; state++) {
-    if (state>TEST_JOIN) {d1.atom= &struct_atom; d2.atom= &struct_atom; d3.atom= &struct_atom;}
-    struct_atom.value= 0; d1.collision= 0; d2.collision= 0; d3.collision= 0;
-    d1.thread= _launchThread(test, _concurentAutorelease, &d1, state);
-    d2.thread= _launchThread(test, _concurentAutorelease, &d2, state);
-    d3.thread= _launchThread(test, _concurentAutorelease, &d3, state);
-    if (d1.thread && d2.thread && d3.thread) {
-      if (state==TEST_JOIN) {
-        pthread_join(d1.thread,NULL);
-        pthread_join(d2.thread,NULL);
-        pthread_join(d3.thread,NULL);}
-      else if (state==TEST_SLEEP) {
-        while (struct_atom.value!=3) {
-          usleep(1);}}
-      else if (state==TEST_ATOM) {
-        atom_wait_count(&struct_atom, 3);}}
+  canWait= YES; d1.collision= 0; d2.collision= 0; d3.collision= 0;
+  canWait= canWait && _launchThread(test, &d1.thread, _concurentAutorelease, &d1);
+  canWait= canWait && _launchThread(test, &d2.thread, _concurentAutorelease, &d2);
+  canWait= canWait && _launchThread(test, &d3.thread, _concurentAutorelease, &d3);
+  if (canWait) {
+    TASSERT(test, thrd_join(d1.thread,NULL) == thrd_success, "thrd_join");
+    TASSERT(test, thrd_join(d2.thread,NULL) == thrd_success, "thrd_join");
+    TASSERT(test, thrd_join(d3.thread,NULL) == thrd_success, "thrd_join");
     TASSERT_EQUALS(test, [o retainCount], 1, "retainCount %u != expected %u");
     TASSERT(test, d1.collision + d2.collision > 0, "retain  collisions 1:%ld 2:%ld", d1.collision, d2.collision);
     //printf("retain  collisions 1:%ld 2:%ld\n", d1.collision, d2.collision);
-    }
+  }
+
   RELEASE(o);
 }
 

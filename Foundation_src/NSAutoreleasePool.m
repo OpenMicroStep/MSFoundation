@@ -1,19 +1,16 @@
-
 #import "FoundationCompatibility_Private.h"
 
 @interface NSAutoreleasePool (Private)
 - (void)_drainTree;
 @end
 
-static pthread_key_t __currentPool_key;
-
-static void __currentPool_key_free(void *pool)
-{
+void __currentPool_dtor(void *pool) {
   if(pool) {
     fprintf(stderr, "An autorelease pool was still present at the end of the current thread");
     [(NSAutoreleasePool*)pool _drainTree];
   }
 }
+MS_DECLARE_THREAD_LOCAL(__currentPool, __currentPool_dtor);
 
 static inline void addObject(CArray *objects, id object)
 {
@@ -28,14 +25,9 @@ static inline void drain(CArray *objects)
 }
 
 @implementation NSAutoreleasePool
-+ (void)load
-{
-  pthread_key_create(&__currentPool_key, __currentPool_key_free);
-}
-
 +(void)addObject:(id)object
 {
-  NSAutoreleasePool *pool= pthread_getspecific(__currentPool_key);
+  NSAutoreleasePool *pool= tss_get(__currentPool);
   if(!pool) {
     printf("no autorelease pool, leaking (%s*)%p\n", object_getClassName(object), object);
     abort();
@@ -46,12 +38,12 @@ static inline void drain(CArray *objects)
 
 -(instancetype)init
 {
-  NSAutoreleasePool *pool= pthread_getspecific(__currentPool_key);
+  NSAutoreleasePool *pool= tss_get(__currentPool);
   if(pool) {
     _parent= pool;
   }
   _objects= CCreateArrayWithOptions(0, YES, NO);
-  pthread_setspecific(__currentPool_key, self);
+  tss_set(__currentPool, self);
   return self;
 }
 
@@ -64,7 +56,7 @@ static inline void drain(CArray *objects)
 {
   drain(_objects);
   RELEASE(_objects);
-  pthread_setspecific(__currentPool_key, _parent);
+  tss_set(__currentPool, _parent);
   [super dealloc];
 }
 

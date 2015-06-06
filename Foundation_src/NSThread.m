@@ -6,19 +6,12 @@
 #define STATE_CANCELED 3
 #define STATE_FINISHED 4
 
-static pthread_key_t __currentThread_key;
-
-static void __currentThread_key_free(void *thread)
-{
+static void __currentThread_dtor(void *thread) {
   [(NSThread*)thread release];
 }
+MS_DECLARE_THREAD_LOCAL(__currentThread, __currentThread_dtor);
 
 @implementation NSThread 
-+ (void)load
-{
-  pthread_key_create(&__currentThread_key, __currentThread_key_free);
-}
-
 + (BOOL)isMultiThreaded
 {
 	return YES;
@@ -59,11 +52,11 @@ static void __currentThread_key_free(void *thread)
 
 + (NSThread *)currentThread
 {
-	NSThread *thread= pthread_getspecific(__currentThread_key);
+	NSThread *thread= tss_get(__currentThread);
 	if(!thread) {
 		thread= [NSThread new];
     thread->_state= STATE_RUNNING;
-    pthread_setspecific(__currentThread_key, self);
+    tss_set(__currentThread, self);
 	}
 	return thread;
 }
@@ -73,23 +66,23 @@ static void __currentThread_key_free(void *thread)
 	return _dic;
 }
 
-static void* start_routine(void* data)
+static int start_routine(void* data)
 {
   NSThread *thread= (NSThread*)data;
   if(__sync_bool_compare_and_swap(&thread->_state, STATE_STARTING, STATE_RUNNING)) {
-    pthread_setspecific(__currentThread_key, thread);
+    tss_set(__currentThread, thread);
     [thread main];
   }
   [thread release];
-  return NULL;
+  return 0;
 }
 
 - (void)start
 {
   if(__sync_bool_compare_and_swap(&_state, STATE_NEW, STATE_STARTING)) {
-    pthread_t thread;
+    thrd_t thread;
     [self retain];
-    pthread_create(&thread, NULL, start_routine, self);
+    thrd_create(&thread, start_routine, self);
   }
 }
 

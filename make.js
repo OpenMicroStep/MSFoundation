@@ -2,7 +2,19 @@ module.exports = {
   name : "OpenMicroStep", // Name of the workspace
   environments: {
     "openmicrostep-base" : {
-      compiler: "clang"
+      compiler: "clang",
+      directories: {
+        intermediates: ".intermediates",
+        output: "out",
+        publicHeaders: "include",
+        target: {
+          "Library": "lib",
+          "Framework": "framework",
+          "Executable": "bin",
+          "Bundle": "bundle",
+          "CXXExternal": "lib"
+        }
+      }
     },
 
     "openmicrostep-core-i386-darwin"            :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
@@ -483,7 +495,7 @@ module.exports = {
           target.addLibraries(['-lm', '-luuid', '-ldl']);
         }
         else if (target.platform === "win32") {
-          target.addLibraries(['-lRpcrt4']);
+          target.addLibraries(['-lRpcrt4', '-lPsapi']);
         }
       },
       exports: {
@@ -507,7 +519,7 @@ module.exports = {
       "publicHeaders": ["MSTests?MSPublicHeaders"],
       "configure": function(target) {
         if(target.platform === "linux") {
-          target.addLibraries(['-ldl']);
+          target.addLibraries(['-ldl', '-lpthread', '-lrt']);
         }
       }
     },
@@ -535,12 +547,11 @@ module.exports = {
         }
 
         if (target.platform === "linux") {
-          target.addLibraries(['-lm', '-luuid', '-ldl']);
+          target.addLibraries(['-lm', '-luuid', '-ldl', '-lpthread', '-lrt']);
         }
         else if (target.platform === "win32") {
-          target.addLibraries(['-lRpcrt4']);
+          target.addLibraries(['-lRpcrt4', '-lPsapi', '-lWs2_32']);
         }
-        target.addLibraries(['-lpthread']);
       },
       "exports": {
         configure: function(other_target, target) {
