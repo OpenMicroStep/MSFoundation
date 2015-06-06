@@ -817,11 +817,6 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
   return CStringSES((CString*)self);
 }
 
-- (NSString *)substringWithRange:(NSRange)range
-{
-  return AUTORELEASE((id)CCreateStringWithBytes(NSUnicodeStringEncoding, _buf + range.location, range.length));
-}
-
 #pragma mark Mutable primitives
 
 - (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)aString
@@ -981,6 +976,61 @@ static inline NSString* _caseTransformedString(NSString* self, unichar (*firstCh
   return [WHO initWithCStringNoCopy:cString length:length freeWhenDone:flag];
 }
 */
+#pragma mark Dividing strings
+
+- (NSArray *)componentsSeparatedByString:(NSString *)separator
+{
+  CArray *arr; CString *cur; SES ses, searched, find, sub;
+  arr= CCreateArray(0);
+  ses= sub= SESFromString(self);
+  searched= SESFromString(separator);
+  while(SESOK(find= SESFind(ses, searched))) {
+    SESSetEnd(sub, SESStart(find));
+    cur= CCreateStringWithSES(sub);
+    CArrayAddObject(arr, (id)cur);
+    RELEASE(cur);
+    SESSetStart(ses, SESEnd(find));
+    SESSetStart(sub, SESEnd(find));}
+  cur= CCreateStringWithSES(ses);
+  CArrayAddObject(arr, (id)cur);
+  RELEASE(cur);
+  return AUTORELEASE(arr);
+}
+- (NSString *)substringFromIndex:(NSUInteger)anIndex
+{
+  SES ses; id ret= self;
+  ses= SESFromString(self);
+  if (SESOK(ses)) {
+    SESSetStart(ses, SESForwardN(ses, SESStart(ses), anIndex));
+    ret= AUTORELEASE(CCreateStringWithSES(ses));}
+  return ret;
+}
+- (NSString *)substringToIndex:(NSUInteger)anIndex
+{
+  SES ses; NSUInteger i, e, n; id ret= self; CString *s;
+  ses= SESFromString(self);
+  if (SESOK(ses)) {
+    s= CCreateString(anIndex);
+    i= SESStart(ses); e= SESEnd(ses);
+    for (n= 0; i < e && n < anIndex; ++n) {
+      CStringAppendCharacter(s, SESIndexN(ses, &i));}
+    ret= AUTORELEASE(s);}
+  return ret;
+}
+- (NSString *)substringWithRange:(NSRange)aRange
+{
+  SES ses; NSUInteger i, e, n; id ret= self; CString *s;
+  ses= SESFromString(self);
+  if (SESOK(ses)) {
+    s= CCreateString(aRange.length);
+    e= SESEnd(ses);
+    i= SESForwardN(ses, SESStart(ses), aRange.location);
+    for (n= 0; i < e && n < aRange.length; ++n) {
+      CStringAppendCharacter(s, SESIndexN(ses, &i));}
+    ret= AUTORELEASE(s);}
+  return ret;
+}
+
 #pragma mark Combining strings
 
 - (NSString *)stringByAppendingFormat:(NSString *)format, ...

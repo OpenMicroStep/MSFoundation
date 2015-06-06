@@ -163,6 +163,13 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding;
 - (const char *)UTF8String;
 
+#pragma mark Dividing strings
+
+- (NSArray *)componentsSeparatedByString:(NSString *)separator;
+- (NSString *)substringFromIndex:(NSUInteger)anIndex;
+- (NSString *)substringToIndex:(NSUInteger)anIndex;
+- (NSString *)substringWithRange:(NSRange)aRange;
+
 #pragma mark Combining strings
 
 - (NSString *)stringByAppendingFormat:(NSString *)format, ...;

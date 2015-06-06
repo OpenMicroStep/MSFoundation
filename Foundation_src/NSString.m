@@ -22,6 +22,12 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isEqualToString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(description));
 
+    // Dividing strings
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(componentsSeparatedByString:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(substringFromIndex:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(substringToIndex:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(substringWithRange:));
+
     // Combining strings
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingFormat:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingString:));

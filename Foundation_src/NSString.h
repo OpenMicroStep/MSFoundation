@@ -65,6 +65,13 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (BOOL)hasSuffix:(NSString *)aString;
 @end
 
+@interface NSString (NSStringDividingExtension)
+- (NSArray *)componentsSeparatedByString:(NSString *)separator;
+- (NSString *)substringFromIndex:(NSUInteger)anIndex;
+- (NSString *)substringToIndex:(NSUInteger)anIndex;
+- (NSString *)substringWithRange:(NSRange)aRange;
+@end
+
 @interface NSString (NSStringCombineExtension)
 - (NSString *)stringByAppendingFormat:(NSString *)format, ...;
 - (NSString *)stringByAppendingString:(NSString *)aString;

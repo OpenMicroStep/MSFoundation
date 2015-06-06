@@ -284,6 +284,32 @@ static void string_format(test_t *test)
   
 }
 
+static void string_dividing(test_t *test) 
+{
+  NEW_POOL;
+  TASSERT_EQUALS_OBJ(test, ([@"a,b,c,d" componentsSeparatedByString:@","]), 
+                             ([NSArray arrayWithObjects:@"a", @"b", @"c", @"d", nil]));
+  TASSERT_EQUALS_OBJ(test, ([@"a^|^bc^|^cde^|^defg" componentsSeparatedByString:@"^|^"]), 
+                             ([NSArray arrayWithObjects:@"a", @"bc", @"cde", @"defg", nil]));
+  TASSERT_EQUALS_OBJ(test, ([@"abcabca" componentsSeparatedByString:@"ab"]), 
+                             ([NSArray arrayWithObjects:@"", @"c", @"ca", nil]));
+
+  TASSERT_EQUALS_OBJ(test, [@"ab" substringFromIndex:0], @"ab");
+  TASSERT_EQUALS_OBJ(test, [@"ab" substringFromIndex:1], @"b");
+  TASSERT_EQUALS_OBJ(test, [@"ab" substringFromIndex:2], @"");
+
+  TASSERT_EQUALS_OBJ(test, [@"ab" substringToIndex:0], @"");
+  TASSERT_EQUALS_OBJ(test, [@"ab" substringToIndex:1], @"a");
+  TASSERT_EQUALS_OBJ(test, [@"ab" substringToIndex:2], @"ab");
+
+  TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(0,3)], @"abc");
+  TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(1,2)], @"bc");
+  TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(0,1)], @"a");
+  TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(2,1)], @"c");
+  TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(3,0)], @"");
+  KILL_POOL;
+}
+
 static void string_combine(test_t *test)
 {
   NEW_POOL;
@@ -374,5 +400,6 @@ test_t foundation_string[]= {
   {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
   {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
   {"path"  ,NULL,string_path  ,INTITIALIZE_TEST_T_END},
+  {"dividing",NULL,string_dividing,INTITIALIZE_TEST_T_END},
   {"combine" ,NULL,string_combine ,INTITIALIZE_TEST_T_END},
   {NULL}};
