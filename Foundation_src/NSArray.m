@@ -9,6 +9,7 @@
 {
   if (self==[NSArray class]) {
     FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(array));
+    FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithObject:));
     FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithObjects:));
     FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithObjects:count:));
     FoundationCompatibilityExtendClass('+', self, 0, [MSArray class], @selector(arrayWithArray:));}
