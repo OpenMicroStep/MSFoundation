@@ -89,8 +89,8 @@ MSCoreExtern void CDescribe(id o, id result, int level, mutable CDictionary *ctx
       indice= CDictionaryObjectForKey(ctx, (id)KIndice);
       CArrayAddObject((CArray*)indice,indice);
       value= (id)CCreateString(0);
-      CStringAppendFormat((CString*)value, "<<%llu>>", CArrayCount((CArray*)indice));
-      CStringAppendFormat((CString*)result,"%llu:: ", CArrayCount((CArray*)indice));
+      CStringAppendFormat((CString*)value, "<<%llu>>", (MSULong)CArrayCount((CArray*)indice));
+      CStringAppendFormat((CString*)result,"%llu:: ", (MSULong)CArrayCount((CArray*)indice));
       CDictionarySetObjectForKey(done, value, o);}
     _DESCRIBE(o, result, level, ctx);}
 
