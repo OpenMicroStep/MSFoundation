@@ -6,28 +6,12 @@
 //  Copyright (c) 2013 Geoffrey Guilbon. All rights reserved.
 //
 
-#import <MSNet/MSNet.h>
+@interface MHMessengerClient : MSHttpApplicationClient
 
-@interface MHMessengerClient : MHApplicationClient
-{
-    MHMessengerResponseFormat _responseFormat ;
-}
-
-- (BOOL)sendMessage:(MHMessengerMessage *)message ; // default : send mste envelope
-- (BOOL)sendMessage:(MHMessengerMessage *)message envelopeType:(MHMessengerEnvelopeType)envelopeType ;
-
-- (MHMessengerMessage *)messageIdentifiedBy:(NSString *)mid error:(NSString **)error ; // default : get mste envelope
-- (MHMessengerMessage *)messageIdentifiedBy:(NSString *)mid envelopeType:(MHMessengerEnvelopeType)envelopeType error:(NSString **)error ;
-
-- (BOOL)deleteMessageIdentifiedBy:(NSString *)mid ;
-
-- (BOOL)existMessageForIdentifier:(NSString *)mid ;
-- (NSArray *)findMessagesForThread:(NSString *)thread status:(MSUInt)status externalIdentifier:(NSString *)xid maxResponses:(MSUInt)maxResponses hasMore:(BOOL *)hasMore ;
-
-- (MSUInt)statusFromMessageIdentifiedBy:(NSString *)mid ;
-- (BOOL)setStatus:(MSUInt)status onMessageIdentifiedBy:(NSString *)mid ;
-
-- (void)setResponseFormat:(MHMessengerResponseFormat)responseFormat ;
-- (MHMessengerResponseFormat)responseFormat ;
-
+- (MSHttpClientRequest *)sendMessage:(MHMessengerMessage *)message;
+- (MSHttpClientRequest *)getMessage:(NSString *)mid;
+- (MSHttpClientRequest *)deleteMessage:(NSString *)mid;
+- (MSHttpClientRequest *)findMessages:(NSString *)filter;
+- (MSHttpClientRequest *)getMessageStatus:(NSString *)mid;
+- (MSHttpClientRequest *)setMessage:(NSString *)mid status:(MSUInt)status;
 @end

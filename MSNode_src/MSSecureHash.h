@@ -1,14 +1,13 @@
 /*
  
- DBMessengerMessage.h
+ MSSecureHash.h
  
  This file is is a part of the MicroStep Framework.
  
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
- Geoffrey Guilbon : gguilbon@gmail.com
- Jean-Michel Berthéas : jean-michel.bertheas@club-internet.fr
+ Vincent Rouillé : v-rouille@logitud.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -39,17 +38,54 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSNet/MSNet>
+ 
+ A call to the MSFoundation initialize function must be done before using
+ these functions.
  */
 
-
-@interface DBMessengerMessage : MHMessengerMessage
-{
-    MSULong _messageGroup ;
+@interface MSSecureHash : NSObject {
+    MSUInt _algorithm;
+    MSUInt _hardness;
+    NSString *_salt;
+    NSString *_hash;
 }
 
-- (MSULong)messageGroup ;
-- (void)setMessageGroup:(MSULong)group ;
++ (MSUInt)defaultAlgorithm;
++ (MSUInt)defaultHardness;
++ (NSString *)generateSalt;
++ (NSString *)generatePasswordRequest;
 
-- (NSDictionary *)databaseDictionary ;
+// Init
++ (id)secureHashWithContent:(NSString *)content;
++ (id)secureHashWithContent:(NSString *)content algorithm:(MSUInt)algorithm hardness:(MSUInt)hardness salt:(NSString *)salt;
++ (id)secureHashWithSecureHash:(NSString *)secureHash;
 
+- (id)initWithContent:(NSString *)content;
+- (id)initWithContent:(NSString *)content algorithm:(MSUInt)algorithm hardness:(MSUInt)hardness salt:(NSString *)salt;
+- (id)initWithSecureHash:(NSString *)secureHash;
+
+// Getters
+- (MSUInt)algorithm;
+- (MSUInt)hardness;
+- (NSString *)salt;
+- (NSString *)hash;
+- (NSString *)secureHash;
+
+// Challenge
++ (MSBuffer *)generateRawChallenge;
++ (NSString *)plainChallenge:(MSBuffer *)rawChallenge;
++ (NSString *)fakeChallengeInfo;
++ (NSString *)challengeResultFor:(NSString *)content withChallengeInfo:(NSString *)challengeInfo;
+- (NSString *)challengeInfo;
+- (BOOL)isValidChallengedResult:(NSString *)result withChallengeInfo:(NSString *)challengeInfo;
+
+// RSA
++ (MSUInt)defaultSecureKeyHardness;
++ (NSString *)generateSecureKeyRequest;
+- (MSCouple *)generateSecuredKeyPair;
+
+// TODO: - (BOOL)isWeak;
+// TODO: - (id)secureWeakHash; (ie. level up hardness if the algorithm isn't in cause)
 @end

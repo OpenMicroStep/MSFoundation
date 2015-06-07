@@ -40,77 +40,73 @@
  knowledge of the CeCILL-C license and that you accept its terms.
  
  */
-
-//#import <MASH/MASH.h>
-//#import "DBMessengerMessage.h"
-//#import "MHMessenger.h"
-//#import "MHMessengerDBAccessor.h"
-
 #import "MHMessenger_Private.h"
 
-@implementation MHMessengerDBAccessor
-
-+ (id)messengerDBWithconnectionDictionary:(NSDictionary *)connectionDictionary messengerApplication:(MHMessenger *)application
+static CArray *__columns;
+static CDictionary *__columnsIdx;
+static CDictionary *__map;
+static NSUInteger _columnIdx(NSString *key)
 {
-    return [[[self alloc] initWithconnectionDictionary:connectionDictionary messengerApplication:application] autorelease] ;
+  return (NSUInteger)(intptr_t)CDictionaryObjectForKey(__columnsIdx, key);
 }
 
-- (id)initWithconnectionDictionary:(NSDictionary *)connectionDictionary messengerApplication:(MHMessenger *)application
+static NSString* _databaseKey(NSString *envkey)
 {
-    if([connectionDictionary isKindOfClass:[NSDictionary class]])
+  return CDictionaryObjectForKey(__map, envkey);
+}
+
+@implementation MHMessengerDBAccessor
++ (void)load {
+  NSUInteger i;
+  __map= CCreateDictionary(0);
+  __columnsIdx= CCreateDictionaryWithOptions(0, CDictionaryObject, CDictionaryNatural);
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_MESSAGE_ID    , MESSENGER_ENV_MESSAGE_ID    );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_SENDER        , MESSENGER_ENV_SENDER        );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_RECIPIENT     , MESSENGER_ENV_RECIPIENTS    );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_CREATION_DATE , MESSENGER_ENV_CREATION_DATE );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_RECEIVING_DATE, MESSENGER_ENV_RECEIVING_DATE);
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_THREAD        , MESSENGER_ENV_THREAD        );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_VALIDITY      , MESSENGER_ENV_VALIDITY      );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_PRIORITY      , MESSENGER_ENV_PRIORITY      );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_ROUTE         , MESSENGER_ENV_ROUTE         );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_STATUS        , MESSENGER_ENV_STATUS        );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_EXTERNAL_REF  , MESSENGER_ENV_EXTERNAL_REF  );
+  CDictionarySetObjectForKey(__map, DB_TABLE_MESSAGE_COL_CONTENT_TYPE  , MESSENGER_ENV_CONTENT_TYPE  );
+  __columns= CCreateArrayOfDictionaryObjects(__map);
+  CArrayAddObject(__columns, DB_TABLE_MESSAGE_COL_CONTENT);
+  for (i= 0; i < CArrayCount(__columns); ++i) {
+    CDictionarySetObjectForKey(__columnsIdx, (id)(intptr_t)i, CArrayObjectAtIndex(__columns, i));}
+}
+
++ (instancetype)messengerDBWithConnectionDictionary:(NSDictionary *)connectionDictionary
+{
+  return [[(MHMessengerDBAccessor*)[self alloc] initWithConnectionDictionary:connectionDictionary] autorelease] ;
+}
+
+- (instancetype)initWithConnectionDictionary:(NSDictionary *)connectionDictionary
+{
+    if(![connectionDictionary isKindOfClass:[MSDictionary class]])
         connectionDictionary= [MSDictionary dictionaryWithDictionary:connectionDictionary];
-    ASSIGN(_connectionPool, [MSDBConnectionPool connectionPoolWithDictionnary:(MSDictionary *)connectionDictionary]) ;
-    ASSIGN(_messenger, application) ;
-    mutex_init(_messageGroupMutex) ;
-    
-    return self ;
+    ASSIGN(_connection, [MSDBConnection connectionWithDictionary:(MSDictionary *)connectionDictionary]) ;
+    if (!_connection)
+        DESTROY(self);
+    return self;
 }
 
 - (void)dealloc
 {
-    DESTROY(_messenger) ;
-    DESTROY(_connectionPool) ;
-    mutex_delete(_messageGroupMutex) ;
+    DESTROY(_connection) ;
     [super dealloc] ;
-}
-
-- (DBMessengerMessage *)_messageFromDatabaseRow:(MSRow *)row
-{
-    DBMessengerMessage *message = nil ;
-    MSBuffer *content = nil ;
-    char *utf8Str ;
-
-    utf8Str = (char *)[[row objectForKey:DB_TABLE_MESSAGE_COL_CONTENT] UTF8String] ;
-    content = AUTORELEASE(MSCreateBufferWithBytes(utf8Str, strlen(utf8Str))) ;
-    
-    message = [DBMessengerMessage messageFrom:[row objectForKey:DB_TABLE_MESSAGE_COL_SENDER]
-                                           to:[row objectForKey:DB_TABLE_MESSAGE_COL_RECIPIENT]
-                                       thread:[row objectForKey:DB_TABLE_MESSAGE_COL_THREAD]
-                                  contentType:[row objectForKey:DB_TABLE_MESSAGE_COL_CONTENT_TYPE]
-                                base64Content:content] ;
-    
-    [message setMessageID:[row objectForKey:DB_TABLE_MESSAGE_COL_MESSAGE_ID]] ;
-    [message setCreationDate:[(NSNumber *)[row objectForKey:DB_TABLE_MESSAGE_COL_CREATION_DATE] longLongValue]] ;
-    [message setReceivingDate:[(NSNumber *)[row objectForKey:DB_TABLE_MESSAGE_COL_RECEIVING_DATE] longLongValue]] ;
-    [message setValidity:[(NSNumber *)[row objectForKey:DB_TABLE_MESSAGE_COL_VALIDITY] intValue]] ;
-    [message setPriority:[(NSNumber *)[row objectForKey:DB_TABLE_MESSAGE_COL_PRIORITY] intValue]] ;
-    [message setRoute:[row objectForKey:DB_TABLE_MESSAGE_COL_ROUTE]] ;
-    [message setStatus:[(NSNumber *)[row objectForKey:DB_TABLE_MESSAGE_COL_STATUS] intValue]] ;
-    [message setExternalReference:[row objectForKey:DB_TABLE_MESSAGE_COL_EXTERNAL_REF]] ;
-    
-    return message ;
 }
 
 - (MSDBConnection *)_connectDatabase
 {
-    MSDBConnection *conn = [_connectionPool requireConnection] ;
-    if(![conn connect]) { MSRaise(NSInternalInconsistencyException, @"Could not connect to database") ; }
-    return conn ;
+    return _connection;
 }
 
 - (void)_disconnectDatabase:(MSDBConnection *)conn
 {
-    [_connectionPool releaseConnection:conn];
+
 }
 
 -(MSDBConnection*)_databaseBeginTransaction
@@ -125,18 +121,18 @@
 {
     BOOL ret= NO;
     if(!conn) {
-        [_messenger logWithLevel:MHAppError log:@"%@ failed : unable to connect or to enter transaction", msg];
+        NSLog(@"%@ failed : unable to connect or to enter transaction", msg);
     }
     else if (commit) {
         if(![conn commit])
-            [_messenger logWithLevel:MHAppError log:@"%@ failed : unable to commit changes", msg];
+            NSLog(@"%@ failed : unable to commit changes", msg);
         else
             ret= YES;
     }
     else {
-        [_messenger logWithLevel:MHAppError log:@"%@ failed : %@", msg, reason ? reason : [conn lastError]];
+        NSLog(@"%@ failed : %@", msg, reason ? reason : [conn lastError]);
         if(![conn rollback])
-            [_messenger logWithLevel:MHAppError log:@"%@ failed : unable to rollback changes", msg];
+            NSLog(@"%@ failed : unable to rollback changes", msg);
     }
     [self _disconnectDatabase:conn];
     return ret;
@@ -147,15 +143,15 @@
     return [self _databaseEndTransactionOn:conn byCommit:commit withMessage:msg withReason:nil];
 }
 
-- (BOOL)_checkMessageSenderConformity:(DBMessengerMessage *)message forURN:(NSString *)urn
+- (BOOL)_checkMessageSenderConformity:(MHMessengerMessage *)message forURN:(NSString *)urn
 {
     BOOL isConform;
     if (!(isConform= [urn isEqualToString:[message sender]]))
-        [_messenger logWithLevel:MHAppError log:@"message not conform : connected user with urn '%@' is not the message sender", urn] ;
+        NSLog(@"message not conform : connected user with urn '%@' is not the message sender", urn);
     return isConform ;
 }
 
-- (BOOL)_deleteOldPersistentMessagesLike:(DBMessengerMessage *)message connection:(MSDBConnection *)conn
+- (BOOL)_deleteOldPersistentMessagesLike:(MHMessengerMessage *)message connection:(MSDBConnection *)conn
 {
     BOOL ret= YES;
     MSDBResultSet *result = nil ;
@@ -167,7 +163,7 @@
     
     while(ret && [result nextRow]) {
         id mid= [result objectAtColumn:0];
-        [_messenger logWithLevel:MHAppDebug log:@"Deleting old persistent message '%@'...", mid] ;
+        //[_messenger logWithLevel:MHAppDebug log:@"Deleting old persistent message '%@'...", mid] ;
         ret = [conn deleteFrom:DB_TABLE_MESSAGE
                          where:[NSString stringWithFormat:@"%@=?", DB_TABLE_MESSAGE_COL_MESSAGE_ID]
                   withBindings:[NSArray arrayWithObject:mid]] != -1;
@@ -176,37 +172,32 @@
     return ret;
 }
 
-- (NSArray *)createIDAndstoreMessage:(DBMessengerMessage *)message forURN:(NSString *)urn
+static void _messengerMessageOutput(id value, NSString *key, id arg) 
 {
-    BOOL res = YES ;
-    MSArray *uuids = nil ;
+  [arg setObject:value forKey:_databaseKey(key)];
+}
+- (NSArray *)createIDAndstoreMessage:(MHMessengerMessage *)message
+{
+  MSDBConnection *conn; NSEnumerator *recipients; NSString *recipient, *uuid; MSArray *uuids; BOOL res= YES;
+  conn= [self _databaseBeginTransaction] ;
+  recipients = [AUTORELEASE(RETAIN([message recipients])) objectEnumerator] ;
+  uuids = [MSArray mutableArray];
 
-    if ((res = [self _checkMessageSenderConformity:message forURN:urn]))
-    {
-        MSDBConnection *conn = [self _databaseBeginTransaction] ;
-        NSEnumerator *recipients = [[message recipients] objectEnumerator] ;
-        NSString *recipient ;
-        uuids = [MSArray mutableArray] ;
-        
-        //set messageGroup
-        [message setMessageGroup:[self nextMessageGroup]] ;
-        
-        while(res && (recipient = [recipients nextObject]))
-        {
-            NSString *UUID = [_messenger makeUUID] ;
-            [uuids addObject:UUID] ;
-            [message setRecipients:[MSArray arrayWithObject:recipient]] ;
-            [message setMessageID:UUID] ;
-            if ([message isPersistent]) //persistent message, must destroy former messages with same (thread, sender and single recipient).
-                res = [self _deleteOldPersistentMessagesLike:message connection:conn] ;
-            if(res)
-                res = [conn insert:[message databaseDictionary] into:DB_TABLE_MESSAGE] ;
-        }
-        
-        res= [self _databaseEndTransactionOn:conn byCommit:res withMessage:@"Message creation"];
-    }
-    
-    return res ? uuids : nil;
+  while(res && (recipient= [recipients nextObject])) {
+    uuid= [MSString UUIDString];
+    [uuids addObject:uuid];
+    [message setRecipients:[MSArray arrayWithObject:recipient]];
+    [message setMessageID:uuid];
+    if ([message isPersistent]) //persistent message, must destroy former messages with same (thread, sender and single recipient).
+      res = [self _deleteOldPersistentMessagesLike:message connection:conn] ;
+    if(res) {
+      MSDictionary *d= [MSDictionary mutableDictionary];
+      [message exportPropertiesWithOutput:_messengerMessageOutput context:d asString:NO];
+      [d setObject:[message base64Content] forKey:DB_TABLE_MESSAGE_COL_CONTENT];
+      res= [conn insert:d into:DB_TABLE_MESSAGE] ;}
+  }
+  res= [self _databaseEndTransactionOn:conn byCommit:res withMessage:@"Message creation"];
+  return res ? uuids : nil;
 }
 
 - (NSString *)_makeFindMessagesQueryForURN:(NSString *)urn andParameters:(NSDictionary *)parameters countRows:(BOOL)countRows connection:(MSDBConnection *)conn
@@ -304,7 +295,6 @@
     BOOL hasMore ;
     
     conn = [self _connectDatabase] ;
-    NSLog(@"findMessagesForURN:%@ andParameters:%@", urn, parameters);
     messagesCount = [self _countMessagesFoundForURN:urn andParameters:parameters countRows:YES connection:conn] ;
     messageIDs = [self _messagesFoundForURN:urn andParameters:parameters countRows:NO connection:conn] ;
     hasMore= ([messagesCount longValue] - [messageIDs count] > 0);
@@ -313,68 +303,59 @@
     return [NSDictionary dictionaryWithObjectsAndKeys:messageIDs, MESSENGER_RESPONSE_FIND_MESSAGES, [NSNumber numberWithBool:hasMore], MESSENGER_RESPONSE_FIND_HAS_MORE, nil] ;
 }
 
+static NSString * _getMessageForURNSrc(NSString *key, id arg)
+{
+  id *data= (id*)arg;
+  MSDBResultSet *result= data[0]; NSUInteger column; id ret= nil;
+  column= _columnIdx(key);
+  if (column != NSNotFound) {
+    MSString *s= [MSString mutableString];
+    if([result getStringAt:s column:column]) {
+      ret= s;}}
+  data[1]= (id)(intptr_t)(ret != nil);
+  return ret;
+}
 - (MHMessengerMessage *)getMessageForURN:(NSString *)urn andMessageID:(NSString *)messageID
 {
-    MSDBResultSet *result = nil ;
-    MSDBConnection *conn = nil ;
-    NSString *select = nil ;
-    DBMessengerMessage *message = nil ;
-    
-    //perform query
-    conn = [self _connectDatabase] ;
-    
-    select = [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@=%@ AND %@=%@;",
-              DB_TABLE_MESSAGE,
-              DB_TABLE_MESSAGE_COL_RECIPIENT,
-              [conn escapeString:urn withQuotes:YES],
-              DB_TABLE_MESSAGE_COL_MESSAGE_ID,
-              [conn escapeString:messageID withQuotes:YES]] ;
-    
-    result = [conn fetchWithRequest:select] ;
-    
-    //get data
-    if([result nextRow])
-    {
-        message = [self _messageFromDatabaseRow:[result rowDictionary]] ;
-    }
-    
-    [self _disconnectDatabase:conn] ;
-    
-    return message ;
+  MSDBResultSet *result; MSDBConnection *conn;
+  MHMessengerMessage *message= nil ;
+  
+  //perform query
+  conn = [self _connectDatabase] ;
+  result= [conn select:(id)__columns from:DB_TABLE_MESSAGE
+                 where:FMT(@"%@=? AND %@=?", DB_TABLE_MESSAGE_COL_RECIPIENT, DB_TABLE_MESSAGE_COL_MESSAGE_ID)
+          withBindings:[NSArray arrayWithObjects:urn, messageID, nil]];
+  if ([result nextRow]) {
+    MSBuffer *content;
+    id data[2]= {result, (id)1};
+    message= [MHMessengerMessage message];
+    [message fillPropertiesWithSource:_getMessageForURNSrc context:(id)data];
+    if (data[1] != 0) {
+      content= [MSBuffer mutableBuffer];
+      data[1]= (id)(intptr_t)[result getBufferAt:content column:_columnIdx(DB_TABLE_MESSAGE_COL_CONTENT)];}
+    if (data[1] != 0) {
+      [message setBase64Content:content]; }
+    else {
+      DESTROY(message); }
+  }
+  [self _disconnectDatabase:conn] ;
+  return message ;
 }
 
 - (NSDictionary *)getMessageStatusForURN:(NSString *)urn andMessageID:(NSString *)messageID
 {
-    NSDictionary *responseDic = nil ;
-    MSInt status = 0 ;
-    MSDBResultSet *result = nil ;
-    MSDBConnection *conn = nil ;
-    NSString *select = nil ;
-    
-    conn = [self _connectDatabase] ;
-    
-    select = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE %@=%@ AND %@=%@;",
-              DB_TABLE_MESSAGE_COL_STATUS,
-              DB_TABLE_MESSAGE,
-              DB_TABLE_MESSAGE_COL_RECIPIENT,
-              [conn escapeString:urn withQuotes:YES],
-              DB_TABLE_MESSAGE_COL_MESSAGE_ID,
-              [conn escapeString:messageID withQuotes:YES]] ;
-    
-    //perform query
-    result = [conn fetchWithRequest:select] ;
-    
-    //get data
-    if([result nextRow])
-    {
-        status =  [(NSNumber *)[[result rowDictionary] objectForKey:DB_TABLE_MESSAGE_COL_STATUS] intValue] ;
-    }
-    
-    [self _disconnectDatabase:conn] ;
-    
-    if (status) { responseDic = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:status] forKey:MESSENGER_RESPONSE_GET_STATUS] ; }
-    
-    return responseDic ;
+  MSDBResultSet *result; MSDBConnection *conn;
+  NSDictionary *ret= nil; MSInt status;
+
+  conn = [self _connectDatabase] ;
+  result= [conn select:[NSArray arrayWithObject:DB_TABLE_MESSAGE_COL_STATUS] 
+                  from:DB_TABLE_MESSAGE 
+                 where:[NSString stringWithFormat:@"%@=? AND %@=?", DB_TABLE_MESSAGE_COL_RECIPIENT, DB_TABLE_MESSAGE_COL_MESSAGE_ID, nil] 
+          withBindings:[NSArray arrayWithObjects:urn, messageID, nil]] ;
+  if ([result nextRow] && [result getIntAt:&status column:0]) {
+    ret= [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:status] forKey:MESSENGER_RESPONSE_GET_STATUS];}
+  [self _disconnectDatabase:conn] ;
+  return ret;
 }
 
 - (BOOL)setMessageStatusForURN:(NSString *)urn andMessageID:(NSString *)messageID newStatus:(MSInt)status
@@ -426,13 +407,13 @@
         }
         
         if(res) {
-            [_messenger logWithLevel:MHAppDebug log:@"Deleting message '%@'...",messageID] ;
+            //[_messenger logWithLevel:MHAppDebug log:@"Deleting message '%@'...",messageID] ;
             res= [conn deleteFrom:DB_TABLE_MESSAGE
                             where:[NSString stringWithFormat:@"%@=?", DB_TABLE_MESSAGE_COL_MESSAGE_ID]
                      withBindings:[NSArray arrayWithObject:messageID]];
         }
         else {
-            reason= [NSString stringWithFormat:@"User '%@' not allowed to delete message '%@'",messageID] ;
+            reason= [NSString stringWithFormat:@"User '%@' not allowed to delete message '%@'",urn, messageID] ;
         }
     }
     else {
@@ -440,11 +421,6 @@
     }
     
     return [self _databaseEndTransactionOn:conn byCommit:res withMessage:@"Message deletion" withReason:reason];
-}
-
-- (MSArray *)_obsoleteDeletableMessagesForConnection:(MSDBConnection *)conn date:(MSTimeInterval)stampDateNow
-{
-
 }
 
 - (BOOL)cleanObsoleteMessages
@@ -464,67 +440,12 @@
     while(res && [result nextRow])
     {
         id messageID= [result objectAtColumn:0];
-        [_messenger logWithLevel:MHAppDebug log:@"Deleting message '%@'...",messageID] ;
+        //[_messenger logWithLevel:MHAppDebug log:@"Deleting message '%@'...",messageID] ;
         res= [conn deleteFrom:DB_TABLE_MESSAGE
                         where:[NSString stringWithFormat:@"%@=?", DB_TABLE_MESSAGE_COL_MESSAGE_ID]
                  withBindings:[NSArray arrayWithObject:messageID]];
     }
     return [self _databaseEndTransactionOn:conn byCommit:res withMessage:@"Obsolete messages clean"];
-}
-
-- (MSULong)_nextMessageGroup
-{
-    MSULong nextID = 0 ;
-    MSDBResultSet *result = nil ;
-    MSDBConnection *conn = [self _connectDatabase] ;
-
-    result = [conn select:[NSArray arrayWithObject:DB_TABLE_INDEXES_COL_VALUE]
-                     from:DB_TABLE_INDEXES
-                    where:[NSString stringWithFormat:@"%@=?", DB_TABLE_INDEXES_COL_NAME]
-             withBindings:[NSArray arrayWithObject:MESSAGE_GROUP_INDEX]];
-    if([result nextRow])
-    {
-        nextID =  [(NSNumber *)[[result rowDictionary] objectForKey:DB_TABLE_INDEXES_COL_VALUE] unsignedLongLongValue] ;
-    }
-    
-    [self _disconnectDatabase:conn] ;
-    return nextID ;
-}
-
-- (BOOL)_setNextMessageGroup:(MSULong)nextMessageGroup
-{
-    BOOL ret = NO ;
-    MSDBConnection *conn = [self _databaseBeginTransaction] ;
-    if(conn) {
-        ret= [conn update:DB_TABLE_INDEXES
-                      set:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithUnsignedLongLong:nextMessageGroup], DB_TABLE_INDEXES_COL_VALUE, nil]
-                    where:[NSString stringWithFormat:@"%@=?", DB_TABLE_INDEXES_COL_NAME]
-             withBindings:[NSArray arrayWithObject:MESSAGE_GROUP_INDEX]] != -1;
-    }
-    return [self _databaseEndTransactionOn:conn byCommit:ret withMessage:@"MessageGroup index update"];
-}
-
-- (MSULong)nextMessageGroup
-{
-    MSULong nextID = 0 ;
-    
-    mutex_lock(_messageGroupMutex) ;
-    nextID = [self _nextMessageGroup] ;
-    if(!nextID)
-    {
-        MSRaise(NSInternalInconsistencyException, @"Could not get messageGroup index") ;
-    }
-    
-    if(nextID == MSULongMax) { nextID = 0 ; }
-    
-    if(![self _setNextMessageGroup:nextID+1])
-    {
-        MSRaise(NSInternalInconsistencyException, @"Could not increment messageGroup index") ;
-    }
-    
-    mutex_unlock(_messageGroupMutex) ;
-    
-    return nextID ;
 }
 
 - (MSInt)getDBVersion
@@ -546,8 +467,7 @@
     
     if([result nextRow])
     {
-      id v = [[result rowDictionary] objectForKey:DB_TABLE_PARAMETERS_COL_VALUE1];
-        dbVersion =  [(NSNumber *)[[result rowDictionary] objectForKey:DB_TABLE_PARAMETERS_COL_VALUE1] intValue] ;
+      dbVersion =  [(NSNumber *)[[result rowDictionary] objectForKey:DB_TABLE_PARAMETERS_COL_VALUE1] intValue] ;
     }
     
     [self _disconnectDatabase:conn] ;
@@ -568,7 +488,7 @@
         NSString *fileStringContent = [[NSString alloc] initWithData:fileData encoding:NSUTF8StringEncoding] ;
         NSEnumerator *linesEnum = [[fileStringContent componentsSeparatedByString:@"\n"] objectEnumerator] ;
         
-        [_messenger logWithLevel:MHAppInfo log:@"runSQLScript : '%@'",scriptPath] ;
+        //[_messenger logWithLevel:MHAppInfo log:@"runSQLScript : '%@'",scriptPath] ;
         
         transaction = [conn openTransaction] ;
         
@@ -582,7 +502,7 @@
         if(res){ [transaction save] ; }
         else
         {
-            [_messenger logWithLevel:MHAppError log:@"SQL script failed : %@", [conn lastError]] ;
+            NSLog(@"SQL script failed : %@", [conn lastError]);
             [transaction cancel] ;
         }
         

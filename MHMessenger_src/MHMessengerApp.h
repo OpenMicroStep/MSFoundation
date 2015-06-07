@@ -44,20 +44,42 @@
 @class MHMessengerDBAccessor ;
 @class MHNetRepositoryClient ;
 
-@interface MHMessengerApplication : MHApplication
-{
-    MHMessengerDBAccessor *_messengerDBAccessor ;
-    NSString *_node ;
-        
-    NSString *_skPath ;
-    NSString *_urn ;
-    
-    MHNetRepositoryClient *_netRepositoryClient ;
-    mutex_t _netRepositoryClientMutex;
+@interface MHMessengerSession : MHNetRepositoryDistantSession {
+  NSString *_senderURN, *_recipientURN;
+  id _allowedRecipients;
+}
+// A middleware took care of updating sender & recipient URNs
+- (NSString *)senderURN; // Always the real URN of the user
+- (void)setSenderURN:(NSString *)senderURN;
+- (NSString *)recipientURN; // Can be the application URN if the user ask for it with the recipient=URN url parameters
+- (void)setRecipientURN:(NSString *)recipientURN;
+@end
+
+@interface MHMessengerApplication : MSHttpApplication <MSHttpSessionAuthenticator> {
+  MHMessengerDBAccessor *_messengerDBAccessor ;
 }
 
-- (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters ;
+- (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
+- (void)authenticate:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
 
-- (NSString *)makeUUID ;
+
+- (void)GET_auth:(MSHttpTransaction *)tr;
+
+- (void)POST_sendMessage:(MSHttpTransaction *)tr;
+
+// /findMessages?tid=GVeMIFsTours&status=1&xid=42=max=3&recipient=urn
+- (void)GET_findMessages:(MSHttpTransaction *)tr;
+
+// /getMessage?mid=UID&recipient=urn
+- (void)GET_getMessage:(MSHttpTransaction *)tr;
+
+// /getMessageStatus?mid=UID&recipient=urn
+- (void)GET_getMessageStatus:(MSHttpTransaction *)tr;
+
+// /setMessageStatus?mid=42&status=2
+- (void)GET_setMessageStatus:(MSHttpTransaction *)tr;
+
+// /deleteMessage?mid=UID
+- (void)GET_deleteMessage:(MSHttpTransaction *)tr;
 
 @end

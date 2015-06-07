@@ -3,13 +3,12 @@
 #ifndef MSMESSENGER_H
 #define MSMESSENGER_H
 
-#import <MSNet/MSNet.h>
+#import <MSNode/MSNode.h>
 #import <MSDatabase/MSDatabase.h>
 
 #import <MHMessenger/MHMessengerMessage.h>
+#import <MHMessenger/MHMessengerMessageMiddleware.h>
 #import <MHMessenger/MHMessengerClient.h>
-
-#import <MHMessenger/DBMessengerMessage.h>
 #import <MHMessenger/MHMessengerDBAccessor.h>
 
 #endif // MSMESSENGER_H

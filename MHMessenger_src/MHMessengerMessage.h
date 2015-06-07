@@ -41,12 +41,7 @@
  
  */
 
-#define MESSENGER_HEAD_ENVELOPPE_LENGTH @"Envelope-Length"
-#define MESSENGER_HEAD_ENVELOPPE_TYPE   @"Envelope-Type"
-#define MESSENGER_HEAD_RESPONSE_FORMAT  @"Response-Format"
-
 #define MESSENGER_ENV_MESSAGE_ID        @"messageID"
-#define MESSENGER_ENV_TYPE              @"envelopeType"
 #define MESSENGER_ENV_SENDER            @"sender"
 #define MESSENGER_ENV_RECIPIENTS        @"recipients"
 #define MESSENGER_ENV_CREATION_DATE     @"creationDate"
@@ -93,58 +88,32 @@ typedef enum
     MHMHighPriority
 } MHMessengerPriority ;
 
-
-#define MESSENGER_ENV_TYPE_PLAIN    @"plain"
-#define MESSENGER_ENV_TYPE_MSTE     @"mste"
-
-#define MESSENGER_RESPONSE_FORMAT_JSON     @"json"
-#define MESSENGER_RESPONSE_FORMAT_MSTE     @"mste"
-
-#define MESSENGER_MESSAGE_FORMAT_PLAIN      MIMETYPE_OCTET_STREAM
-#define MESSENGER_MESSAGE_FORMAT_JSON       MIMETYPE_JSON
-#define MESSENGER_MESSAGE_FORMAT_MSTE       MIMETYPE_JSON
-
-typedef enum
-{
-    MHMEnvelopeTypePlain = 1,
-	MHMEnvelopeTypeMSTE
-} MHMessengerEnvelopeType ;
-
-typedef enum
-{
-    MHMResponseFormatMSTE = 1,
-	MHMResponseFormatJSON
-} MHMessengerResponseFormat ;
-
 @interface MHMessengerMessage : NSObject
 {
 @private
     NSString *_messageID ;
-    MHMessengerEnvelopeType _envelopeType ;
     NSString * _sender ;
-    MSArray *_recipients ;
+    mutable MSArray *_recipients ;
     MSTimeInterval _creationDate ;
     MSTimeInterval _receivingDate ;
     NSString *_thread ;
     MSTimeInterval _validity ;
-    MHMessengerPriority _priority ;
+    MSInt _priority ;
     NSString *_route ;
     MSInt _status ;
     NSString *_externalReference ;
     NSString *_contentType ;
-    MSBuffer *_originalBuffer ;
     MSBuffer *_base64Content ;
 }
 
 //init
-+ (id)messageFrom:(NSString *)sender to:(NSString *)recipient thread:(NSString *)thread contentType:(NSString *)contentType content:(MSBuffer *)content ;
-- (id)initMessageFrom:(NSString *)sender to:(NSString *)recipient thread:(NSString *)thread contentType:(NSString *)contentType content:(MSBuffer *)content;
++ (instancetype)message;
+- (void)setAsNew;
+- (BOOL)checkConsistency:(NSString **)perr;
 
-+ (id)messageFrom:(NSString *)sender to:(NSString *)recipient thread:(NSString *)thread contentType:(NSString *)contentType base64Content:(MSBuffer *)content ;
-- (id)initMessageFrom:(NSString *)sender to:(NSString *)recipient thread:(NSString *)thread contentType:(NSString *)contentType base64Content:(MSBuffer *)content ;
-
-+ (id)messageWithBuffer:(MSBuffer *)buffer envelopeType:(MHMessengerEnvelopeType)envelopeType envelopeLength:(MSULong)envelopeLength error:(NSString **)error ;
-- (id)initWithBuffer:(MSBuffer *)buffer envelopeType:(MHMessengerEnvelopeType)envelopeType envelopeLength:(MSULong)envelopeLength error:(NSString **)error ;
+// fast get/set
+- (void)fillPropertiesWithSource:(NSString *(*)(NSString *key, id arg))source context:(id)arg;
+- (void)exportPropertiesWithOutput:(void(*)(id val, NSString *key, id arg))output context:(id)arg asString:(BOOL)asString;
 
 //getters, setters
 - (NSString *)messageID ;
@@ -153,9 +122,8 @@ typedef enum
 - (NSString *)sender ;
 - (void)setSender:(NSString *)sender ;
 
-- (MSArray *)recipients ;
-- (void)addRecipent:(NSString *)recipient ;
-- (void)setRecipients:(MSArray *)recipients;
+- (NSArray *)recipients ;
+- (void)setRecipients:(NSArray *)recipients;
 
 - (MSTimeInterval)creationDate ;
 - (void)setCreationDate:(MSTimeInterval )creationDate ;
@@ -170,8 +138,8 @@ typedef enum
 - (void)setValidity:(MSTimeInterval)validity ;
 - (BOOL)isPersistent ;
 
-- (MHMessengerPriority)priority ;
-- (void)setPriority:(MHMessengerPriority)priority ;
+- (MSInt)priority ;
+- (void)setPriority:(MSInt)priority ;
 
 - (NSString *)route ;
 - (void)setRoute:(NSString *)route ;
@@ -187,14 +155,10 @@ typedef enum
 - (void)setContentType:(NSString *)contentType ;
 
 - (MSBuffer *)base64Content ;
+- (void)setBase64Content:(MSBuffer *)base64content ;
+
+// !slow, content is stored in base64 most of the time
 - (MSBuffer *)content ;
 - (void)setContent:(MSBuffer *)content ;
-
-- (MHMessengerEnvelopeType)envelopeType ;
-- (void)setEnvelopeType:(MHMessengerEnvelopeType)envelopeType ;
-
-//serialisation
-- (MSBuffer *)dataWithEnvelopeType:(MHMessengerEnvelopeType)envelopeType envelopeLength:(MSULong *)envelopeLength contentType:(NSString **)contentType ;
-
 @end
 

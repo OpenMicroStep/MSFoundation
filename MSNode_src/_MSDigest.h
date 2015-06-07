@@ -1,14 +1,15 @@
 /*
  
- DBMessengerMessage.h
+ _MSDigest.h
  
  This file is is a part of the MicroStep Framework.
  
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
+ Herve Malaingre : herve@malaingre.com
  Geoffrey Guilbon : gguilbon@gmail.com
- Jean-Michel Berthéas : jean-michel.bertheas@club-internet.fr
+ 
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
@@ -39,17 +40,24 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSFoundation/MSFoundation.h>
+ 
+ A call to the MSFoundation initialize function must be done before using
+ these functions.
  */
 
-
-@interface DBMessengerMessage : MHMessengerMessage
-{
-    MSULong _messageGroup ;
+@interface _MSDigestOpenSSL : NSObject {
+    EVP_MD_CTX _mdctx ;
+    MSDigestType _type;
 }
 
-- (MSULong)messageGroup ;
-- (void)setMessageGroup:(MSULong)group ;
+- (void)updateWithBytes:(const void *)bytes length:(NSUInteger)length;
+- (void)updateWithData:(NSData *)data;
+- (void)reset;
 
-- (NSDictionary *)databaseDictionary ;
-
+- (MSBuffer*)digest;
+- (NSString*)hexEncodedDigest;
 @end
+
+const EVP_MD *MSDigestToEVP_MD(MSDigestType digest) ;

@@ -1,29 +1,30 @@
 /*
  
- DBMessengerMessage.h
+ MSDigest.h
  
  This file is is a part of the MicroStep Framework.
  
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
  
+ Herve Malaingre : herve@malaingre.com
  Geoffrey Guilbon : gguilbon@gmail.com
- Jean-Michel Berthéas : jean-michel.bertheas@club-internet.fr
+ Vincent Rouillé : v-rouille@logitud.fr
  
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
  
  This software is governed by the CeCILL-C license under French law and
- abiding by the rules of distribution of free software.  You can  use,
+ abiding by the rules of distribution of free software.  You can  use, 
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
- "http://www.cecill.info".
+ "http://www.cecill.info". 
  
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
- liability.
+ liability. 
  
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
@@ -32,24 +33,42 @@
  therefore means  that it is reserved for developers  and  experienced
  professionals having in-depth computer knowledge. Users are therefore
  encouraged to load and test the software's suitability as regards their
- requirements in conditions enabling the security of their systems and/or
- data to be ensured and,  more generally, to use and operate it in the
- same conditions as regards security.
+ requirements in conditions enabling the security of their systems and/or 
+ data to be ensured and,  more generally, to use and operate it in the 
+ same conditions as regards security. 
  
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
  
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSNet/MSNet>
+ 
+ A call to the MSFoundation initialize function must be done before using
+ these functions.
  */
 
-
-@interface DBMessengerMessage : MHMessengerMessage
+typedef enum _MSDigestType
 {
-    MSULong _messageGroup ;
-}
+  MS_MD5,
+	MS_SHA1,
+  MS_SHA256,
+  MS_SHA512,
+	MS_DSS1,
+	MS_MDC2,
+	MS_RIPEMD160
+} MSDigestType ;
 
-- (MSULong)messageGroup ;
-- (void)setMessageGroup:(MSULong)group ;
+@interface MSDigest : NSObject
 
-- (NSDictionary *)databaseDictionary ;
++ (id)digestWithType:(MSDigestType)type;
+- (id)initWithType:(MSDigestType)type;
 
+- (void)updateWithBytes:(const void *)bytes length:(NSUInteger)length;
+- (void)updateWithData:(NSData *)data;
+- (void)reset;
+
+- (MSBuffer*)digest;
+- (NSString*)hexEncodedDigest;
 @end
+
+MSNodeExtern NSString *MSDigestData(MSDigestType digest, const void *bytes, NSUInteger length) ;

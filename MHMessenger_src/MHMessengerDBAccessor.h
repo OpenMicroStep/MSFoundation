@@ -43,17 +43,46 @@
 
 @class MHMessenger ;
 
-@interface MHMessengerDBAccessor : NSObject
-{
-    MSDBConnectionPool *_connectionPool ;
-    MHMessenger *_messenger ;
-    mutex_t _messageGroupMutex ;
+//tables and colums
+#define DB_TABLE_MESSAGE                        @"message"
+#define DB_TABLE_MESSAGE_COL_MESSAGE_ID         @"messageID"
+#define DB_TABLE_MESSAGE_COL_MESSAGE_GROUP      @"messageGroup"
+#define DB_TABLE_MESSAGE_COL_TYPE               @"envelopeType"
+#define DB_TABLE_MESSAGE_COL_SENDER             @"sender"
+#define DB_TABLE_MESSAGE_COL_RECIPIENT          @"recipient"
+#define DB_TABLE_MESSAGE_COL_CREATION_DATE      @"creationDate"
+#define DB_TABLE_MESSAGE_COL_RECEIVING_DATE     @"receivingDate"
+#define DB_TABLE_MESSAGE_COL_THREAD             @"thread"
+#define DB_TABLE_MESSAGE_COL_VALIDITY           @"validity"
+#define DB_TABLE_MESSAGE_COL_PRIORITY           @"priority"
+#define DB_TABLE_MESSAGE_COL_ROUTE              @"route"
+#define DB_TABLE_MESSAGE_COL_STATUS             @"status"
+#define DB_TABLE_MESSAGE_COL_EXTERNAL_REF       @"externalReference"
+#define DB_TABLE_MESSAGE_COL_CONTENT_TYPE       @"contentType"
+#define DB_TABLE_MESSAGE_COL_CONTENT            @"content"
+
+#define DB_TABLE_PARAMETERS                     @"parameters"
+#define DB_TABLE_PARAMETERS_COL_NAME            @"name"
+#define DB_TABLE_PARAMETERS_COL_VALUE1          @"value1"
+#define DB_TABLE_PARAMETERS_COL_VALUE2          @"value2"
+#define DB_TABLE_PARAMETERS_COL_VALUE3          @"value3"
+
+#define DB_TABLE_INDEXES                        @"indexes"
+#define DB_TABLE_INDEXES_COL_NAME               @"name"
+#define DB_TABLE_INDEXES_COL_VALUE              @"value"
+
+//values
+#define DB_VERSION_PARAM                        @"dbVersion"
+#define MESSAGE_GROUP_INDEX                     @"messageGroup"
+
+@interface MHMessengerDBAccessor : NSObject{
+  MSDBConnection *_connection;
 }
 
-+ (id)messengerDBWithconnectionDictionary:(NSDictionary *)connectionDictionary messengerApplication:(MHMessenger *)application ;
-- (id)initWithconnectionDictionary:(NSDictionary *)connectionDictionary messengerApplication:(MHMessenger *)application ;
++ (instancetype)messengerDBWithConnectionDictionary:(NSDictionary *)connectionDictionary;
+- (instancetype)initWithConnectionDictionary:(NSDictionary *)connectionDictionary;
 
-- (NSArray *)createIDAndstoreMessage:(DBMessengerMessage *)message forURN:(NSString *)urn ;
+- (NSArray *)createIDAndstoreMessage:(MHMessengerMessage *)message ;
 - (NSDictionary *)findMessagesForURN:(NSString *)urn andParameters:(NSDictionary *)parameters ;
 - (MHMessengerMessage *)getMessageForURN:(NSString *)urn andMessageID:(NSString *)messageID ;
 - (BOOL)deleteMessageForURN:(NSString *)urn andMessageID:messageID ;
@@ -61,7 +90,6 @@
 - (BOOL)setMessageStatusForURN:(NSString *)urn andMessageID:(NSString *)messageID newStatus:(MSInt)status ;
 
 - (BOOL)cleanObsoleteMessages ;
-- (MSULong)nextMessageGroup ;
 
 - (MSInt)getDBVersion ;
 - (BOOL)runSQLScript:(NSString *)scriptPath ;

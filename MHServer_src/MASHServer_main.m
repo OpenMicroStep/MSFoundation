@@ -45,30 +45,38 @@
  
  */
 
-#import "MSNet_Private.h"
+#import <MSNode/MSNode.h>
 
-static NSArray *parametersFromArgs(int argc, const char *argv[])
+static id apps;
+static void MASHServerInit(void *arg)
 {
-  NSMutableArray *params = [NSMutableArray array] ;
-  int i = 0 ;
-  
-  for(i=0; i<argc; i++)
-  {
-#ifdef WO451
-    [params addObject:[[NSString alloc] initWithCString:argv[i] length:strlen(argv[i])]] ;
-#else
-    
-    [params addObject:[[NSString alloc] initWithBytes:argv[i] length:strlen(argv[i]) encoding:NSUTF8StringEncoding]] ;
-#endif
-  }
-  return params ;
+  NSString *error= nil;
+  CDictionary* d= (CDictionary*)arg;
+  NSDictionary *parameters= CDictionaryObjectForKey(d, @"parameters");
+  NSString *path= CDictionaryObjectForKey(d, @"path");
+  apps= [[MSHttpApplication applicationsWithParameters:parameters withPath:path error:&error] retain];
+  if (error) {
+    NSLog(@"Error while starting: %@", error);}
+  RELEASE(d);
 }
-
 int main(int argc, const char * argv[])
-{
-  MSUInt result;
-  NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init] ;
-  result = MHStartBundleServer(parametersFromArgs(argc, argv)) ;
-  [pool release] ;
-  return (int)result;
+{ 
+  NEW_POOL;
+  NSDictionary *parameters= nil; NSString *parametersPath= nil; int ret= 1;
+  if (argc > 1) {
+    parametersPath = [NSString stringWithUTF8String:argv[1]];}
+  else {
+    fprintf(stderr, "Configuration path is expected at the first argument\n"); }
+  if (parametersPath) {
+    parameters= [NSDictionary dictionaryWithContentsOfFile:parametersPath];}
+  if (parameters) {
+    CDictionary* d= CCreateDictionary(0);
+    CDictionarySetObjectForKey(d, parameters, @"parameters");
+    CDictionarySetObjectForKey(d, [parametersPath stringByDeletingLastPathComponent], @"path");
+    ret= MSNodeStart(MASHServerInit, d);
+    RELEASE(apps);}
+  else {
+    fprintf(stderr, "Unable to load configuration at path: %s\n", argv[1]); }
+  KILL_POOL;
+  return ret;
 }

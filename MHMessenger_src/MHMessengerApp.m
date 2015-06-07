@@ -41,7 +41,7 @@
  
  */
 
-#import <MSNet/MSNet.h>
+#import <MSNode/MSNode.h>
 #import <MHMessenger/MHMessenger.h>
 #import <MHRepository/MHRepositoryApi.h>
 #import "MHMessengerApp.h"
@@ -82,17 +82,159 @@
 // Session keys
 #define SESSION_PARAM_ALLOWED_RECIPIENTS    @"allowedRecipients"
 
+@implementation MHMessengerSession
+- (void)dealloc
+{
+  [_senderURN release];
+  [_recipientURN release];
+  [_allowedRecipients release];
+  [super dealloc];
+}
+- (NSString *)senderURN
+{ return _senderURN; }
+- (NSString *)recipientURN
+{ return _recipientURN; }
+- (void)setSenderURN:(NSString *)senderURN
+{ ASSIGN(_senderURN, senderURN); }
+- (void)setRecipientURN:(NSString *)recipientURN
+{ ASSIGN(_recipientURN, recipientURN); }
+- (NSArray *)allowedRecipients
+{ return _allowedRecipients; }
+- (void)setAllowedRecipients:(NSArray *)allowedRecipients
+{ ASSIGN(_allowedRecipients, allowedRecipients); }
+@end
+
+@interface MHMessengerMessageURNMiddleware : NSObject <MSHttpMiddleware>
+- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
+@end
+
+@implementation MHMessengerMessageURNMiddleware
+static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, void *arg);
+static void _senderURNSet(id <MSHttpNextMiddleware> next);
+static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, void *arg);
+static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipients);
+- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+{
+  id session= [tr session];
+  id senderURN= [session senderURN];
+  if (!senderURN) {
+    if ([session authenticationType] == MHNetRepositoryAuthenticatedByPublicKey) {
+      [session setSenderURN:[session login]];
+      _senderURNSet(next);}
+    else {
+      id request= [[session client] urnForLogin:[session login]];
+      [request addHandler:_senderURNCallback context:next];}}
+  else {
+    _senderURNSet(next);}
+}
+static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, void *arg)
+{
+  id senderURN= [(id)response stringValue];
+  if (senderURN){
+    _senderURNSet((id)arg);}
+  else {
+    [[(id)arg transaction] write:MSHttpCodeInternalServerError string:@"Unable to find URN of the logged user"];}
+  return NO;
+}
+static void _senderURNSet(id <MSHttpNextMiddleware> next)
+{
+  id session, allowedRecipients, request;
+  session= [[next transaction] session];
+  if ([[[next transaction] urlQueryParameters] objectForKey:@"recipient"]) {
+    allowedRecipients= [session allowedRecipients];
+    if (!allowedRecipients) {
+      request= [[session client] allowedApplicationUrnsForAuthenticable:[session senderURN]];
+      [request addHandler:_recipientURNCallback context:next];}
+    else {
+      _recipientURNCheck(next, allowedRecipients);}}
+  else {
+    [session setRecipientURN:[session senderURN]];
+    [next nextMiddleware];}
+}
+static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, void *arg)
+{
+  _recipientURNCheck((id)arg, [(id)response msteDecodedObject]);
+  return NO;
+}
+static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipients)
+{
+  id recipient= [[[next transaction] urlQueryParameters] objectForKey:@"recipient"];
+  if (![allowedRecipients isKindOfClass:[NSArray class]] || ![allowedRecipients containsObject:recipient]) {
+    [[next transaction] write:MSHttpCodeUnauthorized]; }
+  else {
+    [[[next transaction] session] setRecipientURN:recipient];
+    [next nextMiddleware];}
+}
+@end
+
+@interface MHMessengerMessageCleaner : NSObject <MSHttpMiddleware> {
+  NSUInteger _counter;
+  id _messengerDBAccessor;
+}
+- (instancetype)initWithMessengeDB:(id)db;
+- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
+@end
+
+@implementation MHMessengerMessageCleaner
+- (instancetype)initWithMessengeDB:(id)db {
+  _messengerDBAccessor= [db retain];
+  return self;
+}
+- (void)dealloc 
+{
+  [_messengerDBAccessor release];
+  [super dealloc];
+}
+- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+{
+  if (++_counter == 100) {
+    _counter= 0;
+    [_messengerDBAccessor cleanObsoleteMessages];}
+  [next nextMiddleware];
+}
+@end
+
 //mutex for base increments
 @implementation MHMessengerApplication
 
-+ (NSString *)applicationName { return @"Messenger" ; }
-- (NSString *)applicationFullName { return @"MASH Messenger" ; }
-
-+ (MSUInt)defaultAuthenticationMethods
+- (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror
 {
-    return MHAuthChallengedPasswordLogin | MHAuthPKChallengeAndURN ;
+  id error= nil, dbParams, db;
+  dbParams= [parameters objectForKey:@"database"];
+  if (!dbParams) {
+    error= @"missing 'database' parameter";}
+  else if (!(db= [MHMessengerDBAccessor messengerDBWithConnectionDictionary:[parameters objectForKey:@"database"]])) {
+    error= FMT(@"unable to connection to the database: %@", dbParams);}
+  if (error) {
+    if (perror)
+      *perror= error;
+    DESTROY(self);}
+  if (self && (self= [super initWithParameters:parameters withPath:path error:perror])) {
+    MSHttpSessionMiddleware *sessionMiddleware;
+
+    ASSIGN(_messengerDBAccessor, db);
+    sessionMiddleware= [ALLOC(MSHttpSessionMiddleware) initWithCookieName:@"MASHSESSION" sessionClass:[MHMessengerSession class]];
+    [sessionMiddleware setAuthenticator:self];
+    [self addRouteToMiddleware:[MSHttpCookieMiddleware cookieMiddleware]];
+    [self addRouteToMiddleware:sessionMiddleware]; // All routes after this one are authenticated
+    [self addRouteToMiddleware:AUTORELEASE([ALLOC(MHMessengerMessageCleaner) initWithMessengeDB:db])]; //< Clean obsolete message every 1000 request
+    [self addRouteToMiddleware:AUTORELEASE([MHMessengerMessageURNMiddleware new])]; //< Update senderURN and recipientURN
+
+    [self addRoute:@"/auth" method:MSHttpMethodGET toTarget:self selector:@selector(GET_auth:)];
+    [self addRoute:@"/findMessages" method:MSHttpMethodGET toTarget:self selector:@selector(GET_findMessages:)];
+    [self addRoute:@"/getMessage" method:MSHttpMethodGET toTarget:self selector:@selector(GET_getMessage:)];
+    [self addRoute:@"/getMessageStatus" method:MSHttpMethodGET toTarget:self selector:@selector(GET_getMessageStatus:)];
+    [self addRoute:@"/setMessageStatus" method:MSHttpMethodGET toTarget:self selector:@selector(GET_setMessageStatus:)];
+    [self addRoute:@"/deleteMessage" method:MSHttpMethodGET toTarget:self selector:@selector(GET_deleteMessage:)];
+
+    [self addRoute:@"/sendMessage" method:MSHttpMethodPOST toMiddleware:[MHMessengerMessageMiddleware messengerMessageMiddleware]];
+    [self addRoute:@"/sendMessage" method:MSHttpMethodPOST toTarget:self selector:@selector(POST_sendMessage:)];
+    [sessionMiddleware release];
+  }
+  return self;
 }
 
+/*
 - (BOOL)_databaseInitialisationAtPath:(NSString *)dbPath
 {
     BOOL isDir ;
@@ -108,7 +250,7 @@
             
             if(!MSCreateRecursiveDirectory(dbDirectoryPath))
             {
-                [self logWithLevel:MHAppError log:@"Failed to create database directory"] ;
+                //[self logWithLevel:MHAppError log:@"Failed to create database directory"] ;
                 return NO ;
             }
         }
@@ -117,7 +259,7 @@
         
         runOK = [_messengerDBAccessor runSQLScript:scriptPath] ; //run creation script
         if(!runOK) { //db init script
-            [self logWithLevel:MHAppError log:@"Failed to run sql create script : %@",scriptPath] ;
+            //[self logWithLevel:MHAppError log:@"Failed to run sql create script : %@",scriptPath] ;
             return NO ;
         }
 
@@ -136,7 +278,7 @@
     {
         if(![_messengerDBAccessor runSQLScript:scriptPath])
         {
-            [self logWithLevel:MHAppError log:@"Failed to run sql update script : %@",scriptPath] ;
+            //[self logWithLevel:MHAppError log:@"Failed to run sql update script : %@",scriptPath] ;
             return NO ;
         }
         scriptPath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"%d",++dbVersion] ofType:@"sql"] ;
@@ -144,517 +286,127 @@
     
 
     return YES ;
-}
+}*/
 
-- (BOOL)_initDatabaseWithParameters:(NSDictionary *)parameters
+- (void)authenticate:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
 {
-    if(![self parameterNamed:@"node"])
-    {
-        [self logWithLevel:MHAppError log:@"Cannot find messenger node name in config file (application parameters)"] ;
-        return NO ;
-    }
-    ASSIGN(_node, [self parameterNamed:@"node"]) ;
-    
-    if(![self parameterNamed:@"database"])
-    {
-        [self logWithLevel:MHAppError log:@"Cannot find database connection dictionary in config file (application parameters)"] ;
-        return NO ;
-    }
-  
-    if(![parameters objectForKey:@"key"]) {
-        char cstring[40]; NSString *key = nil;
-        NSLog(@"Database password ?");
-        scanf("%s", cstring);
-        key= [NSString stringWithCString:cstring encoding:NSUTF8StringEncoding];
-        if([key length] < 8)
-        {
-            [self logWithLevel:MHAppError log:@"Bad password proposal, at least 8 chars are required"] ;
-            return NO ;
-        }
-        parameters = [MSDictionary mutableDictionaryWithDictionary:parameters];
-        [(MSDictionary*)parameters setObject:key forKey:@"key"];
-    }
-    
-    ASSIGN(_messengerDBAccessor, [MHMessengerDBAccessor messengerDBWithconnectionDictionary:parameters messengerApplication:self]) ;
-    
-    if(![self _databaseInitialisationAtPath:[parameters objectForKey:@"path"]]) {
-        [self logWithLevel:MHAppError log:@"Failed to create database query tool could not find path parameter"] ;
-        return NO ;
-    }
-    return YES ;
+  if (!MHNetRepositoryAuthenticateDistantSession(tr, next, [[self parameters] objectForKey:@"repository"], [self path])) {
+    [[tr session] kill];
+    [tr write:MSHttpCodeUnauthorized];
+  }
 }
-
-- (BOOL)_checkNetRepositoryAuthenticationParameters:(NSDictionary *)authenticationParameters
-{
-    NSString *urn = [authenticationParameters objectForKey:@"urn"] ;
-    NSString *privateKey = [authenticationParameters objectForKey:@"privateKey"] ;
-    BOOL isDir = NO ;
-    
-    if (![urn length])
-    {
-        [self logWithLevel:MHAppError log:@"Parameter not found : 'urn'"] ;
-        return NO ;
-    }
-    
-    if (![privateKey length])
-    {
-        [self logWithLevel:MHAppError log:@"Parameter not found : 'privateKey'"] ;
-        return NO ;
-    }
-    
-    if (! MSFileExistsAtPath(privateKey, &isDir) && !isDir)
-    {
-        [self logWithLevel:MHAppError log:@"PrivateKey file not found at path %@", privateKey] ;
-        return NO ;
-    }
-    
-    ASSIGN(_urn, urn) ;
-    ASSIGN(_skPath, privateKey) ;
-    
-    return YES ;
-}
-
-- (BOOL)_performFirstAuthenticationOnNetRepository
-{
-    MSBuffer *skData = [MSBuffer bufferWithContentsOfFile:_skPath] ;
-    MHNetRepositoryClient *client = [MHNetRepositoryClient clientWithServerParameters:[self netRepositoryConnectionDictionary]
-                                                                                  urn:_urn
-                                                                            secretKey:skData] ;
-    _netRepositoryClient = [client retain] ;
-    
-    return [client authenticate] ;
-}
-
-- (BOOL)_performNetRepositoryConnectionWithAuthenticationParameters:(NSDictionary *)authenticationParameters
-{
-    return [self _checkNetRepositoryAuthenticationParameters:authenticationParameters]
-        && [self _performFirstAuthenticationOnNetRepository];
-}
-
-- (id)initOnBaseURL:(NSString *)url instanceName:(NSString *)instanceName withLogger:(id)logger parameters:(NSDictionary *)parameters
-{
-    if((self = [super initOnBaseURL:url instanceName:instanceName withLogger:logger parameters:parameters]))
-    {
-        NSDictionary *dbParams = [self parameterNamed:@"database"] ;
-        NSDictionary *netRepositoryAuthentication = [self netRepositoryParameters] ;
-        
-        // check if parameters dictionaries are present
-        if (! dbParams)
-        {
-            [self logWithLevel:MHAppError log:@"parameter dictionary missing : 'database'"] ;
-            return nil ;
-        }
-        
-        // TODO: This code doesn't do what it should
-        if (! netRepositoryAuthentication)
-        {
-            [self logWithLevel:MHAppError log:@"parameter dictionary missing net repository configuration 'repositoryName'"] ;
-            return nil ;
-        }
-        
-        if (! netRepositoryAuthentication)
-        {
-            [self logWithLevel:MHAppError log:@"parameter dictionary missing : 'netRepository'"] ;
-            return nil ;
-        }
-        
-        // init database
-        if (![self _initDatabaseWithParameters:dbParams]) {
-            [self logWithLevel:MHAppError log:@"Failed to create database query tool"] ;
-            return nil ;
-        }
-        
-        // init repository connection
-        mutex_init(self->_netRepositoryClientMutex) ;
-        if (! [self _performNetRepositoryConnectionWithAuthenticationParameters:netRepositoryAuthentication])
-        {
-            [self logWithLevel:MHAppError log:@"Failed to initialise net repository connection"] ;
-            return nil ;
-        }
-        
-        return self ;
-    }
-    return nil ;
-}
-
 - (void)dealloc
 {
-    DESTROY(_node) ;
-    DESTROY(_messengerDBAccessor) ;
-
-    DESTROY(_skPath) ;
-    DESTROY(_urn) ;
-    
-    DESTROY(_netRepositoryClient) ;
-    mutex_delete(_netRepositoryClientMutex) ;
-    
-    [super dealloc] ;
+  [_messengerDBAccessor release];
+  [super dealloc];
 }
 
-- (void)clean {
-    [_messengerDBAccessor cleanObsoleteMessages] ;
-}
-
-- (NSString *)makeUUID
+- (void)GET_auth:(MSHttpTransaction *)tr
 {
-    return [[NSProcessInfo processInfo] globallyUniqueString] ;
+  [tr write:MSHttpCodeOk];
 }
 
-//session duration is short and never updated
-+ (MSUInt)authentifiedSessionTimeout { return 600 ; }
-- (BOOL)mustUpdateLastActivity { return NO ; }
-
-- (DBMessengerMessage *)_parseMessage:(MHHTTPMessage *)httpMessage withEnvelopeType:(MHMessengerEnvelopeType)envelopeType envelopeLength:(MSULong)envelopeLength
+- (void)POST_sendMessage:(MSHttpTransaction *)tr
 {
-    DBMessengerMessage *message = nil ;
-    MSTimeInterval stampDateNow = [[MSDate date] timeIntervalSince1970] ;
-    MSBuffer *httpMessageBufferObj = [httpMessage getCompleteBody] ;
-    NSString *error = nil ;
-    message = [DBMessengerMessage messageWithBuffer:httpMessageBufferObj envelopeType:envelopeType envelopeLength:envelopeLength error:&error] ;
-    
-    if(error) { [self logWithLevel:MHAppDebug log:error] ; }
-    
-    if (message)
-    {
-        if(! [message receivingDate]) { [message setReceivingDate:stampDateNow] ; }
-        [message addRouteComponent:[self parameterNamed:@"node"]] ;
-    }
-    
-    return message ;
-}
-
-- (DBMessengerMessage *)_parseMessageFromMessage:(MHHTTPMessage *)httpMessage
-{
-    DBMessengerMessage *message = nil ;
-    //envelope
-    NSString *envelopeTypeHeader = [httpMessage getHeader:MHHTTPEnvelopeType] ;
-    MSULong envelopeLength = [[httpMessage getHeader:MHHTTPEnvelopeLength] longLongValue] ;
-    MHMessengerEnvelopeType envelopeType = 0 ;
-    
-    if([MESSENGER_ENV_TYPE_PLAIN isEqualToString:envelopeTypeHeader]) { envelopeType = MHMEnvelopeTypePlain ; }
-    else if([MESSENGER_ENV_TYPE_MSTE isEqualToString:envelopeTypeHeader]) { envelopeType = MHMEnvelopeTypeMSTE ; }
-    
-    //test mandatory headers
-    if(!envelopeType || !envelopeLength) {
-        if(!envelopeLength) { [self logWithLevel:MHAppDebug log:@"message parsing error : no envelopeLength"] ; }
-        if(!envelopeType) { [self logWithLevel:MHAppDebug log:@"message parsing error : no envelopeType"] ; }
-        return nil ;
-    }
-    
-    switch (envelopeType) {
-        case MHMEnvelopeTypePlain:
-            message = [self _parseMessage:httpMessage withEnvelopeType:MHMEnvelopeTypePlain envelopeLength:envelopeLength] ;
-            break;
-        case MHMEnvelopeTypeMSTE :
-            message = [self _parseMessage:httpMessage withEnvelopeType:MHMEnvelopeTypeMSTE envelopeLength:envelopeLength] ;
-            break ;
-        default:
-            break;
-    }
-    
-    return message ;
-}
-
-- (MSBuffer *)_encodeResponse:(id)response forAcceptedMimeTypes:(NSArray *)acceptedMimeTypes contentType:(NSString **)contentType responseFormat:(NSString **)responseFormat
-{
-    MSBuffer *encodedResponse = nil ;
-    
-    if (response && contentType && responseFormat)
-    {
-        if ([acceptedMimeTypes count] && [acceptedMimeTypes containsObject:MIMETYPE_JSON])
-        {
-            NSString *reponseStr = nil ;
-            *contentType = MESSENGER_MESSAGE_FORMAT_JSON ;
-            *responseFormat = MESSENGER_RESPONSE_FORMAT_JSON ;
-#warning Pourquoi json et pas MSTE ?
-            reponseStr = [response jsonString] ;
-            encodedResponse = [MSBuffer bufferWithData:[reponseStr dataUsingEncoding:NSUTF8StringEncoding]] ;
-            
-        } else {
-            *contentType = MESSENGER_MESSAGE_FORMAT_MSTE ;
-            *responseFormat = MESSENGER_RESPONSE_FORMAT_MSTE ;
-            encodedResponse = [response MSTEncodedBuffer] ;
-        }
-    }
-    else MSRaise(NSInternalInconsistencyException, @"_encodeResponse : response, contentType or responseFormat not specified") ;
-    
-    return encodedResponse ;
-}
-
-- (void)POST_sendMessage:(MHNotification *)notification
-{
-    DBMessengerMessage *message ;
-    NSArray *messageIDs ;
-    
-    message = [self _parseMessageFromMessage:[notification message]] ;
-    
-    if(!message)
-    {
-        [self logWithLevel:MHAppError log:@"/%@ : Message parsing failed", MESSENGER_SUB_URL_SEND_MSG] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else
-    {
-        messageIDs = [_messengerDBAccessor createIDAndstoreMessage:message forURN:GET_SESSION_MEMBER(SESSION_PARAM_URN)] ;
-        if(![messageIDs count])
-        {
-            [self logWithLevel:MHAppError log:@"/%@ : Message not saved in database", MESSENGER_SUB_URL_SEND_MSG] ;
-            MHRESPOND_TO_CLIENT(nil, HTTPInternalError, nil) ;
-        } else {
-            MSBuffer *buf = [messageIDs MSTEncodedBuffer] ;
-            [self logWithLevel:MHAppDebug log:@"/%@ : Message saved in database", MESSENGER_SUB_URL_SEND_MSG] ;
-            MHRESPOND_TO_CLIENT(buf, HTTPOK, nil) ;
-        }
-    }
+  id error= nil;
+  MHMessengerMessage *message= [tr msteDecodedObject];
+  if (![[message sender] isEqual:[[tr session] senderURN]])
+    error= @"sender is not valid";
+  else if(![message checkConsistency:&error] && !error)
+    error= @"unknown consitency error";
+  if (!error) {
+    id messageIDs= [_messengerDBAccessor createIDAndstoreMessage:message];
+    if(![messageIDs count]) {
+      [tr write:MSHttpCodeInternalServerError];}
+    else {
+      [tr write:MSHttpCodeOk mste:messageIDs];}}
+  else {
+    [tr write:MSHttpCodeBadRequest string:error];}
 }
 
 // /findMessages?tid=GVeMIFsTours&status=1&xid=42=max=3&recipient=urn
-- (void)GET_findMessages:(MHNotification *)notification
+- (void)GET_findMessages:(MSHttpTransaction *)tr
 {
-    NSDictionary *queryParams = [[notification message]  parameters] ;
-    NSArray *messageID = [[queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] componentsSeparatedByString:MESSENGER_QUERY_PARAM_OR_SEPARATOR] ;
-    NSArray *thread = [[queryParams objectForKey:MESSENGER_QUERY_PARAM_THREAD_ID] componentsSeparatedByString:MESSENGER_QUERY_PARAM_OR_SEPARATOR] ;
-    NSNumber *max = [NSNumber numberWithInt:[[queryParams objectForKey:MESSENGER_QUERY_PARAM_MAX] intValue]] ;
-    NSString *recipient = [queryParams objectForKey:MESSENGER_QUERY_PARAM_RECIPIENT];
-    
-    if(![messageID count] && !([thread count] && [max intValue]>0)) {
-        [self logWithLevel:MHAppError log:@"/%@ : no thread and limit>0 or message ID specified in query string '%@'", MESSENGER_SUB_URL_FIND_MSG, queryParams] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else if(recipient && ![self _hasRightsToAccessMessagesOf:recipient withNotification:notification]) {
-        [self logWithLevel:MHAppError log:@"/%@ : you don't have access to '%@' messages", MESSENGER_SUB_URL_FIND_MSG, recipient] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else {
-        NSDictionary *messages = nil ;
-        
-        if(!recipient)
-            recipient = GET_SESSION_MEMBER(SESSION_PARAM_URN);
-        messages = [_messengerDBAccessor findMessagesForURN:recipient andParameters:queryParams] ;
-        if(! [messages objectForKey:@"messages"])
-        {
-            [self logWithLevel:MHAppError log:@"/%@ : failed to fetch message list", MESSENGER_SUB_URL_FIND_MSG] ;
-            MHRESPOND_TO_CLIENT(nil, HTTPInternalError, nil) ;
-        } else {
-            NSString *contentType = nil ;
-            NSString *responseFormat = nil ;
-            NSArray *acceptedMimeTypes = [[[notification message] getHeader:MHHTTPClientTypes] componentsSeparatedByString:@","] ;
-            
-            MSBuffer *encodedResponse = [self _encodeResponse:messages forAcceptedMimeTypes:acceptedMimeTypes contentType:&contentType responseFormat:&responseFormat] ;
-
-            NSDictionary *additionalHeaders = [NSDictionary dictionaryWithObjectsAndKeys:contentType, @"Content-Type",
-                                                                                        responseFormat, MESSENGER_HEAD_RESPONSE_FORMAT, nil] ;
-            
-            
-            [self logWithLevel:MHAppDebug log:@"/%@ : query succeeded", MESSENGER_SUB_URL_FIND_MSG] ;
-            MHRESPOND_TO_CLIENT(encodedResponse, HTTPOK, additionalHeaders) ;
-        }
-    }
-}
-
-- (BOOL)_hasRightsToAccessMessagesOf:(NSString*)recipientUrn withNotification:(MHNotification *)notification
-{
-    id allowedRecipients ;
-    
-    allowedRecipients = GET_SESSION_MEMBER(SESSION_PARAM_ALLOWED_RECIPIENTS);
-    if(allowedRecipients == nil) {
-        mutex_lock(_netRepositoryClientMutex);
-        allowedRecipients = [_netRepositoryClient allowedApplicationUrnsForAuthenticable:GET_SESSION_MEMBER(SESSION_PARAM_URN)] ;
-        mutex_unlock(_netRepositoryClientMutex);
-        SET_SESSION_MEMBER(allowedRecipients, SESSION_PARAM_ALLOWED_RECIPIENTS);
-    }
-    return [allowedRecipients containsObject:recipientUrn];
-}
-
-- (MHMessengerEnvelopeType)_envelopeTypeForString:(NSString *)queryParam
-{
-    MHMessengerEnvelopeType envelopeType = MHMEnvelopeTypeMSTE ;
-    
-    if ([MESSENGER_ENV_TYPE_PLAIN isEqualToString:queryParam])
-    {
-        envelopeType = MHMEnvelopeTypePlain ;
-    }
-
-    return envelopeType ;
-}
-
-// /getMessage?mid=UID
-- (void)GET_getMessage:(MHNotification *)notification
-{
-    NSDictionary *queryParams = [[notification message] parameters] ;
-    NSString *messageID = [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
-    NSString *recipient = [queryParams objectForKey:MESSENGER_QUERY_PARAM_RECIPIENT];
-    NSString *envelopeTypeStr = [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ENV] ;
-    MHMessengerEnvelopeType envelopeType = [self _envelopeTypeForString:envelopeTypeStr] ;
-    
-    if(![messageID length] || !envelopeType)
-    {
-        [self logWithLevel:MHAppError log:@"/%@ : no message ID or wrong envelope type specified in query string", MESSENGER_SUB_URL_GET_MSG] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else if(recipient && ![self _hasRightsToAccessMessagesOf:recipient withNotification:notification]) {
-        [self logWithLevel:MHAppError log:@"/%@ : you don't have access to '%@' messages", MESSENGER_SUB_URL_FIND_MSG, recipient] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    }
+  NSDictionary *queryParams= [tr urlQueryParameters];
+  NSArray *messageID= [[queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] componentsSeparatedByString:MESSENGER_QUERY_PARAM_OR_SEPARATOR] ;
+  NSArray *thread= [[queryParams objectForKey:MESSENGER_QUERY_PARAM_THREAD_ID] componentsSeparatedByString:MESSENGER_QUERY_PARAM_OR_SEPARATOR] ;
+  NSNumber *max= [NSNumber numberWithInt:[[queryParams objectForKey:MESSENGER_QUERY_PARAM_MAX] intValue]] ;
+  
+  if (![messageID count] && !([thread count] && [max intValue]>0)) {
+    //[self logWithLevel:MHAppError log:@"/%@ : no thread and limit>0 or message ID specified in query string '%@'", MESSENGER_SUB_URL_FIND_MSG, queryParams];
+    [tr write:MSHttpCodeBadRequest];} 
+  else {
+    NSDictionary *messages= [_messengerDBAccessor findMessagesForURN:[[tr session] recipientURN] andParameters:queryParams];
+    if (!messages) {
+      //[self logWithLevel:MHAppError log:@"/%@ : failed to fetch message list", MESSENGER_SUB_URL_FIND_MSG] ;
+      [tr write:MSHttpCodeInternalServerError]; }
     else {
-        MHMessengerMessage *message ;
-        MSULong envelopeLength = 0 ;
-        
-        if(!recipient)
-            recipient = GET_SESSION_MEMBER(SESSION_PARAM_URN);
-        message = [_messengerDBAccessor getMessageForURN:recipient andMessageID:messageID] ;
-        if(!message)
-        {
-            [self logWithLevel:MHAppError log:@"/%@ : failed to fetch message", MESSENGER_SUB_URL_GET_MSG] ;
-            MHRESPOND_TO_CLIENT(nil, HTTPInternalError, nil) ;
-        } else {
-            NSString *contentType = nil ;
-            MSBuffer *messageBuffer = [message dataWithEnvelopeType:envelopeType envelopeLength:&envelopeLength contentType:&contentType] ;
-            NSDictionary *additionalHeaders = [NSDictionary dictionaryWithObjectsAndKeys:
-                                               contentType, @"Content-Type",
-                                               envelopeTypeStr, MESSENGER_HEAD_ENVELOPPE_TYPE,
-                                               [NSNumber numberWithLong:envelopeLength], MESSENGER_HEAD_ENVELOPPE_LENGTH,
-                                               nil] ;
-
-            MHRESPOND_TO_CLIENT(messageBuffer, HTTPOK, additionalHeaders) ;
-        }
-    }
+      [tr write:MSHttpCodeOk mste:messages]; }}
 }
 
-// /getMessageStatus?mid=UID
-- (void)GET_getMessageStatus:(MHNotification *)notification
+// /getMessage?mid=UID&recipient=urn
+- (void)GET_getMessage:(MSHttpTransaction *)tr
 {
-    NSDictionary *queryParams = [[notification message]  parameters] ;
-    NSString *messageID = [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
-        
-    if(![messageID length])
-    {
-        [self logWithLevel:MHAppError log:@"/%@ : no message ID or no enveloppe type specified in query string", MESSENGER_SUB_URL_GET_MSG_STATUS] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else {
-        NSDictionary *messageStatus = [_messengerDBAccessor getMessageStatusForURN:GET_SESSION_MEMBER(SESSION_PARAM_URN) andMessageID:messageID] ;
-        
-        if(!messageStatus)
-        {
-            [self logWithLevel:MHAppError log:@"/%@ : failed to fetch message", MESSENGER_SUB_URL_GET_MSG_STATUS] ;
-            MHRESPOND_TO_CLIENT(nil, HTTPInternalError, nil) ;
-        } else {
-            NSString *contentType = nil ;
-            NSString *responseFormat = nil ;
-            NSArray *acceptedMimeTypes = [[[notification message] getHeader:MHHTTPClientTypes] componentsSeparatedByString:@","] ;
+  NSDictionary *queryParams= [tr urlQueryParameters];
+  NSString *messageID = [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
+  
+  if(![messageID length]) {
+    //[self logWithLevel:MHAppError log:@"/%@ : no message ID or wrong envelope type specified in query string", MESSENGER_SUB_URL_GET_MSG] ;
+    [tr write:MSHttpCodeBadRequest];}
+  else {
+    MHMessengerMessage *message ;
+    message= [_messengerDBAccessor getMessageForURN:[[tr session] recipientURN] andMessageID:messageID] ;
+    if(!message) {
+      //[self logWithLevel:MHAppError log:@"/%@ : failed to fetch message", MESSENGER_SUB_URL_GET_MSG] ;
+      [tr write:MSHttpCodeInternalServerError]; }
+    else {
+      [tr write:MSHttpCodeOk mste:message]; }}
+}
 
-            MSBuffer *encodedResponse = [self _encodeResponse:messageStatus forAcceptedMimeTypes:acceptedMimeTypes contentType:&contentType responseFormat:&responseFormat] ;
-
-            NSDictionary *additionalHeaders = [NSDictionary dictionaryWithObjectsAndKeys:contentType, @"Content-Type",
-                                               responseFormat, MESSENGER_HEAD_RESPONSE_FORMAT, nil] ;
-            
-            MHRESPOND_TO_CLIENT(encodedResponse, HTTPOK, additionalHeaders) ;
-        }
-    }
+// /getMessageStatus?mid=UID&recipient=urn
+- (void)GET_getMessageStatus:(MSHttpTransaction *)tr
+{
+  NSString *messageID= [[tr urlQueryParameters] objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;   
+  if(![messageID length]) {
+    //[self logWithLevel:MHAppError log:@"/%@ : no message ID or no enveloppe type specified in query string", MESSENGER_SUB_URL_GET_MSG_STATUS] ;
+    [tr write:MSHttpCodeBadRequest];} 
+  else {
+    NSDictionary *messageStatus= [_messengerDBAccessor getMessageStatusForURN:[[tr session] recipientURN] andMessageID:messageID] ;
+    if(!messageStatus) {
+      //[self logWithLevel:MHAppError log:@"/%@ : failed to fetch message", MESSENGER_SUB_URL_GET_MSG_STATUS] ;
+      [tr write:MSHttpCodeInternalServerError]; }
+    else {
+      [tr write:MSHttpCodeOk mste:messageStatus]; }}
 }
 
 // /setMessageStatus?mid=42&status=2
-- (void)GET_setMessageStatus:(MHNotification *)notification
+- (void)GET_setMessageStatus:(MSHttpTransaction *)tr
 {
-    NSDictionary *queryParams = [[notification message]  parameters] ;
-    NSString *messageID = [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
-    NSString *urn = [queryParams objectForKey:MESSENGER_QUERY_PARAM_URN];
-    id status = [queryParams objectForKey:MESSENGER_QUERY_PARAM_STATUS];
-        
-    if(![messageID length] || !status)
-    {
-        [self logWithLevel:MHAppError log:@"/%@ : no message ID or status specified in query string, or status is nul", MESSENGER_SUB_URL_SET_MSG_STATUS] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else if(urn && ![self _hasRightsToAccessMessagesOf:urn withNotification:notification]) {
-        [self logWithLevel:MHAppError log:@"/%@ : you don't have access to '%@' messages", MESSENGER_SUB_URL_FIND_MSG, urn] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else {
-        BOOL statusChanged ;
-        if(!urn) urn=GET_SESSION_MEMBER(SESSION_PARAM_URN);
-        statusChanged = [_messengerDBAccessor setMessageStatusForURN:GET_SESSION_MEMBER(SESSION_PARAM_URN) andMessageID:messageID newStatus:[status intValue]] ;
-        
-        if(!statusChanged)
-        {
-            [self logWithLevel:MHAppError log:@"/%@ : failed", MESSENGER_SUB_URL_SET_MSG_STATUS] ;
-            MHRESPOND_TO_CLIENT(nil, HTTPInternalError, nil) ;
-        } else {
-            MHRESPOND_TO_CLIENT(nil, HTTPOK, nil) ;
-        }
-    }
+  NSDictionary *queryParams= [tr urlQueryParameters];
+  NSString *messageID= [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
+  id status= [queryParams objectForKey:MESSENGER_QUERY_PARAM_STATUS];
+      
+  if(![messageID length] || !status) {
+    //[self logWithLevel:MHAppError log:@"/%@ : no message ID or status specified in query string, or status is nul", MESSENGER_SUB_URL_SET_MSG_STATUS] ;
+    [tr write:MSHttpCodeBadRequest];}
+  else {
+    BOOL statusChanged ;
+    statusChanged= [_messengerDBAccessor setMessageStatusForURN:[[tr session] senderURN] andMessageID:messageID newStatus:[status intValue]] ;
+    [tr write:statusChanged ? MSHttpCodeOk : MSHttpCodeInternalServerError];}
 }
 
 // /deleteMessage?mid=UID
-- (void)GET_deleteMessage:(MHNotification *)notification
+- (void)GET_deleteMessage:(MSHttpTransaction *)tr
 {
-    NSDictionary *queryParams = [[notification message]  parameters] ;
-    NSString *urn = [queryParams objectForKey:MESSENGER_QUERY_PARAM_URN];
-    NSString *messageID = [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
-        
-    if(![messageID length])
-    {
-        [self logWithLevel:MHAppError log:@"/%@ : no message ID specified in query string", MESSENGER_SUB_URL_DEL_MSG] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else if(urn && ![self _hasRightsToAccessMessagesOf:urn withNotification:notification]) {
-        [self logWithLevel:MHAppError log:@"/%@ : you don't have access to '%@' messages", MESSENGER_SUB_URL_FIND_MSG, urn] ;
-        MHRESPOND_TO_CLIENT(nil, HTTPBadRequest, nil) ;
-    } else {
-        BOOL messageDeleted ;
-        if(!urn) urn=GET_SESSION_MEMBER(SESSION_PARAM_URN);
-        messageDeleted = [_messengerDBAccessor deleteMessageForURN:urn andMessageID:messageID] ;
-        
-        if(!messageDeleted)
-        {
-            [self logWithLevel:MHAppError log:@"/%@ : failed", MESSENGER_SUB_URL_DEL_MSG] ;
-            MHRESPOND_TO_CLIENT(nil, HTTPInternalError, nil) ;
-        } else {
-            MHRESPOND_TO_CLIENT(nil, HTTPOK, nil) ;
-        }
-    }
-}
+  NSString *messageID; BOOL messageDeleted;
 
-// user connection with login/password on messenger
-- (void)validateAuthentication:(MHNotification *)notification
-                         login:(NSString *)login
-            challengedPassword:(NSString *)challengedPassword
-              sessionChallenge:(NSString *)storedChallenge
-                   certificate:(MSCertificate *)certificate
-{
-    BOOL auth;
-    NSString *urn;
-    
-    mutex_lock(_netRepositoryClientMutex);
-    auth = [_netRepositoryClient verifyChallengedPassword:challengedPassword forLogin:login andChallenge:storedChallenge] ;
-    urn = auth ? [_netRepositoryClient urnForLogin:login] : nil;
-    mutex_unlock(_netRepositoryClientMutex);
-    
-    if(urn)
-        SET_SESSION_MEMBER(urn, SESSION_PARAM_URN);
-    
-    if ([_logger logLevel] <= MHAppDebug)
-    {
-        if (auth) {
-            [self logWithLevel:MHAppDebug log:@"Challenge Authentication success for login '%@'", login] ;
-        } else {
-            [self logWithLevel:MHAppDebug log:@"Challenge Authentication failure for login '%@'", login] ;
-        }
-    }
-    
-    MHVALIDATE_AUTHENTICATION(auth, nil) ;
-}
-
-// public key challenge authentication init
-- (NSString *)publicKeyForURN:(NSString *)urn
-{
-    NSString *pk ;
-    mutex_lock(_netRepositoryClientMutex);
-    pk = [_netRepositoryClient publicKeyForURN:urn] ;
-    mutex_unlock(_netRepositoryClientMutex);
-    return pk;
-}
-
-- (NSString *)generateChallengeInfoForLogin:(NSString *)login withSession:(MHSession*)session
-{
-    NSString *challengeInfo ;
-    mutex_lock(_netRepositoryClientMutex);
-    challengeInfo = [_netRepositoryClient challengeInfoForLogin:login] ;
-    mutex_unlock(_netRepositoryClientMutex);
-    return challengeInfo;
+  messageID= [[tr urlQueryParameters] objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID];
+  if(![messageID length]) {
+    //[self logWithLevel:MHAppError log:@"/%@ : no message ID specified in query string", MESSENGER_SUB_URL_DEL_MSG] ;
+    [tr write:MSHttpCodeBadRequest];}
+  else {
+    messageDeleted = [_messengerDBAccessor deleteMessageForURN:[[tr session] senderURN] andMessageID:messageID] ;
+    [tr write:messageDeleted ? MSHttpCodeOk : MSHttpCodeInternalServerError];}
 }
 
 @end
