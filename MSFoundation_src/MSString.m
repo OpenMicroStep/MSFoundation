@@ -281,18 +281,19 @@ static inline NSString *_createStringWithContentsOfUTF8File(NSString *file)
 {
   MSString *ret= nil; CBuffer* buf; NSUInteger len; const MSByte *bytes;
   buf= CCreateBuffer(0);
-  CBufferAppendContentsOfFile(buf, SESFromString(file));
-  len= CBufferLength(buf);
-  bytes= CBufferBytes(buf);
+  if (CBufferAppendContentsOfFile(buf, SESFromString(file))) {
+    len= CBufferLength(buf);
+    bytes= CBufferBytes(buf);
 
-  if (len >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf) {
-		len-= 3;
-		bytes+= 3;}
-	if (len) {
-		ret= (MSString*)CCreateString(len);
-		if (!CStringAppendSupposedEncodingBytes((CString *)ret, bytes, len, NSUTF8StringEncoding, NULL)) {
-			RELEAZEN(ret);}}
-	RELEASE(buf);
+    if (len >= 3 && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf) {
+      len-= 3;
+      bytes+= 3;}
+    if (len) {
+      ret= (MSString*)CCreateString(len);
+      if (!CStringAppendSupposedEncodingBytes((CString *)ret, bytes, len, NSUTF8StringEncoding, NULL)) {
+        RELEAZEN(ret);}}
+  }
+  RELEASE(buf);
 	return ret;
 }
 + (NSString *)stringWithContentsOfUTF8File:(NSString *)file { return AUTORELEASE(_createStringWithContentsOfUTF8File(file)) ; }
@@ -667,9 +668,12 @@ static inline id _stringWithFormatv(Class cl, id a, BOOL m, const char *fmt, va_
 static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *path, NSStringEncoding inEnc, NSStringEncoding *outEnc, NSError **error)
 {
   CBuffer* buf= CCreateBuffer(0);
-  CBufferAppendContentsOfFile(buf, SESFromString(path));
-  if(outEnc) a=nil; // TODO
-  else       a= _stringWithBytes(cl, a, m, inEnc, CBufferBytes(buf), CBufferLength(buf));
+  if (!CBufferAppendContentsOfFile(buf, SESFromString(path)))
+    DESTROY(a);
+  else if (outEnc)
+    DESTROY(a); // TODO
+  else
+    a= _stringWithBytes(cl, a, m, inEnc, CBufferBytes(buf), CBufferLength(buf));
   RELEASE(buf);
   return a;
 }
