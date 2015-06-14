@@ -3,7 +3,10 @@
 static NSNull *__singletonNSNull= nil;
 
 @implementation NSNull
-+ (void)load { __singletonNSNull= MSCreateObject(self); }
++ (void)load { 
+  __singletonNSNull= MSCreateObject(self);
+  MSNull= __singletonNSNull;
+}
 + (BOOL)supportsSecureCoding { return YES; }
 
 + (id)new                               { return __singletonNSNull; }
