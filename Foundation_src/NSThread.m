@@ -27,7 +27,7 @@ MS_DECLARE_THREAD_LOCAL(__currentThread, __currentThread_dtor);
 }
 - (instancetype)init
 {
-	_dic= [NSMutableDictionary new];
+	_dic= [MSDictionary new];
 	return self;
 }
 
@@ -56,7 +56,7 @@ MS_DECLARE_THREAD_LOCAL(__currentThread, __currentThread_dtor);
 	if(!thread) {
 		thread= [NSThread new];
     thread->_state= STATE_RUNNING;
-    tss_set(__currentThread, self);
+    tss_set(__currentThread, thread);
 	}
 	return thread;
 }
