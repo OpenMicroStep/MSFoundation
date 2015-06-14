@@ -839,6 +839,7 @@ module.exports = {
       "files": ["MHRepository.Framework"],
       "publicHeaders": ["MHRepository.Framework?MSPublicHeaders"],
       "configure": function(target) {
+        target.addCompileFlags(['-Wall', '-Werror']);
         target.addBundleResources([{from:"MHRepositoryAdministrator_src/Resources/login.html", to:"login.html"}]);
       }
     },
@@ -849,6 +850,7 @@ module.exports = {
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHRepository.Server"],
       "configure": function(target) {
+        target.addCompileFlags(['-Wall', '-Werror']);
       }
     },
     {
@@ -862,6 +864,7 @@ module.exports = {
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHRepository.WebApp"],
       "configure": function(target) {
+        target.addCompileFlags(['-Wall', '-Werror']);
         target.addBundleResources([{from:"MHRepositoryAdministrator_src/Resources", to:""}]);
         target.addBundleResources([{from:"MHRepositoryAdministrator_src/Resources/login.html", to:"login.html"}]);
       }
