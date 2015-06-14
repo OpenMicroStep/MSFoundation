@@ -11,6 +11,10 @@ NSString * const NSObjectInaccessibleException= @"NSObjectInaccessibleException"
 NSString * const NSObjectNotAvailableException= @"NSObjectNotAvailableException";
 NSString * const NSDestinationInvalidException= @"NSDestinationInvalidException";
 
+#ifdef WIN32
+MS_DECLARE_THREAD_LOCAL(__topExceptionFrame, NULL)
+#endif
+
 @implementation NSException
 
 + (NSException *)exceptionWithName:(NSString *)name reason:(NSString *)reason userInfo:(NSDictionary *)userInfo
@@ -41,7 +45,17 @@ NSString * const NSDestinationInvalidException= @"NSDestinationInvalidException"
 
 - (void)raise
 {
+#ifdef WIN32
+  NSExceptionFrame *top= tss_get(__topExceptionFrame);
+  if (top) {
+    top->exception= self;
+    longjmp(top->state, 1);
+  }
+  else {
+    @throw self;}
+#else
   @throw self;
+#endif
 }
 
 + (void)raise:(NSString *)name format:(NSString *)format, ...
@@ -57,3 +71,17 @@ NSString * const NSDestinationInvalidException= @"NSDestinationInvalidException"
 }
 
 @end
+
+#ifdef WIN32 // win32 exception aren't working yet, falling back to longjmp, badly taken from cocotron
+void __NSPushExceptionFrame(NSExceptionFrame *frame)
+{
+  NSExceptionFrame *top= tss_get(__topExceptionFrame);
+  frame->parent= top;
+  frame->exception= nil;
+  tss_set(__topExceptionFrame, frame);
+}
+void __NSPopExceptionFrame(NSExceptionFrame *frame)
+{
+  tss_set(__topExceptionFrame, frame->parent);
+}
+#endif
