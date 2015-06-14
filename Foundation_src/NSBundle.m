@@ -97,14 +97,16 @@ static void _refreshIfNeeded()
   _refreshIfNeeded();
   bundle= CDictionaryObjectForKey(__bundleByExePath, [NSString stringWithUTF8String:name]);
   mtx_unlock(&__mutex);
-  printf("bundle %p\n", bundle);
+  printf("bundle %s\n", [[bundle executablePath] UTF8String]);
   return bundle; 
 }
 + (NSBundle *)bundleWithPath:(NSString *)path
 { return [[ALLOC(NSBundle) initWithPath:path] autorelease]; }
 - (instancetype)initWithPath:(NSString *)path 
 { 
-  if (![path isAbsolutePath]) {
+  if (![path length]) {
+    DESTROY(self);}
+  else if (![path isAbsolutePath]) {
     path= [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:path];
 #   ifdef WIN32
     {
@@ -127,7 +129,7 @@ static void _refreshIfNeeded()
     }
 #   endif
   }
-  return [self _initWithPath:path exePath:nil]; 
+  return [self _initWithPath:[NSString pathWithComponents:[path pathComponents]] exePath:nil];
 }
 - (instancetype)_initWithPath:(NSString *)path exePath:(NSString *)exePath
 {
@@ -158,6 +160,8 @@ static void _refreshIfNeeded()
         exePath= [exePath stringByAppendingPathExtension:@"dll"];
 #     endif
     }
+    else {
+      _state= 2;}
     _rscPath= [[basePath stringByAppendingPathComponent:@"Resources"] retain];
     _exePath= [exePath retain];
     _info= [[NSDictionary dictionaryWithContentsOfFile:[basePath stringByAppendingPathComponent:@"Info.plist"]] retain];
