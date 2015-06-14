@@ -114,7 +114,7 @@ MSCoreExtern void CBufferAppendSES    (CBuffer *self, SES ses, NSStringEncoding 
 MSCoreExtern void CBufferAppendString (CBuffer *self, const CString *s, NSStringEncoding destinationEncoding);
 // See CBufferAppendSES
 
-MSCoreExtern void CBufferAppendContentsOfFile(CBuffer *self, SES path);
+MSCoreExtern BOOL CBufferAppendContentsOfFile(CBuffer *self, SES path);
 MSCoreExtern void CBufferSetBytes(CBuffer *self, const void *ptr, NSUInteger length);
 
 MSCoreExtern void CBufferBase64EncodeAndAppendBytes(CBuffer *self, const void *bytes, NSUInteger len);

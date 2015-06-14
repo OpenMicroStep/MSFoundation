@@ -330,7 +330,7 @@ void CBufferAppendString(CBuffer *self, const CString *s, NSStringEncoding desti
   if (s) CBufferAppendSES(self, CStringSES(s), destinationEncoding);
 }
 
-void CBufferAppendContentsOfFile(CBuffer *self, SES path)
+BOOL CBufferAppendContentsOfFile(CBuffer *self, SES path)
 {
   CBuffer *pathBuf;
   NSUInteger length;
@@ -341,17 +341,15 @@ void CBufferAppendContentsOfFile(CBuffer *self, SES path)
   f=fopen((const char *)CBufferCString(pathBuf), "rb");
   RELEASE(pathBuf);
 
-  if (!f) {
-    // TODO: Non on veut pas lever une exception. On veut juste une alerte.
-    //MSRaiseFrom(NSMallocException, self, _cmd, @"buffer file not found at path '%@'", path);
-    return;}
-  fseek(f, 0, SEEK_END);
-  length= (NSUInteger)ftell(f);
-  fseek(f, 0, SEEK_SET);
-  CBufferGrow(self, length, YES);
-  fread(self->buf+self->length, 1, length, f);
-  self->length+= length;
-  fclose (f);
+  if (f) {
+    fseek(f, 0, SEEK_END);
+    length= (NSUInteger)ftell(f);
+    fseek(f, 0, SEEK_SET);
+    CBufferGrow(self, length, YES);
+    fread(self->buf+self->length, 1, length, f);
+    self->length+= length;
+    fclose(f);}
+  return f != NULL;
 }
 
 void CBufferSetBytes(CBuffer *self, const void *ptr, NSUInteger length)

@@ -77,7 +77,8 @@ static inline id _initWithBuffer(id a, BOOL m, MSBuffer *d)
 }
 static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 { 
-  CBufferAppendContentsOfFile((CBuffer*)a, SESFromString(path));
+  if (!CBufferAppendContentsOfFile((CBuffer*)a, SESFromString(path))) {
+    DESTROY(a);}
   return _endInit(a,m);
 }
 
