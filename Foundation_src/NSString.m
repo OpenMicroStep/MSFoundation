@@ -89,7 +89,15 @@
   if (object == self) return YES;
   return [object isKindOfClass:[NSString class]] && [self isEqualToString:object];
 }
-
+- (const unichar *)UTF16String
+{
+  const static unichar end= 0;
+  CBuffer *ret= CCreateBuffer(0);
+  CBufferAppendSES(ret, SESFromString(self), NSUnicodeStringEncoding);
+  CBufferAppendBytes(ret, &end, sizeof(end));
+  AUTORELEASE(ret);
+  return (const unichar *)CBufferBytes(ret);
+}
 @end
 
 @implementation NSMutableString

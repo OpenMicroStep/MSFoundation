@@ -69,6 +69,7 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag;
 - (NSData *)dataUsingEncoding:(NSStringEncoding)encoding;
 - (NSData *)dataUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag;
+- (const unichar *)UTF16String;
 @end
 
 @interface NSString (NSStringCompareExtension)

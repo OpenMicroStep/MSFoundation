@@ -165,6 +165,7 @@ MSFoundationExtern NSString *MSTrimAt(NSString *source, NSUInteger position, NSU
 - (NSData *)dataUsingEncoding:(NSStringEncoding)encoding;
 - (NSData *)dataUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag;
 - (const char *)UTF8String;
+- (const unichar *)UTF16String;
 
 #pragma mark Finding characters and substrings
 

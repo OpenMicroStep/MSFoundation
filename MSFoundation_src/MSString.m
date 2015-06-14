@@ -931,6 +931,12 @@ static inline CBuffer* _dataUsingEncoding(NSString *self, NSStringEncoding encod
   AUTORELEASE((MSBuffer*)b);
   return (const char *)CBufferCString(b);
 }
+- (const unichar *)UTF16String
+{
+  CGrowGrow((id)self, 1); // Même si pas mutable
+  self->_buf[self->_length]= 0x0000;
+  return self->_buf;
+}
 
 - (NSData *)dataUsingEncoding:(NSStringEncoding)encoding
 { return [self dataUsingEncoding:encoding allowLossyConversion:YES]; }
