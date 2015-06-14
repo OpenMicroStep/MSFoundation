@@ -644,6 +644,14 @@ static inline id _stringWithBytes(Class cl, id a, BOOL m, NSStringEncoding encod
   if (!m) CGrowSetForeverImmutable(a);
   return a;
 }
+static inline id _stringWithCString(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s)
+{
+  if (!s) {
+    DESTROY(a);}
+  else {
+    a= _stringWithBytes(cl, a, m, encoding, s, strlen(s));}
+  return a;
+}
 static inline id _stringWithSES(Class cl, id a, BOOL m, SES ses)
 {
   if (!a) a= AUTORELEASE(ALLOC(cl));
@@ -703,13 +711,13 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 { id str=_stringWithBytes(nil ,self,YES, NSUnicodeStringEncoding, characters,length); if(freeBuffer) free(characters); return str;}
 
 + (instancetype)stringWithUTF8String:(const char *)nullTerminatedCString
-{ return _stringWithBytes(self, nil, NO, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
+{ return _stringWithCString(self, nil, NO, NSUTF8StringEncoding, nullTerminatedCString);}
 - (instancetype)initWithUTF8String:(const char *)nullTerminatedCString
-{ return _stringWithBytes(nil ,self, NO, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
+{ return _stringWithCString(nil ,self, NO, NSUTF8StringEncoding, nullTerminatedCString);}
 + (instancetype)mutableStringWithUTF8String:(const char *)nullTerminatedCString
-{ return _stringWithBytes(self, nil,YES, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
+{ return _stringWithCString(self, nil,YES, NSUTF8StringEncoding, nullTerminatedCString);}
 - (instancetype)mutableInitWithUTF8String:(const char *)nullTerminatedCString
-{ return _stringWithBytes(nil ,self,YES, NSUTF8StringEncoding, nullTerminatedCString, strlen(nullTerminatedCString));}
+{ return _stringWithCString(nil ,self,YES, NSUTF8StringEncoding, nullTerminatedCString);}
 
 + (instancetype)stringWithString:(NSString *)string
 { return _stringWithSES(self, nil, NO, SESFromString(string));}
@@ -758,13 +766,13 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
 { id str=_stringWithBytes(nil, self,YES, encoding, bytes, len); if(freeBuffer) free(bytes); return str;}
 
 + (instancetype)stringWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
-{ return _stringWithBytes(self, nil, NO, NSUTF8StringEncoding, cstr, strlen(cstr));}
-- (instancetype)initWithCString:(const char *)cstr encoding:(NSStringEncoding)encoding
-{ return _stringWithBytes(nil ,self, NO, NSUTF8StringEncoding, cstr, strlen(cstr));}
+{ return _stringWithCString(self, nil, NO, enc, cstr);}
+- (instancetype)initWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
+{ return _stringWithCString(nil ,self, NO, enc, cstr);}
 + (instancetype)mutableStringWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
-{ return _stringWithBytes(self, nil,YES, NSUTF8StringEncoding, cstr, strlen(cstr));}
-- (instancetype)mutableInitWithCString:(const char *)cstr encoding:(NSStringEncoding)encoding
-{ return _stringWithBytes(nil ,self,YES, NSUTF8StringEncoding, cstr, strlen(cstr));}
+{ return _stringWithCString(self, nil,YES, enc, cstr);}
+- (instancetype)mutableInitWithCString:(const char *)cstr encoding:(NSStringEncoding)enc
+{ return _stringWithCString(nil ,self,YES, enc, cstr);}
 
 + (instancetype)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error
 { return _stringWithContentsOfFile(self, nil, NO, path, enc, 0,error);}
