@@ -88,7 +88,7 @@ static NSString* _databaseKey(NSString *envkey)
     if(![connectionDictionary isKindOfClass:[MSDictionary class]])
         connectionDictionary= [MSDictionary dictionaryWithDictionary:connectionDictionary];
     ASSIGN(_connection, [MSDBConnection connectionWithDictionary:(MSDictionary *)connectionDictionary]) ;
-    if (!_connection)
+    if (!_connection || ![_connection connect])
         DESTROY(self);
     return self;
 }
@@ -163,7 +163,7 @@ static NSString* _databaseKey(NSString *envkey)
     
     while(ret && [result nextRow]) {
         id mid= [result objectAtColumn:0];
-        //[_messenger logWithLevel:MHAppDebug log:@"Deleting old persistent message '%@'...", mid] ;
+        NSLog(@"Deleting old persistent message '%@'...", mid) ;
         ret = [conn deleteFrom:DB_TABLE_MESSAGE
                          where:[NSString stringWithFormat:@"%@=?", DB_TABLE_MESSAGE_COL_MESSAGE_ID]
                   withBindings:[NSArray arrayWithObject:mid]] != -1;
@@ -194,7 +194,7 @@ static void _messengerMessageOutput(id value, NSString *key, id arg)
       MSDictionary *d= [MSDictionary mutableDictionary];
       [message exportPropertiesWithOutput:_messengerMessageOutput context:d asString:NO];
       [d setObject:[message base64Content] forKey:DB_TABLE_MESSAGE_COL_CONTENT];
-      res= [conn insert:d into:DB_TABLE_MESSAGE] ;}
+      res= [conn insert:d into:DB_TABLE_MESSAGE] ; }
   }
   res= [self _databaseEndTransactionOn:conn byCommit:res withMessage:@"Message creation"];
   return res ? uuids : nil;
@@ -307,11 +307,13 @@ static NSString * _getMessageForURNSrc(NSString *key, id arg)
 {
   id *data= (id*)arg;
   MSDBResultSet *result= data[0]; NSUInteger column; id ret= nil;
-  column= _columnIdx(key);
+  column= _columnIdx(_databaseKey(key));
   if (column != NSNotFound) {
     MSString *s= [MSString mutableString];
     if([result getStringAt:s column:column]) {
       ret= s;}}
+  else {
+    NSLog(@"Can't map %@", key);}
   data[1]= (id)(intptr_t)(ret != nil);
   return ret;
 }
@@ -336,7 +338,7 @@ static NSString * _getMessageForURNSrc(NSString *key, id arg)
     if (data[1] != 0) {
       [message setBase64Content:content]; }
     else {
-      DESTROY(message); }
+      message= nil; }
   }
   [self _disconnectDatabase:conn] ;
   return message ;
@@ -407,7 +409,7 @@ static NSString * _getMessageForURNSrc(NSString *key, id arg)
         }
         
         if(res) {
-            //[_messenger logWithLevel:MHAppDebug log:@"Deleting message '%@'...",messageID] ;
+            NSLog(@"Deleting message '%@'...",messageID) ;
             res= [conn deleteFrom:DB_TABLE_MESSAGE
                             where:[NSString stringWithFormat:@"%@=?", DB_TABLE_MESSAGE_COL_MESSAGE_ID]
                      withBindings:[NSArray arrayWithObject:messageID]];
@@ -440,7 +442,7 @@ static NSString * _getMessageForURNSrc(NSString *key, id arg)
     while(res && [result nextRow])
     {
         id messageID= [result objectAtColumn:0];
-        //[_messenger logWithLevel:MHAppDebug log:@"Deleting message '%@'...",messageID] ;
+        NSLog(@"Deleting message '%@'...",messageID);
         res= [conn deleteFrom:DB_TABLE_MESSAGE
                         where:[NSString stringWithFormat:@"%@=?", DB_TABLE_MESSAGE_COL_MESSAGE_ID]
                  withBindings:[NSArray arrayWithObject:messageID]];

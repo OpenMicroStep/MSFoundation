@@ -6,8 +6,7 @@
 //  Copyright (c) 2013 Geoffrey Guilbon. All rights reserved.
 //
 
-@interface MHMessengerClient : MSHttpApplicationClient
-
+@interface MHMessengerClient : MHHttpApplicationClient
 - (MSHttpClientRequest *)sendMessage:(MHMessengerMessage *)message;
 - (MSHttpClientRequest *)getMessage:(NSString *)mid;
 - (MSHttpClientRequest *)deleteMessage:(NSString *)mid;

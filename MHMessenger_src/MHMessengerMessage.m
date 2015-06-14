@@ -60,7 +60,7 @@
 
 - (void)setAsNew
 {
-  _creationDate= [[NSDate date] timeIntervalSinceReferenceDate];
+  _creationDate= [[NSDate date] timeIntervalSince1970];
 }
 
 - (void)dealloc
@@ -88,9 +88,7 @@ static BOOL checkStringArray(NSArray *arr)
 {
   id error= nil;
 
-  if(![_messageID length])
-    error= @"message ID can't be empty";
-  else if(![_sender length])
+  if(![_sender length])
     error= @"sender can't be empty";
   else if(!checkStringArray(_recipients))
     error= @"recipients can't be empty or contain empty value";
@@ -222,13 +220,13 @@ static MSLong checkLong(id s, MSLong defaultValue, MSLong errValue)
 
 - (NSData *)content {
   CBuffer *b= CCreateBuffer(0);
-  CBufferBase64EncodeAndAppendBytes(b, [_base64Content bytes], [_base64Content length]);
+  if (!CBufferBase64DecodeAndAppendBytes(b, [_base64Content bytes], [_base64Content length]))
+    DESTROY(b); 
   return AUTORELEASE(b);
 }
 - (void)setContent:(NSData *)content {
   CBuffer *b= CCreateBuffer(0);
-  if (!CBufferBase64DecodeAndAppendBytes(b, [_base64Content bytes], [_base64Content length]))
-    DESTROY(b);
+  CBufferBase64EncodeAndAppendBytes(b, [content bytes], [content length]);
   [_base64Content release];
   _base64Content= (MSBuffer *)b;
 }

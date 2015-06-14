@@ -807,7 +807,7 @@ module.exports = {
       "name": "MHMessenger",
       "type": "Framework",
       "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
-      "dependencies": ["MSFoundation", "MSDatabase", "MSNode"],
+      "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHMessenger.Framework"],
       "publicHeaders": ["MHMessenger.Framework?MSPublicHeaders"],
       "bundleResources": ["MHMessenger.Resources"],

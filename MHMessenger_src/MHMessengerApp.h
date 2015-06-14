@@ -59,7 +59,6 @@
   MHMessengerDBAccessor *_messengerDBAccessor ;
 }
 
-- (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
 - (void)authenticate:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
 
 

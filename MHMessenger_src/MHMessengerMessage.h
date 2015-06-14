@@ -41,18 +41,18 @@
  
  */
 
-#define MESSENGER_ENV_MESSAGE_ID        @"messageID"
-#define MESSENGER_ENV_SENDER            @"sender"
-#define MESSENGER_ENV_RECIPIENTS        @"recipients"
-#define MESSENGER_ENV_CREATION_DATE     @"creationDate"
-#define MESSENGER_ENV_RECEIVING_DATE    @"receivingDate"
-#define MESSENGER_ENV_THREAD            @"thread"
-#define MESSENGER_ENV_VALIDITY          @"validity"
-#define MESSENGER_ENV_PRIORITY          @"priority"
-#define MESSENGER_ENV_ROUTE             @"route"
-#define MESSENGER_ENV_STATUS            @"status"
-#define MESSENGER_ENV_EXTERNAL_REF      @"externalReference"
-#define MESSENGER_ENV_CONTENT_TYPE      @"contentType"
+#define MESSENGER_ENV_MESSAGE_ID        @"msg-messageid"
+#define MESSENGER_ENV_SENDER            @"msg-sender"
+#define MESSENGER_ENV_RECIPIENTS        @"msg-recipients"
+#define MESSENGER_ENV_CREATION_DATE     @"msg-creationdate"
+#define MESSENGER_ENV_RECEIVING_DATE    @"msg-receivingdate"
+#define MESSENGER_ENV_THREAD            @"msg-thread"
+#define MESSENGER_ENV_VALIDITY          @"msg-validity"
+#define MESSENGER_ENV_PRIORITY          @"msg-priority"
+#define MESSENGER_ENV_ROUTE             @"msg-route"
+#define MESSENGER_ENV_STATUS            @"msg-status"
+#define MESSENGER_ENV_EXTERNAL_REF      @"msg-externalreference"
+#define MESSENGER_ENV_CONTENT_TYPE      @"msg-contenttype"
 
 #define MESSENGER_DEFAULT_MESSAGE_VALIDITY 259200 //3 days
 
@@ -124,6 +124,9 @@ typedef enum
 
 - (NSArray *)recipients ;
 - (void)setRecipients:(NSArray *)recipients;
+
+- (NSString*)recipientsJoined;
+- (void)setJoinedRecipients:(NSString *)recipients;
 
 - (MSTimeInterval)creationDate ;
 - (void)setCreationDate:(MSTimeInterval )creationDate ;

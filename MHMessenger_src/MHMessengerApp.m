@@ -199,12 +199,15 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
 
 - (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror
 {
-  id error= nil, dbParams, db;
-  dbParams= [parameters objectForKey:@"database"];
+  id error= nil, dbParams, db, dbPath;
+  dbParams= [MSDictionary mutableDictionaryWithDictionary:[parameters objectForKey:@"database"]];
   if (!dbParams) {
     error= @"missing 'database' parameter";}
-  else if (!(db= [MHMessengerDBAccessor messengerDBWithConnectionDictionary:[parameters objectForKey:@"database"]])) {
-    error= FMT(@"unable to connection to the database: %@", dbParams);}
+  if (!error && (dbPath= [dbParams objectForKey:@"path"]) && ![dbPath isAbsolutePath]) {
+    dbPath= [path stringByAppendingPathComponent:dbPath];
+    [dbParams setObject:dbPath forKey:@"path"];}
+  if (!error && !(db= [MHMessengerDBAccessor messengerDBWithConnectionDictionary:dbParams])) {
+    error= FMT(@"unable to connect to the database: %@", dbParams);}
   if (error) {
     if (perror)
       *perror= error;
@@ -230,6 +233,7 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
     [self addRoute:@"/sendMessage" method:MSHttpMethodPOST toMiddleware:[MHMessengerMessageMiddleware messengerMessageMiddleware]];
     [self addRoute:@"/sendMessage" method:MSHttpMethodPOST toTarget:self selector:@selector(POST_sendMessage:)];
     [sessionMiddleware release];
+    [_messengerDBAccessor cleanObsoleteMessages];
   }
   return self;
 }
@@ -309,7 +313,7 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
 - (void)POST_sendMessage:(MSHttpTransaction *)tr
 {
   id error= nil;
-  MHMessengerMessage *message= [tr msteDecodedObject];
+  MHMessengerMessage *message= [tr messengerMessage];
   if (![[message sender] isEqual:[[tr session] senderURN]])
     error= @"sender is not valid";
   else if(![message checkConsistency:&error] && !error)
@@ -360,7 +364,7 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
       //[self logWithLevel:MHAppError log:@"/%@ : failed to fetch message", MESSENGER_SUB_URL_GET_MSG] ;
       [tr write:MSHttpCodeInternalServerError]; }
     else {
-      [tr write:MSHttpCodeOk mste:message]; }}
+      [tr write:MSHttpCodeOk messengerMessage:message]; }}
 }
 
 // /getMessageStatus?mid=UID&recipient=urn

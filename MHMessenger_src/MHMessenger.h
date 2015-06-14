@@ -5,6 +5,7 @@
 
 #import <MSNode/MSNode.h>
 #import <MSDatabase/MSDatabase.h>
+#import <MHRepository/MHRepositoryApi.h>
 
 #import <MHMessenger/MHMessengerMessage.h>
 #import <MHMessenger/MHMessengerMessageMiddleware.h>
