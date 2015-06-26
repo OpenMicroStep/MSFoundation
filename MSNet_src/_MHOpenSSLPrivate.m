@@ -49,7 +49,7 @@
 static BOOL __MHSSLInitialized = NO ;
 
 // Pointer to array of locks.
-static mutex_t *lock_cs;
+static mtx_t *lock_cs;
 
 // This function allocates and initializes the lock array
 // and registers the callbacks. This should be called
@@ -60,12 +60,12 @@ static void _thread_setup()
     int i;
     
     // Allocate lock array according to OpenSSL's requirements
-    lock_cs=OPENSSL_CRYPTO_malloc((int)(OPENSSL_CRYPTO_num_locks() * sizeof(mutex_t)),__FILE__,__LINE__);
+    lock_cs=OPENSSL_CRYPTO_malloc((int)(OPENSSL_CRYPTO_num_locks() * sizeof(mtx_t)),__FILE__,__LINE__);
 
     // Initialize the locks
     for (i=0; i<OPENSSL_CRYPTO_num_locks(); i++)
     {
-        mutex_init((lock_cs[i]));
+        mtx_init(lock_cs + i, mtx_plain);
     }
     
     // Register callbacks
@@ -87,7 +87,7 @@ static void _thread_cleanup()
     // Destroy the locks
     for (i=0; i<OPENSSL_CRYPTO_num_locks(); i++)
     {
-        mutex_delete((lock_cs[i]));
+        mtx_destroy(lock_cs + i);
     }
     
     // Release the lock array.
@@ -180,11 +180,11 @@ void mash_locking_callback(int mode, int type, char *file, int line)
 {
     if (mode & CRYPTO_LOCK)
     {
-        mutex_lock((lock_cs[type]));
+        mtx_lock(lock_cs + type);
     }
     else
     {
-        mutex_unlock((lock_cs[type]));
+        mtx_unlock(lock_cs + type);
     }
 }
 

@@ -1,3 +1,5 @@
+#ifndef MSOBJC_CATEGORY_H
+#define MSOBJC_CATEGORY_H
 
 /**
  * The structure used to represent a category.
@@ -33,3 +35,5 @@ struct objc_category
 	 */
 	struct objc_protocol_list *protocols;
 };
+
+#endif // MSOBJC_CATEGORY_H

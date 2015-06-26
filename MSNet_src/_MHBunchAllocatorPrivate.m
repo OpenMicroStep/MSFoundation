@@ -56,7 +56,7 @@
 
 - (id)initForClass:(Class)aClass withBunchSize:(MSUShort)size
 {
-    mutex_init(_bunchAllocatorMutex) ;
+    mtx_init(&_bunchAllocatorMutex, mtx_plain) ;
     _instanceClass = aClass ;
     _bunchSize = size ;
     _lastBunch = NULL ;
@@ -65,14 +65,14 @@
 
 - (void)dealloc
 {
-    mutex_delete(_bunchAllocatorMutex);
+    mtx_destroy(&_bunchAllocatorMutex);
     [super dealloc] ;
 }
 
 - (id)newBunchObjectIntoBunch:(CBunch **)aBunch
 {
     id newObject = nil ;
-    mutex_lock(_bunchAllocatorMutex);
+    mtx_lock(&_bunchAllocatorMutex);
 #if !__OBJC2__
     if (!_lastBunch) _lastBunch = newBunch(self, ((struct objc_class *)_instanceClass)->instance_size, _bunchSize) ;
 #else
@@ -80,16 +80,16 @@
 #endif    
     newObject = newBunchObject(self, &_lastBunch, _instanceClass) ;
     *aBunch = _lastBunch ;
-    mutex_unlock(_bunchAllocatorMutex);
+    mtx_unlock(&_bunchAllocatorMutex);
     return newObject ;
 }
 
 - (void)removeObjectFromBunch:(CBunch *)aBunch
 {
-    mutex_lock(_bunchAllocatorMutex);
+    mtx_lock(&_bunchAllocatorMutex);
     aBunch->deallocatedObjectsCount++ ;
     freeBunch(aBunch) ;
-    mutex_unlock(_bunchAllocatorMutex);
+    mtx_unlock(&_bunchAllocatorMutex);
 }
 
 - (void)removeBunch:(CBunch *)aBunch

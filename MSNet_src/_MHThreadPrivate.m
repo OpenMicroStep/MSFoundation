@@ -15,12 +15,12 @@ event_t _create_event(event_t evt, int initval)
     evt = (real_event_t *)malloc(sizeof(real_event_t));
     if(evt)
     {
-        if(pthread_mutex_init(&evt->mutex, NULL))
+        if(mtx_init(&evt->mutex, mtx_plain) == thrd_error)
         {
             free(evt);
             return NULL;
         }
-        if(pthread_cond_init(&evt->condition, NULL))
+        if(cnd_init(&evt->condition) == thrd_error)
         {
             free(evt);
             return NULL;
@@ -33,27 +33,27 @@ event_t _create_event(event_t evt, int initval)
 // renvoyer code != 0 en cas d'echec ?
 int event_wait(event_t evt)
 {
-    pthread_mutex_lock(&evt->mutex);
+    mtx_lock(&evt->mutex);
     while(!evt->flag)
-        pthread_cond_wait(&evt->condition, &evt->mutex);
+        cnd_wait(&evt->condition, &evt->mutex);
     
     evt->flag = 0;
-    pthread_mutex_unlock(&evt->mutex);
+    mtx_unlock(&evt->mutex);
     return 0;
 }
 
 void event_set(event_t evt)
 {
-    pthread_mutex_lock(&evt->mutex);
+    mtx_lock(&evt->mutex);
     evt->flag = 1;
-    pthread_mutex_unlock(&evt->mutex);
-    pthread_cond_signal(&evt->condition);
+    mtx_unlock(&evt->mutex);
+    cnd_signal(&evt->condition);
 }
 
 void event_delete(event_t evt)
 {
-    pthread_mutex_destroy(&evt->mutex);
-    pthread_cond_destroy(&evt->condition);
+    mtx_destroy(&evt->mutex);
+    cnd_destroy(&evt->condition);
     evt->flag = 0;
     free(evt);
 }

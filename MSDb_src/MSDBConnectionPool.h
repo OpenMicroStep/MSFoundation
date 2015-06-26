@@ -45,7 +45,7 @@
 @interface MSDBConnectionPool : NSObject {
   MSDictionary *_connectionDictionary ;
   MSArray *_idleConnections;
-  mutex_t _connectionLock;
+  mtx_t _connectionLock;
   
 /* TODO
   NSUInteger _maxCapacity;

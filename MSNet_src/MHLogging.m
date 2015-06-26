@@ -91,7 +91,7 @@
         NS_ENDHANDLER
         
         //sets up lock
-        mutex_init(_lock) ;
+        mtx_init(&_lock, mtx_plain) ;
         
         //default mode : outputs in the file
         _mode = (MSUShort)MHFileMode ;
@@ -112,7 +112,7 @@
     [_logFile closeFile] ;
     DESTROY(_logFile) ;
     DESTROY(_dateFormat) ;
-    mutex_delete(_lock) ;
+    mtx_destroy(&_lock) ;
     [super dealloc] ;
 }
 
@@ -168,7 +168,7 @@
             finalLog = [NSString stringWithFormat:@"%@ - %@ - %@ - [%10u] - %@\n", dateStr, appLogName, levelStr, thread_id(), log] ;
 
             //write to stdout and/or file
-            mutex_lock(_lock) ;
+            mtx_lock(&_lock) ;
             if(_mode & (MSByte)MHScreenMode) //print to screen
             {
 #ifdef WO451
@@ -186,7 +186,7 @@
                 [_logFile writeData:[finalLog dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES]] ;
 #endif
             }
-            mutex_unlock(_lock) ;
+            mtx_unlock(&_lock) ;
         }
         RELEASE(log) ;
     }
@@ -196,23 +196,23 @@
 {
     if(enabled)
     {
-        mutex_lock(_lock) ;
+        mtx_lock(&_lock) ;
         _mode |= (MSByte)mode ;
-        mutex_unlock(_lock) ;
+        mtx_unlock(&_lock) ;
     }
     else
     {
-        mutex_lock(_lock) ;
+        mtx_lock(&_lock) ;
         _mode &= ~(MSByte)mode ;
-        mutex_unlock(_lock) ;
+        mtx_unlock(&_lock) ;
     }
 }
 
 - (void)setLogLevel:(MHLogLevel)level
 {
-    mutex_lock(_lock) ;
+    mtx_lock(&_lock) ;
     _logLevel = level ;
-    mutex_unlock(_lock) ;
+    mtx_unlock(&_lock) ;
 }
 
 - (MHLogLevel)logLevel

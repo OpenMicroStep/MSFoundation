@@ -48,15 +48,13 @@
 #pragma mark c-like Class and Objects
 
 #ifdef MSFOUNDATION_FORCOCOA
-#define MSCORE_NSOBJECT_ATTRIBUTES \
-  Class isa; \
-//int32_t _noRefCount;
-
+  #define MSCORE_NSOBJECT_ATTRIBUTES \
+    Class isa; \
+  //int32_t _noRefCount;
 #else
-#define MSCORE_NSOBJECT_ATTRIBUTES \
-  Class isa; \
-  int32_t refCount;
-
+  #define MSCORE_NSOBJECT_ATTRIBUTES \
+    Class isa; \
+    int32_t refCount;
 #endif
 
 // Return 0 for MSCORE_STANDALONE, 1 for MSFOUNDATION_FORCOCOA, 2 for MSFOUNDATION
@@ -66,21 +64,20 @@ typedef struct CArrayStruct      CArray;
 typedef struct CDictionaryStruct CDictionary;
 typedef struct CStringStruct     CString;
 
-#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
-///// Class for c-like objects
-typedef struct ClassStruct {
-  struct ClassStruct *isa;
-  const char* className;}
-*Class;
-#define Nil ((Class)0)
+#if defined(MSCORE_STANDALONE)
+  ///// Class for c-like objects
+  typedef struct ClassStruct {
+    struct ClassStruct *isa;
+    const char* className;}
+  *Class;
+  #define Nil ((Class)0)
 
-///// c-like object
-typedef struct {
-  MSCORE_NSOBJECT_ATTRIBUTES
-  }
-*id;
-#define nil ((void*)0)
-
+  ///// c-like object
+  typedef struct {
+    MSCORE_NSOBJECT_ATTRIBUTES
+    }
+  *id;
+  #define nil ((void*)0)
 #endif
 
 #define MSMaxHashingHop 3
@@ -179,8 +176,6 @@ MSCoreExtern const CString* _MObjectRetainedDescription(id obj);
 // A retained CString made from [X description]
 #define DESCRIPTION(X) _MObjectRetainedDescription((id)(X))
 
-#ifdef MSCORE_FORFOUNDATION                              // MSCORE_FORFOUNDATION
-
 MSCoreExtern Class       _MIsa            (id obj);
 MSCoreExtern const char *_MNameOfClass    (id obj);
 MSCoreExtern NSUInteger  _MRetainCount    (id obj);
@@ -194,6 +189,8 @@ MSCoreExtern id          _MObjectCopy     (id obj);
 MSCoreExtern CArray*     _MObjectSubs     (id obj, mutable CDictionary *ctx);
 MSCoreExtern void        _MObjectDescribe (id obj, id result, int level, mutable CDictionary *ctx);
 MSCoreExtern BOOL        _MIsArray        (id obj);
+
+#ifdef MSCORE_FORFOUNDATION                              // MSCORE_FORFOUNDATION
 
 #define ISA(X)         _MIsa        ((id)(X))
 #define NAMEOFCLASS(X) _MNameOfClass((id)(X))

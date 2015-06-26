@@ -1,8 +1,10 @@
+var path = require('path');
 module.exports = {
   name : "OpenMicroStep", // Name of the workspace
   environments: {
     "openmicrostep-base" : {
       compiler: "clang",
+      compilerOptions: { "std":"c11" },
       directories: {
         intermediates: ".intermediates",
         output: "out",
@@ -24,10 +26,13 @@ module.exports = {
     "openmicrostep-core-x86_64-linux"           :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
     "openmicrostep-core-i386-mingw-w64"         :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
     "openmicrostep-core-x86_64-mingw-w64"       :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-core-i386-msvc12"            :{"arch": "i386"       , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-msvc12"          :{"arch": "x86_64"     , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
     "openmicrostep-core": [
       "openmicrostep-core-i386-darwin"   , "openmicrostep-core-x86_64-darwin", //"openmicrostep-core-univ-darwin",
       /*"openmicrostep-core-i386-linux"    ,*/ "openmicrostep-core-x86_64-linux",
-      "openmicrostep-core-i386-mingw-w64", "openmicrostep-core-x86_64-mingw-w64",
+      "openmicrostep-core-i386-mingw-w64", "openmicrostep-core-x86_64-mingw-w64", 
+      "openmicrostep-core-i386-msvc12",  "openmicrostep-core-x86_64-msvc12"
     ],
 
     "openmicrostep-foundation-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
@@ -37,10 +42,13 @@ module.exports = {
     "openmicrostep-foundation-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
     "openmicrostep-foundation-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
     "openmicrostep-foundation-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-i386-msvc12"      :{"arch": "i386"       , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-msvc12"    :{"arch": "x86_64"     , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
     "openmicrostep-foundation": [
       "openmicrostep-foundation-i386-darwin"   , "openmicrostep-foundation-x86_64-darwin", //"openmicrostep-foundation-univ-darwin",
       /*"openmicrostep-foundation-i386-linux"    ,*/ "openmicrostep-foundation-x86_64-linux",
-      "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64",
+      "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64", 
+      "openmicrostep-foundation-i386-msvc12",  "openmicrostep-foundation-x86_64-msvc12"
     ],
 
     "openmicrostep-cocoa-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
@@ -58,12 +66,6 @@ module.exports = {
         {file: "MSCore_src/MSCore_Private.h"},
       ]},
       {group:"Abstraction", files: [
-        {file: "MSCore_src/MSCorePlatform.h", tags: ["MSPublicHeaders"]},
-        {file: "MSCore_src/MSCorePlatform.c"},
-        {file: "MSCore_src/MSCorePlatform-apple.i"},
-        {file: "MSCore_src/MSCorePlatform-unix.i"},
-        {file: "MSCore_src/MSCorePlatform-win32.i"},
-        {file: "MSCore_src/MSCorePlatform-wo451.i"},
         {file: "MSCore_src/MSCoreTypes.h", tags: ["MSPublicHeaders"]},
         {file: "MSCore_src/MSCoreSystem.h", tags: ["MSPublicHeaders"]},
         {file: "MSCore_src/MSCoreSystem.c"},
@@ -621,14 +623,14 @@ module.exports = {
       "environments" : ["openmicrostep-core"],
       "files": ["MSCore.Headers", "MSCore.Abstraction", "MSCore.Sources", "MSCore.Object", "MSCore.MAPM"],
       "publicHeaders": ["?MSCorePublicHeader", "MSCore?MSPublicHeaders"],
-      "defines": ["MSCORE_STANDALONE"],
+      "defines": ["MSCORE_STANDALONE", "MSSTD_EXPORT"],
+      "dependencies" : [
+        {workspace: 'deps/msstdlib', target:'MSStd'} // The MSSTd lib is embedded inside MSCore
+      ],
       "configure": function(target) {
-        if (target.platform === "linux") {
-          target.addLibraries(['-lm', '-luuid', '-ldl']);
-        }
-        else if (target.platform === "win32") {
-          target.addLibraries(['-lRpcrt4', '-lPsapi']);
-        }
+        //target.addCompileFlags(['-Wall', '-Werror']);
+        target.addIncludeDirectory('deps/msstdlib');
+        target.addPublicHeaders(target.getDependency('MSStd').publicHeaders);
       },
       exports: {
         "defines":["MSCORE_STANDALONE"]
@@ -640,7 +642,8 @@ module.exports = {
       "environments" : ["openmicrostep-core"],
       "dependencies" : ["MSCore", "MSTests"],
       "files": ["MSCore.Tests", "MSCore.Test", "Test libs?MSCoreTest"],
-      "includeDirectoriesOfFiles": ["MSCore", "MSTests"]
+      "includeDirectoriesOfFiles": ["MSCore", "MSTests"],
+      "includeDirectories": ["deps/msstdlib"],
     },
     {
       "name" : "MSTests",
@@ -660,7 +663,8 @@ module.exports = {
       "type" : "Framework",
       "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies" : [
-        {workspace: 'deps/msobjclib', target:'msobjclib', condition:function(target) { return !target.env.cocoa; }},
+        {workspace: 'deps/msstdlib', target:'MSStd'},
+        {workspace: 'deps/msobjclib', target:'MSObjc', condition:function(target) { return !target.env.cocoa; }},
         {workspace: 'deps/libuv', target:'libuv', condition:function(target) { return !target.env.cocoa; }}
       ],
       "files" : [
@@ -669,6 +673,7 @@ module.exports = {
 
       ],
       "publicHeaders": ["?MSFoundationPublicHeader", "MSCore?MSPublicHeaders", "MSFoundation?MSPublicHeaders"],
+      "includeDirectories": ["deps/libuv/include", "deps/msstdlib"],
       "configure": function(target) {
         if(target.env.cocoa) {
           target.addFrameworks(["Foundation"]);
@@ -677,14 +682,9 @@ module.exports = {
         else {
           target.addWorkspaceFiles(["Foundation.Headers", "Foundation.Sources"]);
           target.addWorkspacePublicHeaders(["Foundation?MSPublicHeaders"]);
+          target.addDefines(["MSSTD_EXPORT=1"]);
         }
-
-        if (target.platform === "linux") {
-          target.addLibraries(['-lm', '-luuid', '-ldl', '-lpthread', '-lrt']);
-        }
-        else if (target.platform === "win32") {
-          target.addLibraries(['-lRpcrt4', '-lPsapi', '-lWs2_32']);
-        }
+        target.addPublicHeaders(target.getDependency('MSStd').publicHeaders);
       },
       "exports": {
         configure: function(other_target, target) {
@@ -702,12 +702,12 @@ module.exports = {
       "dependencies": ["MSFoundation"],
       "files": ["MSCore.Tests", "Foundation.Tests", "MSFoundation.Tests"],
       "includeDirectoriesOfFiles": ["MSCore", "MSTests", "MSFoundation", "Foundation"],
+      "includeDirectories": ["deps/msstdlib"],
       "configure": function(target) {
         if(target.env.cocoa)
           target.addWorkspaceFiles(["Test libs?MSFoundationTest"]);
         else
           target.addWorkspaceFiles(["Test libs?MSFoundationForCocoaTest"]);
-        target.addLibraries(['-lpthread']);
       }
     },
     {

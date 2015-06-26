@@ -158,7 +158,7 @@
   // Definition of events
   typedef struct
   {
-    pthread_mutex_t mutex;
+    mtx_t mutex;
     pthread_cond_t  condition;
     unsigned int    flag;
   } real_event_t;

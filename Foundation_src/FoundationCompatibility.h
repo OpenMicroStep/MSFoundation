@@ -1,5 +1,3 @@
-#import <MSFoundation/MSCorePlatform.h>
-#import <MSFoundation/MSCoreTypes.h>
 #import <MSFoundation/FoundationTypes.h>
 
 // Core

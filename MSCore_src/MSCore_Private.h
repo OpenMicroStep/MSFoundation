@@ -50,6 +50,4 @@
 
 #include "MSCore_Public.h"
 
-#include "MSCorePlatform_Private.h"
-
 #endif // MSCORE_PRIVATE_H

@@ -1,10 +1,4 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
-
-#include "sarray2.h"
-#include "visibility.h"
+#include "msobjc_private.h"
 
 static void *EmptyArrayData[256];
 static SparseArray EmptyArray = { 0xff, 0, 0, (void**)&EmptyArrayData};

@@ -1,8 +1,4 @@
-#ifndef ENABLE_GC
-#include "objc/toydispatch.h"
-#include "lock.h"
-#include "visibility.h"
-
+#include "msobjc_private.h"
 
 static dispatch_queue_t garbage_queue;
 
@@ -18,5 +14,3 @@ PRIVATE void objc_collect_garbage_data(void(*cleanup)(void*), void *garbage)
 	}
 	dispatch_async_f(garbage_queue, garbage, cleanup);
 }
-
-#endif

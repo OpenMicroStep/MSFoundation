@@ -121,15 +121,8 @@ typedef struct objc_method *Method;
 /**
  * Objective-C boolean type.
  */
-#	ifdef STRICT_APPLE_COMPATIBILITY
-typedef signed char BOOL;
-#	else
-#		ifdef __vxwords
-typedef  int BOOL;
-#		else
-typedef unsigned char BOOL;
-#		endif
-#	endif
+typedef signed char OBJC_BOOL;
+#define BOOL OBJC_BOOL
 
 #else
 // Method in the GCC runtime is a struct, Method_t is the pointer

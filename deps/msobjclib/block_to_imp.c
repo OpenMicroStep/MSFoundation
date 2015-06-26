@@ -1,21 +1,8 @@
-// On some platforms, we need _GNU_SOURCE to expose asprintf()
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE 1
+#include "msobjc_private.h"
+
+#ifndef MAP_ANONYMOUS
+#define MAP_ANONYMOUS MAP_ANON
 #endif
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <ctype.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include "mman.h"
-#include "objc/runtime.h"
-#include "objc/blocks_runtime.h"
-#include "blocks_runtime.h"
-#include "lock.h"
-#include "visibility.h"
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0
@@ -27,47 +14,12 @@ void __clear_cache(void* start, void* end);
 #	define clear_cache __clear_cache
 #endif
 
-
-/* QNX needs a special header for asprintf() */
-#ifdef __QNXNTO__
-#include <nbutil.h>
-#endif
-
-#define PAGE_SIZE 4096
+#define BLOCK_PAGE_SIZE 4096
 
 static void *executeBuffer;
 static void *writeBuffer;
 static ptrdiff_t offset;
-static mutex_t trampoline_lock;
-#ifndef SHM_ANON
-static char *tmpPattern;
-static void initTmpFile(void)
-{
-	char *tmp = getenv("TMPDIR");
-	if (NULL == tmp)
-	{
-		tmp = "/tmp/";
-	}
-	if (0 > asprintf(&tmpPattern, "%s/objc_trampolinesXXXXXXXXXXX", tmp))
-	{
-		abort();
-	}
-}
-static int getAnonMemFd(void)
-{
-	char *pattern = strdup(tmpPattern);
-	int fd = mkstemp(pattern);
-	unlink(pattern);
-	free(pattern);
-	return fd;
-}
-#else
-static void initTmpFile(void) {}
-static int getAnonMemFd(void)
-{
-	return shm_open(SHM_ANON, O_CREAT | O_RDWR, 0);
-}
-#endif
+static mtx_t trampoline_lock;
 
 struct wx_buffer
 {
@@ -78,18 +30,15 @@ struct wx_buffer
 PRIVATE void init_trampolines(void)
 {
 	INIT_LOCK(trampoline_lock);
-	initTmpFile();
 }
 
 static struct wx_buffer alloc_buffer(size_t size)
 {
 	LOCK_FOR_SCOPE(&trampoline_lock);
-	if ((0 == offset) || (offset + size >= PAGE_SIZE))
+	if ((0 == offset) || (offset + size >= BLOCK_PAGE_SIZE))
 	{
-		int fd = getAnonMemFd();
-		ftruncate(fd, PAGE_SIZE);
-		void *w = mmap(NULL, PAGE_SIZE, PROT_WRITE, MAP_SHARED, fd, 0);
-		executeBuffer = mmap(NULL, PAGE_SIZE, PROT_READ|PROT_EXEC, MAP_SHARED, fd, 0);
+		void *w = mmap(NULL, BLOCK_PAGE_SIZE, PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+		executeBuffer = mmap(NULL, BLOCK_PAGE_SIZE, PROT_READ|PROT_EXEC, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 		*((void**)w) = writeBuffer;
 		writeBuffer = w;
 		offset = sizeof(void*);
@@ -145,7 +94,7 @@ static void* isBlockIMP(void *anIMP)
 	UNLOCK(&trampoline_lock);
 	while (e)
 	{
-		if ((anIMP > e) && (anIMP < e + PAGE_SIZE))
+		if ((anIMP > e) && (anIMP < e + BLOCK_PAGE_SIZE))
 		{
 			return ((char*)w) + ((char*)anIMP - (char*)e);
 		}

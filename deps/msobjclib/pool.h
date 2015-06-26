@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include "lock.h"
-
 #ifndef POOL_TYPE
 #error POOL_TYPE must be defined
 #endif
@@ -13,15 +10,15 @@
 #define PREFIX_SUFFIX(x, y) REALLY_PREFIX_SUFFIX(x, y)
 #define NAME(x) PREFIX_SUFFIX(POOL_NAME, x)
 
-#define PAGE_SIZE 4096
+#define POOL_PAGE_SIZE 4096
 
 // Malloc one page at a time.
-#define POOL_SIZE ((PAGE_SIZE) / sizeof(POOL_TYPE))
+#define POOL_SIZE ((POOL_PAGE_SIZE) / sizeof(POOL_TYPE))
 static POOL_TYPE* NAME(_pool);
 static int NAME(_pool_next_index) = -1;
 
 #ifdef THREAD_SAFE_POOL
-static mutex_t NAME(_lock);
+static mtx_t NAME(_lock);
 #define LOCK_POOL() LOCK(&POOL_NAME##_lock)
 #define UNLOCK_POOL() LOCK(&POOL_NAME##_lock)
 #else
@@ -37,9 +34,9 @@ static inline POOL_TYPE*NAME(_pool_alloc)(void)
 	pool_allocs++;
 	if (0 > NAME(_pool_next_index))
 	{
-		NAME(_pool) = malloc(PAGE_SIZE);
+		NAME(_pool) = malloc(POOL_PAGE_SIZE);
 		NAME(_pool_next_index) = POOL_SIZE - 1;
-		pool_size += PAGE_SIZE;
+		pool_size += POOL_PAGE_SIZE;
 	}
 	POOL_TYPE* new = &NAME(_pool)[NAME(_pool_next_index)--];
 	UNLOCK_POOL();
@@ -47,7 +44,7 @@ static inline POOL_TYPE*NAME(_pool_alloc)(void)
 }
 #undef NAME
 #undef POOL_SIZE
-#undef PAGE_SIZE
+#undef POOL_PAGE_SIZE
 #undef POOL_NAME
 #undef POOL_TYPE
 #undef LOCK_POOL

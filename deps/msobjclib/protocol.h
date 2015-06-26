@@ -1,5 +1,5 @@
-#include "selector.h"
-#include <stdlib.h>
+#ifndef MSOBJC_PROTOCOL_H
+#define MSOBJC_PROTOCOL_H
 
 struct objc_method_description_list
 {
@@ -17,7 +17,10 @@ struct objc_method_description_list
 
 
 #ifdef __OBJC__
-@interface Object { id isa; } @end
+@interface Object { 
+	id isa; 
+} 
+@end
 /**
  * Definition of the Protocol type.  Protocols are objects, but are rarely used
  * as such.
@@ -119,3 +122,4 @@ struct objc_protocol_list
 	Protocol2                 *list[];
 };
 
+#endif // MSOBJC_PROTOCOL_H

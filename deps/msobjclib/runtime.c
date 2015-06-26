@@ -1,23 +1,4 @@
-#include "objc/runtime.h"
-#include "selector.h"
-#include "class.h"
-#include "protocol.h"
-#include "ivar.h"
-#include "method_list.h"
-#include "lock.h"
-#include "dtable.h"
-#include "gc_ops.h"
-
-/* Make glibc export strdup() */
-
-#if defined __GLIBC__
-	#define __USE_BSD 1
-#endif
-
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
+#include "msobjc_private.h"
 
 struct objc_slot *objc_get_slot(Class cls, SEL selector);
 #define CHECK_ARG(arg) if (0 == arg) { return 0; }

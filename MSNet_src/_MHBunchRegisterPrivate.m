@@ -50,7 +50,7 @@ static void *__bunchAllocatorRegister = NULL ;
 static MSUShort __classRegisterSize = 0;
 static MSUShort __classRegisterCount = 0;
 static BOOL __bunchAllocatorMutexInitialized = NO ;
-static mutex_t __bunchAllocatorMutex ;
+static mtx_t __bunchAllocatorMutex ;
 
 MHBunchAllocator *getBunchAllocatorForClass(Class aClass, MSUShort aBunchSize) 
 {
@@ -59,10 +59,10 @@ MHBunchAllocator *getBunchAllocatorForClass(Class aClass, MSUShort aBunchSize)
     void **newBunchAllocatorRegistered = NULL ;
     
     if (!__bunchAllocatorMutexInitialized) {
-        mutex_init(__bunchAllocatorMutex) ;
+        mtx_init(&__bunchAllocatorMutex, mtx_plain) ;
         __bunchAllocatorMutexInitialized = YES ;
     }
-    mutex_lock(__bunchAllocatorMutex);
+    mtx_lock(&__bunchAllocatorMutex);
 
     if (!__classRegister) {
         __classRegisterSize = INITIAL_CLASS_REGISTER_SIZE ;
@@ -96,7 +96,7 @@ MHBunchAllocator *getBunchAllocatorForClass(Class aClass, MSUShort aBunchSize)
     __classRegister[__classRegisterCount] = aClass ;
     __classRegisterCount++ ;
     
-    mutex_unlock(__bunchAllocatorMutex);
+    mtx_unlock(&__bunchAllocatorMutex);
     
     return newBunchAllocator ;
 }

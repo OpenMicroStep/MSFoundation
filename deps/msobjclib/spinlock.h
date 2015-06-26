@@ -1,13 +1,5 @@
-#if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
-#include <windows.h>
-static unsigned sleep(unsigned seconds)
-{
-	Sleep(seconds*1000);
-	return 0;
-}
-#else
-#include <unistd.h>
-#endif
+#ifndef MSOBJC_SPINLOCK_H
+#define MSOBJC_SPINLOCK_H
 
 /**
  * Number of spinlocks.  This allocates one page on 32-bit platforms.
@@ -74,8 +66,9 @@ inline static void lock_spinlock(volatile int *spinlock)
 		{
 			// If it is already 1, let another thread play with the CPU for a
 			// bit then try again.
-			sleep(0);
+			thrd_yield();
 		}
 	}
 }
 
+#endif // MSOBJC_SPINLOCK_H

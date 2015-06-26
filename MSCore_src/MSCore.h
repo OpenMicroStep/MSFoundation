@@ -48,7 +48,7 @@
 #ifndef MSCORE_H
 #define MSCORE_H
 
-#include <MSCore/MSCorePlatform.h>
+#include <MSCore/MSStd.h>
 #include <MSCore/MSCoreTypes.h>
 #include <MSCore/MSCoreSystem.h>
 

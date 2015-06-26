@@ -10,7 +10,7 @@
 
 EXTERN_TESTS_BASE
 
-mutex_t __mutex;
+mtx_t __mutex;
 
 CString* CMessageTest;
 CString* TTag1, *TTag2;
@@ -24,11 +24,11 @@ mutable CDictionary *imp_TCtx(test_t *t, const char *assert,
   CDictionarySetObjectForKey(ctx, (id)a, (id)KAssert);
   RELEASE(a);
   if (t) {
-    mutex_lock(__mutex);
+    mtx_lock(&__mutex);
     if (!t->errCtxs) t->errCtxs= CCreateArray(0);
     CArrayAddObject(t->errCtxs, (id)ctx);
     t->err++;
-    mutex_unlock(__mutex);}
+    mtx_unlock(&__mutex);}
   return ctx;
   }
 void imp_TAdvise(mutable CDictionary* ctx, const char *msgFmt, ...)
@@ -169,7 +169,7 @@ static void CBehaviorTest(CDictionary* ctx, CString* msg)
 int main(int argc, const char * argv[])
 {
   int err= 0, argi;
-  mutex_init(__mutex);
+  mtx_init(&__mutex, mtx_recursive);
   CMessageTest= CSCreate("CMessageTest");
   TTag1= CSCreate("tag 1");
   TTag2= CSCreate("tag 2");
@@ -186,6 +186,6 @@ int main(int argc, const char * argv[])
 //CMessageDebugOn= on;
   RELEASE(CMessageTest);
   RELEASE(TTag1); RELEASE(TTag2); RELEASE(TTags);
-  mutex_delete(__mutex);
+  mtx_destroy(&__mutex);
   return err;
 }

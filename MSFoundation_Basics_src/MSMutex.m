@@ -55,19 +55,19 @@
 
 - (id)init
 {
-    mutex_init(_mutex) ;
+    mtx_init(&_mutex, mtx_recursive) ;
     return self ;
 }
 
 - (void)dealloc
 {
     [self unlock] ;
-    mutex_delete(_mutex) ;
+    mtx_destroy(&_mutex) ;
     [super dealloc] ;
 }
 
-- (BOOL)trylock { return mutex_trylock(_mutex) ; }
-- (void)lock { mutex_lock(_mutex) ; }
-- (void)unlock { mutex_unlock(_mutex) ; }
+- (BOOL)trylock { return mtx_trylock(&_mutex) ; }
+- (void)lock { mtx_lock(&_mutex) ; }
+- (void)unlock { mtx_unlock(&_mutex) ; }
 
 @end

@@ -1,16 +1,4 @@
-#include "objc/runtime.h"
-#include "objc/hooks.h"
-#include "objc/developer.h"
-#include "alias.h"
-#include "class.h"
-#include "method_list.h"
-#include "selector.h"
-#include "lock.h"
-#include "ivar.h"
-#include "dtable.h"
-#include "visibility.h"
-#include <stdlib.h>
-#include <assert.h>
+#include "msobjc_private.h"
 
 void objc_register_selectors_from_class(Class class);
 void objc_init_protocols(struct objc_protocol_list *protos);

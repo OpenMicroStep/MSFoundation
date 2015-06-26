@@ -1,20 +1,6 @@
-#include <stdlib.h>
-#include <assert.h>
-#import "stdio.h"
-#import "objc/runtime.h"
-#import "objc/blocks_runtime.h"
-#import "nsobject.h"
-#import "class.h"
-#import "selector.h"
-#import "visibility.h"
-#import "objc/hooks.h"
-#import "objc/objc-arc.h"
-#import "objc/blocks_runtime.h"
+#include "msobjc_private.h"
 
-#ifndef NO_PTHREADS
-#include <pthread.h>
-pthread_key_t ARCThreadKey;
-#endif
+tss_t ARCThreadKey;
 
 extern void *_NSConcreteMallocBlock;
 extern void *_NSConcreteStackBlock;
@@ -59,17 +45,13 @@ struct arc_tls
 
 static inline struct arc_tls* getARCThreadData(void)
 {
-#ifdef NO_PTHREADS
-	return NULL;
-#else
-	struct arc_tls *tls = pthread_getspecific(ARCThreadKey);
+	struct arc_tls *tls = tss_get(ARCThreadKey);
 	if (NULL == tls)
 	{
 		tls = calloc(sizeof(struct arc_tls), 1);
-		pthread_setspecific(ARCThreadKey, tls);
+		tss_set(ARCThreadKey, tls);
 	}
 	return tls;
-#endif
 }
 int count = 0;
 int poolCount = 0;
@@ -509,15 +491,13 @@ const static WeakRef NullWeakRef;
 #include "hash_table.h"
 
 static weak_ref_table *weakRefs;
-mutex_t weakRefLock;
+mtx_t weakRefLock;
 
 PRIVATE void init_arc(void)
 {
 	weak_ref_initialize(&weakRefs, 128);
 	INIT_LOCK(weakRefLock);
-#ifndef NO_PTHREADS
-	pthread_key_create(&ARCThreadKey, (void(*)(void*))cleanupPools);
-#endif
+	tss_create(&ARCThreadKey, (void(*)(void*))cleanupPools);
 }
 
 void* block_load_weak(void *block);

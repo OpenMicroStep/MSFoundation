@@ -1,11 +1,4 @@
-#include "objc/runtime.h"
-#include "lock.h"
-#include "dtable.h"
-#include "selector.h"
-#include "loader.h"
-#include "objc/hooks.h"
-#include <stdint.h>
-#include <stdio.h>
+#include "msobjc_private.h"
 
 void objc_send_initialize(id object);
 
@@ -224,7 +217,7 @@ Slot_t objc_slot_lookup_super(struct objc_super *super, SEL selector)
 /**
  * Mutex used to protect non-thread-safe parts of the profiling subsystem.
  */
-static mutex_t profileLock;
+static mtx_t profileLock;
 /**
  * File used for writing the profiling symbol table.
  */

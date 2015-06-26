@@ -99,19 +99,19 @@ static CDictionary *__applicationsByPort = NULL ;
 static MSArray *__applications = nil ;
 
 static NSMutableArray *__applicationsInfos = nil ;
-static mutex_t __applicationsMutex ;
+static mtx_t __applicationsMutex ;
 
 static CDictionary *__sessions = NULL ;
-static mutex_t __sessionsMutex ;
+static mtx_t __sessionsMutex ;
 
 static CDictionary *__sessionContexts = NULL ;
-static mutex_t __sessionContextsMutex ;
+static mtx_t __sessionContextsMutex ;
 
 static CDictionary *__resourcesCache = NULL ;
-static mutex_t __resourcesCacheMutex ;
+static mtx_t __resourcesCacheMutex ;
 
 static CDictionary *__authenticationTickets = NULL ;
-static mutex_t __authenticationTicketsMutex ;
+static mtx_t __authenticationTicketsMutex ;
 
 static unsigned int __currentUploadId = 0 ;
 
@@ -121,7 +121,7 @@ static MSInt __adminPort = 0 ;
 static NSString *__adminLogin = nil ;
 static NSString *__adminPassword = nil ;
 
-static mutex_t __blacklist_mutex ; // mutex to access the IP blacklist
+static mtx_t __blacklist_mutex ; // mutex to access the IP blacklist
 static ip_log __iplist[BLACKLIST_SIZE] = {{0,0}} ;
 static unsigned long __blacklist[BLACKLIST_SIZE] = {0} ;
 static int __blacklist_idx = 0 ;
@@ -140,11 +140,11 @@ static char *__keyFile = 0 ;
 #define MAX_REQUEST_PER_PERIOD 400
 #define BLACKLIST_SLEEP_TIME 15 // check the blacklist every 15 seconds
 static event_t __newClientConnectionAccepted;  // Event to report a new client connection
-static mutex_t __client_accept_mutex ; // mutex for critical section on socket accepts
+static mtx_t __client_accept_mutex ; // mutex for critical section on socket accepts
 static MSMutableNaturalArray *__waitingAcceptedClientSockets ;
 static MSUShort __maxClientReadingThreads ;
 static MSUShort __usedClientReadingThreads ;
-//static mutex_t __unusedClientReadingThreadsMutex ;
+//static mtx_t __unusedClientReadingThreadsMutex ;
 
 #define DEFAULT_MAX_CLIENT_PROCESSING_THREADS  4
 #define DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS 64
@@ -153,9 +153,9 @@ static MSUInt __maxClientProcessingRequests = 0 ;
 static MSUShort __maxClientProcessingThreads ;
 static MSUShort __usedClientProcessingThreads ;
 static MSUInt __currentClientProcessingRequestCount = 0;
-//static mutex_t __unusedClientProcessingThreadsMutex ;
+//static mtx_t __unusedClientProcessingThreadsMutex ;
 static event_t __newClientProcessingQueueEntry ;
-static mutex_t __clientProcessingQueueMutex ;
+static mtx_t __clientProcessingQueueMutex ;
 
 static BOOL __startSeparatedUniqueProcessingThread = NO ;
 static MHQueue *__clientSeparatedUniqueProcessingQueue ;
@@ -168,19 +168,19 @@ static MHQueue *__clientWaitingQueue ;
 static MSUShort __maxClientWaitingThreads ;
 static MSUShort __usedClientWaitingThreads ;
 static event_t __newClientWaitingQueueEntry ;
-static mutex_t __clientWaitingQueueMutex ;
-//static mutex_t __unusedClientWaitingThreadsMutex ;
+static mtx_t __clientWaitingQueueMutex ;
+//static mtx_t __unusedClientWaitingThreadsMutex ;
 
 static CElementPool *__clientNotificationsPool = NULL ;
 
 //Admin reading threads pool management
 #define DEFAULT_ADMIN_READING_THREADS         2
 static event_t __newAdminConnectionAccepted;  // Event to report a new admin connection
-static mutex_t __admin_accept_mutex ; // mutex for critical section on socket accepts
+static mtx_t __admin_accept_mutex ; // mutex for critical section on socket accepts
 static MSMutableNaturalArray *__waitingAcceptedAdminSockets ;
 static MSUShort __maxAdminReadingThreads ;
 static MSUShort __usedAdminReadingThreads ;
-//static mutex_t __unusedAdminReadingThreadsMutex ;
+//static mtx_t __unusedAdminReadingThreadsMutex ;
 
 #define DEFAULT_MAX_ADMIN_PROCESSING_REQUESTS 16
 #define DEFAULT_ADMIN_PROCESSING_THREADS      2
@@ -189,16 +189,16 @@ static MSUInt __maxAdminProcessingRequests = 0 ;
 static MSUShort __maxAdminProcessingThreads ;
 static MSUShort __usedAdminProcessingThreads ;
 static MSUInt __currentAdminProcessingRequestCount = 0;
-//static mutex_t __unusedAdminProcessingThreadsMutex ;
+//static mtx_t __unusedAdminProcessingThreadsMutex ;
 static event_t __newAdminProcessingQueueEntry ;
-static mutex_t __adminProcessingQueueMutex ;
+static mtx_t __adminProcessingQueueMutex ;
 
 static MHQueue *__adminWaitingQueue ;
 static MSUShort __maxAdminWaitingThreads ;
 static MSUShort __usedAdminWaitingThreads ;
 static event_t __newAdminWaitingQueueEntry ;
-static mutex_t __adminWaitingQueueMutex ;
-//static mutex_t __unusedAdminWaitingThreadsMutex ;
+static mtx_t __adminWaitingQueueMutex ;
+//static mtx_t __unusedAdminWaitingThreadsMutex ;
 
 static CElementPool *__adminNotificationsPool = NULL ;
 
@@ -1402,7 +1402,7 @@ static callback_t _MHApplicationRun(void *arg)
     MHSSLServerSocket *secureSocket = nil ;
     event_t newConnectionAccepted = NULL ;
     MSMutableNaturalArray *waitingAcceptedSockets = nil ;
-    mutex_t *accept_mutex = NULL ;
+    mtx_t *accept_mutex = NULL ;
     BOOL isAdmin = (arg != NULL) ;
     
     if (isAdmin) { //admin mode
@@ -1432,12 +1432,12 @@ static callback_t _MHApplicationRun(void *arg)
             }
             
             sock = -1 ;
-            mutex_lock(*accept_mutex);
+            mtx_lock(&*accept_mutex);
             if ([waitingAcceptedSockets count]) {
                 sock = (MSInt)[waitingAcceptedSockets naturalAtIndex:0] ;
                 [waitingAcceptedSockets removeNaturalAtIndex:0] ;
             }
-            mutex_unlock(*accept_mutex);
+            mtx_unlock(&*accept_mutex);
             
             while (sock != -1)
             {
@@ -1624,12 +1624,12 @@ static callback_t _MHApplicationRun(void *arg)
                 NS_ENDHANDLER
                 
                 sock = -1 ;
-                mutex_lock(*accept_mutex);
+                mtx_lock(&*accept_mutex);
                 if ([waitingAcceptedSockets count]) {
                     sock = (MSInt)[waitingAcceptedSockets naturalAtIndex:0] ;
                     [waitingAcceptedSockets removeNaturalAtIndex:0] ;
                 }
-                mutex_unlock(*accept_mutex);
+                mtx_unlock(&*accept_mutex);
             }
             
             if (isAdmin) { //admin mode
@@ -1794,7 +1794,7 @@ static callback_t _MHWaitingDequeue(void *arg)
     MSInt fd;
     MHQueue *queue = nil ;
     event_t newWaitingQueueEntry = NULL ;
-    mutex_t *waitingQueueMutex = NULL ;
+    mtx_t *waitingQueueMutex = NULL ;
     
     NSMutableArray * notificationArray = [[NSMutableArray alloc] init];
     NSMutableArray * nextNotificationArray = [[NSMutableArray alloc] init];
@@ -1849,7 +1849,7 @@ static callback_t _MHWaitingDequeue(void *arg)
                 nb_free = MAX_FD_PER_SELECT - nb_socket ;
                 if(nb_free > 0)
                 {
-                    mutex_lock(*waitingQueueMutex);
+                    mtx_lock(&*waitingQueueMutex);
                     // unqueue the maximim of notifications we can
                     while( [queue count] && nb_free > 0 )
                     {
@@ -1861,7 +1861,7 @@ static callback_t _MHWaitingDequeue(void *arg)
                         MHServerLogWithLevel(MHLogDebug, @"WAIT FOR SOCKET %u", fd) ;
                     }
                     if ([queue count]) event_set(newWaitingQueueEntry); //we advertise potentially other waiting threads that there are more notification to take
-                    mutex_unlock(*waitingQueueMutex);
+                    mtx_unlock(&*waitingQueueMutex);
                 }
                 
                 maxSocketNbr = 0;
@@ -2773,35 +2773,35 @@ MSInt MHServerInitialize(NSArray *params, Class staticApplication)
     __resourcesCache = CCreateDictionaryWithOptions(128, CDictionaryObject, CDictionaryObject);
     __authenticationTickets = CCreateDictionaryWithOptions(32, CDictionaryNatural, CDictionaryObject);
     
-    mutex_init(__sessionsMutex) ;
-    mutex_init(__applicationsMutex) ;
-    mutex_init(__sessionContextsMutex) ;
-    mutex_init(__resourcesCacheMutex) ;
-    mutex_init(__authenticationTicketsMutex) ;
-    mutex_init(__blacklist_mutex) ; // mutex to access the IP blacklist
+    mtx_init(&__sessionsMutex, mtx_plain) ;
+    mtx_init(&__applicationsMutex, mtx_plain) ;
+    mtx_init(&__sessionContextsMutex, mtx_plain) ;
+    mtx_init(&__resourcesCacheMutex, mtx_plain) ;
+    mtx_init(&__authenticationTicketsMutex, mtx_plain) ;
+    mtx_init(&__blacklist_mutex, mtx_plain) ; // mutex to access the IP blacklist
     
     /* SERVER INIT FOR CLIENTS */
     __maxClientProcessingRequests = DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS ;
     __maxClientSeparatedUniqueProcessingRequests = DEFAULT_MAX_CLIENT_PROCESSING_REQUESTS ;
     
-    mutex_init(__client_accept_mutex);
-    mutex_init(__clientProcessingQueueMutex); // mutex to access the Client Processing Queue
-    mutex_init(__clientWaitingQueueMutex);
-    //    mutex_init(__unusedClientReadingThreadsMutex) ;
-    //    mutex_init(__unusedClientProcessingThreadsMutex) ;
-    //    mutex_init(__unusedClientWaitingThreadsMutex) ;
+    mtx_init(&__client_accept_mutex, mtx_plain);
+    mtx_init(&__clientProcessingQueueMutex, mtx_plain); // mutex to access the Client Processing Queue
+    mtx_init(&__clientWaitingQueueMutex, mtx_plain);
+    //    mtx_init(&__unusedClientReadingThreadsMutex, mtx_plain) ;
+    //    mtx_init(&__unusedClientProcessingThreadsMutex, mtx_plain) ;
+    //    mtx_init(&__unusedClientWaitingThreadsMutex, mtx_plain) ;
     
     /* SERVER INIT FOR CLIENTS */
     __maxAdminProcessingRequests = DEFAULT_MAX_ADMIN_PROCESSING_REQUESTS ;
     __maxAdminReadingThreads = DEFAULT_ADMIN_READING_THREADS ;
     __maxAdminProcessingThreads = DEFAULT_ADMIN_PROCESSING_THREADS ;
     
-    mutex_init(__admin_accept_mutex);
-    mutex_init(__adminProcessingQueueMutex); // mutex to access the Admin Processing Queue
-    mutex_init(__adminWaitingQueueMutex);
-    //    mutex_init(__unusedAdminReadingThreadsMutex) ;
-    //    mutex_init(__unusedAdminProcessingThreadsMutex) ;
-    //    mutex_init(__unusedAdminWaitingThreadsMutex) ;
+    mtx_init(&__admin_accept_mutex, mtx_plain);
+    mtx_init(&__adminProcessingQueueMutex, mtx_plain); // mutex to access the Admin Processing Queue
+    mtx_init(&__adminWaitingQueueMutex, mtx_plain);
+    //    mtx_init(&__unusedAdminReadingThreadsMutex, mtx_plain) ;
+    //    mtx_init(&__unusedAdminProcessingThreadsMutex, mtx_plain) ;
+    //    mtx_init(&__unusedAdminWaitingThreadsMutex, mtx_plain) ;
     
     /* MASH_ROOT definition */
     if([params count] > 1) {
@@ -3036,7 +3036,7 @@ static void _MHServerCacheClean()
     NSEnumerator *e ;
     
     //lock mutexes
-    mutex_lock(__resourcesCacheMutex) ;
+    mtx_lock(&__resourcesCacheMutex) ;
     
     resourceArray = allResources() ;
     e = [resourceArray objectEnumerator] ;
@@ -3049,7 +3049,7 @@ static void _MHServerCacheClean()
     }
 
     //unlock mutexes
-    mutex_unlock(__resourcesCacheMutex) ;
+    mtx_unlock(&__resourcesCacheMutex) ;
 }
 
 
@@ -3329,7 +3329,7 @@ MSInt MHMainThread()
                 MSMutableNaturalArray *waitingAcceptingSockets ;
                 MSUInt maxProcessingRequests ;
                 MHQueue *processingQueue ;
-                mutex_t acceptMutex ;
+                mtx_t acceptMutex ;
                 event_t newConnectionAccepted ;
                 
                 if(i == adminPortIndex) //isAdmin
@@ -3377,7 +3377,7 @@ MSInt MHMainThread()
                     }
                         
                     // Critical section : change the client socket variable
-                    mutex_lock(acceptMutex);
+                    mtx_lock(&acceptMutex);
                     if ([waitingAcceptingSockets count] <= 2*maxProcessingRequests) {
                         timeout_set(timeout, RECV_TIMEOUT);
                         one = 1;
@@ -3408,7 +3408,7 @@ MSInt MHMainThread()
                         MHServerLogWithLevel(MHLogWarning, @"Connection refused : too many connections waiting on client readind thead (max = %u)", 2*maxProcessingRequests) ;
                         MHCloseSocket(clientSocket) ;
                     }
-                    mutex_unlock(acceptMutex);
+                    mtx_unlock(&acceptMutex);
                 }
             }
         }
@@ -3536,21 +3536,21 @@ void changeSessionIDForKey(MHSession *session, NSString *key, NSString *newKey)
 }
 
 void removeSessionForKey(NSString *key) { CDictionarySetObjectForKey(__sessions, nil, key) ; }
-void lock_sessions_mutex() { mutex_lock(__sessionsMutex) ; }
-void unlock_sessions_mutex() { mutex_unlock(__sessionsMutex) ; }
+void lock_sessions_mutex() { mtx_lock(&__sessionsMutex) ; }
+void unlock_sessions_mutex() { mtx_unlock(&__sessionsMutex) ; }
 
 MHContext *contextForKey(NSString *key) { return (MHContext *)CDictionaryObjectForKey(__sessionContexts, key) ; }
 void setContextForKey(MHContext *context, NSString *key) { if (key && context) { CDictionarySetObjectForKey(__sessionContexts, context, key) ; } }
 void removeContextForKey(NSString *key) { CDictionarySetObjectForKey(__sessionContexts, nil, key) ; }
-void lock_contexts_mutex() { mutex_lock(__sessionContextsMutex) ; }
-void unlock_contexts_mutex() { mutex_unlock(__sessionContextsMutex) ; }
+void lock_contexts_mutex() { mtx_lock(&__sessionContextsMutex) ; }
+void unlock_contexts_mutex() { mtx_unlock(&__sessionContextsMutex) ; }
 
 NSArray *allResources() { return AUTORELEASE(CCreateArrayOfDictionaryObjects(__resourcesCache)) ; }
 MHResource *resourceForKey(NSString *key) { return (MHResource *)CDictionaryObjectForKey(__resourcesCache, key) ; }
 void setResourceForKey(MHResource *resource, NSString *key) { if (key && resource) { CDictionarySetObjectForKey(__resourcesCache, resource, key) ; } }
 void removeResourceForKey(NSString *key) { CDictionarySetObjectForKey(__resourcesCache, nil, key) ; }
-void lock_resources_mutex() { mutex_lock(__resourcesCacheMutex) ; }
-void unlock_resources_mutex() { mutex_unlock(__resourcesCacheMutex) ; }
+void lock_resources_mutex() { mtx_lock(&__resourcesCacheMutex) ; }
+void unlock_resources_mutex() { mtx_unlock(&__resourcesCacheMutex) ; }
 
 NSMutableDictionary *ticketsForApplication(MHApplication *application)
 {
@@ -3722,8 +3722,8 @@ void removeTicket(MHApplication *application, NSString *ticket)
     unlock_authentication_tickets_mutex() ;
 }
 
-void lock_authentication_tickets_mutex(void) { mutex_lock(__authenticationTicketsMutex) ; }
-void unlock_authentication_tickets_mutex(void) { mutex_unlock(__authenticationTicketsMutex) ; }
+void lock_authentication_tickets_mutex(void) { mtx_lock(&__authenticationTicketsMutex) ; }
+void unlock_authentication_tickets_mutex(void) { mtx_unlock(&__authenticationTicketsMutex) ; }
 
 static void increaseCurrentClientProcessingRequestCount()
 {
@@ -3766,9 +3766,9 @@ static int sort(ip_log *x, ip_log *y)
 
 typedef int (*compfn)(const void*, const void*);
 
-void lock_blacklist_mutex() { mutex_lock(__blacklist_mutex) ; }
-void unlock_blacklist_mutex() { mutex_unlock(__blacklist_mutex) ; }
-void delete_blacklist_mutex() { mutex_delete(__blacklist_mutex) ; }
+void lock_blacklist_mutex() { mtx_lock(&__blacklist_mutex) ; }
+void unlock_blacklist_mutex() { mtx_unlock(&__blacklist_mutex) ; }
+void delete_blacklist_mutex() { mtx_destroy(&__blacklist_mutex) ; }
 void qsort_iplist() { qsort((void*)__iplist, BLACKLIST_SIZE, sizeof(ip_log), (compfn)sort) ; }
 ip_log *iplistAtIndex(int index) { return &__iplist[index] ; }
 
@@ -4380,15 +4380,15 @@ void MHEnqueueWaitingNotification(MHNotification *aNotif)
 {
     RETAIN(aNotif) ;
     if ([aNotif isAdminNotification]) { //admin mode
-        mutex_lock(__adminWaitingQueueMutex);
+        mtx_lock(&__adminWaitingQueueMutex);
         [__adminWaitingQueue enqueue:aNotif];
-        mutex_unlock(__adminWaitingQueueMutex);
+        mtx_unlock(&__adminWaitingQueueMutex);
         event_set(__newAdminWaitingQueueEntry);
     } 
     else { //client mode
-        mutex_lock(__clientWaitingQueueMutex);
+        mtx_lock(&__clientWaitingQueueMutex);
         [__clientWaitingQueue enqueue:aNotif];
-        mutex_unlock(__clientWaitingQueueMutex);
+        mtx_unlock(&__clientWaitingQueueMutex);
         event_set(__newClientWaitingQueueEntry);
     }
 }
@@ -4402,35 +4402,35 @@ BOOL MHProcessingEnqueueNotification(MHNotification *aNotif) //to use to enqueue
             MSRaise(NSInternalInconsistencyException, @"Receving an administration notification to enqueue. Not supported.") ;
         }
         else { //client mode
-            mutex_lock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+            mtx_lock(&__clientProcessingQueueMutex); //shared with __clientProcessingQueue
             if (!__currentClientSeparatedUniqueProcessingRequestCount)
             {
                 result = [__clientSeparatedUniqueProcessingQueue enqueue:aNotif] ;
                 if (result) increaseCurrentClientSeparatedUniqueProcessingRequestCount() ;
             }
-            mutex_unlock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+            mtx_unlock(&__clientProcessingQueueMutex); //shared with __clientProcessingQueue
             if(result) event_set(__newClientSeparatedUniqueProcessingQueueEntry);
         }
     }
     else {
         if ([aNotif isAdminNotification]) { //admin mode
-            mutex_lock(__adminProcessingQueueMutex);
+            mtx_lock(&__adminProcessingQueueMutex);
             if (__currentAdminProcessingRequestCount < __maxAdminProcessingRequests)
             {
                 result = [__adminProcessingQueue enqueue:aNotif] ;
                 if (result) increaseCurrentAdminProcessingRequestCount() ;
             }
-            mutex_unlock(__adminProcessingQueueMutex);
+            mtx_unlock(&__adminProcessingQueueMutex);
             if(result) event_set(__newAdminProcessingQueueEntry);
         }
         else { //client mode
-            mutex_lock(__clientProcessingQueueMutex);
+            mtx_lock(&__clientProcessingQueueMutex);
             if (__currentClientProcessingRequestCount < __maxClientProcessingRequests)
             {
                 result = [__clientProcessingQueue enqueue:aNotif] ;
                 if (result) increaseCurrentClientProcessingRequestCount() ;
             }
-            mutex_unlock(__clientProcessingQueueMutex);
+            mtx_unlock(&__clientProcessingQueueMutex);
             if(result) event_set(__newClientProcessingQueueEntry);
         }
     }
@@ -4446,28 +4446,28 @@ BOOL MHProcessingRequeueNotification(MHNotification *aNotif) //to use to requeue
             MSRaise(NSInternalInconsistencyException, @"Receving an administration notification to requeue. Not supported.") ;
         }
         else { //client mode
-            mutex_lock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+            mtx_lock(&__clientProcessingQueueMutex); //shared with __clientProcessingQueue
             result = [__clientSeparatedUniqueProcessingQueue enqueue:aNotif] ;
             if (result) increaseCurrentClientSeparatedUniqueProcessingRequestCount() ;
-            mutex_unlock(__clientProcessingQueueMutex);  //shared with __clientProcessingQueue
+            mtx_unlock(&__clientProcessingQueueMutex);  //shared with __clientProcessingQueue
             
             event_set(__newClientSeparatedUniqueProcessingQueueEntry);
         }
     }
     else {
         if ([aNotif isAdminNotification]) { //admin mode
-            mutex_lock(__adminProcessingQueueMutex);
+            mtx_lock(&__adminProcessingQueueMutex);
             result = [__adminProcessingQueue enqueue:aNotif] ;
             if (result) increaseCurrentAdminProcessingRequestCount() ;
-            mutex_unlock(__adminProcessingQueueMutex);
+            mtx_unlock(&__adminProcessingQueueMutex);
             
             event_set(__newAdminProcessingQueueEntry);
         }
         else { //client mode
-            mutex_lock(__clientProcessingQueueMutex);
+            mtx_lock(&__clientProcessingQueueMutex);
             result = [__clientProcessingQueue enqueue:aNotif] ;
             if (result) increaseCurrentClientProcessingRequestCount() ;
-            mutex_unlock(__clientProcessingQueueMutex);
+            mtx_unlock(&__clientProcessingQueueMutex);
             
             event_set(__newClientProcessingQueueEntry);
         }
@@ -4481,24 +4481,24 @@ MHNotification *MHProcessingDequeueNotification(BOOL admin)
     MHNotification *notif = nil ;
     
     if (admin) { //admin mode
-        mutex_lock(__adminProcessingQueueMutex);
+        mtx_lock(&__adminProcessingQueueMutex);
         if([__adminProcessingQueue count])
         {
             notif = (MHNotification *)[__adminProcessingQueue dequeue];
             if (notif) decreaseCurrentAdminProcessingRequestCount();
         }
         if([__adminProcessingQueue count]) event_set(__newAdminProcessingQueueEntry);
-        mutex_unlock(__adminProcessingQueueMutex);
+        mtx_unlock(&__adminProcessingQueueMutex);
     } 
     else { //client mode
-        mutex_lock(__clientProcessingQueueMutex);
+        mtx_lock(&__clientProcessingQueueMutex);
         if([__clientProcessingQueue count])
         {
             notif = (MHNotification *)[__clientProcessingQueue dequeue];
             if (notif) decreaseCurrentClientProcessingRequestCount();
         }
         if([__clientProcessingQueue count]) event_set(__newClientProcessingQueueEntry);
-        mutex_unlock(__clientProcessingQueueMutex);
+        mtx_unlock(&__clientProcessingQueueMutex);
     }
     
     return notif ;
@@ -4512,14 +4512,14 @@ MHNotification *MHSeparetedUniqueProcessingDequeueNotification(BOOL admin)
         MSRaise(NSInternalInconsistencyException, @"wants to dequeue an administration notification. Not supported.") ;
     }
     else { //client mode
-        mutex_lock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+        mtx_lock(&__clientProcessingQueueMutex); //shared with __clientProcessingQueue
         if([__clientSeparatedUniqueProcessingQueue count])
         {
             notif = (MHNotification *)[__clientSeparatedUniqueProcessingQueue dequeue];
             if (notif) decreaseCurrentClientSeparatedUniqueProcessingRequestCount();
         }
         if([__clientSeparatedUniqueProcessingQueue count]) event_set(__newClientSeparatedUniqueProcessingQueueEntry);
-        mutex_unlock(__clientProcessingQueueMutex); //shared with __clientProcessingQueue
+        mtx_unlock(&__clientProcessingQueueMutex); //shared with __clientProcessingQueue
     }
     
     return notif ;
@@ -4531,7 +4531,7 @@ void MHCancelAllProcessingNotificationsForClientSocket(SOCKET fd, BOOL isAdminNo
     MSUInt count, i = 0 ;
     
     if (isAdminNotification) {
-        mutex_lock(__adminProcessingQueueMutex);
+        mtx_lock(&__adminProcessingQueueMutex);
         count = [__adminProcessingQueue count] ;
         if(count) {
             for (i=0; i<count; i++) {
@@ -4549,10 +4549,10 @@ void MHCancelAllProcessingNotificationsForClientSocket(SOCKET fd, BOOL isAdminNo
                 }
             }
         }
-        mutex_unlock(__adminProcessingQueueMutex);
+        mtx_unlock(&__adminProcessingQueueMutex);
     }
     else {
-        mutex_lock(__clientProcessingQueueMutex);
+        mtx_lock(&__clientProcessingQueueMutex);
         count = [__clientProcessingQueue count] ;
         if(count) {
             for (i=0; i<count; i++) {
@@ -4570,7 +4570,7 @@ void MHCancelAllProcessingNotificationsForClientSocket(SOCKET fd, BOOL isAdminNo
                 }
             }
         }
-        mutex_unlock(__clientProcessingQueueMutex);
+        mtx_unlock(&__clientProcessingQueueMutex);
     }
 }
 

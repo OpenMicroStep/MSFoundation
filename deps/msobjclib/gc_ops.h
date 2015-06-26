@@ -1,3 +1,5 @@
+#ifndef MSOBJC_GC_OPS_H
+#define MSOBJC_GC_OPS_H
 
 /**
  * Garbage collection operations.
@@ -77,3 +79,5 @@ extern struct gc_ops *gc;
 
 extern struct gc_ops gc_ops_boehm;
 extern struct gc_ops gc_ops_none;
+
+#endif // MSOBJC_GC_OPS_H

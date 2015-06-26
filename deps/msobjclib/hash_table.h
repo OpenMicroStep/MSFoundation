@@ -17,24 +17,7 @@
  * Optionally, MAP_TABLE_STATIC_SIZE may be defined, to define a table type
  * which has a static size.
  */
-#include "lock.h"
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-
-#ifdef ENABLE_GC
-#	include <gc/gc.h>
-#	include <gc/gc_typed.h>
-#	define CALLOC(x,y) GC_MALLOC(x*y)
-#	define IF_NO_GC(x)
-#	define IF_GC(x) x
-#else
-#	define CALLOC(x,y) calloc(x,y)
-#	define IF_NO_GC(x) x
-#	define IF_GC(x)
-#endif
+#define CALLOC(x,y) calloc(x,y)
 
 #ifndef MAP_TABLE_NAME
 #	error You must define MAP_TABLE_NAME.
@@ -90,9 +73,9 @@ typedef struct PREFIX(_table_cell_struct)
 #ifdef MAP_TABLE_STATIC_SIZE
 typedef struct 
 {
-	mutex_t lock;
+	mtx_t lock;
 	unsigned int table_used;
-	IF_NO_GC(unsigned int enumerator_count;)
+	unsigned int enumerator_count;
 	struct PREFIX(_table_cell_struct) table[MAP_TABLE_STATIC_SIZE];
 } PREFIX(_table);
 static PREFIX(_table) MAP_TABLE_STATIC_NAME;
@@ -106,25 +89,17 @@ __attribute__((constructor)) void static PREFIX(_table_initializer)(void)
 #else
 typedef struct PREFIX(_table_struct)
 {
-	mutex_t lock;
+	mtx_t lock;
 	unsigned int table_size;
 	unsigned int table_used;
-	IF_NO_GC(unsigned int enumerator_count;)
-#	if defined(ENABLE_GC) && defined(MAP_TABLE_TYPES_BITMAP)
-	GC_descr descr;
-#	endif 
+	unsigned int enumerator_count;
 	struct PREFIX(_table_struct) *old;
 	struct PREFIX(_table_cell_struct) *table;
 } PREFIX(_table);
 
 struct PREFIX(_table_cell_struct) *PREFIX(alloc_cells)(PREFIX(_table) *table, int count)
 {
-#	if defined(ENABLE_GC) && defined(MAP_TABLE_TYPES_BITMAP)
-	return GC_CALLOC_EXPLICITLY_TYPED(count,
-			sizeof(struct PREFIX(_table_cell_struct)), table->descr);
-#	else
 	return CALLOC(count, sizeof(struct PREFIX(_table_cell_struct)));
-#	endif
 }
 
 PREFIX(_table) *PREFIX(_create)(uint32_t capacity)
@@ -133,12 +108,6 @@ PREFIX(_table) *PREFIX(_create)(uint32_t capacity)
 #	ifndef MAP_TABLE_NO_LOCK
 	INIT_LOCK(table->lock);
 #	endif
-#	if defined(ENABLE_GC) && defined(MAP_TABLE_TYPES_BITMAP)
-	// The low word in the bitmap stores the offsets of the next entries
-	GC_word bitmap = (MAP_TABLE_TYPES_BITMAP << 1);
-	table->descr = GC_make_descriptor(&bitmap,
-			sizeof(struct PREFIX(_table_cell_struct)) / sizeof (void*));
-#	endif
 	table->table = PREFIX(alloc_cells)(table, capacity);
 	table->table_size = capacity;
 	return table;
@@ -146,9 +115,6 @@ PREFIX(_table) *PREFIX(_create)(uint32_t capacity)
 
 void PREFIX(_initialize)(PREFIX(_table) **table, uint32_t capacity)
 {
-#ifdef ENABLE_GC
-	GC_add_roots(table, table+1);
-#endif
 	*table = PREFIX(_create)(capacity);
 }
 
@@ -198,7 +164,7 @@ static int PREFIX(_table_resize)(PREFIX(_table) *table)
 	}
 	__sync_synchronize();
 	table->old = NULL;
-#	if !defined(ENABLE_GC) && defined(MAP_TABLE_SINGLE_THREAD)
+#	if defined(MAP_TABLE_SINGLE_THREAD)
 	free(copy->table);
 	free(copy);
 #	endif
@@ -459,17 +425,15 @@ PREFIX(_next)(PREFIX(_table) *table,
 		MAP_LOCK();
 		(*state)->table = table;
 		(*state)->index = -1;
-		IF_NO_GC(__sync_fetch_and_add(&table->enumerator_count, 1);)
+		__sync_fetch_and_add(&table->enumerator_count, 1);
 		MAP_UNLOCK();
 	}
 	if ((*state)->seen >= (*state)->table->table_used)
 	{
-#ifndef ENABLE_GC
 		MAP_LOCK();
 		__sync_fetch_and_sub(&table->enumerator_count, 1);
 		MAP_UNLOCK();
 		free(*state);
-#endif
 #ifdef MAP_TABLE_ACCESS_BY_REFERENCE
 		return NULL;
 #else
@@ -488,13 +452,11 @@ PREFIX(_next)(PREFIX(_table) *table,
 #endif
 		}
 	}
-#ifndef ENABLE_GC
 	// Should not be reached, but may be if the table is unsafely modified.
 	MAP_LOCK();
 	table->enumerator_count--;
 	MAP_UNLOCK();
 	free(*state);
-#endif
 #ifdef MAP_TABLE_ACCESS_BY_REFERENCE
 	return NULL;
 #else
@@ -556,6 +518,5 @@ PREFIX(_current)(PREFIX(_table) *table,
 #endif
 
 #undef CALLOC
-#undef IF_NO_GC
-#undef IF_GC
 #undef MAP_TABLE_TYPES_BITMAP
+

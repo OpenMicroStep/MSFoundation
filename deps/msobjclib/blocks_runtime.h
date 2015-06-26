@@ -1,3 +1,6 @@
+#ifndef MSOBJC_BLOCKS_RUNTIME_H
+#define MSOBJC_BLOCKS_RUNTIME_H
+
 /**
  * Block descriptor flags.
  */
@@ -123,3 +126,4 @@ struct block_byref_obj
 	 */
 };
 
+#endif // MSOBJC_BLOCKS_RUNTIME_H

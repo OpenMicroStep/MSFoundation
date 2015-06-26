@@ -121,9 +121,3 @@ L_SmallObjectClasses$non_lazy_ptr:
 	.indirect_symbol	_SmallObjectClasses
 	.long	0
 #endif
-
-#if defined(_WIN32)
-	.section	.drectve,"r"
-	.ascii	 " -export:objc_msgSend_fpret -export:objc_msgSend -export:objc_msgSend_stret"
-#endif
-

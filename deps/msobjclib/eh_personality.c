@@ -1,21 +1,14 @@
+#include "msobjc_private.h"
+
+#include "dwarf_eh.h"
+#include "objcxx_eh.h"
+
 #if defined(_WIN64)
 #define __gnu_objc_personality_v0 __gnu_objc_personality_seh0
 #define __gxx_personality_v0 __gxx_personality_seh0
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "dwarf_eh.h"
-#include "objc/runtime.h"
-#include "objc/hooks.h"
-#include "class.h"
-#include "objcxx_eh.h"
-
-#ifndef NO_PTHREADS
-#include <pthread.h>
-#endif
-
+#define DEBUG_EXCEPTIONS
 #ifndef DEBUG_EXCEPTIONS
 #define DEBUG_LOG(...)
 #else
@@ -532,22 +525,22 @@ struct thread_data
 	struct objc_exception *caughtExceptions;
 };
 
-static pthread_key_t key;
+static tss_t key;
 
 __attribute__((constructor))
 static void init_key(void)
 {
-	pthread_key_create(&key, free);
+	tss_create(&key, free);
 }
 
 static struct thread_data *get_thread_data(void)
 {
-	struct thread_data *td = pthread_getspecific(key);
+	struct thread_data *td = tss_get(key);
 	if (td == NULL)
 	{
 		td = calloc(sizeof(struct thread_data), 1);
-		pthread_setspecific(key, td);
-		if (pthread_getspecific(key) == NULL)
+		tss_set(key, td);
+		if (tss_get(key) == NULL)
 		{
 			fprintf(stderr, "Unable to allocate thread-local storage for exceptions\n");
 		}

@@ -1,3 +1,6 @@
+#ifndef MSOBJC_METHOD_LIST
+#define MSOBJC_METHOD_LIST
+
 /**
  * Metadata structure describing a method.  
  */
@@ -41,3 +44,5 @@ struct objc_method_list
 	 */
 	struct objc_method        methods[];
 };
+
+#endif // MSOBJC_METHOD_LIST

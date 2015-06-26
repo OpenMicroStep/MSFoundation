@@ -3,6 +3,8 @@
  *
  * When defining a new ABI, the 
  */
+#ifndef MSOBJC_MODULE_H
+#define MSOBJC_MODULE_H
 
 /**
  * The symbol table for a module.  This structure references all of the
@@ -100,3 +102,5 @@ struct objc_static_instance_list
 	 */
 	id    instances[];
 };
+
+#endif // MSOBJC_MODULE_H

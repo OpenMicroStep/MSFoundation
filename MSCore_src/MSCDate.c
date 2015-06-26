@@ -262,16 +262,16 @@ CDate *CCreateDateWithSecondsFrom20010101(MSTimeInterval s)
 
 MSLong _GMTMicro(void)
 {
-  return gmt_micro();
+  return ms_gmt_now_micro();
 }
 
 NSTimeInterval GMTNow(void)
 {
-  return (NSTimeInterval)gmt_now();
+  return (NSTimeInterval)ms_gmt_now();
 }
 NSTimeInterval GMTFromLocal(MSTimeInterval t)
 {
-  return (NSTimeInterval)gmt_from_local(t);
+  return (NSTimeInterval)ms_gmt_from_local(t);
 }
 
 NSTimeInterval GMTWithYMDHMS(
@@ -283,13 +283,13 @@ NSTimeInterval GMTWithYMDHMS(
 
 MSTimeInterval GMTToLocal(NSTimeInterval t)
 {
-  return gmt_to_local((MSTimeInterval)(t>=0 ? t+.5 :  t-.5));
+  return ms_gmt_to_local((MSTimeInterval)(t>=0 ? t+.5 :  t-.5));
 }
 
 CDate* CDateInitNow(CDate* self)
 {
   if (!self) return nil;
-  self->interval= gmt_to_local(gmt_now());
+  self->interval= ms_gmt_to_local(ms_gmt_now());
   return self;
 }
 

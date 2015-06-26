@@ -1,16 +1,4 @@
-#include "objc/runtime.h"
-#include "objc/objc-arc.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include "class.h"
-#include "properties.h"
-#include "spinlock.h"
-#include "visibility.h"
-#include "nsobject.h"
-#include "gc_ops.h"
-#include "lock.h"
+#include "msobjc_private.h"
 
 PRIVATE int spinlocks[spinlock_count];
 

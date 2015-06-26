@@ -56,14 +56,14 @@
     if((self= [super init])) {
         _connectionDictionary= [dictionary retain];
         _idleConnections= [MSArray new];
-        mutex_init(_connectionLock);
+        mtx_init(&_connectionLock, mtx_plain);
     }
     return self;
 }
 
 - (void)dealloc
 {
-    mutex_delete(_connectionLock);
+    mtx_destroy(&_connectionLock);
     [_connectionDictionary release];
     [_idleConnections release];
     [super dealloc];
@@ -75,7 +75,7 @@
     MSDBConnection *ret;
     NSUInteger p;
     
-    mutex_lock(_connectionLock);
+    mtx_lock(&_connectionLock);
     if((p= [_idleConnections count])) {
         --p;
         ret= [[[_idleConnections objectAtIndex:p] retain] autorelease];
@@ -83,17 +83,17 @@
     } else {
         ret= [MSDBConnection connectionWithDictionary:_connectionDictionary];
     }
-    mutex_unlock(_connectionLock);
+    mtx_unlock(&_connectionLock);
     return ret;
 }
 
 // Thread safe
 - (void)releaseConnection:(MSDBConnection *)connection
 {
-    mutex_lock(_connectionLock);
+    mtx_lock(&_connectionLock);
     [connection terminateAllOperations];
     [_idleConnections addObject:connection];
-    mutex_unlock(_connectionLock);
+    mtx_unlock(&_connectionLock);
 }
 
 @end

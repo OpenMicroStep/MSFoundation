@@ -1,8 +1,6 @@
 #ifndef FOUNDATION_PUBLIC_H
 #define FOUNDATION_PUBLIC_H
 
-#import "MSCorePlatform.h"
-#import "MSCoreTypes.h"
 #import "FoundationTypes.h"
 
 // Core

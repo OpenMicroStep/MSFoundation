@@ -1,4 +1,4 @@
-#include "MSCore_Private.h"
+#include "MSStd_Private.h"
 
 int mtx_timedlock(mtx_t *restrict mutex, const struct timespec *restrict time_point)
 {
@@ -15,22 +15,10 @@ int mtx_timedlock(mtx_t *restrict mutex, const struct timespec *restrict time_po
   return ret;
 }
 
-#if defined(APPLE)
-#include "MSCorePlatform-apple.i"
-#endif
-
 #if defined(UNIX)
-#include "MSCorePlatform-unix.i"
-#endif
-
-#if defined(LINUX)
-#include "MSCorePlatform-linux.i"
-#endif
-
-#if defined(WIN32)
-#include "MSCorePlatform-win32.i"
-#endif
-
-#if defined(WO451)
-#include "MSCorePlatform-wo451.i"
+#include "MSStdThreads-unix.c"
+#elif defined(WIN32)
+#include "MSStdThreads-win32.c"
+#else
+#error MSStdThreads: unsupported platform
 #endif

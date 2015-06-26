@@ -1,3 +1,6 @@
+#ifndef MSOBJC_STRING_HASH
+#define MSOBJC_STRING_HASH
+
 #include <string.h>
 #include <stdint.h>
 
@@ -32,3 +35,5 @@ static int string_compare(const char *str1, const char *str2)
 	}
 	return strcmp(str1, str2) == 0;
 }
+
+#endif // MSOBJC_STRING_HASH

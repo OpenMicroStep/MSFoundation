@@ -1,10 +1,4 @@
-#include "visibility.h"
-#include "objc/runtime.h"
-#include "gc_ops.h"
-#include "class.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "msobjc_private.h"
 
 static id allocate_class(Class cls, size_t extraBytes)
 {

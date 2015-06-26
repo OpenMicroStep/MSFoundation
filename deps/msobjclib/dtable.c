@@ -1,18 +1,5 @@
-#define __BSD_VISIBLE 1
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "objc/runtime.h"
-#include "objc/hooks.h"
-#include "sarray2.h"
-#include "selector.h"
-#include "class.h"
-#include "lock.h"
-#include "method_list.h"
+#include "msobjc_private.h"
 #include "slot_pool.h"
-#include "dtable.h"
-#include "visibility.h"
-#include "errno.h"
 
 PRIVATE dtable_t uninstalled_dtable;
 #if defined(WITH_TRACING) && defined (__x86_64)
@@ -25,7 +12,7 @@ PRIVATE dtable_t tracing_dtable;
 /** Head of the list of temporary dtables.  Protected by initialize_lock. */
 PRIVATE InitializingDtable *temporary_dtables;
 /** Lock used to protect the temporary dtables list. */
-PRIVATE mutex_t initialize_lock;
+PRIVATE mtx_t initialize_lock;
 /** The size of the largest dtable.  This is a sparse array shift value, so is
  * 2^x in increments of 8. */
 static uint32_t dtable_depth = 8;
@@ -108,7 +95,7 @@ struct objc_dtable
 		uint32_t version;
 		struct objc_slot *slot;
 	} cache[8];
-	mutex_t lock;
+	mtx_t lock;
 	struct objc_slot **slots;
 	int slot_count;
 	int slot_size;
@@ -376,30 +363,30 @@ static void free_thread_stack(void* x)
 {
 	free(x);
 }
-static pthread_key_t thread_stack_key;
+static tss_t thread_stack_key;
 
 __attribute__((constructor))
 static void alloc_thread_stack(void)
 {
-	pthread_key_create(&thread_stack_key, free_thread_stack);
+	tss_create(&thread_stack_key, free_thread_stack);
 }
 
 PRIVATE void* pushTraceReturnStack(void)
 {
-	void **stack = pthread_getspecific(thread_stack_key);
+	void **stack = tss_get(thread_stack_key);
 	if (stack == 0)
 	{
 		stack = malloc(4096*sizeof(void*));
 	}
-	pthread_setspecific(thread_stack_key, stack + 5);
+	tss_set(thread_stack_key, stack + 5);
 	return stack;
 }
 
 PRIVATE void* popTraceReturnStack(void)
 {
-	void **stack = pthread_getspecific(thread_stack_key);
+	void **stack = tss_get(thread_stack_key);
 	stack -= 5;
-	pthread_setspecific(thread_stack_key, stack);
+	tss_set(thread_stack_key, stack);
 	return stack;
 }
 #endif

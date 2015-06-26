@@ -1,9 +1,4 @@
-#include "objc/runtime.h"
-#include "protocol.h"
-#include "properties.h"
-#include "class.h"
-#include "lock.h"
-#include <stdlib.h>
+#include "msobjc_private.h"
 
 #define BUFFER_TYPE struct objc_protocol_list
 #include "buffer.h"

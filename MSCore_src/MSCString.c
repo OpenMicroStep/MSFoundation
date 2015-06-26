@@ -133,7 +133,7 @@ CString *CCreateStringWithSES(SES ses)
 CString *CCreateStringWithGeneratedUUID()
 {
   char uuid[37]; CString *x;
-  uuid_generate_string(uuid);
+  ms_generate_uuid(uuid);
   x= CCreateStringWithBytes(NSASCIIStringEncoding, uuid, 36);
   CGrowSetForeverImmutable((id)x);
   return x;

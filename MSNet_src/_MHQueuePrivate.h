@@ -23,7 +23,7 @@ typedef struct CElementPoolStruct
     CQueueElement *pool ;
     CQueueElement *freeElements ;
     CQueueElement *usedElements ;
-    mutex_t elementPoolMutex ;
+    mtx_t elementPoolMutex ;
 } CElementPool ;
 
 static inline CElementPool *CElementPoolCreate(MSUInt size)
@@ -31,7 +31,7 @@ static inline CElementPool *CElementPoolCreate(MSUInt size)
     CElementPool *self = (CElementPool *)MSMalloc(sizeof(CElementPool), "CElementPoolCreate()") ;
     if  (self)
     {
-        mutex_init(self->elementPoolMutex) ;
+        mtx_init(&self->elementPoolMutex, mtx_plain) ;
         if (size > 0)
         {
             if (!(self->pool = (CQueueElement *)MSMalloc(size * sizeof(CQueueElement), "CElementPoolCreate() : elements allocation")))
@@ -68,7 +68,7 @@ static inline void CElementPoolFree(CElementPool *self)
 {
     if (self) { 
         if (self->pool) free(self->pool) ;  
-        mutex_delete(self->elementPoolMutex) ;
+        mtx_destroy(&self->elementPoolMutex) ;
         free(self) ; 
     }
 }
@@ -78,7 +78,7 @@ static inline CQueueElement *CElementPoolGetElement(CElementPool *pool)
     if(pool && pool->freeElements)
     {
         CQueueElement *e = NULL ;
-        mutex_lock(pool->elementPoolMutex) ;
+        mtx_lock(&pool->elementPoolMutex) ;
         e = pool->freeElements;
         pool->freeElements = e->nextPoolElement ;
 
@@ -90,7 +90,7 @@ static inline CQueueElement *CElementPoolGetElement(CElementPool *pool)
         {
             e->nextPoolElement->previousPoolElement = e ;
         }
-        mutex_unlock(pool->elementPoolMutex) ;
+        mtx_unlock(&pool->elementPoolMutex) ;
         return e;
     }
 
@@ -101,7 +101,7 @@ static inline void CElementPoolPutElement(CElementPool *pool,CQueueElement *e)
 {
     if(pool && e)
     {
-        mutex_lock(pool->elementPoolMutex) ;
+        mtx_lock(&pool->elementPoolMutex) ;
         if(e->nextPoolElement)
         {
             e->nextPoolElement->previousPoolElement = e->previousPoolElement ;
@@ -114,7 +114,7 @@ static inline void CElementPoolPutElement(CElementPool *pool,CQueueElement *e)
         e->nextPoolElement = pool->freeElements ;
         e->previousPoolElement = NULL ;
         pool->freeElements = e ;
-        mutex_unlock(pool->elementPoolMutex) ;
+        mtx_unlock(&pool->elementPoolMutex) ;
     }
 }
 

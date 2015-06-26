@@ -12,10 +12,13 @@ module.exports = {
     "openmicrostep-foundation-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
     "openmicrostep-foundation-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
     "openmicrostep-foundation-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-i386-msvc12"      :{"arch": "i386"       , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-msvc12"    :{"arch": "x86_64"     , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
     "openmicrostep-foundation": [
       "openmicrostep-foundation-i386-darwin"   , "openmicrostep-foundation-x86_64-darwin", "openmicrostep-foundation-univ-darwin",
       "openmicrostep-foundation-i386-linux"    , "openmicrostep-foundation-x86_64-linux",
       "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64",
+      "openmicrostep-foundation-i386-msvc12",  "openmicrostep-foundation-x86_64-msvc12"
     ]
   },
   files: [
@@ -62,7 +65,7 @@ module.exports = {
       {file: 'dtable.c'},
       {file: 'dtable.h'},
       {file: 'dwarf_eh.h'},
-      {file: 'eh_personality.c'},
+      {file: 'eh_personality.c', tags:["POSIX"]},
       {file: 'encoding2.c'},
       {file: 'gc_none.c'},
       {file: 'hash_table.c'},
@@ -82,7 +85,7 @@ module.exports = {
       {file: 'nsobject.h'},
       {file: 'objc_msgSend.S'},
       {file: 'objcxx_eh.h'},
-      {file: 'objcxx_eh.cc'},
+      {file: 'objcxx_eh.cc', tags:["POSIX"]},
       {file: 'pool.h'},
       {file: 'properties.h'},
       {file: 'properties.m'},
@@ -105,61 +108,64 @@ module.exports = {
       {file: 'unwind-itanium.h'},
       {file: 'unwind.h'},
       {file: 'visibility.h'},
+      {file: 'exports.def', tags:["DEF"]},
     ]}
   ],
   targets : [
     {
-      "name" : "msobjclib",
+      "name" : "MSObjc",
       "type" : "Library",
-      "files": ["Sources"],
+      "files": ["Sources?"],
       "environments":["openmicrostep-foundation"],
       "publicHeaders": ["Public API"],
       "publicHeadersPrefix": "objc",
-      "defines": ["__OBJC_RUNTIME_INTERNAL__=1"],
+      "static": true,
+      "defines": ["__OBJC_RUNTIME_INTERNAL__=1", "MSSTD_EXPORT=1"],
+      "dependencies" : [
+        {workspace: '../msstdlib', target:'MSStd'} // The MSSTd lib is embedded inside MSObjc
+      ],
       "configure": function(target) {
         if(target.env.compiler === "clang")
           target.addCompileFlags(["-Wno-deprecated-objc-isa-usage", "-Wno-objc-root-class"]);
         target.addTaskModifier("Compile", compileModifier);
-        if(!target.static)
-          target.addTaskModifier("Link", linkModifier);
-        if(target.platform === "win32")
-          target.addTaskModifier("Link", win32LinkModifier);
+        if(target.platform !== "win32")
+          target.addWorkspaceFiles(["Sources?POSIX"]);
+        target.addIncludeDirectory('../msstdlib');
       },
       "exports" : {
-        configure: function (other_target, target) {
-          if (target.static)
-            other_target.addTaskModifier("Link", linkModifier);
+        configure: function (other_target, self_target) {
+          other_target.addTaskModifier("Link", linkModifier);
+          if(other_target.sysroot.api === "mingw-w64")
+            other_target.addLinkFlags(self_target.workspace.resolveFiles(["Sources?DEF"]));
+          other_target.addTaskModifier("LinkMSVC", function(target, task) {
+            task.addDefs(self_target.workspace.resolveFiles(["Sources?DEF"]));
+          });
         }
       },
       "deepExports" : {
         configure: function (other_target, target) {
           other_target.addIncludeDirectory(target.buildPublicHeaderPath());
-          if (!target.static)
-            other_target.addLinkFlags([target.sysroot.linkFinalPath(target)]);
           other_target.addTaskModifier("Compile", compileModifier);
-          if(other_target.platform === "win32")
-            other_target.addTaskModifier("Link", win32LinkModifier);
         }
       }
     }
   ]
 };
 
-
 function compileModifier(target, task) {
   if(task.language === "OBJC" || task.language === "OBJCXX") {
-    task.addFlags(["-fconstant-string-class=NSConstantString", "-fobjc-exceptions"]);
-    if(task.isInstanceOf("CompileClang"))
+    task.addFlags(["-fconstant-string-class=NSConstantString"]);
+    if(task.isInstanceOf("CompileClang")) {
+      if (target.platform === "win32")
+        task.addFlags(["-fno-objc-exceptions"]); // clang win32 mixed objc/cxx exception handling is broken for the moment
       task.addFlags(["-fobjc-runtime=gnustep-1.7"]);
+    }
   }
 }
 
 function linkModifier(target, task) {
-  task.addLibraryFlags(['-lpthread', '-lstdc++']);
-}
-
-
-function win32LinkModifier(target, task) {
-  // clang & gcc on windows doesn't export objective-c symbols correctly
-  task.addFlagsAtEnd(["-Wl,--export-all-symbols", "-Wl,--allow-multiple-definition"]);
+  if (target.platform !== "win32")
+    task.addLibraryFlags(['-lpthread', '-lstdc++']);
+  //if(task.isInstanceOf("LinkLibTool"))
+  //  task.addFlags(['-undefined', 'dynamic_lookup']);
 }

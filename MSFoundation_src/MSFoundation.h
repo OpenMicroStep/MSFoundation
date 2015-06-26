@@ -45,7 +45,7 @@
 #import <Foundation/Foundation.h>
 #endif
 
-#import <MSFoundation/MSCorePlatform.h>
+#import <MSFoundation/MSStd.h>
 #import <MSFoundation/MSCoreTypes.h>
 #import <MSFoundation/MSCoreSystem.h>
 #import <MSFoundation/MSCoreTools.h>

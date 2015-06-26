@@ -1,9 +1,4 @@
-#include <string.h>
-#include <stdio.h>
-#include "objc/runtime.h"
-#include "module.h"
-#include "constant_string.h"
-#include "visibility.h"
+#include "msobjc_private.h"
 
 #define BUFFER_TYPE struct objc_static_instance_list
 #include "buffer.h"

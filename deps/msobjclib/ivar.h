@@ -1,3 +1,5 @@
+#ifndef MSOBJC_IVAR_H
+#define MSOBJC_IVAR_H
 
 /**
  * Metadata structure for an instance variable.
@@ -45,3 +47,5 @@ struct objc_ivar_list
 	 */
 	struct objc_ivar ivar_list[];
 };
+
+#endif // MSOBJC_IVAR_H

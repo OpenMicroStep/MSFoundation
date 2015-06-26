@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include "objc/runtime.h"
-#include "visibility.h"
-#include "loader.h"
-#include "dtable.h"
+#include "msobjc_private.h"
 
 #define BUFFER_TYPE struct objc_category
 #include "buffer.h"

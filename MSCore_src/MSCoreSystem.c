@@ -261,7 +261,7 @@ void MSFinishLoadingCore()
     _CObjectInitialize();
 #ifdef MSCORE_STANDALONE
     freeFct= (M_apm_free_fn)_CRelease;
-#elif MSCORE_FORFOUNDATION
+#else
     freeFct= (M_apm_free_fn)_MRelease;
 #endif
     m_apm_set_callbacks(_MS_APM_Allocate, freeFct, _MS_APM_Log_callback, NULL);

@@ -46,7 +46,7 @@
 @interface MSMutex : NSObject
 {
     @private
-    mutex_t _mutex ;
+    mtx_t _mutex ;
 }
 
 + (id)mutex ;

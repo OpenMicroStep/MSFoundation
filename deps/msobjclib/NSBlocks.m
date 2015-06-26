@@ -1,9 +1,4 @@
-#import "objc/runtime.h"
-#import "class.h"
-#import "lock.h"
-#import "objc/blocks_runtime.h"
-#import "dtable.h"
-#include <assert.h>
+#include "msobjc_private.h"
 
 struct objc_class _NSConcreteGlobalBlock;
 struct objc_class _NSConcreteStackBlock;

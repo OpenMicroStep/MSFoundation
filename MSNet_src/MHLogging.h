@@ -61,7 +61,7 @@ typedef enum {
 {
     MSByte _mode ;
     NSFileHandle *_logFile ;
-    mutex_t _lock ;
+    mtx_t _lock ;
     NSString *_dateFormat ;
     MHLogLevel _logLevel ;
 }

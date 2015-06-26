@@ -1,16 +1,4 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include "objc/runtime.h"
-#include "objc/objc-arc.h"
-#include "nsobject.h"
-#include "spinlock.h"
-#include "class.h"
-#include "dtable.h"
-#include "selector.h"
-#include "lock.h"
-#include "gc_ops.h"
+#include "msobjc_private.h"
 
 /**
  * A single associative reference.  Contains the key, value, and association
@@ -52,7 +40,7 @@ struct reference_list
 	 * Mutex.  Only set for the first reference list in a chain.  Used for
 	 * @syncronize().
 	 */
-	mutex_t lock;
+	mtx_t lock;
 	/**
 	 * Garbage collection type.  This stores the location of all of the
 	 * instance variables in the object that may contain pointers.

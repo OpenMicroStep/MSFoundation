@@ -8,7 +8,7 @@
 
 @interface MSThreadSafeProxy : NSObject {
     id _obj;
-    mutex_t _mutex;
+    mtx_t _mutex;
 }
 + (id)threadSafeProxyWithObject:(id)obj;
 - (id)initWithObject:(id)obj;

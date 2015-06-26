@@ -68,7 +68,7 @@ struct CBunchStruct
     Class _instanceClass ;
     MSUShort _bunchSize ;
     CBunch *_lastBunch ;
-    mutex_t _bunchAllocatorMutex ;
+    mtx_t _bunchAllocatorMutex ;
 }
 
 + (id)bunchAllocatorForClass:(Class)aClass withBunchSize:(MSUShort)size;

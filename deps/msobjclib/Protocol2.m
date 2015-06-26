@@ -1,8 +1,4 @@
-#include "objc/runtime.h"
-#include "protocol.h"
-#include "class.h"
-#include <stdio.h>
-#include <string.h>
+#include "msobjc_private.h"
 
 @implementation Protocol
 // FIXME: This needs removing, but it's included for now because GNUstep's

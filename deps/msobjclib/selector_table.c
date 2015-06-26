@@ -4,17 +4,7 @@
  * When building, you may define TYPE_DEPENDENT_DISPATCH to enable message
  * sends to depend on their types.
  */
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
-#include <ctype.h>
-#include "lock.h"
-#include "sarray2.h"
-#include "objc/runtime.h"
-#include "method_list.h"
-#include "class.h"
-#include "selector.h"
-#include "visibility.h"
+#include "msobjc_private.h"
 
 #ifdef TYPE_DEPENDENT_DISPATCH
 #	define TDD(x) x
@@ -51,7 +41,7 @@ PRIVATE SparseArray *selector_list  = NULL;
 // Get the functions for string hashing
 #include "string_hash.h"
 
-PRIVATE inline BOOL isSelRegistered(SEL sel)
+PRIVATE BOOL isSelRegistered(SEL sel)
 {
 	if ((uintptr_t)sel->name < (uintptr_t)selector_count)
 	{
@@ -229,7 +219,7 @@ static selector_table *sel_table;
 /**
  * Lock protecting the selector table.
  */
-mutex_t selector_table_lock;
+mtx_t selector_table_lock;
 
 static int selector_name_copies;
 

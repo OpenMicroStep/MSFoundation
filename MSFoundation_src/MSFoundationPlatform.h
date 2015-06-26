@@ -32,8 +32,6 @@ enum {
 #define NSLocaleDecimalSeparator NSDecimalSeparator
 
 MSFoundationExtern IMP method_getImplementation(Method m);
-MSFoundationExtern NSString *MSFindDLL(NSString *dllName);
-MSFoundationExtern NSUInteger MSOperatingSystem(void);
 
 @interface NSNull : NSObject <NSCopying, NSCoding>
 + (NSNull *)null;
@@ -54,4 +52,9 @@ MSFoundationExtern NSUInteger MSOperatingSystem(void);
 
 @interface NSError : NSObject <NSCopying, NSCoding>
 @end
+#endif
+
+#ifdef WIN32
+MSFoundationExtern NSUInteger MSOperatingSystem(void);
+MSFoundationExtern NSString *MSFindDLL(NSString *dllName);
 #endif

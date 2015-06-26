@@ -1,6 +1,5 @@
 #ifndef __OBJC_CLASS_H_INCLUDED
 #define __OBJC_CLASS_H_INCLUDED
-#include "visibility.h"
 
 /**
  * Overflow bitfield.  Used for bitfields that are more than 63 bits.

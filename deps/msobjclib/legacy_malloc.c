@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include "msobjc_private.h"
 
 void *valloc(size_t);
 
@@ -14,7 +14,7 @@ void *objc_atomic_malloc(size_t size)
 	return malloc(size);
 }
 
-#ifdef __MINGW32__
+#ifdef WIN32
 void *objc_valloc(size_t size)
 {
 	return malloc(size);

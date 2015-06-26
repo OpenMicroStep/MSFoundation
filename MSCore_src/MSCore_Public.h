@@ -50,7 +50,7 @@
 #ifndef MSCORE_PUBLIC_H
 #define MSCORE_PUBLIC_H
 
-#include "MSCorePlatform.h"
+#include "MSStd.h"
 #include "MSCoreTypes.h"
 #include "MSCoreSystem.h"
 #include "MSCoreTools.h"

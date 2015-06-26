@@ -51,7 +51,7 @@
 // MSCORE_FORFOUNDATION means that the core is build for objective-c usage and that their is no objective-c in this context
 
 #if !defined(MSCORE_STANDALONE) && !defined(__OBJC__)
-#define MSCORE_FORFOUNDATION 1
+  #define MSCORE_FORFOUNDATION 1
 #endif
 
 #define MSUnused(X) (void)X;
@@ -104,41 +104,41 @@ static inline unsigned long WLU(NSUInteger u) {return (unsigned long)u;}
 
 typedef MSLong MSTimeInterval; // Time in seconds T0=01/01/2001
 
-#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION) || !defined(MSFOUNDATION_FORCOCOA)
-
-#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION)
-
+#if defined(MSCORE_STANDALONE)
+  #ifdef BOOL
 // windef.h do a "typedef WINBOOL BOOL;".
 // We prevent any unwanted behavior by changing the BOOL usage to objective-c usage.
 // If you want to access windows BOOL definition, use the explicit typedef WINBOOL
-#ifdef BOOL
-#undef BOOL
-#endif
-typedef signed char OBJC_BOOL;
-#define BOOL OBJC_BOOL
-
+    #undef BOOL
+  #endif
+  typedef signed char OBJC_BOOL;
+  #define BOOL OBJC_BOOL
 #else
-#include <objc/objc.h>
+  #include <objc/objc.h>
 #endif
 
 #if !defined(YES)
-#define YES  (BOOL)1
+  #define YES  (BOOL)1
 #endif
+  
 #if !defined(NO)
-#define NO  (BOOL)0
+  #define NO  (BOOL)0
 #endif
 
 #if !defined(MIN)
-#define MIN(A,B)  ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); __a < __b ? __a : __b; })
+  #define MIN(A,B)  ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); __a < __b ? __a : __b; })
 #endif
 
 #if !defined(MAX)
-#define MAX(A,B)  ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); __a < __b ? __b : __a; })
+  #define MAX(A,B)  ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); __a < __b ? __b : __a; })
 #endif
 
 #if !defined(ABS)
-#define ABS(A)  ({ __typeof__(A) __a= (A); __a < 0 ? -__a : __a; })
+  #define ABS(A)  ({ __typeof__(A) __a= (A); __a < 0 ? -__a : __a; })
 #endif
+
+
+#if defined(MSCORE_STANDALONE) || defined(MSCORE_FORFOUNDATION) || !defined(MSFOUNDATION_FORCOCOA)
 
 typedef double NSTimeInterval;
 

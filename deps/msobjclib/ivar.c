@@ -1,13 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "objc/runtime.h"
-#include "class.h"
-#include "ivar.h"
-#include "visibility.h"
-#include "gc_ops.h"
+#include "msobjc_private.h"
 
-ptrdiff_t objc_alignof_type(const char *);
-ptrdiff_t objc_sizeof_type(const char *);
+size_t objc_alignof_type(const char *);
+size_t objc_sizeof_type(const char *);
 
 PRIVATE void objc_compute_ivar_offsets(Class class)
 {

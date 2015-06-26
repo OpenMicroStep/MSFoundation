@@ -1,10 +1,5 @@
-#include "lock.h"
-#include "class.h"
-#include "sarray2.h"
-#include "objc/slot.h"
-#include "visibility.h"
-#include <stdint.h>
-#include <stdio.h>
+#ifndef MSOBJC_DTABLE_H
+#define MSOBJC_DTABLE_H
 
 #ifdef __OBJC_LOW_MEMORY__
 typedef struct objc_dtable* dtable_t;
@@ -36,7 +31,7 @@ typedef struct _InitializingDtable
 
 /** Head of the list of temporary dtables.  Protected by initialize_lock. */
 extern InitializingDtable *temporary_dtables;
-extern mutex_t initialize_lock;
+extern mtx_t initialize_lock;
 
 /**
  * Returns whether a class has an installed dtable.
@@ -126,3 +121,5 @@ void add_method_list_to_class(Class cls,
  * Destroys a dtable.
  */
 void free_dtable(dtable_t dtable);
+
+#endif // MSOBJC_DTABLE_H

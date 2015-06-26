@@ -5,36 +5,21 @@
 
 #ifndef __LIBOBJC_LOCK_H_INCLUDED__
 #define __LIBOBJC_LOCK_H_INCLUDED__
-#	include <pthread.h>
 
-typedef pthread_mutex_t mutex_t;
+#include "MSStd.h"
+
 // If this pthread implementation has a static initializer for recursive
 // mutexes, use that, otherwise fall back to the portable version
-#	ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-#		define INIT_LOCK(x) x = (pthread_mutex_t)PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
-#	elif defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER)
-#		define INIT_LOCK(x) x = (pthread_mutex_t)PTHREAD_RECURSIVE_MUTEX_INITIALIZER
-#	else
-#		define INIT_LOCK(x) init_recursive_mutex(&(x))
+#define INIT_LOCK(x) mtx_init(&(x), mtx_recursive)
 
-static inline void init_recursive_mutex(pthread_mutex_t *x)
-{
-	pthread_mutexattr_t recursiveAttributes;
-	pthread_mutexattr_init(&recursiveAttributes);
-	pthread_mutexattr_settype(&recursiveAttributes, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init(x, &recursiveAttributes);
-	pthread_mutexattr_destroy(&recursiveAttributes);
-}
-#	endif
-
-#	define LOCK(x) pthread_mutex_lock(x)
-#	define UNLOCK(x) pthread_mutex_unlock(x)
-#	define DESTROY_LOCK(x) pthread_mutex_destroy(x)
+#	define LOCK(x) mtx_lock(x)
+#	define UNLOCK(x) mtx_unlock(x)
+#	define DESTROY_LOCK(x) mtx_destroy(x)
 
 __attribute__((unused)) static void objc_release_lock(void *x)
 {
-	mutex_t *lock = *(mutex_t**)x;
-	UNLOCK(lock);
+	mtx_t *lock = *(mtx_t**)x;
+	mtx_unlock(lock);
 }
 /**
  * Acquires the lock and automatically releases it at the end of the current
@@ -42,13 +27,13 @@ __attribute__((unused)) static void objc_release_lock(void *x)
  */
 #define LOCK_FOR_SCOPE(lock) \
 	__attribute__((cleanup(objc_release_lock)))\
-	__attribute__((unused)) mutex_t *lock_pointer = lock;\
+	__attribute__((unused)) mtx_t *lock_pointer = lock;\
 	LOCK(lock)
 
 /**
  * The global runtime mutex.
  */
-extern mutex_t runtime_mutex;
+extern mtx_t runtime_mutex;
 
 #define LOCK_RUNTIME() LOCK(&runtime_mutex)
 #define UNLOCK_RUNTIME() UNLOCK(&runtime_mutex)

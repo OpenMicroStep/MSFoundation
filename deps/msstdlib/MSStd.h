@@ -1,46 +1,46 @@
-// MSCorePlatform.h
+// MSStd.h
 
-#ifndef MSCORE_PLATFORM_H
-#define MSCORE_PLATFORM_H
+#ifndef MSSTD_H
+#define MSSTD_H
 
 ////////
 // Platform defines
 
 // Platform detection
-#ifndef LINUX
-#ifdef __linux__
-#define _GNU_SOURCE
+#if !defined(LINUX) && defined(__linux__)
+#define _GNU_SOURCE 1
 #define LINUX 1
 #endif
-#endif
 
-#ifndef WIN32
-#ifdef _WIN32
+#if !defined(WIN32) && defined(_WIN32)
 #define WIN32 1
 #endif
-#endif
 
-#ifndef WIN64
-#ifdef _WIN64
+#if !defined(WIN64) && defined(_WIN64)
 #define WIN64 1
 #endif
-#endif
 
-#ifndef APPLE
-#ifdef __APPLE__
+#if !defined(APPLE) && defined(__APPLE__)
 #define APPLE 1
 #endif
-#endif
 
-#ifndef UNIX
-#if defined(LINUX) || defined(APPLE)
+#if !defined(UNIX) && (defined(LINUX) || defined(APPLE))
 #define UNIX 1
 #endif
+
+#if !defined(MSVC) && defined(_MSC_VER)
+#define MSVC 1
+#endif
+
+#if !defined(MINGW) && defined(__MINGW32__)
+#define MINGW 1
 #endif
 
 // Lib export
 #ifdef __cplusplus
     #define EXTERN_C extern "C"
+    #define restrict 
+    #define register 
 #else
     #define EXTERN_C extern
 #endif
@@ -53,12 +53,11 @@
     #define LIBIMPORT EXTERN_C
 #endif
 
-#if defined(MSCORE_PRIVATE_H) || defined(FOUNDATION_PRIVATE_H) || defined(MSFOUNDATION_PRIVATE_H)
-#define MSCoreExtern LIBEXPORT
+#if defined(MSSTD_PRIVATE_H) || defined(MSSTD_EXPORT)
+#define MSStdExtern LIBEXPORT
 #else
-#define MSCoreExtern LIBIMPORT
+#define MSStdExtern LIBIMPORT
 #endif
-
 // END Platform defines
 ////////
 
@@ -77,12 +76,14 @@
 #include <time.h>
 
 #ifdef WIN32
-    #include <windows.h>
+#  include <windows.h>
+#  undef min
+#  undef max
 #else
-    #include <sys/syscall.h>
-    #include <unistd.h>
-    #include <fcntl.h>
-    #include <signal.h>
+#  include <sys/syscall.h>
+#  include <unistd.h>
+#  include <fcntl.h>
+#  include <signal.h>
 #endif
 // END Default Includes
 ////////
@@ -129,16 +130,28 @@
 # define __sync_add_and_fetch(X,Y) ({ (*(X))+=Y; *(X);})
 # define __sync_sub_and_fetch(X,Y) ({ (*(X))-=Y; *(X);})
 
-MSCoreExtern float strtof(const char *string, char **endPtr);
-MSCoreExtern int snprintf(char *str, size_t size, const char *format, ...);
-MSCoreExtern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+  static inline int vsnprintf(char *str, size_t size, const char *format, va_list ap) { return _vsnprintf(str, size, format, ap); }
 #endif
 
-#ifdef WIN32
-static inline int usleep(int32_t usec) { usec /= 1000; Sleep(usec > 0 ? usec : 1); return 0; }
+#if defined(WIN32) && !defined(__MINGW32__)
+MSStdExtern int snprintf(char *str, size_t size, const char *format, ...);
+#endif 
+
+#if defined(MSVC)
+  static inline float strtof(const char *string, char **endPtr) { return (float)strtod(string, endPtr); }
+  MSStdExtern char *strtok_r(char *s, const char *delim, char **save_ptr);
+#endif
+#if defined(WIN32)
+  static inline int usleep(int32_t usec) { usec /= 1000; Sleep(usec > 0 ? usec : 1); return 0; }
 #endif
 
-#if defined(__STDC_NO_THREADS__) || __STDC_VERSION__ < 201112L || !__has_include(<threads.h>)
+#if !defined(_STRUCT_TIMESPEC) && !defined(__timespec_defined) && !defined(_TIMESPEC_DEFINED)
+struct timespec {
+  time_t tv_sec;
+  long tv_nsec;
+};
+#endif
+
 // C11 std polyfill
 #ifndef WIN32
 #include <pthread.h>
@@ -158,14 +171,14 @@ typedef int(*thrd_start_t)(void*);
 #else
   typedef pthread_t thrd_t;
 #endif
-MSCoreExtern int thrd_create(thrd_t *thr, thrd_start_t func, void *arg);
-MSCoreExtern int thrd_equal(thrd_t lhs, thrd_t rhs);
-MSCoreExtern thrd_t thrd_current();
-MSCoreExtern int thrd_sleep(const struct timespec* duration, struct timespec* remaining);
-MSCoreExtern void thrd_yield();
-MSCoreExtern int thrd_detach(thrd_t thr);
-MSCoreExtern int thrd_join(thrd_t thr, int *res);
-MSCoreExtern _Noreturn void thrd_exit(int res);
+MSStdExtern int thrd_create(thrd_t *thr, thrd_start_t func, void *arg);
+MSStdExtern int thrd_equal(thrd_t lhs, thrd_t rhs);
+MSStdExtern thrd_t thrd_current();
+MSStdExtern int thrd_sleep(const struct timespec* duration, struct timespec* remaining);
+MSStdExtern void thrd_yield();
+MSStdExtern int thrd_detach(thrd_t thr);
+MSStdExtern int thrd_join(thrd_t thr, int *res);
+MSStdExtern _Noreturn void thrd_exit(int res);
 
 // Mutual exclusion
 enum {
@@ -178,12 +191,12 @@ enum {
 #else
   typedef pthread_mutex_t mtx_t;
 #endif
-MSCoreExtern int mtx_init(mtx_t* mutex, int type);
-MSCoreExtern int mtx_lock(mtx_t* mutex);
-MSCoreExtern int mtx_timedlock(mtx_t *restrict mutex, const struct timespec *restrict duration );
-MSCoreExtern int mtx_trylock(mtx_t *mutex);
-MSCoreExtern int mtx_unlock(mtx_t* handle);
-MSCoreExtern void mtx_destroy(mtx_t* handle);
+MSStdExtern int mtx_init(mtx_t* mutex, int type);
+MSStdExtern int mtx_lock(mtx_t* mutex);
+MSStdExtern int mtx_timedlock(mtx_t *restrict mutex, const struct timespec *restrict duration );
+MSStdExtern int mtx_trylock(mtx_t *mutex);
+MSStdExtern int mtx_unlock(mtx_t* handle);
+MSStdExtern void mtx_destroy(mtx_t* handle);
 
 // Call one
 #ifdef WIN32
@@ -193,7 +206,7 @@ MSCoreExtern void mtx_destroy(mtx_t* handle);
   typedef pthread_once_t once_flag;
   #define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 #endif
-MSCoreExtern void call_once(once_flag* flag, void (*func)(void));
+MSStdExtern void call_once(once_flag* flag, void (*func)(void));
 
 // Condition variables
 #ifdef WIN32
@@ -210,40 +223,30 @@ MSCoreExtern void call_once(once_flag* flag, void (*func)(void));
 #else
   typedef pthread_cond_t cnd_t;
 #endif
-MSCoreExtern int cnd_init(cnd_t* cond);
-MSCoreExtern int cnd_signal(cnd_t *cond);
-MSCoreExtern int cnd_broadcast(cnd_t *cond);
-MSCoreExtern int cnd_wait(cnd_t* cond, mtx_t* mutex);
-MSCoreExtern int cnd_timedwait(cnd_t* restrict cond, mtx_t* restrict mutex, const struct timespec* restrict duration);
-MSCoreExtern void cnd_destroy(cnd_t* cond);
+MSStdExtern int cnd_init(cnd_t* cond);
+MSStdExtern int cnd_signal(cnd_t *cond);
+MSStdExtern int cnd_broadcast(cnd_t *cond);
+MSStdExtern int cnd_wait(cnd_t* cond, mtx_t* mutex);
+MSStdExtern int cnd_timedwait(cnd_t* restrict cond, mtx_t* restrict mutex, const struct timespec* restrict duration);
+MSStdExtern void cnd_destroy(cnd_t* cond);
 
 // Thread-local storage
 typedef void(*tss_dtor_t)(void *);
 #ifdef WIN32
-  typedef struct { DWORD idx; tss_dtor_t dtor; } tss_t;
+  typedef DWORD tss_t;
 #else
   typedef pthread_key_t tss_t;
 #endif
 #define TSS_DTOR_ITERATIONS 4
 #define thread_local _Thread_local
-MSCoreExtern int tss_create(tss_t* tss_key, tss_dtor_t destructor);
-MSCoreExtern void *tss_get(tss_t tss_key);
-MSCoreExtern int tss_set(tss_t tss_id, void *val);
-MSCoreExtern void tss_delete(tss_t tss_id);
-
-#else // __STDC_NO_THREADS__
-#include <threads.h>
-#endif
+MSStdExtern int tss_create(tss_t* tss_key, tss_dtor_t destructor);
+MSStdExtern void *tss_get(tss_t tss_key);
+MSStdExtern int tss_set(tss_t tss_id, void *val);
+MSStdExtern void tss_delete(tss_t tss_id);
 
 #ifndef TIME_UTC
 #define TIME_UTC 1
-#if !defined(_STRUCT_TIMESPEC) && !defined(__timespec_defined) && !defined(_TIMESPEC_DEFINED)
-struct timespec {
-  time_t tv_sec;
-  long tv_nsec;
-};
-#endif
-MSCoreExtern int timespec_get(struct timespec *ts, int base);
+MSStdExtern int timespec_get(struct timespec *ts, int base);
 #endif // C11 Date & Time polyfill
 
 #define MS_DECLARE_MUTEX(VARNAME) \
@@ -256,23 +259,6 @@ MSCoreExtern int timespec_get(struct timespec *ts, int base);
   __attribute__((constructor)) static void VARNAME ## __ctor() { tss_create(&VARNAME, DESTRUCTOR); } \
   __attribute__((destructor))  static void VARNAME ## __dtor() { tss_delete(VARNAME); }
 
-// Old mutexes (to be removed)
-#ifdef WIN32
-    typedef CRITICAL_SECTION      mutex_t;
-    #define mutex_init(mutex)     InitializeCriticalSection(&mutex)
-    #define mutex_lock(mutex)     EnterCriticalSection(&mutex)
-    #define mutex_trylock(mutex)  TryEnterCriticalSection(&mutex)
-    #define mutex_unlock(mutex)   LeaveCriticalSection(&mutex)
-    #define mutex_delete(mutex)   DeleteCriticalSection(&mutex)
-#else
-    typedef pthread_mutex_t       mutex_t;
-    #define mutex_init(mutex)     pthread_mutex_init(&mutex, NULL)
-    #define mutex_lock(mutex)     pthread_mutex_lock(&mutex)
-    #define mutex_trylock(mutex)  !pthread_mutex_trylock(&mutex)
-    #define mutex_unlock(mutex)   pthread_mutex_unlock(&mutex)
-    #define mutex_delete(mutex)   pthread_mutex_destroy(&mutex)
-#endif
-
 // Process
 #ifdef WIN32
   typedef DWORD ms_process_id_t;
@@ -281,16 +267,24 @@ MSCoreExtern int timespec_get(struct timespec *ts, int base);
   typedef pid_t ms_process_id_t;
   typedef pid_t ms_thread_id_t;
 #endif
-MSCoreExtern ms_process_id_t ms_get_current_process_id();
-MSCoreExtern const char* ms_get_current_process_path();
+MSStdExtern ms_process_id_t ms_get_current_process_id();
+MSStdExtern ms_thread_id_t ms_get_current_thread_id();
+MSStdExtern const char* ms_get_current_process_path();
 
 // Shared objects (.dll, .dylib, .so, ...)
 typedef void* ms_shared_object_t;
-MSCoreExtern ms_shared_object_t ms_shared_object_open(const char *path);
-MSCoreExtern int ms_shared_object_close(ms_shared_object_t handle);
-MSCoreExtern void *ms_shared_object_symbol(ms_shared_object_t handle, const char *symbol);
-MSCoreExtern const char* ms_shared_object_name(void *addr);
-MSCoreExtern void ms_shared_object_iterate(void (*callback)(const char *name, void *data), void *data);
+MSStdExtern ms_shared_object_t ms_shared_object_open(const char *path);
+MSStdExtern int ms_shared_object_close(ms_shared_object_t handle);
+MSStdExtern void *ms_shared_object_symbol(ms_shared_object_t handle, const char *symbol);
+MSStdExtern const char* ms_shared_object_name(void *addr);
+MSStdExtern void ms_shared_object_iterate(void (*callback)(const char *name, void *data), void *data);
+
+MSStdExtern void ms_generate_uuid(char dst[37]);
+
+MSStdExtern int64_t ms_gmt_now();
+MSStdExtern int64_t ms_gmt_now_micro();
+MSStdExtern int64_t ms_gmt_to_local(int64_t gmt);
+MSStdExtern int64_t ms_gmt_from_local(int64_t local);
 
 // END Simple platform abstraction
 ////////

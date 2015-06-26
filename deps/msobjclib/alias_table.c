@@ -23,13 +23,7 @@
    THE SOFTWARE.
 */
 
-#include "visibility.h"
-#include "objc/runtime.h"
-#include "class.h"
-#include "lock.h"
-#include "string_hash.h"
-
-#include <stdlib.h>
+#include "msobjc_private.h"
 
 struct objc_alias
 {

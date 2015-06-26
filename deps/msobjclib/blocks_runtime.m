@@ -23,18 +23,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-#import "objc/blocks_runtime.h"
-#import "objc/runtime.h"
-#import "objc/objc-arc.h"
-#include "blocks_runtime.h"
-#include "gc_ops.h"
-#include "visibility.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
-#include <assert.h>
-
+#include "msobjc_private.h"
 
 static void *_HeapBlockByRef = (void*)1;
 

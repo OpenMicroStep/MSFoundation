@@ -1,4 +1,5 @@
-#include "visibility.h"
+#ifndef MSOBJC_PROPERTIES_H
+#define MSOBJC_PROPERTIES_H
 
 enum PropertyAttributeKind 
 {
@@ -166,3 +167,5 @@ PRIVATE struct objc_property propertyFromAttrs(const objc_property_attribute_t *
  */
 PRIVATE const char *constructPropertyAttributes(objc_property_t property,
                                                 const char *iVarName);
+
+#endif // MSOBJC_PROPERTIES_H

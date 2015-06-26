@@ -1,7 +1,5 @@
-#include <pthread.h>
-#include <stdlib.h>
 #define __TOY_DISPATCH__
-#include "objc/toydispatch.h"
+#include "msobjc_private.h"
 
 /**
  * Amount of total space in the ring buffer.  Must be a power of two.
@@ -38,14 +36,14 @@ struct dispatch_queue
 	/**
 	 * Mutex used to protect the condition variable.
 	 */
-	pthread_mutex_t mutex;
+	mtx_t mutex;
 	/**
 	 * Condition variable used in blocking mode.  The consumer thread will
 	 * sleep on this condition variable when the queue has been empty for a
 	 * little while.  The next producer thread to insert something will poke
 	 * the condition variable on any empty->non-empty transition.
 	 */
-	pthread_cond_t conditionVariable;
+	cnd_t conditionVariable;
 	/**
 	 * Ring buffer containing functions and data to be executed by the
 	 * consumer.
@@ -96,7 +94,7 @@ inline static void lock_queue(dispatch_queue_t queue)
 	{
 		// If it is already 1, let another thread play with the CPU for a bit
 		// then try again.
-		sched_yield();
+		thrd_yield();
 	}
 }
 
@@ -133,7 +131,7 @@ inline static void insert_into_queue(dispatch_queue_t queue,
 	lock_queue(queue);
 	while (ISFULL(queue))
 	{
-		sched_yield();
+		thrd_yield();
 	}
 	unsigned int idx = MASK(queue->producer);
 	queue->ring_buffer[idx].function = function;
@@ -152,9 +150,9 @@ inline static void insert_into_queue(dispatch_queue_t queue,
 	// thread sleeping), preventing the wakeup.
 	if (space == 1)
 	{
-		pthread_mutex_lock(&queue->mutex);
-		pthread_cond_signal(&queue->conditionVariable);
-		pthread_mutex_unlock(&queue->mutex);
+		mtx_lock(&queue->mutex);
+		cnd_signal(&queue->conditionVariable);
+		mtx_unlock(&queue->mutex);
 	}
 }
 /**
@@ -173,12 +171,12 @@ static inline void read_from_queue(dispatch_queue_t queue,
 {
 	while (ISEMPTY(queue))
 	{
-		pthread_mutex_lock(&queue->mutex);
+		mtx_lock(&queue->mutex);
 		if (ISEMPTY(queue))
 		{
-			pthread_cond_wait(&queue->conditionVariable, &queue->mutex);
+			cnd_wait(&queue->conditionVariable, &queue->mutex);
 		}
-		pthread_mutex_unlock(&queue->mutex);
+		mtx_unlock(&queue->mutex);
 	}
 	unsigned int idx = MASK(queue->consumer);
 	*function = queue->ring_buffer[idx].function;
@@ -196,8 +194,8 @@ static void *runloop(void *q)
 		read_from_queue(queue, &function, &data);
 		function(data);
 	}
-	pthread_cond_destroy(&queue->conditionVariable);
-	pthread_mutex_destroy(&queue->mutex);
+	cnd_destroy(&queue->conditionVariable);
+	mtx_destroy(&queue->mutex);
 	free(queue);
 	return NULL;
 }
@@ -208,11 +206,11 @@ dispatch_queue_t dispatch_queue_create(const char *label,
 {
 	dispatch_queue_t queue = calloc(1, sizeof(struct dispatch_queue));
 	queue->refcount = 1;
-	pthread_cond_init(&queue->conditionVariable, NULL);
-	pthread_mutex_init(&queue->mutex, NULL);
-	pthread_t thread;
-	pthread_create(&thread, NULL, runloop, queue);
-	pthread_detach(thread);
+	cnd_init(&queue->conditionVariable);
+	mtx_init(&queue->mutex, mtx_plain);
+	thrd_t thread;
+	thrd_create(&thread, runloop, queue);
+	thrd_detach(thread);
 	return queue;
 }
 

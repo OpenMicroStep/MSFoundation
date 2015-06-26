@@ -1,5 +1,4 @@
-#include "objc/capabilities.h"
-#include <stdint.h>
+#include "msobjc_private.h"
 
 /**
  * Bitmask of all of the capabilities compiled into this version of the
@@ -25,9 +24,6 @@ static const int32_t caps =
 #endif
 #ifdef __OBJC_LOW_MEMORY__
 	(1<<OBJC_CAP_LOW_MEMORY) |
-#endif
-#ifdef ENABLE_GC
-	(1<<OBJC_CAP_GARBAGE_COLLECTION) |
 #endif
 #if defined(WITH_TRACING) && defined (__x86_64)
 	(1<<OBJC_CAP_TRACING) |

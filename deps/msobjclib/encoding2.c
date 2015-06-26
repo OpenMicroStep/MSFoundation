@@ -1,12 +1,4 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <ctype.h>
-
-#include "objc/runtime.h"
-#include "objc/encoding.h"
-#include "method_list.h"
-#include "visibility.h"
+#include "msobjc_private.h"
 
 size_t objc_alignof_type (const char *type);
 

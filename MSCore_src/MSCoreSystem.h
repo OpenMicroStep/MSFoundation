@@ -47,6 +47,12 @@
 #ifndef MS_CORE_SYSTEM_H
 #define MS_CORE_SYSTEM_H
 
+#if defined(MSCORE_PRIVATE_H) || defined(MSFOUNDATION_PRIVATE_H) || defined(FOUNDATION_PRIVATE_H)
+#define MSCoreExtern LIBEXPORT
+#else
+#define MSCoreExtern LIBIMPORT
+#endif
+
 #pragma mark ***** System
 
 //#define MSMacAddressLength 6
@@ -130,14 +136,21 @@ MSCoreExtern void MSSetErrorCallBack(MSErrorCallback fn);
 #define MSCalloc( X, Y, C) calloc(X, Y) // allocated and filled with zeros
 #define MSFree(   X   , C) free(X)      // free is ok with NULL
 
-static inline void *MSMallocFatal(size_t sz, char *fct)
+static inline void *MSCallocFatal(size_t n, size_t sz, const char *fct)
+{
+  void *p= MSCalloc(n, sz, NULL);
+  if (!p) MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode, fct);
+  return p;
+}
+
+static inline void *MSMallocFatal(size_t sz, const char *fct)
 {
   void *p= MSMalloc(sz, NULL);
   if (!p) MSReportError(MSMallocError, MSFatalError, MSMallocErrorCode, fct);
   return p;
 }
 
-static inline void *MSReallocFatal(void *zone, size_t sz, char *fct)
+static inline void *MSReallocFatal(void *zone, size_t sz, const char *fct)
 {
   void *p= MSRealloc(zone, sz, NULL);
   if (!p) MSReportError(MSMallocError, MSFatalError, MSReallocErrorCode, fct);

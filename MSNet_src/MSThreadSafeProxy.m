@@ -18,7 +18,7 @@
 {
     if ((self= [super init])) {
         _obj= [obj retain];
-        mutex_init(_mutex);
+        mtx_init(&_mutex, mtx_plain);
     }
     return self;
 }
@@ -26,7 +26,7 @@
 - (void)dealloc
 {
     [_obj release];
-    mutex_delete(_mutex);
+    mtx_destroy(&_mutex);
     [super dealloc];
 }
 
@@ -35,11 +35,11 @@
     NSMethodSignature *sig = [super methodSignatureForSelector:sel];
     if(!sig) {
         NS_DURING
-        mutex_lock(_mutex);
+        mtx_lock(&_mutex);
         sig = [_obj methodSignatureForSelector:sel];
-        mutex_unlock(_mutex);
+        mtx_unlock(&_mutex);
         NS_HANDLER
-        mutex_unlock(_mutex);
+        mtx_unlock(&_mutex);
         [localException raise];
         NS_ENDHANDLER
     }
@@ -49,11 +49,11 @@
 - (void)forwardInvocation:(NSInvocation *)inv
 {
     NS_DURING
-    mutex_lock(_mutex);
+    mtx_lock(&_mutex);
     [inv invokeWithTarget:_obj];
-    mutex_unlock(_mutex);
+    mtx_unlock(&_mutex);
     NS_HANDLER
-    mutex_unlock(_mutex);
+    mtx_unlock(&_mutex);
     [localException raise];
     NS_ENDHANDLER
 }
