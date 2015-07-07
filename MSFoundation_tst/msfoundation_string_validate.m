@@ -248,6 +248,8 @@ static void string_format(test_t *test)
   // Found bug tests
   TASSERT_FORMAT(test,"bug print decimal when decimal is 0: expected:0, got:0",
                      "bug print decimal when decimal is 0: expected:0, got:%d", 0);
+  TASSERT_FORMAT(test,"bug print string with precision: 0'' 2'ab' *'bcd' 'cdef'", 
+                      "bug print string with precision: 0'%.0s' 2'%.2s' *'%.*s' '%s'", "not printed", "ab__", 3, "bcd___", "cdef");
   
   // Old Tests
   TASSERT_FORMAT(test,"22337236854775808",

@@ -572,8 +572,11 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
     case 's':
     {
       char *cstr= (char*)argTypes[f.arg - 1].u.ptr;
-      if(!cstr) cstr = "(null)";
-      _formatPrintUTF8(s, cstr, strlen(cstr), width, f.flags.leftJustify);
+      NSUInteger len;
+      if (!cstr){ cstr= "(null)"; len= 6; }
+      else if (f.flags.hasPrecision){ len= precision; }
+      else { len= strlen(cstr); }
+      _formatPrintUTF8(s, cstr, len, width, f.flags.leftJustify);
       break;
     }
     case '@':
