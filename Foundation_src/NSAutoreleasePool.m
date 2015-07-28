@@ -29,7 +29,7 @@ static inline void drain(CArray *objects)
 {
   NSAutoreleasePool *pool= tss_get(__currentPool);
   if(!pool) {
-    printf("no autorelease pool, leaking (%s*)%p\n", object_getClassName(object), object);
+    fprintf(stderr, "no autorelease pool, leaking (%s*)%p\n", object_getClassName(object), object);
     abort();
     return;
   }
@@ -39,9 +39,7 @@ static inline void drain(CArray *objects)
 -(instancetype)init
 {
   NSAutoreleasePool *pool= tss_get(__currentPool);
-  if(pool) {
-    _parent= pool;
-  }
+  _parent= pool;
   _objects= CCreateArrayWithOptions(0, YES, NO);
   tss_set(__currentPool, self);
   return self;
