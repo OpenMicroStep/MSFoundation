@@ -74,7 +74,7 @@ static const SQLLEN indNULL = SQL_NULL_DATA;
         MSODBCBindParamInfo *end= _bindInfos + _bindSize;
         while (cur < end) {
             switch (cur->type) {
-                case SQL_C_CHAR:
+                case SQL_C_WCHAR:
                 case SQL_C_BINARY:
                     [cur->u._id release];
                     break;
@@ -130,12 +130,11 @@ BIND_PARAM(bindDouble, double, SQL_C_DOUBLE, SQL_DOUBLE, 15);
 - (BOOL)bindString:     (NSString*)string at:(MSUInt)parameterIndex
 {
     if(parameterIndex < _bindSize) {
-        NSData *data= [(MSODBCConnection *)_connection sqlDataFromString:string];
-        NSUInteger length= [data length];
+        NSUInteger length= [string length];
         MSODBCBindParamInfo *bindInfo= _bindInfos + parameterIndex;
-        bindInfo->u._id= [data retain];
-        bindInfo->len= (SQLLEN)length;
-        return ODBC_SUCCEEDED(SQLBindParameter, _stmt, (SQLUSMALLINT)(parameterIndex + 1), SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, length ? length : 1, 0, (SQLPOINTER)[data bytes], bindInfo->len, &bindInfo->len);
+        bindInfo->u._id= nil;
+        bindInfo->len= (SQLLEN)(length * sizeof(unichar));
+        return ODBC_SUCCEEDED(SQLBindParameter, _stmt, (SQLUSMALLINT)(parameterIndex + 1), SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_VARCHAR, length ? length : 1, 0, (SQLPOINTER)[string UTF16String], bindInfo->len, &bindInfo->len);
     }
     return NO;
 }

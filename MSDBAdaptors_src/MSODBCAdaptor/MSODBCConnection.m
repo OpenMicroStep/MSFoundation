@@ -119,13 +119,13 @@
 - (BOOL)_connectWithConnectionString:(NSString *)cnxStr
 {
     BOOL ret;
-    SQLCHAR dataSource[4096];
+    SQLWCHAR dataSource[4096];
     SQLSMALLINT dsLen;
     
     if(!ODBC_SUCCEEDED_ENV(SQLAllocHandle, SQL_HANDLE_DBC, _henv, &_hdbc))
       return NO;
     
-    ret= ODBC_SUCCEEDED_DBC(SQLDriverConnect, _hdbc, 0,(SQLCHAR *)[self sqlCStringWithString:cnxStr], SQL_NTS, dataSource, sizeof (dataSource), &dsLen, SQL_DRIVER_COMPLETE);
+    ret= ODBC_SUCCEEDED_DBC(SQLDriverConnectW, _hdbc, 0, (SQLWCHAR *)[cnxStr UTF16String], [cnxStr length], dataSource, 4096, &dsLen, SQL_DRIVER_COMPLETE);
     if(ret) {
       ret= ODBC_SUCCEEDED_DBC(SQLSetConnectAttr, _hdbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, SQL_IS_UINTEGER);
       if(ret && _cFlags.readOnly)
@@ -187,7 +187,7 @@
     if ([request length] && [self connect]) {
         SQLHSTMT hstmt;
         if (ODBC_SUCCEEDED_DBC(SQLAllocHandle, SQL_HANDLE_STMT, _hdbc, &hstmt)
-         && ODBC_SUCCEEDED_STMT(hstmt, SQLPrepare, hstmt,(SQLCHAR *)[self sqlCStringWithString:request],SQL_NTS))
+         && ODBC_SUCCEEDED_STMT(hstmt, SQLPrepareW, hstmt,(SQLWCHAR *)[request UTF16String], [request length]))
                 return AUTORELEASE([ALLOC(MSODBCStatement) initWithRequest:request withDatabaseConnection:self withStmt:hstmt]);
     }
     return nil ;
@@ -203,7 +203,7 @@
     SQLHSTMT hstmt;
     if ([query length] && [self connect]) {
         if (ODBC_SUCCEEDED_DBC(SQLAllocHandle, SQL_HANDLE_STMT, _hdbc, &hstmt)) {
-            if (ODBC_SUCCEEDED_STMT(hstmt, SQLExecDirect, hstmt,(SQLCHAR *)[self sqlCStringWithString:query],SQL_NTS)) {
+            if (ODBC_SUCCEEDED_STMT(hstmt, SQLExecDirectW, hstmt,(SQLWCHAR *)[query UTF16String], [query length])) {
                 return [self fetchWithStatement:hstmt];
             }
         }
@@ -272,7 +272,7 @@
         HSTMT hstmt;
         
         ret = ODBC_SUCCEEDED_DBC(SQLAllocHandle, SQL_HANDLE_STMT, _hdbc, &hstmt)
-           && ODBC_SUCCEEDED_STMT(hstmt, SQLExecDirect, hstmt,(SQLCHAR *)[self sqlCStringWithString:sql],SQL_NTS);
+           && ODBC_SUCCEEDED_STMT(hstmt, SQLExecDirectW, hstmt,(SQLWCHAR *)[sql UTF16String], [sql length]);
         if (hstmt)
             ODBC_SUCCEEDED_STMT(hstmt, SQLFreeHandle, SQL_HANDLE_STMT, hstmt);
     }
