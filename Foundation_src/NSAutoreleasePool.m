@@ -52,9 +52,9 @@ static inline void drain(CArray *objects)
 
 -(void)dealloc
 {
+  tss_set(__currentPool, _parent);
   drain(_objects);
   RELEASE(_objects);
-  tss_set(__currentPool, _parent);
   [super dealloc];
 }
 
