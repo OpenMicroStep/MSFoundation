@@ -104,6 +104,10 @@
 { ASSIGN(_allowedRecipients, allowedRecipients); }
 @end
 
+@interface MSHttpTransaction (MHMessengerSession)
+- (MHMessengerSession *)session;
+@end
+
 @interface MHMessengerMessageURNMiddleware : NSObject <MSHttpMiddleware>
 - (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
 @end
@@ -115,7 +119,7 @@ static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *erro
 static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipients);
 - (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
 {
-  id session= [tr session];
+  MHMessengerSession* session= [tr session];
   id senderURN= [session senderURN];
   if (!senderURN) {
     if ([session authenticationType] == MHNetRepositoryAuthenticatedByPublicKey) {
@@ -129,16 +133,18 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
 }
 static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, void *arg)
 {
+  MSHttpTransaction *tr= [(id)arg transaction];
   id senderURN= [(id)response stringValue];
   if (senderURN){
+    [[tr session] setSenderURN:senderURN];
     _senderURNSet((id)arg);}
   else {
-    [[(id)arg transaction] write:MSHttpCodeInternalServerError string:@"Unable to find URN of the logged user"];}
+    [tr write:MSHttpCodeInternalServerError string:@"Unable to find URN of the logged user"];}
   return NO;
 }
 static void _senderURNSet(id <MSHttpNextMiddleware> next)
 {
-  id session, allowedRecipients, request;
+  MHMessengerSession *session; id allowedRecipients, request;
   session= [[next transaction] session];
   if ([[[next transaction] urlQueryParameters] objectForKey:@"recipient"]) {
     allowedRecipients= [session allowedRecipients];
@@ -409,7 +415,7 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
     //[self logWithLevel:MHAppError log:@"/%@ : no message ID specified in query string", MESSENGER_SUB_URL_DEL_MSG] ;
     [tr write:MSHttpCodeBadRequest];}
   else {
-    messageDeleted = [_messengerDBAccessor deleteMessageForURN:[[tr session] senderURN] andMessageID:messageID] ;
+    messageDeleted = [_messengerDBAccessor deleteMessageForURN:[[tr session] recipientURN] andMessageID:messageID] ;
     [tr write:messageDeleted ? MSHttpCodeOk : MSHttpCodeInternalServerError];}
 }
 

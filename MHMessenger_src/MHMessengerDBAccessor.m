@@ -182,6 +182,7 @@ static void _messengerMessageOutput(id value, NSString *key, id arg)
   conn= [self _databaseBeginTransaction] ;
   recipients = [AUTORELEASE(RETAIN([message recipients])) objectEnumerator] ;
   uuids = [MSArray mutableArray];
+  [message setReceivingDate:(MSTimeInterval)[[MSDate date] timeIntervalSince1970]];
 
   while(res && (recipient= [recipients nextObject])) {
     uuid= [MSString UUIDString];
