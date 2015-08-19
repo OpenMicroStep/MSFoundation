@@ -51,7 +51,8 @@
 @implementation MSDigest
 + (id)allocWithZone:(NSZone*)zone
 {
-  return [_MSDigestOpenSSL allocWithZone:zone];
+  if (self == [MSDigest class]) return [_MSDigestOpenSSL allocWithZone:zone];
+  return [super allocWithZone:zone];
 }
 
 + (id)digestWithType:(MSDigestType)type

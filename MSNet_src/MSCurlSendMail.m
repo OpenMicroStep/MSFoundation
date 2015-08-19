@@ -72,11 +72,11 @@ NSArray *payload_text_plain_text(MSCurlSendMail *aMSCurlSendMail) {
         NSString *mail = [[aMSCurlSendMail to] objectAtIndex:i];
         [recipient stringByAppendingString:mail];
     }
-    [array addObject:[NSString stringWithFormat:@"To: %@\n", recipient]] ;
-    [array addObject:[NSString stringWithFormat:@"From: %@\n", [aMSCurlSendMail from]]] ;
-    [array addObject:[NSString stringWithFormat:@"Subject: %@\n", [aMSCurlSendMail subject]]] ;
-    [array addObject:@"Content-Type: text; charset=\"iso-8859-1\";\n"] ;
-    [array addObject:@"\n"] ;
+    [array addObject:[NSString stringWithFormat:@"To: %@\r\n", recipient]] ;
+    [array addObject:[NSString stringWithFormat:@"From: %@\r\n", [aMSCurlSendMail from]]] ;
+    [array addObject:[NSString stringWithFormat:@"Subject: %@\r\n", [aMSCurlSendMail subject]]] ;
+    [array addObject:@"Content-Type: text; charset=\"iso-8859-1\";\r\n"] ;
+    [array addObject:@"\r\n"] ;
     [array addObject:[aMSCurlSendMail body]] ;
     return array ;
 }
@@ -89,13 +89,13 @@ NSArray *payload_text_html_format(MSCurlSendMail *aMSCurlSendMail) {
         NSString *mail = [[aMSCurlSendMail to] objectAtIndex:i];
         [recipient stringByAppendingString:mail];        
     }
-    [array addObject:[NSString stringWithFormat:@"To: %@\n", recipient]] ;       
-    [array addObject:[NSString stringWithFormat:@"From: %@\n", [aMSCurlSendMail from]]] ;
-    [array addObject:[NSString stringWithFormat:@"Subject: %@\n", [aMSCurlSendMail subject]]] ;
-    [array addObject:@"Mime-Version: 1.0;\n"] ;
-    [array addObject:@"Content-Type: text/html; charset=\"utf-8\";\n"] ;
-    [array addObject:@"Content-Transfer-Encoding: 7bit;\n"] ;
-    [array addObject:@"\n"] ;
+    [array addObject:[NSString stringWithFormat:@"To: %@\r\n", recipient]] ;       
+    [array addObject:[NSString stringWithFormat:@"From: %@\r\n", [aMSCurlSendMail from]]] ;
+    [array addObject:[NSString stringWithFormat:@"Subject: %@\r\n", [aMSCurlSendMail subject]]] ;
+    [array addObject:@"Mime-Version: 1.0;\r\n"] ;
+    [array addObject:@"Content-Type: text/html; charset=\"utf-8\";\r\n"] ;
+    [array addObject:@"Content-Transfer-Encoding: 7bit;\r\n"] ;
+    [array addObject:@"\r\n"] ;
     [array addObject:@"<html><body>\n"] ;
     [array addObject:[[[aMSCurlSendMail body] htmlRepresentation] replaceOccurrencesOfString:@"\n" withString:@"<br/>"]] ;
     [array addObject:@"</body></html>\n"] ;
