@@ -1,21 +1,24 @@
 module.exports = {
   name: "libuv",
   environments: {
-    "openssl-base" : {
+    "libuv-base" : {
       compiler: "clang"
     },
 
-    "libuv-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openssl-base"},
-    "libuv-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openssl-base"},
-    "libuv-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openssl-base"},
-    "libuv-i386-linux"       :{"arch": "i386"       , "sysroot-api": "linux"    , "parent": "openssl-base"},
-    "libuv-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openssl-base"},
-    "libuv-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openssl-base"}, /* openssl win32 asm require non cross platform compiler masm */
-    "libuv-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openssl-base"}, /* openssl win32 asm require non cross platform compiler masm */
+    "libuv-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "libuv-base"},
+    "libuv-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "libuv-base"},
+    "libuv-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "libuv-base"},
+    "libuv-i386-linux"       :{"arch": "i386"       , "sysroot-api": "linux"    , "parent": "libuv-base"},
+    "libuv-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "libuv-base"},
+    "libuv-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "libuv-base"}, /* openssl win32 asm require non cross platform compiler masm */
+    "libuv-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "libuv-base"}, /* openssl win32 asm require non cross platform compiler masm */
+    "libuv-i386-msvc"        :{"arch": "i386"       , "sysroot-api": "msvc"     , "parent": "libuv-base"},
+    "libuv-x86_64-msvc"      :{"arch": "x86_64"     , "sysroot-api": "msvc"     , "parent": "libuv-base"},
     "libuv": [
       "libuv-i386-darwin"   , "libuv-x86_64-darwin", //"openssl-univ-darwin",
       /*"openssl-i386-linux"    ,*/ "libuv-x86_64-linux",
       "libuv-i386-mingw-w64", "libuv-x86_64-mingw-w64",
+      "libuv-i386-msvc", "libuv-x86_64-msvc",
     ]
   },
   files: [
@@ -34,6 +37,9 @@ module.exports = {
         {file:'src/uv-common.c'},
         {file:'src/uv-common.h'},
         {file:'src/version.c'},
+      ]},
+      {group:'def', files:[
+        {file:'libuv.def'},
       ]},
       {group:'win32', files:[
         {file:'include/uv-win.h'},
@@ -279,11 +285,16 @@ module.exports = {
         'include',
         'src',
       ],
+      static: true,
       configure:function(/** Library */ target) {
         if(target.platform === "win32") {
           target.addWorkspaceFiles(["libuv.win32"]);
           target.addDefines(['_WIN32_WINNT=0x0600', '_GNU_SOURCE']);
           target.addLibraries(['-ladvapi32', '-liphlpapi', '-lole32', '-lpsapi', '-lshell32', '-lws2_32', '-luuid']);
+          if (target.sysroot.api === "msvc") {
+            target.addLibraries(['oldnames.lib']);
+            target.addDefines(['_CRT_SECURE_NO_DEPRECATE', '_CRT_NONSTDC_NO_DEPRECATE']);
+          }
         }
         else {
           target.addWorkspaceFiles(["libuv.unix?"]);
@@ -302,8 +313,24 @@ module.exports = {
         target.addDefines(['BUILDING_UV_SHARED=1']);
       },
       exports:{
-        configure:function(other_target, target) {
-          other_target.addIncludeDirectory(target.resolvePath('include'));
+        configure:function(other_target, self_target) {
+          self_target.addDefines(['BUILDING_UV_SHARED=1']);
+          other_target.addIncludeDirectory(self_target.resolvePath('include'));
+          if (other_target.sysroot.api === "msvc") {
+            other_target.addLinkFlags([ // Find why about 10 symbols aren't exported
+              '/EXPORT:uv_getaddrinfo',
+              '/EXPORT:uv_freeaddrinfo',
+              '/EXPORT:uv_getnameinfo',
+              '/EXPORT:uv_version_string',
+              '/EXPORT:uv_dlopen',
+              '/EXPORT:uv_dlerror'
+            ]);
+            other_target.addTaskModifier("LinkMSVC", function(target, task) {
+              task.addDefs(self_target.workspace.resolveFiles(["libuv.def"]));
+            });
+          }
+          if (other_target.platform === "win32")
+            other_target.addLibraries(['-ladvapi32', '-liphlpapi', '-lole32', '-lpsapi', '-lshell32', '-lws2_32', '-luuid']);
         }
       }
     },

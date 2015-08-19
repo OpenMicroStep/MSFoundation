@@ -1195,7 +1195,9 @@ int uv_os_homedir(char* buffer, size_t* size) {
     return 0;
   }
 
+
   /* USERPROFILE is not set, so call SHGetKnownFolderPath() */
+  /*
   if (SHGetKnownFolderPath(&FOLDERID_Profile, 0, NULL, &path) != S_OK)
     return uv_translate_sys_error(GetLastError());
 
@@ -1216,6 +1218,7 @@ int uv_os_homedir(char* buffer, size_t* size) {
 
   CoTaskMemFree(path);
   *size = bufsize - 1;
+  */
 
   return 0;
 }

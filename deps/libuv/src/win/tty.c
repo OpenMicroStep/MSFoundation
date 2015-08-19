@@ -1438,7 +1438,7 @@ static int uv_tty_write_bufs(uv_tty_t* handle,
         /* Read utf-8 start byte */
         DWORD first_zero_bit;
         unsigned char not_c = ~c;
-#ifdef _MSC_VER /* msvc */
+#if defined(_MSC_VER) && !defined(__clang__) /* msvc */
         if (_BitScanReverse(&first_zero_bit, not_c)) {
 #else /* assume gcc */
         if (c != 0) {
