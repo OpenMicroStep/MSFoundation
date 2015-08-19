@@ -270,7 +270,7 @@ static void fillTypes(SQLSMALLINT sqlType, _MSODBCType* type)
             break;
         case SQL_DECIMAL: //Not sure ... need some tests
             type->cType = SQL_C_DOUBLE;
-            type->oType = ODBC_FLOAT;
+            type->oType = ODBC_DOUBLE;
             //NSLog(@"SQL_DECIMAL %lu / %u",(unsigned long)type->size,type->decimalSize);
             break;
         case SQL_NUMERIC:
