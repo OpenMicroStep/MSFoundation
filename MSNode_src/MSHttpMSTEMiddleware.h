@@ -1,6 +1,6 @@
 
 @interface MSHttpMSTEClientResponse : MSHttpClientResponse {
-  MSBuffer *_buffer;
+  id _decoder;
   id _decodedObject;
 }
 - (id)msteDecodedObject;

@@ -51,7 +51,8 @@
 @implementation MSDigest
 + (id)allocWithZone:(NSZone*)zone
 {
-  return [_MSDigestOpenSSL allocWithZone:zone];
+  if (self == [MSDigest class]) return [_MSDigestOpenSSL allocWithZone:zone];
+  return [super allocWithZone:zone];
 }
 
 + (id)digestWithType:(MSDigestType)type
@@ -72,10 +73,10 @@
 {   [self notImplemented:_cmd];}
 
 - (MSBuffer*)digest
-{   [self notImplemented:_cmd]; return self ;}
+{   return [self notImplemented:_cmd]; }
 
 - (NSString*)hexEncodedDigest
-{   [self notImplemented:_cmd]; return self ;}
+{   return [self notImplemented:_cmd]; }
 
 @end
 

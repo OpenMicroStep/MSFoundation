@@ -171,17 +171,22 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
     _state= STATE_END;
     [self release];}
   else {
-    NSLog(@"Trying to write end to all ready ended transaction, %p", self);
+    NSLog(@"Trying to write end an ended HTTP transaction, %p", self);
   }
 }
 - (void)writeFile:(NSString *)path
 {
   if (_state < STATE_HEAD_HANDLER) {
     [self writeHead:MSHttpCodeOk];}
-  Isolate *isolate = Isolate::GetCurrent();
-  Local<Object> http= nodejs_require("fs");
-  Local<Value> stream= nodejs_call_with_ids(isolate, http, "createReadStream", path, nil);
-  nodejs_call(isolate, stream->ToObject(), "pipe", 1, (Local<Value>[]){ nodejs_persistent_value(isolate, _res) });
+  if (_state < STATE_END) {
+    Isolate *isolate = Isolate::GetCurrent();
+    Local<Object> http= nodejs_require("fs");
+    Local<Value> stream= nodejs_call_with_ids(isolate, http, "createReadStream", path, nil);
+    nodejs_call(isolate, stream->ToObject(), "pipe", 1, (Local<Value>[]){ nodejs_persistent_value(isolate, _res) });
+    _state= STATE_END;
+    [self release];}
+  else {
+    NSLog(@"Trying to write file to an ended HTTP transaction, %p", self);}
 }
 - (void)write:(MSUInt)statusCode headers:(NSDictionary *)headers response:(NSData *)chunk
 {

@@ -39,6 +39,14 @@ static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt status
   _value= [value retain];
   return self;
 }
+- (void)dealloc
+{
+  RELEASE(_value);
+  RELEASE(_expires);
+  RELEASE(_path);
+  RELEASE(_domain);
+  [super dealloc];
+}
 - (NSString *)value  { return _value; }
 - (NSDate *)expires  { return _expires; }
 - (NSString *)path   { return _path; }
@@ -46,12 +54,12 @@ static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt status
 - (BOOL)secure       { return _secure; }
 - (BOOL)httpOnly     { return !_notOnlyHttp; }
 - (BOOL)sent         { return _sent; }
-- (void)setValue:(NSString *)value   { ASSIGN(_value, value); }
-- (void)setExpires:(NSDate *)expires { ASSIGN(_expires, expires); }
-- (void)setPath:(NSString *)path     { ASSIGN(_path, path); }
-- (void)setDomain:(NSString *)domain { ASSIGN(_domain, domain); }
-- (void)setSecure:(BOOL)secure       { _secure= secure; }
-- (void)setHttpOnly:(BOOL)httpOnly   { _notOnlyHttp= !httpOnly; }
+- (void)setValue:(NSString *)value   { ASSIGN(_value, value); _sent= NO; }
+- (void)setExpires:(NSDate *)expires { ASSIGN(_expires, expires); _sent= NO; }
+- (void)setPath:(NSString *)path     { ASSIGN(_path, path); _sent= NO; }
+- (void)setDomain:(NSString *)domain { ASSIGN(_domain, domain); _sent= NO; }
+- (void)setSecure:(BOOL)secure       { _secure= secure; _sent= NO; }
+- (void)setHttpOnly:(BOOL)httpOnly   { _notOnlyHttp= !httpOnly; _sent= NO; }
 - (void)setSent:(BOOL)sent           { _sent= sent; }
 @end
 
@@ -93,7 +101,8 @@ static void _parseCookie(CDictionary *cookies, NSString *setCookie)
       sValue= CCreateStringWithSES(value);
       cookie= [MSHttpCookie new];
       [cookie setValue:(id)sValue];
-      printf("%s=%s\n", [(id)sKey UTF8String], [(id)sValue UTF8String]);
+      [cookie setSent:YES];
+      //printf("%s=%s\n", [(id)sKey UTF8String], [(id)sValue UTF8String]);
       CDictionarySetObjectForKey(cookies, cookie, (id)sKey);
       RELEASE(sKey);
       RELEASE(sValue);
@@ -116,18 +125,33 @@ static void _parseCookie(CDictionary *cookies, NSString *setCookie)
 {
   // set-cookie: key=value; Expires=value; Path=path; ...
   // Cookie: key1=value1; key2=value2;
-  CString *str; CDictionaryEnumerator e; NSString *key, *value;
+  CString *str; CDictionaryEnumerator e; NSString *key, *value; MSHttpCookie *cookie;
   e= CMakeDictionaryEnumerator(_cookies);
   while ((key= CDictionaryEnumeratorNextKey(&e))) {
-    str= CCreateString(0);
-    value= [CDictionaryEnumeratorCurrentObject(e) value];
-    CStringAppendSES(str, SESFromString(key));
-    CStringAppendCharacter(str, '=');
-    CStringAppendSES(str, SESFromString(value));
-    CStringAppendCharacter(str, ';');
-    // TODO: support Expires, ...
-    [tr setValue:(id)str forHeader:@"Set-Cookie"];
-    RELEASE(str);
+    cookie= CDictionaryEnumeratorCurrentObject(e);
+    if (![cookie sent]) {
+      str= CCreateString(0);
+      value= [cookie value];
+      CStringAppendSES(str, SESFromString(key));
+      CStringAppendCharacter(str, '=');
+      CStringAppendSES(str, SESFromString(value));
+      CStringAppendCharacter(str, ';');
+      if ((value= [cookie path])) {
+        CStringAppendLiteral(str, "Path=");
+        CStringAppendSES(str, SESFromString(value));
+        CStringAppendCharacter(str, ';');}
+      if ((value= [cookie domain])) {
+        CStringAppendLiteral(str, "Domain=");
+        CStringAppendSES(str, SESFromString(value));
+        CStringAppendCharacter(str, ';');}
+      if ([cookie secure]) {
+        CStringAppendLiteral(str, "Secure;");}
+      if ([cookie httpOnly]) {
+        CStringAppendLiteral(str, "HttpOnly;");}
+      // TODO: support Expires=Wdy, DD Mon YYYY HH:MM:SS GMT;
+      [tr setValue:(id)str forHeader:@"Set-Cookie"];
+      RELEASE(str);
+    }
   }
 }
 static void _parseSetCookie(CDictionary *cookies, NSString *setCookie)

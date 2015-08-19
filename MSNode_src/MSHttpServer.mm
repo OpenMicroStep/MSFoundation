@@ -59,6 +59,7 @@ static void _registerEvents(id self, Local<Object> server, Isolate *isolate) {
 - (void)dealloc
 {
   nodejs_persistent_delete(_priv);
+  RELEASE(_delegate);
   [super dealloc];
 }
 

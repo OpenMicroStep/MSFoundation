@@ -47,7 +47,7 @@
  these functions.
  */
 
-@interface _MSDigestOpenSSL : NSObject {
+@interface _MSDigestOpenSSL : MSDigest {
     EVP_MD_CTX _mdctx ;
     MSDigestType _type;
 }

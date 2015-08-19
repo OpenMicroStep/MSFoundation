@@ -50,11 +50,11 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
   Isolate *isolate = Isolate::GetCurrent();
   Local<Object> headers= Object::New(isolate);
   Local<Object> options = nodejs_call_with_ids(isolate, nodejs_require("url"), "parse", url, nil)->ToObject();
-  NSLog(@"to:%@", url);
   options->Set(String::NewFromUtf8(isolate, "method"), [MSHttpMethodName(method) toV8:isolate]);
   options->Set(String::NewFromUtf8(isolate, "headers"), headers);
   _options = nodejs_persistent_new(isolate, options);
   _headers = nodejs_persistent_new(isolate, headers);
+  _url = [url copy];
   return self;
 }
 - (void)_createRequest
@@ -66,6 +66,7 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
   nodejs_persistent_delete(_options);
   nodejs_persistent_delete(_headers);
   MSHttpHandlerDealloc(_eventFirst);
+  RELEASE(_url);
   [super dealloc];
 }
 - (Class)responseClass
@@ -78,7 +79,8 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
 
 - (void)onReponseHandled:(MSHttpClientResponse *)response withError:(NSString *)err
 { 
-  MSHttpHandlerCall(_eventFirst, BOOL, YES, MSHttpClientRequestHandler, response, err); 
+  NSLog(@"HTTP Request %@: %@", _url, err ? err : @"OK");
+  MSHttpHandlerCall(_eventFirst, BOOL, YES, MSHttpClientRequestHandler, response, err);
   [self release];
 }
 
@@ -132,9 +134,9 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
 }
 - (void)_createRequest
 { 
-  Isolate *isolate = Isolate::GetCurrent();
-  Local<Object> options = nodejs_persistent_value(isolate, _options);
-  options->Set(String::NewFromUtf8(isolate, "rejectUnauthorized"), v8::False(isolate)); // TODO: fix ca handling
+  //Isolate *isolate = Isolate::GetCurrent();
+  //Local<Object> options = nodejs_persistent_value(isolate, _options);
+  //options->Set(String::NewFromUtf8(isolate, "rejectUnauthorized"), v8::False(isolate)); // TODO: fix ca handling
   _createRequestOnModule(self, "https", &_req, _options); 
 }
 
@@ -156,7 +158,6 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
   Isolate *isolate = Isolate::GetCurrent();
   Local<Object> options = nodejs_persistent_value(isolate, _options);
   options->Set(String::NewFromUtf8(isolate, "ca"), [@[ ca ] toV8:isolate]);
-  options->Set(String::NewFromUtf8(isolate, "rejectUnauthorized"), v8::False(isolate)); // TODO: fix ca handling
 }
 - (void)setCertificate:(NSData *)cert privateKey:(NSData *)key
 { [self setCertificate:cert privateKey:key passphrase:nil]; }
@@ -212,7 +213,7 @@ static void _registerResponseEvents(id self, Local<Object> response, Isolate *is
 - (void)onResponseEnd
 { [self handledWithError:nil]; }
 - (void)onResponseError:(NSString*)err
-{ [self handledWithError:nil]; }
+{ [self handledWithError:err]; }
 - (void)handledWithError:(NSString *)err
 {
   [_request onReponseHandled:self withError:err];

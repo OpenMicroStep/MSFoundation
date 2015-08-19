@@ -7,7 +7,7 @@
 //
 
 #import "MSNode_Private.h"
-#include <vector>
+
 using namespace v8;
 
 const FunctionCallbackInfo<Value> *MSNetArgs= NULL;
@@ -220,9 +220,10 @@ private:
 @implementation MSString (V8Conversion)
 - (Local<Value>)toV8:(Isolate *)isolate
 {
+  CString *str= (CString *)self;
   if(CGrowIsForeverImmutable(self))
     return String::NewExternal(isolate, new V8ExternalMSStringResource((CString*)self));
-  return String::NewFromTwoByte(isolate, _buf, String::kNormalString, (int)_length);
+  return String::NewFromTwoByte(isolate, str->buf, String::kNormalString, (int)str->length);
 }
 @end
 
@@ -240,7 +241,8 @@ static void V8MSBufferFreeCallback(char* data, void* hint)
 @implementation MSBuffer (V8Conversion)
 - (Local<Value>)toV8:(Isolate *)isolate
 {
-  return node::Buffer::New(isolate, (char*)_buf, (size_t)_length, V8MSBufferFreeCallback, (void*)RETAIN(self));
+  CBuffer *buf= (CBuffer *)self;
+  return node::Buffer::New(isolate, (char*)buf->buf, (size_t)buf->length, V8MSBufferFreeCallback, (void*)RETAIN(self));
 }
 @end
 
@@ -315,10 +317,10 @@ Local<Value> parseJson(Local<Value> jsonString) {
   return handle_scope.Escape(JSON_parse->Call(JSON, 1, &jsonString));
 }
 
-static inline void nodejs_debug(Local<Value> value)
+/*static inline void nodejs_debug(Local<Value> value)
 {
   NSLog(@"%@", nodejs_to_objc(Isolate::GetCurrent(), parseJson(value)));
-}
+}*/
 
 Local<Function> nodejs_method(Isolate *isolate, Local<Object> object, const char *methodname)
 {
@@ -399,7 +401,7 @@ void nodejs_callback_fct(const FunctionCallbackInfo<Value> &args)
   nodejs_callback_t cb= (nodejs_callback_t)Local<External>::Cast(data->GetInternalField(1))->Value();
   cb(object, args);
   KILL_POOL;
-  
+  while (!isolate->IdleNotification(1000)) ;  
   /*end = time_usec();
   double elapsed = (end - start) / 1000;
   printf("nodejs event handled in %f ms\n", elapsed);*/
@@ -415,6 +417,7 @@ void nodejs_callback_simple_fct(const FunctionCallbackInfo<Value> &args)
   void(*cb)(void*)= (void(*)(void*))Local<External>::Cast(data->GetInternalField(1))->Value();
   cb(object);
   KILL_POOL;
+  while (!isolate->IdleNotification(1000)) ;
 }
 
 Local<Function> nodejs_callback(Isolate* isolate, id object, nodejs_callback_t cb)
@@ -452,11 +455,13 @@ static void * _MSNodeSetTimer(void (*cb)(void* context), double delay, void *con
 }
 static void _MSNodeClearTimer(void *timeout, const char *m)
 {
-  Isolate *isolate =Isolate::GetCurrent();
-  Persistent<Value> *r= (Persistent<Value> *)timeout;
-  Local<Object> timers= nodejs_require("timers");
-  nodejs_call(isolate, timers, m, 1, (Local<Value>[]){ Local<Value>::New(isolate, *r) });
-  delete r;
+  if (timeout) {
+    Isolate *isolate =Isolate::GetCurrent();
+    Persistent<Value> *r= (Persistent<Value> *)timeout;
+    Local<Object> timers= nodejs_require("timers");
+    nodejs_call(isolate, timers, m, 1, (Local<Value>[]){ Local<Value>::New(isolate, *r) });
+    delete r;
+  }
 }
 void* MSNodeSetTimeout(void (*cb)(void* context), double delay, void *context)
 { return _MSNodeSetTimer(cb, delay, context, "setTimeout"); }

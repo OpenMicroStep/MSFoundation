@@ -56,7 +56,14 @@ module.exports = {
     "openmicrostep-cocoa-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
     "openmicrostep-cocoa": [
       "openmicrostep-cocoa-i386-darwin", "openmicrostep-cocoa-x86_64-darwin", //"openmicrostep-cocoa-univ-darwin",
-    ]
+    ],
+    "openmicrostep-node": [
+      /* TODO:"openmicrostep-foundation-i386-darwin",*/ "openmicrostep-foundation-x86_64-darwin",
+      // TODO: "openmicrostep-foundation-i386-linux", "openmicrostep-foundation-x86_64-linux",
+      // Instable: "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64", 
+      "openmicrostep-foundation-i386-msvc12", "openmicrostep-foundation-x86_64-msvc12",
+      /* TODO: "openmicrostep-cocoa-i386-darwin", */"openmicrostep-cocoa-x86_64-darwin",
+    ],
   },
   files: [
     {group: "MSCore", files:[
@@ -733,11 +740,11 @@ module.exports = {
     {
       "name" : "MASHServer",
       "type" : "Executable",
-      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "environments" : ["openmicrostep-node"],
       "dependencies" : ["MSFoundation", "MSNode"],
       "files" : ["MSServer"],
-      "includeDirectoriesOfFiles": ["MSNet"],
       "configure": function(target) {
+        target.addCompileFlags(['-Wall', '-Werror']);
       }
     },
     {
@@ -791,25 +798,37 @@ module.exports = {
     {
       "name": "MSNode",
       "type": "Framework",
-      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "environments": ["openmicrostep-node"],
       "dependencies": [
         "MSFoundation",
         {workspace: 'deps/openssl', target:'openssl'},
-        {workspace: 'deps/libuv', target:'libuv'},
+        {workspace: 'deps/libuv', target:'libuv', condition:function(target) { return target.env.cocoa; }}
       ],
       "files": ["MSNode"],
       "publicHeaders": ["MSNode?MSPublicHeaders"],
-      "includeDirectories": ["deps/node/src", "deps/node/deps/cares/include", "deps/node/deps/debugger-agent/include", "deps/node/deps/v8/include", "deps/libuv/include"],
+      "includeDirectories": ["deps/node/src", "deps/node/deps/cares/include", "deps/node/deps/debugger-agent/include", "deps/node/deps/v8/include", "deps/libuv/include", "deps/node/deps/openssl/openssl/include"],
       "configure": function(target) {
-        if (target.platform === "darwin" && target.arch === "x86_64") {
-          target.addLibraries([target.resolvePath('deps/node-build/darwin-x86_64/Release/libnode.dylib')]);}
-        target.addLibraries(['-lstdc++']);
+        target.addCompileFlags(['-Wall', '-Werror']);
+        if (target.sysroot.api === "msvc") {
+            var dir = 'deps/node-build/' + target.arch + '-msvc12/' + (target.variant === 'debug' ? 'debug' : 'release') + '/';
+            target.addLibraries([target.resolvePath(dir + 'node.lib')]);
+        }
+        else if (target.sysroot.api === "darwin") {
+            target.addLibraries([target.resolvePath('deps/node-build/' + target.arch + '-darwin/' + (target.variant === 'debug' ? 'debug' : 'release') + '/libnode.dylib')]);
+        }
+        else {
+            throw "Unsupported env " + target.env;
+        }
+        if (target.sysroot.api === "msvc")
+            target.addCompileFlags(['-fno-exceptions']);
+        else
+            target.addLibraries(['-lstdc++', '-lc++']);
       }
     },
     {
       "name": "MHMessenger",
       "type": "Framework",
-      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHMessenger.Framework"],
       "publicHeaders": ["MHMessenger.Framework?MSPublicHeaders"],
@@ -826,7 +845,7 @@ module.exports = {
         "CFBundleIdentifier": "org.microstep.net.messenger",
         "NSPrincipalClass": "MHMessengerApplication"
       },
-      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MHMessenger", "MHRepository", "MSNode"],
       "files": ["MHMessenger.WebApp"],
       "configure": function(target) {
@@ -837,7 +856,7 @@ module.exports = {
     {
       "name": "MHRepository",
       "type": "Framework",
-      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode"],
       "files": ["MHRepository.Framework"],
       "publicHeaders": ["MHRepository.Framework?MSPublicHeaders"],
@@ -849,7 +868,7 @@ module.exports = {
     {
       "name": "MASHRepositoryServer",
       "type": "Executable",
-      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHRepository.Server"],
       "configure": function(target) {
@@ -863,7 +882,7 @@ module.exports = {
         "CFBundleIdentifier": "org.microstep.net.repository",
         "NSPrincipalClass": "MHRepositoryAdministrator"
       },
-      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHRepository.WebApp"],
       "configure": function(target) {

@@ -16,27 +16,33 @@
   [rnd release];
   return ret;
 }
+
 - (instancetype)_initWithKey:(id)key withInstigator:(id)m
 {
   _key= [key retain];
   _instigator= [m retain];
-  _uv_timer= (uv_timer_t*)MSMallocFatal(sizeof(uv_timer_t) + sizeof(id), "MSHttpSession uv_timer_t");
-  ((uv_timer_t*)_uv_timer)->data= self;
-  uv_timer_init(uv_default_loop(), _uv_timer);
+  //NSLog(@"Session %p created", self);
   return [self init];
 }
-// no dealloc because dealloc is only fired if kill is sent, and kill cleanup things
-static void _sessionTimeout(uv_timer_t* handle)
+- (void)dealloc
 {
-  [(MSHttpSession *)handle->data kill];
+  //if (_uv_timer)
+  //  NSLog(@"Session %p destroyed without killing it first", self);
+  [self kill];
+  DESTROY(_key);
+  DESTROY(_instigator);
+  //NSLog(@"Session %p destroyed", self);
+  [super dealloc];
 }
-static void _sessionTimerClose(uv_handle_t* handle)
+
+static void _sessionTimeout(MSHttpSession* self)
 {
-  MSFree(handle, "MSHttpSession uv_timer_t");
+  NSLog(@"Session %p timed out", self);
+  [self kill];
 }
 - (instancetype)update {
-  uv_timer_stop((uv_timer_t*)_uv_timer);
-  uv_timer_start((uv_timer_t*)_uv_timer, _sessionTimeout, ((uint64_t)[self lifetime]) * 1000, 0);
+  MSNodeClearTimeout(_uv_timer);
+  _uv_timer= MSNodeSetTimeout((void (*)(void*))_sessionTimeout, [self lifetime] * 1000, self);
   return self;
 }
 - (BOOL)isAuthenticated    { return NO; }
@@ -44,15 +50,11 @@ static void _sessionTimerClose(uv_handle_t* handle)
 - (NSString *)key          { return _key; }
 - (void)kill
 { 
-  if(_uv_timer) {
-    [_instigator _removeSession:self];
-    uv_timer_stop((uv_timer_t*)_uv_timer);
-    uv_close((uv_handle_t*)_uv_timer, _sessionTimerClose);
+  if (_uv_timer) {
+    NSLog(@"Session %p killed %d", self, (int)[self retainCount]);
+    MSNodeClearTimeout(_uv_timer);
     _uv_timer=NULL;
-    DESTROY(_key);
-    DESTROY(_instigator);
-    [self release];
-  }
+    [_instigator _removeSession:self];}
 }
 @end
 @implementation MSHttpSessionMiddleware
@@ -82,20 +84,23 @@ static void _sessionTimerClose(uv_handle_t* handle)
 
 - (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
 {
-  NSString *sessionKey; MSHttpSession *session;
+  NSString *sessionKey; MSHttpSession *session; MSHttpCookie *cookie;
   sessionKey= [tr cookieValueForName:_cookieName];
   session= CDictionaryObjectForKey(_sessions, sessionKey);
-  printf("Session key:%s\n", [sessionKey UTF8String]);
   if (!session) {
     sessionKey= [_sessionClass generateSessionKey];
-    [tr setCookie:[MSHttpCookie cookieWithValue:sessionKey] forName:_cookieName];
-    session= [ALLOC(_sessionClass) _initWithKey:sessionKey withInstigator:self];
+    cookie= [MSHttpCookie cookieWithValue:sessionKey];
+    [cookie setPath:[next route]];
+    [tr setCookie:cookie forName:_cookieName];
+    session= [[ALLOC(_sessionClass) _initWithKey:sessionKey withInstigator:self] autorelease];
     CDictionarySetObjectForKey(_sessions, session, sessionKey);}
   session= [session update];
   [tr setObject:session forKey:@"MSHttpSessionMiddleware"];
   if([session isAuthenticated]) {
+    //NSLog(@"Authenticated session %p", session);
     [next nextMiddleware];}
   else {
+    //NSLog(@"Try authenticate session %p", session);
     [_authenticator authenticate:tr next:next];}
 }
 @end

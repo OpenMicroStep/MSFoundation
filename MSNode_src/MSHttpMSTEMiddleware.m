@@ -4,25 +4,27 @@
 - (instancetype)init
 {
   if ((self= [super init])) {
-    _buffer= [MSBuffer new];
+    _decoder= [MSMSTEDecoder new];
   }
   return self;
 }
 - (void)dealloc
 {
+  [_decoder release];
   [_decodedObject release];
-  [_buffer release];
   [super dealloc];
 }
 - (void)onResponseData:(NSData *)data
 { 
-  [_buffer appendBytes:[data bytes] length:[data length]];
+  [_decoder parseBytes:[data bytes] length:[data length]];
 }
 - (void)onResponseEnd
 { 
-  _decodedObject= [[_buffer MSTDecodedObject] retain];
-  DESTROY(_buffer);
-  [self handledWithError:nil];
+  id error= nil;
+  _decodedObject= [[_decoder parseResult:&error] retain];
+  [[error retain] autorelease];
+  DESTROY(_decoder);
+  [self handledWithError:error];
 }
 - (id)msteDecodedObject
 {
@@ -35,30 +37,33 @@
 { return AUTORELEASE([ALLOC(self) init]); }
 - (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
 {
-  [tr setObject:[MSBuffer mutableBuffer] forKey:@"MSHttpMSTEMiddleware_buffer"];
+  [tr setObject:[[MSMSTEDecoder new] autorelease] forKey:@"MSHttpMSTEMiddleware_decoder"];
   [tr setObject:next forKey:@"MSHttpMSTEMiddleware_next"];
   [tr setDelegate:self];
 }
 - (void)onTransaction:(MSHttpTransaction*)tr receiveData:(MSBuffer *)data
 {
-  MSBuffer *b;
-  b= [tr objectForKey:@"MSHttpMSTEMiddleware_buffer"];
-  [b appendBytes:[data bytes] length:[data length]];
+  MSMSTEDecoder *d;
+  d= [tr objectForKey:@"MSHttpMSTEMiddleware_decoder"];
+  [d parseBytes:[data bytes] length:[data length]];
 }
 - (void)onTransactionEnd:(MSHttpTransaction*)tr
 {
-  MSBuffer *b; id <MSHttpNextMiddleware> n;
-  b= [tr objectForKey:@"MSHttpMSTEMiddleware_buffer"];
+  MSMSTEDecoder *d; id <MSHttpNextMiddleware> n; id error= nil;
+  d= [tr objectForKey:@"MSHttpMSTEMiddleware_decoder"];
   n= [tr objectForKey:@"MSHttpMSTEMiddleware_next"];
-  [tr setObject:[b MSTDecodedObject] forKey:@"MSHttpMSTEMiddleware"];
-  printf("%.*s\n", (int)[b length], (char *)[b bytes]);
-  NSLog(@"%@", [tr msteDecodedObject]);
-  [tr removeObjectForKey:@"MSHttpMSTEMiddleware_buffer"];
+  [tr setObject:[d parseResult:&error] forKey:@"MSHttpMSTEMiddleware"];
+  [tr removeObjectForKey:@"MSHttpMSTEMiddleware_decoder"];
   [tr removeObjectForKey:@"MSHttpMSTEMiddleware_next"];
-  [n nextMiddleware];
+  if (error)
+    [tr write:MSHttpCodeBadRequest string:error];
+  else
+    [n nextMiddleware];
 }
 - (void)onTransaction:(MSHttpTransaction *)tr error:(NSString*)err
-{ }
+{ 
+  [tr write:MSHttpCodeBadRequest];
+}
 @end
 
 @implementation MSHttpTransaction (MSHttpMSTEMiddleware)

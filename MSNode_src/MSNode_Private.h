@@ -1,6 +1,9 @@
 #ifndef MSNODE_PRIVATE_H
 #define MSNODE_PRIVATE_H
 
+#ifdef _WIN32
+#include <winsock2.h>
+#endif
 #import <openssl/ssl.h>
 #import <openssl/evp.h>
 #import <openssl/crypto.h>
@@ -14,6 +17,7 @@
 #ifdef __cplusplus
 #import "node.h"
 #import "node_buffer.h"
+#import <vector>
 #endif
 
 #import "MSNode_Public.h"

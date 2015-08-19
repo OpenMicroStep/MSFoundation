@@ -85,7 +85,7 @@
 
 - (BOOL)verify:(NSData *)signature ofMessage:(NSData*)message
 {
-  return [self notImplemented:_cmd] ;
+  [self notImplemented:_cmd]; return NO;
 }
 
 - (NSData *)sign:(NSData *)data

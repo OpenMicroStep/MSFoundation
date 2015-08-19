@@ -32,6 +32,7 @@ typedef BOOL (*MSHttpClientRequestHandler)(MSHttpClientResponse *response, NSStr
   void *_eventFirst, *_eventLast;
   void *_req, *_options, *_headers;
   Class _cls;
+  NSString *_url;
 }
 
 + (instancetype)httpClientRequest:(MSHttpMethod)method url:(NSString *)url;
