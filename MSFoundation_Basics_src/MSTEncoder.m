@@ -194,7 +194,8 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
 - (void)encodeString:(NSString *)s withTokenType:(BOOL)token andDoubleQuotes:(BOOL)doubleQuotes
 {
     if (s) {
-        NSUInteger len = [s length] ;
+        SES ses= SESFromString(s);
+        NSUInteger i;
         if (token) {
             [self _encodeTokenSeparator] ;
             [self _encodeTokenType:MSTE_TOKEN_TYPE_STRING] ;
@@ -205,11 +206,9 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
             CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
         }
       
-        if (len) {
-            NSUInteger i ;
-            
-            for (i=0 ; i<len ; i++) {
-                unichar c = [s characterAtIndex:i] ;
+        if (SESOK(ses)) {
+            for (i= SESStart(ses); i < SESEnd(ses); ) {
+                unichar c = SESIndexN(ses, &i);
                 switch (c) { //Escape some characters
                     case 34 : { // double quote
                         CBufferAppendByte((CBuffer *)_content, (MSByte)'\\') ;
@@ -282,7 +281,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
 {
   if (token) {
     [self _encodeTokenSeparator] ;
-    [self _encodeTokenType:MSTE_TOKEN_TYPE_DECIMAL_VALUE] ;}
+    [self _encodeTokenType:tokenType] ;}
   [self _encodeTokenSeparator] ;
 }
 
@@ -759,7 +758,7 @@ static NSNumber *__aBool = nil ;
 {
   char type = *[self objCType] ;
   if (type == 'c') {
-    if(!__aBool) __aBool = [NSNumber numberWithBool:YES] ;
+    if(!__aBool) __aBool = [[NSNumber numberWithBool:YES] retain];
     if([self isKindOfClass:[__aBool class]]) {
       if ([self isTrue]) return MSTE_TOKEN_TYPE_TRUE ;
       else return MSTE_TOKEN_TYPE_FALSE ;
