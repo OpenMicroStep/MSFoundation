@@ -84,6 +84,7 @@
 #import "MSTEncoder.h"
 
 #import "MSStringParsing.h"
+#import "MSMSTEDecoder.h"
 
 #define FMT(ARGS...) [MSString stringWithFormat: ARGS]
 

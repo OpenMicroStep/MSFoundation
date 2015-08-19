@@ -61,8 +61,8 @@ CDictionaryElementType;
 typedef struct CDictionaryFlagsStruct {
   MSUInt keyType:2;
   MSUInt objType:2;
-  MSUInt :22;
-  MSUInt _reserved:6;}
+  MSUInt :20;
+  MSUInt _reserved:8;}
 CDictionaryFlags;
 
 struct CDictionaryStruct {

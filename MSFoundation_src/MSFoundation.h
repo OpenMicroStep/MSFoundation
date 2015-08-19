@@ -102,6 +102,7 @@
 #import <MSFoundation/MSTEncoder.h>
 
 #import <MSFoundation/MSStringParsing.h>
+#import <MSFoundation/MSMSTEDecoder.h>
 
 #define FMT(ARGS...)  [MSString stringWithFormat: ARGS]
 

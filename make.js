@@ -284,6 +284,8 @@ module.exports = {
         {file: "MSFoundation_src/MSDictionary.m"},
         {file: "MSFoundation_src/MSFoundationPlatform.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSFoundationPlatform.m"},
+        {file: "MSFoundation_src/MSMSTEDecoder.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSMSTEDecoder.m"},
         {file: "MSFoundation_src/MSString.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSString.m"},
         {file: "MSFoundation_src/MSStringBooleanAdditions_Private.i"},

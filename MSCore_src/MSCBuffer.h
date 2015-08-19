@@ -47,8 +47,8 @@
 
 typedef struct CBufferFlagsStruct {
   MSUInt noFree:1;
-  MSUInt :25;
-  MSUInt _reserved:6;}
+  MSUInt :23;
+  MSUInt _reserved:8;}
 CBufferFlags;
 
 typedef struct CBufferStruct {

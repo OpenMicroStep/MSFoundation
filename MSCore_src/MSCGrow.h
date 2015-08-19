@@ -52,8 +52,8 @@
 
 // On veut que la structure à 0 soit le default (mutable).
 typedef struct CGrowFlagsStruct {
-  MSUInt :26;
-  MSUInt elementBytes:4; // jusqu'à 16 octets
+  MSUInt :24;
+  MSUInt elementBytes:6; // jusqu'à 63 octets
   MSUInt foreverImmutable:1;
   MSUInt foreverMutable:1;
   }

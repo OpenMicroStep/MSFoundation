@@ -126,6 +126,10 @@ MSUShort MSBytesSmallCRC(const void *bytes, NSUInteger length)
   return crc;
 }
 
+MSUInt _MSBytesLargeCRCAppend(MSUInt crc, MSByte b)
+{
+  return ((crc >> 8) & 0x00ffffff) ^ __MSCRCTable32[(crc ^ b) & 0xff];
+}
 MSUInt MSBytesLargeCRC(const void *bytes, NSUInteger length)
 {
   MSUInt crc= 0XFFFFFFFF;

@@ -52,8 +52,8 @@
 typedef struct CArrayFlagsStruct {
   MSUInt nilItems:1;
   MSUInt noRetainRelease:1;
-  MSUInt :24;
-  MSUInt _reserved:6;}
+  MSUInt :22;
+  MSUInt _reserved:8;}
 CArrayFlags;
 
 struct CArrayStruct {
