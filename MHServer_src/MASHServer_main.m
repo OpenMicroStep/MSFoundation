@@ -66,7 +66,7 @@ int main(int argc, const char * argv[])
   if (argc > 1) {
     parametersPath = [NSString stringWithUTF8String:argv[1]];}
   else {
-    fprintf(stderr, "Configuration path is expected at the first argument\n"); }
+    NSLog(@"Configuration path is expected at the first argument"); }
   if (parametersPath) {
     parameters= [NSDictionary dictionaryWithContentsOfFile:parametersPath];}
   if (parameters) {
@@ -76,7 +76,7 @@ int main(int argc, const char * argv[])
     ret= MSNodeStart(MASHServerInit, d);
     RELEASE(apps);}
   else {
-    fprintf(stderr, "Unable to load configuration at path: %s\n", argv[1]); }
+    NSLog(@"Unable to load configuration at path: %s", argv[1]); }
   KILL_POOL;
   return ret;
 }
