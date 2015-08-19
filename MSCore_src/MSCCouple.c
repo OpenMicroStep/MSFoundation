@@ -80,7 +80,7 @@ id CCoupleCopy(id self)
 CArray* CCreateArrayOfCoupleSubs(id self, mutable CDictionary *ctx)
 {
   CArray *a;
-  CCreateArray(2);
+  a= CCreateArray(2);
   if (((CCouple*)self)->members[0]) CArrayAddObject(a, ((CCouple*)self)->members[0]);
   if (((CCouple*)self)->members[1]) CArrayAddObject(a, ((CCouple*)self)->members[1]);
   return a;
