@@ -49,10 +49,9 @@ MS_DECLARE_THREAD_LOCAL(__topExceptionFrame, NULL)
   NSExceptionFrame *top= tss_get(__topExceptionFrame);
   if (top) {
     top->exception= self;
-    longjmp(top->state, 1);
-  }
+    longjmp(top->state, 1);}
   else {
-    @throw self;}
+    abort();}
 #else
   @throw self;
 #endif
