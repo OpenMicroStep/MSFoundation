@@ -8,7 +8,9 @@
 #define O_CREAT  _O_CREAT
 #define O_RDONLY _O_RDONLY
 #define O_WRONLY _O_WRONLY
+#define O_TRUNC  _O_TRUNC
 #define O_RDWR   _O_RDWR
+#define S_IFDIR  _S_IFDIR
 #endif
 #import "MSFoundation_Public.h"
 #import "uv.h"

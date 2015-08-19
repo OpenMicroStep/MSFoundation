@@ -48,7 +48,7 @@ static BOOL _createDirectoryAtPath(const char *cpath, NSDictionary *attributes)
   uv_fs_t req; BOOL ret;
   ret= uv_fs_mkdir(uv_default_loop(), &req, cpath, 0777, NULL) == 0;
   uv_fs_req_cleanup(&req);
-  printf("mkdir %s %d\n", cpath, (int)ret);
+  //printf("mkdir %s %d\n", cpath, (int)ret);
   if (attributes) {
     NSDate *d; NSNumber *n1, *n2; uv_fs_t sreq;
     uv_fs_stat(uv_default_loop(), &sreq, cpath, NULL);
@@ -105,7 +105,7 @@ static inline BOOL _isPathSeparator(MSByte c)
 - (BOOL)createFileAtPath:(NSString *)path contents:(NSData *)contents attributes:(NSDictionary *)attributes
 {
   uv_fs_t req; BOOL ret; int fd; const char *cpath= [path UTF8String];
-  fd= uv_fs_open(uv_default_loop(), &req, cpath, O_WRONLY | O_CREAT, 0777, NULL);
+  fd= uv_fs_open(uv_default_loop(), &req, cpath, O_WRONLY | O_CREAT | O_TRUNC, 0777, NULL);
   ret= fd > 0;
   uv_fs_req_cleanup(&req);
   if (ret) {
@@ -199,7 +199,7 @@ static inline BOOL _fsaccess(NSString *path, int mode)
   uv_fs_t statreq, req; BOOL ret; const char *utf8Path= [path UTF8String];
   ret= uv_fs_stat(uv_default_loop(), &statreq, utf8Path, NULL) == 0;
   if (ret) {
-    if (S_ISDIR(statreq.statbuf.st_mode)) {
+    if (statreq.statbuf.st_mode & S_IFDIR) {
       NSString *subPath;
       NSDirectoryEnumerator *e= [ALLOC(NSDirectoryEnumerator) _initWithPath:path];
       [e skipDescendents];
@@ -209,11 +209,11 @@ static inline BOOL _fsaccess(NSString *path, int mode)
       if (ret) {
         ret= ret && uv_fs_rmdir(uv_default_loop(), &req, utf8Path, NULL) == 0;
         uv_fs_req_cleanup(&req);
-        printf("rmdir %s %d\n", utf8Path, (int)ret);}}
+        /*printf("rmdir %s %d\n", utf8Path, (int)ret);*/}}
     else {
       ret= uv_fs_unlink(uv_default_loop(), &req, utf8Path, NULL) == 0;
       uv_fs_req_cleanup(&req);
-      printf("unlink %s %d\n", utf8Path, (int)ret);}
+      /*printf("unlink %s %d\n", utf8Path, (int)ret);*/}
   }
   uv_fs_req_cleanup(&statreq);
   return ret;
