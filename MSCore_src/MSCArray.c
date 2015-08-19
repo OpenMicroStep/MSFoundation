@@ -276,7 +276,7 @@ void CArrayDescribe(id self, id result, int level, mutable CDictionary *ctx)
   CStringAppendCharacter(s, '(');
   e= GMakeArrayEnumerator(fs, array, 0, (n= GARRAY_COUNT(fs, array)));
   for (i= 0; i < n; i++) {
-    if (i>0) CStringAppendFormat(s, ", ");
+    if (i>0) CStringAppendLiteral(s, ", ");
     CDescribe(GARRAY_OAI(fs, array, i), result, level+1, ctx);}
   CStringAppendCharacter(s, ')');
 }

@@ -329,10 +329,10 @@ void CDictionaryDescribe(id self, id result, int level, mutable CDictionary *ctx
   e= GDICT_ENUM(fs, dict, de);  kstop= GDICT_STOPKEY(fs,dict);
   while ((k= GDICT_NEXTKEY(fs, e))!=kstop) {
     CStringAppendCharacter(s, '\n');
-    for (i= 0; i<=level; i++) CStringAppendFormat(s,"  ");
+    for (i= 0; i<=level; i++) CStringAppendLiteral(s,"  ");
     // TODO: Si k not an obj, ne pas utiliser description !
     CDescribe(k, result, level+1, ctx);
-    CStringAppendFormat(s,": ");
+    CStringAppendLiteral(s,": ");
     // TODO: Si o not an obj, ne pas utiliser description !
     CDescribe(GDICT_OFK(fs, e, dict, k), result, level+1, ctx);
     CStringAppendCharacter(s, ';');}
