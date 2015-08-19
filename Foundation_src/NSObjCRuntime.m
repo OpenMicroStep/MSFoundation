@@ -10,8 +10,13 @@ void NSLog(NSString *format,...)
 void NSLogv(NSString *format,va_list args)
 {
   CString *s= CCreateString(0);
+  CDate *d= CCreateDateNow();
+  CStringAppendCDateDescription(s, d);
+  RELEASE(d);
+  CStringAppendCharacter(s, ' ');
   CStringAppendFormatv(s, [format UTF8String], args);
-  printf("%s\n", [(id)s UTF8String]);
+  fprintf(stderr, "%s\n", [(id)s UTF8String]);
+  fflush(stderr);
   RELEASE((id)s);
 }
 
