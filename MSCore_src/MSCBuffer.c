@@ -172,6 +172,7 @@ CBuffer* CCreateUTF8BufferWithObjectDescription(id o)
   s= CCreateString(0);
   CStringAppendFormat(s, "%@", o);
   b= CCreateBufferWithString(s, NSUTF8StringEncoding);
+  RELEASE(s);
   return b;
 }
 
