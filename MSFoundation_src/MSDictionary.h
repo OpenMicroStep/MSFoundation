@@ -135,6 +135,7 @@
 
 - (MSArray*)allKeys;
 - (MSArray*)allObjects;
+- (NSArray*)allValues;
 
 //- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict; // ???
 

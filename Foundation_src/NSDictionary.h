@@ -1,5 +1,5 @@
 
-@interface NSDictionary : NSObject
+@interface NSDictionary : NSObject <NSCopying, NSMutableCopying>
 - (NSUInteger)count;
 - (id)objectForKey:(id)aKey;
 - (NSEnumerator*)keyEnumerator;
@@ -8,7 +8,8 @@
 @interface NSDictionary (NSGenericDictionary)
 
 - (BOOL)isEqualToDictionary:(NSDictionary*)otherDict;
-
+- (NSArray*)allKeys;
+- (NSArray*)allValues;
 @end
 
 @interface NSDictionary (NSDictionaryCreation)
@@ -34,6 +35,7 @@
 - (void)removeObjectForKey:(id)aKey;
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
 
+- (void)removeAllObjects;
 @end
 
 @interface NSMutableDictionary (NSMutableDictionaryCreation)

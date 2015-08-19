@@ -246,6 +246,10 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 {
   return AUTORELEASE((id)CCreateArrayOfDictionaryObjects((CDictionary*)self));
 }
+- (NSArray*)allValues
+{
+  return AUTORELEASE((id)CCreateArrayOfDictionaryObjects((CDictionary*)self));
+}
 
 
 #pragma mark Global methods
@@ -315,6 +319,11 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
   while((o= [e nextObject])) {
     [self removeObjectForKey:o];
   }
+}
+
+- (void)removeAllObjects
+{
+  [self removeObjectsForKeys:[self allKeys]];
 }
 
 - (void)setObject:(id)o forKey:(id <NSCopying>)k
