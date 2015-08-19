@@ -1,0 +1,15 @@
+{
+  baseURL = "/repository" ;
+  database = {
+    adaptor = "MSSQLCipherAdaptor" ;
+    path = "plaintext.db";
+    //key = "DitXZjDynpPTAfogi3Y4" ;
+  };
+  servers= (
+    {
+      cert = "../certs/server-repository-crt.pem";
+      key = "../certs/server-repository.pem";
+      port = "8950"; 
+    }
+  );
+}
