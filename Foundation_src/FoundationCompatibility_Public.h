@@ -11,7 +11,6 @@
 
 // Protocols
 #import "NSCoding.h"
-#import "NSCopying.h"
 
 // Base classes
 #import "NSString.h"

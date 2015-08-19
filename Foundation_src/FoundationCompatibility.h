@@ -8,7 +8,6 @@
 
 // Protocols
 #import <MSFoundation/NSCoding.h>
-#import <MSFoundation/NSCopying.h>
 
 // Base classes
 #import <MSFoundation/NSString.h>

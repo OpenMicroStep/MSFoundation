@@ -1,5 +1,13 @@
 @class NSString, NSMethodSignature, NSInvocation, NSZone;
 
+@protocol NSCopying
+- (id)copyWithZone:(NSZone *)zone;
+@end
+
+@protocol NSMutableCopying
+- (id)mutableCopyWithZone:(NSZone *)zone;
+@end
+
 @protocol NSObject
 
 - (BOOL)isEqual:(id)object;
@@ -27,6 +35,7 @@
 - (NSString *)debugDescription;
 
 - (BOOL)isProxy;
+- (NSZone *)zone;
 
 @end
 
