@@ -246,6 +246,7 @@ module.exports = {
       {group:"Tests", files: [
         {file: "Foundation_tst/foundation_nsarray_validate.m"},
         {file: "Foundation_tst/foundation_nsdata_validate.m"},
+        {file: "Foundation_tst/foundation_nsdate_validate.m"},
         {file: "Foundation_tst/foundation_nsdictionary_validate.m"},
         {file: "Foundation_tst/foundation_nsnull_validate.m"},
         {file: "Foundation_tst/foundation_nsstring_validate.m"},

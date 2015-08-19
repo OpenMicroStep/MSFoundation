@@ -7,6 +7,7 @@ test_t FoundationTests[]= {
   {"NSAutoreleasePool",foundation_pool      ,NULL,INTITIALIZE_TEST_T_END},
   {"NSArray"          ,foundation_array     ,NULL,INTITIALIZE_TEST_T_END},
   {"NSData"           ,foundation_data      ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSDictionary"     ,foundation_dictionary,NULL,INTITIALIZE_TEST_T_END},
-  {"MSString"         ,foundation_string    ,NULL,INTITIALIZE_TEST_T_END},
+  {"NSDate"           ,foundation_date      ,NULL,INTITIALIZE_TEST_T_END},
+  {"NSDictionary"     ,foundation_dictionary,NULL,INTITIALIZE_TEST_T_END},
+  {"NSString"         ,foundation_string    ,NULL,INTITIALIZE_TEST_T_END},
   {NULL}};

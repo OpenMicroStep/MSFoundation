@@ -1,4 +1,6 @@
 
+#define NSTimeIntervalSince1970  978307200.0
+
 @interface NSDate : NSObject
 
 - (NSTimeInterval)timeIntervalSince1970;
@@ -17,8 +19,8 @@
 + (instancetype)dateWithTimeIntervalSince1970:(NSTimeInterval)secs;
 + (instancetype)dateWithTimeInterval:(NSTimeInterval)secsToBeAdded sinceDate:(NSDate *)date;
 
-+ (id /* NSDate * */)distantFuture;
-+ (id /* NSDate * */)distantPast;
++ (id /* NSDate* */)distantFuture;
++ (id /* NSDate* */)distantPast;
 
 - (instancetype)initWithTimeIntervalSinceNow:(NSTimeInterval)secs;
 - (instancetype)initWithTimeIntervalSince1970:(NSTimeInterval)secs;
@@ -28,6 +30,13 @@
 
 @interface NSDate (NSDateExtendedMethods)
 
+- (NSTimeInterval)timeIntervalSinceNow;
 - (NSTimeInterval)timeIntervalSinceDate:(NSDate *)anotherDate;
 
+- (instancetype)dateByAddingTimeInterval:(NSTimeInterval)seconds;
+
+- (NSComparisonResult)compare:(NSDate *)anotherDate;
+- (BOOL)isEqualToDate:(NSDate *)anotherDate;
+- (NSDate *)earlierDate:(NSDate *)anotherDate;
+- (NSDate *)laterDate:(NSDate *)anotherDate;
 @end

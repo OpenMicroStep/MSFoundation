@@ -30,20 +30,30 @@
   __TASSERT(W, [__a S __b] , "["#A" "#S" "#B"]", MSG, __a, __b); })
 
 #define TASSERT_EQUALS(    W, A, B, MSG...) TASSERT_OP(W, A, == ,B, MSG)
-
 #define TASSERT_ISEQUAL(   W, A, B, MSG...) TASSERT_F(W,  ISEQUAL, A, B, MSG)
 #define TASSERT_ISNOTEQUAL(W, A, B, MSG...) TASSERT_F(W, !ISEQUAL, A, B, MSG)
 
+#define TASSERT_OP_STR(W, A, OP, B) TASSERT_OP(W, A, OP ,B, "!(%s "#OP" %s)")
+#define TASSERT_OP_PTR(W, A, OP, B) TASSERT_OP(W, A, OP ,B, "!(%p "#OP" %p)")
+#define TASSERT_OP_LLD(W, A, OP, B) TASSERT_OP(W, A, OP ,B, "!(%lld "#OP" %lld)", (long long)__a, (long long)__b)
+#define TASSERT_OP_LLU(W, A, OP, B) TASSERT_OP(W, A, OP ,B, "!(%llu "#OP" %llu)", (unsigned long long)__a, (unsigned long long)__b)
+#define TASSERT_OP_OBJ(W, A, OP, B) TASSERT_OP(W, A, OP, B, "!(%s "#OP" %s)", [[__a description] UTF8String],[[__b description] UTF8String])
 #define TASSERT_EQUALS_STR(   W, A, B) TASSERT_OP(W, A, == ,B, "%s != %s")
 #define TASSERT_EQUALS_PTR(   W, A, B) TASSERT_OP(W, A, == ,B, "%p != %p")
+#define TASSERT_EQUALS_DBL(   W, A, B) TASSERT_OP(W, A, == ,B, "%f != %f", (double)__a, (double)__b)
 #define TASSERT_EQUALS_LLD(   W, A, B) TASSERT_OP(W, A, == ,B, "%lld != %lld", (long long)__a, (long long)__b)
 #define TASSERT_EQUALS_LLU(   W, A, B) TASSERT_OP(W, A, == ,B, "%llu != %llu", (unsigned long long)__a, (unsigned long long)__b)
-#define TASSERT_EQUALS_OBJ(   W, A, B) TASSERT_F( W, ISEQUAL,A,B, "%s != %s",[[__a description] UTF8String],[[__b description] UTF8String])
+#define TASSERT_EQUALS_OBJ(   W, A, B) TASSERT_F( W, ISEQUAL,A,B, "[%s isEqual:%s]",[[__a description] UTF8String],[[__b description] UTF8String])
 #define TASSERT_NOTEQUALS_STR(W, A, B) TASSERT_OP(W, A, != ,B, "%s == %s")
 #define TASSERT_NOTEQUALS_PTR(W, A, B) TASSERT_OP(W, A, != ,B, "%p == %p")
+#define TASSERT_NOTEQUALS_DBL(W, A, B) TASSERT_OP(W, A, != ,B, "%f == %f", (double)__a, (double)__b)
 #define TASSERT_NOTEQUALS_LLD(W, A, B) TASSERT_OP(W, A, != ,B, "%lld == %lld", (long long)__a, (long long)__b)
 #define TASSERT_NOTEQUALS_LLU(W, A, B) TASSERT_OP(W, A, != ,B, "%llu == %llu", (unsigned long long)__a, (unsigned long long)__b)
-#define TASSERT_NOTEQUALS_OBJ(W, A, B) TASSERT_F( W,!ISEQUAL,A,B, "%s == %s",[[__a description] UTF8String],[[__b description] UTF8String])
+#define TASSERT_NOTEQUALS_OBJ(W, A, B) TASSERT_F( W,!ISEQUAL,A,B, "![%s isEqual:%s]",[[__a description] UTF8String],[[__b description] UTF8String])
+#define TASSERT_NEAR_DBL(     W, A, B, L) ({ double __a= (A); double __b= (B); double __d= __a - __b; \
+  __TASSERT(W, -L < __d && __d < L, #A" ~= "#B, "!(%f ~= %f), diff=abs(%f) > %f", __a, __b, __d, (double)L); })
+#define TASSERT_NOTNEAR_DBL(  W, A, B, L) ({ double __a= (A); double __b= (B); double __d= __a - __b; \
+  __TASSERT(W, __d > L || __d < -L, #A" !~= "#B, "%f ~= %f, diff=abs(%f) < %f", __a, __b, __d, (double)L); })
 
 typedef struct struct_test test_t;
 struct struct_test {
