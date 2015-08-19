@@ -29,6 +29,7 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(cStringUsingEncoding:allowLossyConversion:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(dataUsingEncoding:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(dataUsingEncoding:allowLossyConversion:));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(UTF8String));
     
     // Search
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(rangeOfString:));
@@ -89,6 +90,14 @@
   if (object == self) return YES;
   return [object isKindOfClass:[NSString class]] && [self isEqualToString:object];
 }
+-(id)copyWithZone:(NSZone *)zone
+{
+  return [self retain];
+}
+-(id)mutableCopyWithZone:(NSZone *)zone
+{
+  return [ALLOC(NSMutableString) initWithString:self];
+}
 - (const unichar *)UTF16String
 {
   const static unichar end= 0;
@@ -132,5 +141,8 @@
 {
   return (aClass == [NSMutableString class]) || [super isKindOfClass:aClass];
 }
-
+-(id)copyWithZone:(NSZone *)zone
+{
+  return [ALLOC(NSString) initWithString:self];
+}
 @end

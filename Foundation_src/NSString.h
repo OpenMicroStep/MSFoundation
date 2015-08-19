@@ -69,6 +69,7 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag;
 - (NSData *)dataUsingEncoding:(NSStringEncoding)encoding;
 - (NSData *)dataUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag;
+- (const char *)UTF8String;
 - (const unichar *)UTF16String;
 @end
 
@@ -112,6 +113,12 @@ typedef NS_OPTIONS(NSUInteger, NSStringCompareOptions) {
 @end
 
 @interface NSMutableString : NSString
+- (void)replaceCharactersInRange:(NSRange)range withString:(NSString *)aString;
+- (void)insertString:(NSString *)aString atIndex:(NSUInteger)loc;
+- (void)deleteCharactersInRange:(NSRange)range;
+- (void)appendString:(NSString *)aString;
+- (void)appendFormat:(NSString *)format, ... NS_FORMAT_FUNCTION(1,2);
+- (void)setString:(NSString *)aString;
 @end
 
 @interface NSConstantString : NSString

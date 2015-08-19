@@ -1037,20 +1037,24 @@ static inline NSUInteger SESForwardN(SES ses, NSUInteger idx, NSUInteger amount)
 - (void)getLineStart:(NSUInteger *)startIndex end:(NSUInteger *)lineEndIndex contentsEnd:(NSUInteger *)contentsEndIndex forRange:(NSRange)aRange
 {
   SES ses; NSUInteger s, si, ci, ei, e;
+  NSUInteger rsi, rci, rei;
   ses= SESFromString(self);
   s= SESStart(ses); e= SESEnd(ses);
-  si= SESForwardN(ses, s, aRange.location);
+  rsi= aRange.location;
+  rci= rsi + aRange.length;
+  si= SESForwardN(ses, s, rsi);
   ci= SESForwardN(ses, si, aRange.length);
   while (s < si && !CUnicharIsEOL(SESIndexP(ses, &si)))
-      ; // move si backward until EOL is reached
+      --rsi; // move si backward until EOL is reached
   while (ci < e && !CUnicharIsEOL(SESIndexN(ses, &ci)))
-      ; // move ci forward until EOL is reached
+      ++rci; // move ci forward until EOL is reached
   ei= ci;
+  rei= rci + 1;
   while (ei < e && CUnicharIsEOL(SESIndexN(ses, &ei)))
-      ; // move ei forward until EOL is over
-  if (startIndex)       *startIndex= si;
-  if (lineEndIndex)     *lineEndIndex= ei;
-  if (contentsEndIndex) *contentsEndIndex= ci;
+      ++rei; // move ei forward until EOL is over
+  if (startIndex)       *startIndex= rsi;
+  if (contentsEndIndex) *contentsEndIndex= rci;
+  if (lineEndIndex)     *lineEndIndex= rei;
 }
 - (NSRange)lineRangeForRange:(NSRange)aRange
 {
@@ -1270,7 +1274,7 @@ static inline BOOL _isPathSeparator(unichar u)
 
 static inline CString *_stringByAppendingPathComponent(NSString *self, NSString *aString)
 {
-  CString *ret; SES ses, ses2; NSUInteger i, i2;
+  CString *ret; SES ses, ses2; NSUInteger i, i2; unichar c= 0;
   ret= CCreateStringWithSES(SESFromString(self));
   i= CStringLength(ret);
   ses2= SESFromString(aString);
@@ -1282,9 +1286,10 @@ static inline CString *_stringByAppendingPathComponent(NSString *self, NSString 
     CStringReplaceInRangeWithSES(ret, NSMakeRange(i, ret->length - i), MSMakeSESWithBytes("/", 1, NSUTF8StringEncoding));}
   if (SESOK(ses2)) {
     i2= SESStart(ses2);
-    while (i2 < SESEnd(ses2) && _isPathSeparator(SESIndexN(ses2, &i2)))
+    while (i2 < SESEnd(ses2) && _isPathSeparator(c= SESIndexN(ses2, &i2)))
       ;
-    SESIndexP(ses2, &i2);
+    if (!_isPathSeparator(c))
+      SESIndexP(ses2, &i2);
     ses2.length-= i2 - ses2.start;
     ses2.start= i2;
     CStringAppendSES(ret, ses2);}
