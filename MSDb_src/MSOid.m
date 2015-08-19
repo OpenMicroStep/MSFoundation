@@ -120,7 +120,7 @@ MSString *MSCarStringLib,*MSCarIntLib,*MSCarBoolLib,
     MSCarResetPasswordLib=      MSCreateString("must change password");
     MSCarPublicKeyLib=          MSCreateString("public key");
     MSCarPrivateKeyLib=         MSCreateString("private key");
-    MSCarCipheredPrivateKeyLib= MSCreateString("ciphered private key ");
+    MSCarCipheredPrivateKeyLib= MSCreateString("ciphered private key");
     MSCarStringLib=             MSCreateString("string");
     MSCarIntLib=                MSCreateString("int");
     MSCarBoolLib=               MSCreateString("bool");
