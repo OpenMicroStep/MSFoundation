@@ -439,7 +439,7 @@ int RAND_poll(void)
                 hlist.dwSize = sizeof(HEAPLIST32);
                 if (good)
                     starttime = GetTickCount();
-#  ifdef _MSC_VER
+#  if defined(_MSC_VER) && !defined(__clang__)
                 if (heaplist_first(handle, &hlist)) {
                     /*
                      * following discussion on dev ML, exception on WinCE (or

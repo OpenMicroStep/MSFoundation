@@ -5,17 +5,20 @@ module.exports = {
       compiler: "clang"
     },
 
-    "openssl-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openssl-base"},
-    "openssl-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openssl-base"},
-    "openssl-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openssl-base"},
-    "openssl-i386-linux"       :{"arch": "i386"       , "sysroot-api": "linux"    , "parent": "openssl-base"},
-    "openssl-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openssl-base"},
-    "openssl-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openssl-base"}, /* openssl win32 asm require non cross platform compiler masm */
-    "openssl-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openssl-base"}, /* openssl win32 asm require non cross platform compiler masm */
+    "openssl-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "asm": true, "parent": "openssl-base"},
+    "openssl-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "asm": true, "parent": "openssl-base"},
+    "openssl-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "asm": true, "parent": "openssl-base"},
+    "openssl-i386-linux"       :{"arch": "i386"       , "sysroot-api": "linux"    , "asm": true, "parent": "openssl-base"},
+    "openssl-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "asm": true, "parent": "openssl-base"},
+    "openssl-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "asm":false, "parent": "openssl-base"},
+    "openssl-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "asm":false, "parent": "openssl-base"},
+    "openssl-i386-msvc"        :{"arch": "i386"       , "sysroot-api": "msvc"     , "asm": true, "parent": "openssl-base"},
+    "openssl-x86_64-msvc"      :{"arch": "x86_64"     , "sysroot-api": "msvc"     , "asm": true, "parent": "openssl-base"},
     "openssl": [
       "openssl-i386-darwin"   , "openssl-x86_64-darwin", //"openssl-univ-darwin",
       /*"openssl-i386-linux"    ,*/ "openssl-x86_64-linux",
       "openssl-i386-mingw-w64", "openssl-x86_64-mingw-w64",
+      "openssl-i386-msvc", "openssl-x86_64-msvc",
     ]
   },
   files: [
@@ -875,7 +878,10 @@ module.exports = {
         {file:'openssl/engines/e_nuron.c'},
         {file:'openssl/engines/e_sureware.c'},
         {file:'openssl/engines/e_ubsec.c'},
-      ]}
+      ]},
+      {group:'def', files:[
+        {file:'openssl/ms/openssl.def', tags: ['def']},
+      ]},
     ]},
     {group:"openssl-cli", files:[
       {file:'openssl/apps/app_rand.c'},
@@ -961,8 +967,9 @@ module.exports = {
             target.addWorkspaceFiles(['openssl?asm-i386-elf']);
           else if (target.platform == "darwin")
             target.addWorkspaceFiles(['openssl?asm-i386-mac']);
-          else if(target.platform == "win32")
+          else if(target.platform == "win32") {
             target.addWorkspaceFiles(['openssl?asm-win32']);
+          }
         }
         else if(arch == "x86_64" && target.env.asm) {
           target.addDefines(asmDefines);
@@ -986,7 +993,9 @@ module.exports = {
 
         if(target.platform == "win32") {
           target.addDefines(["DSO_WIN32", "MK1MF_BUILD", "WIN32_LEAN_AND_MEAN", "OPENSSL_SYSNAME_WIN32"]);
-          target.addLibraries(["-lgdi32", "-luser32", "-lws2_32", "-lcrypt32"])
+          target.addLibraries(["-lgdi32", "-luser32", "-lws2_32", "-lcrypt32"]);
+          if (target.sysroot.api === "msvc")
+            target.addLibraries(["Advapi32.lib"]);
         }
         else {
           target.addDefines(["DSO_DLFCN", "HAVE_DLFCN_H"]);
@@ -997,6 +1006,14 @@ module.exports = {
         if(target.platform == "linux") {
           target.addLibraries(["-ldl"]);
         }
+        if(target.sysroot.api === "msvc") {
+          target.addTaskModifier("LinkMSVC", function(target, task) {
+            task.addDefs(target.workspace.resolveFiles(["openssl.def?def"]));
+          });
+        }
+        target.addTaskModifier('CompileMasm', function(target, task) {
+          task.addFlags(['/Zi','/safeseh']);
+        });
       },
       exports:{
         configure:function(other_target, target) {
