@@ -404,7 +404,6 @@ static void string_combine(test_t *test)
   TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:5 withString:@"." startingAtIndex:0], @"ab...");
   TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:0], @"ab.,:.");
   TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:2], @"ab:.,:");
-  TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:3], @"ab.,:.");
   KILL_POOL;
 }
 
