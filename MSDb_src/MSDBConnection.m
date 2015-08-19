@@ -373,13 +373,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
     [query appendFormat:@"%@ = ?", [columns objectAtIndex:0]];
     for (i= 1; i < count; ++i) {
         [query appendFormat:@", %@ = ?", [columns objectAtIndex:i]];
-        
-        return [self statementWithRequest:query];
     }
-    while ((count--) > 1)
-        [query appendFormat:@"%@ = ?, ", [columns objectAtIndex:count]];
-    if((count--) > 0)
-        [query appendFormat:@"%@ = ?", [columns objectAtIndex:count]];
     if(where)
         [query appendFormat:@" WHERE %@", where];
     return [self statementWithRequest:query];
