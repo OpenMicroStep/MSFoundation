@@ -69,21 +69,36 @@
 	push  %ecx                           # _cmd
 	push  %eax                           # &self
 	.cfi_def_cfa_offset 12
-	call  slowMsgLookup@PLT
+	calll _slowMsgLookup
 	add   $8, %esp                       # restore the stack
 
 
 	jmp   *%eax
 6:                                       # smallObject:
-	push  %ebx                           # Save old %ebx
-	calll 7f
+	pushl	%ebp
+#if defined(__MACH__)
+	movl	%esp, %ebp
+	calll	7f
 7:
-	popl  %ebx;
+	popl	%eax
+	movl	L_SmallObjectClasses$non_lazy_ptr-7b(%eax), %eax
+	movl	(%eax), %eax
+#elif defined(__ELF__)
+	movl	%esp, %ebp
+	calll	8f
 8:
-	addl  $_GLOBAL_OFFSET_TABLE_+(8b-7b), %ebx
-	leal  SmallObjectClasses@GOTOFF(%ebx), %eax
-	mov   (%eax), %eax
-	popl  %ebx
+	popl	%eax
+9:
+	addl	$_GLOBAL_OFFSET_TABLE_+(9b-8b), %eax
+	movl	SmallObjectClasses@GOT(%eax), %eax
+	movl	(%eax), %eax                  # eax = *SmallObjectClasses
+#elif defined(_WIN32)
+	movl	%esp, %ebp
+	movl	_SmallObjectClasses, %eax     # eax = *SmallObjectClasses
+#else
+#warning eax= *SmallObjectClasses not implemented for your architecture
+#endif
+	popl	%ebp
 	jmp   1b 
 	.cfi_endproc
 .endm
@@ -99,3 +114,16 @@ CDECL(objc_msgSend):
 TYPE_DIRECTIVE(CDECL(objc_msgSend_stret), @function)
 CDECL(objc_msgSend_stret):
 	MSGSEND 8, 12, 0
+
+#if defined(__MACH__)
+	.section	__IMPORT,__pointers,non_lazy_symbol_pointers
+L_SmallObjectClasses$non_lazy_ptr:
+	.indirect_symbol	_SmallObjectClasses
+	.long	0
+#endif
+
+#if defined(_WIN32)
+	.section	.drectve,"r"
+	.ascii	 " -export:objc_msgSend_fpret -export:objc_msgSend -export:objc_msgSend_stret"
+#endif
+

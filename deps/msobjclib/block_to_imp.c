@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/mman.h>
+#include "mman.h"
 #include "objc/runtime.h"
 #include "objc/blocks_runtime.h"
 #include "blocks_runtime.h"
@@ -99,10 +99,10 @@ static struct wx_buffer alloc_buffer(size_t size)
 	return b;
 }
 
-extern void __objc_block_trampoline;
-extern void __objc_block_trampoline_end;
-extern void __objc_block_trampoline_sret;
-extern void __objc_block_trampoline_end_sret;
+extern void *__objc_block_trampoline;
+extern void *__objc_block_trampoline_end;
+extern void *__objc_block_trampoline_sret;
+extern void *__objc_block_trampoline_end_sret;
 
 IMP imp_implementationWithBlock(void *block)
 {

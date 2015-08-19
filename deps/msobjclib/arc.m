@@ -16,9 +16,9 @@
 pthread_key_t ARCThreadKey;
 #endif
 
-extern void _NSConcreteMallocBlock;
-extern void _NSConcreteStackBlock;
-extern void _NSConcreteGlobalBlock;
+extern void *_NSConcreteMallocBlock;
+extern void *_NSConcreteStackBlock;
+extern void *_NSConcreteGlobalBlock;
 
 @interface NSAutoreleasePool
 + (Class)class;
@@ -191,13 +191,13 @@ static inline void release(id obj)
 {
 	if (isSmallObject(obj)) { return; }
 	Class cls = obj->isa;
-	if (cls == &_NSConcreteMallocBlock)
+	if (cls == (Class)&_NSConcreteMallocBlock)
 	{
 		_Block_release(obj);
 		return;
 	}
-	if ((cls == &_NSConcreteStackBlock) ||
-	    (cls == &_NSConcreteGlobalBlock))
+	if ((cls == (Class)&_NSConcreteStackBlock) ||
+	    (cls == (Class)&_NSConcreteGlobalBlock))
 	{
 		return;
 	}
@@ -475,9 +475,9 @@ typedef struct objc_weak_ref
 } WeakRef;
 
 
-static int weak_ref_compare(const id obj, const WeakRef weak_ref)
+static int weak_ref_compare(const void* obj, const WeakRef weak_ref)
 {
-	return obj == weak_ref.obj;
+	return (id)obj == weak_ref.obj;
 }
 
 static uint32_t ptr_hash(const void *ptr)
@@ -554,7 +554,7 @@ id objc_storeWeak(id *addr, id obj)
 		return nil;
 	}
 	Class cls = classForObject(obj);
-	if (&_NSConcreteGlobalBlock == cls)
+	if ((Class)&_NSConcreteGlobalBlock == cls)
 	{
 		// If this is a global block, it's never deallocated, so secretly make
 		// this a strong reference
@@ -563,7 +563,7 @@ id objc_storeWeak(id *addr, id obj)
 		*addr = obj;
 		return obj;
 	}
-	if (&_NSConcreteMallocBlock == cls)
+	if ((Class)&_NSConcreteMallocBlock == cls)
 	{
 		obj = block_load_weak(obj);
 	}
@@ -651,7 +651,7 @@ id objc_loadWeakRetained(id* addr)
 	id obj = *addr;
 	if (nil == obj) { return nil; }
 	Class cls = classForObject(obj);
-	if (&_NSConcreteMallocBlock == cls)
+	if ((Class)&_NSConcreteMallocBlock == cls)
 	{
 		obj = block_load_weak(obj);
 	}

@@ -372,26 +372,20 @@ PRIVATE void init_dispatch_tables ()
 }
 
 #if defined(WITH_TRACING) && defined (__x86_64)
-static int init;
-
 static void free_thread_stack(void* x)
 {
-	free(*(void**)x);
+	free(x);
 }
 static pthread_key_t thread_stack_key;
+
+__attribute__((constructor))
 static void alloc_thread_stack(void)
 {
 	pthread_key_create(&thread_stack_key, free_thread_stack);
-	init = 1;
 }
 
 PRIVATE void* pushTraceReturnStack(void)
 {
-	static pthread_once_t once_control = PTHREAD_ONCE_INIT;
-	if (!init)
-	{
-		pthread_once(&once_control, alloc_thread_stack);
-	}
 	void **stack = pthread_getspecific(thread_stack_key);
 	if (stack == 0)
 	{
@@ -737,37 +731,37 @@ static void remove_dtable(InitializingDtable* meta_buffer)
  */
 PRIVATE void objc_send_initialize(id object)
 {
-	Class class = classForObject(object);
+	Class cls = classForObject(object);
 	// If the first message is sent to an instance (weird, but possible and
 	// likely for things like NSConstantString, make sure +initialize goes to
 	// the class not the metaclass.  
-	if (objc_test_class_flag(class, objc_class_flag_meta))
+	if (objc_test_class_flag(cls, objc_class_flag_meta))
 	{
-		class = (Class)object;
+		cls = (Class)object;
 	}
-	Class meta = class->isa;
+	Class meta = cls->isa;
 
 
 	// Make sure that the class is resolved.
-	objc_resolve_class(class);
+	objc_resolve_class(cls);
 
 	// Make sure that the superclass is initialized first.
-	if (Nil != class->super_class)
+	if (Nil != cls->super_class)
 	{
-		objc_send_initialize((id)class->super_class);
+		objc_send_initialize((id)cls->super_class);
 	}
 
 	// Superclass +initialize might possibly send a message to this class, in
 	// which case this method would be called again.  See NSObject and
 	// NSAutoreleasePool +initialize interaction in GNUstep.
-	if (objc_test_class_flag(class, objc_class_flag_initialized))
+	if (objc_test_class_flag(cls, objc_class_flag_initialized))
 	{
 		// We know that initialization has started because the flag is set.
 		// Check that it's finished by grabbing the class lock.  This will be
 		// released once the class has been fully initialized
 		objc_sync_enter((id)meta);
 		objc_sync_exit((id)meta);
-		assert(dtable_for_class(class) != uninstalled_dtable);
+		assert(dtable_for_class(cls) != uninstalled_dtable);
 		return;
 	}
 
@@ -779,7 +773,7 @@ PRIVATE void objc_send_initialize(id object)
 	LOCK_RUNTIME();
 	LOCK_OBJECT_FOR_SCOPE((id)meta);
 	LOCK(&initialize_lock);
-	if (objc_test_class_flag(class, objc_class_flag_initialized))
+	if (objc_test_class_flag(cls, objc_class_flag_initialized))
 	{
 		UNLOCK(&initialize_lock);
 		UNLOCK_RUNTIME();
@@ -789,10 +783,10 @@ PRIVATE void objc_send_initialize(id object)
 
 	// Set the initialized flag on both this class and its metaclass, to make
 	// sure that +initialize is only ever sent once.
-	objc_set_class_flag(class, objc_class_flag_initialized);
+	objc_set_class_flag(cls, objc_class_flag_initialized);
 	objc_set_class_flag(meta, objc_class_flag_initialized);
 
-	dtable_t class_dtable = create_dtable_for_class(class, uninstalled_dtable);
+	dtable_t class_dtable = create_dtable_for_class(cls, uninstalled_dtable);
 	dtable_t dtable = skipMeta ? 0 : create_dtable_for_class(meta, class_dtable);
 	// Now we've finished doing things that may acquire the runtime lock, so we
 	// can hold onto the initialise lock to make anything doing
@@ -820,8 +814,8 @@ PRIVATE void objc_send_initialize(id object)
 		{
 			meta->dtable = dtable;
 		}
-		class->dtable = class_dtable;
-		checkARCAccessors(class);
+		cls->dtable = class_dtable;
+		checkARCAccessors(cls);
 		UNLOCK(&initialize_lock);
 		return;
 	}
@@ -832,7 +826,7 @@ PRIVATE void objc_send_initialize(id object)
 	// a message to this class in future, the lookup function will check this
 	// buffer if the receiver's dtable is not installed, and block if
 	// attempting to send a message to this class.
-	InitializingDtable buffer = { class, class_dtable, temporary_dtables };
+	InitializingDtable buffer = { cls, class_dtable, temporary_dtables };
 	__attribute__((cleanup(remove_dtable)))
 	InitializingDtable meta_buffer = { meta, dtable, &buffer };
 	temporary_dtables = &meta_buffer;
@@ -843,11 +837,11 @@ PRIVATE void objc_send_initialize(id object)
 	// We still hold the class lock at this point.  dtable_for_class will block
 	// there after acquiring the temporary dtable.
 
-	checkARCAccessors(class);
+	checkARCAccessors(cls);
 
 	// Store the buffer in the temporary dtables list.  Note that it is safe to
 	// insert it into a global list, even though it's a temporary variable,
 	// because we will clean it up after this function.
-	initializeSlot->method((id)class, initializeSel);
+	initializeSlot->method((id)cls, initializeSel);
 }
 

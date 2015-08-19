@@ -1,3 +1,8 @@
+#if defined(_WIN64)
+#define __gnu_objc_personality_v0 __gnu_objc_personality_seh0
+#define __gxx_personality_v0 __gxx_personality_seh0
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -527,29 +532,16 @@ struct thread_data
 	struct objc_exception *caughtExceptions;
 };
 
-// IF we don't have pthreads, then we fall back to using a per-thread
-// structure.  This will leak memory if we terminate any threads with
-// exceptions in-flight.
-#ifdef NO_PTHREADS
-static __thread struct thread_data thread_data;
-#else
-void clean_tls(void *td)
-{
-	struct thread_data *data = td;
-}
-
 static pthread_key_t key;
-void init_key(void)
-{
-	pthread_key_create(&key, clean_tls);
-}
-#endif
 
-struct thread_data *get_thread_data(void)
+__attribute__((constructor))
+static void init_key(void)
 {
-#ifndef NO_PTHREADS
-	static pthread_once_t once_control = PTHREAD_ONCE_INIT;
-	pthread_once(&once_control, init_key);
+	pthread_key_create(&key, free);
+}
+
+static struct thread_data *get_thread_data(void)
+{
 	struct thread_data *td = pthread_getspecific(key);
 	if (td == NULL)
 	{
@@ -561,19 +553,12 @@ struct thread_data *get_thread_data(void)
 		}
 	}
 	return td;
-#else
-	return &td;
-#endif
 }
 
-struct thread_data *get_thread_data_fast(void)
+static struct thread_data *get_thread_data_fast(void)
 {
-#ifndef NO_PTHREADS
 	struct thread_data *td = pthread_getspecific(key);
 	return td;
-#else
-	return &td;
-#endif
 }
 
 id objc_begin_catch(struct _Unwind_Exception *exceptionObject)

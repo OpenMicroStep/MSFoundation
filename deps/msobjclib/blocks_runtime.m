@@ -237,8 +237,8 @@ void *_Block_copy(void *src)
 	struct Block_layout *self = src;
 	struct Block_layout *ret = self;
 
-	extern void _NSConcreteStackBlock;
-	extern void _NSConcreteMallocBlock;
+	extern void *_NSConcreteStackBlock;
+	extern void *_NSConcreteMallocBlock;
 
 	// If the block is Global, there's no need to copy it on the heap.
 	if(self->isa == &_NSConcreteStackBlock)
@@ -255,7 +255,7 @@ void *_Block_copy(void *src)
 		// badly wrong).
 		ret->reserved = 1;
 	}
-	else if (self->isa == &_NSConcreteMallocBlock)
+	else if (self->isa == (Class)&_NSConcreteMallocBlock)
 	{
 		// We need an atomic increment for malloc'd blocks, because they may be
 		// shared.
@@ -270,14 +270,14 @@ void _Block_release(void *src)
 	if (NULL == src) { return; }
 	struct Block_layout *self = src;
 
-	extern void _NSConcreteStackBlock;
-	extern void _NSConcreteMallocBlock;
+	extern void *_NSConcreteStackBlock;
+	extern void *_NSConcreteMallocBlock;
 
-	if (&_NSConcreteStackBlock == self->isa)
+	if ((Class)&_NSConcreteStackBlock == self->isa)
 	{
 		fprintf(stderr, "Block_release called upon a stack Block: %p, ignored\n", self);
 	}
-	else if (&_NSConcreteMallocBlock == self->isa)
+	else if ((Class)&_NSConcreteMallocBlock == self->isa)
 	{
 		if (__sync_sub_and_fetch(&self->reserved, 1) == 0)
 		{

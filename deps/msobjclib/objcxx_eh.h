@@ -1,3 +1,7 @@
+#if defined(_WIN64)
+#define __gnu_objc_personality_v0 __gnu_objc_personality_seh0
+#define __gxx_personality_v0 __gxx_personality_seh0
+#endif
 #ifdef __cplusplus
 extern "C" {
 #endif

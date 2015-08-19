@@ -13,6 +13,12 @@
  */
 
 __attribute__((deprecated))
+static inline Class object_get_class(id object) { return object_getClass(object); }
+
+__attribute__((deprecated))
+static inline const char * object_get_class_name(id object) { return object_getClassName(object); }
+
+__attribute__((deprecated))
 void *objc_malloc(size_t size);
 
 __attribute__((deprecated))

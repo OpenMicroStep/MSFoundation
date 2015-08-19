@@ -27,6 +27,8 @@
 		A0780002235D4D8BB8374324 /* sendmsg2.c in Sources */ = {isa = PBXBuildFile; fileRef = 20CD21A2A4C845F7B3C3A32D /* sendmsg2.c */; settings = {COMPILER_FLAGS = ""; }; };
 		A4E256A56F954A19B8CAD2A2 /* loader.c in Sources */ = {isa = PBXBuildFile; fileRef = 0F989396618D480195BCDE75 /* loader.c */; settings = {COMPILER_FLAGS = ""; }; };
 		A5C9EBDE28CF4308BCFF59A1 /* toydispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 5537918713974F208BE09A0C /* toydispatch.c */; settings = {COMPILER_FLAGS = ""; }; };
+		A61E109E1AF767E000DAB7FA /* mman.c in Sources */ = {isa = PBXBuildFile; fileRef = A61E109D1AF767E000DAB7FA /* mman.c */; };
+		A671B5021B0BCB6400897094 /* objcxx_eh.cc in Sources */ = {isa = PBXBuildFile; fileRef = A671B5011B0BCB6400897094 /* objcxx_eh.cc */; };
 		A6BD8135D43B4B59A35240F7 /* sarray2.c in Sources */ = {isa = PBXBuildFile; fileRef = 14B8087E7C4748868A9D1610 /* sarray2.c */; settings = {COMPILER_FLAGS = ""; }; };
 		ABE7657147B94E168D616C36 /* block_trampolines.S in Sources */ = {isa = PBXBuildFile; fileRef = D95199A41DCC4342B6BAFC4D /* block_trampolines.S */; settings = {COMPILER_FLAGS = ""; }; };
 		B3465EB4056849A698F5D02B /* block_to_imp.c in Sources */ = {isa = PBXBuildFile; fileRef = A78AD56CD3184F4FA60EE5C3 /* block_to_imp.c */; settings = {COMPILER_FLAGS = ""; }; };
@@ -59,6 +61,10 @@
 		8731D17AB73D479693340B5D /* class_table.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; path = class_table.c; sourceTree = SOURCE_ROOT; };
 		88C33D56FC5C492F8FCF9596 /* alias_table.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; path = alias_table.c; sourceTree = SOURCE_ROOT; };
 		A202AFA60715418BA1E98039 /* statics_loader.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; path = statics_loader.c; sourceTree = SOURCE_ROOT; };
+		A61E109C1AF767E000DAB7FA /* mman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mman.h; sourceTree = "<group>"; };
+		A61E109D1AF767E000DAB7FA /* mman.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mman.c; sourceTree = "<group>"; };
+		A671B5011B0BCB6400897094 /* objcxx_eh.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = objcxx_eh.cc; sourceTree = "<group>"; };
+		A6B909F61AFB66D400C32537 /* common.S */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = common.S; sourceTree = "<group>"; };
 		A6D317471A8CEE7B003F15A1 /* Availability.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Availability.h; path = objc/Availability.h; sourceTree = "<group>"; };
 		A6D317481A8CEE7B003F15A1 /* blocks_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = blocks_private.h; path = objc/blocks_private.h; sourceTree = "<group>"; };
 		A6D317491A8CEE7B003F15A1 /* blocks_runtime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = blocks_runtime.h; path = objc/blocks_runtime.h; sourceTree = "<group>"; };
@@ -165,6 +171,7 @@
 				A6D317651A8CEEB8003F15A1 /* category.h */,
 				8731D17AB73D479693340B5D /* class_table.c */,
 				A6D317661A8CEEB8003F15A1 /* class.h */,
+				A6B909F61AFB66D400C32537 /* common.S */,
 				A6D317671A8CEEB8003F15A1 /* constant_string.h */,
 				70C3069341974239A28D9CF6 /* dtable.c */,
 				A6D317681A8CEEB8003F15A1 /* dtable.h */,
@@ -182,6 +189,8 @@
 				0F989396618D480195BCDE75 /* loader.c */,
 				A6D3176D1A8CEEB8003F15A1 /* loader.h */,
 				A6D3176E1A8CEEB8003F15A1 /* lock.h */,
+				A61E109C1AF767E000DAB7FA /* mman.h */,
+				A61E109D1AF767E000DAB7FA /* mman.c */,
 				A6D3176F1A8CEEB8003F15A1 /* method_list.h */,
 				A6D317701A8CEEB8003F15A1 /* module.h */,
 				AE8C93945B284D268160D3C6 /* mutation.m */,
@@ -189,6 +198,7 @@
 				A6D317711A8CEEB8003F15A1 /* nsobject.h */,
 				E668CC77D23A40FD87BE930D /* objc_msgSend.S */,
 				A6D317721A8CEEB8003F15A1 /* objcxx_eh.h */,
+				A671B5011B0BCB6400897094 /* objcxx_eh.cc */,
 				A6D317731A8CEEB8003F15A1 /* pool.h */,
 				A6D317741A8CEEB8003F15A1 /* properties.h */,
 				4E139DDAEF564765A08DA25A /* properties.m */,
@@ -299,6 +309,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A61E109E1AF767E000DAB7FA /* mman.c in Sources */,
 				68B7F2AECE5243DBACFBF9CA /* NSBlocks.m in Sources */,
 				C4992E7066E24E9F99D5435D /* Protocol2.m in Sources */,
 				9702EF2262F9438D805C4872 /* abi_version.c in Sources */,
@@ -307,6 +318,7 @@
 				013C7C1FAA2F4A6AAE053A20 /* associate.m in Sources */,
 				B3465EB4056849A698F5D02B /* block_to_imp.c in Sources */,
 				ABE7657147B94E168D616C36 /* block_trampolines.S in Sources */,
+				A671B5021B0BCB6400897094 /* objcxx_eh.cc in Sources */,
 				045924A733A84B4FB67B2EE9 /* blocks_runtime.m in Sources */,
 				8FD8253DE7464C6A8E3C6EF5 /* caps.c in Sources */,
 				D3DA25A43D254920B669BF32 /* category_loader.c in Sources */,

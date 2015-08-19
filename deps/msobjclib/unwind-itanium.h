@@ -28,6 +28,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.  */
 
 /* For uint64_t */
 #include <stdint.h>
+#include "visibility.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -148,13 +149,13 @@ extern void *_Unwind_FindEnclosingFunction (void *);
 #endif /* _GNU_SOURCE */
 
 #define DECLARE_PERSONALITY_FUNCTION(name) \
-_Unwind_Reason_Code name(int version,\
+PUBLIC _Unwind_Reason_Code name(int version,\
                          _Unwind_Action actions,\
                          uint64_t exceptionClass,\
                          struct _Unwind_Exception *exceptionObject,\
                          struct _Unwind_Context *context);
 #define BEGIN_PERSONALITY_FUNCTION(name) \
-_Unwind_Reason_Code name(int version,\
+PUBLIC _Unwind_Reason_Code name(int version,\
                          _Unwind_Action actions,\
                          uint64_t exceptionClass,\
                          struct _Unwind_Exception *exceptionObject,\
