@@ -128,7 +128,7 @@ static const char cdblObjCType = 'd';
 - (NSNumber *)initWithUnsignedInteger:(NSUInteger)v          { return [self notImplemented:_cmd]; }
 - (instancetype)initWithCoder:(NSCoder *)aDecoder            { return [self notImplemented:_cmd]; }
 
-- (MSLong)_signedValueWithMin:(MSLong)min max:(MSLong)max
+- (MSLong)_signedValue
 {
   NSNumberUnion v; MSLong ret;
   [self getValue:&v];
@@ -141,50 +141,49 @@ static const char cdblObjCType = 'd';
     case cu1ObjCType: ret= (MSLong)v.u1; break;
     case cu2ObjCType: ret= (MSLong)v.u2; break;
     case cu4ObjCType: ret= (MSLong)v.u4; break;
-    case cu8ObjCType: ret= (MSLong)MIN((MSULong)MSLongMax, v.u8); break;
-    case cluObjCType: ret= (MSLong)MIN((MSULong)MSLongMax, v.lu); break;
-    case cdblObjCType:ret= (MSLong)(v.dbl > 0 ? v.dbl + 0.5 : v.dbl - 0.5); break;
-    case cfltObjCType:ret= (MSLong)(v.flt > 0 ? v.flt + 0.5 : v.flt - 0.5); break;
+    case cu8ObjCType: ret= (MSLong)v.u8; break;
+    case cluObjCType: ret= (MSLong)v.lu; break;
+    case cdblObjCType:ret= (MSLong)v.dbl; break;
+    case cfltObjCType:ret= (MSLong)v.flt; break;
     default: MSReportError(MSInternalInconsistencyError, MSFatalError, -1, "objctype \"%s\" was not expected\n", [self objCType]); break;
   }
-  return MAX(min, MIN(ret, max));
+  return ret;
 }
-
-- (MSULong)_unsignedValueWithMax:(MSULong)max
+- (MSULong)_unsignedValue
 {
   NSNumberUnion v; MSLong ret;
   [self getValue:&v];
   switch(*[self objCType]) {
-    case ci1ObjCType: ret= (MSULong)MAX(0, v.i1); break;
-    case ci2ObjCType: ret= (MSULong)MAX(0, v.i2); break;
-    case ci4ObjCType: ret= (MSULong)MAX(0, v.i4); break;
-    case ci8ObjCType: ret= (MSULong)MAX(0, v.i8); break;
-    case cldObjCType: ret= (MSULong)MAX(0, v.ld); break;
+    case ci1ObjCType: ret= (MSULong)v.i1; break;
+    case ci2ObjCType: ret= (MSULong)v.i2; break;
+    case ci4ObjCType: ret= (MSULong)v.i4; break;
+    case ci8ObjCType: ret= (MSULong)v.i8; break;
+    case cldObjCType: ret= (MSULong)v.ld; break;
     case cu1ObjCType: ret= (MSULong)v.u1; break;
     case cu2ObjCType: ret= (MSULong)v.u2; break;
     case cu4ObjCType: ret= (MSULong)v.u4; break;
     case cu8ObjCType: ret= (MSULong)v.u8; break;
     case cluObjCType: ret= (MSULong)v.lu; break;
-    case cdblObjCType:ret= (MSULong)(MAX(0, v.dbl) + 0.5); break;
-    case cfltObjCType:ret= (MSULong)(MAX(0, v.flt) + 0.5); break;
+    case cdblObjCType:ret= (MSULong)v.dbl; break;
+    case cfltObjCType:ret= (MSULong)v.flt; break;
     default: MSReportError(MSInternalInconsistencyError, MSFatalError, -1, "objctype \"%s\" was not expected\n", [self objCType]); break;
   }
-  return MIN(ret, max);
+  return ret;
 }
 
-- (BOOL)boolValue                           { return                      [self _signedValueWithMin:-1LL max:1LL] != 0;   }
-- (char)charValue                           { return                (char)[self _signedValueWithMin:CHAR_MIN max:CHAR_MAX]; }
-- (short)shortValue                         { return               (short)[self _signedValueWithMin:SHRT_MIN max:SHRT_MAX]; }
-- (int)intValue                             { return                 (int)[self _signedValueWithMin:INT_MIN max:INT_MAX]; }
-- (long)longValue                           { return                (long)[self _signedValueWithMin:LONG_MIN max:LONG_MAX]; }
-- (long long)longLongValue                  { return           (long long)[self _signedValueWithMin:LLONG_MIN max:LLONG_MAX]; }
-- (unsigned char)unsignedCharValue          { return       (unsigned char)[self _unsignedValueWithMax:UCHAR_MAX]; }
-- (unsigned short)unsignedShortValue        { return      (unsigned short)[self _unsignedValueWithMax:USHRT_MAX]; }
-- (unsigned int)unsignedIntValue            { return        (unsigned int)[self _unsignedValueWithMax:UINT_MAX]; }
-- (unsigned long)unsignedLongValue          { return       (unsigned long)[self _unsignedValueWithMax:ULONG_MAX]; }
-- (unsigned long long)unsignedLongLongValue { return  (unsigned long long)[self _unsignedValueWithMax:ULLONG_MAX]; }
+- (BOOL)boolValue                           { return                      [self _signedValue] != 0;   }
+- (char)charValue                           { return                (char)[self _signedValue]; }
+- (short)shortValue                         { return               (short)[self _signedValue]; }
+- (int)intValue                             { return                 (int)[self _signedValue]; }
+- (long)longValue                           { return                (long)[self _signedValue]; }
+- (long long)longLongValue                  { return           (long long)[self _signedValue]; }
+- (unsigned char)unsignedCharValue          { return       (unsigned char)[self _unsignedValue]; }
+- (unsigned short)unsignedShortValue        { return      (unsigned short)[self _unsignedValue]; }
+- (unsigned int)unsignedIntValue            { return        (unsigned int)[self _unsignedValue]; }
+- (unsigned long)unsignedLongValue          { return       (unsigned long)[self _unsignedValue]; }
+- (unsigned long long)unsignedLongLongValue { return  (unsigned long long)[self _unsignedValue]; }
 - (float)floatValue                         { return               (float)[self doubleValue]; }
-- (double)doubleValue                       
+- (double)doubleValue
 {
   NSNumberUnion v; double ret;
   [self getValue:&v];
@@ -217,18 +216,29 @@ static const char cdblObjCType = 'd';
 {
   return [self compare:aNumber] == NSOrderedSame;
 }
+#define _cmp(A,B) ({ __typeof__(A) __a= (A); __typeof__(B) __b= (B); \
+  __a < __b ? NSOrderedAscending : (__a > __b ? NSOrderedDescending : NSOrderedSame); })
+#define _cmp_llu_lld(A,B) ({ MSULong __llu= (A); MSLong __lld= (B); \
+  __llu > NSOrderedDescending ? O : _cmp((MSLong)__llu, __lld); })
+
 - (NSComparisonResult)compare:(NSNumber *)aNumber
 {
-  if (*[self objCType] == 'd' || *[aNumber objCType] == 'd') {
-    double a= [self doubleValue], b= [aNumber doubleValue];
-    if (a < b) return NSOrderedAscending;
-    if (b > a) return NSOrderedDescending;
-    return NSOrderedSame;}
-  else {
-    MSLong a= [self longLongValue], b= [aNumber longLongValue];
-    if (a < b) return NSOrderedAscending;
-    if (b > a) return NSOrderedDescending;
-    return NSOrderedSame;}
+  NSComparisonResult ret;
+  char t0= *[self objCType], t1= *[aNumber objCType];
+  if (t0 == 'd' || t1 == 'd' || t0 == 'f' || t1 == 'f') { // at least one is a real
+    ret= _cmp([self doubleValue], [aNumber doubleValue]);}
+  else if (t0 == 'Q' || t1 == 'Q') { // at least one is llu
+    if (t0 == 'Q' && t1 == 'Q') {
+      ret= _cmp([self unsignedLongLongValue], [aNumber unsignedLongLongValue]);}
+    else if (t0 == 'Q') {
+      MSULong a= [self unsignedLongLongValue];
+      ret= a > LLONG_MAX ? NSOrderedDescending : _cmp((MSLong)a, [aNumber longLongValue]); }
+    else {
+      MSULong b= [aNumber unsignedLongLongValue];
+      ret= b > LLONG_MAX ? NSOrderedAscending : _cmp([self longLongValue], (MSLong)b); }}
+  else { // both are signed value
+    ret= _cmp([self longLongValue], [aNumber longLongValue]);}
+  return ret;
 }
 - (NSString*)description
 {

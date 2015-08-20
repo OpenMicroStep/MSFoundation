@@ -261,6 +261,7 @@ module.exports = {
         {file: "Foundation_tst/foundation_validate.h"},
         {file: "Foundation_tst/foundation_nsautoreleasepool_validate.m"},
         {file: "Foundation_tst/foundation_nsobject_validate.m"},
+        {file: "Foundation_tst/foundation_nsnumber_validate.m"},
       ]}
     ]},
     {group:"MSFoundation", files: [

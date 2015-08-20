@@ -10,4 +10,5 @@ test_t FoundationTests[]= {
   {"NSDate"           ,foundation_date      ,NULL,INTITIALIZE_TEST_T_END},
   {"NSDictionary"     ,foundation_dictionary,NULL,INTITIALIZE_TEST_T_END},
   {"NSString"         ,foundation_string    ,NULL,INTITIALIZE_TEST_T_END},
+  {"NSNumber"         ,foundation_number    ,NULL,INTITIALIZE_TEST_T_END},
   {NULL}};
