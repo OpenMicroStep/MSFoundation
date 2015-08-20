@@ -55,6 +55,19 @@ static int test_(test_t *tests)
   return err;
 }
 
+#define SESITERATE(SES_VALUE, UNICHAR_VARNAME, STATEMENT) {                    \
+    SES __sesiterate_ses= SES_VALUE;                                           \
+    if (SESOK(__sesiterate_ses)) {                                             \
+      NSUInteger __sesiterate_start, __sesiterate_end;unichar UNICHAR_VARNAME; \
+      __sesiterate_start= SESStart(__sesiterate_ses);                          \
+      __sesiterate_end= SESEnd(__sesiterate_ses);                              \
+      while (__sesiterate_start < __sesiterate_end) {                          \
+        UNICHAR_VARNAME= SESIndexN(__sesiterate_ses, &__sesiterate_start);     \
+        STATEMENT                                                              \
+      }                                                                        \
+    }                                                                          \
+}
+
 static void test_print(int level,test_t *tests)
 {
   static const int __testPadding= 28;
@@ -70,7 +83,7 @@ static void test_print(int level,test_t *tests)
         level*2, "", (subs?"+ ":". "), __testPadding - level*2, test->name,
         test->err ? "FAIL" : "PASS", clocks, seconds);
       if (test->errCtxs) {
-        NSUInteger n,i; CString *s; CBuffer *b; CDictionary *ctx; int space;
+        NSUInteger n,i; CString *s; const CString *msg; CBuffer *b; CDictionary *ctx; int space;
         s= CCreateString(0); space= level*2 + 2;
         for (n= CArrayCount(test->errCtxs), i= 0; i<n; i++) {
           ctx= (CDictionary*)CArrayObjectAtIndex(test->errCtxs, i);
@@ -81,7 +94,13 @@ static void test_print(int level,test_t *tests)
           CStringAppendContextWhere(s, ctx);
           CStringAppendFormat(s, "\n");
           CStringAppendFormat(s, "%-*s reason   : ", space, "");
-          CStringAppendString(s, (const CString*)CDictionaryObjectForKey(ctx, (id)KMessage));
+          msg= (const CString*)CDictionaryObjectForKey(ctx, (id)KMessage);
+          SESITERATE(CStringSES(msg), u, {
+            if (u == (unichar)'\n') {
+              CStringAppendFormat(s, "\n%-*s", space + 12, "");}
+            else {
+              CStringAppendCharacter(s, u);}
+          });
 ///////// CBuffer *ts= CCreateUTF8BufferWithObjectDescription(CDictionaryObjectForKey(ctx, (id)KTags));
 ///////// CStringAppendFormat(s, "\ntags: %s", CBufferCString(ts));
 ///////// RELEASE(ts);
