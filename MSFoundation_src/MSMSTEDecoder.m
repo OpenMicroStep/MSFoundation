@@ -154,7 +154,7 @@ static void CMSTEDecoderHandleReturn(CMSTEDecoder* self, id ret);
 
 static void CMSTEDecoderInit(CMSTEDecoder *self)
 {
-  self->crc= 0XFFFFFFFF;
+  self->crc= 0xffffffff;
   self->stack= (CGrow *)MSCallocFatal(1, sizeof(CGrow), "CMSTEDecodeInit");
   self->stack->flags.elementBytes= sizeof(CMSTEDecoderStack);
   self->classes= CCreateArray(0);
@@ -302,6 +302,10 @@ static id CMSTEDecoderParseResult(CMSTEDecoder *self, NSString **error)
   id ret= nil;
   if (!self->error && self->token.type != TOKEN_END) {
     CMSTEDecoderError(self, "MSTE string is incomplete");}
+  if (!self->error && self->flags.verifyCRC) {
+    MSUInt crc= self->crc ^ 0xffffffff;
+    if (crc != self->expectedCRC) {
+      CMSTEDecoderError(self, "Invalid CRC, crc=%x, expectedCRC=%x", crc, self->expectedCRC);}}
   if (!self->error) {
     ret= self->rootObject;}
   else if(error) {
@@ -462,7 +466,7 @@ static void CMSTEDecoderParseBytes(CMSTEDecoder *self, const MSByte *bytes, NSUI
       case TOKEN_CRC_CONTENT:
         if (c == '"') self->token.type= TOKEN_CRC_END;
         else if (self->token.v.crc.idx > 2 && self->token.v.crc.idx < 11 && _hexaCharValue(&c)) {
-          self->token.v.crc.val= self->token.v.crc.val * 10 + c;
+          self->token.v.crc.val= self->token.v.crc.val * 16 + c;
           self->token.v.crc.idx++;
           self->crc= _MSBytesLargeCRCAppend(self->crc, '0');}
         else if (c == 'C' && (self->token.v.crc.idx == 0 || self->token.v.crc.idx == 2)) self->token.v.crc.idx++;
@@ -596,7 +600,7 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
 {
   switch(code) {
     // Constants
-    case MSTE_TOKEN_TYPE_NULL             : CMSTEDecoderHandleReturn(self, nil);           break;
+    case MSTE_TOKEN_TYPE_NULL             : CMSTEDecoderHandleReturn(self, MSNull);                        break;
     case MSTE_TOKEN_TYPE_TRUE             : CMSTEDecoderHandleReturn(self, [NSNumber numberWithBool:YES]);        break;
     case MSTE_TOKEN_TYPE_FALSE            : CMSTEDecoderHandleReturn(self, [NSNumber numberWithBool:NO]);       break;
     case MSTE_TOKEN_TYPE_EMPTY_STRING     : CMSTEDecoderHandleReturn(self, @"");           break;
@@ -812,5 +816,25 @@ static void CMSTEDecoderHandleReturn(CMSTEDecoder* self, id ret)
 - (id)parseResult:(NSString **)error
 {
   return CMSTEDecoderParseResult((CMSTEDecoder*)self, error);
+}
+@end
+@implementation NSData (MSTDecoding)
+
+- (id)MSTDecodedObject
+{ return [self MSTDecodedObjectAndVerifyCRC:NO allowsUnknownUserClasses:YES error:NULL]; }
+- (id)MSTDecodedObjectAndVerifyCRC:(BOOL)crc
+{ return [self MSTDecodedObjectAndVerifyCRC:crc allowsUnknownUserClasses:NO error:NULL]; }
+- (id)MSTDecodedObjectAndVerifyCRC:(BOOL)crc allowsUnknownUserClasses:(BOOL)userClasses
+{ return [self MSTDecodedObjectAndVerifyCRC:crc allowsUnknownUserClasses:userClasses error:NULL]; }
+- (id)MSTDecodedObjectAndVerifyCRC:(BOOL)crc allowsUnknownUserClasses:(BOOL)userClasses error:(NSString **)error
+{
+  MSMSTEDecoder *decoder; id ret;
+  if (error) *error= nil;
+  decoder= [ALLOC(MSMSTEDecoder) initWithCustomClasses:nil allowsUnknownUserClasses:userClasses verifyCRC:crc];
+  [decoder parseBytes:[self bytes] length:[self length]];
+  ret= [[[decoder parseResult:error] retain] autorelease];
+  if (error) [[*error retain] autorelease];
+  RELEASE(decoder);
+  return ret;
 }
 @end

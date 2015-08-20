@@ -714,8 +714,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
 @implementation MSBool (MSTEncoding)
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder
 {
-    if ([self isTrue]) return MSTE_TOKEN_TYPE_TRUE ;
-    else return MSTE_TOKEN_TYPE_FALSE ;
+    return (self == MSTrue) ? MSTE_TOKEN_TYPE_TRUE : MSTE_TOKEN_TYPE_FALSE ;
     MSUnused(encoder);
 }
 - (MSByte)tokenType
@@ -756,14 +755,6 @@ static NSNumber *__aBool = nil ;
 @implementation NSNumber (MSTEncoding)
 - (MSInt)singleEncodingCode:(MSTEncoder *)encoder
 {
-  char type = *[self objCType] ;
-  if (type == 'c') {
-    if(!__aBool) __aBool = [[NSNumber numberWithBool:YES] retain];
-    if([self isKindOfClass:[__aBool class]]) {
-      if ([self isTrue]) return MSTE_TOKEN_TYPE_TRUE ;
-      else return MSTE_TOKEN_TYPE_FALSE ;
-    }
-  }
   return MSTE_TOKEN_MUST_ENCODE ;
   MSUnused(encoder);
 }

@@ -170,3 +170,12 @@ MSBool *MSFalse = nil ;
 - (void)encodeWithJSONEncoder:(MSJSONEncoder *)encoder withReference:(unsigned)reference { [encoder encodeString:@"true"] ; }
 */
 @end
+
+#ifdef MSFOUNDATION_FORCOCOA
+
+@implementation NSNumber (MSBool)
++ (NSNumber *)numberWithBool:(BOOL)value { return value ? MSTrue : MSFalse; }
+- (instancetype)initWithBool:(BOOL)value { RELEASE(self); return value ? MSTrue : MSFalse; }
+@end
+
+#endif

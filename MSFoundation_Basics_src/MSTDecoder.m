@@ -1083,12 +1083,3 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
     return nil ;
 }
 
-@implementation NSData (MSTDecoding)
-
-- (id)MSTDecodedObject { return MSTDecodeRetainedObject(self, NULL, NO, YES) ; }
-- (id)MSTDecodedObjectAndVerifyCRC:(BOOL)verifyCRC { return MSTDecodeRetainedObject(self, NULL, verifyCRC, YES) ; }
-- (id)MSTDecodedObjectAndVerifyCRC:(BOOL)verifyCRC allowsUnknownUserClasses:(BOOL)allowsUnknownUserClasses { return MSTDecodeRetainedObject(self, NULL, verifyCRC, allowsUnknownUserClasses) ; }
-
-@end
-
-

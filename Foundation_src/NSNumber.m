@@ -52,7 +52,7 @@ static const char cdblObjCType = 'd';
 @end
 
 @implementation _NSNumber
-- (NSNumber *)initWithBool:(BOOL)v                           { _value.i1  = v; _objctype= i1ObjCType;  return self; }
+- (NSNumber *)initWithBool:(BOOL)value                       { RELEASE(self); return (id)(value ? MSTrue : MSFalse);}
 - (NSNumber *)initWithChar:(char)v                           { _value.i1  = v; _objctype= i1ObjCType;  return self; }
 - (NSNumber *)initWithShort:(short)v                         { _value.i2  = v; _objctype= i2ObjCType;  return self; }
 - (NSNumber *)initWithInt:(int)v                             { _value.i4  = v; _objctype= i4ObjCType;  return self; }
@@ -107,7 +107,7 @@ static const char cdblObjCType = 'd';
 + (NSNumber *)numberWithUnsignedLongLong:(unsigned long long)value { return AUTORELEASE([ALLOC(_NSNumber) initWithUnsignedLongLong:(MSULong)value]); }
 + (NSNumber *)numberWithFloat:(float)value                         { return AUTORELEASE([ALLOC(_NSNumber) initWithFloat:value]); }
 + (NSNumber *)numberWithDouble:(double)value                       { return AUTORELEASE([ALLOC(_NSNumber) initWithDouble:value]); }
-+ (NSNumber *)numberWithBool:(BOOL)value                           { return AUTORELEASE([ALLOC(_NSNumber) initWithBool:value]); }
++ (NSNumber *)numberWithBool:(BOOL)value                           { return value ? MSTrue : MSFalse; }
 + (NSNumber *)numberWithInteger:(NSInteger)value                   { return AUTORELEASE([ALLOC(_NSNumber) initWithInteger:value]); }
 + (NSNumber *)numberWithUnsignedInteger:(NSUInteger)value          { return AUTORELEASE([ALLOC(_NSNumber) initWithUnsignedInteger:value]); }
 

@@ -50,8 +50,9 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
 
 /* MSTDecoding category on NSData : allows to decode objects from a buffer encoded with MSTEncoder (MicroStep Token Encoder) */
 @interface NSData (MSTDecoding)
-- (id)MSTDecodedObject ; //Most permissive mode : Does not verify CRC and allows to decode unknown user classes as dictionaries
+- (id)MSTDecodedObject; //Most permissive mode : Does not verify CRC and allows to decode unknown user classes as dictionaries
 - (id)MSTDecodedObjectAndVerifyCRC:(BOOL)verifyCRC ; //Lesser permissive mode : Allows to decode unknown user classes as dictionaries
 - (id)MSTDecodedObjectAndVerifyCRC:(BOOL)verifyCRC allowsUnknownUserClasses:(BOOL)allowsUnknownUserClasses ;
+- (id)MSTDecodedObjectAndVerifyCRC:(BOOL)verifyCRC allowsUnknownUserClasses:(BOOL)allowsUnknownUserClasses error:(NSString **)error;
 @end
 
