@@ -89,12 +89,20 @@ CArray* CCreateArrayOfCoupleSubs(id self, mutable CDictionary *ctx)
 
 void CCoupleDescribe(id self, id result, int level, mutable CDictionary *ctx)
 {
+  CString *s= (CString*)result;
+  const CCouple *c= (CCouple *)self;
+
+  CStringAppendCharacter(s, '[');
+  CDescribe(c->members[0], result, level+1, ctx);
+  CStringAppendLiteral(s, ", ");
+  CDescribe(c->members[1], result, level+1, ctx);
+  CStringAppendCharacter(s, ']');
 }
 
 const CString* CCoupleRetainedDescription(id self)
 {
   CString *s; const CCouple *a;
-  if(!self) return nil;
+  if(!self) return NULL;
   a= (CCouple *)self;
   s= CCreateString(0);
   CStringAppendFormat(s, "[%@, %@]", a->members[0], a->members[1]);
