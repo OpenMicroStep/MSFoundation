@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0610"
+   LastUpgradeVersion = "0640"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A6E3A2241A9C72F700F65291"
-               BuildableName = "All MSFoundation WO451"
-               BlueprintName = "All MSFoundation WO451"
-               ReferencedContainer = "container:MSFoundation.xcodeproj">
+               BlueprintIdentifier = "A67EE6541B8EFAF200D82F06"
+               BuildableName = "MSFoundation"
+               BlueprintName = "MSFoundation"
+               ReferencedContainer = "container:MicroStep.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -39,15 +39,33 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <PathRunnable
+         runnableDebuggingMode = "0"
+         FilePath = "/Users/vincentrouille/Dev/MicroStep/MSFoundation/out/debug/openmicrostep-core-x86_64-darwin/bin/MSTests">
+      </PathRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A6E3A2241A9C72F700F65291"
-            BuildableName = "All MSFoundation WO451"
-            BlueprintName = "All MSFoundation WO451"
-            ReferencedContainer = "container:MSFoundation.xcodeproj">
+            BlueprintIdentifier = "A67EE6541B8EFAF200D82F06"
+            BuildableName = "MSFoundation"
+            BlueprintName = "MSFoundation"
+            ReferencedContainer = "container:MicroStep.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "$PROJECT_DIR/out/debug/openmicrostep-core-x86_64-darwin/lib/libMSCoreTests.dylib"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$PROJECT_DIR/out/debug/openmicrostep-foundation-x86_64-darwin/lib/libMSFoundationTests.dylib"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$PROJECT_DIR/out/debug/openmicrostep-cocoa-x86_64-darwin/lib/libMSFoundationTests.dylib"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -60,10 +78,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A6E3A2241A9C72F700F65291"
-            BuildableName = "All MSFoundation WO451"
-            BlueprintName = "All MSFoundation WO451"
-            ReferencedContainer = "container:MSFoundation.xcodeproj">
+            BlueprintIdentifier = "A67EE6541B8EFAF200D82F06"
+            BuildableName = "MSFoundation"
+            BlueprintName = "MSFoundation"
+            ReferencedContainer = "container:MicroStep.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

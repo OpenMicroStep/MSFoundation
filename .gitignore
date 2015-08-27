@@ -10,3 +10,6 @@ MicroStep.xcworkspace/xcuserdata
 3rdparty/darwin/tools
 .intermediates
 out
+MicroStep.xcodeproj/xcuserdata
+MicroStep.xcodeproj/project.xcworkspace/xcuserdata
+MicroStep.xccheckout

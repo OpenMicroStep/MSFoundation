@@ -1,0 +1,273 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		A67EE65A1B8EFB1700D82F06 /* Foundation_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Foundation_src; sourceTree = "<group>"; };
+		A67EE65C1B8EFB7D00D82F06 /* Foundation_tst */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Foundation_tst; sourceTree = "<group>"; };
+		A67EE65D1B8EFB7D00D82F06 /* MHRepository_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MHRepository_src; sourceTree = "<group>"; };
+		A67EE65E1B8EFB7D00D82F06 /* MHRepositoryAdministrator_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MHRepositoryAdministrator_src; sourceTree = "<group>"; };
+		A67EE65F1B8EFB7D00D82F06 /* MHRepositoryServer_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MHRepositoryServer_src; sourceTree = "<group>"; };
+		A67EE6601B8EFB7D00D82F06 /* MHServer_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MHServer_src; sourceTree = "<group>"; };
+		A67EE6611B8EFB7D00D82F06 /* MSCore_doc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSCore_doc; sourceTree = "<group>"; };
+		A67EE6621B8EFB7D00D82F06 /* MSCore_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSCore_src; sourceTree = "<group>"; };
+		A67EE6631B8EFB7D00D82F06 /* MSCore_tst */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSCore_tst; sourceTree = "<group>"; };
+		A67EE6641B8EFB7D00D82F06 /* MSCore_unicode */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSCore_unicode; sourceTree = "<group>"; };
+		A67EE6651B8EFB7D00D82F06 /* MSDb_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSDb_src; sourceTree = "<group>"; };
+		A67EE6661B8EFB7D00D82F06 /* MSDb_tst */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSDb_tst; sourceTree = "<group>"; };
+		A67EE6671B8EFB7D00D82F06 /* MSDBAdaptors_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSDBAdaptors_src; sourceTree = "<group>"; };
+		A67EE6681B8EFB7D00D82F06 /* MSFoundation_Basics_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSFoundation_Basics_src; sourceTree = "<group>"; };
+		A67EE6691B8EFB7D00D82F06 /* MSFoundation_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSFoundation_src; sourceTree = "<group>"; };
+		A67EE66A1B8EFB7D00D82F06 /* MSFoundation_tst */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSFoundation_tst; sourceTree = "<group>"; };
+		A67EE66B1B8EFB7D00D82F06 /* MSNet_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSNet_src; sourceTree = "<group>"; };
+		A67EE66C1B8EFB7D00D82F06 /* MSNode_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSNode_src; sourceTree = "<group>"; };
+		A67EE66D1B8EFB7D00D82F06 /* MSNode_tst */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSNode_tst; sourceTree = "<group>"; };
+		A67EE66E1B8EFB7D00D82F06 /* MSTests_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MSTests_src; sourceTree = "<group>"; };
+		A67EE6711B8EFBD300D82F06 /* MHMessenger_src */ = {isa = PBXFileReference; lastKnownFileType = folder; path = MHMessenger_src; sourceTree = "<group>"; };
+		A67EE6741B8EFC3D00D82F06 /* libuv */ = {isa = PBXFileReference; lastKnownFileType = folder; name = libuv; path = deps/libuv; sourceTree = "<group>"; };
+		A67EE6751B8EFC3D00D82F06 /* msobjclib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = msobjclib; path = deps/msobjclib; sourceTree = "<group>"; };
+		A67EE6761B8EFC3D00D82F06 /* msstdlib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = msstdlib; path = deps/msstdlib; sourceTree = "<group>"; };
+		A67EE6771B8EFC3D00D82F06 /* openssl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = openssl; path = deps/openssl; sourceTree = "<group>"; };
+		A67EE6791B8EFDB600D82F06 /* make.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = make.js; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		A67EE64F1B8EFAF200D82F06 = {
+			isa = PBXGroup;
+			children = (
+				A67EE6791B8EFDB600D82F06 /* make.js */,
+				A67EE6731B8EFC2A00D82F06 /* deps */,
+				A67EE66F1B8EFB9F00D82F06 /* MSFoundation */,
+				A67EE6721B8EFC0600D82F06 /* MSDatabase */,
+				A67EE6701B8EFBB800D82F06 /* MSNet */,
+				A67EE66E1B8EFB7D00D82F06 /* MSTests_src */,
+			);
+			sourceTree = "<group>";
+		};
+		A67EE66F1B8EFB9F00D82F06 /* MSFoundation */ = {
+			isa = PBXGroup;
+			children = (
+				A67EE6611B8EFB7D00D82F06 /* MSCore_doc */,
+				A67EE6621B8EFB7D00D82F06 /* MSCore_src */,
+				A67EE6631B8EFB7D00D82F06 /* MSCore_tst */,
+				A67EE6641B8EFB7D00D82F06 /* MSCore_unicode */,
+				A67EE65A1B8EFB1700D82F06 /* Foundation_src */,
+				A67EE65C1B8EFB7D00D82F06 /* Foundation_tst */,
+				A67EE6691B8EFB7D00D82F06 /* MSFoundation_src */,
+				A67EE6681B8EFB7D00D82F06 /* MSFoundation_Basics_src */,
+				A67EE66A1B8EFB7D00D82F06 /* MSFoundation_tst */,
+			);
+			name = MSFoundation;
+			sourceTree = "<group>";
+		};
+		A67EE6701B8EFBB800D82F06 /* MSNet */ = {
+			isa = PBXGroup;
+			children = (
+				A67EE66B1B8EFB7D00D82F06 /* MSNet_src */,
+				A67EE66C1B8EFB7D00D82F06 /* MSNode_src */,
+				A67EE66D1B8EFB7D00D82F06 /* MSNode_tst */,
+				A67EE6711B8EFBD300D82F06 /* MHMessenger_src */,
+				A67EE6601B8EFB7D00D82F06 /* MHServer_src */,
+				A67EE65D1B8EFB7D00D82F06 /* MHRepository_src */,
+				A67EE65E1B8EFB7D00D82F06 /* MHRepositoryAdministrator_src */,
+				A67EE65F1B8EFB7D00D82F06 /* MHRepositoryServer_src */,
+			);
+			name = MSNet;
+			sourceTree = "<group>";
+		};
+		A67EE6721B8EFC0600D82F06 /* MSDatabase */ = {
+			isa = PBXGroup;
+			children = (
+				A67EE6651B8EFB7D00D82F06 /* MSDb_src */,
+				A67EE6661B8EFB7D00D82F06 /* MSDb_tst */,
+				A67EE6671B8EFB7D00D82F06 /* MSDBAdaptors_src */,
+			);
+			name = MSDatabase;
+			sourceTree = "<group>";
+		};
+		A67EE6731B8EFC2A00D82F06 /* deps */ = {
+			isa = PBXGroup;
+			children = (
+				A67EE6741B8EFC3D00D82F06 /* libuv */,
+				A67EE6751B8EFC3D00D82F06 /* msobjclib */,
+				A67EE6761B8EFC3D00D82F06 /* msstdlib */,
+				A67EE6771B8EFC3D00D82F06 /* openssl */,
+			);
+			name = deps;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		A67EE6541B8EFAF200D82F06 /* MSFoundation */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(PROJECT_DIR)/MSBuildSystem/app.js make --target=MSFoundationTests --variant=debug $(PROJECT_DIR)/";
+			buildConfigurationList = A67EE6571B8EFAF200D82F06 /* Build configuration list for PBXLegacyTarget "MSFoundation" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/local/bin/node;
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = MSFoundation;
+			passBuildSettingsInEnvironment = 0;
+			productName = MicroStep;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		A67EE6501B8EFAF200D82F06 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0640;
+				ORGANIZATIONNAME = OpenMicroStep;
+				TargetAttributes = {
+					A67EE6541B8EFAF200D82F06 = {
+						CreatedOnToolsVersion = 6.4;
+					};
+				};
+			};
+			buildConfigurationList = A67EE6531B8EFAF200D82F06 /* Build configuration list for PBXProject "MicroStep" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = A67EE64F1B8EFAF200D82F06;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A67EE6541B8EFAF200D82F06 /* MSFoundation */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		A67EE6551B8EFAF200D82F06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A67EE6561B8EFAF200D82F06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		A67EE6581B8EFAF200D82F06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		A67EE6591B8EFAF200D82F06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A67EE6531B8EFAF200D82F06 /* Build configuration list for PBXProject "MicroStep" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A67EE6551B8EFAF200D82F06 /* Debug */,
+				A67EE6561B8EFAF200D82F06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A67EE6571B8EFAF200D82F06 /* Build configuration list for PBXLegacyTarget "MSFoundation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A67EE6581B8EFAF200D82F06 /* Debug */,
+				A67EE6591B8EFAF200D82F06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A67EE6501B8EFAF200D82F06 /* Project object */;
+}
