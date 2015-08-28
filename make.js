@@ -103,6 +103,8 @@ module.exports = {
         {file: "MSCore_src/MSCObject.h", tags: ["MSPublicHeaders"]},
         {file: "MSCore_src/MSCString.h", tags: ["MSPublicHeaders"]},
         {file: "MSCore_src/MSCString.c"},
+        {file: "MSCore_src/MSCTraverse.h", tags: ["MSPublicHeaders"]},
+        {file: "MSCore_src/MSCTraverse.c"},
         {file: "MSCore_src/MSCoreSES.h", tags: ["MSPublicHeaders"]},
         {file: "MSCore_src/MSCoreSES.c"},
         {file: "MSCore_src/MSCoreUnichar.h", tags: ["MSPublicHeaders"]},
@@ -163,6 +165,7 @@ module.exports = {
         {file: "MSCore_tst/mscore_mste_validate.c" },
         {file: "MSCore_tst/mscore_ses_validate.c"},
         {file: "MSCore_tst/mscore_tools_validate.c"},
+        {file: "MSCore_tst/mscore_ctraverse_validate.c"},
         {file: "MSCore_tst/mscore_validate.c"},
         {file: "MSCore_tst/mscore_cdecimal_validate.c"},
         {file: "MSCore_tst/mscore_validate.h"},
@@ -196,7 +199,6 @@ module.exports = {
         {file: "Foundation_src/NSUnarchiver.h", tags: ["MSPublicHeaders"]},
         {file: "Foundation_src/NSArchiver.m"},
         {file: "Foundation_src/NSConstantString.m"},
-        {file: "Foundation_src/NSCopying.h", tags: ["MSPublicHeaders"]},
         {file: "Foundation_src/NSData.h", tags: ["MSPublicHeaders"]},
         {file: "Foundation_src/NSData.m"},
         {file: "Foundation_src/NSDate.h", tags: ["MSPublicHeaders"]},
@@ -512,7 +514,7 @@ module.exports = {
         {file:"MSDb_src/MSDBTransaction.m"},
         {file:"MSDb_src/MSObi.m"},
         {file:"MSDb_src/MSOdb.m"},
-        {file:"MSDb_src/MSOid.m"}
+        {file:"MSDb_src/MSOid.m"},
       ]}
     ]},
     {group:"MSNode", files:[
