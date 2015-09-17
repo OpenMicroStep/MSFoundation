@@ -1,6 +1,6 @@
 #import "MSNode_Private.h"
 
-static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt statusCode, void *arg)
+static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt statusCode, MSHandlerArg *args)
 {
   MSHttpCookieManager *cookies= [tr objectForKey:@"MSHttpCookieMiddleware"];
   [cookies sendOnTransaction:tr];
@@ -12,7 +12,7 @@ static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt status
 - (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
 {
   MSHttpCookieManager *cookies= [MSHttpCookieManager new];
-  [tr addWriteHeadHandler:MSHttpCookieMiddlewareWriteHead context:self];
+  [tr addWriteHeadHandler:MSHttpCookieMiddlewareWriteHead args:0];
   [tr setObject:cookies forKey:@"MSHttpCookieMiddleware"];
   [cookies updateWithTransaction:tr];
   [cookies release];
@@ -35,7 +35,7 @@ static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt status
 + (instancetype)cookieWithValue:(NSString *)value
 { return AUTORELEASE([ALLOC(self) initWithValue:value]); }
 - (instancetype)initWithValue:(NSString *)value
-{ 
+{
   _value= [value retain];
   return self;
 }
@@ -80,7 +80,7 @@ static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt status
 static void _parseCookie(CDictionary *cookies, NSString *setCookie)
 {
   // cookie: key1=value1; key2=value2;
-  SES ses, key, value; NSUInteger i; BOOL ok= YES; 
+  SES ses, key, value; NSUInteger i; BOOL ok= YES;
   MSHttpCookie *cookie; CString *sKey, *sValue;
   ok= SESOK(ses= SESFromString(setCookie));
   i= SESStart(ses);
@@ -113,7 +113,7 @@ static void _parseCookie(CDictionary *cookies, NSString *setCookie)
 - (void)updateWithTransaction:(MSHttpTransaction *)tr
 {
   id value; NSEnumerator *e;
-  value= [tr valueForHeader:@"cookie"]; 
+  value= [tr valueForHeader:@"cookie"];
   if ([value isKindOfClass:[NSArray class]]) {
     for (e= [value objectEnumerator]; (value= [e nextObject]);) {
       _parseCookie(_cookies, value);}
@@ -157,7 +157,7 @@ static void _parseCookie(CDictionary *cookies, NSString *setCookie)
 static void _parseSetCookie(CDictionary *cookies, NSString *setCookie)
 {
   // set-cookie: key=value; Expires=value; Path=path; ...
-  SES ses, key, value; NSUInteger i; BOOL ok= YES; 
+  SES ses, key, value; NSUInteger i; BOOL ok= YES;
   MSHttpCookie *cookie; CString *name= NULL, *sValue;
   ok= SESOK(ses= SESFromString(setCookie));
   i= SESStart(ses);
@@ -181,7 +181,7 @@ static void _parseSetCookie(CDictionary *cookies, NSString *setCookie)
       else {
         // TODO
       }
-      RELEASE(sValue);  
+      RELEASE(sValue);
     }
   }
   if(name) {
@@ -194,7 +194,7 @@ static void _parseSetCookie(CDictionary *cookies, NSString *setCookie)
   // set-cookie: key=value; Expires=value; Path=path; ...
   // the set-cookie header is special and can be an array sometimes
   id value; NSEnumerator *e;
-  value= [response valueForHeader:@"set-cookie"]; 
+  value= [response valueForHeader:@"set-cookie"];
   if ([value isKindOfClass:[NSArray class]]) {
     for (e= [value objectEnumerator]; (value= [e nextObject]);) {
       _parseSetCookie(_cookies, value);}}

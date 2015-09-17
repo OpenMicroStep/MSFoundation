@@ -53,9 +53,9 @@
   ASSIGN(_passphrase, [passphrase copy]);
 }
 
-static BOOL MSHttpApplicationClientEventHandler(MSHttpClientResponse *response, NSString *error, void *arg)
+static BOOL MSHttpApplicationClientEventHandler(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args)
 {
-  MSHttpCookieManager *manager= [(MSHttpApplicationClient*)arg cookieManager];
+  MSHttpCookieManager *manager= [(MSHttpApplicationClient*)args[0].id cookieManager];
   [manager updateWithClientResponse:response];
   return YES;
 }
@@ -66,20 +66,20 @@ static BOOL MSHttpApplicationClientEventHandler(MSHttpClientResponse *response, 
     at= [_url stringByAppendingPathComponent:at];
   if (_https) {
     request= [MSHttpsClientRequest httpsClientRequest:method url:at];
-    if (_pfx) 
+    if (_pfx)
       [request setPFX:_pfx];
-    if (_ca) 
+    if (_ca)
       [request setCertificateAutority:_ca];
-    if (_cert && _key) 
+    if (_cert && _key)
       [request setCertificate:_cert privateKey:_key passphrase:_passphrase];
-    if (_agent) 
+    if (_agent)
       [request setAgent:_agent];
   }
   else {
     request= [MSHttpClientRequest httpClientRequest:method url:at];
   }
   [_cookieManager sendOnClientRequest:request];
-  [request addHandler:MSHttpApplicationClientEventHandler context:self];
+  [request addHandler:MSHttpApplicationClientEventHandler args:1, MSMakeHandlerArg(self)];
   return request;
 }
 - (MSHttpClientRequest *)getRequest:(NSString *)at
@@ -150,7 +150,7 @@ static void _appWithParameters(CArray *apps, NSDictionary *parameters, NSString 
         DESTROY(self);
       else {
         CArrayAddObject(_servers, server);
-        [(MSHttpsServer*)server setDelegate:self]; 
+        [(MSHttpsServer*)server setDelegate:self];
       }
     }
     NSLog(@"Application started: %@", parameters);

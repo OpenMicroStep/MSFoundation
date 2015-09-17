@@ -9,7 +9,7 @@
 - (void)writeMSTE:(id)rootObject;
 @end
 
-@interface MSHttpMSTEMiddleware : NSObject <MSHttpMiddleware, MSHttpRequestDelegate>
+@interface MSHttpMSTEMiddleware : NSObject <MSHttpMiddleware>
 + (instancetype)msteMiddleware;
 @end
 @interface MSHttpTransaction (MSHttpMSTEMiddleware)

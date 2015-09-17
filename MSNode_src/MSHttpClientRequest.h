@@ -27,9 +27,9 @@
 - (NSString *)stringValue;
 @end
 
-typedef BOOL (*MSHttpClientRequestHandler)(MSHttpClientResponse *response, NSString *error, void *arg);
+typedef BOOL (*MSHttpClientRequestHandler)(MSHttpClientResponse *response, NSString *error, MSHandlerArg *arg);
 @interface MSHttpClientRequest : NSObject {
-  void *_eventFirst, *_eventLast;
+  MSHandlerList _handlers;
   void *_req, *_options, *_headers;
   Class _cls;
   NSString *_url;
@@ -41,7 +41,7 @@ typedef BOOL (*MSHttpClientRequestHandler)(MSHttpClientResponse *response, NSStr
 - (Class)responseClass;
 - (void)setResponseClass:(Class)cls;
 
-- (void)addHandler:(MSHttpClientRequestHandler)handler context:(void*)arg;
+- (MSHandler*)addHandler:(MSHttpClientRequestHandler)handler args:(int)argc, ...;
 
 - (void)setValue:(NSString*)name forHeader:(NSString*)value;
 - (void)writeData:(NSData*)data;

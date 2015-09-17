@@ -9,7 +9,7 @@
 - (void)writeMessengerMessage:(MHMessengerMessage *)message;
 @end
 
-@interface MHMessengerMessageMiddleware : NSObject <MSHttpMiddleware, MSHttpRequestDelegate>
+@interface MHMessengerMessageMiddleware : NSObject <MSHttpMiddleware>
 + (instancetype)messengerMessageMiddleware;
 @end
 @interface MSHttpTransaction (MHMessengerMessageMiddleware)

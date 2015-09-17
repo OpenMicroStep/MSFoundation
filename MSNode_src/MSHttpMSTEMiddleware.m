@@ -15,11 +15,11 @@
   [super dealloc];
 }
 - (void)onResponseData:(NSData *)data
-{ 
+{
   [_decoder parseBytes:[data bytes] length:[data length]];
 }
 - (void)onResponseEnd
-{ 
+{
   id error= nil;
   _decodedObject= [[_decoder parseResult:&error] retain];
   [[error retain] autorelease];
@@ -35,34 +35,33 @@
 @implementation MSHttpMSTEMiddleware
 + (instancetype)msteMiddleware
 { return AUTORELEASE([ALLOC(self) init]); }
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+
+static BOOL _onTransactionReceiveData(MSHttpTransaction *tr, NSData *data, MSHandlerArg *args)
 {
-  [tr setObject:[[MSMSTEDecoder new] autorelease] forKey:@"MSHttpMSTEMiddleware_decoder"];
-  [tr setObject:next forKey:@"MSHttpMSTEMiddleware_next"];
-  [tr setDelegate:self];
+  MSMSTEDecoder *decoder= args[0].id;
+  [decoder parseBytes:[data bytes] length:[data length]];
+  return YES;
 }
-- (void)onTransaction:(MSHttpTransaction*)tr receiveData:(MSBuffer *)data
+static BOOL _onTransactionReceiveEnd(MSHttpTransaction *tr, NSString *err, MSHandlerArg *args)
 {
-  MSMSTEDecoder *d;
-  d= [tr objectForKey:@"MSHttpMSTEMiddleware_decoder"];
-  [d parseBytes:[data bytes] length:[data length]];
-}
-- (void)onTransactionEnd:(MSHttpTransaction*)tr
-{
-  MSMSTEDecoder *d; id <MSHttpNextMiddleware> n; id error= nil;
-  d= [tr objectForKey:@"MSHttpMSTEMiddleware_decoder"];
-  n= [tr objectForKey:@"MSHttpMSTEMiddleware_next"];
-  [tr setObject:[d parseResult:&error] forKey:@"MSHttpMSTEMiddleware"];
-  [tr removeObjectForKey:@"MSHttpMSTEMiddleware_decoder"];
-  [tr removeObjectForKey:@"MSHttpMSTEMiddleware_next"];
+  MSMSTEDecoder *decoder= args[0].id;
+  id <MSHttpNextMiddleware> n= args[1].id;
+  id error= nil;
+
+  [tr setObject:[decoder parseResult:&error] forKey:@"MSHttpMSTEMiddleware"];
   if (error)
     [tr write:MSHttpCodeBadRequest string:error];
   else
     [n nextMiddleware];
+  RELEASE(decoder);
+  return YES;
 }
-- (void)onTransaction:(MSHttpTransaction *)tr error:(NSString*)err
-{ 
-  [tr write:MSHttpCodeBadRequest];
+- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+{
+  MSMSTEDecoder *decoder;
+  decoder= [MSMSTEDecoder new];
+  [tr addReceiveDataHandler:_onTransactionReceiveData args:1, MSMakeHandlerArg(decoder)];
+  [tr addReceiveEndHandler:_onTransactionReceiveEnd args:2, MSMakeHandlerArg(decoder), MSMakeHandlerArg(next)];
 }
 @end
 

@@ -113,9 +113,9 @@
 @end
 
 @implementation MHMessengerMessageURNMiddleware
-static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, void *arg);
+static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args);
 static void _senderURNSet(id <MSHttpNextMiddleware> next);
-static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, void *arg);
+static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args);
 static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipients);
 - (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
 {
@@ -127,17 +127,17 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
       _senderURNSet(next);}
     else {
       id request= [[session client] urnForLogin:[session login]];
-      [request addHandler:_senderURNCallback context:next];}}
+      [request addHandler:_senderURNCallback args:1, MSMakeHandlerArg(next)];}}
   else {
     _senderURNSet(next);}
 }
-static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, void *arg)
+static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args)
 {
-  MSHttpTransaction *tr= [(id)arg transaction];
+  MSHttpTransaction *tr= [args[0].id transaction];
   id senderURN= [(id)response stringValue];
   if (senderURN){
     [[tr session] setSenderURN:senderURN];
-    _senderURNSet((id)arg);}
+    _senderURNSet(args[0].id);}
   else {
     [tr write:MSHttpCodeInternalServerError string:@"Unable to find URN of the logged user"];}
   return NO;
@@ -150,16 +150,16 @@ static void _senderURNSet(id <MSHttpNextMiddleware> next)
     allowedRecipients= [session allowedRecipients];
     if (!allowedRecipients) {
       request= [[session client] allowedApplicationUrnsForAuthenticable:[session senderURN]];
-      [request addHandler:_recipientURNCallback context:next];}
+      [request addHandler:_recipientURNCallback args:1, MSMakeHandlerArg(next)];}
     else {
       _recipientURNCheck(next, allowedRecipients);}}
   else {
     [session setRecipientURN:[session senderURN]];
     [next nextMiddleware];}
 }
-static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, void *arg)
+static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args)
 {
-  _recipientURNCheck((id)arg, [(id)response msteDecodedObject]);
+  _recipientURNCheck(args[0].id, [(id)response msteDecodedObject]);
   return NO;
 }
 static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipients)

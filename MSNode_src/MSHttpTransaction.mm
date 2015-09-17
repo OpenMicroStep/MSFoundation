@@ -2,6 +2,11 @@
 
 using namespace v8;
 
+@interface MSHttpTransaction (PrivateEvents)
+- (void)emitReceiveData:(NSData *)data;
+- (void)emitReceiveEnd:(NSString *)error;
+@end
+
 enum {
   STATE_HEAD= 0,
   STATE_HEAD_HANDLER,
@@ -14,17 +19,17 @@ static CDictionary *__methodMap;
 static void onDataCallback(id object, const FunctionCallbackInfo<Value> &args)
 {
   MSHttpTransaction*  self= object;
-  [[self delegate] onTransaction:self receiveData:nodejs_to_objc(args.GetIsolate(), args[0])];
+  [self emitReceiveData:nodejs_to_objc(args.GetIsolate(), args[0])];
 }
 static void onEndCallback(id object, const FunctionCallbackInfo<Value> &args)
 {
   MSHttpTransaction*  self= object;
-  [[self delegate] onTransactionEnd:self];
+  [self emitReceiveEnd:nil];
 }
 static void onErrorCallback(id object, const FunctionCallbackInfo<Value> &args)
 {
   MSHttpTransaction*  self= object;
-  [[self delegate] onTransaction:self error:nodejs_to_objc(args.GetIsolate(), args[0])];
+  [self emitReceiveEnd:nodejs_to_objc(args.GetIsolate(), args[0])];
 }
 static void _registerEvents(id self, Local<Object> request, Isolate *isolate) {
   Local<Function> on= nodejs_method(isolate, request, "on");
@@ -38,7 +43,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
   Isolate *isolate = Isolate::GetCurrent();
   Local<Object> http= nodejs_require("url");
   Local<Object> request= Local<Object>::New(isolate, *(Persistent<Object>*)req);
-  return nodejs_to_objc(isolate, nodejs_call(isolate, http, "parse", 2, (Local<Value>[]){ request->Get(String::NewFromUtf8(isolate, "url")), 
+  return nodejs_to_objc(isolate, nodejs_call(isolate, http, "parse", 2, (Local<Value>[]){ request->Get(String::NewFromUtf8(isolate, "url")),
     parseQuery ? (Local<Value>)v8::True(isolate) : (Local<Value>)v8::Undefined(isolate)
   })->ToObject()->Get(String::NewFromUtf8(isolate, prop)));
 }
@@ -78,26 +83,35 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
   nodejs_call(NULL, _req, "removeAllListeners");
   nodejs_persistent_delete(_req);
   nodejs_persistent_delete(_res);
-  MSHttpHandlerDealloc(_writeHeadLast);
-  MSHttpHandlerDealloc(_writeDataLast);
+  MSHandlerListFreeInside(&_onReceiveData);
+  MSHandlerListFreeInside(&_onReceiveEnd);
+  MSHandlerListFreeInside(&_onWriteHead);
+  MSHandlerListFreeInside(&_onWriteData);
   RELEASE(_context);
   [super dealloc];
 }
 
-- (void)addWriteHeadHandler:(MSHttpTransactionWriteHeadHandler)handler context:(void*)arg
-{ MSHttpHandlerAdd(&_writeHeadFirst, &_writeHeadLast, handler, arg); }
-- (void)addWriteDataHandler:(MSHttpTransactionWriteDataHandler)handler context:(void*)arg
-{ MSHttpHandlerAdd(&_writeDataFirst, &_writeDataLast, handler, arg); }
+
+// Events
+- (MSHandler*)addReceiveDataHandler:(MSHttpTransactionReceiveDataHandler)handler args:(int)argc, ...
+{ return MSHandlerListAdd(&_onReceiveData, handler, argc, argc); }
+- (MSHandler*)addReceiveEndHandler:(MSHttpTransactionEndHandler)handler args:(int)argc, ...
+{ return MSHandlerListAdd(&_onReceiveEnd, handler, argc, argc); }
+- (MSHandler*)addWriteHeadHandler:(MSHttpTransactionWriteHeadHandler)handler args:(int)argc, ...
+{ return MSHandlerListAdd(&_onWriteHead, handler, argc, argc); }
+- (MSHandler*)addWriteDataHandler:(MSHttpTransactionWriteDataHandler)handler args:(int)argc, ...
+{ return MSHandlerListAdd(&_onWriteData, handler, argc, argc); }
+- (void)emitReceiveData:(NSData *)data
+{ MSHandlerListCall(&_onReceiveData, MSHttpTransactionReceiveDataHandler, self, data); }
+- (void)emitReceiveEnd:(NSString *)error
+{ MSHandlerListCall(&_onReceiveEnd, MSHttpTransactionEndHandler, self, error); }
+
 - (id)objectForKey:(id)key
 { return CDictionaryObjectForKey(_context, key); }
 - (void)setObject:(id)object forKey:(id)key
 { CDictionarySetObjectForKey(_context, object, key); }
 - (void)removeObjectForKey:(id)key
 { CDictionarySetObjectForKey(_context, nil, key);  }
-- (void)setDelegate:(id<MSHttpRequestDelegate>)delegate
-{ ASSIGN(_delegate, delegate); }
-- (id <MSHttpRequestDelegate>)delegate
-{ return _delegate; }
 
 - (MSHttpMethod)method
 { return (MSHttpMethod)(intptr_t)CDictionaryObjectForKey(__methodMap, nodejs_get(NULL, _req, "method")); }
@@ -133,7 +147,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
   BOOL handle= YES;
   if (_state < STATE_HEAD_HANDLER) {
     _state= STATE_HEAD_HANDLER;
-    handle= MSHttpHandlerCall(_writeHeadLast, BOOL, YES, MSHttpTransactionWriteHeadHandler, self, statusCode); }
+    handle= MSHandlerListCallUntilNO(&_onWriteHead, BOOL, YES, MSHttpTransactionWriteHeadHandler, self, statusCode); }
   if (handle && _state == STATE_HEAD_HANDLER) {
     Isolate *isolate= Isolate::GetCurrent();
     NSLog(@"HTTP Transaction %@ -> %d", [self url], (int)statusCode);
@@ -156,7 +170,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
   if (chunk) {
     if (_state < STATE_DATA_HANDLER) {
       _state= STATE_DATA_HANDLER;
-      handle= MSHttpHandlerCall(_writeDataLast, BOOL, YES, MSHttpTransactionWriteDataHandler, self, chunk); }
+      handle= MSHandlerListCallUntilNO(&_onWriteData, BOOL, YES, MSHttpTransactionWriteDataHandler, self, chunk); }
     if (handle && _state == STATE_DATA_HANDLER) {
       Isolate *isolate= Isolate::GetCurrent();
       nodejs_call(isolate, _res, "write", 1, (Local<Value>[]){ [chunk toV8:isolate] } );}

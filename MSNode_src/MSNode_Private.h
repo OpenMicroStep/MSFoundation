@@ -37,54 +37,47 @@
 @end
 #endif //__cplusplus
 
-typedef struct MSHttpHandlerStruct {
+typedef struct MSHandlerStruct {
+  struct MSHandlerStruct *next; // =list.first
+  struct MSHandlerStruct *prev; // =list.last
   void *fn;
-  void *arg;
-  struct MSHttpHandlerStruct *next;
-} MSHttpHandler;
+  // args
+} MSHandler;
 
-#define MSHttpHandlerSend(LAST, RETURNTYPE, DEFAULT, T, ARGS...) ({ \
-  MSHttpHandler *__h= (MSHttpHandler *)LAST; RETURNTYPE __c= DEFAULT; IMP __i; \
-  while (__c && __h) { \
-    __i= LOOKUP(__h->fn, __h->arg); \
-    if (__i) { \
-      __c= ((T)__i)(__h->fn, __h->arg, ARGS);} \
-    __h= __h->next; } \
-  __c; \
+MSNodeExtern void MSHandlerFillArguments(MSHandlerArg *args, int argc, va_list ap);
+MSNodeExtern MSHandler* MSCreateHandlerWithArguments(void *fn, int argc, va_list ap);
+MSNodeExtern MSHandler* _MSHandlerInsertBefore(MSHandler *n, void *fn, int argc, va_list ap);
+MSNodeExtern void MSHandlerListFreeInside(MSHandlerList *list);
+
+#define MSHandlerListCallUntilNO(LIST, RETURNTYPE, DEFAULT, T, ARGS...) ({      \
+  MSHandler *__h, *__l; RETURNTYPE __c;                                         \
+  __l= (MSHandler *)(LIST);                                                     \
+  __h= __l->prev;                                                               \
+  __c= DEFAULT;                                                                 \
+  while (__c && __h != __l) {                                                   \
+    __c= ((T)__h->fn)(ARGS, (MSHandlerArg *)(__h + 1));                         \
+    __h= __h->next; }                                                           \
+  __c;                                                                          \
 })
 
-#define MSHttpHandlerCall(LAST, RETURNTYPE, DEFAULT, T, ARGS...) ({ \
-  MSHttpHandler *__h= (MSHttpHandler *)LAST; RETURNTYPE __c= DEFAULT; \
-  while (__c && __h) { \
-    __c= ((T)__h->fn)(ARGS, __h->arg); \
-    __h= __h->next; } \
-  __c; \
+#define MSHandlerListCall(LIST, T, ARGS...) ({                                  \
+  MSHandler *__h, *__l;                                                         \
+  __l= (MSHandler *)(LIST);                                                     \
+  __h= __l->prev;                                                               \
+  while (__h != __l) {                                                          \
+    ((T)__h->fn)(ARGS, (MSHandlerArg *)(__h + 1));                              \
+    __h= __h->next; }                                                           \
 })
 
-#define MSHttpHandlerAdd(FIRST, LAST, FN, ARG) _MSHttpHandlerAdd(FIRST, LAST, (void*)FN, ARG)
-static inline void _MSHttpHandlerAdd(void **first, void **last, void *fn, void *arg)
-{
-  MSHttpHandler *n;
-  n= (MSHttpHandler*)MSMallocFatal(sizeof(MSHttpHandler), "MSHttpHandlerAdd");
-  n->fn= fn;
-  n->arg= arg;
-  n->next= NULL;
-  if (*last)
-    ((MSHttpHandler*)*last)->next= n;
-  *last= n;
-  if (!*first)
-    *first= n;
-}
+#define MSHandlerListAdd(LIST, FN, COUNT, LAST_ARG) ({                          \
+  MSHandler *__h;                                                               \
+  va_list ap;                                                                   \
+  va_start(ap, LAST_ARG);                                                       \
+  __h= _MSHandlerInsertBefore((MSHandler *)LIST, (void *)FN, COUNT, ap);        \
+  va_end(ap);                                                                   \
+  __h;                                                                          \
+})
 
-static inline void MSHttpHandlerDealloc(void *handlerEnd)
-{
-  MSHttpHandler *c, *n;
-  c= (MSHttpHandler *)handlerEnd;
-  while (c) {
-    n= c->next;
-    MSFree(c, "MSHttpHandlerDealloc");
-    c= n;}
-}
 static inline MSBuffer *MSHttpLoadBuffer(id o, NSString *path)
 {
   if ([o isKindOfClass:[NSString class]]) {

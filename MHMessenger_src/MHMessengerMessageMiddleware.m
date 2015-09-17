@@ -46,33 +46,32 @@ static void _messengerMessageOutput(id value, NSString *key, id request)
 @implementation MHMessengerMessageMiddleware
 + (instancetype)messengerMessageMiddleware
 { return AUTORELEASE([ALLOC(self) init]); }
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+
+static BOOL _onTransactionReceiveData(MSHttpTransaction *tr, NSData *data, MSHandlerArg *args)
 {
-  [tr setObject:[MSBuffer mutableBuffer] forKey:@"MHMessengerMessageMiddleware_buffer"];
-  [tr setObject:next forKey:@"MHMessengerMessageMiddleware_next"];
-  [tr setDelegate:self];
+  mutable MSBuffer *buffer= args[0].id;
+  [buffer appendBytes:[data bytes] length:[data length]];
+  return YES;
 }
-- (void)onTransaction:(MSHttpTransaction*)tr receiveData:(MSBuffer *)data
+static BOOL _onTransactionReceiveEnd(MSHttpTransaction *tr, NSString *err, MSHandlerArg *args)
 {
-  MSBuffer *b;
-  b= [tr objectForKey:@"MHMessengerMessageMiddleware_buffer"];
-  [b appendBytes:[data bytes] length:[data length]];
-}
-- (void)onTransactionEnd:(MSHttpTransaction*)tr
-{
-  MSBuffer *b; id <MSHttpNextMiddleware> n; MHMessengerMessage *message;
-  b= [tr objectForKey:@"MHMessengerMessageMiddleware_buffer"];
-  n= [tr objectForKey:@"MHMessengerMessageMiddleware_next"];
+  mutable MSBuffer *buffer= args[0].id;
+  id <MSHttpNextMiddleware> n= args[1].id;
+  MHMessengerMessage *message;
   message= [MHMessengerMessage message];
   [message fillPropertiesWithSource:_messengerMessageSource context:tr];
-  [message setBase64Content:b];
+  [message setBase64Content:buffer];
   [tr setObject:message forKey:@"MHMessengerMessageMiddleware"];
-  [tr removeObjectForKey:@"MHMessengerMessageMiddleware_buffer"];
-  [tr removeObjectForKey:@"MHMessengerMessageMiddleware_next"];
   [n nextMiddleware];
+  RELEASE(buffer);
+  return YES;
 }
-- (void)onTransaction:(MSHttpTransaction *)tr error:(NSString*)err
-{ }
+- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+{
+  mutable MSBuffer *buffer= [MSBuffer new];
+  [tr addReceiveDataHandler:_onTransactionReceiveData args:1, MSMakeHandlerArg(buffer)];
+  [tr addReceiveEndHandler:_onTransactionReceiveEnd args:2, MSMakeHandlerArg(buffer), MSMakeHandlerArg(next)];
+}
 @end
 
 @implementation MSHttpTransaction (MHMessengerMessageMiddleware)

@@ -65,7 +65,7 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
   nodejs_persistent_delete(_req);
   nodejs_persistent_delete(_options);
   nodejs_persistent_delete(_headers);
-  MSHttpHandlerDealloc(_eventFirst);
+  MSHandlerListFreeInside(&_handlers);
   RELEASE(_url);
   [super dealloc];
 }
@@ -74,13 +74,13 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
 - (void)setResponseClass:(Class)cls
 { _cls= cls; }
 
-- (void)addHandler:(MSHttpClientRequestHandler)handler context:(void*)arg
-{ MSHttpHandlerAdd(&_eventFirst, &_eventLast, handler, arg); }
+- (MSHandler*)addHandler:(MSHttpClientRequestHandler)handler args:(int)argc, ...
+{ return MSHandlerListAdd(&_handlers, handler, argc, argc); }
 
 - (void)onReponseHandled:(MSHttpClientResponse *)response withError:(NSString *)err
-{ 
+{
   NSLog(@"HTTP Request %@: %@", _url, err ? err : @"OK");
-  MSHttpHandlerCall(_eventFirst, BOOL, YES, MSHttpClientRequestHandler, response, err);
+  MSHandlerListCallUntilNO(&_handlers, BOOL, YES, MSHttpClientRequestHandler, response, err);
   [self release];
 }
 
@@ -133,11 +133,11 @@ static void _createRequestOnModule(id self, const char *module, void** req, void
   return AUTORELEASE([ALLOC(self) initWithMethod:method url:url]);
 }
 - (void)_createRequest
-{ 
+{
   //Isolate *isolate = Isolate::GetCurrent();
   //Local<Object> options = nodejs_persistent_value(isolate, _options);
   //options->Set(String::NewFromUtf8(isolate, "rejectUnauthorized"), v8::False(isolate)); // TODO: fix ca handling
-  _createRequestOnModule(self, "https", &_req, _options); 
+  _createRequestOnModule(self, "https", &_req, _options);
 }
 
 - (void)setAgent:(MSHttpsAgent *)agent
@@ -188,7 +188,7 @@ static void _registerResponseEvents(id self, Local<Object> response, Isolate *is
 @implementation MSHttpClientResponse
 
 - (instancetype)initWithRequest:(MSHttpClientRequest*)request withError:(NSString *)error
-{ 
+{
   _request= [request retain];
   self= [self init];
   [self handledWithError:error];
@@ -249,11 +249,11 @@ static void _registerResponseEvents(id self, Local<Object> response, Isolate *is
   [super dealloc];
 }
 - (void)onResponseData:(NSData *)data
-{ 
+{
   [_buf appendBytes:[data bytes] length:[data length]];
 }
 - (void)onResponseEnd
-{ 
+{
   id str= [ALLOC(MSString) initWithData:_buf encoding:NSUTF8StringEncoding];
   DESTROY(_buf);
   ASSIGN(_str, str);
