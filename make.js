@@ -255,6 +255,7 @@ module.exports = {
         {file: "Foundation_src/NSZone.m"},
       ]},
       {group:"Tests", files: [
+        {file: "Foundation_tst/foundation_nsobjcruntime_validate.m"},
         {file: "Foundation_tst/foundation_nsarray_validate.m"},
         {file: "Foundation_tst/foundation_nsdata_validate.m"},
         {file: "Foundation_tst/foundation_nsdate_validate.m"},

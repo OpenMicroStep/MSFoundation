@@ -3,6 +3,7 @@
 
 extern test_t FoundationTests      [20];
 
+extern test_t foundation_objcruntime[];
 extern test_t foundation_null      [10];
 extern test_t foundation_object    [10];
 extern test_t foundation_pool      [10];

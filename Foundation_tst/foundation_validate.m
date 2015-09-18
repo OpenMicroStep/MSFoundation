@@ -2,6 +2,7 @@
 #import "MSTests.h"
 
 test_t FoundationTests[]= {
+  {"NSObjcRuntime"    ,foundation_objcruntime,NULL,INTITIALIZE_TEST_T_END},
   {"NSNull"           ,foundation_null      ,NULL,INTITIALIZE_TEST_T_END},
   {"NSObject"         ,foundation_object    ,NULL,INTITIALIZE_TEST_T_END},
   {"NSAutoreleasePool",foundation_pool      ,NULL,INTITIALIZE_TEST_T_END},
