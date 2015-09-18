@@ -7,6 +7,7 @@
 #import "NSObjCRuntime.h"
 #import "NSObject.h"
 #import "NSAutoreleasePool.h"
+#import "NSMethodSignature.h"
 #import "NSInvocation.h"
 
 // Protocols

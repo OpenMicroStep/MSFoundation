@@ -4,6 +4,7 @@
 #import <MSFoundation/NSObjCRuntime.h>
 #import <MSFoundation/NSObject.h>
 #import <MSFoundation/NSAutoreleasePool.h>
+#import <MSFoundation/NSMethodSignature.h>
 #import <MSFoundation/NSInvocation.h>
 
 // Protocols

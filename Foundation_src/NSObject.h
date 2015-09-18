@@ -58,4 +58,6 @@
 - (id)copy;
 - (id)mutableCopy;
 
+-(NSMethodSignature *)methodSignatureForSelector:(SEL)selector;
+
 @end

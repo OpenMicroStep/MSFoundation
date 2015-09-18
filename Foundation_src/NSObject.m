@@ -204,4 +204,14 @@
   return self;
 }
 
+-(NSMethodSignature *)methodSignatureForSelector:(SEL)selector
+{
+   Method method; const char *types;
+
+   method= class_getInstanceMethod(object_getClass(self), selector);
+   types= method_getTypeEncoding(method);
+
+   return types ? [NSMethodSignature signatureWithObjCTypes:types] : nil;
+}
+
 @end
