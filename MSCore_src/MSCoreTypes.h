@@ -59,43 +59,29 @@
 
 #ifndef NSINTEGER_DEFINED
   #define NSINTEGER_DEFINED
-  #ifndef WO451
-    #ifdef WIN64 // Windows is LLP64 
-      typedef int64_t  NSInteger;
-      typedef uint64_t NSUInteger;
-    #else
-      typedef long  NSInteger;
-      typedef unsigned long NSUInteger;
-    #endif
-    #define NSIntegerMax    INTPTR_MAX
-    #define NSIntegerMin    INTPTR_MIN
-    #define NSUIntegerMax   UINTPTR_MAX
-  #else
-    #ifndef NSInteger
-    #define NSInteger int
-    #endif
-    #ifndef NSUInteger
-    #define NSUInteger unsigned
-    #endif
-    #define NSIntegerMax    INT_MAX
-    #define NSIntegerMin    INT_MIN
-    #define NSUIntegerMax   UINT_MAX
-  #endif
+  typedef intptr_t  NSInteger;
+  typedef uintptr_t NSUInteger;
+  #define NSIntegerMax    INTPTR_MAX
+  #define NSIntegerMin    INTPTR_MIN
+  #define NSUIntegerMax   UINTPTR_MAX
+  #define PRIdNSI PRIdPTR
+  #define PRIiNSI PRIiPTR
+  #define PRIoNSI PRIoPTR
+  #define PRIuNSI PRIuPTR
+  #define PRIxNSI PRIxPTR
+  #define PRIXNSI PRIXPTR
 #endif // NSINTEGER_DEFINED
 
 // Microstep codifications for 8, 16, 32 et 64 bytes integers
-// TODO: Shouldn't we use directly c11 std (int8_t, uint8_t, ...) as the meaning is obvious
-typedef int8_t   MSChar;
-typedef uint8_t  MSByte;
-typedef int16_t  MSShort;
-typedef uint16_t MSUShort;
-typedef int32_t  MSInt;
-typedef uint32_t MSUInt;
-typedef int64_t  MSLong;
-typedef uint64_t MSULong;
+typedef char MSChar;
+typedef unsigned char MSByte;
+typedef short MSShort;
+typedef unsigned short MSUShort;
+typedef int MSInt;
+typedef unsigned int MSUInt;
+typedef long long MSLong;
+typedef unsigned long long MSULong;
 
-#define NSIntegerMapValueCallBacks NSIntMapValueCallBacks
-#define NSIntegerMapKeyCallBacks   NSIntMapKeyCallBacks
 #define NS_NO_NATIVE_INTEGERS
 
 // No warning on ILP32 printf("%ld",WLI((NSInteger)i))

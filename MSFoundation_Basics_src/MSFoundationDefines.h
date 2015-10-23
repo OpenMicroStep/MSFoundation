@@ -114,7 +114,7 @@ LIBIMPORT IMP class_lookupMethod(Class, SEL);
 #define _C_ATOM   '%'
 #define _C_VECTOR '!'
 
-#elif defined(MAC_OS_X_VERSION_MAX_ALLOWED)
+#elif defined(MAC_OS_X_VERSION_MAX_ALLOWED) || defined(__GNUSTEP_RUNTIME__)
 /************************ APPLE RUNTIME **********************/
 
 #define _C_IN     'n'

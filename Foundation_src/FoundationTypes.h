@@ -37,10 +37,6 @@
     #define NS_ROOT_CLASS
 #endif
 
-#ifndef __has_feature
-#define __has_feature(x) 0
-#endif
-
 #if !__has_feature(objc_instancetype)
 #undef instancetype
 #define instancetype id

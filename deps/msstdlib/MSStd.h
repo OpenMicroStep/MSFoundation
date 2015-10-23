@@ -58,6 +58,10 @@
 #else
 #define MSStdExtern LIBIMPORT
 #endif
+
+#ifndef __has_feature
+#define __has_feature(x) 0
+#endif
 // END Platform defines
 ////////
 
@@ -101,8 +105,8 @@
   typedef unsigned int       uint32_t;
   typedef long long          int64_t;
   typedef unsigned long long uint64_t;
-  typedef long               intptr_t;
-  typedef unsigned long      uintptr_t;
+  typedef int                intptr_t;
+  typedef unsigned int       uintptr_t;
   typedef int64_t            intmax_t;
   typedef uint64_t           uintmax_t;
 # define restrict
@@ -130,6 +134,12 @@
 # define __sync_add_and_fetch(X,Y) ({ (*(X))+=Y; *(X);})
 # define __sync_sub_and_fetch(X,Y) ({ (*(X))-=Y; *(X);})
 
+# define PRIdPTR "d"
+# define PRIiPTR "i"
+# define PRIoPTR "o"
+# define PRIuPTR "u"
+# define PRIxPTR "x"
+# define PRIXPTR "X"
   static inline int vsnprintf(char *str, size_t size, const char *format, va_list ap) { return _vsnprintf(str, size, format, ap); }
 #endif
 
