@@ -49,7 +49,7 @@ static void _sessionTimeout(MSHttpSession* self)
 - (NSTimeInterval)lifetime { return [self isAuthenticated] ? 86400 : 3600; }
 - (NSString *)key          { return _key; }
 - (void)kill
-{ 
+{
   if (_uv_timer) {
     NSLog(@"Session %p killed %d", self, (int)[self retainCount]);
     MSNodeClearTimeout(_uv_timer);
@@ -80,9 +80,9 @@ static void _sessionTimeout(MSHttpSession* self)
 - (void)_removeSession:(MSHttpSession *)session
 {
   CDictionarySetObjectForKey(_sessions, nil, [session key]);
-} 
+}
 
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+- (void)onTransaction:(MSHttpTransaction *)tr
 {
   NSString *sessionKey; MSHttpSession *session; MSHttpCookie *cookie;
   sessionKey= [tr cookieValueForName:_cookieName];
@@ -90,18 +90,16 @@ static void _sessionTimeout(MSHttpSession* self)
   if (!session) {
     sessionKey= [_sessionClass generateSessionKey];
     cookie= [MSHttpCookie cookieWithValue:sessionKey];
-    [cookie setPath:[next route]];
+    [cookie setPath:[tr urlRouted]];
     [tr setCookie:cookie forName:_cookieName];
     session= [[ALLOC(_sessionClass) _initWithKey:sessionKey withInstigator:self] autorelease];
     CDictionarySetObjectForKey(_sessions, session, sessionKey);}
   session= [session update];
   [tr setObject:session forKey:@"MSHttpSessionMiddleware"];
   if([session isAuthenticated]) {
-    //NSLog(@"Authenticated session %p", session);
-    [next nextMiddleware];}
+    [tr nextRoute];}
   else {
-    //NSLog(@"Try authenticate session %p", session);
-    [_authenticator authenticate:tr next:next];}
+    [_authenticator authenticate:tr];}
 }
 @end
 

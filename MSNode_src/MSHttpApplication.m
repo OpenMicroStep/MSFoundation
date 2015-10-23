@@ -110,14 +110,14 @@ static void _appWithParameters(CArray *apps, NSDictionary *parameters, NSString 
     error= FMT(@"Unable to find application %@", className);}
   if (!error && parent && [parameters objectForKey:@"servers"]) {
     error= FMT(@"Unable to create application %@: servers is not allowed for sub applications", className); }
-  if (!error && parent && ![parameters objectForKey:@"route"]) {
-    error= FMT(@"Unable to create application %@: route is required for sub applications", className); }
+  if (!error && parent && ![parameters objectForKey:@"baseURL"]) {
+    error= FMT(@"Unable to create application %@: baseURL is required for sub applications", className); }
   if (!error && !(app= [ALLOC(cls) initWithParameters:parameters withPath:path error:&error])) {
     error= FMT(@"Unable to create application %@: %@", className, error ? error : @"unknown error");}
   if (!error) {
     NSEnumerator *e; id params;
     if (parent)
-      [parent addRoute:[parameters objectForKey:@"route"] toRouter:app];
+      [parent addRoute:app];
     CArrayAddObject(apps, app);
     for (e= [[parameters objectForKey:@"applications"] objectEnumerator]; !error && (params= [e nextObject]); ) {
       _appWithParameters(apps, params, path, &error, app);}
@@ -136,12 +136,15 @@ static void _appWithParameters(CArray *apps, NSDictionary *parameters, NSString 
     DESTROY(apps);}
   return AUTORELEASE(apps);
 }
++ (instancetype)applicationWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror
+{
+  return AUTORELEASE([ALLOC(self) initWithParameters:parameters withPath:path error:perror]);
+}
 - (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror
 {
-  if ((self= [super init])) {
+  if ((self= [super initWithPath:[parameters objectForKey:@"baseURL"] method:MSHttpMethodALL])) {
     NSEnumerator *e; id server;
-    [self setBaseURL:[parameters objectForKey:@"baseURL"]];
-    _path= [path copy];
+    _fsPath= [path copy];
     _parameters= [parameters copy];
     _servers= CCreateArray(0);
     for (e= [[parameters objectForKey:@"servers"] objectEnumerator]; self && (server= [e nextObject]); ) {
@@ -160,13 +163,13 @@ static void _appWithParameters(CArray *apps, NSDictionary *parameters, NSString 
 - (void)dealloc
 {
   RELEASE(_servers);
-  RELEASE(_path);
+  RELEASE(_fsPath);
   RELEASE(_parameters);
   [super dealloc];
 }
 
-- (NSString *)path
-{ return _path; }
+- (NSString *)fileSystemPath
+{ return _fsPath; }
 - (NSDictionary *)parameters
 { return _parameters; }
 

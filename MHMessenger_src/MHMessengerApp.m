@@ -109,31 +109,31 @@
 @end
 
 @interface MHMessengerMessageURNMiddleware : NSObject <MSHttpMiddleware>
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
+- (void)onTransaction:(MSHttpTransaction *)tr;
 @end
 
 @implementation MHMessengerMessageURNMiddleware
 static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args);
-static void _senderURNSet(id <MSHttpNextMiddleware> next);
+static void _senderURNSet(MSHttpTransaction *tr);
 static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args);
-static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipients);
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients);
+- (void)onTransaction:(MSHttpTransaction *)tr
 {
   MHMessengerSession* session= [tr session];
   id senderURN= [session senderURN];
   if (!senderURN) {
     if ([session authenticationType] == MHNetRepositoryAuthenticatedByPublicKey) {
       [session setSenderURN:[session login]];
-      _senderURNSet(next);}
+      _senderURNSet(tr);}
     else {
       id request= [[session client] urnForLogin:[session login]];
-      [request addHandler:_senderURNCallback args:1, MSMakeHandlerArg(next)];}}
+      [request addHandler:_senderURNCallback args:1, MSMakeHandlerArg(tr)];}}
   else {
-    _senderURNSet(next);}
+    _senderURNSet(tr);}
 }
 static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args)
 {
-  MSHttpTransaction *tr= [args[0].id transaction];
+  MSHttpTransaction *tr= args[0].id;
   id senderURN= [(id)response stringValue];
   if (senderURN){
     [[tr session] setSenderURN:senderURN];
@@ -142,34 +142,34 @@ static BOOL _senderURNCallback(MSHttpClientResponse *response, NSString *error, 
     [tr write:MSHttpCodeInternalServerError string:@"Unable to find URN of the logged user"];}
   return NO;
 }
-static void _senderURNSet(id <MSHttpNextMiddleware> next)
+static void _senderURNSet(MSHttpTransaction *tr)
 {
   MHMessengerSession *session; id allowedRecipients, request;
-  session= [[next transaction] session];
-  if ([[[next transaction] urlQueryParameters] objectForKey:@"recipient"]) {
+  session= [tr session];
+  if ([[tr urlQueryParameters] objectForKey:@"recipient"]) {
     allowedRecipients= [session allowedRecipients];
     if (!allowedRecipients) {
       request= [[session client] allowedApplicationUrnsForAuthenticable:[session senderURN]];
-      [request addHandler:_recipientURNCallback args:1, MSMakeHandlerArg(next)];}
+      [request addHandler:_recipientURNCallback args:1, MSMakeHandlerArg(tr)];}
     else {
-      _recipientURNCheck(next, allowedRecipients);}}
+      _recipientURNCheck(tr, allowedRecipients);}}
   else {
     [session setRecipientURN:[session senderURN]];
-    [next nextMiddleware];}
+    [tr nextRoute];}
 }
 static BOOL _recipientURNCallback(MSHttpClientResponse *response, NSString *error, MSHandlerArg *args)
 {
   _recipientURNCheck(args[0].id, [(id)response msteDecodedObject]);
   return NO;
 }
-static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipients)
+static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
 {
-  id recipient= [[[next transaction] urlQueryParameters] objectForKey:@"recipient"];
+  id recipient= [[tr urlQueryParameters] objectForKey:@"recipient"];
   if (![allowedRecipients isKindOfClass:[NSArray class]] || ![allowedRecipients containsObject:recipient]) {
-    [[next transaction] write:MSHttpCodeUnauthorized]; }
+    [tr write:MSHttpCodeUnauthorized]; }
   else {
-    [[[next transaction] session] setRecipientURN:recipient];
-    [next nextMiddleware];}
+    [[tr session] setRecipientURN:recipient];
+    [tr nextRoute];}
 }
 @end
 
@@ -178,7 +178,7 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
   id _messengerDBAccessor;
 }
 - (instancetype)initWithMessengeDB:(id)db;
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
+- (void)onTransaction:(MSHttpTransaction *)tr;
 @end
 
 @implementation MHMessengerMessageCleaner
@@ -191,12 +191,12 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
   [_messengerDBAccessor release];
   [super dealloc];
 }
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+- (void)onTransaction:(MSHttpTransaction *)tr
 {
   if (++_counter == 100) {
     _counter= 0;
     [_messengerDBAccessor cleanObsoleteMessages];}
-  [next nextMiddleware];
+  [tr nextRoute];
 }
 @end
 
@@ -298,9 +298,9 @@ static void _recipientURNCheck(id <MSHttpNextMiddleware> next, id allowedRecipie
     return YES ;
 }*/
 
-- (void)authenticate:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+- (void)authenticate:(MSHttpTransaction *)tr
 {
-  if (!MHNetRepositoryAuthenticateDistantSession(tr, next, [[self parameters] objectForKey:@"repository"], [self path])) {
+  if (!MHNetRepositoryAuthenticateDistantSession(tr, [[self parameters] objectForKey:@"repository"], [self fileSystemPath])) {
     [[tr session] kill];
     [tr write:MSHttpCodeUnauthorized];
   }

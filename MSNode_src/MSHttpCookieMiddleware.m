@@ -9,14 +9,14 @@ static BOOL MSHttpCookieMiddlewareWriteHead(MSHttpTransaction *tr, MSUInt status
 @implementation MSHttpCookieMiddleware
 + (instancetype)cookieMiddleware
 { return AUTORELEASE([ALLOC(self) init]); }
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+- (void)onTransaction:(MSHttpTransaction *)tr
 {
   MSHttpCookieManager *cookies= [MSHttpCookieManager new];
   [tr addWriteHeadHandler:MSHttpCookieMiddlewareWriteHead args:0];
   [tr setObject:cookies forKey:@"MSHttpCookieMiddleware"];
   [cookies updateWithTransaction:tr];
   [cookies release];
-  [next nextMiddleware];
+  [tr nextRoute];
 }
 @end
 

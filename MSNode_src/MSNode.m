@@ -53,6 +53,35 @@ static NSString* __codes[] = {
   [505]= @"HTTP Version Not Supported"     ,
 };
 
+// TODO: Move this to MSFoundation
+#ifdef MSFOUNDATION_FORCOCOA
+static void __currentUvRunLoop_dtor(void *uv_loop) {
+  uv_loop_close((uv_loop_t *)uv_loop);
+}
+MS_DECLARE_THREAD_LOCAL(__currentUvRunLoop, __currentUvRunLoop_dtor);
+@implementation NSRunLoop (libuv)
++ (uv_loop_t *)currentUvRunLoop
+{
+  uv_loop_t *loop= tss_get(__currentUvRunLoop);
+  if(!loop) {
+    loop= (uv_loop_t *)MSMallocFatal(sizeof(uv_loop_t), "NSRunLoop uv_loop_t");
+    uv_loop_init(loop);
+    tss_set(__currentUvRunLoop, loop);}
+  return loop;
+}
+@end
+#else
+@interface NSRunLoop (msfoundation_libuv)
+- (uv_loop_t *)_uv_loop;
+@end
+@implementation NSRunLoop (libuv)
++ (uv_loop_t *)currentUvRunLoop
+{
+  return [[NSRunLoop currentRunLoop] _uv_loop];
+}
+@end
+#endif
+
 NSString* MSHttpMethodName(MSHttpMethod method)
 {
   return method < sizeof(__methods)/sizeof(NSString*) ? __methods[method] : nil;
@@ -159,19 +188,18 @@ static inline BOOL _isISOSpace(unichar u) {
 static inline BOOL _isTokenChar(unichar u) {
   return u > 31 && u < 127 && __isTokenChar[u - 32];
 }
-
-BOOL MSHttpParseMimeType(NSString * mimetype, mutable MSString *type, mutable MSDictionary *parameters)
+static BOOL _parseHeaderValue(NSString *header, mutable MSString *type, mutable MSDictionary *parameters, BOOL isMimeType)
 {
-  BOOL ok, neol; SES ses, sub; NSUInteger s, se, i, e; unichar u; CString *attr, *value;
+  BOOL ok= YES, neol; SES ses, sub; NSUInteger s, se, i, e; unichar u; CString *attr, *value;
 
-  ses= SESFromString(mimetype);
+  ses= SESFromString(header);
   i= SESStart(ses);
   e= SESEnd(ses);
 
   // \s*(\w+/\w+)\s*
   while((s= i) < e && _isISOSpace(u = SESIndexN(ses, &i)));
-  if ((ok= _isTokenChar(u))) while(i < e && _isTokenChar(u = SESIndexN(ses, &i)));
-  if ((ok= ok && u == '/' && (se= i) < e)) u= SESIndexN(ses, &i);
+  if (isMimeType && (ok= _isTokenChar(u))) while(i < e && _isTokenChar(u = SESIndexN(ses, &i)));
+  if (isMimeType && (ok= ok && u == '/' && (se= i) < e)) u= SESIndexN(ses, &i);
   if ((ok= ok && _isTokenChar(u))) while((neol= (se= i) < e) && _isTokenChar(u = SESIndexN(ses, &i)));
   ok= ok && (!neol || _isISOSpace(u) || u == ';');
   if (ok && type) {
@@ -201,7 +229,7 @@ BOOL MSHttpParseMimeType(NSString * mimetype, mutable MSString *type, mutable MS
             else
               CStringAppendCharacter(value, u);
           }
-          if (i < e) SESIndexN(ses, &i);
+          if (i < e) u= SESIndexN(ses, &i);
         }
         else if ((ok= _isTokenChar(u))) {
           CStringAppendCharacter(value, u);
@@ -224,21 +252,23 @@ BOOL MSHttpParseMimeType(NSString * mimetype, mutable MSString *type, mutable MS
   return ok;
 }
 
-void MSHandlerDetach(MSHandler *h)
+BOOL MSHttpParseContentDisposition(NSString * contentDisposition, mutable MSString *type, mutable MSDictionary *parameters)
 {
-  h->prev->next = h->next;
-  h->next->prev = h->prev;
-  MSFree(h, "MSHandlerDetach");
+  return _parseHeaderValue(contentDisposition, type, parameters, NO);
+}
+BOOL MSHttpParseMimeType(NSString *mimetype, mutable MSString *type, mutable MSDictionary *parameters)
+{
+  return _parseHeaderValue(mimetype, type, parameters, YES);
+}
+
+NSString *MSHttpMimeTypeFromExtension(NSString *extension)
+{
+  return nil;
 }
 
 void MSHandlerListFreeInside(MSHandlerList *list)
 {
-  MSHandler *h, *n;
-  h= list->first;
-  while (h && h != (MSHandler*)list) {
-    n= h->next;
-    MSFree(h, "MSHandlerDealloc");
-    h= n;}
+  MSHandlerDetach(list->first, list->last, YES);
 }
 
 void MSHandlerFillArguments(MSHandlerArg *args, int argc, va_list ap)
@@ -249,28 +279,99 @@ void MSHandlerFillArguments(MSHandlerArg *args, int argc, va_list ap)
    --argc; }
 }
 
-MSHandler* MSCreateHandlerWithArguments(void *fn, int argc, va_list ap)
+MSHandler* MSCreateHandlerWithArguments(void *fn, int reserved, int argc, va_list ap)
 {
   MSHandler *h; MSHandlerArg *args;
-  h= (MSHandler*)MSMallocFatal(sizeof(MSHandler) + argc * sizeof(MSHandlerArg), "MSCreateHandlerWithArguments");
+  h= (MSHandler*)MSMallocFatal(sizeof(MSHandler) + reserved + argc * sizeof(MSHandlerArg), "MSCreateHandlerWithArguments");
   h->fn= fn;
-  args= (MSHandlerArg *)(h + 1);
+  args= MSHandlerArgs(h, reserved);
   MSHandlerFillArguments(args, argc, ap);
   return h;
 }
 
-MSHandler* _MSHandlerInsertBefore(MSHandler *n, void *fn, int argc, va_list ap)
+
+void MSHandlerDetach(MSHandler *first, MSHandler *last, BOOL freeHandlers)
+{
+  if (!first || !last) return;
+  // Detach
+  first->prev->next= last->next;
+  last->next->prev= first->prev;
+  first->prev= NULL;
+  last->next= NULL;
+
+  if (freeHandlers) {
+    MSHandler *c, *n;
+    c= first;
+    while(c) {
+      n= c->next;
+      MSFree(c, "MSHandlerDetach");
+      c= n;}}
+}
+
+void MSHandlerAttach(MSHandler *before, MSHandler *first, MSHandler *last)
+{
+  if (!before->prev) {
+    // before->prev is before (=list) at initialisation
+    before->prev= before;
+    before->next= before;}
+
+  first->prev= before->prev;
+  first->prev->next= first;
+  last->next= before;
+  before->prev= last;
+}
+
+static inline char _hexaCharValue(char c)
+{
+  if ('0' <= c && c <= '9') c= c - '0';
+  else if ('a' <= c && c <= 'f') c= 10 + c - 'a';
+  else if ('A' <= c && c <= 'F') c= 10 + c - 'A';
+  else c= 0;
+  return c;
+}
+unichar utf8URIStringChaiN(const void *src, NSUInteger *pos)
+{
+  const char *s= (const char *)src + *pos;
+  if (*s == '%') {
+    char buf[4]; NSUInteger i= 0; unichar u;
+    do {
+      buf[i++]= _hexaCharValue(s[1]) * 16 + _hexaCharValue(s[2]);
+      s += 3;
+    } while(*s == '%' && i < 4);
+    i= 0;
+    u= utf8ChaiN(buf, &i);
+    *pos += i * 3;
+    return u;
+  }
+  else {
+    ++(*pos);
+    return (unichar)*s;
+  }
+}
+unichar utf8URIStringChaiP(const void *src, NSUInteger *pos)
+{
+  const char *s= src;
+  NSUInteger p= *pos;
+  if (p >= 3 && s[p - 3] == '%') {
+    char buf[4]; NSUInteger i= 4, si; unichar u;
+    do {
+      buf[--i]= _hexaCharValue(s[p - 2]) * 16 + _hexaCharValue(s[p - 1]);
+      p -= 3;
+    } while(p >= 3 && i > 0 && s[p - 3] == '%');
+    si= 4 - i;
+    u= utf8ChaiP(buf + i, &si);
+    *pos -= (4 - i - si) * 3;
+    return u;
+  }
+  else {
+    return (unichar)s[--(*pos)];
+  }
+}
+
+MSHandler* _MSHandlerInsertBefore(MSHandler *n, void *fn, int reserved, int argc, va_list ap)
 {
   MSHandler *h;
-  h= MSCreateHandlerWithArguments(fn, argc, ap);
-  if (!n->prev) {
-    // n->prev is n (=list) at initialisation
-    n->prev= n;
-    n->next= n;}
-
-  h->prev= n->prev;
-  h->prev->next= h;
-  h->next= n;
-  n->prev= h;
+  h= MSCreateHandlerWithArguments(fn, reserved, argc, ap);
+  MSHandlerAttach(n, h, h);
   return h;
 }

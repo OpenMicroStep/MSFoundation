@@ -1,7 +1,7 @@
 
 // Try to authenticate the transaction associated with the given session.
 @protocol MSHttpSessionAuthenticator
-- (void)authenticate:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
+- (void)authenticate:(MSHttpTransaction *)tr;
 @end
 
 @interface MSHttpSession : NSObject {

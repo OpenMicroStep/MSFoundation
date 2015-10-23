@@ -37,46 +37,9 @@
 @end
 #endif //__cplusplus
 
-typedef struct MSHandlerStruct {
-  struct MSHandlerStruct *next; // =list.first
-  struct MSHandlerStruct *prev; // =list.last
-  void *fn;
-  // args
-} MSHandler;
-
-MSNodeExtern void MSHandlerFillArguments(MSHandlerArg *args, int argc, va_list ap);
-MSNodeExtern MSHandler* MSCreateHandlerWithArguments(void *fn, int argc, va_list ap);
-MSNodeExtern MSHandler* _MSHandlerInsertBefore(MSHandler *n, void *fn, int argc, va_list ap);
-MSNodeExtern void MSHandlerListFreeInside(MSHandlerList *list);
-
-#define MSHandlerListCallUntilNO(LIST, RETURNTYPE, DEFAULT, T, ARGS...) ({      \
-  MSHandler *__h, *__l; RETURNTYPE __c;                                         \
-  __l= (MSHandler *)(LIST);                                                     \
-  __h= __l->prev;                                                               \
-  __c= DEFAULT;                                                                 \
-  while (__c && __h != __l) {                                                   \
-    __c= ((T)__h->fn)(ARGS, (MSHandlerArg *)(__h + 1));                         \
-    __h= __h->next; }                                                           \
-  __c;                                                                          \
-})
-
-#define MSHandlerListCall(LIST, T, ARGS...) ({                                  \
-  MSHandler *__h, *__l;                                                         \
-  __l= (MSHandler *)(LIST);                                                     \
-  __h= __l->prev;                                                               \
-  while (__h != __l) {                                                          \
-    ((T)__h->fn)(ARGS, (MSHandlerArg *)(__h + 1));                              \
-    __h= __h->next; }                                                           \
-})
-
-#define MSHandlerListAdd(LIST, FN, COUNT, LAST_ARG) ({                          \
-  MSHandler *__h;                                                               \
-  va_list ap;                                                                   \
-  va_start(ap, LAST_ARG);                                                       \
-  __h= _MSHandlerInsertBefore((MSHandler *)LIST, (void *)FN, COUNT, ap);        \
-  va_end(ap);                                                                   \
-  __h;                                                                          \
-})
+@interface NSRunLoop (libuv)
++ (uv_loop_t *)currentUvRunLoop;
+@end
 
 static inline MSBuffer *MSHttpLoadBuffer(id o, NSString *path)
 {

@@ -1,10 +1,10 @@
 #import "MSNode_Private.h"
 
-@implementation MSHttpMSTEClientResponse
+@implementation MSHttpJSONClientResponse
 - (instancetype)init
 {
   if ((self= [super init])) {
-    _decoder= [MSMSTEDecoder new];
+    _decoder= [MSJSONDecoder new];
   }
   return self;
 }
@@ -26,28 +26,28 @@
   DESTROY(_decoder);
   [self handledWithError:error];
 }
-- (id)msteDecodedObject
+- (id)jsonDecodedObject
 {
   return _decodedObject;
 }
 @end
 
-@implementation MSHttpMSTEMiddleware
-+ (instancetype)msteMiddleware
+@implementation MSHttpJSONMiddleware
++ (instancetype)jsonMiddleware
 { return AUTORELEASE([ALLOC(self) init]); }
 
 static BOOL _onTransactionReceiveData(MSHttpTransaction *tr, NSData *data, MSHandlerArg *args)
 {
-  MSMSTEDecoder *decoder= args[0].id;
+  MSJSONDecoder *decoder= args[0].id;
   [decoder parseBytes:[data bytes] length:[data length]];
   return YES;
 }
 static BOOL _onTransactionReceiveEnd(MSHttpTransaction *tr, NSString *err, MSHandlerArg *args)
 {
-  MSMSTEDecoder *decoder= args[0].id;
+  MSJSONDecoder *decoder= args[0].id;
   id error= nil;
 
-  [tr setObject:[decoder parseResult:&error] forKey:@"MSHttpMSTEMiddleware"];
+  [tr setObject:[decoder parseResult:&error] forKey:@"MSHttpJSONMiddleware"];
   if (error)
     [tr write:MSHttpCodeBadRequest string:error];
   else
@@ -57,29 +57,29 @@ static BOOL _onTransactionReceiveEnd(MSHttpTransaction *tr, NSString *err, MSHan
 }
 - (void)onTransaction:(MSHttpTransaction *)tr
 {
-  MSMSTEDecoder *decoder;
-  decoder= [MSMSTEDecoder new];
+  MSJSONDecoder *decoder;
+  decoder= [MSJSONDecoder new];
   [tr addReceiveDataHandler:_onTransactionReceiveData args:1, MSMakeHandlerArg(decoder)];
   [tr addReceiveEndHandler:_onTransactionReceiveEnd args:1, MSMakeHandlerArg(decoder)];
 }
 @end
 
-@implementation MSHttpTransaction (MSHttpMSTEMiddleware)
-- (id)msteDecodedObject
-{ return [self objectForKey:@"MSHttpMSTEMiddleware"]; }
-- (void)write:(MSUInt)statusCode mste:(id)rootObject
+@implementation MSHttpTransaction (MSHttpJSONMiddleware)
+- (id)jsonDecodedObject
+{ return [self objectForKey:@"MSHttpJSONMiddleware"]; }
+- (void)write:(MSUInt)statusCode json:(id)rootObject
 {
   [self setValue:@"application/json" forHeader:@"Content-Type"];
   [self writeHead:statusCode];
-  [self writeData:[rootObject MSTEncodedBuffer]];
+  [self writeData:[rootObject JSONEncodedBuffer]];
   [self writeEnd];
 }
 @end
 
-@implementation MSHttpClientRequest (MSHttpMSTEMiddleware)
-- (void)writeMSTE:(id)rootObject
+@implementation MSHttpClientRequest (MSHttpJSONMiddleware)
+- (void)writeJSON:(id)rootObject
 {
-  [self writeData:[rootObject MSTEncodedBuffer]];
+  [self writeData:[rootObject JSONEncodedBuffer]];
   [self writeEnd];
 }
 @end

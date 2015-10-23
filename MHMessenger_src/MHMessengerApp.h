@@ -59,7 +59,7 @@
   MHMessengerDBAccessor *_messengerDBAccessor ;
 }
 
-- (void)authenticate:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next;
+- (void)authenticate:(MSHttpTransaction *)tr;
 
 
 - (void)GET_auth:(MSHttpTransaction *)tr;

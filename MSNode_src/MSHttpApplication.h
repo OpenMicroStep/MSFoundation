@@ -25,12 +25,12 @@
 - (MSHttpClientRequest *)postRequest:(NSString *)at;
 @end
 
-@interface MSHttpApplication : MSHttpRouter {
+@interface MSHttpApplication : MSHttpRoute {
   CArray *_servers;
-  NSString *_path;
+  NSString *_fsPath;
   NSDictionary *_parameters;
 }
-- (NSString *)path;
+- (NSString *)fileSystemPath;
 - (NSDictionary *)parameters;
 /*
   parameters= {
@@ -57,5 +57,6 @@
     ]
   }
 */
++ (instancetype)applicationWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
 - (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
 @end

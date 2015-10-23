@@ -312,7 +312,7 @@ Local<Value> parseJson(Local<Value> jsonString) {
   Local<Object> global = isolate->GetCurrentContext()->Global();
   Local<Object> JSON = global->Get(String::NewFromUtf8(isolate, "JSON"))->ToObject();
   Local<Function> JSON_parse = Local<Function>::Cast(JSON->Get(String::NewFromUtf8(isolate, "parse")));
-  
+
   // return JSON.parse.apply(JSON, jsonString);
   return handle_scope.Escape(JSON_parse->Call(JSON, 1, &jsonString));
 }
@@ -391,7 +391,7 @@ void nodejs_callback_fct(const FunctionCallbackInfo<Value> &args)
 {
   /*int64_t start, end;
   start= time_usec();*/
-  
+
   Isolate* isolate= args.GetIsolate();
   HandleScope handle_scope(isolate);
   NEW_POOL;
@@ -401,7 +401,7 @@ void nodejs_callback_fct(const FunctionCallbackInfo<Value> &args)
   nodejs_callback_t cb= (nodejs_callback_t)Local<External>::Cast(data->GetInternalField(1))->Value();
   cb(object, args);
   KILL_POOL;
-  while (!isolate->IdleNotification(1000)) ;  
+  while (!isolate->IdleNotification(1000)) ;
   /*end = time_usec();
   double elapsed = (end - start) / 1000;
   printf("nodejs event handled in %f ms\n", elapsed);*/
@@ -486,7 +486,7 @@ static void MSNodeStartCallback(const FunctionCallbackInfo<Value> &args, void *c
   Local<Object> global= Local<Object>::Cast(args[0]);
   Local<Function> require= Local<Function>::Cast(global->Get(String::NewFromUtf8(isolate, "require")));
   __nodejs_require_fct.Reset(isolate, require);
-  
+
   Instance *instance= (Instance*)context;
   instance->cb(instance->context);
   KILL_POOL;
@@ -496,7 +496,7 @@ extern "C" int MSNodeStart(void (*cb)(void* context), void* context)
   Instance instance;
   instance.cb= cb;
   instance.context= context;
-  char args[]= "node\0--eval\0process._runAtStart(global)";
+  char args[]= "node\0--eval\0setTimeout(function() { process._runAtStart(global); }, 0);";
   char *argv[]= {args, args + 5, args + 5 + 7};
   node::AtStart(MSNodeStartCallback, (void*)&instance);
   int ret= node::Start(3, argv);

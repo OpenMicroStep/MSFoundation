@@ -183,7 +183,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
   if (_state < STATE_END) {
     nodejs_call(NULL, _res, "end");
     _state= STATE_END;
-    [self release];}
+    [self autorelease];}
   else {
     NSLog(@"Trying to write end an ended HTTP transaction, %p", self);
   }
@@ -198,7 +198,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
     Local<Value> stream= nodejs_call_with_ids(isolate, http, "createReadStream", path, nil);
     nodejs_call(isolate, stream->ToObject(), "pipe", 1, (Local<Value>[]){ nodejs_persistent_value(isolate, _res) });
     _state= STATE_END;
-    [self release];}
+    [self autorelease];}
   else {
     NSLog(@"Trying to write file to an ended HTTP transaction, %p", self);}
 }

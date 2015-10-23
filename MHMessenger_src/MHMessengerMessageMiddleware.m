@@ -56,21 +56,20 @@ static BOOL _onTransactionReceiveData(MSHttpTransaction *tr, NSData *data, MSHan
 static BOOL _onTransactionReceiveEnd(MSHttpTransaction *tr, NSString *err, MSHandlerArg *args)
 {
   mutable MSBuffer *buffer= args[0].id;
-  id <MSHttpNextMiddleware> n= args[1].id;
   MHMessengerMessage *message;
   message= [MHMessengerMessage message];
   [message fillPropertiesWithSource:_messengerMessageSource context:tr];
   [message setBase64Content:buffer];
   [tr setObject:message forKey:@"MHMessengerMessageMiddleware"];
-  [n nextMiddleware];
+  [tr nextRoute];
   RELEASE(buffer);
   return YES;
 }
-- (void)onTransaction:(MSHttpTransaction *)tr next:(id <MSHttpNextMiddleware>)next
+- (void)onTransaction:(MSHttpTransaction *)tr
 {
   mutable MSBuffer *buffer= [MSBuffer new];
   [tr addReceiveDataHandler:_onTransactionReceiveData args:1, MSMakeHandlerArg(buffer)];
-  [tr addReceiveEndHandler:_onTransactionReceiveEnd args:2, MSMakeHandlerArg(buffer), MSMakeHandlerArg(next)];
+  [tr addReceiveEndHandler:_onTransactionReceiveEnd args:1, MSMakeHandlerArg(buffer)];
 }
 @end
 
