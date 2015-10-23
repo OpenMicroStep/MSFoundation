@@ -284,6 +284,20 @@ static inline BOOL _fsaccess(NSString *path, int mode)
 
 - (id)copyWithZone:(NSZone*)zone
 { return [self retain]; }
+
+- (BOOL)fileExistsAtPath:(NSString *)path
+{
+  return [self fileExistsAtPath:path isDirectory:NULL];
+}
+- (BOOL)fileExistsAtPath:(NSString *)path isDirectory:(BOOL *)isDirectory
+{
+  uv_fs_t statreq; BOOL ret; const char *utf8Path= [path UTF8String];
+  ret= uv_fs_stat(uv_default_loop(), &statreq, utf8Path, NULL) == 0;
+  if (ret && isDirectory)
+    *isDirectory= (statreq.statbuf.st_mode & S_IFDIR) > 0;
+  uv_fs_req_cleanup(&statreq);
+  return ret;
+}
 @end
 
 @implementation NSDirectoryEnumerator
@@ -296,7 +310,7 @@ static inline BOOL _fsaccess(NSString *path, int mode)
       MSFree(_uv_fs_req, "NSDirectoryEnumerator init");
       _uv_fs_req= NULL;
       DESTROY(self);
-    } 
+    }
   }
   return self;
 }

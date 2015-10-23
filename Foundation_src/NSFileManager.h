@@ -58,4 +58,7 @@ FoundationExtern NSString * const NSFileTypeUnknown;
 - (BOOL)isWritableFileAtPath:(NSString *)path;
 - (NSDirectoryEnumerator *)enumeratorAtPath:(NSString *)path;
 - (BOOL)removeItemAtPath:(NSString *)path error:(NSError **)error;
+- (BOOL)fileExistsAtPath:(NSString *)path;
+- (BOOL)fileExistsAtPath:(NSString *)path isDirectory:(BOOL *)isDirectory;
+
 @end
