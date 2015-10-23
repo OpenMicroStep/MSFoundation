@@ -217,6 +217,8 @@ module.exports = {
         {file: "Foundation_src/NSInvocation.m"},
         {file: "Foundation_src/NSLock.h", tags: ["MSPublicHeaders"]},
         {file: "Foundation_src/NSLock.m"},
+        {file: "Foundation_src/NSMapTable.h", tags: ["MSPublicHeaders"]},
+        {file: "Foundation_src/NSMapTable.m"},
         {file: "Foundation_src/NSMethodSignature.h", tags: ["MSPublicHeaders"]},
         {file: "Foundation_src/NSMethodSignature.m"},
         {file: "Foundation_src/NSNotification.h", tags: ["MSPublicHeaders"]},

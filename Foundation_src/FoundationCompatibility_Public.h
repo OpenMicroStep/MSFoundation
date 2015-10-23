@@ -44,5 +44,6 @@
 #import "NSTask.h"
 #import "NSProcessInfo.h"
 #import "NSFileManager.h"
+#import "NSMapTable.h"
 
 #endif

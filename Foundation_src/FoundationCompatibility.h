@@ -41,3 +41,4 @@
 #import <MSFoundation/NSTask.h>
 #import <MSFoundation/NSProcessInfo.h>
 #import <MSFoundation/NSFileManager.h>
+#import <MSFoundation/NSMapTable.h>
