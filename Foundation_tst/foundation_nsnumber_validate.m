@@ -18,10 +18,10 @@ static void number_int(test_t *test)
 
   TASSERT_EQUALS_LLD(test, [nmax boolValue             ], YES       );
   TASSERT_EQUALS_LLD(test, [nmin boolValue             ], YES       );
-  TASSERT_EQUALS_LLD(test, [nmax charValue             ], -1        );
-  TASSERT_EQUALS_LLD(test, [nmin charValue             ], 0         );
-  TASSERT_EQUALS_LLD(test, [nmax shortValue            ], -1        );
-  TASSERT_EQUALS_LLD(test, [nmin shortValue            ], 0         );
+  TASSERT_EQUALS_LLD(test, [nmax charValue             ], CHAR_MAX  );
+  TASSERT_EQUALS_LLD(test, [nmin charValue             ], CHAR_MIN  );
+  TASSERT_EQUALS_LLD(test, [nmax shortValue            ], SHRT_MAX  );
+  TASSERT_EQUALS_LLD(test, [nmin shortValue            ], SHRT_MIN  );
   TASSERT_EQUALS_LLD(test, [nmax intValue              ], INT_MAX   );
   TASSERT_EQUALS_LLD(test, [nmin intValue              ], INT_MIN   );
   TASSERT_EQUALS_LLD(test, [nmax longValue             ], INT_MAX   );
@@ -29,13 +29,13 @@ static void number_int(test_t *test)
   TASSERT_EQUALS_LLD(test, [nmax longLongValue         ], INT_MAX   );
   TASSERT_EQUALS_LLD(test, [nmin longLongValue         ], INT_MIN   );
   TASSERT_EQUALS_LLD(test, [nmax unsignedIntValue      ], INT_MAX   );
-  TASSERT_EQUALS_LLD(test, [nmin unsignedIntValue      ], -INT_MIN  );
+  TASSERT_EQUALS_LLD(test, [nmin unsignedIntValue      ], 0         );
   TASSERT_EQUALS_LLD(test, [nmax unsignedShortValue    ], USHRT_MAX );
   TASSERT_EQUALS_LLD(test, [nmin unsignedShortValue    ], 0         );
   TASSERT_EQUALS_LLD(test, [nmax unsignedLongValue     ], INT_MAX   );
-  TASSERT_EQUALS_LLD(test, [nmin unsignedLongValue     ], -INT_MIN  );
+  TASSERT_EQUALS_LLD(test, [nmin unsignedLongValue     ], 0         );
   TASSERT_EQUALS_LLD(test, [nmax unsignedLongLongValue ], INT_MAX   );
-  TASSERT_EQUALS_LLD(test, [nmin unsignedLongLongValue ], -INT_MIN  );
+  TASSERT_EQUALS_LLD(test, [nmin unsignedLongLongValue ], 0         );
   TASSERT_EQUALS_DBL(test, [nmax doubleValue           ], INT_MAX   );
   TASSERT_EQUALS_DBL(test, [nmin doubleValue           ], INT_MIN   );
   TASSERT_EQUALS_DBL(test, [nmax floatValue            ], INT_MAX   );
@@ -68,21 +68,39 @@ static void number_double(test_t *test)
   TASSERT_EQUALS_OBJ(test, i2, n2);
   TASSERT_EQUALS_OBJ(test, i3, n3);
 
-  TASSERT_EQUALS_LLD(test, [nmax boolValue        ], YES);
-  TASSERT_EQUALS_LLD(test, [nmin boolValue        ], YES);
-  TASSERT_EQUALS_LLD(test, [nmin charValue        ], 0  );
-  TASSERT_EQUALS_LLD(test, [nmax shortValue       ], 0  );
-  TASSERT_EQUALS_LLD(test, [nmin intValue         ], 0  );
-  TASSERT_EQUALS_LLD(test, [nmin longLongValue    ], -9223372036854775808LL);
+#ifndef MSFOUNDATION_FORCOCOA
+  // TODO: documentation
+  // MicroStep changed the simple cast behavior to the limit to type boundaries behavior
+  // integer -> integer types are constrained to type boundaries
+  // real -> integer types are rounded before beeing constrained to type boundaries
+  TASSERT_EQUALS_LLD(test, [nmax boolValue        ], YES      );
+  TASSERT_EQUALS_LLD(test, [nmin boolValue        ], YES      );
+  TASSERT_EQUALS_LLD(test, [nmin charValue        ], CHAR_MIN );
+  TASSERT_EQUALS_LLD(test, [nmax shortValue       ], SHRT_MAX );
+  TASSERT_EQUALS_LLD(test, [nmin intValue         ], INT_MIN  );
+  TASSERT_EQUALS_LLD(test, [nmin longLongValue    ], LLONG_MIN);
+  TASSERT_EQUALS_LLD(test, [nmax longLongValue    ], LLONG_MAX);
+  TASSERT_EQUALS_LLD(test, [n2 charValue          ], 2        );
+  TASSERT_EQUALS_LLD(test, [n3 shortValue         ], 2        );
+  TASSERT_EQUALS_LLD(test, [n2 longValue          ], 2        );
+  TASSERT_EQUALS_LLD(test, [n3 longLongValue      ], 2        );
+#else
+  // cocoa simply cast the raw value
+  TASSERT_EQUALS_LLD(test, [nmax boolValue        ], (BOOL)     [nmax doubleValue]);
+  TASSERT_EQUALS_LLD(test, [nmin boolValue        ], (BOOL)     [nmin doubleValue]);
+  TASSERT_EQUALS_LLD(test, [nmin charValue        ], (char)     [nmin doubleValue]);
+  TASSERT_EQUALS_LLD(test, [nmax shortValue       ], (short)    [nmax doubleValue]);
+  TASSERT_EQUALS_LLD(test, [nmin intValue         ], (int)      [nmin doubleValue]);
+  TASSERT_EQUALS_LLD(test, [nmin longLongValue    ], (long long)[nmin doubleValue]);
+  TASSERT_EQUALS_LLD(test, [n2 charValue          ], 1        );
+  TASSERT_EQUALS_LLD(test, [n3 shortValue         ], 1        );
+  TASSERT_EQUALS_LLD(test, [n2 longValue          ], 1        );
+  TASSERT_EQUALS_LLD(test, [n3 longLongValue      ], 1        );
+#endif
   TASSERT_EQUALS_DBL(test, [nmax doubleValue      ], +DBL_MAX);
   TASSERT_EQUALS_DBL(test, [nmin doubleValue      ], -DBL_MAX);
-
-  TASSERT_EQUALS_LLD(test, [n1 boolValue    ], YES);
-  TASSERT_EQUALS_LLD(test, [n2 charValue    ], 1  );
-  TASSERT_EQUALS_LLD(test, [n3 shortValue   ], 1  );
-  TASSERT_EQUALS_LLD(test, [n1 intValue     ], 1  );
-  TASSERT_EQUALS_LLD(test, [n2 longValue    ], 1  );
-  TASSERT_EQUALS_LLD(test, [n3 longLongValue], 1  );
+  TASSERT_EQUALS_LLD(test, [n1 boolValue  ], YES);
+  TASSERT_EQUALS_LLD(test, [n1 intValue   ], 1  );
   TASSERT_EQUALS_DBL(test, [n1 doubleValue], 1.1);
   TASSERT_EQUALS_DBL(test, [n2 doubleValue], 1.5);
   TASSERT_EQUALS_DBL(test, [n3 doubleValue], 1.6);

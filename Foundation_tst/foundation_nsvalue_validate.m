@@ -14,10 +14,10 @@ static void value_mixed(test_t *test)
   MSULong llu0, llu1;
   struct _TestType t0, t1;
 
-  llu1= 0; llu0= INT_MAX * 5;
+  llu1= 0; llu0= ((MSLong)INT_MAX) * 5LL;
   t1.a= 0; t0.a= 1;
   t1.b= 0; t0.b= 123456;
-  t1.c= 0; t0.c= INT_MAX * 4;
+  t1.c= 0; t0.c= ((MSLong)INT_MAX) * 4LL;
   t1.d= 0; t0.d= 123456789.987654;
 
   v0= [NSValue valueWithBytes:&t0 objCType:@encode(struct _TestType)];

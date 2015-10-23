@@ -128,7 +128,28 @@ static const char cdblObjCType = 'd';
 - (NSNumber *)initWithUnsignedInteger:(NSUInteger)v          { return [self notImplemented:_cmd]; }
 - (instancetype)initWithCoder:(NSCoder *)aDecoder            { return [self notImplemented:_cmd]; }
 
-- (MSLong)_signedValue
+static inline MSLong _i8FromDouble(double d)
+{
+  if (d > 0) {
+    d += 0.5;
+    return d > (double)MSLongMax ? MSLongMax : (MSLong)d;
+  }
+  else {
+    d -= 0.5;
+    return d < (double)MSLongMin ? MSLongMin : (MSLong)d;
+  }
+}
+static inline MSULong _u8FromDouble(double d)
+{
+  if (d > 0) {
+    d += 0.5;
+    return d > (double)MSULongMax ? MSULongMax : (MSULong)d;
+  }
+  else {
+    return 0;
+  }
+}
+- (MSLong)_signedValueWithMin:(MSLong)min max:(MSLong)max
 {
   NSNumberUnion v; MSLong ret;
   [self getValue:&v];
@@ -141,47 +162,48 @@ static const char cdblObjCType = 'd';
     case cu1ObjCType: ret= (MSLong)v.u1; break;
     case cu2ObjCType: ret= (MSLong)v.u2; break;
     case cu4ObjCType: ret= (MSLong)v.u4; break;
-    case cu8ObjCType: ret= (MSLong)v.u8; break;
-    case cluObjCType: ret= (MSLong)v.lu; break;
-    case cdblObjCType:ret= (MSLong)v.dbl; break;
-    case cfltObjCType:ret= (MSLong)v.flt; break;
+    case cu8ObjCType: ret= (MSLong)MIN((MSULong)MSLongMax, v.u8); break;
+    case cluObjCType: ret= (MSLong)MIN((MSULong)MSLongMax, v.lu); break;
+    case cdblObjCType:ret= _i8FromDouble(v.dbl); break;
+    case cfltObjCType:ret= _i8FromDouble(v.flt); break;
     default: MSReportError(MSInternalInconsistencyError, MSFatalError, -1, "objctype \"%s\" was not expected\n", [self objCType]); break;
   }
-  return ret;
+  return MAX(min, MIN(ret, max));
 }
-- (MSULong)_unsignedValue
+
+- (MSULong)_unsignedValueWithMax:(MSULong)max
 {
   NSNumberUnion v; MSLong ret;
   [self getValue:&v];
   switch(*[self objCType]) {
-    case ci1ObjCType: ret= (MSULong)v.i1; break;
-    case ci2ObjCType: ret= (MSULong)v.i2; break;
-    case ci4ObjCType: ret= (MSULong)v.i4; break;
-    case ci8ObjCType: ret= (MSULong)v.i8; break;
-    case cldObjCType: ret= (MSULong)v.ld; break;
+    case ci1ObjCType: ret= (MSULong)MAX(0, v.i1); break;
+    case ci2ObjCType: ret= (MSULong)MAX(0, v.i2); break;
+    case ci4ObjCType: ret= (MSULong)MAX(0, v.i4); break;
+    case ci8ObjCType: ret= (MSULong)MAX(0, v.i8); break;
+    case cldObjCType: ret= (MSULong)MAX(0, v.ld); break;
     case cu1ObjCType: ret= (MSULong)v.u1; break;
     case cu2ObjCType: ret= (MSULong)v.u2; break;
     case cu4ObjCType: ret= (MSULong)v.u4; break;
     case cu8ObjCType: ret= (MSULong)v.u8; break;
     case cluObjCType: ret= (MSULong)v.lu; break;
-    case cdblObjCType:ret= (MSULong)v.dbl; break;
-    case cfltObjCType:ret= (MSULong)v.flt; break;
+    case cdblObjCType:ret= _u8FromDouble(v.dbl); break;
+    case cfltObjCType:ret= _u8FromDouble(v.flt); break;
     default: MSReportError(MSInternalInconsistencyError, MSFatalError, -1, "objctype \"%s\" was not expected\n", [self objCType]); break;
   }
-  return ret;
+  return MIN(ret, max);
 }
 
-- (BOOL)boolValue                           { return                      [self _signedValue] != 0;   }
-- (char)charValue                           { return                (char)[self _signedValue]; }
-- (short)shortValue                         { return               (short)[self _signedValue]; }
-- (int)intValue                             { return                 (int)[self _signedValue]; }
-- (long)longValue                           { return                (long)[self _signedValue]; }
-- (long long)longLongValue                  { return           (long long)[self _signedValue]; }
-- (unsigned char)unsignedCharValue          { return       (unsigned char)[self _unsignedValue]; }
-- (unsigned short)unsignedShortValue        { return      (unsigned short)[self _unsignedValue]; }
-- (unsigned int)unsignedIntValue            { return        (unsigned int)[self _unsignedValue]; }
-- (unsigned long)unsignedLongValue          { return       (unsigned long)[self _unsignedValue]; }
-- (unsigned long long)unsignedLongLongValue { return  (unsigned long long)[self _unsignedValue]; }
+- (BOOL)boolValue                           { return                      [self _signedValueWithMin:-1LL max:1LL] != 0;   }
+- (char)charValue                           { return                (char)[self _signedValueWithMin:CHAR_MIN max:CHAR_MAX]; }
+- (short)shortValue                         { return               (short)[self _signedValueWithMin:SHRT_MIN max:SHRT_MAX]; }
+- (int)intValue                             { return                 (int)[self _signedValueWithMin:INT_MIN max:INT_MAX]; }
+- (long)longValue                           { return                (long)[self _signedValueWithMin:LONG_MIN max:LONG_MAX]; }
+- (long long)longLongValue                  { return           (long long)[self _signedValueWithMin:LLONG_MIN max:LLONG_MAX]; }
+- (unsigned char)unsignedCharValue          { return       (unsigned char)[self _unsignedValueWithMax:UCHAR_MAX]; }
+- (unsigned short)unsignedShortValue        { return      (unsigned short)[self _unsignedValueWithMax:USHRT_MAX]; }
+- (unsigned int)unsignedIntValue            { return        (unsigned int)[self _unsignedValueWithMax:UINT_MAX]; }
+- (unsigned long)unsignedLongValue          { return       (unsigned long)[self _unsignedValueWithMax:ULONG_MAX]; }
+- (unsigned long long)unsignedLongLongValue { return  (unsigned long long)[self _unsignedValueWithMax:ULLONG_MAX]; }
 - (float)floatValue                         { return               (float)[self doubleValue]; }
 - (double)doubleValue
 {
