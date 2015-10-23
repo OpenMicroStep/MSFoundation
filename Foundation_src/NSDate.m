@@ -43,6 +43,10 @@ static NSDate *__distantPast, *__distantFuture;
 + (instancetype)dateWithTimeInterval:(NSTimeInterval)secsToBeAdded sinceDate:(NSDate *)date
 { return AUTORELEASE([[self alloc] initWithTimeInterval:secsToBeAdded sinceDate:date]); }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+  return [self retain];
+}
 - (BOOL)isEqual:(id)o
 {
   if (o == self) return YES;
@@ -147,7 +151,7 @@ static NSDate *__distantPast, *__distantFuture;
 {
   CDate date;
   date.interval = (MSTimeInterval)(_interval + 0.5);
-  return FMT(@"%04u-%02u-%02u %02u:%02u:%02u +0000", 
+  return FMT(@"%04u-%02u-%02u %02u:%02u:%02u +0000",
     CDateYearOfCommonEra(&date), CDateMonthOfYear(&date), CDateDayOfMonth(&date),
     CDateHourOfDay(&date), CDateMinuteOfHour(&date), CDateSecondOfMinute(&date));
 }
