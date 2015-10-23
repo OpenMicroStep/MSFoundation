@@ -184,7 +184,7 @@ static inline BOOL _isPathSeparator(MSByte c)
 static inline BOOL _fsaccess(NSString *path, int mode)
 {
   uv_fs_t req; BOOL ret;
-  ret= uv_fs_access(uv_default_loop(), &req, [path UTF8String], W_OK, NULL) == 0;
+  ret= uv_fs_access(uv_default_loop(), &req, [path UTF8String], mode, NULL) == 0;
   uv_fs_req_cleanup(&req);
   return ret;
 }
