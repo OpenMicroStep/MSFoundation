@@ -1,9 +1,35 @@
 #import "FoundationCompatibility_Private.h"
 
-NSString * NSFileModificationDate= @"NSFileModificationDate";
+NSString * const NSFileType = @"NSFileType";
+NSString * const NSFileSize = @"NSFileSize";
+NSString * const NSFileModificationDate = @"NSFileModificationDate";
+NSString * const NSFileReferenceCount = @"NSFileReferenceCount";
+NSString * const NSFileDeviceIdentifier = @"NSFileDeviceIdentifier";
+NSString * const NSFileOwnerAccountName = @"NSFileOwnerAccountName";
+NSString * const NSFileGroupOwnerAccountName = @"NSFileGroupOwnerAccountName";
+NSString * const NSFilePosixPermissions = @"NSFilePosixPermissions";
+NSString * const NSFileSystemNumber = @"NSFileSystemNumber";
+NSString * const NSFileSystemFileNumber = @"NSFileSystemFileNumber";
+NSString * const NSFileExtensionHidden = @"NSFileExtensionHidden";
+// NSString * const NSFileHFSCreatorCode = @"NSFileHFSCreatorCode";
+// NSString * const NSFileHFSTypeCode = @"NSFileHFSTypeCode";
+NSString * const NSFileImmutable = @"NSFileImmutable";
+NSString * const NSFileAppendOnly = @"NSFileAppendOnly";
+NSString * const NSFileCreationDate = @"NSFileCreationDate";
+NSString * const NSFileOwnerAccountID = @"NSFileOwnerAccountID";
+NSString * const NSFileGroupOwnerAccountID = @"NSFileGroupOwnerAccountID";
+NSString * const NSFileBusy = @"NSFileBusy";
+
+NSString * const NSFileTypeDirectory = @"NSFileTypeDirectory";
+NSString * const NSFileTypeRegular = @"NSFileTypeRegular";
+NSString * const NSFileTypeSymbolicLink = @"NSFileTypeSymbolicLink";
+NSString * const NSFileTypeSocket = @"NSFileTypeSocket";
+NSString * const NSFileTypeCharacterSpecial = @"NSFileTypeCharacterSpecial";
+NSString * const NSFileTypeBlockSpecial = @"NSFileTypeBlockSpecial";
+NSString * const NSFileTypeUnknown = @"NSFileTypeUnknown";
+
 NSString * NSFileOwnerAccountNumber= @"NSFileOwnerAccountNumber";
 NSString * NSFileGroupOwnerAccountNumber= @"NSFileGroupOwnerAccountNumber";
-NSString * NSFilePosixPermissions= @"NSFilePosixPermissions";
 
 static NSFileManager *__defaultManager;
 static once_flag __defaultManager_once = ONCE_FLAG_INIT;
@@ -141,6 +167,41 @@ static inline BOOL _isPathSeparator(MSByte c)
   return ret;
 }
 
+- (NSDictionary*)attributesOfItemAtPath:(NSString *)path error:(NSError **)error
+{
+  uv_fs_t statreq; int res; const char *utf8Path= [path UTF8String];
+  NSDictionary *ret= nil; NSString *filetype= NSFileTypeUnknown;
+  res= uv_fs_stat(uv_default_loop(), &statreq, utf8Path, NULL);
+  if (res == 0) {
+    if ((statreq.statbuf.st_mode & S_IFREG) > 0)
+      filetype= NSFileTypeRegular;
+    else if ((statreq.statbuf.st_mode & S_IFDIR) > 0)
+      filetype= NSFileTypeDirectory;
+    else if ((statreq.statbuf.st_mode & S_IFLNK) > 0)
+      filetype= NSFileTypeSymbolicLink;
+#ifndef WIN32
+    else if ((statreq.statbuf.st_mode & S_IFSOCK) > 0)
+      filetype= NSFileTypeSocket;
+    else if ((statreq.statbuf.st_mode & S_IFBLK) > 0)
+      filetype= NSFileTypeBlockSpecial;
+    else if ((statreq.statbuf.st_mode & S_IFCHR) > 0)
+      filetype= NSFileTypeCharacterSpecial;
+#endif
+
+    ret= @{
+      NSFileCreationDate: [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)statreq.statbuf.st_ctim.tv_sec],
+      NSFileModificationDate: [NSDate dateWithTimeIntervalSince1970:(NSTimeInterval)statreq.statbuf.st_mtim.tv_sec],
+      NSFilePosixPermissions: [NSNumber numberWithShort:(MSShort)(statreq.statbuf.st_mode & 0777)],
+      NSFileSize: [NSNumber numberWithUnsignedLongLong:statreq.statbuf.st_size],
+      NSFileType: filetype
+    };
+  }
+  else if(error) {
+    *error= FMT(@"%s", uv_strerror(res));
+  }
+  uv_fs_req_cleanup(&statreq);
+  return ret;
+}
 - (BOOL)changeFileAttributes:(NSDictionary *)attributes atPath:(NSString *)path
 {
   // @"NSFileModificationDate" nsdate
