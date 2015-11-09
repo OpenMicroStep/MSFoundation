@@ -304,10 +304,10 @@ id CDictionaryInitCopy(CDictionary *self, const CDictionary *copied, BOOL copyIt
 }
 id CDictionaryCopy(id self)
 {
-  CDictionary *d;
-  if (!self) return nil;
-  d= CCreateDictionary(((CDictionary*)self)->count);
-  return CDictionaryInitCopy(d, (CDictionary*)self, NO);
+  CDictionary *d, *s;
+  if (!(s= (CDictionary*)self)) return nil;
+  d= CCreateDictionaryWithOptions(s->count, s->flags.keyType, s->flags.objType);
+  return CDictionaryInitCopy(d, s, NO);
 }
 
 CArray* CCreateArrayOfDictionarySubs(id self, mutable CDictionary *ctx)
