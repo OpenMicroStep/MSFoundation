@@ -18,6 +18,9 @@
 - (BOOL)boolValue;
 - (NSString *)stringValue;
 
+- (NSComparisonResult)compare:(NSNumber *)aNumber;
+- (BOOL)isEqualToNumber:(NSNumber *)aNumber;
+
 @end
 
 @interface NSNumber (NSNumberCreation)
