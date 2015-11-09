@@ -42,7 +42,7 @@ static inline id _fileHandleForAtPath(int mode, NSString *path)
 - (id)initWithFileDescriptor:(int)fileDescriptor
 { return [self initWithFileDescriptor:fileDescriptor closeOnDealloc:YES]; }
 - (id)initWithFileDescriptor:(int)fileDescriptor closeOnDealloc:(BOOL)flag
-{ 
+{
   _fd= fileDescriptor;
   _closeOnDealloc= flag;
   return self;
@@ -95,7 +95,7 @@ static inline id _fileHandleForAtPath(int mode, NSString *path)
 { return _offset; }
 
 - (unsigned long long)seekToEndOfFile
-{ 
+{
     uv_fs_t req;
     uv_fs_fstat(uv_default_loop(), &req, _fd, NULL);
     _offset= req.statbuf.st_size;

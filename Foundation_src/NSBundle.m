@@ -43,7 +43,7 @@ static void _refreshIfNeeded()
   }
 }
 
-@implementation NSBundle 
+@implementation NSBundle
 + (void)initialize {
   if (self == [NSBundle self]) {
     __bundleByIds= CCreateDictionary(32);
@@ -70,7 +70,7 @@ static void _refreshIfNeeded()
 }
 
 + (NSArray *)allFrameworks
-{   
+{
   NSArray *frameworks;
   mtx_lock(&__mutex);
   _refreshIfNeeded();
@@ -80,7 +80,7 @@ static void _refreshIfNeeded()
 }
 
 + (NSBundle *)bundleWithIdentifier:(NSString *)identifier
-{ 
+{
   NSBundle *bundle;
   mtx_lock(&__mutex);
   _refreshIfNeeded();
@@ -89,7 +89,7 @@ static void _refreshIfNeeded()
   return bundle;
 }
 + (NSBundle *)bundleForClass:(Class)aClass
-{ 
+{
   NSBundle *bundle;
   const char *name= ms_shared_object_name(aClass);
   //printf("bundleForClass %s %p\n", name, aClass);
@@ -98,12 +98,12 @@ static void _refreshIfNeeded()
   bundle= CDictionaryObjectForKey(__bundleByExePath, [NSString stringWithUTF8String:name]);
   mtx_unlock(&__mutex);
   //printf("bundle %s\n", [[bundle executablePath] UTF8String]);
-  return bundle; 
+  return bundle;
 }
 + (NSBundle *)bundleWithPath:(NSString *)path
 { return [[ALLOC(NSBundle) initWithPath:path] autorelease]; }
-- (instancetype)initWithPath:(NSString *)path 
-{ 
+- (instancetype)initWithPath:(NSString *)path
+{
   if (![path length]) {
     DESTROY(self);}
   else if (![path isAbsolutePath]) {
@@ -144,7 +144,7 @@ static void _refreshIfNeeded()
     id basePath= path; id identifier;
     mtx_init(&_mutex, mtx_plain);
     _path= [path retain];
-    
+
     if ([@"framework" isEqualToString:[path pathExtension]]) {
       CArrayAddObject(__frameworks, self);
       _type= TYPE_FRAMEWORK;}
@@ -170,7 +170,7 @@ static void _refreshIfNeeded()
     mtx_lock(&__mutex);
     CDictionarySetObjectForKey(__bundleByExePath, self, _exePath);
     CDictionarySetObjectForKey(__bundleByPath, self, _path);
-    if ((identifier= [self bundleIdentifier])) 
+    if ((identifier= [self bundleIdentifier]))
       CDictionarySetObjectForKey(__bundleByIds, self, identifier);
     mtx_unlock(&__mutex);
     //printf("new bundle path=%s rscPath=%s exePath=%s\n", [_path UTF8String], [_rscPath UTF8String], [_exePath UTF8String]);
@@ -206,7 +206,7 @@ static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
 - (BOOL)load
 {
   mtx_lock(&_mutex);
-  if (!_state) 
+  if (!_state)
   {
     mtx_lock(&__mutex);
     ms_shared_object_t handle= ms_shared_object_open([_exePath UTF8String]);
@@ -225,18 +225,18 @@ static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
 + (NSArray *)pathsForResourcesOfType:(NSString *)ext inDirectory:(NSString *)bundlePath
 { return [[self mainBundle] pathsForResourcesOfType:ext inDirectory:bundlePath]; }
 - (NSString *)pathForResource:(NSString *)name ofType:(NSString *)ext
-{ 
+{
   id path= [_rscPath stringByAppendingPathComponent:[name stringByAppendingPathExtension:ext]];
   //printf("pathForResource > %s %s %s %s\n",[name UTF8String], [ext UTF8String], [[name stringByAppendingPathExtension:ext] UTF8String], [path UTF8String]);
   return [[NSFileManager defaultManager] isReadableFileAtPath:path] ? path : nil;
 }
 - (NSString *)pathForResource:(NSString *)name ofType:(NSString *)ext inDirectory:(NSString *)bundlePath
-{ 
+{
   id path= [_rscPath stringByAppendingPathComponent:[[bundlePath stringByAppendingPathComponent:name] stringByAppendingPathExtension:ext]];
   return [[NSFileManager defaultManager] isReadableFileAtPath:path] ? path : nil;
 }
 - (NSArray *)pathsForResourcesOfType:(NSString *)ext inDirectory:(NSString *)bundlePath
-{ 
+{
   NSDirectoryEnumerator *e; CArray *arr; id basePath, o;
   arr= CCreateArray(0);
   basePath= [_rscPath stringByAppendingPathComponent:bundlePath];
@@ -260,20 +260,20 @@ static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
 - (NSDictionary *)infoDictionary
 {
   [self load];
-  return _info; 
+  return _info;
 }
 - (NSDictionary *)localizedInfoDictionary
 { return _info; }
 - (id)objectForInfoDictionaryKey:(NSString *)key
 { return [_info objectForKey:key]; }
 - (Class)classNamed:(NSString *)className
-{ 
+{
   [self load];
   return NSClassFromString(className);
 }
 - (Class)principalClass
-{ 
-  Class cls= NSClassFromString([[self infoDictionary] objectForKey:@"NSPrincipalClass"]); 
+{
+  Class cls= NSClassFromString([[self infoDictionary] objectForKey:@"NSPrincipalClass"]);
   if (!cls) {
     // TODO: Find the first class in the bundle
     // so the program can work with undefined bahavior do to randomness in class order :(

@@ -1,27 +1,27 @@
 /*   MSString.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Herve Malaingre : herve@malaingre.com
- 
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -32,10 +32,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  */
 
 #import "MSFoundation_Private.h"
@@ -253,7 +253,7 @@ static char *__symbolHtmlTags[61] = {
 //static char *__romanUnites[10] = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX" } ;
 
 BOOL MSStringIsTrue(NSString *s)
-{ 
+{
 	SES ses = SESFromString(s) ;
 	if (SESOK(ses)) {
 		return _MSStringIsTrue(ses, CUnicharIsSpace, NULL) ;
@@ -269,7 +269,7 @@ static inline BOOL _MSEqualsStrings(NSString *s1, NSString *s2, BOOL insensitive
       SES ses2= [s2 stringEnumeratorStructure] ;
       return insensitive ? SESEquals(ses1, ses2) : SESInsensitiveEquals(ses1, ses2) ;}
     return NO ;}
-  return YES ; 
+  return YES ;
 }
 BOOL MSEqualStrings(NSString *s1, NSString *s2)
 { return _MSEqualsStrings(s1, s2, NO); }
@@ -356,7 +356,7 @@ NSRange MSStringFind(NSString *source, NSString *searched)
 {
 	NSUInteger selfLen = (NSUInteger)[self length] ;
 	if (position < selfLen) {
-		return [self substringWithRange: NSMakeRange(position, selfLen - position)] ;		
+		return [self substringWithRange: NSMakeRange(position, selfLen - position)] ;
 	}
 	return @"" ;
 }
@@ -392,7 +392,7 @@ NSRange MSStringFind(NSString *source, NSString *searched)
 - (NSString *)substringBeforeString:(NSString *)string
 {
     NSUInteger p = MSStringFind(self, string).location ;
-    return (p == NSNotFound ? (id)nil : (id)[self left:p]) ; 
+    return (p == NSNotFound ? (id)nil : (id)[self left:p]) ;
 }
 - (NSString *)substringAfterString:(NSString *)string
 {
@@ -495,7 +495,7 @@ NSString *MSTrimAt(NSString *self, NSUInteger position, NSUInteger length, CUnic
 	if (s && *s) {
 		NSUInteger len = (NSUInteger)strlen(s) ;
 		MSString *ret = (MSString*)CCreateString(len) ;
-		
+
 		if (CStringAppendURLBytes((CString*)ret, (void *)s, len, NSUTF8StringEncoding, NULL)) {
 			return AUTORELEASE(ret) ;
 		}
@@ -517,9 +517,9 @@ static inline NSString *_HTMLFromString(NSString *self, char **tagStrings, SEL s
         char *buf = (char *)MSMalloc(size,"_HTMLFromString()") ;
         char *tag = NULL, clen = 0 ;
         char sharp[16] ;
-        
+
         if (!buf) MSRaiseFrom(NSMallocException,self, sourceMethod, @"string of %lu characters cannot be allocated", (unsigned long)size) ;
-		
+
         //for (i = 0 ; i < sourceLen ; i++) {
         for (i= SESStart(ses), end= SESEnd(ses); i < end;) {
             c = SESIndexN(ses, &i) ;
@@ -928,7 +928,7 @@ static inline CBuffer* _dataUsingEncoding(NSString *self, NSStringEncoding encod
   CBuffer *ret= CCreateBuffer(0);
   CBufferAppendSES(ret, SESFromString(self), encoding);
   return ret;
-} 
+}
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding
 { return [self cStringUsingEncoding:encoding allowLossyConversion:YES]; }
 - (const char *)cStringUsingEncoding:(NSStringEncoding)encoding allowLossyConversion:(BOOL)flag
@@ -1244,7 +1244,7 @@ static inline BOOL _isPathSeparator(unichar u)
   SES ses;  NSUInteger i, s, e; NSString *ret= self;
   ses= SESFromString(self);
   s= SESStart(ses);
-  i= e= SESEnd(ses); 
+  i= e= SESEnd(ses);
   while (i > SESStart(ses) && _isPathSeparator(SESIndexP(ses, &i)))
     e= i; // skip [/\]*$
   while (i > SESStart(ses) && !_isPathSeparator(SESIndexP(ses, &i)))
@@ -1261,7 +1261,7 @@ static inline BOOL _isPathSeparator(unichar u)
 {
   SES ses;  NSUInteger i; NSString *ret= @"";
   ses= SESFromString(self);
-  i= SESEnd(ses); 
+  i= SESEnd(ses);
   while (i > SESStart(ses) && SESIndexP(ses, &i) != (unichar)'.')
     ; // skip [^.]*
   if (SESIndexN(ses, &i) == (unichar)'.') {
@@ -1281,7 +1281,7 @@ static inline CString *_stringByAppendingPathComponent(NSString *self, NSString 
   if (SESOK(ses2) && i > 0) {
     while (i > 0 && _isPathSeparator(ret->buf[--i]))
       ;
-    if (i > 0) 
+    if (i > 0)
       ++i;
     CStringReplaceInRangeWithSES(ret, NSMakeRange(i, ret->length - i), MSMakeSESWithBytes("/", 1, NSUTF8StringEncoding));}
   if (SESOK(ses2)) {
@@ -1311,14 +1311,14 @@ static inline CString *_stringByAppendingPathComponent(NSString *self, NSString 
   if (SESOK(ses2) && i > 0) {
     while (i > 0 && _isPathSeparator(ret->buf[--i]))
       ;
-    if (!_isPathSeparator(ret->buf[i])) 
+    if (!_isPathSeparator(ret->buf[i]))
       ++i;
     CStringReplaceInRangeWithSES(ret, NSMakeRange(i, ret->length - i), MSMakeSESWithBytes(".", 1, NSUTF8StringEncoding));}
   CStringAppendSES(ret, ses2);
   CGrowSetForeverImmutable((id)ret);
   return AUTORELEASE(ret);
 }
-- (NSString *)stringByDeletingLastPathComponent 
+- (NSString *)stringByDeletingLastPathComponent
 {
   SES ses;  NSUInteger i, s; id ret;
   ses= SESFromString(self);

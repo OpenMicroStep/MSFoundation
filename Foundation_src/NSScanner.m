@@ -28,16 +28,16 @@
 { ASSIGN(_charactersToBeSkipped, skipSet); }
 
 - (NSUInteger)scanLocation
-{ 
+{
   NSUInteger i, n= 0;
   for (i= SESStart(_ses); i < _i; ) {
     SESIndexN(_ses, &i);
     ++n;
   }
-  return n; 
+  return n;
 }
 - (void)setScanLocation:(NSUInteger)index
-{ 
+{
   NSUInteger i;
   for (i= SESStart(_ses); index > 0 && i < SESEnd(_ses); ) {
     SESIndexN(_ses, &i);}

@@ -1,30 +1,30 @@
 /*
- 
+
  MHMessenger.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Geoffrey Guilbon : gguilbon@gmail.com
  Jean-Michel Berthéas : jean-michel.bertheas@club-internet.fr
- 
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -35,10 +35,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  */
 
 #import <MSNode/MSNode.h>
@@ -66,7 +66,7 @@
                                         | FLAG_FOUND_MAND_ENV_PRIORITY \
                                         | FLAG_FOUND_MAND_ENV_STATUS \
                                         | FLAG_FOUND_MAND_ENV_CONTENT_TYPE)
-        
+
 //additional flags
 #define FLAG_FOUND_ENV_MESSAGE_ID          0x1 //set only on messenger
 #define FLAG_FOUND_ENV_RECEIVING_DATE      0x2 //can be set on proxy
@@ -186,7 +186,7 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
   _messengerDBAccessor= [db retain];
   return self;
 }
-- (void)dealloc 
+- (void)dealloc
 {
   [_messengerDBAccessor release];
   [super dealloc];
@@ -257,16 +257,16 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
     {
         BOOL runOK ;
         if(!MSFileExistsAtPath(dbDirectoryPath, &isDir)) { //check if directory exist
-            
+
             if(!MSCreateRecursiveDirectory(dbDirectoryPath))
             {
                 //[self logWithLevel:MHAppError log:@"Failed to create database directory"] ;
                 return NO ;
             }
         }
-        
+
         scriptPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"1" ofType:@"sql"] ;
-        
+
         runOK = [_messengerDBAccessor runSQLScript:scriptPath] ; //run creation script
         if(!runOK) { //db init script
             //[self logWithLevel:MHAppError log:@"Failed to run sql create script : %@",scriptPath] ;
@@ -274,7 +274,7 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
         }
 
     }
-    
+
     //-2 database exist, check if need to run update scripts
     dbVersion = [_messengerDBAccessor getDBVersion] ;
     scriptPath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"%d",++dbVersion] ofType:@"sql"] ;
@@ -283,7 +283,7 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
         MSBuffer *dbBuf = [MSBuffer bufferWithContentsOfFile:dbPath] ;
         [dbBuf writeToFile:[dbDirectoryPath stringByAppendingPathComponent:backupFileName] atomically:YES] ;
     }
-    
+
     while(scriptPath)
     {
         if(![_messengerDBAccessor runSQLScript:scriptPath])
@@ -293,7 +293,7 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
         }
         scriptPath = [[NSBundle bundleForClass:[self class]] pathForResource:[NSString stringWithFormat:@"%d",++dbVersion] ofType:@"sql"] ;
     }
-    
+
 
     return YES ;
 }*/
@@ -341,10 +341,10 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
   NSArray *messageID= [[queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] componentsSeparatedByString:MESSENGER_QUERY_PARAM_OR_SEPARATOR] ;
   NSArray *thread= [[queryParams objectForKey:MESSENGER_QUERY_PARAM_THREAD_ID] componentsSeparatedByString:MESSENGER_QUERY_PARAM_OR_SEPARATOR] ;
   NSNumber *max= [NSNumber numberWithInt:[[queryParams objectForKey:MESSENGER_QUERY_PARAM_MAX] intValue]] ;
-  
+
   if (![messageID count] && !([thread count] && [max intValue]>0)) {
     //[self logWithLevel:MHAppError log:@"/%@ : no thread and limit>0 or message ID specified in query string '%@'", MESSENGER_SUB_URL_FIND_MSG, queryParams];
-    [tr write:MSHttpCodeBadRequest];} 
+    [tr write:MSHttpCodeBadRequest];}
   else {
     NSDictionary *messages= [_messengerDBAccessor findMessagesForURN:[[tr session] recipientURN] andParameters:queryParams];
     if (!messages) {
@@ -359,7 +359,7 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
 {
   NSDictionary *queryParams= [tr urlQueryParameters];
   NSString *messageID = [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
-  
+
   if(![messageID length]) {
     //[self logWithLevel:MHAppError log:@"/%@ : no message ID or wrong envelope type specified in query string", MESSENGER_SUB_URL_GET_MSG] ;
     [tr write:MSHttpCodeBadRequest];}
@@ -376,10 +376,10 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
 // /getMessageStatus?mid=UID&recipient=urn
 - (void)GET_getMessageStatus:(MSHttpTransaction *)tr
 {
-  NSString *messageID= [[tr urlQueryParameters] objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;   
+  NSString *messageID= [[tr urlQueryParameters] objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
   if(![messageID length]) {
     //[self logWithLevel:MHAppError log:@"/%@ : no message ID or no enveloppe type specified in query string", MESSENGER_SUB_URL_GET_MSG_STATUS] ;
-    [tr write:MSHttpCodeBadRequest];} 
+    [tr write:MSHttpCodeBadRequest];}
   else {
     NSDictionary *messageStatus= [_messengerDBAccessor getMessageStatusForURN:[[tr session] recipientURN] andMessageID:messageID] ;
     if(!messageStatus) {
@@ -395,7 +395,7 @@ static void _recipientURNCheck(MSHttpTransaction *tr, id allowedRecipients)
   NSDictionary *queryParams= [tr urlQueryParameters];
   NSString *messageID= [queryParams objectForKey:MESSENGER_QUERY_PARAM_MESSAGE_ID] ;
   id status= [queryParams objectForKey:MESSENGER_QUERY_PARAM_STATUS];
-      
+
   if(![messageID length] || !status) {
     //[self logWithLevel:MHAppError log:@"/%@ : no message ID or status specified in query string, or status is nul", MESSENGER_SUB_URL_SET_MSG_STATUS] ;
     [tr write:MSHttpCodeBadRequest];}

@@ -29,11 +29,11 @@ static void _messengerMessageOutput(id value, NSString *key, id request)
   [super dealloc];
 }
 - (void)onResponseData:(NSData *)data
-{ 
+{
   [_buffer appendBytes:[data bytes] length:[data length]];
 }
 - (void)onResponseEnd
-{ 
+{
   [_message setBase64Content:_buffer];
   [self handledWithError:nil];
 }

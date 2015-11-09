@@ -2,13 +2,13 @@
   baseURL = "/repository" ;
   database = {
     adaptor = "MSSQLCipherAdaptor" ;
-    path = "plaintext.db";
-    //key = "DitXZjDynpPTAfogi3Y4" ;
+    path = "messages.sqlitedb";
+    key = "DitXZjDynpPTAfogi3Y4" ;
   };
   servers= (
     {
-      cert = "../certs/server-repository-crt.pem";
-      key = "../certs/server-repository.pem";
+      cert = "../Certs/server-repository-crt.pem";
+      key = "../Certs/server-repository.pem";
       port = "8950"; 
     }
   );

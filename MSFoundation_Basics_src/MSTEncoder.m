@@ -1,30 +1,30 @@
 /*
- 
+
  MSTEncoder.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
- 
- 
+
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -35,10 +35,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  WARNING : this header file cannot be included alone, please direclty
  include <MSFoundation/MSFoundation.h>
  */
@@ -110,7 +110,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
         [self _encodeTokenSeparator] ;
         [self _encodeTokenType:MSTE_TOKEN_TYPE_BASE64_DATA] ;
     }
-    
+
     [self _encodeTokenSeparator] ;
     CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
     if (bytes && length) CBufferBase64EncodeAndAppendBytes((CBuffer *)_content, bytes, length) ;
@@ -125,12 +125,12 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
             [self _encodeTokenSeparator] ;
             [self _encodeTokenType:MSTE_TOKEN_TYPE_STRING] ;
         }
-        
+
         [self _encodeTokenSeparator] ;
         CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
         if (len) {
             NSUInteger i ;
-            
+
             for (i=0 ; i<len ; i++) {
                 MSByte c = (MSByte)str[i] ;
                 switch (c) { //Escape some characters
@@ -200,12 +200,12 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
             [self _encodeTokenSeparator] ;
             [self _encodeTokenType:MSTE_TOKEN_TYPE_STRING] ;
         }
-        
+
         [self _encodeTokenSeparator] ;
         if (doubleQuotes) {
             CBufferAppendByte((CBuffer *)_content, (MSByte)'"') ;
         }
-      
+
         if (SESOK(ses)) {
             for (i= SESStart(ses); i < SESEnd(ses); ) {
                 unichar c = SESIndexN(ses, &i);
@@ -256,7 +256,7 @@ static inline MSByte _ShortValueToHexaCharacter(MSByte c)
                             MSByte b1 = (MSByte)((c & 0x0F00)>>8);
                             MSByte b2 = (MSByte)((c & 0x00F0)>>4);
                             MSByte b3 = (MSByte)(c & 0x000F);
-                            
+
                             CBufferAppendByte((CBuffer *)_content, (MSByte)'\\') ;
                             CBufferAppendByte((CBuffer *)_content, (MSByte)'u') ;
                             CBufferAppendByte((CBuffer *)_content, _ShortValueToHexaCharacter(b0)) ;
@@ -378,7 +378,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
 {
     id object ;
     NSEnumerator *e = [anArray objectEnumerator] ;
-    
+
     [self encodeUnsignedLongLong:(MSULong)[anArray count] withTokenType:NO] ;
     while ((object = [e nextObject])) {
         [self encodeObject:object] ;
@@ -397,19 +397,19 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
     NSMutableArray *keys = [ALLOC(NSMutableArray) initWithCapacity:[aDictionary count]] ;
     NSMutableArray *objects = [ALLOC(NSMutableArray) initWithCapacity:[aDictionary count]] ;
     NSUInteger i, count ;
-  
+
     if (isSnapshot) {
         while ((key = [ek nextObject])) {
             id o = [aDictionary objectForKey:key] ;
             id object = nil ;
-          
+
             if (![o isKindOfClass:[MSCouple class]]) {
                 [NSException raise:NSGenericException format:@"encodeDictionary:isSnapshot: one object is not a MSCouple in a snapshot!"] ;
             }
             else {
                 object = [o firstMember] ;
             }
-          
+
             if ([object singleEncodingCode:self] != MSTE_TOKEN_TYPE_NULL) {
                 [keys addObject:[key toString]] ;
                 [objects addObject:o] ;
@@ -425,10 +425,10 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
             }
         }
     }
-    
+
     count = [keys count] ;
     [self encodeUnsignedLongLong:(MSULong)count withTokenType:NO] ;
-    
+
     for (i = 0 ; i< count ; i++) {
         NSString *stringKey = [keys objectAtIndex:i] ;
         NSUInteger keyReference = (NSUInteger)CDictionaryObjectForKey(_keys, stringKey) ;
@@ -437,12 +437,12 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
             CDictionarySetObjectForKey(_keys, (id)keyReference, stringKey) ;
             [_keysArray addObject:stringKey] ;
         }
-        
+
         [self encodeUnsignedLongLong:(MSULong)(keyReference-1) withTokenType:NO] ;
         if (isSnapshot) {
             MSCouple *o = [objects objectAtIndex:i] ;
             id manageReference = [o secondMember] ;
-          
+
             if (manageReference) [self encodeObject:[o firstMember] withReferencing:YES] ;
             else [self encodeObject:[o firstMember] withReferencing:NO] ;
         }
@@ -463,7 +463,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
     }
     else {
         NSUInteger objectReference = (NSUInteger)CDictionaryObjectForKey(_encodedObjects, anObject) ;
-        
+
         if (objectReference) {
             //this is an already encoded object
             [self _encodeTokenSeparator] ;
@@ -477,16 +477,16 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
                 NSUInteger classIndex ;
                 NSDictionary *snapshot = [anObject MSTESnapshot] ;
                 if (!snapshot) MSRaise(NSGenericException, @"encodeObject: Specific user classes must implement MSTESnapshot to be encoded as a dictionary!") ;
-                
+
                 objectClass = [anObject class] ;
                 classIndex = (NSUInteger)CDictionaryObjectForKey(_classes, objectClass) ;
-                
+
                 if (!classIndex) {
                     classIndex = ++_lastClassIndex ;
                     CDictionarySetObjectForKey(_classes, (id)classIndex, objectClass) ;
                     [_classesArray addObject:NSStringFromClass(objectClass)] ;
                 }
-                
+
                 objectReference = ++_lastReference ;
                 CDictionarySetObjectForKey(_encodedObjects, (id)objectReference, anObject) ;
                 [self _encodeTokenSeparator] ;
@@ -494,12 +494,12 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
                 [self encodeDictionary:snapshot isSnapshot:YES] ;
             }
             else if (tokenType <= MSTE_TOKEN_LAST_DEFINED_TYPE) {
-              
+
                 if (referencing) {
                     objectReference = ++_lastReference ;
                     CDictionarySetObjectForKey(_encodedObjects, (id)objectReference, anObject) ;
                 }
-              
+
                 [self _encodeTokenSeparator] ;
                 [self _encodeTokenType:tokenType] ;
                 [anObject encodeWithMSTEncoder:self] ;
@@ -507,7 +507,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
             else {
                 MSRaise(NSGenericException, @"encodeObject: cannot encode an object with token type %u!", (MSUInt)tokenType) ;
             }
-            
+
         }
     }
 }
@@ -518,7 +518,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
     NSUInteger crcPos;
     NSEnumerator *ec, *ek ;
     NSString *aClassName, *aKey ;
-    
+
     _keysArray = NEW(NSMutableArray) ;
     _classesArray = NEW(NSMutableArray) ;
     _classes = CCreateDictionaryWithOptions(32, CDictionaryObject, CDictionaryPointer);
@@ -526,19 +526,19 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
     _encodedObjects = CCreateDictionaryWithOptions(256, CDictionaryPointer, CDictionaryPointer);
     _global = (MSBuffer*)CCreateBuffer(65536) ;
     _content = (MSBuffer*)CCreateBuffer(65536) ;
-    
+
     [self encodeObject:anObject] ;
-    
+
     //MSTE header
     CBufferAppendCString((CBuffer *)_global, "[\"MSTE") ;
     CBufferAppendCString((CBuffer *)_global, MSTE_CURRENT_VERSION) ;
     CBufferAppendCString((CBuffer *)_global, "\",") ;
-  
+
     [self _encodeGlobalUnsignedLongLong:(5+_lastKeyIndex+_lastClassIndex+_tokenCount)] ;
     CBufferAppendCString((CBuffer *)_global, ",\"CRC");
     crcPos = ((CBuffer*)_global)->length ;
     CBufferAppendCString((CBuffer *)_global, "00000000\",");
-    
+
     //Classes list
     ec = [_classesArray objectEnumerator] ;
     [self _encodeGlobalUnsignedLongLong:(MSByte)[_classesArray count]] ;
@@ -546,7 +546,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
         CBufferAppendByte((CBuffer *)_global, (MSByte)',');
         [self _encodeGlobalUnicodeString:[aClassName UTF8String]] ;
     }
-    
+
     //Keys list
     ek = [_keysArray objectEnumerator] ;
     CBufferAppendByte((CBuffer *)_global, (MSByte)',');
@@ -555,15 +555,15 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
         CBufferAppendByte((CBuffer *)_global, (MSByte)',');
         [self _encodeGlobalUnicodeString:[aKey UTF8String]] ;
     }
-    
+
     if (((CBuffer*)_content)->length) {
         CBufferAppendBuffer((CBuffer *)_global, (const CBuffer *)_content) ;
     }
-    
+
     CBufferAppendByte((CBuffer *)_global, (MSByte)']');
-    
+
     [self _encodeGlobalHexaUnsignedInt:[_global largeCRC] at:((CBuffer*)_global)->buf+crcPos] ;
-    
+
     ret = [_global retain] ;
     [self _clean] ;
     return [ret autorelease] ;
@@ -589,7 +589,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
         CBufferAppendByte((CBuffer *)_global, (MSByte)'"') ;
         if (len) {
             NSUInteger i ;
-            
+
             for (i=0 ; i<len ; i++) {
                 MSByte c = (MSByte)str[i] ;
                 switch (c) { //Escape some characters
@@ -639,7 +639,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
 {
     char toAscii[21] = "";
     NSUInteger len, j ;
-    
+
     sprintf(toAscii, "%llu", l);
     len = (MSUInt)strlen(toAscii) ;
     for (j=0 ; j<len ; j++) {
@@ -657,7 +657,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
     MSByte b5 = (MSByte)((i & 0x00000F00)>>8);
     MSByte b6 = (MSByte)((i & 0x000000F0)>>4);
     MSByte b7 = (MSByte)(i & 0x0000000F);
-    
+
     *pointer = _ShortValueToHexaCharacter(b0) ; pointer++ ;
     *pointer = _ShortValueToHexaCharacter(b1) ; pointer++ ;
     *pointer = _ShortValueToHexaCharacter(b2) ; pointer++ ;

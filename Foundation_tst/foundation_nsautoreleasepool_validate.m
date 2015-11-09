@@ -89,7 +89,7 @@ static void pool_threadAutorelease(test_t *test)
   id o;
   BOOL canWait;
   struct thrd_data_t d1, d2, d3;
-  
+
 #ifdef WO451
   //force some initializations under WO451
   [NSThread detachNewThreadSelector:@selector(fakeLaunch:) toTarget:[NSAutoreleaseTestsThreadFakeLauncher new] withObject:nil];

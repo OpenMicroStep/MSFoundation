@@ -1,27 +1,27 @@
 /* MSCoreSES.c
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Herve Malaingre : herve@malaingre.com
- 
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -32,10 +32,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  */
 
 #include "MSCore_Private.h"
@@ -159,9 +159,9 @@ static _encodingStuff _encoding[]= {
   {NULL                    , InvalidCHAI   , InvalidCHAI   , sizeof(char)    }, // 16 NSISO2022JPStringEncoding=     21, // ISO 2022 Japanese encoding for e-mail
   {__MSMacRomanToUnicode   , _macChaiN     , _macChaiP     , sizeof(char)    }, // 17 NSMacOSRomanStringEncoding=    30,
   {__MSDOSToUnicode        , _dosChaiN     , _dosChaiP     , sizeof(char)    }, // 18 NSDOSStringEncoding=           0x20000, // DOS: Added to NS...Encoding constants
-  
+
   {NULL                    , InvalidCHAI   , InvalidCHAI   , sizeof(unichar) }, // 19 NSUTF16StringEncoding= NSUnicodeStringEncoding, // An alias for NSUnicodeStringEncoding
-  
+
   {NULL                    , _bigChaiN     , _bigChaiP     , sizeof(unichar) }, // 20 NSUTF16BigEndianStringEncoding=    0x90000100,  // explicit endianness
   {NULL                    , _littleChaiN  , _littleChaiP  , sizeof(unichar) }  // 21 NSUTF16LittleEndianStringEncoding= 0x94000100,  // explicit endianness
 };
@@ -239,13 +239,13 @@ unichar utf8ChaiP(const void *src, NSUInteger *pos)
   else if (c0 < 0xc0) { // c0 is valid ((c0 & 0xC0) == 0x80)
     if ((c1= ((unsigned char*)src)[--(*pos)]) >= 0xc0 /* 1100 0000 */) { // 2 bytes: 8 to 11 bits
       if (c1 < 0xe0) { //c1 is valid ((c1 & 0xE0) == 0xc0)
-        u= ( ((unichar)(c1 & 0x1F /* 0001 1111 */) << 6) 
+        u= ( ((unichar)(c1 & 0x1F /* 0001 1111 */) << 6)
            | ((unichar)(c0 & 0x3F /* 0011 1111 */)     ));}}
     else if (c1 < 0xc0) { // c1 is valid ((c0 & 0xC0) == 0x80)
       if ((c2= ((unsigned char*)src)[--(*pos)]) & 0xe0 /* 1110 0000 */) { // 3 bytes: 12 to 16 bits
         if (c2 < 0xf0) { // c2 is valid
           u= ( ((unichar)(c2 & 0x0F /* 0000 1111 */) << 12)
-             | ((unichar)(c1 & 0x3F /* 0011 1111 */) <<  6) 
+             | ((unichar)(c1 & 0x3F /* 0011 1111 */) <<  6)
              | ((unichar)(c0 & 0x3f /* 0011 1111 */)      ));}}
       else { // 4 bytes: 17 to 21bits
         --(*pos);}}}
@@ -254,8 +254,8 @@ unichar utf8ChaiP(const void *src, NSUInteger *pos)
 
 // Optimised char -> action for utf8JsonStringChaiP
 // C99 notation, non provided index are set to 0 by the compiler
-static unsigned char _utf8JsonStringChaiPAction[] = { 
-  ['0']=0x80, ['1']=0x80, ['2']=0x80, ['3']=0x80, ['4']=0x80, ['5']=0x80, ['6']=0x80, ['7']=0x80, ['8']=0x80, ['9']=0x80, 
+static unsigned char _utf8JsonStringChaiPAction[] = {
+  ['0']=0x80, ['1']=0x80, ['2']=0x80, ['3']=0x80, ['4']=0x80, ['5']=0x80, ['6']=0x80, ['7']=0x80, ['8']=0x80, ['9']=0x80,
   ['A']=0x80, ['B']=0x80, ['C']=0x80, ['D']=0x80, ['E']=0x80, ['F']=0x80,
   ['a']=0x80, ['b']=0x80 | '\b', ['c']=0x80, ['d']=0x80, ['e']=0x80, ['f']=0x80 | '\f',
   ['\"']= 1,
@@ -362,7 +362,7 @@ static SES _SESPrefix(SES src, SES comparator, BOOL insensitive)
   SES ret= MSInvalidSES;
   if (SESOK(src) && SESOK(comparator)) {
     NSUInteger i1, e1, lg= 0;
-    i1= SESStart(src); 
+    i1= SESStart(src);
     if (_SESPrefixAlg(src, i1, &i1, &e1, comparator, insensitive, &lg)) {
       ret= src;
       SESSetEnd(ret, e1);}}
@@ -584,9 +584,9 @@ NSUInteger SESHash(SES ses)
 {
   uint32_t hash = 0x9e3779b9U, tmp;
   unichar c1, c2; NSUInteger i;
-  
+
   if (!SESOK(ses)) return 0;
-  
+
   i= SESStart(ses);
   while (i < SESEnd(ses)) {
     c1= SESIndexN(ses, &i);
@@ -602,14 +602,14 @@ NSUInteger SESHash(SES ses)
       hash+= hash >> 17;
     }
   }
-  
+
   /* Force "avalanching" of final 31 bits */
   hash ^= hash << 3;
   hash += hash >> 5;
   hash ^= hash << 2;
   hash += hash >> 15;
   hash ^= hash << 10;
-  
+
   return hash;
 }
 

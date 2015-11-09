@@ -7,7 +7,7 @@
 ### Implement a new test
 
 ### Define dependencies
-    
+
 ### Assertions
 
 */

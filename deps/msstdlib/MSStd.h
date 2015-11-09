@@ -39,8 +39,8 @@
 // Lib export
 #ifdef __cplusplus
     #define EXTERN_C extern "C"
-    #define restrict 
-    #define register 
+    #define restrict
+    #define register
 #else
     #define EXTERN_C extern
 #endif
@@ -145,7 +145,7 @@
 
 #if defined(WIN32) && !defined(__MINGW32__)
 MSStdExtern int snprintf(char *str, size_t size, const char *format, ...);
-#endif 
+#endif
 
 #if defined(MSVC)
   static inline float strtof(const char *string, char **endPtr) { return (float)strtod(string, endPtr); }

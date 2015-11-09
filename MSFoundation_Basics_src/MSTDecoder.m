@@ -1,30 +1,30 @@
 /*
- 
+
  MSTDecoder.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
- 
- 
+
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -35,10 +35,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  WARNING : this header file cannot be included alone, please direclty
  include <MSFoundation/MSFoundation.h>
  */
@@ -145,7 +145,7 @@ static inline MSByte _hexaCharacterToShortValue(unichar c)
 void _MSTJumpToNextToken(unsigned char **pointer, unsigned char *endPointer, MSULong *tokenCount)
 {
     unsigned char *s = (unsigned char *)*pointer ;
-    
+
     BOOL separatorFound = NO ;
     BOOL nextFound = NO ;
     while (!separatorFound && (endPointer-s)) {
@@ -154,7 +154,7 @@ void _MSTJumpToNextToken(unsigned char **pointer, unsigned char *endPointer, MSU
         else MSRaise(NSGenericException, @"MSTDecodeRetainedObject - Bad format (unexpected character before token separator: %u)", *s) ;
     }
     if (!separatorFound) MSRaise(NSGenericException, @"MSTDecodeRetainedObject - Bad format (no token separator)") ;
-     
+
     while (!nextFound && (endPointer-s)) {
         if (*s == (unichar)' ') { s++ ; }
         nextFound = (*s != (unichar)' ') ;
@@ -169,14 +169,14 @@ MSByte _MSTDecodeUnsignedChar(unsigned char **pointer, unsigned char *endPointer
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSULong result = CStrToULongLong((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedChar - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         if (result>MSByteMax) MSRaise(NSGenericException, @"_MSTDecodeUnsignedChar - out of range (%llu)", result) ;
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeUnsignedChar - %@ (no termination)", operation) ;
-    
+
     return (MSByte)result ;
 }
 
@@ -185,7 +185,7 @@ MSChar _MSTDecodeChar(unsigned char **pointer, unsigned char *endPointer, NSStri
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSLong result = CStrToLongLong((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeChar - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         if ((result>MSCharMax) || (result<MSCharMin)) MSRaise(NSGenericException, @"_MSTDecodeChar - out of range (%lld)", result) ;
@@ -201,14 +201,14 @@ MSUShort _MSTDecodeUnsignedShort(unsigned char **pointer, unsigned char *endPoin
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSULong result = CStrToULongLong((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedShort - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         if (result>MSUShortMax) MSRaise(NSGenericException, @"_MSTDecodeUnsignedShort - out of range (%llu)", result) ;
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeUnsignedShort - %@ (no termination)", operation) ;
-    
+
     return (MSUShort)result ;
 }
 
@@ -217,14 +217,14 @@ MSShort _MSTDecodeShort(unsigned char **pointer, unsigned char *endPointer, NSSt
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSLong result = CStrToLongLong((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeShort - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         if ((result>MSShortMax) || (result<MSShortMin)) MSRaise(NSGenericException, @"_MSTDecodeShort - out of range (%lld)", result) ;
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeShort - %@ (no termination)", operation) ;
-    
+
     return (MSShort)result ;
 }
 
@@ -233,14 +233,14 @@ MSUInt _MSTDecodeUnsignedInt(unsigned char **pointer, unsigned char *endPointer,
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSULong result = CStrToULongLong((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedInt - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         if (result>MSUIntMax) MSRaise(NSGenericException, @"_MSTDecodeUnsignedInt - out of range (%llu)", result) ;
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeUnsignedInt - %@ (no termination)", operation) ;
-    
+
     return (MSUInt)result ;
 }
 
@@ -249,7 +249,7 @@ MSInt _MSTDecodeInt(unsigned char **pointer, unsigned char *endPointer, NSString
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSLong result = CStrToLongLong((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeInt - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         if (((MSInt)result>MSIntMax) || ((MSInt)result<MSIntMin)) {
@@ -258,7 +258,7 @@ MSInt _MSTDecodeInt(unsigned char **pointer, unsigned char *endPointer, NSString
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeInt - %@ (no termination)", operation) ;
-    
+
     return (MSInt)result ;
 }
 
@@ -267,13 +267,13 @@ MSULong _MSTDecodeUnsignedLongLong(unsigned char **pointer, unsigned char *endPo
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSULong result = CStrToULongLong((const char *)s, &stopCar);
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeUnsignedLongLong - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeUnsignedLongLong - %@ (no termination)", operation) ;
-    
+
     return result ;
 }
 
@@ -282,13 +282,13 @@ MSLong _MSTDecodeLongLong(unsigned char **pointer, unsigned char *endPointer, NS
     unsigned char *s = (unsigned char *)*pointer ;
     char *stopCar;
     MSLong result = CStrToLongLong((const char *)s, &stopCar);
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeLongLong - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeLongLong - %@ (no termination)", operation) ;
-    
+
     return result ;
 }
 
@@ -298,13 +298,13 @@ float _MSTDecodeFloat(unsigned char **pointer, unsigned char *endPointer, NSStri
     char *stopCar;
     // TODO: no strtof, use Decimal
     float result = strtof((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeFloat - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeFloat - %@ (no termination)", operation) ;
-    
+
     return result ;
 }
 
@@ -314,13 +314,13 @@ double _MSTDecodeDouble(unsigned char **pointer, unsigned char *endPointer, NSSt
     char *stopCar;
     // TODO: no strtod, use Decimal
     double result = strtod((const char *)s, &stopCar) ;
-    
+
     if ((unsigned char *)stopCar > endPointer) MSRaise(NSGenericException, @"_MSTDecodeDouble - %@ (exceed buffer end)", operation) ;
     if ((unsigned char *)stopCar > s) {
         *pointer = (unsigned char *)stopCar ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeDouble - %@ (no termination)", operation) ;
-    
+
     return result ;
 }
 
@@ -332,10 +332,10 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
     BOOL endStringFound = NO ;
     MSShort state = MSTE_DECODING_STRING_START ;
     CString *ret = CCreateString(2) ;
-    
+
     while ((s < endPointer) && !endStringFound) {
         unsigned char character = *s ;
-        
+
         switch (state) {
             case MSTE_DECODING_STRING_START:
             {
@@ -347,7 +347,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
             {
                 if ((unichar)character == (unichar)'\\') { s++ ; state = MSTE_DECODING_STRING_ESCAPED_CAR ; break ; }
                 if ((unichar)character == (unichar)'"') { s++ ; state = MSTE_DECODING_STRING_STOP ; endStringFound = YES ; break ; }
-                
+
                 if (character <= 0x7F) {
                     //ascii character
                     CStringAppendCharacter(ret, (unichar)character) ; //adding visible ascii character to unicode string
@@ -367,7 +367,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
                         //utf8 character coded on 4 bytes
                         len = 4 ;
                     }
-                
+
                     if (len) {
                         CStringAppendBytes((CString *)ret, NSUTF8StringEncoding, (const void *)s, (NSUInteger)len) ;
                         s+=len ; //pass to next character
@@ -376,7 +376,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
                         [NSException raise:NSGenericException format:@"_MSTDecodeString - Bad first byte value on a supposed UTF-8 character (%02x)", character] ;
                     }
                 }
-              
+
                 break ;
             }
             case MSTE_DECODING_STRING_ESCAPED_CAR :
@@ -439,14 +439,14 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
                 {
                     //UTF16 value on 4 hexadecimal characters expected
                     unichar s0, s1, s2, s3 ;
-                        
+
                     if ((endPointer-s)<5) MSRaise(NSGenericException, @"_MSTDecodeString - %@ (too short UTF16 character expected)", operation) ;
-                        
+
                     s0 = (unichar)s[1] ;
                     s1 = (unichar)s[2] ;
                     s2 = (unichar)s[3] ;
                     s3 = (unichar)s[4] ;
-                        
+
                     if (!CUnicharIsHexa(s0) ||
                         !CUnicharIsHexa(s1) ||
                         !CUnicharIsHexa(s2) ||
@@ -472,7 +472,7 @@ NSString *_MSTDecodeString(unsigned char **pointer, unsigned char *endPointer, N
             }
         }
     }
-    
+
     *pointer = s ;
     return AUTORELEASE((id)ret) ;
 }
@@ -487,7 +487,7 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
             ret = [[NSNumber allocWithZone:zone] initWithLongLong:_MSTDecodeLongLong(&s, endPointer, @"_MSTDecodeNumber")] ;
             break ;
         }
-        case MSTE_TOKEN_TYPE_REAL_VALUE : 
+        case MSTE_TOKEN_TYPE_REAL_VALUE :
         case MSTE_TOKEN_TYPE_DOUBLE : {
             ret = [[NSNumber allocWithZone:zone] initWithDouble:_MSTDecodeDouble(&s, endPointer, @"_MSTDecodeNumber")] ;
             break ;
@@ -495,10 +495,10 @@ NSNumber *_MSTDecodeNumber(unsigned char **pointer, unsigned char *endPointer, M
         case MSTE_TOKEN_TYPE_DECIMAL_VALUE : {
             unsigned char *startPointer = *pointer ;
             NSUInteger strLen = 0 ;
-        
+
             _MSTDecodeDouble(&s, endPointer, @"_MSTDecodeNumber") ;
             strLen = (NSUInteger)(endPointer-startPointer) ;
-        
+
             if (strLen) {
                 ret= (NSNumber*)CCreateDecimalWithSES(MSMakeSESWithBytes(startPointer, strLen, NSASCIIStringEncoding), NO, NULL, NULL);
             }
@@ -563,13 +563,13 @@ MSDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char *endPo
     unsigned char *s = (unsigned char *)*pointer ;
     MSDictionary *ret = nil ;
     NSUInteger count = _MSTDecodeUnsignedLongLong(&s, endPointer, operation) ;
-    
+
     ret = [[MSDictionary allocWithZone:zone] mutableInitWithCapacity:count] ;
     if (manageReference) { [decodedObjects addObject:ret] ; }
 
     if (count) {
         NSUInteger i ;
-        
+
         for (i = 0 ; i < count ; i++) {
             MSUInt keyReference ;
             id object, key ;
@@ -578,12 +578,12 @@ MSDictionary *_MSTDecodeDictionary(unsigned char **pointer, unsigned char *endPo
             key = [keys objectAtIndex:keyReference] ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
             object = _MSTDecodeObject(&s, endPointer, operation, decodedObjects, classes, keys, tokenCount, allowsUnknownUserClasses, zone) ;
-            
+
             if (!object) object = __theNull ;
             [ret setObject:object forKey:key] ;
         }
     }
-   
+
     *pointer = s ;
     return AUTORELEASE(ret) ;
     decodingUserClass= NO; // Unused parameter
@@ -594,13 +594,13 @@ NSMutableArray *_MSTDecodeArray(unsigned char **pointer, unsigned char *endPoint
     unsigned char *s = (unsigned char *)*pointer ;
     NSMutableArray *ret = nil ;
     NSUInteger count = _MSTDecodeUnsignedLongLong(&s, endPointer, operation) ;
-    
+
     ret = [[NSMutableArray allocWithZone:zone] initWithCapacity:count] ;
     [decodedObjects addObject:ret] ;
 
     if (count) {
         NSUInteger i ;
-        
+
         for (i = 0 ; i < count ; i++) {
             id object ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
@@ -625,7 +625,7 @@ MSNaturalArray *_MSTDecodeNaturalArray(unsigned char **pointer, unsigned char *e
 
     if (count) {
         NSUInteger i ;
-        
+
         for (i = 0 ; i < count ; i++) {
             NSUInteger natural ;
             _MSTJumpToNextToken(&s, endPointer, tokenCount) ;
@@ -633,7 +633,7 @@ MSNaturalArray *_MSTDecodeNaturalArray(unsigned char **pointer, unsigned char *e
             CAddNatural((CNaturalArray *)ret, natural) ;
         }
     }
-    
+
     *pointer = s ;
     return AUTORELEASE(ret) ;
 }
@@ -643,7 +643,7 @@ MSMutableCouple *_MSTDecodeCouple(unsigned char **pointer, unsigned char *endPoi
     unsigned char *s = (unsigned char *)*pointer ;
     MSMutableCouple *ret = nil ;
     id firstMember, secondMember ;
-    
+
     ret = [[MSMutableCouple allocWithZone:zone] init] ;
     [decodedObjects addObject:ret] ;
 
@@ -653,7 +653,7 @@ MSMutableCouple *_MSTDecodeCouple(unsigned char **pointer, unsigned char *endPoi
 
     [ret setFirstMember:firstMember] ;
     [ret setSecondMember:secondMember] ;
-    
+
     *pointer = s ;
     return AUTORELEASE(ret) ;
 }
@@ -664,7 +664,7 @@ MSBuffer *_MSTDecodeBufferBase64String(unsigned char **pointer, unsigned char *e
     MSBuffer *ret = nil , *utf8Buf;
     MSString *base64String = (MSString *)_MSTDecodeString(&s, endPointer, operation) ;
     const char *utf8String = [base64String UTF8String] ;
-  
+
     if (strlen(utf8String)) {
       utf8Buf= [[MSBuffer alloc] initWithBytesNoCopyNoFree:(void*)utf8String length:strlen(utf8String)];
       ret= [utf8Buf decodedFromBase64];
@@ -684,12 +684,12 @@ MSBuffer *_MSTDecodeBufferHexaString(unsigned char **pointer, unsigned char *end
     const char *c0, *c1, *utf8String = [hexaString UTF8String] ;
     MSULong i, utf8StringLen = strlen(utf8String) ;
     MSULong bufferLen ;
-    
+
     if (utf8StringLen%2) MSRaise(NSGenericException, @"__MSTDecodeBufferHexaString - bad length of hexadecimal string : %llu", utf8StringLen) ;
-    
+
     bufferLen = utf8StringLen/2 ;
     ret = MSCreateBuffer(bufferLen) ;
-    
+
     if (utf8StringLen>1) {
         c0 = &utf8String[0] ;
         c1 = &utf8String[1] ;
@@ -701,7 +701,7 @@ MSBuffer *_MSTDecodeBufferHexaString(unsigned char **pointer, unsigned char *end
             c1 += 2 ;
         }
     }
-    
+
     *pointer = s ;
     return AUTORELEASE(ret) ;
     MSUnused(zone);
@@ -723,7 +723,7 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
     unsigned char *s = (unsigned char *)*pointer ;
     MSDictionary* ret = nil ;
     MSInt classIndex = tokenType - MSTE_TOKEN_TYPE_USER_CLASS ;
-    
+
     if (classIndex >=0 && classIndex < (MSInt)[classes count]) {
         NSString *className = [classes objectAtIndex:(NSUInteger)classIndex] ;
         Class aClass = NSClassFromString(className) ;
@@ -732,9 +732,9 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
             MSDictionary *dictionary ;
             ret = [(id)aClass allocWithZone:zone] ;
             [decodedObjects addObject:ret] ;
-            
+
             dictionary = _MSTDecodeDictionary(&s, endPointer, operation, decodedObjects, classes, keys, tokenCount, NO, YES, allowsUnknownUserClasses, zone) ;
-            
+
             ret = [ret initWithDictionary:(id)dictionary] ;
             AUTORELEASE(ret) ;
         }
@@ -744,7 +744,7 @@ id _MSTDecodeUserDefinedObject(unsigned char **pointer, unsigned char *endPointe
         else MSRaise(NSGenericException, @"_MSTDecodeUserDefinedObject - unable to find user class %@ in current system", className) ;
     }
     else MSRaise(NSGenericException, @"_MSTDecodeUserDefinedObject - unable to find user class at index %llu",classIndex) ;
-    
+
     *pointer = s ;
     if (!ret) {
         MSRaise(NSGenericException, @"_MSTDecodeUserDefinedObject - unable to instanciate user class at index %llu",classIndex) ;
@@ -757,7 +757,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
     unsigned char *s = (unsigned char *)*pointer ;
     id ret = nil ;
     MSByte tokenType = _MSTDecodeUnsignedShort(&s, endPointer, @"token type") ;
-    
+
     switch (tokenType) {
         case MSTE_TOKEN_TYPE_NULL : {
             //nothing to do: returning nil
@@ -873,7 +873,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
             break ;
         }
     }
-    
+
     *pointer = s ;
     return ret ;
     operation= nil; // Unused parameter
@@ -883,7 +883,7 @@ id _MSTDecodeObject(unsigned char **pointer, unsigned char *endPointer, NSString
 id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allowsUnknownUserClasses)
 {
     NSUInteger len = [data length] ;
-    
+
     if (len > 26) { //minimum header size : ["MSTE0101",3,"CRC00000000" ...]
         unsigned char *s = (unsigned char *)[data bytes];
         unsigned char *end = (unsigned char *)s+len-1 ;
@@ -897,7 +897,7 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
         id object = nil ;
         NSMutableArray *decodedObjects = nil ;
         MSULong myTokenCount = 0 ;
-        
+
         if (!__theNull) {
             __theNull = [[NSNull null] retain] ;
         }
@@ -1064,7 +1064,7 @@ id MSTDecodeRetainedObject(NSData *data, NSZone *zone, BOOL verifyCRC, BOOL allo
                             crcPtr[0] = crcPtr[1] = crcPtr[2] = crcPtr[3] = crcPtr[4] = crcPtr[5] = crcPtr[6] = crcPtr[7] = (unichar)'0';
                             if (crcInt != [data largeCRC]) MSRaise(NSGenericException, @"MSTDecodeRetainedObject - CRC Verification failed") ;
                         }
-                        
+
                         myTokenCount += 1 ;
                         if (tokenNumber != myTokenCount) MSRaise(NSGenericException, @"MSTDecodeRetainedObject - Wrong token number : %llu (expected : %llu)", myTokenCount, tokenNumber) ;
                         s++ ;

@@ -23,7 +23,7 @@
 }
 
 + (NSDictionary *)dictionaryWithContentsOfFile:(NSString *)path
-{ 
+{
   NSString *contents= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
   return [contents dictionaryValue];
 }
@@ -84,8 +84,8 @@
 - (Class)_classForCopy {return [MSDictionary class];}
 
 - (Class)superclass
-{ 
-  return [NSMutableDictionary class]; 
+{
+  return [NSMutableDictionary class];
 }
 - (BOOL)isKindOfClass:(Class)aClass
 {

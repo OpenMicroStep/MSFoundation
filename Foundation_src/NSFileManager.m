@@ -85,7 +85,7 @@ static BOOL _createDirectoryAtPath(const char *cpath, NSDictionary *attributes)
       ret= uv_fs_chmod(uv_default_loop(), &req, cpath, [n1 intValue], NULL) == 0;
       uv_fs_req_cleanup(&req);
     }
-#ifdef UNIX    
+#ifdef UNIX
     if (ret && ((n1= [attributes objectForKey:NSFileGroupOwnerAccountNumber]) || (n2= [attributes objectForKey:NSFileOwnerAccountNumber]))) {
       uv_uid_t uid= n2 ? [n2 intValue] : req.statbuf.st_uid;
       uv_uid_t gid= n1 ? [n1 intValue] : req.statbuf.st_gid;
@@ -153,7 +153,7 @@ static inline BOOL _isPathSeparator(MSByte c)
         ret= uv_fs_fchmod(uv_default_loop(), &req, fd, [n1 intValue], NULL) == 0;
         uv_fs_req_cleanup(&req);
       }
-#ifdef UNIX    
+#ifdef UNIX
       if (ret && ((n1= [attributes objectForKey:NSFileGroupOwnerAccountNumber]) || (n2= [attributes objectForKey:NSFileOwnerAccountNumber]))) {
         uv_uid_t uid= n2 ? [n2 intValue] : req.statbuf.st_uid;
         uv_uid_t gid= n1 ? [n1 intValue] : req.statbuf.st_gid;

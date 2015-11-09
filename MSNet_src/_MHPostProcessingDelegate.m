@@ -24,20 +24,20 @@
 {
     NSTask *task;
     int status ;
-    
+
     NS_DURING
     task = [[NSTask alloc] init] ;
     [task setLaunchPath:executable] ;
     [task setArguments:args] ;
-    
+
     [task launch] ;
     [task waitUntilExit] ;
-    
+
     status = [task terminationStatus] ;
     NS_HANDLER
     return NO ;
     NS_ENDHANDLER
-    
+
     return (status == successValue) ;
 }
 
@@ -48,14 +48,14 @@
                                toBuf:(MSBuffer *)buf
 {
     NSString *formTitle , *head, *formAction ;
-    
+
     formAction = [app postProcessingURL] ;
     formTitle = [postProc objectForKey:@"formTitle"] ;
     head = [NSString stringWithFormat:@"<html>\n <body>\n  <form action=/%@>\n   <h1>%@</h1>\n",
             formAction,
             [formTitle length] ? formTitle : @""
             ] ;
-    
+
     STR2UTF8BUF(buf, head) ;
 }
 
@@ -67,25 +67,25 @@
                                toBuf:(MSBuffer *)buf
 {
     NSString *field ;
-    
+
     //input field
     field = [NSString stringWithFormat:@"   <input type=\"hidden\" id=\"input\" name=\"input\" value=\"%@\">\n",
                    [input url]] ;
     STR2UTF8BUF(buf, field) ;
-    
-    
+
+
     //input field
     field = [NSString stringWithFormat:@"   <input type=\"hidden\" id=\"postproc\" name=\"postproc\" value=\"%@\">\n",
              [postProc url]] ;
     STR2UTF8BUF(buf, field) ;
-    
+
     //submit button
     field = @"   <p align=\"left\"><input type=\"submit\" value=\"Ok\"></p>\n" ;
     STR2UTF8BUF(buf, field) ;
-    
+
     field = @"  </form>\n </body>\n</html>\n" ;
     STR2UTF8BUF(buf, field) ;
-    
+
     //javascript to open file
     field = [NSString stringWithFormat:@"  <script language=\"javascript\">window.open('/%@','_blank','',true);</script>\n",
              [*output url]
@@ -97,14 +97,14 @@
 {
     NSString *fieldID, *htmlField, *fieldLabel ;
     BOOL checked = NO ;
-        
+
     //get html field name
     fieldID = [field objectForKey:@"fieldID"] ;
     if(![fieldID length]) fieldID = @"" ;
-    
+
     fieldLabel = [fieldDef objectForKey:@"label"] ;
     fieldLabel = ([fieldLabel length]) ? [fieldLabel htmlRepresentation] : @"" ;
-    
+
     //get value by priority : (high priority) 1:post 2:postproc default 3:configfile default (less priority)
     if([values objectForKey:fieldID])
     {
@@ -118,14 +118,14 @@
     {
         checked = MSStringIsTrue([fieldDef objectForKey:@"default"]) ;
     }
-    
+
     htmlField = [NSString stringWithFormat:@"    <input type=\"hidden\" name=\"%@\" value=\"0\"/><input type=\"checkbox\" name=\"%@\" value=\"1\" %@/> <label>%@</label><br />\n",
                  fieldID,
                  fieldID,
                  checked ? @"checked" : @"",
                  fieldLabel
                  ] ;
-    
+
     /*htmlField = [NSString stringWithFormat:@"    <input type=\"checkbox\" name=\"%@\" id=\"%@\" %@ /> <label>%@</label><br />\n",
                  fieldID,
                  fieldID,
@@ -133,7 +133,7 @@
                  fieldLabel
                  ] ;
      */
-    
+
     STR2UTF8BUF(buf, htmlField) ;
 }
 
@@ -150,14 +150,14 @@
     NSString *option ;
     BOOL selected ;
     unsigned int i = 0 ;
-        
+
     //get html field name
     fieldID = [field objectForKey:@"fieldID"] ;
     if(![fieldID length]) fieldID = @"" ;
-    
+
     fieldLabel = [fieldDef objectForKey:@"label"] ;
     fieldLabel = ([fieldLabel length]) ? [fieldLabel htmlRepresentation] : @"" ;
-    
+
     //get value by priority : (high priority) 1:post 2:postproc default 3:configfile default (less priority)
     if([[values objectForKey:fieldID] length])
     {
@@ -172,13 +172,13 @@
         fieldValue = [fieldDef objectForKey:@"default"] ;
     }
     fieldValue = [fieldValue htmlRepresentation] ;
-    
+
     comboHeader = [NSString stringWithFormat:@"    <label for=\"%@\">%@:</label>\n     <select id=\"%@\" name=\"%@\">\n",
                     fieldLabel, fieldLabel, fieldID, fieldID] ;
-    
+
     comboFooter = @"    </select><br>\n" ;
-    
-    
+
+
     STR2UTF8BUF(buf, comboHeader) ;
 
     while((currentValue = [[e nextObject] htmlRepresentation]))
@@ -190,13 +190,13 @@
         {
             currentValueName = nil ;
         }
-        
+
         selected = NO ;
         if([currentValue isEqualToString:fieldValue])
         {
             selected = YES ;
         }
-        
+
         option = [NSString stringWithFormat:@"    <option %@ value=\"%@\">%@</option>\n",
                   selected ? @"selected" : @"" ,
                   currentValue,
@@ -205,7 +205,7 @@
         STR2UTF8BUF(buf, option) ;
         i++ ;
     }
-    
+
     STR2UTF8BUF(buf, comboFooter) ;
 }
 
@@ -213,11 +213,11 @@
 {
     NSString *fieldID, *htmlField, *fieldLabel;
     NSString *fieldValue = @"" ;
-    
+
     //get html field name
     fieldID = [field objectForKey:@"fieldID"] ;
     if(![fieldID length]) fieldID = @"" ;
-    
+
     fieldLabel = [fieldDef objectForKey:@"label"] ;
     if([fieldLabel length] && !hidden)
     {
@@ -227,8 +227,8 @@
     {
         fieldLabel = @"" ;
     }
-        
-    
+
+
     //get value by priority : (high priority) 1:post 2:postproc default 3:configfile default (less priority)
     if([[values objectForKey:fieldID] length])
     {
@@ -242,7 +242,7 @@
     {
         fieldValue = [fieldDef objectForKey:@"default"] ;
     }
-    
+
     htmlField = [NSString stringWithFormat:@"    %@<input type=\"%@\" id=\"%@\" value=\"%@\">%@\n",
                  fieldLabel,
                  hidden ? @"hidden" : @"text",
@@ -250,7 +250,7 @@
                  [fieldValue htmlRepresentation],
                  hidden ? @"" : @"<br>"
                  ] ;
-    
+
     STR2UTF8BUF(buf, htmlField) ;
 }
 
@@ -258,7 +258,7 @@
 {
     NSString *fieldID, *fieldType ;
     NSDictionary *fieldDef ;
-    
+
     fieldID = [field objectForKey:@"fieldID"] ;
 
     if(fieldID)
@@ -269,7 +269,7 @@
         {
             BOOL isHidden = ([field objectForKey:@"hidden"] || [fieldDef objectForKey:@"hidden"]) ? YES : NO ;
             fieldType = [fieldDef objectForKey:@"type"] ;
-            
+
             if(isHidden)
             {
                 [self _writeHTMLTextField:field usingFieldDefinition:fieldDef andValues:values hidden:YES toBuf:buf] ;
@@ -299,18 +299,18 @@
     NSArray *fields = [fieldSet objectForKey:@"fields"] ;
     NSEnumerator *e = [fields objectEnumerator] ;
     NSDictionary *currentField = nil ;
-    
+
     fieldSetTitle = [fieldSet objectForKey:@"fieldSetTitle"] ;
     fieldSetStart = [NSString stringWithFormat:@"   <fieldset>\n    <legend>%@</legend>\n    <p>\n", [fieldSetTitle length] ? fieldSetTitle : @""] ;
     fieldSetEnd = @"    </p>\n   </fieldset>\n" ;
-    
+
     STR2UTF8BUF(buf, fieldSetStart) ;
-    
+
     while((currentField = [e nextObject]))
     {
         [self _writeHTMLField:currentField usingFieldsDefinition:fieldsDefinition andValues:values toBuf:buf] ;
     }
-    
+
     STR2UTF8BUF(buf, fieldSetEnd) ;
 }
 
@@ -318,9 +318,9 @@
 {
     NSString *header, *type = [postProcDic objectForKey:@"planningType"] ;
     if(!type) type = @"";
-    
+
     header = [NSString stringWithFormat:@"[%@]\r\n",type] ;
-    
+
     STR2UTF8BUF(buf, header) ;
 }
 
@@ -337,21 +337,21 @@
     NSEnumerator *fse = [fieldSets objectEnumerator] ;
     NSDictionary *currentFieldSet, *currentField ;
     MSBuffer *buf = AUTORELEASE(MSCreateBuffer(1024));
-    
+
     //create header
     [self _writeINIHeaderFromPostProc:postProcDic toBuf:buf] ;
-    
+
     //iterate fieldsets and generate ini parameters
     while((currentFieldSet = [fse nextObject]))
     {
         NSEnumerator *fe = [[currentFieldSet objectForKey:@"fields" ] objectEnumerator] ;
         NSString *fieldID, *fieldParamName, *iniParam, *fieldValue = nil ;
         NSDictionary *fieldDef ;
-        
+
         while ((currentField = [fe nextObject]))
         {
             fieldID = [currentField objectForKey:@"fieldID"] ;
-            
+
             if([fieldID length])
             {
                 fieldDef = [fieldsDefinition objectForKey:fieldID] ;
@@ -360,7 +360,7 @@
                 if([fieldParamName length])
                 {
                     //get value by priority : (high priority) 1:post 2:postproc default 3:configfile default (less priority)
-                    
+
                     if([[values objectForKey:fieldID] isSignificant])
                     {
                         fieldValue = [values objectForKey:fieldID] ;
@@ -373,7 +373,7 @@
                     {
                         fieldValue = [fieldDef objectForKey:@"default"] ;
                     }
-                    
+
                     if([fieldValue isSignificant])
                     {
 
@@ -385,7 +385,7 @@
                         {
                             fieldValue = @"0" ;
                         }
-                        
+
                         //write in ini file PARAM=VALUE
                         iniParam = [NSString stringWithFormat:@"%@=%@\r\n",fieldParamName, fieldValue] ;
                         STR2INIBUF(buf, iniParam) ;
@@ -395,12 +395,12 @@
         }
     }
     STR2INIBUF(buf, @"\r\n") ;
-    
+
     *ini = [MHDownloadResource resourceWithBuffer:buf
                                       name:@"config.ini"
                                   mimeType:nil
                             forApplication:application] ;
-    
+
     return YES ;
 }
 
@@ -417,14 +417,14 @@
     NSEnumerator *e = [fieldSets objectEnumerator] ;
     NSDictionary *currentFieldSet ;
     MSBuffer *buf = AUTORELEASE(MSCreateBuffer(1024));
-    
+
     //create header
     [self _writeHTMLHeaderFromPostProc:postProcDic
                  usingFieldsDefinition:fieldsDefinition
                              andValues:values
                         forApplication:[input application]
                                  toBuf:buf] ;
-    
+
     //iterate fieldsets
     while((currentFieldSet = [e nextObject]))
     {
@@ -438,7 +438,7 @@
                  usingFieldsDefinition:fieldsDefinition
                              andValues:values
                                  toBuf:buf] ;
-    
+
     //convert NSString to NSData
     *html = [MHDownloadResource resourceWithBuffer:buf
                                       name:@"configPage.html"
@@ -469,17 +469,17 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
     NSString *outputName = nil ;
     NSString *outputPath = nil ;
     BOOL success = NO ;
-    
+
     if(! [parameters isCachedOnDisk])
     {
         MSRaise(NSInternalInconsistencyException, @"postProcess : parameters resource '%@' not cached on disk", [parameters name]) ;
     }
-    
+
     if(! [input isCachedOnDisk])
     {
         MSRaise(NSInternalInconsistencyException, @"postProcess : input resource '%@' not cached on disk", [input name]) ;
     }
-    
+
     //load and read config file
     postProc = [NSDictionary dictionaryWithContentsOfFile:[parameters resourcePathOndisk]] ;
     if(postProc)
@@ -491,7 +491,7 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
     {
         MSRaise(NSGenericException, @"postProcess : cannot find reliable information in postproc file") ;
     }
-    
+
     // Step 1
     //generate ini and returns it in 'configPage' parameter
     [self _buildConfigPage:&configPage
@@ -501,10 +501,10 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
      usingFieldsdefinition:[exeInfo objectForKey:@"fields"]
                  andValues:values
             forApplication:[input application]] ;
-    
+
     //cache ini file to disk
     MHPrepareAndCacheResource(configPage, nil, YES, MHRESOURCE_SHORT_LIFETIME, YES)  ;
-    
+
     // Step 2
     if(exeInfo)
     {
@@ -513,7 +513,7 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
         NSDictionary *exeParams = [exeInfo objectForKey:@"parameters"] ;
         CArray *args = CCreateArray(1) ;
         BOOL isDir = NO ;
-        
+
         outputPath = MHMakeTemporaryFileName() ;
         //add parameters to lauch post processing
         if([[exeParams objectForKey:@"inputFile"] length]) CArrayAddObject(args, [exeParams objectForKey:@"inputFile"]) ;
@@ -525,24 +525,24 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
 
 #ifdef WIN32
         if (!MSFileExistsAtPath(executable, &isDir) || !isDir) executable = MSFindDLL(executable);
-#else 
+#else
 #warning TODO MSFindDLL under other OS
         isDir = NO ;
 #endif
-        
+
         success = [self _launchExternalExecutable:executable withArgs:(MSArray*)args successValue:successValue] ;
         RELEASE(args);
     }else
     {
         MSRaise(NSGenericException, @"postProcess : cannot find reliable information in configuration file") ;
     }
-    
+
     //Step 3
     if(success)
     {
         outputExtension = [exeInfo objectForKey:@"outputExtension"] ;
         outputName = [[[input name] stringByDeletingPathExtension] stringByAppendingPathExtension:outputExtension] ;
-        
+
         *output = [MHDownloadResource resourceWithContentsOfFile:outputPath
                                                             name:outputName
                                                         mimeType:nil
@@ -553,9 +553,9 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
         {
             MHServerLogWithLevel(MHLogError, @"postProcess : could not delete temporary output file %@", outputPath) ;
         }
-        
+
         MHPrepareAndCacheResource(*output, nil, YES, MHRESOURCE_SHORT_LIFETIME, NO)  ;
-                
+
         //generate html and returns it in '(MHResource **)html' parameter
         [self _buildHTMLPage:html
                 fromPostProc:parameters
@@ -564,14 +564,14 @@ usingExternalExecutablesDefinitions:(NSDictionary *)exeDefinitions
        usingFieldsdefinition:[exeInfo objectForKey:@"fields"]
                    andValues:values
               forApplication:[input application]] ;
-        
+
         MHPrepareAndCacheResource(*html, nil, YES, MHRESOURCE_SHORT_LIFETIME, NO)  ;
-                
+
     }else
     {
         MSRaise(NSGenericException, @"postProcessInput : external executable failed") ;
     }
-    
+
     return YES;
 }
 

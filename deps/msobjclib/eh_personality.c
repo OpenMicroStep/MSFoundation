@@ -30,7 +30,7 @@ static const uint64_t objc_exception_class = EXCEPTION_CLASS('G','N','U','C','O'
 static const uint64_t cxx_exception_class = EXCEPTION_CLASS('G','N','U','C','C','+','+','\0');
 
 /**
- * Structure used as a header on thrown exceptions.  
+ * Structure used as a header on thrown exceptions.
  */
 struct objc_exception
 {
@@ -41,7 +41,7 @@ struct objc_exception
 	/** The cached landing pad for the catch handler.*/
 	void *landingPad;
 	/**
-	 * Next pointer for chained exceptions.  
+	 * Next pointer for chained exceptions.
 	 */
 	struct objc_exception *next;
 	/**
@@ -279,12 +279,12 @@ static handler_type check_action_record(struct _Unwind_Context *context,
 		else
 		{
 			DEBUG_LOG("Filter value: %d\n"
-					"Your compiler and I disagree on the correct layout of EH data.\n", 
+					"Your compiler and I disagree on the correct layout of EH data.\n",
 					filter);
 			abort();
 		}
 		*selector = 0;
-		action_record = displacement ? 
+		action_record = displacement ?
 			action_record_offset_base + displacement : 0;
 	}
 	return handler_none;
@@ -305,7 +305,7 @@ static inline _Unwind_Reason_Code internal_objc_personality(int version,
                                                             BOOL isNew)
 {
 	DEBUG_LOG("%s personality function called %p\n", isNew ? "New" : "Old", exceptionObject);
-	
+
 	// This personality function is for version 1 of the ABI.  If you use it
 	// with a future version of the ABI, it won't know what to do, so it
 	// reports a fatal error and give up before it breaks anything.
@@ -375,7 +375,7 @@ static inline _Unwind_Reason_Code internal_objc_personality(int version,
 	// These two variables define how the exception will be handled.
 	struct dwarf_eh_action action = {0};
 	unsigned long selector = 0;
-	
+
 	if (actions & _UA_SEARCH_PHASE)
 	{
 		DEBUG_LOG("Search phase...\n");
@@ -465,7 +465,7 @@ static inline _Unwind_Reason_Code internal_objc_personality(int version,
 	}
 
 	_Unwind_SetIP(context, (unsigned long)action.landing_pad);
-	_Unwind_SetGR(context, __builtin_eh_return_data_regno(0), 
+	_Unwind_SetGR(context, __builtin_eh_return_data_regno(0),
 			(unsigned long)(isNew ? exceptionObject : object));
 	_Unwind_SetGR(context, __builtin_eh_return_data_regno(1), selector);
 
@@ -671,7 +671,7 @@ void objc_end_catch(void)
 void objc_exception_rethrow(struct _Unwind_Exception *e)
 {
 	struct thread_data *td = get_thread_data_fast();
-	// If this is an Objective-C exception, then 
+	// If this is an Objective-C exception, then
 	if (td->current_exception_type == OBJC)
 	{
 		struct objc_exception *ex = objc_exception_from_header(e);

@@ -1,28 +1,28 @@
 /*
- 
+
  MSThread.h
- 
+
  This file is is a part of the MicroStep Application Server over Http Framework.
 
  Initial copyright LOGITUD Solutions (logitud@logitud.fr) since 2012
- 
+
  Nicolas Surribas : nicolas.surribas@gmail.com
- 
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
- abiding by the rules of distribution of free software.  You can  use, 
+ abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
- "http://www.cecill.info". 
- 
+ "http://www.cecill.info".
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
- liability. 
- 
+ liability.
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -30,10 +30,10 @@
  therefore means  that it is reserved for developers  and  experienced
  professionals having in-depth computer knowledge. Users are therefore
  encouraged to load and test the software's suitability as regards their
- requirements in conditions enabling the security of their systems and/or 
- data to be ensured and,  more generally, to use and operate it in the 
- same conditions as regards security. 
- 
+ requirements in conditions enabling the security of their systems and/or
+ data to be ensured and,  more generally, to use and operate it in the
+ same conditions as regards security.
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
 */
@@ -67,7 +67,7 @@
   #define thread_wait_close(thrd)          WaitForMultipleObjects(1, &thrd, TRUE, INFINITE)
   #define thread_self()                    GetCurrentThread()
   #define thread_id()                      (unsigned int)GetCurrentThreadId()
-  
+
   // Definition of semaphores
   #define semaphore_t                      HANDLE
   #define semaphore_init(sema,name,init,max)  ((sema) = CreateSemaphore(NULL, init, max, NULL))
@@ -93,7 +93,7 @@
 
     #define EWOULDBLOCK  WSAEWOULDBLOCK
   #endif
-  
+
 
   #ifndef S_ISREG
   #define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
@@ -137,7 +137,7 @@
   typedef struct sockaddr_in SOCKADDR_IN;
   typedef struct sockaddr SOCKADDR;
   typedef struct timeval timeout_t;
-  #define closesocket(s) close (s) 
+  #define closesocket(s) close (s)
   #define socket_init() {}
   #define socket_cleanup() {}
   #define cerrno errno
@@ -145,7 +145,7 @@
   #define timeout_set(T,X)                 {T.tv_usec = 0; T.tv_sec = X;}
 
   // Definition of threads
-  #define callback_t                       void * 
+  #define callback_t                       void *
   #define thread_t                         pthread_t
   // thread_create return 0 on error, 1 on success
   #define thread_create(thrd, fct, param)  (!pthread_create(&thrd, NULL, (fct), ((void*)param)))

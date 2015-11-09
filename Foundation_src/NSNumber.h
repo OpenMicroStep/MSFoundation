@@ -1,6 +1,6 @@
 
 @interface NSNumber : NSValue {
-  
+
 }
 
 - (char)charValue;

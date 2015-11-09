@@ -1,33 +1,33 @@
 /*
- 
+
  MSDBConnection.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Herve Malaingre : herve@malaingre.com
  Frederic Olivi : fred.olivi@free.fr
  Eric Baradat :  k18rt@free.fr
  Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
- 
- 
+
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -38,10 +38,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  WARNING : this header file cannot be included alone, please direclty
  include <MSFoundation/MSFoundation.h>
  */
@@ -75,19 +75,19 @@ static inline NSBundle *_loadAdaptorBundleNamed(NSString *name)
 {
     NSBundle *upBundle,*bundle; NSString *path; NSEnumerator *e;
     bundle= nil;
-    
+
     // we look in our main bundle
     upBundle= [NSBundle mainBundle];
     path= [upBundle pathForResource:name ofType:@"dbadaptor"];
     bundle= _loadBundleAtPath(path);
-    
+
     // then in all frameworks
     if (!bundle) {
         e= [[NSBundle allFrameworks] objectEnumerator];
         while (!bundle && (upBundle= [e nextObject])) {
             path= [upBundle pathForResource:name ofType:@"dbadaptor"];
             bundle= _loadBundleAtPath(path);}}
-    
+
     // On regarde dans mainBundleDir et mainBundleDir/../bundle
     if (!bundle) {
         NSString *upBundleDir,*nameExt;
@@ -101,7 +101,7 @@ static inline NSBundle *_loadAdaptorBundleNamed(NSString *name)
             bundle= _loadBundleAtPath(path);
             //NSLog(@"_loadAdaptorBundleNamed %@ %@",path,bundle);
         }}
-    
+
     if (!bundle) NSLog(@"Unable to find database adaptor named '%@'", name);
     return bundle;
 }
@@ -110,7 +110,7 @@ static inline id _adaptorWithConnectionDictionary(MSDictionary *dictionary)
 {
     static MSDictionary *synonyms= nil;
     id adaptor= nil, name, x;
-    
+
     if (!synonyms) synonyms= [[MSDictionary alloc] initWithObjectsAndKeys:@"MSMySqlAdaptor", @"mysql", nil];
     if ((name= [[dictionary objectForLazyKey:@"adaptor"] toString])) {
         if ((x= [synonyms objectForLazyKey:name])) name= x;
@@ -140,7 +140,7 @@ static inline id _retainedCnxWithConnectionDictionary(MSDictionary *dictionary)
 
 - (id)initWithConnectionDictionary:(MSDictionary *)connectionDictionary
 {
-    
+
     // Not from subclass, we first need to load the bundle and return a subclass
     // TODO: with HM: Si toujours unique à ce niveau alors notImplemented, l'accès
     // non unique restant possible par les subclasses.
@@ -151,7 +151,7 @@ static inline id _retainedCnxWithConnectionDictionary(MSDictionary *dictionary)
         _originalDictionary= [connectionDictionary copy];
         _lastError= nil;
     }
-    
+
     return self;
 }
 
@@ -315,7 +315,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
     NSMutableString *query;
     if(![columns count])
         return nil;
-    
+
     query= [NSMutableString stringWithFormat:@"SELECT %@ FROM %@", [columns componentsJoinedByString:@", "], table];
     if(where)
         [query appendFormat:@" WHERE %@", where];
@@ -329,7 +329,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
         [query appendFormat:@" ORDER BY %@", orderBy];
     if(limit)
         [query appendFormat:@" LIMIT %@, %@", [limit firstMember], [limit secondMember]];
-    
+
     return [self statementWithRequest:query];
 }
 
@@ -345,7 +345,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
     count= [columns count];
     if(!count)
         return nil;
-    
+
     query= [NSMutableString stringWithFormat:@"INSERT INTO %@ (%@) VALUES (", table, [columns componentsJoinedByString:@", "]];
     while (count > 1) {
         [query appendString:@"?, "];
@@ -368,7 +368,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
     if(!count) {
         [self error:_cmd desc:@"columns is empty, nothing to update"];
         return nil; }
-    
+
     query= [NSMutableString stringWithFormat:@"UPDATE %@ SET ", table];
     [query appendFormat:@"%@ = ?", [columns objectAtIndex:0]];
     for (i= 1; i < count; ++i) {

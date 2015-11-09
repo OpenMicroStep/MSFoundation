@@ -69,7 +69,7 @@ static void object_memory(test_t *test)
   obj= [NSObject new];
   TASSERT_EQUALS(test, [obj retainCount], 1, "retain count of [NSObject new] must be one: %d != %d");
   [obj release];
-  
+
   obj= [[NSObject alloc] init];
   TASSERT_EQUALS(test, [obj retainCount], 1, "retain count of [[NSObject allow] init] must be %2$d, got %1$d");
   TASSERT_EQUALS(test, [obj retain], obj, "-retain must return the same object: %p != %p");
@@ -83,19 +83,19 @@ static void object_classTree(test_t *test)
 {
   id obj;
   obj= [NSObjectTests new];
-  
+
   TASSERT(test, [obj isKindOfClass:[NSObjectTests class]], "NSObjectTests is an NSObjectTests");
   TASSERT(test, [obj isKindOfClass:[NSObject class]], "NSObjectTests is an NSObject");
   TASSERT(test, ![obj isKindOfClass:[NSObjectTestOutTree class]], "NSObjectTests is not an NSObjectTestOutTree");
-  
+
   TASSERT(test, [obj isMemberOfClass:[NSObjectTests class]], "NSObjectTests is exactly an NSObjectTests");
   TASSERT(test, ![obj isMemberOfClass:[NSObject class]], "NSObjectTests is not exactly an NSObject");
   TASSERT(test, ![obj isMemberOfClass:[NSObjectTestOutTree class]], "NSObjectTests is not exactly an NSObjectTestOutTree");
-  
+
   TASSERT(test, [obj conformsToProtocol:@protocol(NSObjectTestProtocol1)], "NSObjectTests implements NSObjectTestProtocol1");
   TASSERT(test, ![obj conformsToProtocol:@protocol(NSObjectTestProtocol2)], "NSObjectTests doesn't implements NSObjectTestProtocol2");
   TASSERT(test, [obj conformsToProtocol:@protocol(NSObject)], "NSObjectTests implements NSObjectTestProtocol1");
-  
+
   [obj release];
 }
 
@@ -108,19 +108,19 @@ static void object_perform(test_t *test)
   obj->_r0 = r0;
   obj->_r1 = r1;
   obj->_r2 = r2;
-  
+
   TASSERT_EQUALS(test, [obj performSelector:@selector(selector)], r0, "performSelector failed, must return %2$p, got %1$p");
-  
+
   TASSERT_EQUALS(test, [obj performSelector:@selector(selectorWithObject:) withObject:o], r1, "performSelector failed, must return %2$p, got %1$p");
   TASSERT_EQUALS(test, obj->_o, o, "performSelector failed, %2$p expected, got %1$p");
-  
+
   TASSERT_EQUALS(test, [obj performSelector:@selector(selectorWithObject:withObject2:) withObject:o1 withObject:o2], r2, "performSelector failed, must return %2$p, got %1$p");
   TASSERT_EQUALS(test, obj->_o1, o1, "performSelector failed, %2$p expected, got %1$p");
   TASSERT_EQUALS(test, obj->_o2, o2, "performSelector failed, %2$p expected, got %1$p");
-  
+
   TASSERT(test, [obj respondsToSelector:@selector(selectorWithObject:withObject2:)], "NSObjectTests implements selectorWithObject:withObject2:");
   TASSERT(test, ![obj respondsToSelector:@selector(protocolMethod3)], "NSObjectTests implements selectorWithObject:withObject2:");
-  
+
   [obj release];
 }
 
@@ -187,7 +187,7 @@ static void object_threadRetain(test_t *test)
 {
   id o;
   BOOL canWait;
-  struct thrd_data_t d1, d2, d3;  
+  struct thrd_data_t d1, d2, d3;
 #ifdef WO451
   //force some initializations under WO451
   [NSThread detachNewThreadSelector:@selector(fakeLaunch:) toTarget:[NSObjectTestsThreadFakeLauncher new] withObject:nil];

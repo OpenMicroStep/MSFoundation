@@ -1,28 +1,28 @@
 /* MSCBuffer.c
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Herve Malaingre : herve@malaingre.com
- 
- 
+
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -33,10 +33,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  */
 
 #include "MSCore_Private.h"
@@ -231,7 +231,7 @@ NSUInteger CBufferIndexOfBytesInRange(const CBuffer *self, void *sbytes, NSUInte
 {
   NSUInteger len, found= 0;
   if (self && sbytes && slen > 0 && rg.location <= (len= self->length) &&
-      rg.location+slen <= len) {    
+      rg.location+slen <= len) {
     if ((rg.location + rg.length) > len) rg.length= len-rg.location;
     if (slen <= rg.length) {
       MSByte *s;
@@ -336,7 +336,7 @@ BOOL CBufferAppendContentsOfFile(CBuffer *self, SES path)
   CBuffer *pathBuf;
   NSUInteger length;
   FILE *f;
-  
+
   pathBuf= CCreateBuffer(0);
   CBufferAppendSES(pathBuf, path, NSUTF8StringEncoding);
   f=fopen((const char *)CBufferCString(pathBuf), "rb");
@@ -466,15 +466,15 @@ static inline BOOL _CBase64Decode(CBuffer *self, const short *base64, MSByte pad
     NSUInteger lengthBeforeAppend = self->length, i = 0;
     short dc;
     MSByte result[3];
-    
+
     result[0] = result[1] = result[2] = 0;
-    
+
     while (len-- > 0 && (c = *buffer++) != 0) {
       if (c == paddingChar) break;
       dc = base64[(int)c];
       if (dc == -1) continue; /* we skip spaces and separators */
       if (dc == -2) { self->length = lengthBeforeAppend; return NO; }
-      
+
       switch(i % 4) {
         case 0: result[0] = (MSByte)(dc << 2);
           break;
@@ -541,25 +541,25 @@ BOOL CBufferDecompressAndAppendBytes(CBuffer *self, const void *bytes, NSUIntege
   if (self && bytes && len) {
     NSUInteger destLenIn = len*3 + 10, destLen= 0;
     void *newDest, *dest = (void *)MSMalloc(destLenIn, "CBufferDecompressAndAppendBytes() allocation");
-    
+
     result = MSBufferOverflow;
-    
+
     while (dest) {
       destLen = destLenIn;
       result = MSUncompress(dest, &destLen, bytes, len);
-      
+
       if (result == MSCompressOK || result != MSBufferOverflow) break;
       destLenIn += len*2+10;
-      
+
       newDest = MSRealloc(dest, destLenIn, "CBufferDecompressAndAppendBytes() reallocation");
       if (!newDest) { result = MSCompressError; break; }
       dest = newDest;
     }
     if (result == MSCompressOK) {
       CBufferAppendBytes(self, dest, destLen);}
-    
+
     MSFree(dest, "CBufferDecompressAndAppendBytes() free");
-    
+
   }
   return result == MSCompressOK ? YES : NO;
 }

@@ -81,46 +81,46 @@ static void string_cast(test_t *test)
   int intValue;
   NSInteger integerValue;
   long long longLongValue;
-  
+
   // intValue test
   intValue= [@"123456789" intValue];
   TASSERT_EQUALS(test, intValue, 123456789, "%d != %d");
-  
+
   intValue= [@"-123456789" intValue];
   TASSERT_EQUALS(test, intValue, -123456789, "%d != %d");
-  
+
   intValue= [@"123456789123456789" intValue];
   TASSERT_EQUALS(test, intValue, INT_MAX, "%d != %d");
-  
+
   intValue= [@"-123456789123456789" intValue];
   TASSERT_EQUALS(test, intValue, INT_MIN, "%d != %d");
-  
+
   intValue= [@"Not an int" intValue];
   TASSERT_EQUALS(test, intValue, 0, "%d != %d");
-  
+
   // longLongValue test
   longLongValue= [@"123456789123456789" longLongValue];
   TASSERT_EQUALS(test, longLongValue, 123456789123456789LL, "%lld != %lld");
-  
+
   longLongValue= [@"-123456789123456789" longLongValue];
   TASSERT_EQUALS(test, longLongValue, -123456789123456789LL, "%lld != %lld");
-  
+
   longLongValue= [@"123456789123456789123456789" longLongValue];
   TASSERT_EQUALS(test, longLongValue, LLONG_MAX, "%lld != %lld");
-  
+
   longLongValue= [@"-123456789123456789123456789" longLongValue];
   TASSERT_EQUALS(test, longLongValue, LLONG_MIN, "%lld != %lld");
-  
+
   longLongValue= [@"Not an long long" longLongValue];
   TASSERT_EQUALS(test, longLongValue, 0, "%lld != %lld");
-  
+
   // integerValue test
   integerValue= [@"123456789" integerValue];
   TASSERT_EQUALS(test, integerValue, 123456789, "%ld != %ld");
-  
+
   integerValue= [@"-123456789" integerValue];
   TASSERT_EQUALS(test, integerValue, -123456789, "%ld != %ld");
-  
+
   integerValue= [@"Not an integer" integerValue];
   TASSERT_EQUALS(test, integerValue, 0, "%ld != %ld");
 }
@@ -154,7 +154,7 @@ static void string_format(test_t *test)
   unsigned long long umax = ULLONG_MAX;
   unsigned long long uposvalue1 = 1ULL;
   unsigned long long uposvalue2 = 22337236854775808ULL;
-  
+
   // Test signed decimals
   TASSERT_FORMAT(test,"%hhd: min=-127 max=+127 mid=52",
                 "%%hhd: min=%hhd max=%+hhd mid=%hhd", (char)-127, (char)+127, (char)52);
@@ -166,7 +166,7 @@ static void string_format(test_t *test)
                 "%%ld: min=%ld max=%+ld mid=%ld", (long)-2147483647, (long)+2147483647, (long)1234567890);
   TASSERT_FORMAT(test,"%lld: min=-9223372036854775807 max=+9223372036854775807 mid=123456789012345",
                 "%%lld: min=%lld max=%+lld mid=%lld", (long long)-9223372036854775807LL, (long long)+9223372036854775807LL, (long long)123456789012345LL);
-  
+
   // Test unsigned decimals
   TASSERT_FORMAT(test,"%hhu: max=255 mid=52",
                 "%%hhu: max=%hhu mid=%hhu", (unsigned char)255U, (unsigned char)52);
@@ -178,7 +178,7 @@ static void string_format(test_t *test)
                 "%%lu: max=%lu mid=%lu", (unsigned long)4294967295UL, (unsigned long)1234567890UL);
   TASSERT_FORMAT(test,"%llu: max=18446744073709551615 mid=123456789012345",
                 "%%llu: max=%llu mid=%llu", 18446744073709551615ULL, 123456789012345ULL);
-  
+
   // Test unsigned octals
   TASSERT_FORMAT(test,"%hho: max=377 mid=64",
                 "%%hho: max=%hho mid=%hho", (unsigned char)255U, (unsigned char)52);
@@ -190,7 +190,7 @@ static void string_format(test_t *test)
                 "%%lo: max=%lo mid=%lo", (unsigned long)4294967295UL, (unsigned long)1234567890UL);
   TASSERT_FORMAT(test,"%llo: max=1777777777777777777777 mid=3404420603357571",
                 "%%llo: max=%llo mid=%llo", 18446744073709551615ULL, 123456789012345ULL);
-  
+
   // Test unsigned hex
   TASSERT_FORMAT(test,"%hhx: max=ff mid=34",
                 "%%hhx: max=%hhx mid=%hhX", (unsigned char)255U, (unsigned char)52);
@@ -202,7 +202,7 @@ static void string_format(test_t *test)
                 "%%lx: max=%lx mid=%lX", (unsigned long)4294967295UL, (unsigned long)1234567890UL);
   TASSERT_FORMAT(test,"%llx: max=ffffffffffffffff mid=7048860DDF79",
                 "%%llx: max=%llx mid=%llX", 18446744073709551615ULL, 123456789012345ULL);
-  
+
   // Test float
   TASSERT_FORMAT(test,
     "float: %f=1234.500000 %e=1.234500e+01 %E=1.234500E+04 %g=0.12345 %G=1.2345 %a=0x1.edccccccccccdp+6 %A=0X1.81C8P+13",
@@ -210,7 +210,7 @@ static void string_format(test_t *test)
   TASSERT_FORMAT(test,
     "float: %f=+500000000000000022442856339037958392774656.000000 %e=5.00200e-03 %E= 1.268715E+04 %g=465.64999999999997726 %G=65432.19999999999709 %a=  0x1.176592e000p+38 %A=0X1.0C6F7A0B5ED8DP-20",
     "float: %%f=%3$+010.6f %%e=%7$.5e %%E=%5$ 010E %%g=%1$.20g %%G=%2$10.20G %%a=%4$20.10a %%A=%6$15A", 465.650, 65432.20, 50e40, 30e10, 12687.15, 0.000001, 0.005002);
-  
+
   // Test pointers
 #ifdef __LP64__
   TASSERT_FORMAT(test,"%p: min=0x8000000000000000 max=0x7fffffffffffffff mid=0x7048860ddf79",
@@ -220,10 +220,10 @@ static void string_format(test_t *test)
                      "%%p: min=%p max=%p mid=%p", (void*)INTPTR_MIN, (void*)INTPTR_MAX, (void*)12345678ULL);
 #endif
 
-  
+
   TASSERT_FORMAT(test,"bug decimal 0 0 0 0 0 0 0 0 0 0",
                 "bug decimal %hhd %hd %d %ld %lld %hhu %hu %u %lu %llu", (char)0, (short)0, 0, 0L, 0LL, (unsigned char)0, (unsigned short)0, 0U, 0UL, 0ULL);
-  
+
   // Test flags, width, precision
   TASSERT_FORMAT(test,"sign: 545 +5641675  5124136",
                      "sign: %d %+d % d", 545, 5641675, 5124136);
@@ -239,16 +239,16 @@ static void string_format(test_t *test)
                      "prec: %%*.*d=%*.*d %%*.*d=%*.*d %%0*.*d=%0*.*d", 5, 7, 20, 8, 4, 13, 9, 3, 13);
   TASSERT_FORMAT(test,"prec: %.10d=0000001461 %.11d=00000013541 %13.10d=   0000007984 %10.12d=000000006706 %*.*d=0000020 %*.*d=    0013",
                      "prec: %%.10d=%.10d %%.11d=%.11d %%13.10d=%13.10d %%10.12d=%10.12d %%*.*d=%*.*d %%*.*d=%*.*d", 1461, 13541 ,7984, 6706, 5, 7, 20, 8, 4, 13);
-  
+
   // ObjC
   TASSERT_NSFORMAT(test, @"objc: test", @"objc: %@", @"test");
-  
+
   // Found bug tests
   TASSERT_FORMAT(test,"bug print decimal when decimal is 0: expected:0, got:0",
                      "bug print decimal when decimal is 0: expected:0, got:%d", 0);
-  TASSERT_FORMAT(test,"bug print string with precision: 0'' 2'ab' *'bcd' 'cdef'", 
+  TASSERT_FORMAT(test,"bug print string with precision: 0'' 2'ab' *'bcd' 'cdef'",
                       "bug print string with precision: 0'%.0s' 2'%.2s' *'%.*s' '%s'", "not printed", "ab__", 3, "bcd___", "cdef");
-  
+
   // Old Tests
   TASSERT_FORMAT(test,"22337236854775808",
     "%lld", posvalue2);
@@ -262,7 +262,7 @@ static void string_format(test_t *test)
     "%s %llu %llu %llu", "start", umax, uposvalue2, uposvalue1);
   TASSERT_FORMAT(test,"start 18446744073709551615 2 1 22337236854775808 end",
     "%s %llu %d %llu %llu %s", "start", umax, intValue, uposvalue1, uposvalue2, "end");
-  
+
 }
 
 @interface NSString (HashPrivate)
@@ -274,7 +274,7 @@ static void string_hash(test_t *test)
   NSString *nsStr;
   MSString *msStr;
   NSUInteger nsHash, msHash;
-  
+
   nsStr = [[NSString alloc] initWithString:@"AgentVerbalisateur"];
   msStr = [[MSString alloc] initWithString:@"AgentVerbalisateur"];
   nsHash = [nsStr hash:0];
@@ -282,7 +282,7 @@ static void string_hash(test_t *test)
   TASSERT_EQUALS(test, nsHash, msHash, "%lu != %lu");
   RELEASE(nsStr);
   RELEASE(msStr);
-  
+
   nsStr = [[NSString alloc] initWithString:@"CasInfraction"];
   msStr = [[MSString alloc] initWithString:@"CasInfraction"];
   nsHash = [nsStr hash:0];
@@ -303,24 +303,24 @@ static void string_ascii(test_t *test)
   TASSERT(test, strcmp(expected, ascii) == 0, "ascii string '%s' not equals to '%s'",ascii, expected);
   ascii= [[MSString stringWithString:@"test"] asciiCString];
   TASSERT(test, strcmp(expected, ascii) == 0, "ascii string '%s' not equals to '%s'",ascii, expected);
-  
+
   expected= "teste\"'(e!ca";
   ascii= [@"testé\"'(§è!çà" asciiCString];
   TASSERT(test, strcmp(expected, ascii) == 0, "ascii string '%s' not equals to '%s'",ascii, expected);
   ascii= [[MSString stringWithString:@"testé\"'(§è!çà"] asciiCString];
   TASSERT(test, strcmp(expected, ascii) == 0, "ascii string '%s' not equals to '%s'",ascii, expected);
-  
+
   expectedStr= @"test";
   expected= "test";
   asciiStr= [MSASCIIString stringWithBytes:expected length:strlen(expected)];
   TASSERT(test, [expectedStr isEqual:asciiStr],
     "ascii string '%s' not equals to '%s'",[asciiStr UTF8String], [expectedStr UTF8String]);
-  
+
   expectedStr= asciiStr;
   asciiStr= [expectedStr copy];
   TASSERT(test, [expectedStr isEqual:asciiStr],
     "ascii string '%s' not equals to '%s'",[asciiStr UTF8String], [expectedStr UTF8String]);
-  
+
   KILL_POOL;
 }
 
@@ -352,13 +352,13 @@ static void string_uuid(test_t *test)
 {
   MSString *uuid1, *uuid2;
   NEW_POOL;
-  
+
   uuid1 = [MSString UUIDString];
   uuid2 = [MSString UUIDString];
   TASSERT_EQUALS(test, [uuid1 length], 36, "uuid1 string length must be 36");
   TASSERT_EQUALS(test, [uuid2 length], 36, "uuid2 string length must be 36");
   TASSERT_ISNOTEQUAL(test, uuid1, uuid2, "uuid must not be equals ever");
-  
+
   KILL_POOL;
 }
 
