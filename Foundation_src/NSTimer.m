@@ -84,7 +84,12 @@
   [self invalidate];
   [super dealloc];
 }
-
+- (void)_fire
+{
+  [self fire];
+  if (!_timeInterval) {
+    [self invalidate];}
+}
 - (void)fire
 {
   if(_selector) {
@@ -98,8 +103,7 @@
 }
 static void _nstimer_fire_cb(uv_timer_t* handle)
 {
-  NSTimer *timer= *(id*)(handle + sizeof(uv_timer_t));
-  [timer fire];
+  [(id)handle->data _fire];
 }
 static void _nstimer_close_cb(uv_handle_t* handle)
 {
@@ -109,9 +113,10 @@ static void _nstimer_close_cb(uv_handle_t* handle)
 {
   if(!_uv_timer) {
     uv_timer_t *t;
-    t= _uv_timer= (uv_timer_t*)MSMallocFatal(sizeof(uv_timer_t) + sizeof(id), "NSTimer uv_timer_t");
-    uv_timer_init(uv_loop, t);
-    *(id*)(t + sizeof(uv_timer_t))= self;
+    t= (uv_timer_t*)MSMallocFatal(sizeof(uv_timer_t), "NSTimer uv_timer_t");
+    _uv_timer=t;
+    int r= uv_timer_init(uv_loop, t);
+    t->data= [self retain];
     uv_timer_start(t, _nstimer_fire_cb, (uint64_t)MAX(0.0, (_date - GMTNow()) * 1000), (uint64_t)(_timeInterval * 1000));
   }
 }
@@ -120,6 +125,7 @@ static void _nstimer_close_cb(uv_handle_t* handle)
   DESTROY(_targetOrInvocation);
   DESTROY(_userInfo);
   if(_uv_timer) {
+    [self release];
     uv_timer_stop((uv_timer_t*)_uv_timer);
     uv_close((uv_handle_t*) _uv_timer, _nstimer_close_cb);
     _uv_timer=NULL;
