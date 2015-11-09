@@ -435,7 +435,7 @@ static inline MSByte _valueTypeFromTable(id table)
 // TODO: timestamp: VAL_INST,VAL_CAR,VAL_TMP,VAL
 // TODO: comment je change un obi de classe ? Quand je connais la classe,
 // je fais un [class obiWithObi ?]
-- (MSUid*)_fillAllIds:(MSDictionary*)all :inVals :table :inCids4Table
+- (MSUid*)_fillAllIds:(mutable MSDictionary*)all :inVals :table :inCids4Table
   {
   id ret,q,result,inst,oid,cid,val,o; MSLong bid;
   BOOL tIsId,tIsInt,tIsFlt,tIsStr; _btypedValue tv; MSByte type;
@@ -488,7 +488,7 @@ static inline MSByte _valueTypeFromTable(id table)
   return ret;
   }
 
-- (MSDictionary*)_fillIds:(uid)ids withCars:(uid)cars returnAll:(BOOL)returnAll
+- (mutable MSDictionary*)_fillIds:(uid)ids withCars:(uid)cars returnAll:(BOOL)returnAll
 {
   MSDictionary *ret,*all,*tcids; MSUid *is,*is2;
   id o,ie,i,inIds,ts,te,t,cids4t,inCids4t;

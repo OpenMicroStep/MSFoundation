@@ -530,7 +530,7 @@ static NSComparisonResult _oidOrderCmp(MSOid* oid1, MSOid *oid2, void *ctx)
 static NSString *_obiRecDesc(MSLong level0, MSLong level,
   BOOL names, BOOL complet, MSOdb *db,
   MSUid *todoOrder,
-  MSDictionary *todo, MSDictionary *done)
+  mutable MSDictionary *todo, mutable MSDictionary *done)
 {
   vid vid; id o,entObi,ent,order,x,e,cids,cid,car,name,values,ve,value,type,oidValue,sub,sobi;
   MSDictionary *dict; MSLong i; BOOL isId,isSid,isCarEnt;
@@ -617,7 +617,7 @@ else NSLog(@"ADDING SYSTEM OBI FOR COMPLETUDE %@ %@",oidValue,[done objectForKey
   return x;
 }
 
-NSString *_obiDesc(MSLong level, id ctx, MSUid *todoOrder, MSDictionary *todo)
+NSString *_obiDesc(MSLong level, id ctx, MSUid *todoOrder, mutable MSDictionary *todo)
 {
   MSOdb *db; BOOL names,complet;
   id done,x,y,e,ds;

@@ -277,7 +277,7 @@ static NSComparisonResult _btypedValuesCompare(a, b, type)
 //id e,ce,c,z,vs,ve,v,x= [NSMutableString string]; BOOL first;
   MSUid *ids; id todo;
   ids= [MSUid uidWithUid:_oid];
-  todo= [MSDictionary dictionaryWithObject:self forKey:_oid];
+  todo= [MSDictionary mutableDictionaryWithObject:self forKey:_oid];
 /*
   e= [self oidValueForCid:MSCarEntiteId];
   if (OID_EQUALS(e, OID_FROM_BID(100015))) { // CPE_Révision
