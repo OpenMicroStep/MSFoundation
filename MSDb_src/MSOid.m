@@ -65,9 +65,8 @@ MSString *MSCarStringLib,*MSCarIntLib,*MSCarBoolLib,
 
 @implementation MSOid
 
-+ (void)initialize
++ (void)load
 {
-  if ([self class] == [MSOid class]) {
     MSEntEntId= [[MSOid alloc] initWithLongLongValue:1]; // ent 'ENT'
     MSEntCarId= [[MSOid alloc] initWithLongLongValue:3]; // ent 'Car'
     MSEntTypId= [[MSOid alloc] initWithLongLongValue:5]; // ent 'Typ'
@@ -128,7 +127,6 @@ MSString *MSCarStringLib,*MSCarIntLib,*MSCarBoolLib,
     MSCarDateLib=               MSCreateString("date");
     MSCarDtmLib=                MSCreateString("date & time");
     MSCarDurationLib=           MSCreateString("duration");
-    }
 }
 
 #pragma mark Class/Init methods
