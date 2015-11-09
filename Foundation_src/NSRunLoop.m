@@ -21,7 +21,7 @@ MS_DECLARE_THREAD_LOCAL(__currentRunLoop, __currentRunLoop_dtor);
 {
   NSRunLoop *loop= tss_get(__currentRunLoop);
   if(!loop) {
-    tss_set(__currentRunLoop, [ALLOC(NSRunLoop) initWithLoop:NULL]);}
+    tss_set(__currentRunLoop, loop= [ALLOC(NSRunLoop) initWithLoop:NULL]);}
   return loop;
 }
 - (instancetype)initWithLoop:(uv_loop_t *)loop {
