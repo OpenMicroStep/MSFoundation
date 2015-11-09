@@ -116,13 +116,13 @@ typedef struct {
   NSUInteger count;
 } CMSTEDecoderStack;
 
-typedef struct 
+typedef struct
 {
   MSCORE_NSOBJECT_ATTRIBUTES
   MSInt version;
   CMSTEDecoderFlags flags;
   NSDictionary *classMap;
-  
+
   id rootObject;
   CString *error;
   CGrow *stack;
@@ -246,6 +246,8 @@ static void CMSTEDecoderCleanToken(CMSTEDecoder *self)
       DESTROY(self->token.v.str.s);
       break;
     case TOKEN_DECIMAL:
+    case TOKEN_DECIMAL_DIGITS_OR_SEP:
+    case TOKEN_DECIMAL_DIGITS:
       DESTROY(self->token.v.d);
       break;
     case TOKEN_DATA:
@@ -315,6 +317,7 @@ static id CMSTEDecoderParseResult(CMSTEDecoder *self, NSString **error)
 
 static inline id CMSTEDecoderReference(CMSTEDecoder *self, id o)
 {
+  //NSLog(@"decode %@ %d", [o class], CArrayCount(self->refs));
   CArrayAddObject(self->refs, o);
   return o;
 }
@@ -349,7 +352,7 @@ static void CMSTEDecoderParseBytes(CMSTEDecoder *self, const MSByte *bytes, NSUI
     //NSLog(@"CMSTEDecoderParseBytes %c %s %s", c, _tokenTypeNames[self->token.type], _stateNames[self->state]);
     if (self->token.type != TOKEN_CRC_CONTENT || self->token.v.crc.idx < 3 || self->token.v.crc.idx >= 11)
       self->crc= _MSBytesLargeCRCAppend(self->crc, c);
-    if (self->token.type == TOKEN_STRING_OR_UINT) {  
+    if (self->token.type == TOKEN_STRING_OR_UINT) {
       if (c == '"') CMSTEDecoderExpectTokenType(self, TOKEN_STRING);
       else if('0' <= c && c <= '9') CMSTEDecoderExpectTokenType(self, TOKEN_UINT);
       else CMSTEDecoderError(self, "The start of a string '\"' or a reference number was expected");
@@ -378,6 +381,7 @@ static void CMSTEDecoderParseBytes(CMSTEDecoder *self, const MSByte *bytes, NSUI
       case TOKEN_STRING_UTF8_1:
         self->token.v.str.bytes[self->token.v.str.idx++]= c;
         CStringAppendBytes(self->token.v.str.s, NSUTF8StringEncoding, (const void *)self->token.v.str.bytes, (NSUInteger)self->token.v.str.idx);
+        self->token.type= TOKEN_STRING_CONTENT;
         break;
       case TOKEN_STRING_UTF8_2:
         self->token.v.str.bytes[self->token.v.str.idx++]= c;
@@ -402,7 +406,7 @@ static void CMSTEDecoderParseBytes(CMSTEDecoder *self, const MSByte *bytes, NSUI
         }
         break;
       case TOKEN_STRING_UNICODE:
-        if (_hexaCharValue(&c)) { 
+        if (_hexaCharValue(&c)) {
           self->token.v.str.u = (self->token.v.str.u << 4) + (unichar)c;
           if (++self->token.v.str.idx == 4) {
             CStringAppendCharacter(self->token.v.str.s, self->token.v.str.u);
@@ -426,8 +430,8 @@ static void CMSTEDecoderParseBytes(CMSTEDecoder *self, const MSByte *bytes, NSUI
         else { CMSTEDecoderError(self, "A positive integer was expected"); }
         break;
 
-      case TOKEN_UINT_POS: 
-      case TOKEN_INT_POS: 
+      case TOKEN_UINT_POS:
+      case TOKEN_INT_POS:
       case TOKEN_INT_NEG:
         if ('0' <= c && c <= '9') {
           self->token.v.u8= self->token.v.u8 * 10 + c - '0'; }
@@ -439,8 +443,8 @@ static void CMSTEDecoderParseBytes(CMSTEDecoder *self, const MSByte *bytes, NSUI
         break;
 
       case TOKEN_DECIMAL:
-        if (('0' <= c && c <= '9') || c == '+' || c == '-') { 
-          self->token.type = TOKEN_DECIMAL_DIGITS_OR_SEP; 
+        if (('0' <= c && c <= '9') || c == '+' || c == '-') {
+          self->token.type = TOKEN_DECIMAL_DIGITS_OR_SEP;
           CBufferAppendBytes(self->token.v.d, (MSByte *)&c, 1);}
         else if (_isTokenSeparator(c)) { CMSTEDecoderHandleToken(self); }
         else { CMSTEDecoderError(self, "An integer was expected");}
@@ -527,7 +531,7 @@ static void CMSTEDecoderHandleToken(CMSTEDecoder *self)
       self->classesCount= self->token.v.u8;
       if (self->classesCount > 0)
         CMSTEDecoderExpect(self, STATE_CLASSNAME);
-      else 
+      else
         CMSTEDecoderExpect(self, STATE_KEYSCOUNT);
       break;
     case STATE_CLASSNAME:
@@ -542,7 +546,7 @@ static void CMSTEDecoderHandleToken(CMSTEDecoder *self)
       self->keysCount= self->token.v.u8;
       if (self->keysCount > 0)
         CMSTEDecoderExpect(self, STATE_KEYNAME);
-      else 
+      else
         CMSTEDecoderExpect(self, STATE_CODE);
       break;
     case STATE_KEYNAME:
@@ -586,7 +590,6 @@ static void CMSTEDecoderHandleToken(CMSTEDecoder *self)
       CMSTEDecoderExpect(self, STATE_CODE);
       break;
     case STATE_END:
-
       CMSTEDecoderExpect(self, STATE_END);
       break;
 
@@ -601,11 +604,11 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
   switch(code) {
     // Constants
     case MSTE_TOKEN_TYPE_NULL             : CMSTEDecoderHandleReturn(self, MSNull);                        break;
-    case MSTE_TOKEN_TYPE_TRUE             : CMSTEDecoderHandleReturn(self, [NSNumber numberWithBool:YES]);        break;
-    case MSTE_TOKEN_TYPE_FALSE            : CMSTEDecoderHandleReturn(self, [NSNumber numberWithBool:NO]);       break;
-    case MSTE_TOKEN_TYPE_EMPTY_STRING     : CMSTEDecoderHandleReturn(self, @"");           break;
-    case MSTE_TOKEN_TYPE_EMPTY_DATA       : CMSTEDecoderHandleReturn(self, [NSData data]); break;
-    case MSTE_TOKEN_TYPE_STRING           : CMSTEDecoderExpect(self, STATE_STRING); break;
+    case MSTE_TOKEN_TYPE_TRUE             : CMSTEDecoderHandleReturn(self, [NSNumber numberWithBool:YES]); break;
+    case MSTE_TOKEN_TYPE_FALSE            : CMSTEDecoderHandleReturn(self, [NSNumber numberWithBool:NO]);  break;
+    case MSTE_TOKEN_TYPE_EMPTY_STRING     : CMSTEDecoderHandleReturn(self, @"");                           break;
+    case MSTE_TOKEN_TYPE_EMPTY_DATA       : CMSTEDecoderHandleReturn(self, [NSData data]);                 break;
+    case MSTE_TOKEN_TYPE_STRING           : CMSTEDecoderExpect(self, STATE_STRING);                        break;
 
     case MSTE_TOKEN_TYPE_REFERENCED_OBJECT:
     case MSTE_TOKEN_TYPE_UNSIGNED_CHAR    :
@@ -618,9 +621,9 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
     case MSTE_TOKEN_TYPE_DICTIONARY       :
     case MSTE_TOKEN_TYPE_ARRAY            :
       CMSTEDecoderPush(self, code);
-      CMSTEDecoderExpect(self, STATE_CODE_1); 
+      CMSTEDecoderExpect(self, STATE_CODE_1);
       break;
-    case MSTE_TOKEN_TYPE_BASE64_DATA      : 
+    case MSTE_TOKEN_TYPE_BASE64_DATA      :
       CMSTEDecoderExpect(self, STATE_DATA);
       break;
     case MSTE_TOKEN_TYPE_CHAR             :
@@ -628,7 +631,7 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
     case MSTE_TOKEN_TYPE_INT32            :
     case MSTE_TOKEN_TYPE_INT64            :
       CMSTEDecoderPush(self, code);
-      CMSTEDecoderExpect(self, STATE_CODE_1); 
+      CMSTEDecoderExpect(self, STATE_CODE_1);
       CMSTEDecoderExpectTokenType(self, TOKEN_INT);
       break;
     case MSTE_TOKEN_TYPE_TIMESTAMP        :
@@ -636,7 +639,7 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
     case MSTE_TOKEN_TYPE_DOUBLE           :
     case MSTE_TOKEN_TYPE_DECIMAL_VALUE    :
       CMSTEDecoderPush(self, code);
-      CMSTEDecoderExpect(self, STATE_CODE_1); 
+      CMSTEDecoderExpect(self, STATE_CODE_1);
       CMSTEDecoderExpectTokenType(self, TOKEN_DECIMAL);
       break;
 
@@ -647,7 +650,7 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
       self->head->count= 2;
       break;
 
-    default: 
+    default:
       if (code >= 50) {
         NSUInteger idx= code - 50;
         if (idx < CArrayCount(self->classes)) {
@@ -655,7 +658,7 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
           CMSTEDecoderExpect(self, STATE_CODE_1);
         }
         else { CMSTEDecoderError(self, "Invalid user class at index: %llu", (MSULong)idx); }}
-      else { 
+      else {
         CMSTEDecoderError(self, "Unknown token %llu", code);}
       break;
   }
@@ -676,7 +679,7 @@ static inline void CMSTEDecoderHandleTokenCode1(CMSTEDecoder *self, MSULong code
       if ((NSUInteger)self->token.v.u8 < CArrayCount(self->refs))
         CMSTEDecoderPop(self, CArrayObjectAtIndex(self->refs, (NSUInteger)self->token.v.u8));
       else
-        CMSTEDecoderError(self, "Referenced object is out of bounds");
+        CMSTEDecoderError(self, "Referenced object %llu is out of bounds %llu", self->token.v.u8, (MSULong)CArrayCount(self->refs));
       break;
 
     case MSTE_TOKEN_TYPE_CHAR          : CMSTEDecoderPopI8(self, error, MSChar  , numberWithChar);             break;
@@ -688,7 +691,7 @@ static inline void CMSTEDecoderHandleTokenCode1(CMSTEDecoder *self, MSULong code
     case MSTE_TOKEN_TYPE_INT64         : CMSTEDecoderPopI8(self, error, MSLong  , numberWithLongLong);         break;
     case MSTE_TOKEN_TYPE_UNSIGNED_INT64: CMSTEDecoderPopU8(self, error, MSULong , numberWithUnsignedLongLong); break;
 
-    case MSTE_TOKEN_TYPE_FLOAT         : 
+    case MSTE_TOKEN_TYPE_FLOAT         :
     {
       char *start=(char *)CBufferCString(self->token.v.d), *end= NULL;
       float f= strtof(start, &end);
@@ -738,13 +741,19 @@ static inline void CMSTEDecoderHandleTokenCode1(CMSTEDecoder *self, MSULong code
         self->head->obj= (id)CCreateDictionary(0);
         self->head->count= self->token.v.u8;
         self->head->code= MSTE_TOKEN_TYPE_DICTIONARY;
-        CMSTEDecoderExpect(self, STATE_DICTIONARY_KEY);
-        if (cls) { 
+        if (cls) {
           self->head->cls= CMSTEDecoderReference(self, ALLOC(cls)); }
         else if (!self->flags.allowsUnknownUserClasses) {
           CMSTEDecoderError(self, "Unknown user classe %@", classname);}
         else {
-          CMSTEDecoderReference(self, self->head->obj);}}
+          CMSTEDecoderReference(self, self->head->obj);}
+        if (!self->error) {
+          if (self->head->count > 0)
+            CMSTEDecoderExpect(self, STATE_DICTIONARY_KEY);
+          else
+            CMSTEDecoderPop(self, AUTORELEASE(self->head->obj));
+        }
+      }
       else {CMSTEDecoderError(self, "Unexpected code in CMSTEDecoderHandleTokenCode1, this is a decoder bug");}
       break;
   }
@@ -755,27 +764,28 @@ static void CMSTEDecoderHandleReturn(CMSTEDecoder* self, id ret)
     self->rootObject= [ret retain];
     CMSTEDecoderExpect(self, STATE_END);}
   else {
+    --self->head->count;
     switch(self->head->code)
     {
       case MSTE_TOKEN_TYPE_DICTIONARY:
         CDictionarySetObjectForKey((CDictionary*)self->head->obj, ret, self->head->key);
         DESTROY(self->head->key);
-        if (--self->head->count > 0)
+        if (self->head->count > 0)
           CMSTEDecoderExpect(self, STATE_DICTIONARY_KEY);
-        else if (self->head->cls) 
+        else if (self->head->cls)
           CMSTEDecoderPop(self, AUTORELEASE([self->head->cls initWithDictionary:AUTORELEASE(self->head->obj)]));
         else
           CMSTEDecoderPop(self, AUTORELEASE(self->head->obj));
         break;
       case MSTE_TOKEN_TYPE_ARRAY:
         CArrayAddObject((CArray*)self->head->obj, ret);
-        if (--self->head->count > 0)
+        if (self->head->count > 0)
           CMSTEDecoderExpect(self, STATE_CODE);
         else
           CMSTEDecoderPop(self, AUTORELEASE(self->head->obj));
         break;
       case MSTE_TOKEN_TYPE_COUPLE:
-        if(--self->head->count == 1) {
+        if(self->head->count == 1) {
           CCoupleSetFirstMember((CCouple*)self->head->obj, ret);
           CMSTEDecoderExpect(self, STATE_CODE);}
         else if(self->head->count == 0) {
@@ -818,6 +828,7 @@ static void CMSTEDecoderHandleReturn(CMSTEDecoder* self, id ret)
   return CMSTEDecoderParseResult((CMSTEDecoder*)self, error);
 }
 @end
+
 @implementation NSData (MSTDecoding)
 
 - (id)MSTDecodedObject
