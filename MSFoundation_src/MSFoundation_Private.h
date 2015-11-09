@@ -48,4 +48,6 @@
 
 #import <sys/stat.h>
 
+void _MSColorInitialize();
+
 #endif // MSFOUNDATION_PRIVATE_H

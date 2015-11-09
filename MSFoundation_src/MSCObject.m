@@ -54,7 +54,7 @@
 void MSFinishLoadingCore();
 static void MSFinishLoadingFoundation() {
   MSFinishLoadingCore();
-  [MSColor class];
+  _MSColorInitialize();
 }
 
 @implementation NSObject (Private)
