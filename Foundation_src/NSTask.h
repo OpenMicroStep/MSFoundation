@@ -1,5 +1,6 @@
 
 FoundationExtern NSString *NSTaskDidTerminateNotification;
+
 @interface NSTask : NSObject {
 @private
   NSArray *_arguments;
@@ -8,7 +9,6 @@ FoundationExtern NSString *NSTaskDidTerminateNotification;
   NSString *_launchPath;
   int _exitStatus;
   void *_uv_process;
-  cnd_t _cnd;
 }
 + (NSTask *)launchedTaskWithLaunchPath:(NSString *)path arguments:(NSArray *)arguments;
 - (instancetype)init;
@@ -28,5 +28,9 @@ FoundationExtern NSString *NSTaskDidTerminateNotification;
 - (int)processIdentifier;
 
 - (void)interrupt;
+
+- (void)waitUntilExit;
+- (BOOL)isRunning;
+- (int)terminationStatus;
 
 @end

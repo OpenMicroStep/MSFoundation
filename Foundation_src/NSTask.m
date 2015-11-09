@@ -13,20 +13,15 @@ NSString *NSTaskDidTerminateNotification= @"NSTaskDidTerminateNotification";
 }
 - (instancetype)init
 {
-  cnd_init(&_cnd);
   return self;
 }
 - (void)dealloc
 {
-  cnd_destroy(&_cnd);
   [_arguments release];
   [_currentDirectoryPath release];
   [_env release];
   [_launchPath release];
-  if(_uv_process)
-    free(_uv_process + sizeof(uv_process_t));
-  free(_uv_process);
-  *(id*)(_uv_process + sizeof(id))= nil;
+  MSFree(_uv_process, "-[NSTask launch] -> -[NSTask dealloc]");
   [super dealloc];
 }
 
@@ -61,9 +56,11 @@ NSString *NSTaskDidTerminateNotification= @"NSTaskDidTerminateNotification";
   uv_process_kill((uv_process_t*)_uv_process, SIGINT);
 }
 
-static void exit_cb(uv_process_t* process, int64_t exit_status, int term_signal) 
+static void exit_cb(uv_process_t* process, int64_t exit_status, int term_signal)
 {
-  [*(NSTask**)(process + sizeof(id)) _exitedWithStatus:exit_status signal:term_signal];
+  NSTask *self= CArrayObjectAtIndex((CArray*)process->data, 0);
+  [self _exitedWithStatus:exit_status signal:term_signal];
+  RELEASE(process->data);
   uv_close((uv_handle_t*)process, close_cb);
 }
 void close_cb(uv_handle_t *handle) {
@@ -72,41 +69,58 @@ void close_cb(uv_handle_t *handle) {
 
 - (void)_exitedWithStatus:(int64_t)exit_status signal:(int)term_signal
 {
+  _exitStatus= (int)exit_status;
   _uv_process= NULL;
   [[NSNotificationCenter defaultCenter] postNotificationName:NSTaskDidTerminateNotification object:self];
   [[NSRunLoop currentRunLoop] _uv_stop];
 }
 
+static const * retainedUTF8String(CArray *retainlist, NSString *str)
+{
+  id d= [str dataUsingEncoding:NSUTF8StringEncoding];
+  if (d) CArrayAddObject(retainlist, d);
+  return [d cString];
+}
 - (void)launch
 {
-  int envCount= [_env count];
-  int argsCount= [_arguments count];
+  CArray *retainlist; id d;
+  NSUInteger idx;
+  NSUInteger envCount= [_env count];
+  NSUInteger argsCount= [_arguments count];
   char *env[envCount + 1];
-  char *args[argsCount + 1];
+  char *args[argsCount + 2];
+  uv_process_t* process;
   uv_process_options_t options;
   memset(&options, 0, sizeof(options));
-
-  while(argsCount > 0) {
-    --argsCount;
-    args[argsCount]= (char *)[[_arguments objectAtIndex:argsCount] UTF8String];
+  retainlist= CCreateArray(0);
+  CArrayAddObject(retainlist, self);
+  args[0]= retainedUTF8String(retainlist, _launchPath);
+  for(idx= 0; idx < argsCount; ++idx) {
+    args[idx + 1]= retainedUTF8String(retainlist, [_arguments objectAtIndex:idx]);
   }
 
   if(_env) {
-    NSEnumerator *e; id o, k; NSUInteger i= 0;
-    for(e= [_env keyEnumerator]; (k= [e nextObject]) && (o= [_env objectForKey:k]);) {
-      env[i++]= (char *)[[NSString stringWithFormat:@"%@=%@", k, o] UTF8String];
+    NSEnumerator *e; id o, k;
+    for(idx= 0, e= [_env keyEnumerator]; (k= [e nextObject]) && (o= [_env objectForKey:k]);) {
+      env[idx++]= retainedUTF8String(retainlist, FMT(@"%@=%@", k, o));
     }
   }
-  args[argsCount]= NULL;
+  args[argsCount + 1]= NULL;
   env[envCount]= NULL;
   options.exit_cb= exit_cb;
-  options.file= [_launchPath UTF8String];
+  options.file= args[0];
   options.env= env;
   options.args= args;
-  options.cwd= [_currentDirectoryPath UTF8String];
-  _uv_process= malloc(sizeof(uv_process_t) + sizeof(id));
-  *(id*)(_uv_process + sizeof(id))= self;
-  uv_spawn([[NSRunLoop currentRunLoop] _uv_loop], (uv_process_t*)_uv_process, &options);
+  options.cwd= retainedUTF8String(retainlist, _currentDirectoryPath);
+  process= MSMalloc(sizeof(uv_process_t) + sizeof(id), "-[NSTask launch] -> -[NSTask dealloc]");
+  process->data= retainlist;
+  _uv_process= process;
+  if (uv_spawn([[NSRunLoop currentRunLoop] _uv_loop], process, &options) != 0) {
+    RELEASE(process->data);
+    MSFree(process, "-[NSTask launch] -> -[NSTask dealloc]");
+    _uv_process= NULL;
+    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"unable to start the task") ;
+  }
 }
 
 - (BOOL)resume
@@ -135,12 +149,18 @@ void close_cb(uv_handle_t *handle) {
 - (void)waitUntilExit
 {
   if(_uv_process) {
-    [[NSRunLoop currentRunLoop] _uv_run];
+    while ([[NSRunLoop currentRunLoop] _uv_run] && _uv_process);
   }
 }
 
 - (BOOL)isRunning
-{ return _uv_process != NULL; }
+{
+  return _uv_process != NULL;
+}
 - (int)terminationStatus
-{ return _exitStatus; }
+{
+  if (_uv_process)
+    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"the task is still running") ;
+  return _exitStatus;
+}
 @end
