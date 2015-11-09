@@ -292,7 +292,7 @@ MSHandler* MSCreateHandlerWithArguments(void *fn, int reserved, int argc, va_lis
 
 void MSHandlerDetach(MSHandler *first, MSHandler *last, BOOL freeHandlers)
 {
-  if (!first || !last) return;
+  if (!first || !last || last->next == first) return;
   // Detach
   first->prev->next= last->next;
   last->next->prev= first->prev;

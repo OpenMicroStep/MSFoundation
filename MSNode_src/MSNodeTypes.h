@@ -88,6 +88,7 @@ typedef union {
   uint16_t *u2Ptr;
   uint32_t *u4Ptr;
   uint64_t *u8Ptr;
+  SEL sel;
 } MSHandlerArg; // 64bits union
 
 #define MSMakeHandlerArg(arg) ({ MSHandlerArg __a; __a.u8= (MSULong)arg; __a; })

@@ -2,7 +2,6 @@
 
 typedef struct {
   char type;
-  MSPromise *promise;
 } MSPromiseHandlerReserved;
 
 enum MSPromiseUnionType {
@@ -18,36 +17,28 @@ enum MSPromiseUnionType {
 }
 - (instancetype)initWithPromises:(NSArray *)promises type:(enum MSPromiseUnionType)type;
 - (void)addPromise:(MSPromise *)promise;
-- (void)promiseFullfilled:(MSPromise *)promise result:(id)result;
-- (void)promiseRejected:(MSPromise *)promise reason:(id)reason;
+- (void)promiseFullfilled:(id)result;
+- (void)promiseRejected:(id)reason;
 @end
 
 @implementation MSPromise
-static inline void _fireHandler(MSPromise *self, MSHandler *h, MSPromiseState state, id value) {
-  MSPromiseHandlerReserved *res;
-  res= (MSPromiseHandlerReserved *)MSHandlerReserved(h);
-  if (res->type == MSPromiseFulfilled) {
-    if (state == MSPromiseFulfilled) {
-      ((MSPromiseSuccessHandler)h->fn)(self, res->promise, value, MSHandlerArgs(h, sizeof(MSPromiseHandlerReserved)));
-      [res->promise release]; }
-    else if(state == MSPromiseRejected) {
-      [res->promise reject:value];
-      [res->promise release]; }
-    }
-  else if (res->type == MSPromiseRejected && state == MSPromiseRejected) {
-    ((MSPromiseRejectHandler)h->fn)(self, value, MSHandlerArgs(h, sizeof(MSPromiseHandlerReserved))); }
-}
-static inline MSPromise *_makeHandler(MSHandler *h, MSPromise *p, MSPromiseState type)
-{
-  MSPromiseHandlerReserved *res;
-  res= (MSPromiseHandlerReserved *)MSHandlerReserved(h);
-  res->type= type;
-  res->promise= [p retain];
-  return p;
-}
+
 + (MSPromise *)promise
 {
   return AUTORELEASE([ALLOC(MSPromise) init]);
+}
+
++ (MSPromise *)promiseResolved:(id)result
+{
+  MSPromise *p= AUTORELEASE([ALLOC(MSPromise) init]);
+  [p resolve:result];
+  return p;
+}
++ (MSPromise *)promiseRejected:(id)reason
+{
+  MSPromise *p= AUTORELEASE([ALLOC(MSPromise) init]);
+  [p reject:reason];
+  return p;
 }
 + (MSPromise *)promiseWithAllResolvedOf:(NSArray *)promises waitForAll:(BOOL)waitForAll
 {
@@ -63,27 +54,65 @@ static inline MSPromise *_makeHandler(MSHandler *h, MSPromise *p, MSPromiseState
   RELEASE(_res);
   [super dealloc];
 }
-- (MSPromise *)chainableThen:(MSPromiseSuccessHandler)handler args:(int)argc, ...
+- (MSPromise *)then:(MSPromiseSuccessHandler)handler args:(int)argc, ...
 {
-  MSHandler*h; MSPromise *p;
-  h= MSHandlerListAddEx(&_listeners, handler, sizeof(MSPromiseHandlerReserved), argc, argc);
-  p= _makeHandler(h, [MSPromise promise], MSPromiseFulfilled);
-  _fireHandler(self, h, [self state], _res);
-  return p;
+  va_list ap;
+  va_start(ap, argc);
+  self= [self _addHandler:handler argc:argc args:ap type:MSPromiseFulfilled];
+  va_end(ap);
+  return self;
 }
-- (void)then:(MSPromiseSuccessHandler)handler args:(int)argc, ...
+- (MSPromise *)catch:(MSPromiseRejectHandler)handler args:(int)argc, ...
 {
-  MSHandler *h;
-  h= MSHandlerListAddEx(&_listeners, handler, sizeof(MSPromiseHandlerReserved), argc, argc);
-  _makeHandler(h, nil, MSPromiseFulfilled);
-  _fireHandler(self, h, [self state], _res);
+  va_list ap;
+  va_start(ap, argc);
+  self= [self _addHandler:handler argc:argc args:ap type:MSPromiseRejected];
+  va_end(ap);
+  return self;
 }
-- (void)catch:(MSPromiseRejectHandler)handler args:(int)argc, ...
+- (void)finally:(MSPromiseFinallyHandler)handler args:(int)argc, ...
 {
-  MSHandler *h;
-  h= MSHandlerListAddEx(&_listeners, handler, sizeof(MSPromiseHandlerReserved), argc, argc);
-  _makeHandler(h, nil, MSPromiseRejected);
-  _fireHandler(self, h, [self state], _res);
+  va_list ap;
+  va_start(ap, argc);
+  [self _addHandler:handler argc:argc args:ap type:MSPromisePending];
+  va_end(ap);
+}
+static void _finallyReleaseObject(MSHandlerArg *args)
+{
+  [args[0].id release];
+}
+static void _finallyRelease2Object(MSHandlerArg *args)
+{
+  [args[0].id release];
+  [args[1].id release];
+}
+static MSPromise* _forwardToObject(id r, MSHandlerArg *args)
+{
+  return [args[0].id performSelector:args[1].sel withObject:r withObject:args[2].id];
+}
+- (MSPromise *)catch:(id)target action:(SEL)sel context:(id)object
+{
+  MSHandlerArg t, s, o; MSPromise *r;
+  t.id= [target retain];
+  s.sel= sel;
+  o.id= [object retain];
+  r= [self catch:_forwardToObject args:3, t, s, o];
+  [self finally:_finallyRelease2Object args:2, t, o];
+  return r;
+}
+- (MSPromise *)then:(id)target action:(SEL)sel context:(id)object
+{
+  MSHandlerArg t, s, o; MSPromise *r;
+  t.id= [target retain];
+  s.sel= sel;
+  o.id= [object retain];
+  r= [self then:_forwardToObject args:3, t, s, o];
+  [self finally:_finallyRelease2Object args:2, t, o];
+  return r;
+}
+- (void)keepObjectAlive:(id)object
+{
+  [self finally:_finallyReleaseObject args:1, MSMakeHandlerArg([object retain])];
 }
 
 - (BOOL)isFulfilled { return _state == MSPromiseFulfilled; }
@@ -91,36 +120,92 @@ static inline MSPromise *_makeHandler(MSHandler *h, MSPromise *p, MSPromiseState
 - (BOOL)isPending   { return _state == MSPromisePending; }
 - (MSPromiseState)state { return _state; }
 
+static inline void _fireHandlers(MSPromise *self, MSHandlerList *listeners, MSPromiseState state, id value) {
+  MSPromise *r= nil; MSHandlerListEnumerator e; MSHandler *h, *l; BOOL c= YES;
+  e= MSMakeHandlerEnumerator(listeners);
+  while (c && (h= MSHandlerEnumeratorNext(&e))) {
+    r= _fireHandler(self, h, state, value);
+    if (r && r != self) {
+      h= h->next;
+      if (h->next != (MSHandler*)listeners) { // h is not the last handler
+        l= listeners->last;
+        MSHandlerDetach(h, l, NO);
+        [r _attach:h :l];
+      }
+      c= NO;
+    }
+  }
+  MSHandlerDetach(listeners->first, listeners->last, YES);
+}
+static inline MSPromise* _fireHandler(MSPromise *self, MSHandler *h, MSPromiseState state, id value) {
+  MSPromiseHandlerReserved *res;
+  res= (MSPromiseHandlerReserved *)MSHandlerReserved(h);
+  if (res->type == MSPromiseFulfilled && state == MSPromiseFulfilled) {
+    self= ((MSPromiseSuccessHandler)h->fn)(value, MSHandlerArgs(h, sizeof(MSPromiseHandlerReserved)));}
+  else if (res->type == MSPromiseRejected && state == MSPromiseRejected) {
+    self= ((MSPromiseRejectHandler)h->fn)(value, MSHandlerArgs(h, sizeof(MSPromiseHandlerReserved))); }
+  else if (res->type == MSPromisePending && state != MSPromisePending) {
+    ((MSPromiseFinallyHandler)h->fn)(MSHandlerArgs(h, sizeof(MSPromiseHandlerReserved))); }
+  return self;
+}
+
+- (MSPromise *)_addHandler:(void *)handler argc:(int)argc args:(va_list)ap type:(MSPromiseState)type
+{
+  MSPromiseState state= [self state];
+  if (state == MSPromisePending) {
+    MSHandler *h; char *typep;
+    h= MSCreateHandlerWithArguments(handler, sizeof(char), argc, ap);
+    MSHandlerAttach((MSHandler*)&_listeners, h, h);
+    typep= (char *)MSHandlerReserved(h);
+    *typep= type;
+  }
+  else if (state == type) {
+    MSHandlerArg args[argc];
+    MSHandlerFillArguments(args, argc, ap);
+    self= ((MSPromiseSuccessHandler)handler)(_res, args);
+  }
+  else if (type == MSPromisePending) {
+    MSHandlerArg args[argc];
+    MSHandlerFillArguments(args, argc, ap);
+    ((MSPromiseFinallyHandler)handler)(args);
+  }
+  return self;
+}
 - (void)resolve:(id)result
 {
-  MSHandlerListEnumerator e; MSHandler *h;
   if (_state == MSPromisePending) {
     ASSIGN(_res, result);
     _state= MSPromiseFulfilled;
-    e= MSMakeHandlerEnumerator(&_listeners);
-    while ((h= MSHandlerEnumeratorNext(&e))) {
-      _fireHandler(self, h, MSPromiseFulfilled, result);}}
+    _fireHandlers(self, &_listeners, MSPromiseFulfilled, result);}
 }
 
 - (void)reject:(id)reason
 {
-  MSHandlerListEnumerator e; MSHandler *h;
   if (_state == MSPromisePending) {
     ASSIGN(_res, reason);
     _state= MSPromiseRejected;
-    e= MSMakeHandlerEnumerator(&_listeners);
-    while ((h= MSHandlerEnumeratorNext(&e))) {
-      _fireHandler(self, h, MSPromiseRejected, reason);}}
+    _fireHandlers(self, &_listeners, MSPromiseRejected, reason);}
 }
-static void _forwardSuccessHandler(MSPromise *instigator, MSPromise *next, id result, MSHandlerArg *args)
+- (void)_attach:(MSHandler *)first :(MSHandler *)last
+{
+  MSPromiseState state;
+  MSHandlerAttach((MSHandler*)&_listeners, first, last);
+  state= [self state];
+  if (state != MSPromisePending) {
+    _fireHandlers(self, &_listeners, state, _res);}
+}
+
+static MSPromise *_forwardSuccessHandler(id result, MSHandlerArg *args)
 {
   [args[0].id resolve:result];
   [args[0].id release];
+  return nil;
 }
-static void _forwardRejectHandler(MSPromise *instigator, id reason, MSHandlerArg *args)
+static MSPromise *_forwardRejectHandler(id reason, MSHandlerArg *args)
 {
   [args[0].id reject:reason];
   [args[0].id release];
+  return nil;
 }
 - (void)resolveWithPromise:(MSPromise *)result
 {
@@ -142,19 +227,21 @@ static void _forwardRejectHandler(MSPromise *instigator, id reason, MSHandlerArg
       [self addPromise:p];}}
   return self;
 }
-static void _unionSuccessHandler(MSPromise *instigator, MSPromise *next, id result, MSHandlerArg *args)
+static MSPromise* _unionSuccessHandler(id result, MSHandlerArg *args)
 {
   _MSPromiseUnion *self= args[0].id;
   if ([self isPending])
-    [self promiseFullfilled:instigator result:result];
+    [self promiseFullfilled:result];
   [self release];
+  return nil;
 }
-static void _unionRejectHandler(MSPromise *instigator, id reason, MSHandlerArg *args)
+static MSPromise* _unionRejectHandler(id reason, MSHandlerArg *args)
 {
   _MSPromiseUnion *self= args[0].id;
   if ([self isPending])
-    [self promiseRejected:instigator reason:reason];
+    [self promiseRejected:reason];
   [self release];
+  return nil;
 }
 - (void)addPromise:(MSPromise *)promise
 {
@@ -163,7 +250,7 @@ static void _unionRejectHandler(MSPromise *instigator, id reason, MSHandlerArg *
   [promise then:_unionSuccessHandler args:1, MSMakeHandlerArg(self)];
   [promise catch:_unionRejectHandler args:1, MSMakeHandlerArg(self)];
 }
-- (void)promiseFullfilled:(MSPromise *)promise result:(id)result
+- (void)promiseFullfilled:(id)result
 {
   if (_type == MSPromiseUnionFirst) {
     [self resolve:result];}
@@ -178,7 +265,7 @@ static void _unionRejectHandler(MSPromise *instigator, id reason, MSHandlerArg *
       else {
         [self resolve:_res];}}}
 }
-- (void)promiseRejected:(MSPromise *)promise reason:(id)reason
+- (void)promiseRejected:(id)reason
 {
   if (_type < MSPromiseUnionAllWait) {
     [self reject:reason];}
