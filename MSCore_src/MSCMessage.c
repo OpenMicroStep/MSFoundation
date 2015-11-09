@@ -106,12 +106,12 @@ void CStringAppendContextWhere(CString* str, CDictionary* ctx)
   {
   CString *x;
   CStringAppendString(str, (CString*)CDictionaryObjectForKey(ctx,(id)KFile));
+  CStringAppendCharacter(str, ':');
+  CStringAppendString(str, (CString*)CDictionaryObjectForKey(ctx,(id)KLine));
   if ((x= (CString*)CDictionaryObjectForKey(ctx,(id)KFunction))) {
     CStringAppendCharacter(str, ':'); CStringAppendString(str, x);}
   if ((x= (CString*)CDictionaryObjectForKey(ctx,(id)KMethod))) {
     CStringAppendCharacter(str, ':'); CStringAppendString(str, x);}
-  CStringAppendCharacter(str, ':');
-  CStringAppendString(str, (CString*)CDictionaryObjectForKey(ctx,(id)KLine));
   }
 // date messageType file:line[:function][:method]
 //   message
