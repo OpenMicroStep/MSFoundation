@@ -103,6 +103,8 @@
 
 #import <MSFoundation/MSStringParsing.h>
 #import <MSFoundation/MSMSTEDecoder.h>
+#import <MSFoundation/MSJSONDecoder.h>
+#import <MSFoundation/MSJSONEncoder.h>
 
 #define FMT(ARGS...)  [MSString stringWithFormat: ARGS]
 

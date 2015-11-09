@@ -7,7 +7,6 @@
 
 #import "MSThreadSafeProxy.h"
 
-#import "MSJSONEncoder.h"
 #import "MSHTTPRequest.h"
 #import "MSHTTPResponse.h"
 #import "MSCurlHandler.h"

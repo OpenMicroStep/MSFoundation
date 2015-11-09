@@ -20,6 +20,7 @@
 #import <MSNode/MSHttpCookieMiddleware.h>
 #import <MSNode/MSHttpFormMiddleware.h>
 #import <MSNode/MSHttpMSTEMiddleware.h>
+#import <MSNode/MSHttpJSONMiddleware.h>
 #import <MSNode/MSHttpSessionMiddleware.h>
 #import <MSNode/MSHttpStaticFilesMiddleware.h>
 #import <MSNode/MSHttpApplication.h>

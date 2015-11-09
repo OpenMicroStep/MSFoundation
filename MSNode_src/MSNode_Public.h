@@ -19,6 +19,7 @@
 #import "MSHttpCookieMiddleware.h"
 #import "MSHttpFormMiddleware.h"
 #import "MSHttpMSTEMiddleware.h"
+#import "MSHttpJSONMiddleware.h"
 #import "MSHttpSessionMiddleware.h"
 #import "MSHttpStaticFilesMiddleware.h"
 #import "MSHttpApplication.h"

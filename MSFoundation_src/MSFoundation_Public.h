@@ -85,6 +85,8 @@
 
 #import "MSStringParsing.h"
 #import "MSMSTEDecoder.h"
+#import "MSJSONDecoder.h"
+#import "MSJSONEncoder.h"
 
 #define FMT(ARGS...) [MSString stringWithFormat: ARGS]
 

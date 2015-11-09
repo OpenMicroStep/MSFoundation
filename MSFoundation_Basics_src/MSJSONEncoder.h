@@ -1,12 +1,12 @@
 /*
 
- MSNet.h
+ MSJSONEncoder.h
 
- This file is is a part of the MicroStep Application Server over Http Framework.
+ This file is is a part of the MicroStep Framework.
 
- Initial copyright LOGITUD Solutions (logitud@logitud.fr) since 2012
+ Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
+ Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
 
- Herve Malaingre : herve@malaingre.com
  Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
 
 
@@ -39,46 +39,13 @@
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
 
- A Special homage to Steve Jobs who permits the Objective-C technology
- to meet the world. Without him, this years-long work should not have
- been existing at all. Thank you Steve and rest in peace.
-
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSFoundation/MSFoundation.h>
  */
 
-#ifndef MSNET_H
-#define MSNET_H
+//@class MSUnicodeString ;
 
-#import <MSFoundation/MSFoundation.h>
 
-#import <MSNet/MSNetPlatform.h>
-
-#import <MSNet/MSThreadSafeProxy.h>
-
-#import <MSNet/MSHTTPRequest.h>
-#import <MSNet/MSHTTPResponse.h>
-//#import <MSNet/MSCurlHandler.h>
-//#import <MSNet/MSCurlSendMail.h>
-
-#import <MSNet/MSCipher.h>
-
-#import <MSNet/MSDigest.h>
-#import <MSNet/MSSecureHash.h>
-
-#import <MSNet/MSCertificate.h>
-
-#import <MSNet/MHPublicProtocols.h>
-
-#import <MSNet/MHSSLSocket.h>
-
-#import <MSNet/MHLogging.h>
-#import <MSNet/MHBunchableObject.h>
-#import <MSNet/MHHTTPMessage.h>
-#import <MSNet/MHApplication.h>
-#import <MSNet/MHNotification.h>
-#import <MSNet/MHServer.h>
-
-#import <MSNet/MHResource.h>
-
-#import <MSNet/MHApplicationClient.h>
-
-#endif // MSNET_H
+@interface NSObject (MSJSONEncoding)
+- (MSBuffer *)JSONEncodedBuffer ;
+@end
