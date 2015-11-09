@@ -31,7 +31,7 @@ static void cbuffer_b64_(test_t *test, int no, char *str, NSUInteger lstr, char 
   b= CCreateBuffer(0);
   CBufferBase64EncodeAndAppendBytes(b, str, lstr);
   TASSERT_EQUALS(test, CBufferLength(b), lenc, "%d Bad encode: %s %s",no,enc,CBufferCString(b));
-  memcmp(b->buf, enc, lenc);
+  TASSERT(test, memcmp(b->buf, enc, lenc)==0, "%d Bad encode: %s %s",no,enc,CBufferCString(b));
   c= CCreateBuffer(0);
   TASSERT(test, CBufferBase64DecodeAndAppendBytes(c, enc, lenc), "%d Bad decode: %s %s",no,enc,CBufferCString(c));
   lc= CBufferLength(c);
