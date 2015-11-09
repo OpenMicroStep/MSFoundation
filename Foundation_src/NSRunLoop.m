@@ -43,6 +43,34 @@ MS_DECLARE_THREAD_LOCAL(__currentRunLoop, __currentRunLoop_dtor);
   [aTimer _addToLoop:_uv_loop];
 }
 
+static void _runUntilDate_timer_cb(uv_timer_t* handle)
+{
+  handle->data= 1;
+  uv_stop(handle->loop);
+}
+- (BOOL)runMode:(NSString *)mode beforeDate:(NSDate *)limitDate
+{
+  [self runUntilDate:limitDate];
+  return YES;
+}
+- (void)runUntilDate:(NSDate *)limitDate
+{
+  uv_timer_t timer;
+  uv_timer_init(_uv_loop, &timer);
+  timer.data = 0;
+  uv_timer_start(&timer, _runUntilDate_timer_cb, (uint64_t)([limitDate timeIntervalSinceNow] * 1000.0), 0);
+  while(uv_run(_uv_loop, UV_RUN_DEFAULT) && timer.data == 0)
+    ;
+}
+- (void)acceptInputForMode:(NSString *)mode beforeDate:(NSDate *)limitDate
+{
+  uv_timer_t timer;
+  uv_timer_init(_uv_loop, &timer);
+  timer.data = 0;
+  uv_timer_start(&timer, _runUntilDate_timer_cb, (uint64_t)([limitDate timeIntervalSinceNow] * 1000.0), 0);
+  uv_run(_uv_loop, UV_RUN_ONCE);
+}
+
 - (void)run
 {
   while(uv_run(_uv_loop, UV_RUN_DEFAULT))
