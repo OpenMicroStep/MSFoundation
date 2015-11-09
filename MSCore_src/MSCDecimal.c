@@ -80,7 +80,7 @@ void CDecimalDescribe(id self, id result, int level, mutable CDictionary *ctx)
 
 const CString* CDecimalRetainedDescription(id self)
 {
-  if (!self) return nil;
+  if (!self) return NULL;
   else {
     CDecimal *d= (CDecimal *)self;
     int exp=   abs(d->m_apm_exponent - 1);
@@ -89,7 +89,7 @@ const CString* CDecimalRetainedDescription(id self)
     char r[rLg];
     m_apm_to_string(r,-1,d);
     if ((int)strlen(r)+1>rLg) fprintf(stderr, "Error CCreateDecimalDescription"
-                                      " longueur attendue: %d réelle:%lu\n",rLg,strlen(r));
+                                      " longueur attendue: %d réelle:%lu\n",rLg,(unsigned long)strlen(r));
     return CCreateStringWithBytes(NSASCIIStringEncoding, r, strlen(r));}
 }
 
