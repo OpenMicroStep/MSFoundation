@@ -246,21 +246,21 @@ PRIVATE BOOL objc_resolve_class(Class cls)
 PRIVATE void objc_resolve_class_links(void)
 {
 	LOCK_RUNTIME_FOR_SCOPE();
-	Class class = unresolved_class_list;
+	Class cls = unresolved_class_list;
 	BOOL resolvedClass;
 	do
 	{
 		resolvedClass = NO;
-		while ((Nil != class))
+		while ((Nil != cls))
 		{
-			Class next = class->unresolved_class_next;
-			objc_resolve_class(class);
+			Class next = cls->unresolved_class_next;
+			objc_resolve_class(cls);
 			if (resolvedClass ||
-				objc_test_class_flag(class, objc_class_flag_resolved))
+				objc_test_class_flag(cls, objc_class_flag_resolved))
 			{
 				resolvedClass = YES;
 			}
-			class = next;
+			cls = next;
 		}
 	} while (resolvedClass);
 }
@@ -363,19 +363,19 @@ static void reload_class(struct objc_class *class, struct objc_class *old)
 /**
  * Loads a class.  This function assumes that the runtime mutex is locked.
  */
-PRIVATE void objc_load_class(struct objc_class *class)
+PRIVATE void objc_load_class(struct objc_class *cls)
 {
-	struct objc_class *existingClass = class_table_get_safe(class->name);
+	struct objc_class *existingClass = class_table_get_safe(cls->name);
 	if (Nil != existingClass)
 	{
 		if (objc_developer_mode_developer != mode)
 		{
 			fprintf(stderr,
 				"Loading two versions of %s.  The class that will be used is undefined\n",
-				class->name);
+				cls->name);
 			return;
 		}
-		reload_class(class, existingClass);
+		reload_class(cls, existingClass);
 		return;
 	}
 
@@ -384,33 +384,33 @@ PRIVATE void objc_load_class(struct objc_class *class)
 	// Note: With the new ABI, the class pointer is public.  We could,
 	// therefore, directly reference the superclass from the compiler and make
 	// the linker resolve it.  This should be done in the GCC-incompatible ABI.
-	const char *superclassName = (char*)class->super_class;
+	const char *superclassName = (char*)cls->super_class;
 
 	// Work around a bug in some versions of GCC that don't initialize the
 	// class structure correctly.
-	class->subclass_list = NULL;
+	cls->subclass_list = NULL;
 
 	// Insert the class into the class table
-	class_table_insert(class);
+	class_table_insert(cls);
 
 	// Register all of the selectors used by this class and its metaclass
-	objc_register_selectors_from_class(class);
-	objc_register_selectors_from_class(class->isa);
+	objc_register_selectors_from_class(cls);
+	objc_register_selectors_from_class(cls->isa);
 
 	// Set the uninstalled dtable.  The compiler could do this as well.
-	class->dtable = uninstalled_dtable;
-	class->isa->dtable = uninstalled_dtable;
+	cls->dtable = uninstalled_dtable;
+	cls->isa->dtable = uninstalled_dtable;
 
 	// If this is a root class, make the class into the metaclass's superclass.
 	// This means that all instance methods will be available to the class.
 	if (NULL == superclassName)
 	{
-		class->isa->super_class = class;
+		cls->isa->super_class = cls;
 	}
 
-	if (class->protocols)
+	if (cls->protocols)
 	{
-		objc_init_protocols(class->protocols);
+		objc_init_protocols(cls->protocols);
 	}
 }
 
