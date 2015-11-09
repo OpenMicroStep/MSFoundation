@@ -10,7 +10,7 @@ MS_DECLARE_THREAD_LOCAL(__currentRunLoop, __currentRunLoop_dtor);
 
 @implementation NSRunLoop
 
-+ (void)initialize
++ (void)load
 {
   if (self == [NSRunLoop class]) {
     NSRunLoop *mainRunLoop= [ALLOC(NSRunLoop) initWithLoop:uv_default_loop()];
