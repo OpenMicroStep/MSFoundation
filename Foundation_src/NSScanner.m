@@ -6,7 +6,7 @@
 - (instancetype)initWithString:(NSString *)aString
 {
   _charactersToBeSkipped= [[NSCharacterSet whitespaceAndNewlineCharacterSet] retain];
-  _string= [aString retain];
+  _string= [aString copy];
   _ses= SESFromString(_string);
   _i= SESStart(_ses);
   return self;
@@ -60,7 +60,7 @@
   BOOL ret; unichar c; NSUInteger i= _i, l= _i;
   CString *str= stringValue ? CCreateString(0) : NULL;
   [self _skipIgnored];
-  while (_i < SESEnd(_ses) && [scanSet characterIsMember:(c= SESIndexN(_ses, &i))]) {
+  while (i < SESEnd(_ses) && [scanSet characterIsMember:(c= SESIndexN(_ses, &i))]) {
     CStringAppendCharacter(str, c);
     l= i;}
   if ((ret= l > _i)) {
