@@ -495,7 +495,7 @@ static inline void _encodeTokenTypeWithSeparator(id self, MSByte tokenType, BOOL
             }
             else if (tokenType <= MSTE_TOKEN_LAST_DEFINED_TYPE) {
 
-                if (referencing) {
+                if (referencing && tokenType >= MSTE_TOKEN_TYPE_DECIMAL_VALUE) {
                     objectReference = ++_lastReference ;
                     CDictionarySetObjectForKey(_encodedObjects, (id)objectReference, anObject) ;
                 }
@@ -938,11 +938,12 @@ static NSNumber *__aBool = nil ;
 @end
 
 @implementation NSData (MSTEncoding)
-- (MSByte)tokenType { return [self length] ? MSTE_TOKEN_TYPE_BASE64_DATA : MSTE_TOKEN_TYPE_EMPTY_DATA; }
+- (MSInt)singleEncodingCode:(MSTEncoder *)encoder { return [self length] ? MSTE_TOKEN_MUST_ENCODE : MSTE_TOKEN_TYPE_EMPTY_DATA ; MSUnused(encoder); }
+- (MSByte)tokenType { return MSTE_TOKEN_TYPE_BASE64_DATA; }
 @end
 
 @implementation NSData (MSTEncodingPrivate)
-- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { if([self length]) [encoder encodeBytes:(void *)[self bytes] length:[self length] withTokenType:NO] ; }
+- (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { [encoder encodeBytes:(void *)[self bytes] length:[self length] withTokenType:NO] ; }
 @end
 
 @implementation MSColor (MSTEncoding)

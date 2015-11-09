@@ -474,6 +474,20 @@ static void mste_some(test_t *test)
     TASSERT_DECODE(test, "[\"MSTE0102\",11,\"CRC32766EEF\",0,0,31,2,21,\"multiple referenced object\",9,1]", o);
   }
 
+  // Encode bug with referenced object after empty buffer
+  // The empty buffer was referenced
+  {
+    id d= [MSBuffer buffer];
+    id s= [NSString string];
+    id r= @"referenced object";
+    id a= [NSArray arrayWithObjects:d, s, r, r, nil];
+    id m= [a MSTEncodedBuffer];
+    id error= nil;
+    id o= [m MSTDecodedObjectAndVerifyCRC:NO allowsUnknownUserClasses:YES error:&error];
+    TASSERT(test, error == nil, "Decoding should work: %s for %s", [error UTF8String], [m cString]);
+    TASSERT_EQUALS_OBJ(test, o, a);
+  }
+
   TASSERT_DECODE(test, "[\"MSTE0102\",21,\"CRCD959E1CB\",0,3,\"20061\",\"entity\",\"0\",30,2,0,30,1,1,31,1,21,\"R_Right\",2,30,0]",
       ([NSDictionary dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"R_Right", nil], @"entity", nil], @"20061", [NSDictionary dictionary], @"0", nil]));
 
