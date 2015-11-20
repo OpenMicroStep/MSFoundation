@@ -291,14 +291,16 @@ static void _messengerMessageOutput(id value, NSString *key, id arg)
 - (NSDictionary *)findMessagesForURN:(NSString *)urn andParameters:(NSDictionary *)parameters
 {
     MSDBConnection *conn = nil ;
-    NSNumber *messagesCount = nil ;
+    NSNumber *messagesCount = nil;
+    NSUInteger pos;
     NSArray *messageIDs ;
     BOOL hasMore ;
     
     conn = [self _connectDatabase] ;
     messagesCount = [self _countMessagesFoundForURN:urn andParameters:parameters countRows:YES connection:conn] ;
     messageIDs = [self _messagesFoundForURN:urn andParameters:parameters countRows:NO connection:conn] ;
-    hasMore= ([messagesCount longValue] - [messageIDs count] > 0);
+    pos = (NSUInteger)[[parameters objectForKey:MESSENGER_QUERY_PARAM_POS] intValue] ;
+    hasMore= ([messagesCount longValue] > pos + [messageIDs count]);
     [self _disconnectDatabase:conn] ;
             
     return [NSDictionary dictionaryWithObjectsAndKeys:messageIDs, MESSENGER_RESPONSE_FIND_MESSAGES, [NSNumber numberWithBool:hasMore], MESSENGER_RESPONSE_FIND_HAS_MORE, nil] ;
