@@ -8,7 +8,7 @@
 #define __gxx_personality_v0 __gxx_personality_seh0
 #endif
 
-#define DEBUG_EXCEPTIONS
+//#define DEBUG_EXCEPTIONS
 #ifndef DEBUG_EXCEPTIONS
 #define DEBUG_LOG(...)
 #else

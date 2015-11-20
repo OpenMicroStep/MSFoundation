@@ -60,7 +60,7 @@ module.exports = {
       {file: 'category_loader.c'},
       {file: 'class.h'},
       {file: 'class_table.c'},
-      {file: 'common.S'},
+      {file: 'common.S', tags:["__ignore__"]},
       {file: 'constant_string.h'},
       {file: 'dtable.c'},
       {file: 'dtable.h'},
