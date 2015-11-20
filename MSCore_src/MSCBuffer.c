@@ -84,7 +84,7 @@ void CBufferDescribe(id self, id result, int level, mutable CDictionary *ctx)
 const CString* CBufferRetainedDescription(id self)
 {
   static const char* hex= "0123456789abcdef";
-  CString *s; const MSByte *start, *p, *end; BOOL space= NO; NSUInteger len;
+  CString *s; const MSByte *start, *p, *end; BOOL space= YES; NSUInteger len;
   if (!self) return nil;
   len= ((CBuffer*)self)->length;
   s= CCreateString( len*2 + (len > 0 ? (len + 1)/2 - 1 : 0) + 2);
