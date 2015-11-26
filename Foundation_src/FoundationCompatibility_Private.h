@@ -19,6 +19,10 @@
 
 void FoundationCompatibilityExtendClass(char type, Class dstClass, SEL dstSel, Class srcClass, SEL srcSel);
 
+@interface NSMethodSignature (Private)
+- (id)_uniqid;
+@end
+
 @interface NSTimer (Private)
 - (void)_addToLoop:(uv_loop_t *)uv_loop;
 @end

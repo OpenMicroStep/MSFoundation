@@ -263,6 +263,7 @@ module.exports = {
         {file: "Foundation_tst/foundation_nsdate_validate.m"},
         {file: "Foundation_tst/foundation_nsdictionary_validate.m"},
         {file: "Foundation_tst/foundation_nsmethodsignature_validate.m"},
+        {file: "Foundation_tst/foundation_nsinvocation_validate.m"},
         {file: "Foundation_tst/foundation_nsnull_validate.m"},
         {file: "Foundation_tst/foundation_nsstring_validate.m"},
         {file: "Foundation_tst/foundation_validate.m"},

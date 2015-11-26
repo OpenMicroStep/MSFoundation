@@ -101,8 +101,8 @@ static void methodsignature_new(test_t *test)
   s= [o methodSignatureForSelector:@selector(complex1:i2:i4:i8:)];
   TASSERT(test, s, "signature of complex1:i2:i4:i8: must exists");
   TASSERT_EQUALS_LLU(test, [s numberOfArguments], 2 + 4); // self, _cmd
-  TASSERT_EQUALS_LLU(test, [s methodReturnLength], 16);
-  TASSERT_EQUALS_STR(test, [s methodReturnType], "{NSMethodSignature_TestStruct=csiq}");
+  TASSERT_EQUALS_LLU(test, [s methodReturnLength], 1040);
+  TASSERT_EQUALS_STR(test, [s methodReturnType], "{NSMethodSignature_TestStruct=csiq[1024c]}");
   TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:0], "@");
   TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:1], ":");
   TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:2], "c");
@@ -113,38 +113,17 @@ static void methodsignature_new(test_t *test)
   s= [o methodSignatureForSelector:@selector(complex2:)];
   TASSERT(test, s, "signature of complex1:i2:i4:i8: must exists");
   TASSERT_EQUALS_LLU(test, [s numberOfArguments], 3); // self, _cmd
-  TASSERT_EQUALS_LLU(test, [s methodReturnLength], 16);
-  TASSERT_EQUALS_STR(test, [s methodReturnType], "{NSMethodSignature_TestStruct=csiq}");
+  TASSERT_EQUALS_LLU(test, [s methodReturnLength], 1040);
+  TASSERT_EQUALS_STR(test, [s methodReturnType], "{NSMethodSignature_TestStruct=csiq[1024c]}");
   TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:0], "@");
   TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:1], ":");
-  TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:2], "{NSMethodSignature_TestStruct2=qsic}");
+  TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:2], "{NSMethodSignature_TestStruct2=qsic[1024c]}");
 
   RELEASE(o);
   KILL_POOL;
 }
 
-static void methodsignature_invoc(test_t *test)
-{
-  NEW_POOL;
-
-  NSUInteger retainCountBefore;
-  NSMethodSignature_TestClass *o;
-  NSMethodSignature *s;
-  NSInvocation *i;
-
-  o= [NSMethodSignature_TestClass new];
-  retainCountBefore= [o retainCount];
-  s= [o methodSignatureForSelector:@selector(retain)];
-  i= [NSInvocation invocationWithMethodSignature:s];
-  [i setTarget:o];
-  [i setSelector:@selector(retain)];
-  [i invoke];
-  TASSERT_EQUALS_LLU(test, [o retainCount], retainCountBefore + 1);
-
-  KILL_POOL;
-}
 
 test_t foundation_methodsign[]= {
   {"methodsignature_new",NULL,methodsignature_new,INTITIALIZE_TEST_T_END},
-  {"methodsignature_invoc",NULL,methodsignature_invoc,INTITIALIZE_TEST_T_END},
   {NULL}};

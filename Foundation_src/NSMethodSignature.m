@@ -1,6 +1,9 @@
 #import "FoundationCompatibility_Private.h"
 
-@implementation NSMethodSignature
+@implementation NSMethodSignature {
+  CBuffer *_types; // type string separated by \0
+  CArray *_typesIndexes;
+}
 
 + (NSMethodSignature *)signatureWithObjCTypes:(const char *)types
 {
@@ -9,27 +12,30 @@
 
 - (instancetype)initWithObjCTypes:(const char *)types
 { // v12@0:4@8
-  const char *next, *current;
-  NSUInteger size, align, length, idx, pos;
-  CBuffer *buf;
-  CArray *idxs;
+  if (!types) DESTROY(self);
+  else {
+    const char *next, *current;
+    NSUInteger size, align, length, idx, pos;
+    CBuffer *buf;
+    CArray *idxs;
 
-  idx= 0;
-  next= current= types;
-  _types= buf= CCreateBuffer(0);
-  _typesIndexes= idxs= CCreateArrayWithOptions(0, YES, YES);
-  while(*next && (next= NSGetSizeAndAlignment(current, &size, &align))) {
-    length= next - current;
-    CBufferAppendBytes(buf, current, length * sizeof(char));
-    CBufferAppendByte(buf, 0);
-    CArrayAddObject(idxs, (id)idx);
-    pos= 0;
-    while ('0' <= *next && *next <= '9') {
-      pos= pos + (*next - '0');
-      ++next;}
-    CArrayAddObject(idxs, (id)pos);
-    idx += length + 1;
-    current= next;
+    idx= 0;
+    next= current= types;
+    _types= buf= CCreateBuffer(0);
+    _typesIndexes= idxs= CCreateArrayWithOptions(0, YES, YES);
+    while(*next && (next= NSGetSizeAndAlignment(current, &size, &align))) {
+      length= next - current;
+      CBufferAppendBytes(buf, current, length * sizeof(char));
+      CBufferAppendByte(buf, 0);
+      CArrayAddObject(idxs, (id)idx);
+      pos= 0;
+      while ('0' <= *next && *next <= '9') {
+        pos= pos + (*next - '0');
+        ++next;}
+      CArrayAddObject(idxs, (id)pos);
+      idx += length + 1;
+      current= next;
+    }
   }
   return self;
 }
@@ -73,4 +79,11 @@
   return size;
 }
 
+@end
+
+@implementation NSMethodSignature (Private)
+- (id)_uniqid
+{
+  return (id)_types;
+}
 @end

@@ -1,8 +1,5 @@
 
-@interface NSMethodSignature : NSObject {
-  CBuffer *_types; // type string separated by \0
-  CArray *_typesIndexes;
-}
+@interface NSMethodSignature : NSObject
 + (NSMethodSignature *)signatureWithObjCTypes:(const char *)types;
 - (BOOL)isOneway;
 

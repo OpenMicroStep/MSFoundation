@@ -204,11 +204,20 @@
   return self;
 }
 
--(NSMethodSignature *)methodSignatureForSelector:(SEL)selector
+- (void)doesNotRecognizeSelector:(SEL)aSelector
+{
+  [NSException raise:NSInvalidArgumentException format:@"-[%s %s]: unrecognized selector sent to instance %p",
+    class_getName(ISA(self)), sel_getName(aSelector), self];
+}
+- (void)forwardInvocation:(NSInvocation *)anInvocation
+{
+  [self doesNotRecognizeSelector:[anInvocation selector]];
+}
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
 {
    Method method; const char *types;
 
-   method= class_getInstanceMethod(object_getClass(self), selector);
+   method= class_getInstanceMethod(object_getClass(self), aSelector);
    types= method_getTypeEncoding(method);
 
    return types ? [NSMethodSignature signatureWithObjCTypes:types] : nil;
