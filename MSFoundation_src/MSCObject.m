@@ -146,41 +146,6 @@ BOOL _MIsArray(id obj)
   return [obj isKindOfClass:[NSArray class]];
 }
 
-NSUInteger _GCount(id container)
-{
-  return [container count];
-}
-id _GObjectAtIndex(id array, NSUInteger i)
-{
-  return [array objectAtIndex:i];
-}
-struct garray_pfs_s GArrayPfsStruct= {
-  _GCount,
-  _GObjectAtIndex,
-  NULL
-  };
-garray_pfs_t GArrayPfs= &GArrayPfsStruct;
-
-id _GObjectForKey(id dict, id k)
-{
-  return [dict objectForKey:k];
-}
-id _GKeyEnumerator(id dict)
-{
-  return [dict keyEnumerator];
-}
-id _GNextObject(id enumerator)
-{
-  return [enumerator nextObject];
-}
-struct dict_pfs_s GDictPfsStruct= {
-  _GCount,
-  _GObjectForKey,
-  _GKeyEnumerator,
-  _GNextObject
-  };
-gdict_pfs_t GDictionaryPfs= &GDictPfsStruct;
-
 int _MSEnv()
 {
 #ifdef MSFOUNDATION_FORCOCOA
@@ -222,20 +187,80 @@ id MSCreateObjectWithClassIndex(CClassIndex classIndex)
 
 #define _esz(X)       (((CGrow*)(X))->flags.elementBytes)
 #define _setEsz(X,SZ)  ((CGrow*)(X))->flags.elementBytes= (MSUInt)(SZ)
+
+@implementation MSArray (CGrowElementSize)
+- (NSUInteger)_growElementSize  { return sizeof(id); }
+@end
+@implementation MSBuffer (CGrowElementSize)
+- (NSUInteger)_growElementSize  { return sizeof(MSByte); }
+@end
+@implementation MSDictionary (CGrowElementSize)
+- (NSUInteger)_growElementSize  { return sizeof(void*); }
+@end
+@implementation MSString (CGrowElementSize)
+- (NSUInteger)_growElementSize  { return sizeof(unichar); }
+@end
+@implementation MSASCIIString (CGrowElementSize)
+- (NSUInteger)_growElementSize  { return sizeof(char); }
+@end
+
 NSUInteger CGrowElementSize(id self)
 {
   NSUInteger r= 0;
   if ((r= _esz(self))==0) {
     Class c= ISA(self);
     if ((r= (NSUInteger)CDictionaryObjectForKey(__ElementSize4Class, c))==0 || r==NSNotFound) {
-      if      ([self isKindOfClass:[MSArray       class]]) r= sizeof(id);
-      else if ([self isKindOfClass:[MSBuffer      class]]) r= sizeof(MSByte);
-      else if ([self isKindOfClass:[MSDictionary  class]]) r= sizeof(void*);
-      else if ([self isKindOfClass:[MSString      class]]) r= sizeof(unichar);
-      else if ([self isKindOfClass:[MSASCIIString class]]) r= sizeof(char);
-      else MSRaise(@"CGrowElementSize", @"unknown class %@", c);
+      r= [self _growElementSize];
       if (r > 63) MSRaise(@"CGrowElementSize", @"size too big %ld", r);
       CDictionarySetObjectForKey(__ElementSize4Class, (id)r, (id)c);}
     _setEsz(self,r);}
   return r;
 }
+
+#define MSIMPLEMENTATION_FOR_NSMUTABLE_PROBLEM(MSCLASS, NSMUTABLECLASS)                             \
+@implementation MSCLASS (MSMUTABLECLASS)                                                            \
+- (BOOL)isKindOfClass:(Class)aClass                                                                 \
+{                                                                                                   \
+  return [super isKindOfClass:aClass]                                                                \
+      || (!CGrowIsForeverImmutable(self) && aClass == [NSMUTABLECLASS class]);                         \
+}                                                                                                   \
+- (void)forwardInvocation:(NSInvocation *)anInvocation                                              \
+{                                                                                                   \
+  _MSForwardInvocationToNSMutable(self, anInvocation, [NSMUTABLECLASS class], [MSCLASS class]);     \
+}                                                                                                   \
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector                                    \
+{                                                                                                   \
+  NSMethodSignature *ret;                                                                           \
+  ret= [super methodSignatureForSelector:aSelector];                                                \
+  if (!ret) ret= _NSMethodSignatureForSelector([NSMUTABLECLASS class], aSelector);                  \
+  return ret;                                                                                       \
+}                                                                                                   \
+@end
+
+static void _MSForwardInvocationToNSMutable(id self, NSInvocation *inv, Class mutableCls, Class selfCls)
+{
+  Method method= NULL; SEL sel;
+  sel= [inv selector];
+  if (!CGrowIsForeverImmutable(self) && (method= class_getInstanceMethod(mutableCls, sel))) {
+    class_addMethod(selfCls, sel, method_getImplementation(method), method_getTypeEncoding(method));
+    [inv invoke];
+  }
+  else {
+    [self doesNotRecognizeSelector:sel];
+  }
+}
+
+NSMethodSignature *_NSMethodSignatureForSelector(Class cls, SEL sel)
+{
+   Method method; const char *types;
+
+   method= class_getInstanceMethod(cls, sel);
+   types= method_getTypeEncoding(method);
+
+   return types ? [NSMethodSignature signatureWithObjCTypes:types] : nil;
+}
+
+MSIMPLEMENTATION_FOR_NSMUTABLE_PROBLEM(MSArray     , NSMutableArray     );
+MSIMPLEMENTATION_FOR_NSMUTABLE_PROBLEM(MSString    , NSMutableString    );
+MSIMPLEMENTATION_FOR_NSMUTABLE_PROBLEM(MSDictionary, NSMutableDictionary);
+MSIMPLEMENTATION_FOR_NSMUTABLE_PROBLEM(MSBuffer    , NSMutableData      );

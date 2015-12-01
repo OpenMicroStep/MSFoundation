@@ -236,18 +236,3 @@
 // TODO: To be removed
 #define MSCreateArray(C) (MSArray*)CCreateArray(C)
 //MSMutableArray *MSCreateMutableArray(NSUInteger capacity);
-
-@interface NSArrayEnumerator : NSEnumerator
-{
-@private
-  GArrayEnumerator _arrayEnumerator;
-  BOOL _reverse;
-}
-- (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse;
-- (id)initWithArray:(NSArray*)a pfs:(garray_pfs_t)pfs count:(NSUInteger)c reverse:(BOOL)reverse;
-- (id)nextObject;
-@end
-@interface MSArrayEnumerator : NSArrayEnumerator
-{
-}
-@end

@@ -1,5 +1,9 @@
 #import "FoundationCompatibility_Private.h"
 
+void FoundationCompatibilityCopyClassMethod(char type, Class dstClass, Class srcClass, SEL sel)
+{
+  FoundationCompatibilityExtendClass(type, dstClass, sel, srcClass, sel);
+}
 void FoundationCompatibilityExtendClass(char type, Class dstClass, SEL dstSel, Class srcClass, SEL srcSel)
 {
   Method srcMethod, dstMethod; const char *error= NULL;

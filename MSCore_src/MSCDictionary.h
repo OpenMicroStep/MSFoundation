@@ -139,23 +139,72 @@ MSCoreExtern id CDictionarySetObjectIfKeyAbsent(CDictionary *self, id o, id k, B
 typedef id (*CDictionarySetHandler)(void*);
 MSCoreExtern id CDictionarySetObjectFromHandlerIfKeyAbsent(CDictionary *self, CDictionarySetHandler h, void *arg, id k, BOOL *added);
 
+static inline id CDictionaryNotAKeyMarker(const CDictionary *self);
+
+
 #pragma mark Generic
 
 typedef NSUInteger (*gdict_count_f        )(id);
 typedef id         (*gdict_objectForKey_f )(id, id);
 typedef id         (*gdict_keyEnumerator_f)(id);
 typedef id         (*gdict_nextKey_f      )(id);
-typedef struct dict_pfs_s { // type for dict primitive functions
+typedef struct {
+  union {
+    CDictionaryEnumerator cEnumerator;
+    struct {
+      id enumerator;
+      id dict;
+      id key;
+    } fs;
+  } e;
+  id stop;
+} GDictionaryEnumerator;
+
+typedef const struct gdict_pfs_s { // type for dict primitive functions
   gdict_count_f         count;
   gdict_objectForKey_f  objectForKey;
   gdict_keyEnumerator_f keyEnumerator;
   gdict_nextKey_f       nextKey;}
 *gdict_pfs_t;
 
-MSCoreExtern gdict_pfs_t GDictionaryPfs;
+static inline NSUInteger GDictionaryCount(gdict_pfs_t fs, const id self);
+static inline id GDictionaryObjectForKey(gdict_pfs_t fs, const id self, id k);
+static inline id GDictionaryNotAKeyMarker(gdict_pfs_t fs, const id self);
+
+MSCoreExtern GDictionaryEnumerator GMakeDictionaryEnumerator(gdict_pfs_t fs, const id dict);
+static inline id GDictionaryEnumeratorNextKey(gdict_pfs_t fs, GDictionaryEnumerator *e);
+static inline id GDictionaryEnumeratorCurrentObject(gdict_pfs_t fs, GDictionaryEnumerator *e);
 
 MSCoreExtern NSUInteger GDictionaryHash(gdict_pfs_t fs, const id dict, unsigned depth);
 MSCoreExtern BOOL GDictionaryEquals(gdict_pfs_t fs1, const id dd1, gdict_pfs_t fs2, const id dd2);
 MSCoreExtern void CStringAppendGDictionaryDescription(CString *s, gdict_pfs_t fs, const id d); // + context de description ?
+
+#pragma mark Inline
+
+static inline id CDictionaryNotAKeyMarker(const CDictionary *self) {
+  return self->flags.keyType == CDictionaryNatural ? (id)NSNotFound : nil;
+}
+
+static inline NSUInteger GDictionaryCount(gdict_pfs_t fs, const id self) {
+  return !fs ? ((CDictionary*)self)->count : fs->count(self);
+}
+
+static inline id GDictionaryNotAKeyMarker(gdict_pfs_t fs, const id self) {
+  return !fs && CDictionaryNotAKeyMarker((CDictionary*)self) ? (id)NSNotFound : nil;
+}
+
+static inline id GDictionaryObjectForKey(gdict_pfs_t fs, const id self, id k) {
+  return !fs ? CDictionaryObjectForKey((CDictionary*)self, k) : fs->objectForKey(self, k);
+}
+
+static inline id GDictionaryEnumeratorNextKey(gdict_pfs_t fs, GDictionaryEnumerator *e)
+{
+  return !fs ? CDictionaryEnumeratorNextKey(&e->e.cEnumerator) : (e->e.fs.key= fs->nextKey(e->e.fs.enumerator));
+}
+
+static inline id GDictionaryEnumeratorCurrentObject(gdict_pfs_t fs, GDictionaryEnumerator *e)
+{
+  return !fs ? CDictionaryEnumeratorCurrentObject(e->e.cEnumerator) : fs->objectForKey(e->e.fs.dict, e->e.fs.key);
+}
 
 #endif

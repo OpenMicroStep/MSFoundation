@@ -52,8 +52,6 @@
 #define _NOT_A_MARKER(IS_NAT)  ((IS_NAT) ? (void*)NSNotFound : nil)
 #define _EQUALS( IS_OBJ,A,B)   ((IS_OBJ) ? ISEQUAL((A),(B))  : (A)==(B))
 
-#define CDICT_NOT_A_KEY(D)     _NOT_A_MARKER(CDICT_KEYS_ARE_NATS(D))
-
 typedef struct _nodeStruct {
    id key;
    id value;
@@ -62,36 +60,33 @@ _node;
 
 #pragma mark Generic
 
-#define _CCOUNT(  d) (CDICT(d)->count)
-#define _GCOUNT(g,d) (g->count(d))
-#define GDICT_COUNT(g,d) (!g ? _CCOUNT(d) : _GCOUNT(g,d))
-
-#define _CENUM(  d,de) (de= CMakeDictionaryEnumerator((CDictionary*)d), (id)&de)
-#define _GENUM(g,d   ) (g->keyEnumerator(d))
-#define GDICT_ENUM(g,d,de) (!g ? _CENUM(d,de) : _GENUM(g,d))
-
-#define _CNEXTKEY(  e) (CDictionaryEnumeratorNextKey((CDictionaryEnumerator*)(e)))
-#define _GNEXTKEY(g,e) (g->nextKey(e))
-#define GDICT_NEXTKEY(g,e) (!g ? _CNEXTKEY(e) : _GNEXTKEY(g,e))
-
-#define GDICT_STOPKEY(g,d) (!g ? CDICT_NOT_A_KEY(d) : nil)
-
-#define _COFK(e,d,k) (e ? ((_node*)(((CDictionaryEnumerator*)(e))->jnode))->value : CDictionaryObjectForKey(CDICT(d),k))
-#define _GOFK(g,d,k) (g->objectForKey(d,k))
-#define GDICT_OFK(g,e,d,k) (!g ? _COFK(e,d,k) : _GOFK(g,d,k))
+GDictionaryEnumerator GMakeDictionaryEnumerator(gdict_pfs_t fs, const id dict)
+{
+  GDictionaryEnumerator ret;
+  if (!fs) {
+    ret.e.cEnumerator= CMakeDictionaryEnumerator((const CDictionary*)dict);
+    ret.stop= CDictionaryNotAKeyMarker((const CDictionary*)dict);
+  }
+  else {
+    ret.e.fs.enumerator= fs->keyEnumerator(dict);
+    ret.e.fs.dict= dict;
+    ret.stop= nil;
+  }
+  return ret;
+}
 
 NSUInteger GDictionaryHash(gdict_pfs_t fs, const id dict, unsigned depth)
 {
-  return GDICT_COUNT(fs, dict);
+  return GDictionaryCount(fs, dict);
   MSUnused(depth);
 }
 
 BOOL GDictionaryEquals(gdict_pfs_t fs1, const id dd1, gdict_pfs_t fs2, const id dd2)
 {
-  id e,k,kstop; CDictionaryEnumerator de; id d1= dd1, d2= dd2; BOOL objs= YES;
+  id k; GDictionaryEnumerator de; id d1= dd1, d2= dd2; BOOL objs= YES;
   if ( d1 ==  d2) return YES;
   if (!d1 || !d2) return NO;
-  if (GDICT_COUNT(fs1, d1) != GDICT_COUNT(fs2, d2)) return NO;
+  if (GDictionaryCount(fs1, d1) != GDictionaryCount(fs2, d2)) return NO;
   if (!fs1 && !fs2) { // les types doivent être les mêmes
     if (CDICT(d1)->flags.keyType != CDICT(d2)->flags.keyType) return NO;
     if (CDICT(d1)->flags.objType != CDICT(d2)->flags.objType) return NO;
@@ -100,30 +95,10 @@ BOOL GDictionaryEquals(gdict_pfs_t fs1, const id dd1, gdict_pfs_t fs2, const id 
   else if (!fs2 && (!CDICT_KEYS_ARE_OBJS(d2) || !CDICT_OBJS_ARE_OBJS(d2))) return NO;
   // On privilégie l'énumération du CDictionary
   if (fs1 && !fs2) {gdict_pfs_t fs= fs1; const id d= d1; fs1= fs2; d1= d2; fs2= fs; d2= d;}
-  e= GDICT_ENUM(fs1, d1, de); kstop= GDICT_STOPKEY(fs1,d1);
-  while ((k= GDICT_NEXTKEY(fs1, e))!=kstop) {
-    if (!_EQUALS(objs, GDICT_OFK(fs1, e, d1, k), GDICT_OFK(fs2, nil, d2, k))) return NO;}
+  de= GMakeDictionaryEnumerator(fs1, d1);
+  while ((k= GDictionaryEnumeratorNextKey(fs1, &de))!=de.stop) {
+    if (!_EQUALS(objs, GDictionaryEnumeratorCurrentObject(fs1, &de), GDictionaryObjectForKey(fs2, d2, k))) return NO;}
   return YES;
-}
-
-typedef struct {
-  const void *source;
-  CHAI chai;
-  MSByte counter;}
-_indentChaiSrc;
-
-unichar _indentChai(const void *src, NSUInteger *pos)
-{
-  unichar c; _indentChaiSrc *s;
-  s= (_indentChaiSrc *)src;
-  if (s->counter > 0) {
-    c= ' ';
-    s->counter--;}
-  else {
-    c= s->chai(s->source, pos);
-    if (c == (unichar)'\n') {
-      s->counter= 2;}}
-  return c;
 }
 
 // TODO: long indentWhites dans context de description ?
@@ -132,13 +107,13 @@ void CStringAppendGDictionaryDescription(CString *s, gdict_pfs_t fs, const id di
 {
   if (!dict) CStringAppendFormat(s,"nil");
   else {
-    CDictionaryEnumerator de; id e,k,kstop; BOOL keysAreObjs= YES, objsAreObjs= YES;
+    GDictionaryEnumerator de; id k; BOOL keysAreObjs= YES, objsAreObjs= YES;
     CStringAppendFormat(s,"{\n");
     if (!fs) {
       keysAreObjs= CDICT(dict)->flags.keyType==CDictionaryObject;
       objsAreObjs= CDICT(dict)->flags.objType==CDictionaryObject;}
-    e= GDICT_ENUM(fs, dict, de);  kstop= GDICT_STOPKEY(fs,dict);
-    while ((k= GDICT_NEXTKEY(fs, e))!=kstop) {
+    de= GMakeDictionaryEnumerator(fs, dict);
+    while ((k= GDictionaryEnumeratorNextKey(fs, &de))!=de.stop) {
       const CString *d;
       CStringAppendFormat(s,"  ");
       // TODO: APPEND_DESCRIPTION(s,k);
@@ -149,18 +124,9 @@ void CStringAppendGDictionaryDescription(CString *s, gdict_pfs_t fs, const id di
       RELEASE(d);
       CStringAppendFormat(s," = ");
       // TODO: Si o not an obj, ne pas utiliser description !
-      d= DESCRIPTION(GDICT_OFK(fs, e, dict, k));
+      d= DESCRIPTION(GDictionaryEnumeratorCurrentObject(fs, &de));
       if (!d) CStringAppendFormat(s,"nil");
-      else {
-        SES ses; _indentChaiSrc identChai;
-        ses= CStringSES(d);
-        identChai.source= ses.source;
-        identChai.chai= ses.chai;
-        identChai.counter= 0;
-        ses.encoding= 0;
-        ses.source= &identChai;
-        ses.chai= _indentChai;
-        CStringAppendSES(s, ses);}
+      else CStringAppendString(s, d);
       RELEASE(d);
       CStringAppendCharacter(s, '\n');}
     CStringAppendCharacter(s, '}');}
@@ -212,7 +178,7 @@ static inline id _setObjectForKey(CDictionary *self, id o, id k, BOOL fromDict, 
   BOOL fd, added= NO;
   id obj= nil;
 
-  if (!self || k==CDICT_NOT_A_KEY(self)) return nil;
+  if (!self || k==CDictionaryNotAKeyMarker(self)) return nil;
   CGrowMutVerif((id)self, 0, 0, "CDictionarySetObjectForKey");
   h= CDICT_KEY_HASH(self,k);
   fd= NO;
@@ -268,7 +234,9 @@ void CDictionaryFreeInside(id s)
         CDICT_KEY_RELEASE(self, j->key);
         CDICT_OBJ_RELEASE(self, j->value);
         nj= j->next; MSFree(j, "CDictionaryFreeInside");}}
-    MSFree(self->buckets, "CDictionaryFreeInside"); self->buckets= NULL;}
+    MSFree(self->buckets, "CDictionaryFreeInside"); self->buckets= NULL;
+    self->nBuckets=0;
+    self->count=0;}
 }
 
 BOOL CDictionaryIsEqual(id self, id other)
@@ -321,20 +289,20 @@ void CDictionaryDescribe(id self, id result, int level, mutable CDictionary *ctx
   gdict_pfs_t fs= nil;
   id dict= self;
   CString *s= (CString*)result;
-  NSUInteger i; CDictionaryEnumerator de; id e,k,kstop; BOOL keysAreObjs= YES, objsAreObjs= YES;
+  NSUInteger i; GDictionaryEnumerator de; id k; BOOL keysAreObjs= YES, objsAreObjs= YES;
   CStringAppendCharacter(s, '{');
   if (!fs) {
     keysAreObjs= CDICT(dict)->flags.keyType==CDictionaryObject;
     objsAreObjs= CDICT(dict)->flags.objType==CDictionaryObject;}
-  e= GDICT_ENUM(fs, dict, de);  kstop= GDICT_STOPKEY(fs,dict);
-  while ((k= GDICT_NEXTKEY(fs, e))!=kstop) {
+  de= GMakeDictionaryEnumerator(fs, dict);
+  while ((k= GDictionaryEnumeratorNextKey(fs, &de))!=de.stop) {
     CStringAppendCharacter(s, '\n');
     for (i= 0; i<=level; i++) CStringAppendLiteral(s,"  ");
     // TODO: Si k not an obj, ne pas utiliser description !
     CDescribe(k, result, level+1, ctx);
     CStringAppendLiteral(s,": ");
     // TODO: Si o not an obj, ne pas utiliser description !
-    CDescribe(GDICT_OFK(fs, e, dict, k), result, level+1, ctx);
+    CDescribe(GDictionaryEnumeratorCurrentObject(fs, &de), result, level+1, ctx);
     CStringAppendCharacter(s, ';');}
   CStringAppendCharacter(s, '}');
 }
@@ -430,7 +398,7 @@ id CDictionaryObjectForKey(const CDictionary *self, id k)
   id o= nil;
   NSUInteger i; BOOL fd;
   _node *j;
-  if (!self || k==CDICT_NOT_A_KEY(self) || !self->nBuckets) return CDICT_NOT_AN_OBJ(self);
+  if (!self || k==CDictionaryNotAKeyMarker(self) || !self->nBuckets) return CDICT_NOT_AN_OBJ(self);
   i= CDICT_KEY_HASH(self, k) % self->nBuckets;
   for (j= self->buckets[i], fd= NO; !fd && j!=NULL; j= j->next) {
     if (CDICT_KEY_EQUALS(self, j->key, k)) {fd=YES; o= j->value;}}
@@ -488,7 +456,7 @@ id CDictionaryEnumeratorCurrentObject(CDictionaryEnumerator de)
 }
 id CDictionaryEnumeratorCurrentKey(CDictionaryEnumerator de)
 {
-  return !de.jnode ? CDICT_NOT_A_KEY(de.dictionary) : ((_node*)(de.jnode))->key;
+  return !de.jnode ? CDictionaryNotAKeyMarker(de.dictionary) : ((_node*)(de.jnode))->key;
 }
 
 CArray *CCreateArrayOfDictionaryKeys(CDictionary *d)
@@ -499,7 +467,7 @@ CArray *CCreateArrayOfDictionaryKeys(CDictionary *d)
   nilItems=        d->flags.keyType==CDictionaryNatural;
   a= CCreateArrayWithOptions(CDictionaryCount(d), noRetainRelease, nilItems);
   de= CMakeDictionaryEnumerator(d);
-  stop= CDICT_NOT_A_KEY(d);
+  stop= CDictionaryNotAKeyMarker(d);
   while ((k= CDictionaryEnumeratorNextKey(&de))!=stop) CArrayAddObject(a, k);
   return a;
 }

@@ -58,7 +58,7 @@ static void dictionary_init(test_t *test)
   TASSERT_EQUALS(test, [d count], [o count], "dictionary are equals");
   TASSERT(test, [d isEqual:o], "dictionary are equals");
   TASSERT(test, [o isEqual:d], "dictionary are equals");
-  
+
   d2= [NSDictionary dictionaryWithDictionary:d];
   TASSERT_EQUALS(test, [d2 count], [o count], "dictionary are equals");
   TASSERT(test, [d2 isEqual:o], "dictionary are equals");
@@ -100,7 +100,7 @@ static void dictionary_enum(test_t *test)
   TASSERT_EQUALS(test, n, 1000, "d contains %2$d objects, iterated over %1$d");
   TASSERT_EQUALS(test, o, nil, "No more object");
   TASSERT_EQUALS(test, k, nil, "No more key");
-  
+
   for (i= 0; i<1000; i++) {
     RELEASE(ks[i]); RELEASE(os[i]);}
   RELEASE(d);
@@ -158,9 +158,37 @@ static void dictionary_subclass(test_t *test)
   _dictionary_subclass(test, [MyDict class]);
 }
 
+@implementation NSDictionary (NSDictionaryTestsCategory)
+- (NSString *)myCustomSelectorOnNSDictionary
+{
+  return @"SelectorOnNSDictionary";
+}
+@end
+@implementation NSMutableDictionary (NSDictionaryTestsCategory)
+- (NSString *)myCustomSelectorOnNSMutableDictionary
+{
+  return @"SelectorOnNSMutableDictionary";
+}
+@end
+static void dictionary_category(test_t *test)
+{
+  NEW_POOL;
+  NSDictionary *dictStatic= [[NSDictionary dictionaryWithObjectsAndKeys:@"o1", @"k1", @"o2", @"k2", nil] copy];
+  NSMutableDictionary *dictMutable= [dictStatic mutableCopy];
+
+  TASSERT_EQUALS_OBJ(test, [dictStatic myCustomSelectorOnNSDictionary], @"SelectorOnNSDictionary");
+  TASSERT_EQUALS_OBJ(test, [dictMutable myCustomSelectorOnNSDictionary], @"SelectorOnNSDictionary");
+  TASSERT_EQUALS_OBJ(test, [dictMutable myCustomSelectorOnNSMutableDictionary], @"SelectorOnNSMutableDictionary");
+
+  RELEASE(dictStatic);
+  RELEASE(dictMutable);
+  KILL_POOL;
+}
+
 test_t foundation_dictionary[]= {
   {"create"  ,NULL,dictionary_create  ,INTITIALIZE_TEST_T_END},
   {"init"    ,NULL,dictionary_init    ,INTITIALIZE_TEST_T_END},
   {"enum"    ,NULL,dictionary_enum    ,INTITIALIZE_TEST_T_END},
   {"subclass",NULL,dictionary_subclass,INTITIALIZE_TEST_T_END},
+  {"category",NULL,dictionary_category,INTITIALIZE_TEST_T_END},
   {NULL}};

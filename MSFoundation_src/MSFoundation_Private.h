@@ -50,4 +50,14 @@
 
 void _MSColorInitialize();
 
+NSMethodSignature *_NSMethodSignatureForSelector(Class cls, SEL sel);
+
+@interface NSDictionary (Private)
+- (gdict_pfs_t)_gdict_pfs; // See MSDictionary.m for the implementation
+@end
+
+@interface NSArray (Private)
+- (garray_pfs_t)_garray_pfs; // See MSArray.m for the implementation
+@end
+
 #endif // MSFOUNDATION_PRIVATE_H

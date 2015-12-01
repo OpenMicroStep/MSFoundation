@@ -7,9 +7,10 @@
 
 @interface NSDictionary (NSGenericDictionary)
 
-- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict;
 - (NSArray*)allKeys;
 - (NSArray*)allValues;
+- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict;
+- (NSEnumerator *)objectEnumerator;
 @end
 
 @interface NSDictionary (NSDictionaryCreation)
@@ -30,12 +31,21 @@
 - (NSDictionary *)initWithContentsOfFile:(NSString *)path;
 @end
 
+
 @interface NSMutableDictionary : NSDictionary
 
 - (void)removeObjectForKey:(id)aKey;
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
 
+@end
+
+@interface NSMutableDictionary (NSExtendedMutableDictionary)
+
+- (void)addEntriesFromDictionary:(NSDictionary*)otherDictionary;
 - (void)removeAllObjects;
+- (void)removeObjectsForKeys:(NSArray*)keyArray;
+- (void)setDictionary:(NSDictionary*)otherDictionary;
+
 @end
 
 @interface NSMutableDictionary (NSMutableDictionaryCreation)

@@ -149,6 +149,7 @@
 - (void)removeObjectForKey:(id)aKey;
 - (void)removeObjectsForKeys:(NSArray *)keyArray;
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey;
+- (void)removeAllObjects;
 // set the object to the lowercase aKey.
 // TODO: Good ? If no aKey, remove the object to the lowercase aKey.
 - (void)setObject:(id)anObject forLazyKey:(id <NSCopying>)aKey;

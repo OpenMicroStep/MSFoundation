@@ -43,14 +43,6 @@
 
 #pragma mark Genericity for immutable methods
 
-#define _CCOUNT(  a) (((CArray*)(a))->count)
-#define _GCOUNT(g,a) (g->count(a))
-#define GARRAY_COUNT( g,a) (!g ? _CCOUNT(a) : _GCOUNT(g,a))
-
-#define _COAI(  a,i) (((CArray*)(a))->pointers[i])
-#define _GOAI(g,a,i) (g->objectAtIndex(a,i))
-#define GARRAY_OAI( g,a,i) (!g ? _COAI(a,i) : _GOAI(g,a,i))
-
 GArrayEnumerator GMakeArrayEnumerator(garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count)
 {
   GArrayEnumerator e;
@@ -58,7 +50,7 @@ GArrayEnumerator GMakeArrayEnumerator(garray_pfs_t fs, const id array, NSUIntege
   e.array= array;
   if (!array) e.start= e.end= 0;
   else {
-    NSUInteger n= GARRAY_COUNT(fs, array);
+    NSUInteger n= GArrayCount(fs, array);
     e.start= MIN(start, n);
     e.end=   MIN(start + count, n);}
   return e;
@@ -68,7 +60,7 @@ id GArrayEnumeratorNextObject(GArrayEnumerator *e, BOOL *ended)
 {
   id o;
   if (e && e->start < e->end) {
-    o= GARRAY_OAI(e->fs, e->array, e->start++); if (ended) *ended= NO;}
+    o= GArrayObjectAtIndex(e->fs, e->array, e->start++); if (ended) *ended= NO;}
   else {o= nil; if (ended) *ended= YES;}
   return o;
 }
@@ -76,7 +68,7 @@ id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended)
 {
   id o;
   if (e && e->start < e->end) {
-    o= GARRAY_OAI(e->fs, e->array, --e->end); if (ended) *ended= NO;}
+    o= GArrayObjectAtIndex(e->fs, e->array, --e->end); if (ended) *ended= NO;}
   else {o= nil; if (ended) *ended= YES;}
   return o;
 }
@@ -86,19 +78,19 @@ id GArrayEnumeratorPreviousObject(GArrayEnumerator *e, BOOL *ended)
 // TODO: Si ce n'est jamais utilisé, considérer sa suppression.
 NSUInteger GArrayHash(garray_pfs_t g, id self, unsigned depth)
 {
-  NSUInteger count= GARRAY_COUNT(g, self);
+  NSUInteger count= GArrayCount(g, self);
   if (!count || depth == MSMaxHashingHop) return count;
   depth++;
   switch (count) {
     case 1: return count ^
-      HASHDEPTH(GARRAY_OAI(g, self, 0), depth);
+      HASHDEPTH(GArrayObjectAtIndex(g, self, 0), depth);
     case 2: return count ^
-      HASHDEPTH(GARRAY_OAI(g, self, 0), depth) ^
-      HASHDEPTH(GARRAY_OAI(g, self, 1), depth);
+      HASHDEPTH(GArrayObjectAtIndex(g, self, 0), depth) ^
+      HASHDEPTH(GArrayObjectAtIndex(g, self, 1), depth);
     default: return count ^
-      HASHDEPTH(GARRAY_OAI(g, self,       0), depth) ^
-      HASHDEPTH(GARRAY_OAI(g, self, count/2), depth) ^
-      HASHDEPTH(GARRAY_OAI(g, self, count-1), depth);}
+      HASHDEPTH(GArrayObjectAtIndex(g, self,       0), depth) ^
+      HASHDEPTH(GArrayObjectAtIndex(g, self, count/2), depth) ^
+      HASHDEPTH(GArrayObjectAtIndex(g, self, count-1), depth);}
 }
 
 BOOL GArrayIdenticals(garray_pfs_t fs1, const id a1, garray_pfs_t fs2, const id a2)
@@ -106,9 +98,9 @@ BOOL GArrayIdenticals(garray_pfs_t fs1, const id a1, garray_pfs_t fs2, const id 
   NSUInteger i,c;
   if ( a1 ==  a2) return YES;
   if (!a1 || !a2) return NO;
-  if ((c= GARRAY_COUNT(fs1, a1)) != GARRAY_COUNT(fs2, a2)) return NO;
+  if ((c= GArrayCount(fs1, a1)) != GArrayCount(fs2, a2)) return NO;
   for (i= 0; i < c; i++) {
-    if (GARRAY_OAI(fs1, a1, i) != GARRAY_OAI(fs2, a2, i)) return NO;}
+    if (GArrayObjectAtIndex(fs1, a1, i) != GArrayObjectAtIndex(fs2, a2, i)) return NO;}
   return YES;
 }
 
@@ -117,23 +109,23 @@ BOOL GArrayEquals(garray_pfs_t fs1, const id a1, garray_pfs_t fs2, const id a2)
   NSUInteger i,c;
   if ( a1 ==  a2) return YES;
   if (!a1 || !a2) return NO;
-  if ((c= GARRAY_COUNT(fs1, a1)) != GARRAY_COUNT(fs2, a2)) return NO;
+  if ((c= GArrayCount(fs1, a1)) != GArrayCount(fs2, a2)) return NO;
   for (i= 0; i < c; i++) {
-    if (!ISEQUAL(GARRAY_OAI(fs1, a1, i), GARRAY_OAI(fs2, a2, i))) return NO;}
+    if (!ISEQUAL(GArrayObjectAtIndex(fs1, a1, i), GArrayObjectAtIndex(fs2, a2, i))) return NO;}
   return YES;
 }
 
-void CStringAppendGArrayDescription(CString *s, garray_pfs_t fs, const id a) // + context de description ?
+void  CStringAppendGArrayDescription(CString *s, garray_pfs_t fs, const id a) // + context de description ?
 {
   if (!a) CStringAppendFormat(s,"nil");
   else {
     GArrayEnumerator e; NSUInteger i,n; const CString *d;
     CStringAppendCharacter(s, '(');
-    e= GMakeArrayEnumerator(fs, a, 0, (n= GARRAY_COUNT(fs, a)));
+    e= GMakeArrayEnumerator(fs, a, 0, (n= GArrayCount(fs, a)));
     for (i= 0; i < n; i++) {
       if (i>0) CStringAppendFormat(s, ", ");
-      // TODO: APPEND_DESCRIPTION(GARRAY_OAI(fs, a,i));
-      d= DESCRIPTION(GARRAY_OAI(fs, a, i));
+      // TODO: APPEND_DESCRIPTION(GArrayIndexOfObject(fs, a,i));
+      d= DESCRIPTION(GArrayObjectAtIndex(fs, a, i));
       if (!d) CStringAppendFormat(s,"nil");
       else CStringAppendString(s, d);
       RELEASE(d);}
@@ -142,15 +134,15 @@ void CStringAppendGArrayDescription(CString *s, garray_pfs_t fs, const id a) // 
 
 id GArrayFirstObject(garray_pfs_t fs, const id self)
 {
-  if (!self || !GARRAY_COUNT(fs, (id)self)) return nil;
-  return GARRAY_OAI(fs, (id)self, 0);
+  if (!self || !GArrayCount(fs, (id)self)) return nil;
+  return GArrayObjectAtIndex(fs, (id)self, 0);
 }
 
 id GArrayLastObject(garray_pfs_t fs, const id self)
 {
   NSUInteger n;
-  if (!self || !(n= GARRAY_COUNT(fs, (id)self))) return nil;
-  return GARRAY_OAI(fs, (id)self, n-1);
+  if (!self || !(n= GArrayCount(fs, (id)self))) return nil;
+  return GArrayObjectAtIndex(fs, (id)self, n-1);
 }
 
 NSUInteger GArrayIndexOfIdenticalObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count)
@@ -175,7 +167,7 @@ NSUInteger GArrayGetObject(garray_pfs_t fs, const id self, NSUInteger start, NSU
 {
   NSUInteger end,i;
   if (fs && fs->get) return fs->get(self, start, count, objects);
-  if (!objects || start >= (end= MIN(start+count, GARRAY_COUNT(fs, self)))) return 0;
+  if (!objects || start >= (end= MIN(start+count, GArrayCount(fs, self)))) return 0;
   if (!fs) memcpy(objects, (((CArray*)(self))->pointers)+start, (end-start)*sizeof(id));
   else for (i= start; i<end; i++) *objects++= fs->objectAtIndex(self, i);
   return end-start;
@@ -269,15 +261,15 @@ CArray* CCreateArrayOfArraySubs(id self, mutable CDictionary *ctx)
 
 void CArrayDescribe(id self, id result, int level, mutable CDictionary *ctx)
 {
-  garray_pfs_t fs= nil;
+  garray_pfs_t fs= NULL;
   id array= self;
   CString *s= (CString*)result;
   NSUInteger i,n; GArrayEnumerator e;
   CStringAppendCharacter(s, '(');
-  e= GMakeArrayEnumerator(fs, array, 0, (n= GARRAY_COUNT(fs, array)));
+  e= GMakeArrayEnumerator(fs, array, 0, (n= GArrayCount(fs, array)));
   for (i= 0; i < n; i++) {
     if (i>0) CStringAppendLiteral(s, ", ");
-    CDescribe(GARRAY_OAI(fs, array, i), result, level+1, ctx);}
+    CDescribe(GArrayObjectAtIndex(fs, array, i), result, level+1, ctx);}
   CStringAppendCharacter(s, ')');
 }
 
@@ -399,8 +391,8 @@ NSUInteger CArrayCount(const CArray *self)
 
 id CArrayObjectAtIndex(const CArray *self, NSUInteger i)
 {
-  if (!self || i >= _CCOUNT(self)) return nil;
-  return _COAI(self, i);
+  if (!self || i >= GArrayCount(NULL, (id)self)) return nil;
+  return GArrayObjectAtIndex(NULL, (id)self, i);
 }
 
 id CArrayFirstObject(const CArray *self)
@@ -442,6 +434,23 @@ void CArrayAddArray(CArray *self, const CArray *other, BOOL copyItems)
   if (!self || !other) return;
   nilVerif= (!self->flags.nilItems && other->flags.nilItems);
   _insert(self, other->pointers, self->count, other->count, copyItems, nilVerif, "CArrayAddArray");
+}
+
+void CArrayAddGArray(CArray *self, garray_pfs_t fs, id other, NSUInteger start, NSUInteger count, BOOL copyItems)
+{
+  BOOL nilVerif;
+  if (!self || !other) return;
+  if (!fs) {
+    nilVerif= (!self->flags.nilItems && ((CArray*)other)->flags.nilItems);
+    _insert(self, ((CArray*)other)->pointers + start, self->count, count, copyItems, nilVerif, "CArrayAddGArray");}
+  else {
+    NSUInteger i, n; id o;
+    n= start + count;
+    nilVerif= !self->flags.nilItems;
+    CArrayGrow((CArray*)self, count);
+    for (i= start; i < n; i++) {
+      o= GArrayObjectAtIndex(fs, other, i);
+      _insert(self, &o, self->count, 1, copyItems, nilVerif, "CArrayAddGArray");}}
 }
 
 #pragma mark Remove
@@ -588,11 +597,11 @@ NSUInteger CSortedArrayIndexOfObject(CArray *self, id object, NSUInteger start, 
     register NSUInteger min, mid,max;
     register NSInteger comp = NSOrderedAscending;
     register id *p;
-    
+
     if (!comparator) comparator = __equalityComparator;
     if (start >= self->count) { return (exact ? NSNotFound : self->count);} // si on recherche au dela du range, on n'insere forcement a la fin
     if (!nb) { return (exact ? NSNotFound : start); }
-    
+
     p = self->pointers;
     min=start; max=start+nb-1;
     if (max > self->count) max = self->count;
@@ -604,7 +613,7 @@ NSUInteger CSortedArrayIndexOfObject(CArray *self, id object, NSUInteger start, 
     }
     //if (min==nb-1 && index && n>ns[min]) min++;
     return (!exact || comp == NSOrderedSame ? min : NSNotFound);
-    
+
   }
   return (exact ? NSNotFound : 0);
 }
@@ -637,7 +646,7 @@ NSString *CArrayToString(CArray *self)
       MSUnicodeString *ret = MSCreateUnicodeString(count*3);
       MSUAddUnichar(ret, (unichar)'(');
       MSUAddString(ret, [p[0] listItemString]);
-      
+
       for (i = 1; i < count; i++) {
         MSUAddUnichar(ret, (unichar)',');
         MSUAddString(ret,[p[i] listItemString]);}
@@ -650,5 +659,5 @@ NSString *CArrayToString(CArray *self)
 CString *CArrayToString(CArray *self)
   {
   return nil;
-  self= nil;
+  MSUnused(self);
   }

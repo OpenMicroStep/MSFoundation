@@ -168,19 +168,20 @@ MSCoreExtern CString *CArrayToString(CArray *self);
 typedef NSUInteger (*garray_count_f        )(id);
 typedef id         (*garray_objectAtIndex_f)(id, NSUInteger);
 typedef NSUInteger (*garray_get_f          )(id, NSUInteger, NSUInteger, id*);
-typedef struct garray_pfs_s { // type for array primitive functions
+typedef const struct garray_pfs_s { // type for array primitive functions
   garray_count_f         count;
   garray_objectAtIndex_f objectAtIndex;
   garray_get_f           get;} // not needed
 *garray_pfs_t;
-
-MSCoreExtern garray_pfs_t GArrayPfs;
 
 typedef struct GArrayEnumeratorStruct { // not a c-like object, no retain
   garray_pfs_t fs;
   id array;
   NSUInteger start, end;}
 GArrayEnumerator;
+
+static inline NSUInteger GArrayCount(garray_pfs_t fs, const id self) { return !fs ? ((CArray*)self)->count : fs->count(self); }
+static inline id GArrayObjectAtIndex(garray_pfs_t fs, const id self, NSUInteger i) { return !fs ? (((CArray*)(self))->pointers[i]) : fs->objectAtIndex(self, i); }
 
 MSCoreExtern GArrayEnumerator GMakeArrayEnumerator(garray_pfs_t fs, const id array, NSUInteger start, NSUInteger count);
 // 'ended' is needed when niltems are accepted
@@ -196,7 +197,8 @@ MSCoreExtern id GArrayLastObject(garray_pfs_t fs, const id self);
 
 MSCoreExtern NSUInteger GArrayIndexOfIdenticalObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count);
 MSCoreExtern NSUInteger GArrayIndexOfObject(garray_pfs_t fs, const id self, const id object, NSUInteger start, NSUInteger count);
-
 MSCoreExtern NSUInteger GArrayGetObject(garray_pfs_t fs, const id self, NSUInteger start, NSUInteger count, id *objects);
+
+MSCoreExtern void CArrayAddGArray( CArray *self, garray_pfs_t fs, id other, NSUInteger start, NSUInteger count, BOOL copyItems);
 
 #endif // MSCORE_ARRAY_H

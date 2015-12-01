@@ -17,6 +17,7 @@
 #import <objc/encoding.h>
 #import <objc/hooks.h>
 
+void FoundationCompatibilityCopyClassMethod(char type, Class dstClass, Class srcClass, SEL sel);
 void FoundationCompatibilityExtendClass(char type, Class dstClass, SEL dstSel, Class srcClass, SEL srcSel);
 
 @interface NSMethodSignature (Private)
@@ -32,4 +33,13 @@ void FoundationCompatibilityExtendClass(char type, Class dstClass, SEL dstSel, C
 - (int)_uv_run;
 - (void)_uv_stop;
 @end
+
+@interface NSDictionary (Private)
+- (gdict_pfs_t)_gdict_pfs; // See MSDictionary.m for the implementation
+@end
+
+@interface NSArray (Private)
+- (garray_pfs_t)_garray_pfs; // See MSArray.m for the implementation
+@end
+
 #endif

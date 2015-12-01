@@ -38,7 +38,7 @@
 
 @end
 
-@interface NSArray (NSExtendedArrayUndone)
+@interface NSArray (NSExtendedArray)
 
 - (NSString *)componentsJoinedByString:(NSString *)separator;
 - (NSString *)descriptionWithLocale:(id)locale;
@@ -90,7 +90,7 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 @end
 
 @interface NSMutableArray (NSExtendedMutableArray)
-    
+
 - (void)addObjectsFromArray:(NSArray *)otherArray;
 - (void)exchangeObjectAtIndex:(NSUInteger)idx1 withObjectAtIndex:(NSUInteger)idx2;
 - (void)removeAllObjects;
@@ -98,7 +98,7 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 - (void)removeObject:(id)anObject;
 - (void)removeObjectIdenticalTo:(id)anObject inRange:(NSRange)range;
 - (void)removeObjectIdenticalTo:(id)anObject;
-- (void)removeObjectsFromIndices:(NSUInteger *)indices numIndices:(NSUInteger)cnt;
+//- (void)removeObjectsFromIndices:(NSUInteger *)indices numIndices:(NSUInteger)cnt;
 - (void)removeObjectsInArray:(NSArray *)otherArray;
 - (void)removeObjectsInRange:(NSRange)range;
 - (void)replaceObjectsInRange:(NSRange)range withObjectsFromArray:(NSArray *)otherArray range:(NSRange)otherRange;
@@ -112,7 +112,7 @@ typedef NS_OPTIONS(NSUInteger, NSBinarySearchingOptions) {
 
 @interface NSMutableArray (NSMutableArrayCreation)
 
-+ (instancetype)arrayWithCapacity:(NSUInteger)numItems;
-- (instancetype)initWithCapacity:(NSUInteger)numItems;
++ (instancetype)arrayWithCapacity:(NSUInteger)capacity;
+- (instancetype)initWithCapacity:(NSUInteger)capacity;
 
 @end

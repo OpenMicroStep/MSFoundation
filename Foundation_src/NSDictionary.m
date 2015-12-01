@@ -1,5 +1,15 @@
 #import "FoundationCompatibility_Private.h"
 
+@interface _NSDictionaryEnumerator : NSEnumerator
+{
+@private
+  gdict_pfs_t _pfs;
+  GDictionaryEnumerator _dictEnumerator;
+}
+- (id)initWithDictionary:(NSDictionary*)a;
+- (id)nextObject;
+@end
+
 @interface _MSMDictionary : MSDictionary
 // Mutable version of MSDictionary with some changes to follow NSMutableDictionary specs
 @end
@@ -8,20 +18,23 @@
 + (void)initialize
 {
   if (self==[NSDictionary class]) {
-    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionary));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObject:forKey:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjects:forKeys:count:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjectsAndKeys:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithDictionary:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithContentsOfFile:));
-    FoundationCompatibilityExtendClass('+', self, 0, [MSDictionary class], @selector(dictionaryWithObjects:forKeys:));}
+    Class fromClass= [MSDictionary class];
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(dictionary));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(dictionaryWithObject:forKey:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(dictionaryWithObjects:forKeys:count:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(dictionaryWithObjectsAndKeys:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(dictionaryWithDictionary:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(dictionaryWithContentsOfFile:));
+    FoundationCompatibilityExtendClass('+', self, 0, fromClass, @selector(dictionaryWithObjects:forKeys:));
+
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(objectEnumerator));
+    FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(isEqualToDictionary:));
+  }
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if (self == [NSDictionary class]) return [[MSDictionary class] allocWithZone:zone];
-  return [super allocWithZone:zone];
+  return (self == [NSDictionary class]) ? [MSDictionary allocWithZone:zone] : [super allocWithZone:zone];
 }
-
 + (NSDictionary *)dictionaryWithContentsOfFile:(NSString *)path
 {
   NSString *contents= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
@@ -42,6 +55,14 @@
   return [ALLOC(NSMutableDictionary) initWithDictionary:self];
 }
 
+- (BOOL)isEqual:(id)object
+{
+  if (object == self) return YES;
+  if (!object) return NO;
+  return [object isKindOfClass:[NSDictionary class]] && [self isEqualToDictionary:object];
+}
+
+
 - (NSUInteger)count
 { [self notImplemented:_cmd]; return 0; }
 - (id)objectForKey:(id)aKey
@@ -54,73 +75,142 @@
 @implementation NSMutableDictionary
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if (self == [NSMutableDictionary class]) return [[_MSMDictionary class] allocWithZone:zone];
-  return [super allocWithZone:zone];
+  return (self == [NSMutableDictionary class]) ? (id)[_MSMDictionary allocWithZone:zone] : [super allocWithZone:zone];
 }
 + (instancetype)dictionaryWithCapacity:(NSUInteger)capacity
-{ return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]); }
+{
+  return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]);
+}
 -(id)copyWithZone:(NSZone *)zone
 {
   return [ALLOC(NSDictionary) initWithDictionary:self];
 }
+
 - (void)removeObjectForKey:(id)aKey
 { [self notImplemented:_cmd]; }
 - (void)setObject:(id)anObject forKey:(id <NSCopying>)aKey
 { [self notImplemented:_cmd]; }
+
+@end
+
+@implementation NSMutableDictionary (NSExtendedMutableDictionary)
+
+- (void)addEntriesFromDictionary:(NSDictionary*)otherDictionary
+{
+  GDictionaryEnumerator de; id k; gdict_pfs_t pfs;
+  pfs= [otherDictionary _gdict_pfs];
+  de= GMakeDictionaryEnumerator(pfs, otherDictionary);
+  while ((k= GDictionaryEnumeratorNextKey(pfs, &de)) != de.stop) {
+    [self setObject:GDictionaryEnumeratorCurrentObject(pfs, &de) forKey:k];
+  }
+}
+- (void)removeAllObjects
+{
+  [self removeObjectsForKeys:[self allKeys]];
+}
+- (void)removeObjectsForKeys:(NSArray*)keyArray
+{
+  NSUInteger i, count;
+  garray_pfs_t pfs= [keyArray _garray_pfs];
+  for(i= 0, count= GArrayCount(pfs, keyArray); i < count; ++i)
+    [self removeObjectForKey:GArrayObjectAtIndex(pfs, keyArray, i)];
+}
+- (void)setDictionary:(NSDictionary*)otherDictionary
+{
+  [self removeAllObjects];
+  [self addEntriesFromDictionary:otherDictionary];
+}
+
 @end
 
 @implementation _MSMDictionary
 + (void)initialize
 {
   if (self==[_MSMDictionary class]) {
-    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}
+    Class fromClass= [MSDictionary class];
+    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), fromClass, @selector(mutableInitWithCapacity:));}
 }
+
 + (instancetype)allocWithZone:(NSZone *)zone
 {
   id o= [super allocWithZone:zone];
   CGrowSetForeverMutable(o);
   return o;
 }
-- (Class)_classForCopy {return [MSDictionary class];}
-
-- (Class)superclass
-{
-  return [NSMutableDictionary class];
-}
-- (BOOL)isKindOfClass:(Class)aClass
-{
-  return (aClass == [NSMutableDictionary class]) || [super isKindOfClass:aClass];
-}
-
-@end
-@interface NSDictionary (Private)
-- (BOOL)_isMS;
 @end
 
 @implementation NSDictionary (NSGenericDictionary)
 
-- (BOOL)isEqualToDictionary:(NSDictionary*)otherDict
-  {
-  gdict_pfs_t sPfs= [self      _isMS] ? NULL : GDictionaryPfs;
-  gdict_pfs_t oPfs= [otherDict _isMS] ? NULL : GDictionaryPfs;
-  return GDictionaryEquals(sPfs, self, oPfs, otherDict);
-  }
-- (BOOL)isEqual:(id)object
-  {
-  if (object == (id)self) return YES;
-  if (!object) return NO;
-  if ([object isKindOfClass:[NSDictionary class]]) {
-    gdict_pfs_t sPfs= [self   _isMS] ? NULL : GDictionaryPfs;
-    gdict_pfs_t oPfs= [object _isMS] ? NULL : GDictionaryPfs;
-    return GDictionaryEquals(sPfs, self, oPfs, object);}
-  return NO;
-  }
+- (NSArray*)allKeys
+{
+  GDictionaryEnumerator de; id k; gdict_pfs_t pfs; CArray *ret;
+  pfs= [self _gdict_pfs];
+  ret= CCreateArray(GDictionaryCount(pfs, self));
+  de= GMakeDictionaryEnumerator(pfs, self);
+  while ((k= GDictionaryEnumeratorNextKey(pfs, &de)) != de.stop)
+    CArrayAddObject(ret, k);
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+
+- (NSArray*)allValues
+{
+  GDictionaryEnumerator de; id k; gdict_pfs_t pfs; CArray *ret;
+  pfs= [self _gdict_pfs];
+  ret= CCreateArray(GDictionaryCount(pfs, self));
+  de= GMakeDictionaryEnumerator(pfs, self);
+  while ((k= GDictionaryEnumeratorNextKey(pfs, &de)) != de.stop)
+    CArrayAddObject(ret, GDictionaryEnumeratorCurrentObject(pfs, &de));
+  CGrowSetForeverImmutable((id)ret);
+  return AUTORELEASE(ret);
+}
+
+- (NSEnumerator *)objectEnumerator
+{
+  return AUTORELEASE([ALLOC(_NSDictionaryEnumerator) initWithDictionary:self]);
+}
 
 - (NSString*)description
 {
   CString *s= CCreateString(0);
-  CStringAppendGDictionaryDescription(s, GDictionaryPfs, self);
+  CStringAppendGDictionaryDescription(s, [self _gdict_pfs], self);
   return [(id)s autorelease];
 }
 
+@end
+
+@implementation _NSDictionaryEnumerator
+- (id)initWithDictionary:(NSDictionary*)d
+{
+  _pfs= [d _gdict_pfs];
+  _dictEnumerator= GMakeDictionaryEnumerator(_pfs, d);
+  if (_pfs) {
+    RETAIN(_dictEnumerator.e.fs.enumerator);
+    RETAIN(_dictEnumerator.e.fs.dict);
+  }
+  else {
+    RETAIN(_dictEnumerator.e.cEnumerator.dictionary);
+  }
+  return self;
+}
+
+- (void)dealloc
+{
+  if (_pfs) {
+    RETAIN(_dictEnumerator.e.fs.enumerator);
+    RETAIN(_dictEnumerator.e.fs.dict);
+  }
+  else {
+    RETAIN(_dictEnumerator.e.cEnumerator.dictionary);
+  }
+  [super dealloc];
+}
+
+- (id)nextObject
+{
+  id o= nil;
+  if (GDictionaryEnumeratorNextKey(_pfs, &_dictEnumerator) != _dictEnumerator.stop)
+    o= GDictionaryEnumeratorCurrentObject(_pfs, &_dictEnumerator);
+  return o;
+}
 @end

@@ -42,19 +42,40 @@
 
 #pragma mark Private
 
-@interface NSArray (Private)
-- (BOOL)_isMS;
+@interface _MSArrayEnumerator : NSEnumerator
+{
+@private
+  GArrayEnumerator _arrayEnumerator;
+  BOOL _reverse;
+}
+- (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse;
+- (id)nextObject;
 @end
 
 @interface MSArray (Private)
 - (BOOL)_isMS;
+- (garray_pfs_t)_garray_pfs;
 @end
 
+static NSUInteger _NSArray_count(id o) { return [o count]; }
+static id _NSArray_objectAtIndex(id o, NSUInteger idx) { return [o objectAtIndex:idx];}
+static const struct garray_pfs_s GNSArrayPfs = {
+  .count= _NSArray_count,
+  .objectAtIndex= _NSArray_objectAtIndex
+};
+
 @implementation NSArray (Private)
+- (garray_pfs_t)_garray_pfs {
+  return &GNSArrayPfs;
+}
 - (BOOL)_isMS {return NO;}
 @end
+
 @implementation MSArray (Private)
 - (BOOL)_isMS {return YES;}
+- (garray_pfs_t)_garray_pfs {
+  return NULL;
+}
 @end
 
 #pragma mark Public
@@ -67,7 +88,8 @@
 #define MS_ARRAY_LAST_VERSION 101
 
 @implementation MSArray
-+ (void)load          {MSFinishLoadingDec();}
++ (void)load          {
+  MSFinishLoadingDec();}
 + (void)initialize {[MSArray setVersion:MS_ARRAY_LAST_VERSION];}
 
 #pragma mark alloc / init
@@ -134,14 +156,10 @@ static inline id _initFoArgs(id a, BOOL m, id o, va_list l)
 - (id)mutableInitWithObjects: (id)firstObject, ... {_arrayOs(Nil ,self, YES, firstObject);}
 
 static inline void _addArray(CArray *self, NSArray *a, BOOL copyItems)
-  {
-  if ([a _isMS]) CArrayAddArray(self, (CArray*)a, copyItems);
-  else {
-    id e,o;
-    CArrayGrow(self, [a count]);
-    for (e= [a objectEnumerator]; (o= [e nextObject]);) {
-      CArrayAddObjects(self,&o,1,copyItems);}}
-  }
+{
+  garray_pfs_t pfs= [a _garray_pfs];
+  CArrayAddGArray(self, pfs, a, 0, GArrayCount(pfs, a), copyItems);
+}
 
 static inline id _initA(id a, BOOL m, id aa, BOOL copy)
   {
@@ -164,7 +182,8 @@ static inline id _initA(id a, BOOL m, id aa, BOOL copy)
 
 - (id)mutableInitWithCapacity:(NSUInteger)capacity
   {
-  return [self mutableInitWithCapacity:capacity noRetainRelease:NO nilItems:NO];
+  CArrayGrow((CArray*)self, capacity);
+  return self;
   }
 - (id)mutableInitWithCapacity:(NSUInteger)capacity noRetainRelease:(BOOL)noRR nilItems:(BOOL)nilItems
   {
@@ -321,14 +340,14 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 
 - (NSEnumerator*)objectEnumerator
   {
-  MSArrayEnumerator *e= MSAllocateObject([MSArrayEnumerator class],0,nil);
+  _MSArrayEnumerator *e= MSAllocateObject([_MSArrayEnumerator class],0,nil);
   [e initWithArray:self reverse:NO];
   return AUTORELEASE(e);
   }
 
 - (NSEnumerator*)reverseObjectEnumerator
   {
-  MSArrayEnumerator *e= MSAllocateObject([MSArrayEnumerator class],0,nil);
+  _MSArrayEnumerator *e= MSAllocateObject([_MSArrayEnumerator class],0,nil);
   [e initWithArray:self reverse:YES];
   return AUTORELEASE(e);
   }
@@ -521,16 +540,7 @@ static NSComparisonResult _internalCompareFunction(id e1, id e2, void *selector)
 
 - (void)addObjectsFromArray:(NSArray*)otherArray
 {
-  if (otherArray) {
-    if ([otherArray _isMS]) {
-      CArrayAddArray((CArray*)self, (CArray*)otherArray, NO);} // No copy
-    else {
-      NSUInteger i, n; id o;
-      n= [otherArray count];
-      CArrayGrow((CArray*)self, n);
-      for (i= 0; i < n; i++) {
-        o= [otherArray objectAtIndex:i]; // WE CAN OPTIMIZE THAT WITH LOOKUP
-        CArrayAddObject((CArray*)self, o);}}}
+  _addArray((CArray*)self, otherArray, NO);
 }
 
 - (void)insertObject:(id)anObject atIndex:(NSUInteger)i
@@ -636,19 +646,13 @@ static NSComparisonResult _internalCompareFunction2(id e1, id e2, void *selector
 
 @end
 
-@implementation NSArrayEnumerator
-
+@implementation _MSArrayEnumerator
 - (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse
 {
-  return [self initWithArray:a pfs:GArrayPfs count:GArrayPfs->count(a) reverse:reverse];
-}
-
-- (id)initWithArray:(NSArray*)a pfs:(garray_pfs_t)pfs count:(NSUInteger)c reverse:(BOOL)reverse
-{
-  _arrayEnumerator= GMakeArrayEnumerator(pfs, a, 0, c);
-  RETAIN(_arrayEnumerator.array);
+  garray_pfs_t pfs= [a _garray_pfs];
+  _arrayEnumerator= GMakeArrayEnumerator(pfs, a, 0, GArrayCount(pfs, a));
   _reverse= reverse;
-  return self;
+  RETAIN(_arrayEnumerator.array);
 }
 
 - (void)dealloc
@@ -661,13 +665,5 @@ static NSComparisonResult _internalCompareFunction2(id e1, id e2, void *selector
 {
   return _reverse ? GArrayEnumeratorPreviousObject(&_arrayEnumerator, NULL) :
                     GArrayEnumeratorNextObject(&_arrayEnumerator, NULL);
-}
-
-@end
-
-@implementation MSArrayEnumerator
-- (id)initWithArray:(NSArray*)a reverse:(BOOL)reverse
-{
-  return [super initWithArray:a pfs:NULL count:((CArray*)a)->count reverse:reverse];
 }
 @end

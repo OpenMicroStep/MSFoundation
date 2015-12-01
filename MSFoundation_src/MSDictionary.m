@@ -42,19 +42,30 @@
 
 #pragma mark Private
 
-@interface NSDictionary (Private)
-- (BOOL)_isMS;
-@end
-
 @interface MSDictionary (Private)
 - (BOOL)_isMS;
+- (gdict_pfs_t)_gdict_pfs;
 @end
 
+static NSUInteger _NSDictionary_count(id o) { return [o count]; }
+static id _NSDictionary_objectForKey(id dict, id k) {return [dict objectForKey:k];}
+static id _NSDictionary_keyEnumerator(id dict){ return [dict keyEnumerator]; }
+static id _NSDictionary_nextKey(id enumerator) { return [enumerator nextObject]; }
+static const struct gdict_pfs_s GNSDictPfs = {
+  .count= _NSDictionary_count,
+  .objectForKey= _NSDictionary_objectForKey,
+  .keyEnumerator= _NSDictionary_keyEnumerator,
+  .nextKey= _NSDictionary_nextKey
+};
+
 @implementation NSDictionary (Private)
+- (gdict_pfs_t)_gdict_pfs { return &GNSDictPfs;}
 - (BOOL)_isMS {return NO;}
 @end
+
 @implementation MSDictionary (Private)
 - (BOOL)_isMS {return YES;}
+- (gdict_pfs_t)_gdict_pfs { return NULL; }
 @end
 
 #pragma mark Public
@@ -272,25 +283,10 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
   CDictionaryDescribe(self, result, level, (CDictionary*)ctx);
 }
 
-/*
 - (BOOL)isEqualToDictionary:(NSDictionary*)otherDict
-  {
-  if (otherDict == (id)self) return YES;
-  if (!otherDict) return NO;
-  if ([otherDict _isMS]) return CArrayEquals((CArray*)self,(CArray*)otherDict);
-  return [super isEqualToArray:otherDict];
-  }
-*/
-- (BOOL)isEqual:(id)object
-  {
-  if (object == (id)self) return YES;
-  if (!object) return NO;
-  if ([object isKindOfClass:[MSDictionary class]]) {
-    return CDictionaryEquals((CDictionary*)self, (CDictionary*)object);}
-  else if ([object isKindOfClass:[NSDictionary class]]) { // TODO: a revoir. Quid dans l'autre sens ?
-    return [object isEqualToDictionary:(id)self];}
-  return NO;
-  }
+{
+  return GDictionaryEquals([self _gdict_pfs], self, [otherDict _gdict_pfs], otherDict);
+}
 
 #pragma mark Mutability
 
@@ -314,11 +310,10 @@ static inline id _dictWithDictCpy(Class cl, id d, BOOL m, id src, BOOL cpy)
 
 - (void)removeObjectsForKeys:(NSArray *)keyArray
 {
-  NSEnumerator *e= [keyArray objectEnumerator];
-  id o;
-  while((o= [e nextObject])) {
-    [self removeObjectForKey:o];
-  }
+  NSUInteger i, count;
+  garray_pfs_t pfs= [keyArray _garray_pfs];
+  for(i= 0, count= GArrayCount(pfs, keyArray); i < count; ++i)
+    CDictionarySetObjectForKey((CDictionary*)self, nil, GArrayObjectAtIndex(pfs, keyArray, i));
 }
 
 - (void)removeAllObjects

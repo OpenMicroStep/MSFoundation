@@ -10,11 +10,12 @@
 
 static void array_create(test_t *test)
 {
+  NEW_POOL;
   NSUInteger i,j, n= 20;
   NSArray *x; NSMutableArray *a,*b;
   a= [[NSMutableArray alloc] init];
   x= [[NSArray alloc] initWithObjects:@"test", nil];
-  
+
   TASSERT(test, [a isKindOfClass:[NSMutableArray class]], "NSMutableArray is king of itself");
   TASSERT_EQUALS(test, [x retainCount], 1, "x retain count should be %2$d, got %1$d");
   for (i=0; i<n; i++) {
@@ -28,10 +29,12 @@ static void array_create(test_t *test)
   RELEASE(a);
   TASSERT_EQUALS(test, [x retainCount], 1, "x retain count should be %2$d, got %1$d");
   RELEASE(x);
+  KILL_POOL;
 }
 
 static void array_mutate(test_t *test)
 {
+  NEW_POOL;
   NSUInteger i;
   id p[100];
   NSMutableArray *a, *b;
@@ -69,6 +72,7 @@ static void array_mutate(test_t *test)
   for (i=0; i<100; i++) {
     TASSERT_EQUALS(test, [p[i] retainCount], 1, "Item %1$d retain count should be %3$d, got %2$d", i);
     [p[i] release]; }
+  KILL_POOL;
 }
 
 static void array_subarray(test_t *test)
@@ -98,6 +102,7 @@ static void array_subarray(test_t *test)
 
 static void array_enum(test_t *test)
 {
+  NEW_POOL;
   id a,e,o,o0,o1,oi; NSUInteger i;
   o0= @"1"; o1= @"2";
   a= [NSArray arrayWithObjects:o0, o1, nil];
@@ -109,6 +114,7 @@ static void array_enum(test_t *test)
   for (i= 0 ; (o= [e nextObject]); i++) {
     oi= (i==0?o1:o0);
     TASSERT_ISEQUAL(test, o, oi, "%s != %s",[o UTF8String],[oi UTF8String]);}
+  KILL_POOL;
 }
 
 #pragma mark Subclass
@@ -132,84 +138,36 @@ id _o2= @"second object";
 @interface MyFastArray : NSArray
 @end
 
-NSUInteger _MyFastArrayCount(id array)
+static NSUInteger _MyFastArrayCount(id array)
 {
   return 2;
 }
-id _MyFastArrayObjectAtIndex(id array, NSUInteger index)
+static id _MyFastArrayObjectAtIndex(id array, NSUInteger index)
 {
   return index==0 ? _o1 : index==1 ? _o2 : nil;
 }
-NSUInteger _MyFastArrayGet(id array, NSUInteger start, NSUInteger count, id *objects)
-{
-  NSUInteger end, i;
-  start= MIN(start, 2);
-  end= MIN(start+count, 2);
-  for (i= start; i<end; i++) objects[i]= (i==0 ? _o1 : _o2);
-  return end-start;
-}
-struct garray_pfs_s MyFastArrayPfsStruct= {
+const static struct garray_pfs_s MyFastArrayPfs= {
   _MyFastArrayCount,
-  _MyFastArrayObjectAtIndex,
-  _MyFastArrayGet
-  };
-garray_pfs_t MyFastArrayPfs= &MyFastArrayPfsStruct;
+  _MyFastArrayObjectAtIndex
+};
 
 // Sans les primitives méthodes pour être sûr de bien passer par les fonctions.
 @implementation MyFastArray
-#ifndef MICROSTEP // Sinon, en COCOA makeObjectsPerformSelector va demander count sur MyFastArray
+- (garray_pfs_t)_garray_pfs
+{
+  return &MyFastArrayPfs;
+}
+#ifdef MSFOUNDATION_FORCOCOA // Sinon, en COCOA makeObjectsPerformSelector va demander count sur MyFastArray
 - (NSUInteger)count
 { return _MyFastArrayCount(self); }
 - (id)objectAtIndex:(NSUInteger)index
 { return _MyFastArrayObjectAtIndex(self, index); }
 #endif
-- (NSString*)description
-{
-  CString *s= CCreateString(0);
-  CStringAppendGArrayDescription(s, MyFastArrayPfs, self);
-  return [(id)s autorelease];
-}
-- (id)firstObject {return GArrayFirstObject(MyFastArrayPfs, self);}
-- (id)lastObject  {return GArrayLastObject(MyFastArrayPfs, self);}
-- (BOOL)containsObject:(id)o
-{return GArrayIndexOfObject(MyFastArrayPfs, self, o, 0, MyFastArrayPfs->count(self)) == NSNotFound ? NO : YES;}
-- (BOOL)containsObjectIdenticalTo:(id)o
-{return GArrayIndexOfIdenticalObject(MyFastArrayPfs, self, o, 0, MyFastArrayPfs->count(self)) == NSNotFound ? NO : YES;}
-- (NSUInteger)indexOfObject:(id)anObject
-{return GArrayIndexOfObject(MyFastArrayPfs, self, anObject, 0, MyFastArrayPfs->count(self));}
-- (NSUInteger)indexOfObject:(id)anObject inRange:(NSRange)range
-{return GArrayIndexOfObject(MyFastArrayPfs, self, anObject, range.location, range.length);}
-- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject
-{return GArrayIndexOfIdenticalObject(MyFastArrayPfs, self, anObject, 0, MyFastArrayPfs->count(self));}
-- (NSUInteger)indexOfObjectIdenticalTo:(id)anObject inRange:(NSRange)range
-{return GArrayIndexOfIdenticalObject(MyFastArrayPfs, self, anObject, range.location, range.length);}
-
-- (NSEnumerator*)objectEnumerator
-{
-  NSArrayEnumerator *e= MSAllocateObject([NSArrayEnumerator class],0,nil);
-  [e initWithArray:self pfs:MyFastArrayPfs count:MyFastArrayPfs->count(self) reverse:NO];
-  return AUTORELEASE(e);
-}
-- (NSEnumerator*)reverseObjectEnumerator
-  {
-  NSArrayEnumerator *e= MSAllocateObject([NSArrayEnumerator class],0,nil);
-  [e initWithArray:self pfs:MyFastArrayPfs count:MyFastArrayPfs->count(self) reverse:YES];
-  return AUTORELEASE(e);
-  }
-
-- (void)getObjects:(id*)objects
-  {
-  GArrayGetObject(MyFastArrayPfs, self, 0, MyFastArrayPfs->count(self), objects);
-  }
-- (void)getObjects:(id*)objects range:(NSRange)rg
-  {
-  GArrayGetObject(MyFastArrayPfs, self, rg.location, rg.length, objects);
-  }
-
 @end
 
 static void _array_subclass(test_t *test, Class cl)
 {
+  NEW_POOL;
   id o,d,e,x,y,os[2]; int i;
   o= [[cl alloc] init];
   if (cl==[MyArray class]) TASSERT_EQUALS(test, [o count], 2, "count is %llu, expected %llu");
@@ -242,6 +200,7 @@ static void _array_subclass(test_t *test, Class cl)
   TASSERT_ISEQUAL(test, os[0], _o1, "%s != %s",[os[0] UTF8String],"first object");
   TASSERT_ISEQUAL(test, os[1], _o2, "%s != %s",[os[1] UTF8String],"second object");
   RELEASE(o);
+  KILL_POOL;
 }
 
 static void array_subclass(test_t *test)
@@ -254,6 +213,33 @@ static void array_fast_subclass(test_t *test)
   _array_subclass(test, [MyFastArray class]);
 }
 
+@implementation NSArray (NSArrayTestsCategory)
+- (NSString *)myCustomSelectorOnNSArray
+{
+  return @"SelectorOnNSArray";
+}
+@end
+@implementation NSMutableArray (NSArrayTestsCategory)
+- (NSString *)myCustomSelectorOnNSMutableArray
+{
+  return @"SelectorOnNSMutableArray";
+}
+@end
+static void array_category(test_t *test)
+{
+  NEW_POOL;
+  NSArray *arrStatic= [[NSArray arrayWithObjects:_o1, _o2, nil] copy];
+  NSMutableArray *arrMutable= [arrStatic mutableCopy];
+
+  TASSERT_EQUALS_OBJ(test, [arrStatic myCustomSelectorOnNSArray], @"SelectorOnNSArray");
+  TASSERT_EQUALS_OBJ(test, [arrMutable myCustomSelectorOnNSArray], @"SelectorOnNSArray");
+  TASSERT_EQUALS_OBJ(test, [arrMutable myCustomSelectorOnNSMutableArray], @"SelectorOnNSMutableArray");
+
+  RELEASE(arrStatic);
+  RELEASE(arrMutable);
+  KILL_POOL;
+}
+
 test_t foundation_array[]= {
   {"create"       ,NULL,array_create       ,INTITIALIZE_TEST_T_END},
   {"mutability"   ,NULL,array_mutate       ,INTITIALIZE_TEST_T_END},
@@ -261,4 +247,5 @@ test_t foundation_array[]= {
   {"enumeration"  ,NULL,array_enum         ,INTITIALIZE_TEST_T_END},
   {"subclass"     ,NULL,array_subclass     ,INTITIALIZE_TEST_T_END},
   {"fast subclass",NULL,array_fast_subclass,INTITIALIZE_TEST_T_END},
+  {"category"     ,NULL,array_category     ,INTITIALIZE_TEST_T_END},
   {NULL}};
