@@ -44,6 +44,6 @@ static void value_mixed(test_t *test)
   KILL_POOL;
 }
 
-test_t foundation_value[]= {
-  {"mixed"   ,NULL,value_mixed    ,INTITIALIZE_TEST_T_END},
+testdef_t foundation_value[]= {
+  {"mixed"   ,NULL,value_mixed    },
   {NULL}};

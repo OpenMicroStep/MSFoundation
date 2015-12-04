@@ -96,9 +96,9 @@ static void carray_subarray(test_t *test)
   RELEASE(o);
   }
 
-test_t msfoundation_array[]= {
-  {"create"  ,NULL,array_create   ,INTITIALIZE_TEST_T_END},
-  {"ptr"     ,NULL,carray_ptr     ,INTITIALIZE_TEST_T_END},
-  {"subarray",NULL,carray_subarray,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_array[]= {
+  {"create"  ,NULL,array_create   },
+  {"ptr"     ,NULL,carray_ptr     },
+  {"subarray",NULL,carray_subarray},
   {NULL}
 };

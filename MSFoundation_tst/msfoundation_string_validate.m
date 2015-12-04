@@ -362,16 +362,16 @@ static void string_uuid(test_t *test)
   KILL_POOL;
 }
 
-test_t msfoundation_string[]= {
-  {"ns"    ,NULL,string_ns    ,INTITIALIZE_TEST_T_END},
-  {"trim"  ,NULL,string_trim  ,INTITIALIZE_TEST_T_END},
-  {"toNs"  ,NULL,string_toNs  ,INTITIALIZE_TEST_T_END},
-  {"equal" ,NULL,string_eq    ,INTITIALIZE_TEST_T_END},
-  {"cast"  ,NULL,string_cast  ,INTITIALIZE_TEST_T_END},
-  {"format",NULL,string_format,INTITIALIZE_TEST_T_END},
-  {"hash"  ,NULL,string_hash  ,INTITIALIZE_TEST_T_END},
-  {"ascii" ,NULL,string_ascii ,INTITIALIZE_TEST_T_END},
-  {"plist" ,NULL,string_plist ,INTITIALIZE_TEST_T_END},
-  {"uuid"  ,NULL,string_uuid  ,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_string[]= {
+  {"ns"    ,NULL,string_ns    },
+  {"trim"  ,NULL,string_trim  },
+  {"toNs"  ,NULL,string_toNs  },
+  {"equal" ,NULL,string_eq    },
+  {"cast"  ,NULL,string_cast  },
+  {"format",NULL,string_format},
+  {"hash"  ,NULL,string_hash  },
+  {"ascii" ,NULL,string_ascii },
+  {"plist" ,NULL,string_plist },
+  {"uuid"  ,NULL,string_uuid  },
   {NULL}
 };

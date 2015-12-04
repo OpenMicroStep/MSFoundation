@@ -10,11 +10,9 @@
 
 EXTERN_TESTS_BASE
 
-LIBEXPORT test_t RootTests[];
-
-test_t RootTests[]= {
-  {"utils"       ,msnode_utils      ,NULL,INTITIALIZE_TEST_T_END},
-  {"promise"     ,msnode_promise    ,NULL,INTITIALIZE_TEST_T_END},
-  {"tcp"         ,msnode_tcp        ,NULL,INTITIALIZE_TEST_T_END},
-  {"form"        ,msnode_form       ,NULL,INTITIALIZE_TEST_T_END},
+testdef_t RootTests[]= {
+  {"utils"       ,msnode_utils      ,NULL},
+  {"promise"     ,msnode_promise    ,NULL},
+  {"tcp"         ,msnode_tcp        ,NULL},
+  {"form"        ,msnode_form       ,NULL},
   {NULL}};

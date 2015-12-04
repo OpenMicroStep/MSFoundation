@@ -185,10 +185,10 @@ static void dictionary_category(test_t *test)
   KILL_POOL;
 }
 
-test_t foundation_dictionary[]= {
-  {"create"  ,NULL,dictionary_create  ,INTITIALIZE_TEST_T_END},
-  {"init"    ,NULL,dictionary_init    ,INTITIALIZE_TEST_T_END},
-  {"enum"    ,NULL,dictionary_enum    ,INTITIALIZE_TEST_T_END},
-  {"subclass",NULL,dictionary_subclass,INTITIALIZE_TEST_T_END},
-  {"category",NULL,dictionary_category,INTITIALIZE_TEST_T_END},
+testdef_t foundation_dictionary[]= {
+  {"create"  ,NULL,dictionary_create  },
+  {"init"    ,NULL,dictionary_init    },
+  {"enum"    ,NULL,dictionary_enum    },
+  {"subclass",NULL,dictionary_subclass},
+  {"category",NULL,dictionary_category},
   {NULL}};

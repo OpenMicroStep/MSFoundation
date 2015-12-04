@@ -148,11 +148,11 @@ static void cdictionary_naturalsOrNotZero(test_t *test, BOOL notZero)
 static void cdictionary_naturals(test_t *test)        {return cdictionary_naturalsOrNotZero(test, 0);}
 static void cdictionary_naturalsNotZero(test_t *test) {return cdictionary_naturalsOrNotZero(test, 1);}
 
-test_t mscore_cdictionary[]= {
-  {"create"  ,NULL,cdictionary_create         ,INTITIALIZE_TEST_T_END},
-  {"enum"    ,NULL,cdictionary_enum           ,INTITIALIZE_TEST_T_END},
-  {"ptrs"    ,NULL,cdictionary_ptrs           ,INTITIALIZE_TEST_T_END},
-  {"naturals",NULL,cdictionary_naturals       ,INTITIALIZE_TEST_T_END},
-  {"naturals",NULL,cdictionary_naturalsNotZero,INTITIALIZE_TEST_T_END},
+testdef_t mscore_cdictionary[]= {
+  {"create"  ,NULL,cdictionary_create         },
+  {"enum"    ,NULL,cdictionary_enum           },
+  {"ptrs"    ,NULL,cdictionary_ptrs           },
+  {"naturals",NULL,cdictionary_naturals       },
+  {"naturals",NULL,cdictionary_naturalsNotZero},
   {NULL}
 };

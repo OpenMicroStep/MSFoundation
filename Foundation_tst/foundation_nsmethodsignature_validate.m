@@ -124,6 +124,6 @@ static void methodsignature_new(test_t *test)
 }
 
 
-test_t foundation_methodsign[]= {
-  {"methodsignature_new",NULL,methodsignature_new,INTITIALIZE_TEST_T_END},
+testdef_t foundation_methodsign[]= {
+  {"methodsignature_new",NULL,methodsignature_new},
   {NULL}};

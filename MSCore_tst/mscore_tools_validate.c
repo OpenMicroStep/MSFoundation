@@ -17,7 +17,7 @@ static void tools_crc(test_t *test)
   crc(test, "[\"MSTE0101\",5,\"CRC00000000\",0,0]",945492452U);
   }
 
-test_t mscore_tools[]= {
-  {"crc",NULL,tools_crc,INTITIALIZE_TEST_T_END},
+testdef_t mscore_tools[]= {
+  {"crc",NULL,tools_crc},
   {NULL}
 };

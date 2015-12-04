@@ -8,19 +8,19 @@
 
 #include "mscore_validate.h"
 
-test_t MSCoreTests[]= {
-  {"c"          ,mscore_c          ,NULL,INTITIALIZE_TEST_T_END},
-  {"tools"      ,mscore_tools      ,NULL,INTITIALIZE_TEST_T_END},
-  {"carray"     ,mscore_carray     ,NULL,INTITIALIZE_TEST_T_END},
-  {"cbuffer"    ,mscore_cbuffer    ,NULL,INTITIALIZE_TEST_T_END},
-  {"ccolor"     ,mscore_ccolor     ,NULL,INTITIALIZE_TEST_T_END},
-  {"ccouple"    ,mscore_ccouple    ,NULL,INTITIALIZE_TEST_T_END},
-  {"cdate"      ,mscore_cdate      ,NULL,INTITIALIZE_TEST_T_END},
-  {"mapm"       ,mscore_mapm       ,NULL,INTITIALIZE_TEST_T_END},
-  {"cdecimal"   ,mscore_cdecimal   ,NULL,INTITIALIZE_TEST_T_END},
-  {"cdictionary",mscore_cdictionary,NULL,INTITIALIZE_TEST_T_END},
-  {"ses"        ,mscore_ses        ,NULL,INTITIALIZE_TEST_T_END},
-  {"cstring"    ,mscore_cstring    ,NULL,INTITIALIZE_TEST_T_END},
-  {"ctraverse"  ,mscore_ctraverse  ,NULL,INTITIALIZE_TEST_T_END},
-//{"mste"       ,mscore_mste       ,NULL,INTITIALIZE_TEST_T_END},
+testdef_t MSCoreTests[]= {
+  {"c"          ,mscore_c          ,NULL},
+  {"tools"      ,mscore_tools      ,NULL},
+  {"carray"     ,mscore_carray     ,NULL},
+  {"cbuffer"    ,mscore_cbuffer    ,NULL},
+  {"ccolor"     ,mscore_ccolor     ,NULL},
+  {"ccouple"    ,mscore_ccouple    ,NULL},
+  {"cdate"      ,mscore_cdate      ,NULL},
+  {"mapm"       ,mscore_mapm       ,NULL},
+  {"cdecimal"   ,mscore_cdecimal   ,NULL},
+  {"cdictionary",mscore_cdictionary,NULL},
+  {"ses"        ,mscore_ses        ,NULL},
+  {"cstring"    ,mscore_cstring    ,NULL},
+  {"ctraverse"  ,mscore_ctraverse  ,NULL},
+//{"mste"       ,mscore_mste       ,NULL},
   {NULL}};

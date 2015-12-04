@@ -54,7 +54,7 @@ static void json_decode(test_t *test)
   KILL_POOL;
 }
 
-test_t msfoundation_json[]= {
-  {"decode",NULL,json_decode,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_json[]= {
+  {"decode",NULL,json_decode},
   {NULL}
 };

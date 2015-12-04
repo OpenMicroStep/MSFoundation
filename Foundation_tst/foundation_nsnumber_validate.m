@@ -131,8 +131,8 @@ static void number_compare(test_t *test)
   KILL_POOL;
 }
 
-test_t foundation_number[]= {
-  {"int"     ,NULL,number_int     ,INTITIALIZE_TEST_T_END},
-  {"double"  ,NULL,number_double  ,INTITIALIZE_TEST_T_END},
-  {"compare" ,NULL,number_compare ,INTITIALIZE_TEST_T_END},
+testdef_t foundation_number[]= {
+  {"int"     ,NULL,number_int     },
+  {"double"  ,NULL,number_double  },
+  {"compare" ,NULL,number_compare },
   {NULL}};

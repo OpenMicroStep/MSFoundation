@@ -157,6 +157,6 @@ static void date_mixed(test_t *test)
   KILL_POOL;
 }
 
-test_t foundation_date[]= {
-  {"mixed"    ,NULL,date_mixed,INTITIALIZE_TEST_T_END},
+testdef_t foundation_date[]= {
+  {"mixed"    ,NULL,date_mixed},
   {NULL}};

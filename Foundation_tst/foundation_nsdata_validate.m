@@ -47,6 +47,6 @@ static void data_buffer(test_t *test)
 	KILL_POOL;
 }
 
-test_t foundation_data[]= {
-  {"create"    ,NULL,data_buffer,INTITIALIZE_TEST_T_END},
+testdef_t foundation_data[]= {
+  {"create"    ,NULL,data_buffer},
   {NULL}};

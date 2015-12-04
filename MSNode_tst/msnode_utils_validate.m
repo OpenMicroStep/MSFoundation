@@ -84,7 +84,7 @@ static void util_contentdisposition(test_t *test)
   KILL_POOL;
 }
 
-test_t msnode_utils[]= {
+testdef_t msnode_utils[]= {
   {"mimetype", NULL, util_mimetype},
   {"contentdisposition", NULL, util_contentdisposition},
   {NULL}};

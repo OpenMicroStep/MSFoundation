@@ -7,7 +7,7 @@ static void c_isa_for(test_t *test, CClassIndex classIndex)
   id x,y;
   x= (id)MSCreateObjectWithClassIndex(classIndex);
   y= COPY(x);
-  TASSERT_EQUALS( test, RETAINCOUNT(x), 1, "A1-classIndex %d %s Bad retain count: %lu != %lu",classIndex,test->name);
+  TASSERT_EQUALS( test, RETAINCOUNT(x), 1, "A1-classIndex %d Bad retain count: %lu != %lu",classIndex);
   TASSERT_EQUALS( test, RETAINCOUNT(x), 1, "A1-Bad retain count: %lu != %lu");
   TASSERT_EQUALS( test, RETAINCOUNT(y), 1, "A2-Bad retain count: %lu != %lu");
   TASSERT_ISEQUAL(test, x, y, "A3-Bad equal");
@@ -46,9 +46,9 @@ static void c_msg(test_t *test)
 //CMessageAdvise(CMessageFatalError,  CTXF, "message %d", 1);
 }
 
-test_t mscore_c[]= {
-  {"isa"        ,NULL,c_isa        ,INTITIALIZE_TEST_T_END},
-  {"classEqual" ,NULL,c_classEqual ,INTITIALIZE_TEST_T_END},
-  {"msg"        ,NULL,c_msg        ,INTITIALIZE_TEST_T_END},
+testdef_t mscore_c[]= {
+  {"isa"        ,NULL,c_isa        },
+  {"classEqual" ,NULL,c_classEqual },
+  {"msg"        ,NULL,c_msg        },
   {NULL}
 };

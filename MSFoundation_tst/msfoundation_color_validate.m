@@ -22,7 +22,7 @@ static void color_create(test_t *test)
   RELEASE(c3);
   }
 
-test_t msfoundation_color[]= {
-  {"create",NULL,color_create,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_color[]= {
+  {"create",NULL,color_create},
   {NULL}
 };

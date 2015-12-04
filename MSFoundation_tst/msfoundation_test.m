@@ -3,7 +3,6 @@
 #import "msfoundation_validate.h"
 
 EXTERN_TESTS_BASE
-LIBEXPORT test_t RootTests[];
 
 static id _mainPool= nil;
 static void testOff()
@@ -19,14 +18,18 @@ static void testOn()
   _mainPool= [[NSAutoreleasePool alloc] init];
 }
 
-test_t MSFoundationCompleteTests[]= {
-  {"MSCore"      ,MSCoreTests      ,NULL,INTITIALIZE_TEST_T_END},
-  {"Foundation"  ,FoundationTests  ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSFoundation",MSFoundationTests,NULL,INTITIALIZE_TEST_T_END},
+testdef_t MSFoundationCompleteTests[]= {
+  {"MSCore"      ,MSCoreTests      ,NULL},
+  {"Foundation"  ,FoundationTests  ,NULL},
+  {"MSFoundation",MSFoundationTests,NULL},
   {NULL}};
 
-test_t RootTests[]= {
-  {"_",NULL,testOn ,INTITIALIZE_TEST_T_END},
-  {"MSFoundationComplete",MSFoundationCompleteTests,NULL,INTITIALIZE_TEST_T_END},
-  {"_",NULL,testOff,INTITIALIZE_TEST_T_END},
+testdef_t RootTests[]= {
+  {"_",NULL,testOn },
+#if defined(MSFOUNDATION_FORCOCOA)
+  {"MSFoundationForCocoaComplete",MSFoundationCompleteTests,NULL},
+#else
+  {"MSFoundationComplete",MSFoundationCompleteTests,NULL},
+#endif
+  {"_",NULL,testOff},
   {NULL}};

@@ -23,7 +23,7 @@ static void couple_create(test_t *test)
   RELEASE(e);
   }
 
-test_t msfoundation_couple[]= {
-  {"create",NULL,couple_create,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_couple[]= {
+  {"create",NULL,couple_create},
   {NULL}
 };

@@ -97,9 +97,9 @@ static void cbuffer_compress(test_t *test)
   cbuffer_compress_(test, 6, str, 256, 267);
   }
 
-test_t mscore_cbuffer[]= {
-  {"create"  ,NULL,cbuffer_create  ,INTITIALIZE_TEST_T_END},
-  {"b64"     ,NULL,cbuffer_b64     ,INTITIALIZE_TEST_T_END},
-  {"compress",NULL,cbuffer_compress,INTITIALIZE_TEST_T_END},
+testdef_t mscore_cbuffer[]= {
+  {"create"  ,NULL,cbuffer_create  },
+  {"b64"     ,NULL,cbuffer_b64     },
+  {"compress",NULL,cbuffer_compress},
   {NULL}
 };

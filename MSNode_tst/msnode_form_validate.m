@@ -204,7 +204,7 @@ static void form_formdata(test_t *test)
   KILL_POOL;
 }
 
-test_t msnode_form[]= {
+testdef_t msnode_form[]= {
   {"urlencoded", NULL, form_urlencoded},
   {"formdata", NULL, form_formdata},
   {NULL}};

@@ -124,6 +124,6 @@ static void tcp_server(test_t *test)
   KILL_POOL;
 }
 
-test_t msnode_tcp[]= {
+testdef_t msnode_tcp[]= {
   {"server", NULL, tcp_server},
   {NULL}};

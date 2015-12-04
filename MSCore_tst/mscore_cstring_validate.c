@@ -8,7 +8,7 @@ static void unichar_test(test_t *test)
   CString *a;
   CBuffer *b;
   char *s,c1,c2; NSUInteger l,i,usn; unichar us[20],u1,u2; SES ses;
-  
+
   a= CCreateString(0);
   s= "éèàô"; l= strlen(s);
   CStringAppendBytes(a, NSUTF8StringEncoding, s, l);
@@ -69,8 +69,8 @@ static void cstring_create(test_t *test)
   RELEASE(c);
   }
 
-test_t mscore_cstring[]= {
-  {"unichar",NULL,unichar_test  ,INTITIALIZE_TEST_T_END},
-  {"create" ,NULL,cstring_create,INTITIALIZE_TEST_T_END},
+testdef_t mscore_cstring[]= {
+  {"unichar",NULL,unichar_test  },
+  {"create" ,NULL,cstring_create},
   {NULL}
 };

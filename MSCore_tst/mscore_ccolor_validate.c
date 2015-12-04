@@ -26,7 +26,7 @@ static void ccolor_create(test_t *test)
   RELEASE(d);
   }
 
-test_t mscore_ccolor[]= {
-  {"create"  ,NULL,ccolor_create,INTITIALIZE_TEST_T_END},
+testdef_t mscore_ccolor[]= {
+  {"create"  ,NULL,ccolor_create},
   {NULL}
 };

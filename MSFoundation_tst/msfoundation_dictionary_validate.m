@@ -102,7 +102,7 @@ static void dictionary_init(test_t *test)
   TASSERT_EQUALS(test, [d count], [o count], "dictionary are equals");
   TASSERT(test, [d isEqual:o], "dictionary are equals");
   TASSERT(test, [o isEqual:d], "dictionary are equals");
-  
+
   d2= [MSDictionary dictionaryWithDictionary:d];
   TASSERT_EQUALS(test, [d2 count], [o count], "dictionary are equals");
   TASSERT(test, [d2 isEqual:o], "dictionary are equals");
@@ -111,9 +111,9 @@ static void dictionary_init(test_t *test)
   TASSERT(test, [d isEqual:d2], "dictionary are equals");
   }
 
-test_t msfoundation_dictionary[]= {
-  {"create",NULL,dictionary_create,INTITIALIZE_TEST_T_END},
-  {"enum"  ,NULL,dictionary_enum  ,INTITIALIZE_TEST_T_END},
-  {"init"  ,NULL,dictionary_init  ,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_dictionary[]= {
+  {"create",NULL,dictionary_create},
+  {"enum"  ,NULL,dictionary_enum  },
+  {"init"  ,NULL,dictionary_init  },
   {NULL}
 };

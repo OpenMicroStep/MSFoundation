@@ -202,12 +202,12 @@ static void cdecimal_strto(test_t *test)
   TASSERT_EQUALS(test, MSLongMax, CStrToLongLong(t, NULL), "%d %llu %s",i,MSLongMax,t);
   }
 
-test_t mscore_cdecimal[]= {
-  {"create" ,NULL,cdecimal_create ,INTITIALIZE_TEST_T_END},
-  {"op"     ,NULL,cdecimal_op     ,INTITIALIZE_TEST_T_END},
-  {"values" ,NULL,cdecimal_value  ,INTITIALIZE_TEST_T_END},
-  {"fromSES",NULL,cdecimal_fromSES,INTITIALIZE_TEST_T_END},
-  {"cast"   ,NULL,cdecimal_cast   ,INTITIALIZE_TEST_T_END},
-  {"strto"  ,NULL,cdecimal_strto  ,INTITIALIZE_TEST_T_END},
+testdef_t mscore_cdecimal[]= {
+  {"create" ,NULL,cdecimal_create },
+  {"op"     ,NULL,cdecimal_op     },
+  {"values" ,NULL,cdecimal_value  },
+  {"fromSES",NULL,cdecimal_fromSES},
+  {"cast"   ,NULL,cdecimal_cast   },
+  {"strto"  ,NULL,cdecimal_strto  },
   {NULL}
 };

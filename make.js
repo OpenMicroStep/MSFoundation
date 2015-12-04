@@ -369,7 +369,6 @@ module.exports = {
     {group:"Test libs", files: [
       {file: "MSCore_tst/mscore_test.c", tags:["MSCoreTest"]},
       {file: "MSFoundation_tst/msfoundation_test.m", tags:["MSFoundationTest"]},
-      {file: "MSFoundation_tst/msfoundationforcocoa_test.m", tags:["MSFoundationForCocoaTest"]},
     ]},
     {group:"MSTests", files: [
       {file: "MSTests_src/MSTests.c"},
@@ -744,14 +743,10 @@ module.exports = {
       "type": "Library",
       "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies": ["MSFoundation"],
-      "files": ["MSCore.Tests", "Foundation.Tests", "MSFoundation.Tests"],
+      "files": ["MSCore.Tests", "Foundation.Tests", "MSFoundation.Tests", "Test libs?MSFoundationTest"],
       "includeDirectoriesOfFiles": ["MSCore", "MSTests", "MSFoundation", "Foundation"],
       "includeDirectories": ["deps/msstdlib"],
       "configure": function(target) {
-        if(target.env.cocoa)
-          target.addWorkspaceFiles(["Test libs?MSFoundationTest"]);
-        else
-          target.addWorkspaceFiles(["Test libs?MSFoundationForCocoaTest"]);
       }
     },
     {

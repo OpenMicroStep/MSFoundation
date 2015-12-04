@@ -494,7 +494,7 @@ static void mste_some(test_t *test)
   KILL_POOL;
 }
 
-test_t msfoundation_mste[]= {
-  {"some",NULL,mste_some,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_mste[]= {
+  {"some",NULL,mste_some},
   {NULL}
 };

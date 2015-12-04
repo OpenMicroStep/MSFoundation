@@ -6,14 +6,15 @@
 
 #import "MSTests.h"
 
-extern test_t MSFoundationTests      [20];
+extern testdef_t MSFoundationTests      [20];
 
-extern test_t msfoundation_array     [10];
-extern test_t msfoundation_buffer    [10];
-extern test_t msfoundation_color     [10];
-extern test_t msfoundation_couple    [10];
-extern test_t msfoundation_date      [10];
-extern test_t msfoundation_decimal   [10];
-extern test_t msfoundation_dictionary[10];
-extern test_t msfoundation_string    [20];
-extern test_t msfoundation_mste      [10];
+extern testdef_t msfoundation_array     [10];
+extern testdef_t msfoundation_buffer    [10];
+extern testdef_t msfoundation_color     [10];
+extern testdef_t msfoundation_couple    [10];
+extern testdef_t msfoundation_date      [10];
+extern testdef_t msfoundation_decimal   [10];
+extern testdef_t msfoundation_dictionary[10];
+extern testdef_t msfoundation_string    [20];
+extern testdef_t msfoundation_mste      [10];
+extern testdef_t msfoundation_json      [];

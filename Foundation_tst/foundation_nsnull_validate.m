@@ -22,6 +22,6 @@ static void null_equal(test_t *test)
   RELEASE(n4);
 }
 
-test_t foundation_null[]= {
-  {"equal",NULL,null_equal,INTITIALIZE_TEST_T_END},
+testdef_t foundation_null[]= {
+  {"equal",NULL,null_equal},
   {NULL}};

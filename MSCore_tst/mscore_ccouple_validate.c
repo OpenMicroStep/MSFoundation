@@ -63,8 +63,8 @@ static void ccouple_toarray(test_t *test)
   RELEASE(a0);RELEASE(a1);RELEASE(a2);
 }
 
-test_t mscore_ccouple[]= {
-  {"create"  ,NULL,ccouple_create,INTITIALIZE_TEST_T_END},
-  {"toarray" ,NULL,ccouple_toarray,INTITIALIZE_TEST_T_END},
+testdef_t mscore_ccouple[]= {
+  {"create"  ,NULL,ccouple_create},
+  {"toarray" ,NULL,ccouple_toarray},
   {NULL}
 };

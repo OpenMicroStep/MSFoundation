@@ -227,10 +227,10 @@ static void object_threadRetain(test_t *test)
   RELEASE(o);
 }
 
-test_t foundation_object[]= {
-  {"memory"      ,NULL,object_memory      ,INTITIALIZE_TEST_T_END},
-  {"class tree"  ,NULL,object_classTree   ,INTITIALIZE_TEST_T_END},
-  {"perform"     ,NULL,object_perform     ,INTITIALIZE_TEST_T_END},
-  {"threadRetain",NULL,object_threadRetain,INTITIALIZE_TEST_T_END},
+testdef_t foundation_object[]= {
+  {"memory"      ,NULL,object_memory      },
+  {"class tree"  ,NULL,object_classTree   },
+  {"perform"     ,NULL,object_perform     },
+  {"threadRetain",NULL,object_threadRetain},
   {NULL}
 };

@@ -68,7 +68,6 @@ struct NSInvocation_TestStruct2 {
 }
 - (void)forwardInvocation:(NSInvocation *)anInvocation
 {
-  printf("sel_getName= %s\n", sel_getName([anInvocation selector]));
   if(sel_isEqual([anInvocation selector], @selector(objectAtIndex:))) {
     [anInvocation setSelector:@selector(fwdObjectAtIndex:)];
     [anInvocation invoke];
@@ -266,7 +265,6 @@ static void invocation_complex(test_t *test)
   TASSERT_EQUALS_LLD(test, arr_chk[3], ((MSLong)INT_MAX) * -5LL);
   [i invoke];
   [i getReturnValue:&arr_ret];
-  printf("%lld == %lld [%lld,%lld,%lld,%lld]\n", arr_ret, arr_arg[0] + arr_arg[1] + arr_arg[2] + arr_arg[3], arr_arg[0], arr_arg[1], arr_arg[2], arr_arg[3]);
   TASSERT_EQUALS_LLD(test, arr_ret, arr_arg[0] + arr_arg[1] + arr_arg[2] + arr_arg[3]);
 
   KILL_POOL;
@@ -282,9 +280,9 @@ static void invocation_forward(test_t *test)
   KILL_POOL;
 }
 
-test_t foundation_invocation[]= {
-  {"simple",NULL,invocation_simple,INTITIALIZE_TEST_T_END},
-  {"return types",NULL,invocation_return,INTITIALIZE_TEST_T_END},
-  {"complex call",NULL,invocation_complex,INTITIALIZE_TEST_T_END},
-  {"forwarding",NULL,invocation_forward,INTITIALIZE_TEST_T_END},
+testdef_t foundation_invocation[]= {
+  {"simple",NULL,invocation_simple},
+  {"return types",NULL,invocation_return},
+  {"complex call",NULL,invocation_complex},
+  {"forwarding",NULL,invocation_forward},
   {NULL}};

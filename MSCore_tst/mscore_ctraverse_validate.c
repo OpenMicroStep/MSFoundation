@@ -26,7 +26,7 @@ static void traverse(test_t *test)
   b= CCreateBufferWithString(s, NSUTF8StringEncoding);
   TASSERT_ISEQUAL(test, s, x, "%s", CBufferCString(b));
   RELEASE(x); RELEASE(b); RELEAZEN(s); RELEAZEN(ctx);
-  
+
   x= CSCreate("1:: (2:: {\n    all: <<1>>;\n    done: <<2>>;})");
   d= CCreateDictionary(2);
   CDictionarySetObjectForKey(d, (id)a, (id)KAll);
@@ -50,7 +50,7 @@ static void traverse(test_t *test)
   RELEASE(a);
   }
 
-test_t mscore_ctraverse[]= {
-  {"traverse",NULL,traverse,INTITIALIZE_TEST_T_END},
+testdef_t mscore_ctraverse[]= {
+  {"traverse",NULL,traverse},
   {NULL}
 };

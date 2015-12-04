@@ -94,10 +94,10 @@ static void objcruntime_types(test_t *test)
   KILL_POOL;
 }
 
-test_t foundation_objcruntime[]= {
-  {"selector <-> string"  ,NULL,objcruntime_selector,INTITIALIZE_TEST_T_END},
-  {"class <-> string"     ,NULL,objcruntime_class,INTITIALIZE_TEST_T_END},
-  {"protocol <-> string"  ,NULL,objcruntime_protocol,INTITIALIZE_TEST_T_END},
-  {"alloc/dealloc"        ,NULL,objcruntime_alloc,INTITIALIZE_TEST_T_END},
-  {"objc type size/align" ,NULL,objcruntime_types,INTITIALIZE_TEST_T_END},
+testdef_t foundation_objcruntime[]= {
+  {"selector <-> string"  ,NULL,objcruntime_selector},
+  {"class <-> string"     ,NULL,objcruntime_class},
+  {"protocol <-> string"  ,NULL,objcruntime_protocol},
+  {"alloc/dealloc"        ,NULL,objcruntime_alloc},
+  {"objc type size/align" ,NULL,objcruntime_types},
   {NULL}};

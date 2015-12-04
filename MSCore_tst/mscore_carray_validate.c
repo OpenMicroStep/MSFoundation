@@ -52,7 +52,7 @@ static void carray_ptr(test_t *test)
   i= CArrayIndexOfIdenticalObject(a, (id)x, 0, CArrayCount(a));
   TASSERT_EQUALS(test, i, 10, "Bad index(8): %lu");
   // replace
-  // 0 .. 9 30 .. 199 => 0 1 .. 8 9 1 3 .. 17 19 40 .. 199 
+  // 0 .. 9 30 .. 199 => 0 1 .. 8 9 1 3 .. 17 19 40 .. 199
   CArrayReplaceObjectsInRange(a, (id*)q, NSMakeRange(10,10), NO);
   i= CArrayRemoveIdenticalObject(a, (id)q[3]); // 7
   TASSERT_EQUALS(test, i, 2, "Bad remove identical(9): %lu");
@@ -138,11 +138,11 @@ static void carray_immutable(test_t *test)
   RELEASE(a);
   }
 
-test_t mscore_carray[]= {
-  {"create"       ,NULL,carray_create       ,INTITIALIZE_TEST_T_END},
-  {"ptr"          ,NULL,carray_ptr          ,INTITIALIZE_TEST_T_END},
-  {"subarray"     ,NULL,carray_subarray     ,INTITIALIZE_TEST_T_END},
-  {"retainrelease",NULL,carray_retainrelease,INTITIALIZE_TEST_T_END},
-  {"immutable"    ,NULL,carray_immutable    ,INTITIALIZE_TEST_T_END},
+testdef_t mscore_carray[]= {
+  {"create"       ,NULL,carray_create       },
+  {"ptr"          ,NULL,carray_ptr          },
+  {"subarray"     ,NULL,carray_subarray     },
+  {"retainrelease",NULL,carray_retainrelease},
+  {"immutable"    ,NULL,carray_immutable    },
   {NULL}
 };

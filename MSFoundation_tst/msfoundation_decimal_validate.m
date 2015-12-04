@@ -50,8 +50,8 @@ static void decimal_op(test_t *test)
   for (i=0; i<10; i++) RELEASE(c[i]);
   }
 
-test_t msfoundation_decimal[]= {
-  {"create",NULL,decimal_create,INTITIALIZE_TEST_T_END},
-  {"op"    ,NULL,decimal_op    ,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_decimal[]= {
+  {"create",NULL,decimal_create},
+  {"op"    ,NULL,decimal_op    },
   {NULL}
 };

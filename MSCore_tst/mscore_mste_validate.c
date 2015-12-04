@@ -33,7 +33,7 @@ static int _test(void)
   {
   int err= 0;
   CBuffer *src;
-  
+
   _ke= CSCreate("error");
   _kd= CSCreate("description");
   // Decode sans source
@@ -141,7 +141,7 @@ static int mste_decode(void)
   return err;
   }
 
-test_t mscore_mste[]= {
-  {"decode",NULL,mste_decode,INTITIALIZE_TEST_T_END},
+testdef_t mscore_mste[]= {
+  {"decode",NULL,mste_decode},
   {NULL}
 };

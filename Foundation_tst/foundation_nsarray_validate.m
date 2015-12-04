@@ -240,12 +240,12 @@ static void array_category(test_t *test)
   KILL_POOL;
 }
 
-test_t foundation_array[]= {
-  {"create"       ,NULL,array_create       ,INTITIALIZE_TEST_T_END},
-  {"mutability"   ,NULL,array_mutate       ,INTITIALIZE_TEST_T_END},
-  {"subarray"     ,NULL,array_subarray     ,INTITIALIZE_TEST_T_END},
-  {"enumeration"  ,NULL,array_enum         ,INTITIALIZE_TEST_T_END},
-  {"subclass"     ,NULL,array_subclass     ,INTITIALIZE_TEST_T_END},
-  {"fast subclass",NULL,array_fast_subclass,INTITIALIZE_TEST_T_END},
-  {"category"     ,NULL,array_category     ,INTITIALIZE_TEST_T_END},
+testdef_t foundation_array[]= {
+  {"create"       ,NULL,array_create       },
+  {"mutability"   ,NULL,array_mutate       },
+  {"subarray"     ,NULL,array_subarray     },
+  {"enumeration"  ,NULL,array_enum         },
+  {"subclass"     ,NULL,array_subclass     },
+  {"fast subclass",NULL,array_fast_subclass},
+  {"category"     ,NULL,array_category     },
   {NULL}};

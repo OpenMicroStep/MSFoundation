@@ -111,10 +111,10 @@ static void buffer_replace(test_t *test)
   RELEASE(b);
   }
 
-test_t msfoundation_buffer[]= {
-  {"create"  ,NULL,buffer_create  ,INTITIALIZE_TEST_T_END},
-  {"b64"     ,NULL,buffer_b64     ,INTITIALIZE_TEST_T_END},
-  {"compress",NULL,buffer_compress,INTITIALIZE_TEST_T_END},
-  {"replace" ,NULL,buffer_replace ,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_buffer[]= {
+  {"create"  ,NULL,buffer_create  },
+  {"b64"     ,NULL,buffer_b64     },
+  {"compress",NULL,buffer_compress},
+  {"replace" ,NULL,buffer_replace },
   {NULL}
 };

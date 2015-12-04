@@ -52,11 +52,11 @@ static void date_create(test_t *test)
   TASSERT_EQUALS(test, [c dayOfCommonEra], 1, "A41-%u",[c dayOfCommonEra]);
   TASSERT_EQUALS(test, [d dayOfCommonEra], 31+28, "A42-%u",[d dayOfCommonEra]);
   TASSERT_EQUALS(test, (int)[e dayOfCommonEra], [e daysSinceDate:c usesTime:NO]+1, "A43-%u %d",[e dayOfCommonEra],[e daysSinceDate:c usesTime:NO]);
-   
+
   TASSERT_EQUALS(test, (int)[f dayOfCommonEra], [f daysSinceDate:c usesTime:NO]+1, "A44-%u %d",[f dayOfCommonEra],[f daysSinceDate:c usesTime:NO]);
-   
+
   TASSERT_EQUALS(test, (int)[g dayOfCommonEra], [g daysSinceDate:c usesTime:NO]+1, "A45-%u %d",[g dayOfCommonEra],[g daysSinceDate:c usesTime:NO]);
-   
+
 
   TASSERT_EQUALS(test, [c weekOfYear], 1, "A46-%u",[c weekOfYear]);
   TASSERT_EQUALS(test, [d weekOfYear], 9, "A47-%u",[d weekOfYear]);
@@ -99,7 +99,7 @@ static void date_create2(test_t *test)
   int i;
   MSTimeInterval t;
   MSDate *c[M1],*d= nil,*e= nil; // last date: 3432/07/11-02:51:40
-  
+
   for (t= -63113904000LL, i= 0; i<M1; i++) { //-63113904000LL
     c[i]= MSCreateObjectWithClassIndex(CDateClassIndex);
     t= t +
@@ -130,7 +130,7 @@ static void date_week(test_t *test)
   int i; unsigned w;
   MSTimeInterval t;
   MSDate *c,*d;
-  
+
   c= RETAIN(YMD(1, 1, 1));
   d= RETAIN(YMD(1, 1, 1));
   while ([c dayOfWeek]!=0) {
@@ -201,21 +201,21 @@ static void date_now(test_t *test)
   {
   MSDate *d1,*d2m; NSDate *d2; MSTimeInterval dt1m,dt2m; NSTimeInterval dt1n,dt2n;
 
-  
+
   // Europe/Paris DST test
   // TODO: Force tz to be Europe/Paris
   d1= [MSDate dateWithYear:2015 month:3 day:29 hour:3 minute:0 second:0];
-  TASSERT_EQUALS(test, [d1 secondsSinceLocalReferenceDate], 449290800,
+  TASSERT_EQUALS_LLD_S(test, [d1 secondsSinceLocalReferenceDate], 449290800,
     "invalid local time for 03:00:00 Sunday March 29, 2015 in Europe/Paris");
-  TASSERT_EQUALS(test, [d1 timeIntervalSinceReferenceDate], 449283600,
+  TASSERT_EQUALS_LLD_S(test, [d1 timeIntervalSinceReferenceDate], 449283600,
     "invalid gmt time for 03:00:00 Sunday March 29, 2015 in Europe/Paris");
-  
+
   d1= [MSDate dateWithYear:2015 month:3 day:29 hour:1 minute:59 second:59];
-  TASSERT_EQUALS(test, [d1 secondsSinceLocalReferenceDate], 449287199,
+  TASSERT_EQUALS_LLD_S(test, [d1 secondsSinceLocalReferenceDate], 449287199,
     "invalid local time for 01:59:59 Sunday March 29, 2015 in Europe/Paris");
-  TASSERT_EQUALS(test, [d1 timeIntervalSinceReferenceDate], 449283599,
+  TASSERT_EQUALS_LLD_S(test, [d1 timeIntervalSinceReferenceDate], 449283599,
     "invalid gmt time for 01:59:59 Sunday March 29, 2015 in Europe/Paris");
-  
+
   d1= [MSDate now];
   d2= [NSDate date];
   dt1m= [d1 secondsSinceLocalReferenceDate];
@@ -223,20 +223,24 @@ static void date_now(test_t *test)
   dt1n= [d1 timeIntervalSinceReferenceDate];
   dt2n= [d2 timeIntervalSinceReferenceDate];
   d2m= [MSDate dateWithSecondsSinceLocalReferenceDate:dt2m];
-  TASSERT(test, ABS(dt1m-dt2m)<=1, "F1-bad now %s %s",[[d1 description] UTF8String],[[d2m description] UTF8String]);
-  TASSERT(test, ABS(dt1n-dt2n)<=1, "F2-bad now %f %f %f %lld %lld %lld %s %s %s %s",
+  TASSERT(test, ABS(dt1m-dt2m)<=1, "F1-bad now\ndt1n=%f dt2n=%f dt1n-dt2n=%f\ndt1m=%lld dt2m=%lld dt1m-dt2m=%lld\nrfc1123=%s calendar=%s d1=%s d2=%s",
+    dt1n,dt2n,dt1n-dt2n,dt1m,dt2m,dt1m-dt2m,
+    [[d1 descriptionRfc1123] UTF8String],
+    [[d1 descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S"] UTF8String],
+    [[d1 description] UTF8String],[[d2m description] UTF8String]);
+  TASSERT(test, ABS(dt1n-dt2n)<=1, "F2-bad now\ndt1n=%f dt2n=%f dt1n-dt2n=%f\ndt1m=%lld dt2m=%lld dt1m-dt2m=%lld\nrfc1123=%s calendar=%s d1=%s d2=%s",
     dt1n,dt2n,dt1n-dt2n,dt1m,dt2m,dt1m-dt2m,
     [[d1 descriptionRfc1123] UTF8String],
     [[d1 descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S"] UTF8String],
     [[d1 description] UTF8String],[[d2m description] UTF8String]);
   }
 
-test_t msfoundation_date[]= {
-  {"create"    ,NULL,date_create   ,INTITIALIZE_TEST_T_END},
-  {"create2"   ,NULL,date_create2  ,INTITIALIZE_TEST_T_END},
-  {"week"      ,NULL,date_week     ,INTITIALIZE_TEST_T_END},
-  {"first/last",NULL,date_firstLast,INTITIALIZE_TEST_T_END},
-  {"replacing" ,NULL,date_replacing,INTITIALIZE_TEST_T_END},
-  {"now"       ,NULL,date_now      ,INTITIALIZE_TEST_T_END},
+testdef_t msfoundation_date[]= {
+  {"create"    ,NULL,date_create   },
+  {"create2"   ,NULL,date_create2  },
+  {"week"      ,NULL,date_week     },
+  {"first/last",NULL,date_firstLast},
+  {"replacing" ,NULL,date_replacing},
+  {"now"       ,NULL,date_now      },
   {NULL}
 };

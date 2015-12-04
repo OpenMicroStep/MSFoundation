@@ -117,7 +117,7 @@ static void promise_chain(test_t *test)
 //
 /////
 
-test_t msnode_promise[]= {
+testdef_t msnode_promise[]= {
   {"promise", NULL, promise_eventorder},
   {"chain"  , NULL, promise_chain},
   {NULL}};

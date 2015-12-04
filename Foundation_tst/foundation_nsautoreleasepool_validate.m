@@ -116,7 +116,7 @@ static void pool_threadAutorelease(test_t *test)
   RELEASE(o);
 }
 
-test_t foundation_pool[]= {
-  {"some"             ,NULL,pool_some             ,INTITIALIZE_TEST_T_END},
-  {"threadAutorelease",NULL,pool_threadAutorelease,INTITIALIZE_TEST_T_END},
+testdef_t foundation_pool[]= {
+  {"some"             ,NULL,pool_some             },
+  {"threadAutorelease",NULL,pool_threadAutorelease},
   {NULL}};

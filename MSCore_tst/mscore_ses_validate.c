@@ -99,10 +99,10 @@ static void ses_equals(test_t *test)
 static SES SESFromUTF8(const char *utf8)
 { return MSMakeSESWithBytes(utf8, strlen(utf8), NSUTF8StringEncoding); }
 static SES SESFromUTF16(const unichar *utf16)
-{ 
+{
   const unichar *end;
   for (end= utf16; *end; ++end) {}
-  return MSMakeSESWithBytes(utf16, (NSUInteger)(end - utf16), NSUnicodeStringEncoding); 
+  return MSMakeSESWithBytes(utf16, (NSUInteger)(end - utf16), NSUnicodeStringEncoding);
 }
 
 // It's good to tests SES with different source type (UTF8 & UTF16)
@@ -170,41 +170,41 @@ static void ses_extract(test_t *test)
   a= CStringSES(ca);
   b= MSMakeSESWithBytes("abcdefghijklmnopqrstuvwxyz", 26, NSUTF8StringEncoding);
   TASSERT(test, SESEquals(a, b), "must be equals");
-  
+
   e= SESExtractPart(a, ses_extract_test1);
   ses_check(test, a, e, 1, 5, __LINE__);
-  
+
   e2= SESExtractPart(a, ses_extract_test2);
   TASSERT(test, !SESOK(e2), "Extract part test2 must extract nothing");
-  
+
   e= SESWildcardsExtractPart(a, "nopqrst");
   ses_check(test, a, e, 13, 7, __LINE__);
-  
+
   e= SESInsensitiveWildcardsExtractPart(a, "a");
   ses_check(test, a, e, 0, 1, __LINE__);
-  
+
   e= SESInsensitiveWildcardsExtractPart(a, "z");
   ses_check(test, a, e, 25, 1, __LINE__);
-  
+
   e2= SESWildcardsExtractPart(a, "CDEF");
   TASSERT(test, !SESOK(e2), "SESWildcardsExtractPart must extract nothing");
   e= SESInsensitiveWildcardsExtractPart(a, "CDEF");
   ses_check(test, a, e, 2, 4, __LINE__);
   e= SESInsensitiveWildcardsExtractPart(b, "CDEF");
   ses_check(test, b, e, 2, 4, __LINE__);
-  
+
   e= SESWildcardsExtractPart(a, "?o??r??");
   ses_check(test, a, e, 13, 7, __LINE__);
-  
+
   e= SESWildcardsExtractPart(a, "?o*r??");
   ses_check(test, a, e, 13, 7, __LINE__);
-  
+
   e= SESInsensitiveWildcardsExtractPart(a, "B*?D");
   ses_check(test, a, e, 1, 3, __LINE__);
-  
+
   e= SESInsensitiveWildcardsExtractPart(a, "D*");
   ses_check(test, a, e, 3, 23, __LINE__);
-  
+
   e2= SESWildcardsExtractPart(a, "abcc");
   TASSERT(test, !SESOK(e2), "SESWildcardsExtractPart must extract nothing");
 
@@ -217,11 +217,11 @@ static void ses_extract(test_t *test)
   RELEASE(ca);
 }
 
-test_t mscore_ses[]= {
-  {"index"  ,NULL,ses_index  ,INTITIALIZE_TEST_T_END},
-  {"equals" ,NULL,ses_equals ,INTITIALIZE_TEST_T_END},
-  {"compare",NULL,ses_compare,INTITIALIZE_TEST_T_END},
-  {"extract",NULL,ses_extract,INTITIALIZE_TEST_T_END},
-  {"utf8"   ,NULL,ses_utf8   ,INTITIALIZE_TEST_T_END},
+testdef_t mscore_ses[]= {
+  {"index"  ,NULL,ses_index  },
+  {"equals" ,NULL,ses_equals },
+  {"compare",NULL,ses_compare},
+  {"extract",NULL,ses_extract},
+  {"utf8"   ,NULL,ses_utf8   },
   {NULL}
 };

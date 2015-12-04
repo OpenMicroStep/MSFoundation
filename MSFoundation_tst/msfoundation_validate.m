@@ -1,13 +1,14 @@
 #include "msfoundation_validate.h"
 
-test_t MSFoundationTests[]= {
-  {"MSArray"     ,msfoundation_array     ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSBuffer"    ,msfoundation_buffer    ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSColor"     ,msfoundation_color     ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSCouple"    ,msfoundation_couple    ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSDate"      ,msfoundation_date      ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSDecimal"   ,msfoundation_decimal   ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSDictionary",msfoundation_dictionary,NULL,INTITIALIZE_TEST_T_END},
-  {"MSString"    ,msfoundation_string    ,NULL,INTITIALIZE_TEST_T_END},
-  {"MSTE"        ,msfoundation_mste      ,NULL,INTITIALIZE_TEST_T_END},
+testdef_t MSFoundationTests[]= {
+  {"MSArray"     ,msfoundation_array     ,NULL},
+  {"MSBuffer"    ,msfoundation_buffer    ,NULL},
+  {"MSColor"     ,msfoundation_color     ,NULL},
+  {"MSCouple"    ,msfoundation_couple    ,NULL},
+  {"MSDate"      ,msfoundation_date      ,NULL},
+  {"MSDecimal"   ,msfoundation_decimal   ,NULL},
+  {"MSDictionary",msfoundation_dictionary,NULL},
+  {"MSString"    ,msfoundation_string    ,NULL},
+  {"MSTE"        ,msfoundation_mste      ,NULL},
+  {"JSON"        ,msfoundation_json      ,NULL},
   {NULL}};

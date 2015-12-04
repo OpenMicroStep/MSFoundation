@@ -62,7 +62,7 @@ static void cdate_create(test_t *test)
   TASSERT_EQUALS(test, (int)CDateDayOfCommonEra(e), CDateDaysBetweenDates(c,e,NO)+1, "%u != %d");
   TASSERT_EQUALS(test, (int)CDateDayOfCommonEra(f), CDateDaysBetweenDates(c,f,NO)+1, "%u != %d");
   TASSERT_EQUALS(test, (int)CDateDayOfCommonEra(g), CDateDaysBetweenDates(c,g,NO)+1, "%u != %d");
-   
+
 
   TASSERT_EQUALS(test, CDateWeekOfYear(c),  1, "%u != %u");
   TASSERT_EQUALS(test, CDateWeekOfYear(d),  9, "%u != %u");
@@ -106,7 +106,7 @@ static void cdate_create2(test_t *test)
   MSTimeInterval t;
   CDate *c[M1],*d,*e; // last date: 3432/07/11-02:51:40
   CString *s; CBuffer *b;
-  
+
   for (t= -63113904000LL, i= 0; i<M1; i++) { //-63113904000LL
     c[i]= (CDate*)MSCreateObjectWithClassIndex(CDateClassIndex);
     t= t +
@@ -138,7 +138,7 @@ static void cdate_week(test_t *test)
   int i; unsigned w;
   MSTimeInterval t;
   CDate *c,*d; CBuffer *b;
-  
+
   c= CCreateDateWithYMD(1, 1, 1);
   d= CCreateDateWithYMD(1, 1, 1);
   while (CDateDayOfWeek(c)!=0) {c->interval+= 86400LL; d->interval+= 86400LL;}
@@ -158,10 +158,10 @@ static void cdate_week(test_t *test)
   RELEASE(c); RELEASE(d);
   }
 
-test_t mscore_cdate[]= {
-  {"constants",NULL,cdate_constants,INTITIALIZE_TEST_T_END},
-  {"create"   ,NULL,cdate_create   ,INTITIALIZE_TEST_T_END},
-  {"create2"  ,NULL,cdate_create2  ,INTITIALIZE_TEST_T_END},
-  {"week"     ,NULL,cdate_week     ,INTITIALIZE_TEST_T_END},
+testdef_t mscore_cdate[]= {
+  {"constants",NULL,cdate_constants},
+  {"create"   ,NULL,cdate_create   },
+  {"create2"  ,NULL,cdate_create2  },
+  {"week"     ,NULL,cdate_week     },
   {NULL}
 };

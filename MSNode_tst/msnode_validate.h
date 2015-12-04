@@ -3,9 +3,9 @@
 #include <MSNode/MSNode.h>
 #include "MSTests.h"
 
-extern test_t MSNodeTests       [20];
+extern testdef_t MSNodeTests       [20];
 
-extern test_t msnode_utils      [10];
-extern test_t msnode_tcp        [10];
-extern test_t msnode_promise    [];
-extern test_t msnode_form       [];
+extern testdef_t msnode_utils      [10];
+extern testdef_t msnode_tcp        [10];
+extern testdef_t msnode_promise    [];
+extern testdef_t msnode_form       [];
