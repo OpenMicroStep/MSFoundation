@@ -269,20 +269,13 @@ static void string_cast(test_t *test)
 
 #ifndef WO451
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT, ...) ({\
-  NSString *__f= [ALLOC(NSString) initWithFormat:@FORMAT, ## __VA_ARGS__]; \
-  TASSERT(TEST, [@EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
-  RELEASE(__f);})
+  TASSERT_EQUALS_OBJ(TEST, ([[[MSString alloc] initWithFormat:@FORMAT, ## __VA_ARGS__] autorelease]), @EXPECT); \
+  TASSERT_EQUALS_OBJ(TEST, ([MSString stringWithFormat:@FORMAT, ## __VA_ARGS__]), @EXPECT); })
 #else
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT...) ({\
-  NSString *__f= [ALLOC(NSString) initWithFormat:@ ## FORMAT]; \
-  TASSERT(TEST, [@ ## EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
-  RELEASE(__f);})
+  TASSERT_EQUALS_OBJ(TEST, ([[[MSString alloc] initWithFormat:@ ## FORMAT] autorelease]), @ ## EXPECT); \
+  TASSERT_EQUALS_OBJ(TEST, ([MSString stringWithFormat:@ ## FORMAT]), @ ## EXPECT); })
 #endif
-
-#define TASSERT_NSFORMAT(TEST, EXPECT, FORMAT...) ({ \
-  NSString *__f= [ALLOC(NSString) initWithFormat:FORMAT]; \
-  TASSERT(TEST, [EXPECT isEqual:__f], "expected: '%s', got: '%s'", [EXPECT UTF8String], [__f UTF8String]); \
-  RELEASE(__f);})
 
 static void string_format(test_t *test)
 {
@@ -380,7 +373,7 @@ static void string_format(test_t *test)
                      "prec: %%.10d=%.10d %%.11d=%.11d %%13.10d=%13.10d %%10.12d=%10.12d %%*.*d=%*.*d %%*.*d=%*.*d", 1461, 13541 ,7984, 6706, 5, 7, 20, 8, 4, 13);
 
   // ObjC
-  TASSERT_NSFORMAT(test, @"objc: test", @"objc: %@", @"test");
+  TASSERT_FORMAT(test, "objc: test", "objc: %@", @"test");
 
   // Found bug tests
   TASSERT_FORMAT(test,"bug print decimal when decimal is 0: expected:0, got:0",
@@ -502,18 +495,42 @@ static void string_path(test_t *test)
   TASSERT_EQUALS_OBJ(test, [@"scratch..tiff"     stringByDeletingPathExtension], @"scratch.");
   TASSERT_EQUALS_OBJ(test, [@".tiff"             stringByDeletingPathExtension], @".tiff");
   TASSERT_EQUALS_OBJ(test, [@"/"                 stringByDeletingPathExtension], @"/");
+}
 
-  KILL_POOL;
+@implementation NSString (NSStringTestsCategory)
+- (NSString *)myCustomSelectorOnNSString
+{
+  return @"SelectorOnNSString";
+}
+@end
+@implementation NSMutableString (NSStringTestsCategory)
+- (NSString *)myCustomSelectorOnNSMutableString
+{
+  return @"SelectorOnNSMutableString";
+}
+@end
+static void string_category(test_t *test)
+{
+  NSString *stringStatic= [[NSString stringWithUTF8String:"0123456789"] copy];
+  NSMutableString *stringMutable= [stringStatic mutableCopy];
+
+  TASSERT_EQUALS_OBJ(test, [stringStatic myCustomSelectorOnNSString], @"SelectorOnNSString");
+  TASSERT_EQUALS_OBJ(test, [stringMutable myCustomSelectorOnNSString], @"SelectorOnNSString");
+  TASSERT_EQUALS_OBJ(test, [stringMutable myCustomSelectorOnNSMutableString], @"SelectorOnNSMutableString");
+
+  RELEASE(stringStatic);
+  RELEASE(stringMutable);
 }
 
 testdef_t foundation_string[]= {
-  {"equal" ,NULL,string_eq    },
+  {"equal"   ,NULL,string_eq    },
   {"init"    ,NULL,string_init  },
   {"compare" ,NULL,string_compare},
-  {"cast"  ,NULL,string_cast  },
-  {"format",NULL,string_format},
-  {"path"  ,NULL,string_path  },
-  {"find",NULL,string_find},
+  {"cast"    ,NULL,string_cast  },
+  {"format"  ,NULL,string_format},
+  {"path"    ,NULL,string_path  },
+  {"find"    ,NULL,string_find},
   {"dividing",NULL,string_dividing},
   {"combine" ,NULL,string_combine },
+  {"category",NULL,string_category},
   {NULL}};

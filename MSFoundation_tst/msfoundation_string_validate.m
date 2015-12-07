@@ -168,20 +168,13 @@ static void string_cast(test_t *test)
 
 #ifndef WO451
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT, ...) ({\
-  NSString *__f= [ALLOC(NSString) initWithFormat:@FORMAT, ## __VA_ARGS__]; \
-  TASSERT(TEST, [@EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
-  RELEASE(__f);})
+  TASSERT_EQUALS_OBJ(TEST, ([[[MSString alloc] initWithFormat:@FORMAT, ## __VA_ARGS__] autorelease]), @EXPECT); \
+  TASSERT_EQUALS_OBJ(TEST, ([MSString stringWithFormat:@FORMAT, ## __VA_ARGS__]), @EXPECT); })
 #else
 #define TASSERT_FORMAT(TEST, EXPECT, FORMAT...) ({\
-  NSString *__f= [ALLOC(NSString) initWithFormat:@ ## FORMAT]; \
-  TASSERT(TEST, [@ ## EXPECT isEqual:__f], "expected: '%s', got: '%s'", EXPECT, [__f UTF8String]); \
-  RELEASE(__f);})
+  TASSERT_EQUALS_OBJ(TEST, ([[[MSString alloc] initWithFormat:@ ## FORMAT] autorelease]), @ ## EXPECT); \
+  TASSERT_EQUALS_OBJ(TEST, ([MSString stringWithFormat:@ ## FORMAT]), @ ## EXPECT); })
 #endif
-
-#define TASSERT_NSFORMAT(TEST, EXPECT, FORMAT...) ({ \
-  NSString *__f= [ALLOC(NSString) initWithFormat:FORMAT]; \
-  TASSERT(TEST, [EXPECT isEqual:__f], "expected: '%s', got: '%s'", [EXPECT UTF8String], [__f UTF8String]); \
-  RELEASE(__f);})
 
 static void string_format(test_t *test)
 {
@@ -282,7 +275,7 @@ static void string_format(test_t *test)
                      "prec: %%.10d=%.10d %%.11d=%.11d %%13.10d=%13.10d %%10.12d=%10.12d %%*.*d=%*.*d %%*.*d=%*.*d", 1461, 13541 ,7984, 6706, 5, 7, 20, 8, 4, 13);
 
   // ObjC
-  TASSERT_NSFORMAT(test, @"objc: test", @"objc: %@", @"test");
+  TASSERT_FORMAT(test, "objc: test", "objc: %@", @"test");
 
   // Found bug tests
   TASSERT_FORMAT(test,"bug print decimal when decimal is 0: expected:0, got:0",

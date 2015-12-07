@@ -30,11 +30,11 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(dataUsingEncoding:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(dataUsingEncoding:allowLossyConversion:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(UTF8String));
-    
+
     // Search
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(rangeOfString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(rangeOfString:options:));
-    
+
     // Line range
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(getLineStart:end:contentsEnd:forRange:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(lineRangeForRange:));
@@ -49,7 +49,7 @@
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingFormat:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByAppendingString:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(stringByPaddingToLength:withString:startingAtIndex:));
-    
+
     // Compare strings
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(caseInsensitiveCompare:));
     FoundationCompatibilityExtendClass('-', self, 0, fromClass, @selector(compare:));
@@ -71,8 +71,7 @@
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if (self == [NSString class]) return [[MSString class] allocWithZone:zone];
-  return [super allocWithZone:zone];
+  return (self == [NSString class]) ? [[MSString class] allocWithZone:zone] : [super allocWithZone:zone];
 }
 
 - (NSUInteger)length                          { [self notImplemented:_cmd]; return 0; }
@@ -96,7 +95,7 @@
 }
 -(id)mutableCopyWithZone:(NSZone *)zone
 {
-  return [ALLOC(NSMutableString) initWithString:self];
+  return [ALLOC(_MSMString) initWithString:self];
 }
 - (const unichar *)UTF16String
 {
@@ -112,37 +111,34 @@
 @implementation NSMutableString
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if (self == [NSMutableString class]) return [[_MSMString class] allocWithZone:zone];
-  return [super allocWithZone:zone];
+  return (self == [NSMutableString class]) ? [_MSMString allocWithZone:zone] : [super allocWithZone:zone];
 }
 + (instancetype)stringWithCapacity:(NSUInteger)capacity
-{ return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]); }
+{
+  return AUTORELEASE([ALLOC(self) initWithCapacity:capacity]);
+}
+-(id)copyWithZone:(NSZone *)zone
+{
+  return [ALLOC(MSString) initWithString:self];
+}
+-(id)mutableCopyWithZone:(NSZone *)zone
+{
+  return [ALLOC(_MSMString) initWithString:self];
+}
 @end
 
 @implementation _MSMString
 + (void)initialize
 {
   if (self==[_MSMString class]) {
-    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), self, @selector(mutableInitWithCapacity:));}
+    Class fromClass= [MSString class];
+    FoundationCompatibilityExtendClass('-', self, @selector(initWithCapacity:), fromClass, @selector(mutableInitWithCapacity:));
+  }
 }
 + (instancetype)allocWithZone:(NSZone *)zone
 {
   id o= [super allocWithZone:zone];
   CGrowSetForeverMutable(o);
   return o;
-}
-- (Class)_classForCopy {return [MSString class];}
-
-- (Class)superclass
-{ 
-  return [NSMutableString class]; 
-}
-- (BOOL)isKindOfClass:(Class)aClass
-{
-  return (aClass == [NSMutableString class]) || [super isKindOfClass:aClass];
-}
--(id)copyWithZone:(NSZone *)zone
-{
-  return [ALLOC(NSString) initWithString:self];
 }
 @end
