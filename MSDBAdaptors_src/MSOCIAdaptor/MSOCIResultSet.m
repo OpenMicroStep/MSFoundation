@@ -97,7 +97,7 @@ static sb4 _OCICallbackDefine(void *octxp, OCIDefine *defnp, ub4 iter, void **bu
     ok= ok && _check(self,  OCIAttrGet(param, OCI_DTYPE_PARAM, &colIsNull   ,           0, OCI_ATTR_IS_NULL  , _ctx->herror));
     if (ok) {
       info->oraType= colType;
-      info->name= CCreateStringWithBytes(NSUTF16StringEncoding, colName, colNameLen / 2);
+      info->name= CCreateStringWithBytes(NSUTF16StringEncoding, colName, colNameLen);
       CArrayAddObject(keys, (id)info->name);
       if (colType == SQLT_RDD || colType == SQLT_INTERVAL_YM || colType == SQLT_INTERVAL_DS)
         fetchSize= 50;
@@ -327,7 +327,7 @@ static sb4 _OCICallbackDefine(void *octxp, OCIDefine *defnp, ub4 iter, void **bu
           SES ses; unichar *str; NSUInteger length;
           str= (unichar*)CBufferBytes(field->output);
           length= _utf16len(str, CBufferLength(field->output) / 2);
-          ses= MSMakeSESWithBytes(str, length, NSUTF16StringEncoding);
+          ses= MSMakeSESWithSytes(str, length, NSUTF16StringEncoding);
           ret= AUTORELEASE(CCreateDecimalWithSES(ses,NO,NULL,NULL));
           break;
         }

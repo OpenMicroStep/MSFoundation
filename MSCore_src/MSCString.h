@@ -111,5 +111,5 @@ MSCoreExtern MSUInt CStringSizeOfCharacterForEncoding(NSStringEncoding srcEncodi
   char *__x__= (S); __x__?CCreateStringWithBytes(NSUTF8StringEncoding, __x__, strlen(__x__)):CCreateString(0);})
 
 #define CStringAppendLiteral(STR, LITERAL) \
-  CStringAppendBytes(STR, NSUnicodeStringEncoding, u ## LITERAL, (sizeof(u ## LITERAL) / sizeof(unichar)) - 1);
+  CStringAppendBytes(STR, NSUnicodeStringEncoding, u ## LITERAL, sizeof(u ## LITERAL) - 1);
 #endif

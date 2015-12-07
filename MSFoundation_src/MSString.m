@@ -640,13 +640,16 @@ static inline id _string(Class cl, id a, BOOL m)
 static inline id _stringWithChars(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s, NSUInteger length)
 {
   if (!a) a= AUTORELEASE(ALLOC(cl));
-  CStringAppendBytes((CString*)a, encoding, s, length);
+  CStringAppendSES((CString*)a, MSMakeSESWithSytes(s, length, encoding));
   if (!m) CGrowSetForeverImmutable(a);
   return a;
 }
 static inline id _stringWithBytes(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s, NSUInteger length)
 {
-  return _stringWithChars(cl, a, m, encoding, s, length / CStringSizeOfCharacterForEncoding(encoding));
+  if (!a) a= AUTORELEASE(ALLOC(cl));
+  CStringAppendSES((CString*)a, MSMakeSESWithBytes(s, length, encoding));
+  if (!m) CGrowSetForeverImmutable(a);
+  return a;
 }
 static inline id _stringWithCString(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s)
 {

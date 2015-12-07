@@ -47,8 +47,8 @@ static void ses_utf8(test_t *test)
   const char u1s[]= "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫";
   NSUInteger u2l= (sizeof(u2s)/sizeof(unichar))-1;
   NSUInteger u1l= (sizeof(u1s)/sizeof(char))-1;
-  SES s1= MSMakeSESWithBytes(u1s, u1l, NSUTF8StringEncoding);
-  SES s2= MSMakeSESWithBytes(u2s, u2l, NSUnicodeStringEncoding);
+  SES s1= MSMakeSESWithSytes(u1s, u1l, NSUTF8StringEncoding);
+  SES s2= MSMakeSESWithSytes(u2s, u2l, NSUnicodeStringEncoding);
   NSUInteger i1= SESStart(s1), e1= SESEnd(s1);
   NSUInteger i2= SESStart(s2), e2= SESEnd(s2);
 
@@ -102,7 +102,7 @@ static SES SESFromUTF16(const unichar *utf16)
 {
   const unichar *end;
   for (end= utf16; *end; ++end) {}
-  return MSMakeSESWithBytes(utf16, (NSUInteger)(end - utf16), NSUnicodeStringEncoding);
+  return MSMakeSESWithSytes(utf16, (NSUInteger)(end - utf16), NSUnicodeStringEncoding);
 }
 
 // It's good to tests SES with different source type (UTF8 & UTF16)

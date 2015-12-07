@@ -102,8 +102,8 @@ typedef MSByte MSRealScanOptions;
 // TODO: A revoir avec des const void *
 //unichar        CEncodingToUnicode(unsigned short c, NSStringEncoding encoding);
 //unsigned short CUnicodeToEncoding(unichar        u, NSStringEncoding encoding);
-
-MSCoreExtern SES MSMakeSESWithBytes(const void *source, NSUInteger sourceLength, NSStringEncoding sourceEncoding);
+MSCoreExtern SES MSMakeSESWithSytes(const void *sytes, NSUInteger sytesLength, NSStringEncoding sourceEncoding);
+MSCoreExtern SES MSMakeSESWithBytes(const void *bytes, NSUInteger sytesLength, NSStringEncoding sourceEncoding);
 // Use this function to make a SES from a source.
 // To obtain the unichar suite equivalent to a source use:
 // SES ses= MSMakeSESWithBytes(cmySource, mySourceLength, mySourceEncoding);

@@ -322,7 +322,7 @@ static NSString *_absolutepath(NSString *path)
     CBufferAppendBytes(buf, &end, sizeof(unichar));
     len= GetFullPathNameW((unichar*)CBufferBytes(buf), MAX_PATH, result, NULL);
     if (len > 0 && len <= MAX_PATH) {
-      ret= AUTORELEASE(CCreateStringWithBytes(NSUnicodeStringEncoding, result, len));}
+      ret= AUTORELEASE(CCreateStringWithBytes(NSUnicodeStringEncoding, result, len * sizeof(unichar)));}
   }
 # else
   {

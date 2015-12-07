@@ -183,10 +183,15 @@ MSUInt CStringSizeOfCharacterForEncoding(NSStringEncoding srcEncoding)
   return _encodingStuffForEncoding(srcEncoding)->chsize;
 }
 
-SES MSMakeSESWithBytes(const void *src, NSUInteger srcLength, NSStringEncoding srcEncoding)
+SES MSMakeSESWithSytes(const void *sytes, NSUInteger sytesLength, NSStringEncoding srcEncoding)
 {
   _encodingStuff *s= _encodingStuffForEncoding(srcEncoding);
-  return src && srcLength && s->chai && s->chaip ? MSMakeSES(src, s->chai, s->chaip, 0, srcLength, srcEncoding) : MSInvalidSES;
+  return sytes && sytesLength && s->chai && s->chaip ? MSMakeSES(sytes, s->chai, s->chaip, 0, sytesLength, srcEncoding) : MSInvalidSES;
+}
+
+SES MSMakeSESWithBytes(const void *src, NSUInteger srcLength, NSStringEncoding srcEncoding)
+{
+  return MSMakeSESWithSytes(src, srcLength / CStringSizeOfCharacterForEncoding(srcEncoding), srcEncoding);
 }
 
 #pragma mark UTF8

@@ -171,7 +171,7 @@ NSUInteger CStringIndexOfCharacter(const CString *self, unichar c)
 
 SES CStringSES(const CString *self)
 {
-  return !self ? MSInvalidSES : MSMakeSESWithBytes(self->buf, self->length, NSUnicodeStringEncoding);
+  return !self ? MSInvalidSES : MSMakeSESWithSytes(self->buf, self->length, NSUnicodeStringEncoding);
 }
 
 #pragma mark Append
@@ -414,11 +414,11 @@ static inline FormatToken _formatParse(SES ses, NSUInteger *pos)
           f.type= FormatTypeDBL;
         f.specifier= c;
         break;
-      case 'c':
-        f.type= FormatTypeS4;
+      case 'c': case 'C':
+        f.type= FormatTypeS4; // vararg promote to int
         f.specifier= c;
         break;
-      case '@': case 'n': case 's': case 'p':
+      case '@': case 'n': case 's': case 'p': case 'S':
         f.type= FormatTypePTR;
         f.specifier= c;
         break;
@@ -564,9 +564,16 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
     }
     case 'c':
     {
+      unsigned char str[1];
+      *str = (unsigned char)argTypes[f.arg - 1].u.im;
+      _formatPrintSES(s, MSMakeSESWithSytes(str, 1, NSUTF8StringEncoding), 1, width, f.flags.leftJustify);
+      break;
+    }
+    case 'C':
+    {
       unichar str[1];
       *str = (unichar)argTypes[f.arg - 1].u.im;
-      _formatPrintSES(s, MSMakeSESWithBytes(str, 1, NSUnicodeStringEncoding), 1, width, f.flags.leftJustify);
+      _formatPrintSES(s, MSMakeSESWithSytes(str, 1, NSUTF16StringEncoding), 1, width, f.flags.leftJustify);
       break;
     }
     case 's':
@@ -577,6 +584,16 @@ static void _formatPrintArg(CString *s, FormatToken f, FormatArg *argTypes)
       else if (f.flags.hasPrecision){ len= precision; }
       else { len= strlen(cstr); }
       _formatPrintUTF8(s, cstr, len, width, f.flags.leftJustify);
+      break;
+    }
+    case 'S':
+    {
+      unichar *cstr= (unichar*)argTypes[f.arg - 1].u.ptr;
+      NSUInteger len;
+      if (!cstr){ cstr= u"(null)"; len= 6; }
+      else if (f.flags.hasPrecision){ len= precision; }
+      else { for(len= 0; cstr[len]; ++len); }
+      _formatPrintSES(s, MSMakeSESWithSytes(cstr, len, NSUTF16StringEncoding), len, width, f.flags.leftJustify);
       break;
     }
     case '@':
@@ -669,9 +686,8 @@ void CStringAppendFormatv(CString *self, const char *cfmt, va_list ap)
 }
 
 static inline unichar _CEncodingToUnicode(MSByte c, NSStringEncoding encoding)
-// TODO: use SES
 {
-  SES ses= MSMakeSESWithBytes(&c, 1, encoding);
+  SES ses= MSMakeSESWithSytes(&c, 1, encoding);
   NSUInteger index= 0;
   return SESIndexN(ses, &index);
 }
