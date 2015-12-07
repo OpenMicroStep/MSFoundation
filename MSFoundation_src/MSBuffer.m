@@ -142,6 +142,10 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 - (id)initWithContentsOfFile:         (NSString *)path {return _initWithContentsOfFile(self,  NO, path);}
 - (id)mutableInitWithContentsOfFile:  (NSString *)path {return _initWithContentsOfFile(self, YES, path);}
 
++ (id)dataWithContentsOfFile:       (NSString *)path options:(NSDataReadingOptions)o error:(NSError **)e {return AR([AL(self) initWithContentsOfFile:path options:o error:e]);}
+- (id)initWithContentsOfFile:       (NSString *)path options:(NSDataReadingOptions)o error:(NSError **)e {return _initWithContentsOfFile(self,  NO, path); MSUnused(o); MSUnused(e);}
+- (id)mutableInitWithContentsOfFile:(NSString *)path options:(NSDataReadingOptions)o error:(NSError **)e {return _initWithContentsOfFile(self, YES, path); MSUnused(o); MSUnused(e);}
+
 - (void)dealloc
 {
   CBufferFreeInside(self);
@@ -226,7 +230,11 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
   return AUTORELEASE((id)CCreateBufferWithBytes(_buf+range.location, range.length));
 }
 
-#pragma 
+
+ - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile
+ {
+  return [[NSFileManager defaultManager] createFileAtPath:path contents:self attributes:nil];
+ }
 
 // TODO: MSBytesToHexaString as CString
 //- (NSString *)toString       { return MSBytesToHexaString(_buf, _length, YES); }

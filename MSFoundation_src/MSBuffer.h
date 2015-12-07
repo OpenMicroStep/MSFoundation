@@ -121,6 +121,7 @@ Herve Malaingre : herve@malaingre.com
 - (void)setLength:(NSUInteger)length;
 - (void)increaseLengthBy:(NSUInteger)extraLength;
 - (void)appendBytes:(const void *)bytes length:(NSUInteger)length;
+- (void)appendData:(NSData *)data;
 - (void)appendBuffer:(MSBuffer *)other;
 - (void)replaceBytesInRange:(NSRange)range withBytes:(const void *)bytes;
 - (void)resetBytesInRange:(NSRange)range;
