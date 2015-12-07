@@ -250,6 +250,7 @@ void CMessageAdvisev(CString* messageType, mutable CDictionary* ctx, const char 
   for (n= CArrayCount(bs), i= 0; i<n; i++) {
     CBehaviorCallback b= (CBehaviorCallback)CArrayObjectAtIndex(bs, i);
     if (b) b(ctx,msg);}
+  RELEASE(msg);
   RELEASE(ctx);
   }
 
