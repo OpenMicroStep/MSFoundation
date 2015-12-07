@@ -143,19 +143,19 @@
 
 - (id)performSelector:(SEL)aSelector
 {
-  IMP imp= LOOKUP(ISA(self), aSelector);
+  IMP imp= objc_msg_lookup(self, aSelector);
   return imp(self, aSelector);
 }
 
 - (id)performSelector:(SEL)aSelector withObject:(id)object
 {
-  IMP imp= LOOKUP(ISA(self), aSelector);
+  IMP imp= objc_msg_lookup(self, aSelector);
   return imp(self, aSelector, object);
 }
 
 - (id)performSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2
 {
-  IMP imp= LOOKUP(ISA(self), aSelector);
+  IMP imp= objc_msg_lookup(self, aSelector);
   return imp(self, aSelector, object1, object2);
 }
 
@@ -167,6 +167,11 @@
 - (NSString *)debugDescription
 {
   return [self description];
+}
+
++ (NSString *)description
+{
+  return NSStringFromClass(self);
 }
 
 - (BOOL)isProxy
@@ -184,7 +189,7 @@
   return [(id <NSMutableCopying>)self mutableCopyWithZone:nil];
 }
 
-+ (instancetype)retain
++ (id)retain
 {
   return self;
 }

@@ -39,6 +39,7 @@
 
 @end
 
+NS_ROOT_CLASS
 @interface NSObject <NSObject> {
     Class isa;
     int32_t _retainCount;
