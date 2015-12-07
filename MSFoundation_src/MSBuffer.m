@@ -123,7 +123,7 @@ static inline id _initWithContentsOfFile(id a, BOOL m, NSString *path)
 - (id)initWithBytes:         (const void *)b length:(NSUInteger)l                      {return _initWithBytes(self,  NO, b, l,  NO,  NO);}
 - (id)initWithBytesNoCopy:         (void *)b length:(NSUInteger)l                      {return _initWithBytes(self,  NO, b, l, YES,  NO);}
 - (id)initWithBytesNoCopyNoFree:   (void *)b length:(NSUInteger)l                      {return _initWithBytes(self,  NO, b, l, YES, YES);}
-- (id)initWithBytesNoCopy:         (void *)b length:(NSUInteger)l freeWhenDone:(BOOL)f {return _initWithBytes(self,  NO, b, l, YES,  !b);}
+- (id)initWithBytesNoCopy:         (void *)b length:(NSUInteger)l freeWhenDone:(BOOL)f {return _initWithBytes(self,  NO, b, l, YES,  !f);}
 - (id)mutableInitWithBytes:  (const void *)b length:(NSUInteger)l                      {return _initWithBytes(self, YES, b, l,  NO,  NO);}
 - (id)mutableInitWithBytesNoCopy:  (void *)b length:(NSUInteger)l                      {return _initWithBytes(self, YES, b, l, YES,  NO);}
 
