@@ -48,6 +48,17 @@
 - (instancetype)initWithObjects:(const id [])objects count:(NSUInteger)cnt
 { [self notImplemented:_cmd]; return nil; }
 
++ (NSArray *)arrayWithContentsOfFile:(NSString *)path
+{
+  NSString *contents= [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:NULL];
+  return [contents arrayValue];
+}
+- (NSArray *)initWithContentsOfFile:(NSString *)path
+{
+  DESTROY(self);
+  return [[NSArray arrayWithContentsOfFile:path] retain];
+}
+
 @end
 
 @implementation NSMutableArray
