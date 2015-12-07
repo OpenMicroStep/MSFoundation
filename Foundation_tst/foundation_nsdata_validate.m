@@ -47,6 +47,34 @@ static void data_buffer(test_t *test)
 	KILL_POOL;
 }
 
+@implementation NSData (NSDataTestsCategory)
+- (NSString *)myCustomSelectorOnNSData
+{
+  return @"SelectorOnNSData";
+}
+@end
+@implementation NSMutableData (NSDataTestsCategory)
+- (NSString *)myCustomSelectorOnNSMutableData
+{
+  return @"SelectorOnNSMutableData";
+}
+@end
+static void data_category(test_t *test)
+{
+  NEW_POOL;
+  NSData *dataStatic= [[NSData dataWithBytes:"0123456789" length:10] copy];
+  NSMutableData *dataMutable= [dataStatic mutableCopy];
+
+  TASSERT_EQUALS_OBJ(test, [dataStatic myCustomSelectorOnNSData], @"SelectorOnNSData");
+  TASSERT_EQUALS_OBJ(test, [dataMutable myCustomSelectorOnNSData], @"SelectorOnNSData");
+  TASSERT_EQUALS_OBJ(test, [dataMutable myCustomSelectorOnNSMutableData], @"SelectorOnNSMutableData");
+
+  RELEASE(dataStatic);
+  RELEASE(dataMutable);
+  KILL_POOL;
+}
+
 testdef_t foundation_data[]= {
   {"create"    ,NULL,data_buffer},
+  {"category"  ,NULL,data_category},
   {NULL}};
