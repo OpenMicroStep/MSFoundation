@@ -38,5 +38,5 @@
 @end
 
 @interface MSDBStatement (ForImplementations)
-- (void)error:(SEL)inMethod desc:(NSString *)desc;
+- (void)error:(NSString *)desc;
 @end

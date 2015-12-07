@@ -50,9 +50,6 @@
 
 static MSDictionary *__adaptors = nil ;
 
-NSString *MSConnectionDidConnectNotification=    @"MSConnectionDidConnectNotification" ;
-NSString *MSConnectionDidDisconnectNotification= @"MSConnectionDidDisconnectNotification" ;
-
 @implementation MSDBConnection
 
 #pragma mark Connection
@@ -145,7 +142,8 @@ static inline id _retainedCnxWithConnectionDictionary(MSDictionary *dictionary)
     // TODO: with HM: Si toujours unique à ce niveau alors notImplemented, l'accès
     // non unique restant possible par les subclasses.
     if ([self isMemberOfClass:[MSDBConnection class]]) {
-        ASSIGN(self, _retainedCnxWithConnectionDictionary(connectionDictionary));}
+        DESTROY(self);
+        self= _retainedCnxWithConnectionDictionary(connectionDictionary);}
     // from subclass, nothing to do than retain the dictionary
     else {
         _originalDictionary= [connectionDictionary copy];
@@ -170,9 +168,8 @@ static inline id _retainedCnxWithConnectionDictionary(MSDictionary *dictionary)
 
 #pragma mark Errors
 
-- (void)error:(SEL)inMethod desc:(NSString *)desc
+- (void)error:(NSString *)desc
 {
-    desc= [NSString stringWithFormat:@"%@-> %@", NSStringFromSelector(inMethod), desc];
     ASSIGN(_lastError, desc);
 }
 
@@ -366,7 +363,7 @@ static inline MSInt stmt_execute(MSDBConnection *self, SEL _cmd, MSDBStatement *
     NSMutableString *query;
     count= [columns count];
     if(!count) {
-        [self error:_cmd desc:@"columns is empty, nothing to update"];
+        [self error:@"columns is empty, nothing to update"];
         return nil; }
 
     query= [NSMutableString stringWithFormat:@"UPDATE %@ SET ", table];

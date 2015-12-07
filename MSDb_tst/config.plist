@@ -1,0 +1,24 @@
+(
+  /* -- SQLCipher adaptor */
+  {
+    name= "sqlcipher";
+    adaptor = "MSSQLCipherAdaptor" ;
+    path = "msdb_test_sqlcipher.db";
+    key = "test";
+  },
+  /* -- SQLLite adaptor */
+  {
+    name= "sqllite";
+    adaptor = "MSSQLCipherAdaptor" ;
+    path = "msdb_test_sqlite.db";
+  },
+  /* -- OCI adaptor (docker run -d -p 8080:8080 -p 1521:1521 sath89/oracle-xe-11g) */
+  {
+    name= "oci";
+    adaptor = "MSOCIAdaptor";
+    hostname= "192.168.99.100";
+    database= "xe";
+    user= "TEST";
+    password= "TEST";
+  },
+)

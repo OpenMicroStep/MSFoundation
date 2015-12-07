@@ -1,9 +1,9 @@
 /*
- 
+
  MSOCIConnection.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
 
@@ -12,19 +12,19 @@
 
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
- abiding by the rules of distribution of free software.  You can  use, 
+ abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
- "http://www.cecill.info". 
- 
+ "http://www.cecill.info".
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
- liability. 
- 
+ liability.
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -32,251 +32,238 @@
  therefore means  that it is reserved for developers  and  experienced
  professionals having in-depth computer knowledge. Users are therefore
  encouraged to load and test the software's suitability as regards their
- requirements in conditions enabling the security of their systems and/or 
- data to be ensured and,  more generally, to use and operate it in the 
- same conditions as regards security. 
- 
+ requirements in conditions enabling the security of their systems and/or
+ data to be ensured and,  more generally, to use and operate it in the
+ same conditions as regards security.
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  */
 
 #import "MSOCIAdaptorKit.h"
-#import "_OCIWin32Private.h"
-#import "_MSOCIConnectionPrivate.h"
 
 #define DEFAULT_TRANSACTION_TIMEOUT 60
 
 
 @implementation MSOCIConnection
 
-#ifdef WIN32
-+ (void)initialize
-{
-    initializeOCILibraryForWin32() ;
-}
-#endif
-
--(OCICtx *)context {return _ctx;}
-
--(void) cleanup
-{
-    BOOL res = TRUE;
-
-    OCI_CALL(res, _ctx, OCISessionEnd(_ctx->hservice, _ctx->herror, _ctx->hsesssion, (ub4)OCI_DEFAULT));
-    OCI_CALL(res, _ctx, OCIServerDetach(_ctx->hserver,_ctx->herror, (ub4) OCI_DEFAULT));
-    OCI_CALL(res, _ctx, OCIHandleFree((dvoid *) _ctx->hserver, (ub4) OCI_HTYPE_SERVER));
-    OCI_CALL(res, _ctx, OCIHandleFree((dvoid *) _ctx->hservice, (ub4) OCI_HTYPE_SVCCTX));
-    OCI_CALL(res, _ctx,OCIHandleFree((dvoid *) _ctx->herror, (ub4) OCI_HTYPE_ERROR));
-    OCIHandleFree((dvoid *) _ctx->henv, (ub4) OCI_HTYPE_ENV);
-}
-
 - (id)initWithConnectionDictionary:(MSDictionary *)dictionary
 {
-    if ((self = [super initWithConnectionDictionary:dictionary])) {
-        NSMutableDictionary *tDict ;
-        _MSOCIThreadContext *context ;
-
-        NSString *database = [dictionary objectForLazyKey:@"database"] ;
-        NSString *user = [dictionary objectForLazyKey:@"user"] ;
-        NSString *password = [dictionary objectForLazyKey:@"password"] ;
-
-        setenv("NLS_LANG", "AMERICAN_AMERICA.UTF8", 1);
-        
-        if (!database) { database = [dictionary objectForLazyKey:@"database-name"] ;}
-        if (!database) { database = [dictionary objectForLazyKey:@"db"] ;}
-        if (!database) { database = [dictionary objectForLazyKey:@"db-name"] ;}
-        if (![database length]) {
-            RELEASE(self) ;
-            return nil ;
-        }
-
-        if (!user) { user = [dictionary objectForLazyKey:@"user-name"] ;}
-        if (!user) { user = [dictionary objectForLazyKey:@"login"] ;}
-        if (![user length]) {
-            RELEASE(self) ;
-            return nil ;
-        }
-
-        if (!password) { password = [dictionary objectForLazyKey:@"pwd"] ;}
-        if (![password length]) {
-            RELEASE(self) ;
-            return nil ;
-        }
-
-        tDict = [[NSThread currentThread] threadDictionary] ;
-        context = [tDict objectForKey:@"_$ociContext"] ;
-
-        if (!context) {
-            // creation de context
-            context = [ALLOC(_MSOCIThreadContext) init] ;
-            if (context) {
-                [tDict setObject:context forKey:@"_$ociContext"];
-                RELEASE(context) ;
-            }
-            else {
-                RELEASE(self) ;
-                return nil ;
-            }
-        }
-        _ctx = [context context] ;
-        //_writeEncoding = _readEncoding = NSUTF8StringEncoding ;
-        // MSGetEncodingFrom is declared in MSUnichar.h. WARNING : you can get NSNEXTSTEPStringEncoding and NSUTF16StringEncoding
-
-        //		if (MSGetEncodingFrom([dictionary objectForKey:@"encoding"], &_writeEncoding)) { _readEncoding = _writeEncoding ; }
-        //		(void)MSGetEncodingFrom([dictionary objectForKey:@"write-encoding"], &_writeEncoding) ;
-        //		(void)MSGetEncodingFrom([dictionary objectForKey:@"read-encoding"], &_readEncoding) ;
-
-        [_currentDictionary setObject:database forKey:@"$_database"] ;
-        [_currentDictionary setObject:user forKey:@"$_user"] ;
-        [_currentDictionary setObject:password forKey:@"$_password"] ;
-        _cFlags.readOnly = [[dictionary objectForLazyKey:@"read-only"] isTrue] || [[dictionary objectForLazyKey:@"readonly"] isTrue] ;
-
+  if ((self = [super initWithConnectionDictionary:dictionary])) {
+    id db, hostname, port;
+    db= [dictionary objectForLazyKey:@"database"];
+    hostname= [dictionary objectForLazyKey:@"hostname"];
+    if (hostname) {
+      port= [dictionary objectForLazyKey:@"port"];
+      if (!port) port= @"1521";
+      db= FMT(@"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(Host=%@)(Port=%@))(CONNECT_DATA=(SID=%@)))", hostname, port, db);
     }
-
-    return self ;
+    _database= [db copy];
+    _user= [[dictionary objectForLazyKey:@"user"] copy];
+    _password= [[dictionary objectForLazyKey:@"password"] copy];
+    if (![_database length] || ![_user length] || ![_password length])
+      DESTROY(self) ;
+    setenv("NLS_LANG", "AMERICAN_AMERICA.UTF8", 1);
+  }
+  return self ;
 }
 
--(BOOL) _connectWithDatabase:(NSString *)database User:(NSString *)user Password:(NSString *)password
+- (void)dealloc
 {
-    text *db =(text *)[database UTF8String] ;
-    text *username =(text *)[user UTF8String] ;
-    text *pwd =(text *)[password UTF8String] ;
-    BOOL res = TRUE;
-
-    OCI_CALL(res,_ctx, OCIEnvCreate((OCIEnv **) &(_ctx->henv), OCI_DEFAULT, (dvoid *) NULL, NULL, NULL, NULL, (size_t) 0, (dvoid **) NULL));
-    OCI_CALL(res,_ctx, OCIHandleAlloc((dvoid *)_ctx->henv, (dvoid **) (void *) &_ctx->herror, OCI_HTYPE_ERROR, (size_t) 0, (dvoid **) NULL));
-    OCI_CALL(res,_ctx, OCIHandleAlloc( (dvoid *)_ctx->henv, (dvoid **) &(_ctx->hserver), OCI_HTYPE_SERVER,(size_t) 0, (dvoid **) 0));
-    OCI_CALL(res,_ctx, OCIHandleAlloc( (dvoid *)_ctx->henv, (dvoid **) &_ctx->hservice, OCI_HTYPE_SVCCTX,(size_t) 0, (dvoid **) 0));
-    OCI_CALL(res,_ctx, OCIServerAttach(_ctx->hserver, _ctx->herror, db, (sb4)strlen((char *)db), 0));
-    OCI_CALL(res,_ctx, OCIAttrSet( (dvoid *) _ctx->hservice, OCI_HTYPE_SVCCTX, (dvoid *)_ctx->hserver,(ub4) 0, OCI_ATTR_SERVER, (OCIError *) _ctx->herror));
-    OCI_CALL(res,_ctx, OCIHandleAlloc((dvoid *)_ctx->henv, (dvoid **)&_ctx->hsesssion,(ub4) OCI_HTYPE_SESSION, (size_t) 0, (dvoid **) 0));
-    OCI_CALL(res,_ctx, OCIAttrSet((dvoid *) _ctx->hsesssion, (ub4) OCI_HTYPE_SESSION, (dvoid *) username, (ub4) strlen((char *)username), (ub4) OCI_ATTR_USERNAME, _ctx->herror));
-    OCI_CALL(res,_ctx, OCIAttrSet((dvoid *) _ctx->hsesssion, (ub4) OCI_HTYPE_SESSION, (dvoid *) pwd, (ub4) strlen((char *)pwd), (ub4) OCI_ATTR_PASSWORD, _ctx->herror));
-    OCI_CALL(res,_ctx, OCISessionBegin (_ctx->hservice, _ctx->herror, _ctx->hsesssion, OCI_CRED_RDBMS, (ub4) OCI_DEFAULT));
-    OCI_CALL(res,_ctx, OCIAttrSet((dvoid *) _ctx->hservice, (ub4) OCI_HTYPE_SVCCTX,(dvoid *) _ctx->hsesssion, (ub4) 0,(ub4) OCI_ATTR_SESSION, _ctx->herror));
-
-    return res;
+  RELEASE(_database);
+  RELEASE(_user);
+  RELEASE(_password);
+  [super dealloc];
 }
-
--(BOOL) _disconnect
-{
-    [self cleanup];   
-    return YES;
-}
-
-- (BOOL)connect
-{
-    if (![self isConnected]) {
-
-        NSString *database = [_currentDictionary objectForLazyKey:@"$_database"] ;
-        NSString *user = [_currentDictionary objectForLazyKey:@"$_user"] ;
-        NSString *password = [_currentDictionary objectForLazyKey:@"$_password"] ;
-
-        if (![self _connectWithDatabase:database User:user Password:password]) {
-            _lastError = FailAtOpen;
-            // 	_hdbc = NULL ;
-            return NO ;
-        }
-        _cFlags.connected = YES ;
-        [[NSNotificationCenter defaultCenter] postNotificationName:MSConnectionDidConnectNotification object:self] ;
-        
-    }
-    return YES ;
-}
-
-- (BOOL)disconnect
-{
-    if ([self isConnected]) {
-        RETAIN(self) ; // since the terminateAllOperations can release us, we must keep that object alive until we decide to release it
-        [self terminateAllOperations] ;
-
-        if (![self _disconnect]){
-            _lastError = FailAtClose ;
-            return NO ;
-        }
-        //		_hdbc = NULL ;
-        _cFlags.connected = NO ;
-        [[NSNotificationCenter defaultCenter] postNotificationName:MSConnectionDidDisconnectNotification object:self] ;
-        RELEASE(self) ;
-    }
-    return YES ;
-}
-
-- (MSDBResultSet *)fetchWithRequest:(NSString *)query
-{
-    if ([query length] && [self connect]) {
-
-        text *sql =(text *)[query UTF8String] ;
-        OCIStmt *stmt;
-        MSOCIResultSet *resultSet ;
-        BOOL res = TRUE;
-
-        OCI_CALL(res,_ctx,OCIHandleAlloc((dvoid *) _ctx->henv, (dvoid **) &stmt, OCI_HTYPE_STMT, (size_t) 0, (dvoid **) 0));
-        OCI_CALL(res,_ctx,OCIStmtPrepare(stmt, _ctx->herror, sql,(ub4) strlen((char *) sql),(ub4) OCI_NTV_SYNTAX, (ub4) OCI_DEFAULT));
-        OCI_CALL(res,_ctx,OCIStmtExecute(_ctx->hservice, stmt,_ctx->herror, (ub4) 0, (ub4) 0,(CONST OCISnapshot *) NULL, (OCISnapshot *) NULL, OCI_DEFAULT));
-
-        if (res) {
-            resultSet = [ALLOC(MSOCIResultSet) initWithStatement:stmt connection:self] ;
-            if (resultSet) {
-                // === WARNING === the connection does not retain its operations...
-                [_operations addObject:resultSet] ;
-                return AUTORELEASE(resultSet) ;
-            }
-        }
-
-    }
-    return nil ;
-}
-
-- (MSArray *)tableNames
-{
-    MSArray *array = MSCreateArray(8) ;
-
-    NEW_POOL ;
-
-    if ([self isConnected]) {
-        MSDBResultSet *resultSet = [self fetchWithRequest:@"SELECT TABLE_NAME FROM TABS"] ;
-
-        while ([resultSet nextRow])
-        {
-            MSRow *row = nil ;
-            NSString *tableName = nil ;
-
-            row = [resultSet rowDictionary] ;
-            tableName = [[row objectForKey:@"TABLE_NAME"] toString] ;
-            
-            if ([tableName length]) { MSAAdd(array, tableName) ; }
-        }
-    }
-
-    KILL_POOL ;
-
-    return AUTORELEASE(array) ;
-}
-
-- (MSDBTransaction *)openTransaction
-{
-    if (!_cFlags.readOnly && [self connect] && [self openedTransactionsCount] == 0) {
-        // only one transaction at a time
-        MSOCITransaction *transaction = [ALLOC(MSOCITransaction) initWithDatabaseConnection:self] ;
-        if (transaction) {
-            [_operations addObject:transaction] ;
-            return transaction;
-        }
-    }
-    return nil ;
-}
-
-@end
-
-
-@implementation _MSOCIThreadContext
 
 -(OCICtx *)context
 {
-//    NSLog(@"ctx %p",&_ctx);
-    return &_ctx;
+  return &_ctx;
+}
+
+BOOL _check_err(sword ociReturnValue, void *herror, NSString **error) {
+  switch (ociReturnValue) {
+    case OCI_SUCCESS: return YES;
+    case OCI_SUCCESS_WITH_INFO: *error= @"OCI_SUCCESS_WITH_INFO"; return NO;
+    case OCI_NEED_DATA:         *error= @"OCI_NEED_DATA"; return NO;
+    case OCI_ERROR: {
+      sb4 errcode= 0; unichar errbuf[1024]; ub4 recordno= 1; CString *str= CCreateString(0);
+      errbuf[0]= 0;
+      while (OCIErrorGet(herror, recordno, 0, &errcode, (text*)errbuf, sizeof(errbuf), OCI_HTYPE_ERROR) == OCI_SUCCESS) {
+        CStringAppendBytes(str, NSUTF16StringEncoding, errbuf, _utf16len(errbuf, sizeof(errbuf) / 2));
+        recordno++;
+      }
+      if (CStringLength(str) > 0 && CStringCharacterAtIndex(str, CStringLength(str) - 1) == '\n')
+        str->length--;
+      *error= AUTORELEASE(str);
+      return NO;
+    }
+    case OCI_INVALID_HANDLE:    *error= @"OCI_INVALID_HANDLE"; return NO;
+    case OCI_STILL_EXECUTING:   *error= @"OCI_STILL_EXECUTING"; return NO;
+    case OCI_CONTINUE:          *error= @"OCI_CONTINUE"; return NO;
+    default:                    *error= @"unknown error"; return NO;
+  }
+}
+
+static BOOL _check_noerr(MSOCIConnection *self, sword ociReturnValue, NSString *err) {
+  if (ociReturnValue == OCI_SUCCESS) return YES;
+  [self error:err];
+  return NO;
+}
+
+static inline BOOL _check(MSOCIConnection *self, sword ociReturnValue) {
+  NSString *error= nil; BOOL ret;
+  if (!(ret= _check_err(ociReturnValue, self->_ctx.herror, &error)))
+    [self error:error];
+  return ret;
+}
+
+- (BOOL)_connect
+{
+  BOOL ret = YES;
+  NSData *dbname= [_database dataUsingEncoding:NSUTF16StringEncoding];
+  NSData *username= [_user dataUsingEncoding:NSUTF16StringEncoding];
+  NSData *pwd= [_password dataUsingEncoding:NSUTF16StringEncoding];
+  ret= ret && _check_noerr(self, OCIEnvCreate(&_ctx.henv, OCI_UTF16 | OCI_OBJECT | OCI_THREADED, NULL, NULL, NULL, NULL, 0, NULL), @"Unable to create environment");
+  ret= ret && _check_noerr(self, OCIHandleAlloc((dvoid *)_ctx.henv, (dvoid **)&_ctx.herror,   OCI_HTYPE_ERROR, 0, 0), @"Unable to create error handle");
+  ret= ret && _check_noerr(self, OCIHandleAlloc((dvoid *)_ctx.henv, (dvoid **)&_ctx.hserver,  OCI_HTYPE_SERVER,0, 0), @"Unable to create server handle");
+  ret= ret && _check(self, OCIServerAttach(_ctx.hserver, _ctx.herror, (text*)[dbname bytes], (sb4)[dbname length], OCI_DEFAULT));
+  ret= ret && _check_noerr(self, OCIHandleAlloc((dvoid *)_ctx.henv, (dvoid **)&_ctx.hservice, OCI_HTYPE_SVCCTX,0, 0), @"Unable to create service handle");
+  ret= ret && _check(self, OCIAttrSet((dvoid *)_ctx.hservice, OCI_HTYPE_SVCCTX, (dvoid *)_ctx.hserver, (ub4)0, OCI_ATTR_SERVER, (OCIError *)_ctx.herror));
+  ret= ret && _check(self, OCIHandleAlloc((dvoid *)_ctx.henv, (dvoid **)&_ctx.hsession, (ub4)OCI_HTYPE_SESSION, 0, 0));
+  ret= ret && _check(self, OCIAttrSet((dvoid *)_ctx.hsession, (ub4) OCI_HTYPE_SESSION, (text*)[username bytes], (sb4)[username length], (ub4)OCI_ATTR_USERNAME, _ctx.herror));
+  ret= ret && _check(self, OCIAttrSet((dvoid *)_ctx.hsession, (ub4) OCI_HTYPE_SESSION, (text*)[pwd bytes], (sb4)[pwd length], (ub4)OCI_ATTR_PASSWORD, _ctx.herror));
+  ret= ret && _check(self, OCISessionBegin(_ctx.hservice, _ctx.herror, _ctx.hsession, OCI_CRED_RDBMS, (ub4) OCI_DEFAULT));
+  ret= ret && _check(self, OCIAttrSet((dvoid *)_ctx.hservice, (ub4) OCI_HTYPE_SVCCTX,(dvoid *) _ctx.hsession, (ub4) 0,(ub4) OCI_ATTR_SESSION, _ctx.herror));
+  return ret;
+}
+
+-(BOOL)_disconnect
+{
+  BOOL ret = YES;
+  ret= ret && _check(self, OCISessionEnd(_ctx.hservice, _ctx.herror, _ctx.hsession, (ub4)OCI_DEFAULT));
+  ret= ret && _check(self, OCIHandleFree((dvoid *)_ctx.hsession,  (ub4)OCI_HTYPE_SESSION));
+  ret= ret && _check(self, OCIServerDetach(_ctx.hserver,_ctx.herror, (ub4)OCI_DEFAULT));
+  ret= ret && _check(self, OCIHandleFree((dvoid *)_ctx.hserver,  (ub4)OCI_HTYPE_SERVER));
+  ret= ret && _check(self, OCIHandleFree((dvoid *)_ctx.hservice, (ub4)OCI_HTYPE_SVCCTX));
+  ret= ret && _check(self, OCIHandleFree((dvoid *)_ctx.herror,   (ub4)OCI_HTYPE_ERROR));
+  ret= ret && _check(self, OCIHandleFree((dvoid *)_ctx.henv,     (ub4)OCI_HTYPE_ENV));
+  return YES;
+}
+
+#pragma mark Scheme
+
+- (MSArray *)tableNames
+{
+  NEW_POOL ;
+  CArray *array = CCreateArray(8) ;
+  MSDBResultSet *set ;
+  set = [self fetchWithRequest:@"SELECT TABLE_NAME FROM TABS"] ;
+  while ([set nextRow]) {
+    NSString *s = [[set objectAtColumn:0] toString] ;
+    if ([s length]) { CArrayAddObject(array, s) ; }
+  }
+  KILL_POOL;
+  return AUTORELEASE((MSArray*)array) ;
+}
+
+#pragma mark Transaction
+
+- (BOOL)isInTransaction
+{
+  // OCI is always in transaction mode
+  return YES;
+}
+
+- (BOOL)beginTransaction
+{
+  BOOL ret= YES;
+  if (_transactionLevel > 0)
+    ret= _check(self, OCITransStart(_ctx.hservice, _ctx.herror, DEFAULT_TRANSACTION_TIMEOUT, OCI_TRANS_NEW));
+  if (ret) ++_transactionLevel;
+  return ret;
+}
+
+- (BOOL)commit
+{
+  BOOL ret= _check(self, OCITransCommit(_ctx.hservice, _ctx.herror, OCI_DEFAULT));
+  if (ret && _transactionLevel > 0) --_transactionLevel;
+  return ret;
+}
+
+- (BOOL)rollback
+{
+  BOOL ret= _check(self, OCITransRollback(_ctx.hservice, _ctx.herror, OCI_DEFAULT));
+  if (ret && _transactionLevel > 0) --_transactionLevel;
+  return ret;
+}
+
+
+#pragma mark Request
+
+//  _check(self, OCIAttrGet(stmt, OCI_HTYPE_STMT, &stmtType, NULL, OCI_ATTR_STMT_TYPE, _ctx.herror))
+
+static NSString *_replaceQuestionMarkBinds(NSString *request) {
+  NSUInteger i, e; unichar u, limit= 0; unsigned p= 0;
+  SES ses= SESFromString(request);
+  CString *ret= CCreateString(SESLength(ses));
+  for(i= SESStart(ses), e= SESEnd(ses); i < e && (u= SESIndexN(ses, &i));) {
+    if(u == '\'' || u == '\"') {
+      if (limit == u)
+        limit= 0;
+      else if(!limit)
+        limit= u;
+    }
+    if(!limit && u == '?')
+      CStringAppendFormat(ret, ":%u", p++);
+    else
+      CStringAppendCharacter(ret, u);
+  }
+  return AUTORELEASE(ret);
+}
+
+static inline OCIStmt* OCI_Prepare(MSOCIConnection *self, NSString *request) {
+  OCIStmt *stmt; NSData *req;
+  if ([request length]
+   && _check(self, OCIHandleAlloc((dvoid *)self->_ctx.henv, (dvoid **)&stmt, OCI_HTYPE_STMT, 0, 0))) {
+    req= [request dataUsingEncoding:NSUTF16StringEncoding];
+    if (_check(self, OCIStmtPrepare(stmt, self->_ctx.herror, (text*)[req bytes], (ub4)[req length], (ub4)OCI_NTV_SYNTAX, (ub4)OCI_DEFAULT)))
+      return stmt;
+    else { OCIHandleFree(stmt, OCI_HTYPE_STMT); }}
+  return NULL;
+}
+- (MSDBStatement *)statementWithRequest:(NSString *)request
+{
+  OCIStmt *stmt= OCI_Prepare(self, request= _replaceQuestionMarkBinds(request));
+  if (stmt)
+    return AUTORELEASE([ALLOC(MSOCIStatement) initWithRequest:request withDatabaseConnection:self withStmt:stmt]);
+  return nil ;
+}
+
+- (MSDBResultSet *)fetchWithRequest:(NSString *)request
+{
+  OCIStmt *stmt= OCI_Prepare(self, request);
+  if (stmt) {
+    if (_check(self, OCIStmtExecute(_ctx.hservice, stmt, _ctx.herror, 0, 0, NULL, NULL, OCI_DEFAULT))) {
+      return AUTORELEASE([ALLOC(MSOCIResultSet) initWithConnection:self ocistmt:stmt stmt:nil]);}
+    else {
+      OCIHandleFree(stmt, OCI_HTYPE_STMT);}}
+  return nil;
+}
+
+- (MSInt)executeRawSQL:(NSString *)request
+{
+  BOOL ok; OCIStmt *stmt;
+  ok= (stmt= OCI_Prepare(self, request)) != NULL;
+  ok= ok && _check(self, OCIStmtExecute(_ctx.hservice, stmt, _ctx.herror, 1, 0, NULL, NULL, OCI_DEFAULT));
+  ok= ok && _check(self, OCIHandleFree(stmt, OCI_HTYPE_STMT));
+  return ok ? 0 : -1;
+}
+
+- (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes ;
+{
+  return [self notImplemented:_cmd];
 }
 
 @end

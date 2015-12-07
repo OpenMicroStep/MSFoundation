@@ -1,30 +1,30 @@
 /*
- 
+
  MSSQLiteResultSet.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Herve Malaingre : herve@malaingre.com
  Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
- 
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
- abiding by the rules of distribution of free software.  You can  use, 
+ abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
- "http://www.cecill.info". 
- 
+ "http://www.cecill.info".
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
- liability. 
- 
+ liability.
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -32,22 +32,15 @@
  therefore means  that it is reserved for developers  and  experienced
  professionals having in-depth computer knowledge. Users are therefore
  encouraged to load and test the software's suitability as regards their
- requirements in conditions enabling the security of their systems and/or 
- data to be ensured and,  more generally, to use and operate it in the 
- same conditions as regards security. 
- 
+ requirements in conditions enabling the security of their systems and/or
+ data to be ensured and,  more generally, to use and operate it in the
+ same conditions as regards security.
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  */
-/*
-#ifdef WIN32
-#import "../_MSDBGenericConnection.h"
-#else
-#import "_MSDBGenericConnection.h"
-#endif
-#import "MSSQLCipherResultSet.h"
-*/
+
 #import "MSSQLCipherAdaptorKit.h"
 
 #define SQLITE_RESULT_NOT_INITIALIZED	0
@@ -61,14 +54,14 @@
     if ((self = [super initWithDatabaseConnection:connection])) {
         int i, count = (int)sqlite3_column_count(statement) ;
         MSArray *keys = MSCreateArray((NSUInteger)count) ;
-        
+
         if (!keys) { RELEASE(self) ; return nil ; }
-        
+
         for	(i = 0 ; i < count ; i++) {
             const char *name = sqlite3_column_name(statement, i) ;
-            
+
             NSString *s ;
-            
+
             if (!name || !*name) { RELEASE(keys) ; RELEASE(self) ; return nil ; }
             s = [NSString stringWithCString:name encoding:NSUTF8StringEncoding] ;
             if (!s) { RELEASE(keys) ; RELEASE(self) ; return nil ; }
@@ -77,7 +70,7 @@
         _columnsDescription = RETAIN([MSRowKeys rowKeysWithKeys:keys]) ;
         RELEASE(keys) ;
         if (!_columnsDescription) { RELEASE(self) ; return nil ; }
-        
+
         _statement= statement ;
         _state= SQLITE_RESULT_NOT_INITIALIZED ;
         ASSIGN(_msstmt, msStatement) ;
@@ -183,7 +176,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 - (BOOL)getDateAt:(MSTimeInterval *)aDate column:(NSUInteger)column error:(MSInt *)errorPtr
 {
 	MSInt error = MSNoColumn ;
-	BOOL good = NO ; 
+	BOOL good = NO ;
 	if (_state == SQLITE_RESULT_NOT_INITIALIZED) { error = MSNotInitalizedFetch ; }
 	else if (_state == SQLITE_NO_MORE_RESULTS) { error = MSFetchIsOver ; }
 	else if (column <  (NSUInteger)sqlite3_column_count(_statement)) {
@@ -206,7 +199,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 				size_t l ;
 				if (s && (l = strlen((char *)s))) {
 					if ((good = MSGetSqlDateFromBytes((void *)s,(NSUInteger)l, aDate))) { error = MSFetchOK ; }
-					else { error = MSNotConverted ; } 
+					else { error = MSNotConverted ; }
 				}
 				else { error = MSNullFetch ; }
 				break ;
@@ -216,7 +209,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 				int l ;
 				if (bytes && (l = sqlite3_column_bytes(_statement, (int)column)) > 0) {
 					if ((good = MSGetSqlDateFromBytes(bytes,(NSUInteger)l, aDate))) { error = MSFetchOK ; }
-					else { error = MSNotConverted ; } 
+					else { error = MSNotConverted ; }
 				}
 				else { error = MSNullFetch ; }
 				break ;
@@ -224,21 +217,21 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 			case SQLITE_NULL:
 				error = MSNullFetch ;
 				break ;
-				
-			default: 
+
+			default:
 				error = MSNotConverted ;
 				break ;
 		}
 	}
 	if (errorPtr) *errorPtr = error ;
 	return good ;
-				
+
 }
 
 - (BOOL)getStringAt:(MSString*)aString column:(NSUInteger)column error:(MSInt*)errorPtr
 {
 	MSInt error = MSNoColumn ;
-	BOOL good = NO ; 
+	BOOL good = NO ;
 	if (_state == SQLITE_RESULT_NOT_INITIALIZED) { error = MSNotInitalizedFetch ; }
 	else if (_state == SQLITE_NO_MORE_RESULTS) { error = MSFetchIsOver ; }
 	if (column <  (NSUInteger)sqlite3_column_count(_statement)) {
@@ -253,7 +246,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 					size_t l = strlen((char *)s) ;
 					if (l) {
 						// we assume we have a UTF8 string
-						if (aString) { 
+						if (aString) {
               CStringAppendBytes((CString*)aString, NSUTF8StringEncoding, (void *)s, (NSUInteger)l) ;
 							good = YES;
 						}
@@ -266,12 +259,12 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 			case SQLITE_NULL:
 				error = MSNullFetch ;
 				break ;
-				
-			default: 
+
+			default:
 				error = MSNotConverted ;
 				break ;
 		}
-				
+
 	}
 	if (errorPtr) *errorPtr = error ;
 	return good ;
@@ -280,7 +273,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 - (BOOL)getBufferAt:(MSBuffer *)aBuffer column:(NSUInteger)column error:(MSInt *)errorPtr
 {
 	MSInt error = MSNoColumn ;
-	BOOL good = NO ; 
+	BOOL good = NO ;
 	if (_state == SQLITE_RESULT_NOT_INITIALIZED) { error = MSNotInitalizedFetch ; }
 	else if (_state == SQLITE_NO_MORE_RESULTS) { error = MSFetchIsOver ; }
 	if (column <  (NSUInteger)sqlite3_column_count(_statement)) {
@@ -294,7 +287,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 				if (bytes) {
 					int l = sqlite3_column_bytes(_statement, (int)column) ;
 					if (l) {
-						if (aBuffer) { 
+						if (aBuffer) {
               CBufferAppendBytes((CBuffer*)aBuffer, bytes, (NSUInteger)l) ;
 							good = YES;
 						}
@@ -307,12 +300,12 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 			case SQLITE_NULL:
 				error = MSNullFetch ;
 				break ;
-				
-			default: 
+
+			default:
 				error = MSNotConverted ;
 				break ;
 		}
-		
+
 	}
 	if (errorPtr) *errorPtr = error ;
 	return good ;
@@ -342,7 +335,7 @@ _GET_NUMBER_VALUE_METHOD(Double, double, 0, 0, double, sqlite3_column_double)
 					}
 				}
 				case SQLITE_NULL:
-				default: 
+				default:
 					break ;
 			}
 		}

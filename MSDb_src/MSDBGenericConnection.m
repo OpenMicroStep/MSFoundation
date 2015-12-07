@@ -1,34 +1,34 @@
 /*
- 
+
  MSDBGenericConnection.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Herve Malaingre : herve@malaingre.com
  Eric Baradat :  k18rt@free.fr
  Jean-Michel Bertheas :  jean-michel.bertheas@club-internet.fr
  Hugues Nauguet :  h.nauguet@laposte.net
  Frederic Olivi : fred.olivi@free.fr
- 
- 
+
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -39,12 +39,12 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  WARNING : this implementation file concerns A PRIVATE CLASS
- 
+
  */
 
 #import "MSDatabase_Private.h"
@@ -74,7 +74,7 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
       next, @"NEXT", next, @"NEXTSTEP", next, next,
       utf16, @"UNICODE", utf16, @"UTF16", utf16, @"UTF-16", utf16, utf16,
       nil] ; }
-  
+
   if (object) {
     if ([object isKindOfClass:[NSNumber class]]) {
       res= [__knownEncodings objectForKey:[NSNumber numberWithInt:[object intValue]]] ; }
@@ -93,13 +93,9 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 {
   if ((self= [super initWithConnectionDictionary:dictionary])) {
     NSStringEncoding encoding ;
-    NSZone *zone = [self zone] ;
-    
-    _currentDictionary = [dictionary mutableCopyWithZone:zone] ;
-    
+
     _writeEncoding = _readEncoding = NSUTF8StringEncoding ;
-    
-    _operations = [[MSArray alloc] mutableInitWithCapacity:0 noRetainRelease:YES nilItems:NO] ;
+    _operations = (id)CCreateArrayWithOptions(0, YES, NO);
 
     // WARNING : you can get NSNEXTSTEPStringEncoding and NSUTF16StringEncoding
     if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"encoding"]))) {
@@ -109,43 +105,48 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
     if ((encoding= _MSGetEncodingFrom([dictionary objectForKey:@"write-encoding"]))) {
       _writeEncoding= encoding ; }
     _cFlags.connected= NO;
-    _cFlags.inTransaction= NO;
     _cFlags.readOnly= (MSUInt)[[dictionary objectForLazyKeys:@"read-only",@"readonly", nil] isTrue];}
   return self ;
 }
 
 - (void)dealloc
 {
-  [self disconnect] ;  
-  RELEASE(_currentDictionary) ;
-  RELEASE(_operations) ;
+  if (_cFlags.connected) {
+    [self _disconnect];}
+  RELEASE(_operations);
   [super dealloc] ;
 }
 
 
-//- (BOOL)connect ;
+- (BOOL)isConnected { return _cFlags.connected ; }
+- (BOOL)isReadOnly { return _cFlags.readOnly ; }
+
+- (BOOL)connect
+{
+  if (!_cFlags.connected) {
+    _cFlags.connected= [self _connect];
+  }
+  return _cFlags.connected ;
+}
+
 - (BOOL)disconnect
 {
     if (_cFlags.connected) {
-        // since the terminateAllOperations can release us, we must keep that object
-        // alive until we decide to release it
-        RETAIN(self) ;
         [self terminateAllOperations] ;
-        if([self _disconnect]) {
-            _cFlags.connected = NO ;
-            [[NSNotificationCenter defaultCenter] postNotificationName:MSConnectionDidDisconnectNotification object:self] ;
-        }
-        RELEASE(self) ;
+        if([self _disconnect])
+          _cFlags.connected = NO ;
     }
     return !_cFlags.connected;
 }
+- (BOOL)_connect { [self notImplemented:_cmd]; return NO; }
 - (BOOL)_disconnect { [self notImplemented:_cmd]; return NO; }
-
-- (BOOL)isConnected { return _cFlags.connected ; }
+- (void)setReadEncoding:(NSStringEncoding)readEncoding andWriteEncoding:(NSStringEncoding)writeEncoding
+{
+  _readEncoding= readEncoding;
+  _writeEncoding= writeEncoding;
+}
 
 #pragma mark Transaction
-
-- (BOOL)isInTransaction { return _cFlags.inTransaction ; }
 
 //- (NSString *)escapeString:(NSString *)aString withQuotes:(BOOL)withQuotes ;
 //- (NSString *)escapeString:(NSString *)aString ; // no quotes
@@ -157,12 +158,13 @@ static NSStringEncoding _MSGetEncodingFrom(id object)
 - (void)terminateAllOperations
 {
   NSUInteger i = [_operations count] ;
+  RETAIN(self); // terminating operations can lead to dealloc self, delay this until the end of this method
   // leave this loop in that order if you don't want to destroy the element of your array
   // before the end of the loop
   while (i-- > 0) {[[_operations objectAtIndex:i] terminateOperation] ;}
-  
   if([self isInTransaction])
     [self rollback];
+  RELEASE(self);
 }
 
 - (void)registerOperation:(MSDBOperation *)anOperation

@@ -13,7 +13,7 @@
 - (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSDBConnection *)connection
 {
   if((self= [super initWithDatabaseConnection:connection])) {
-    ASSIGN(_request, request);
+    ASSIGNCOPY(_request, request);
   }
   return self;
 }
@@ -59,7 +59,7 @@
     //NSLog(@"bindObject:(%@*)%@ at:%u", [obj class], obj, parameterIndex);
     if(!ret) {
         if(!_lastError) ASSIGN(_lastError, @"Unknown error");
-        [self error:_cmd desc:[NSString stringWithFormat:@"bindObject:(%@*)obj at:%u failed -> %@", [obj class], parameterIndex, _lastError]];
+        [self error:[NSString stringWithFormat:@"bindObject:(%@*)obj at:%u failed -> %@", [obj class], parameterIndex, _lastError]];
     }
     return ret;
 }
@@ -101,9 +101,8 @@
 - (MSDBResultSet *)fetch { return [self notImplemented:_cmd]; }
 - (MSInt)execute { [self notImplemented:_cmd]; return NO; }
 
-- (void)error:(SEL)inMethod desc:(NSString *)desc
+- (void)error:(NSString *)desc
 {
-    desc= [NSString stringWithFormat:@"%@-> %@", NSStringFromSelector(inMethod), desc];
     ASSIGN(_lastError, desc);
 }
 

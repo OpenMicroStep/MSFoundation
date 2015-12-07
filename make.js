@@ -496,7 +496,15 @@ module.exports = {
         {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCStatement.h"},
         {file:"MSDBAdaptors_src/MSODBCAdaptor/MSODBCStatement.m"},
       ]},
-      {group:"OracleAdaptor", files: []},
+      {group:"OCIAdaptor", files: [
+        {file:"MSDBAdaptors_src/MSOCIAdaptor/MSOCIAdaptorKit.h"},
+        {file:"MSDBAdaptors_src/MSOCIAdaptor/MSOCIConnection.h"},
+        {file:"MSDBAdaptors_src/MSOCIAdaptor/MSOCIConnection.m"},
+        {file:"MSDBAdaptors_src/MSOCIAdaptor/MSOCIResultSet.h"},
+        {file:"MSDBAdaptors_src/MSOCIAdaptor/MSOCIResultSet.m"},
+        {file:"MSDBAdaptors_src/MSOCIAdaptor/MSOCIStatement.h"},
+        {file:"MSDBAdaptors_src/MSOCIAdaptor/MSOCIStatement.m"},
+      ]},
       {group:"Headers", files: [
         {file:"MSDb_src/MSDatabase.h", tags: ["MSPublicHeaders"]},
         {file:"MSDb_src/MSDatabase_Public.h", tags: ["MSPublicHeaders"]},
@@ -524,6 +532,13 @@ module.exports = {
         {file:"MSDb_src/MSObi.m"},
         {file:"MSDb_src/MSOdb.m"},
         {file:"MSDb_src/MSOid.m"},
+      ]},
+      {group:"Tests", files: [
+        {file:"MSDb_tst/msdb_validate.h"},
+        {file:"MSDb_tst/msdb_adaptor_validate.m"},
+        //{file:"MSDb_tst/msdb_obi_validate.m"},
+        //{file:"MSDb_tst/msdb_repository_validate.m"},
+        {file:"MSDb_tst/msdb_test.m"},
       ]}
     ]},
     {group:"MSNode", files:[
@@ -782,7 +797,25 @@ module.exports = {
       "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies": ["MSFoundation"],
       "files": ["MSDatabase.Sources"],
-      "publicHeaders": ["MSDatabase?MSPublicHeaders"]
+      "publicHeaders": ["MSDatabase?MSPublicHeaders"],
+      "configure": function(target) {
+        target.addCompileFlags(['-Wall', '-Werror']);
+      }
+    },
+    {
+      "name": "MSDatabaseTests",
+      "type": "Bundle",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
+      "dependencies": ["MSFoundation", "MSDatabase"],
+      "files": ["MSDatabase.Tests"],
+      "includeDirectoriesOfFiles": ["MSTests?MSPublicHeaders"],
+      "bundleInfo": {
+        "CFBundleIdentifier": "org.microstep.db.tests"
+      },
+      "configure": function(target) {
+        target.addCompileFlags(['-Wall', '-Werror']);
+        target.addBundleResources([{from: "MSDb_tst/config.plist", to:"config.plist"}]);
+      }
     },
     {
       "name": "MSSQLCipherAdaptor",
@@ -822,6 +855,47 @@ module.exports = {
       "configure": function(target) {
         target.output = target.getDependency("MSDatabase").buildResourcesPath();
         target.addLibraries(['-lodbc32']);
+      }
+    },
+    {
+      "name": "MSOCIAdaptor",
+      "type": "Bundle",
+      "environments": [
+        "openmicrostep-foundation-i386-msvc12",  "openmicrostep-foundation-x86_64-msvc12",
+        "openmicrostep-foundation-i386-linux",  "openmicrostep-foundation-x86_64-linux",
+        "openmicrostep-foundation-i386-darwin",  "openmicrostep-foundation-x86_64-darwin"
+      ],
+      "dependencies": [
+        "MSFoundation",
+        "MSDatabase"
+      ],
+      "bundleInfo": {
+        "CFBundleIdentifier": "org.microstep.dbadaptor.oci",
+        "NSPrincipalClass": "MSOCIConnection"
+      },
+      "bundleExtension": "dbadaptor",
+      "files": ["MSDatabase.OCIAdaptor"],
+      "includeDirectories": ["deps/instantclient_11_2/include"],
+      "configure": function(target) {
+        target.addCompileFlags(['-Wall', '-Werror']);
+        target.output = target.getDependency("MSDatabase").buildResourcesPath();
+        var builds = {
+            'x86_64-darwin': ['libclntsh.dylib.11.1', 'libnnz11.dylib', 'libociicus.dylib'],
+            'x86_64-linux': ['libclntsh.so.12.1', 'libmql1.so', 'libipc1.so', 'libnnz12.so', 'libociicus.so', 'libons.so', 'libclntshcore.so.12.1']
+        };
+        var dir= target.arch + '-' + target.sysroot.api;
+        var libs= builds[dir];
+        if (libs) {
+            target.addLibraries([target.resolvePath('deps/instantclient_11_2/' + dir +'/' + libs[0])]);
+            target.addBundleResources(libs.map(function(lib) { return {from: target.resolvePath('deps/instantclient_11_2/' + dir +'/' + lib),  to:lib};}));
+            if (target.sysroot.api === "darwin")
+                target.addLinkFlags('-Wl,-rpath,@loader_path/Resources');
+            if (target.sysroot.api === "linux")
+                target.addLinkFlags('-Wl,-rpath,$ORIGIN/Resources');
+        }
+        else {
+            throw "Unsupported env " + target.env;
+        }
       }
     },
     {
