@@ -38,7 +38,6 @@ static void string_eq(test_t *test)
 
 static void string_compare(test_t *test)
 {
-  NEW_POOL;
   TASSERT_STRING_EQUALS(LLD, test, ""    , compare, ""    , NSOrderedSame);
   TASSERT_STRING_EQUALS(LLD, test, ""    , compare, "a"   , NSOrderedAscending);
   TASSERT_STRING_EQUALS(LLD, test, "a"   , compare, ""    , NSOrderedDescending);
@@ -98,14 +97,11 @@ static void string_compare(test_t *test)
   TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasSuffix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", YES);
   TASSERT_STRING_EQUALS(LLD, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasSuffix, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", YES);
   TASSERT_STRING_EQUALS(LLD, test, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", hasSuffix, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", NO);
-  KILL_POOL;
 }
 
 #define TASSERT_EQUALS_RNG(   W, A, B) TASSERT_F(W, NSEqualRanges, A, B, "[%lld,%lld] != [%lld,%lld]", (long long)__a.location, (long long)__a.length, (long long)__b.location, (long long)__b.length)
 static void string_find(test_t *test)
 {
-  NEW_POOL;
-
   TASSERT_STRING_EQUALS(RNG, test, ""    , rangeOfString, "a"   , NSMakeRange(NSNotFound,0));
   TASSERT_STRING_EQUALS(RNG, test, "a"   , rangeOfString, ""    , NSMakeRange(NSNotFound,0));
   TASSERT_STRING_EQUALS(RNG, test, "a"   , rangeOfString, "a"   , NSMakeRange(0,1));
@@ -179,8 +175,6 @@ static void string_find(test_t *test)
   TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(0,15));
   TASSERT_STRING_EQUALS_OPT(RNG, test, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(1,14));
   TASSERT_STRING_EQUALS_OPT(RNG, test, "èàô¡®œ±ĀϿḀ⓿⣿㊿﹫", rangeOfString, "éèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", options:NSAnchoredSearch | NSBackwardsSearch, NSMakeRange(NSNotFound,0));
-
-  KILL_POOL;
 }
 
 static void string_cast(test_t *test)
@@ -369,7 +363,6 @@ static void string_format(test_t *test)
 
 static void string_dividing(test_t *test)
 {
-  NEW_POOL;
   TASSERT_EQUALS_OBJ(test, ([@"a,b,c,d" componentsSeparatedByString:@","]),
                              ([NSArray arrayWithObjects:@"a", @"b", @"c", @"d", nil]));
   TASSERT_EQUALS_OBJ(test, ([@"a^|^bc^|^cde^|^defg" componentsSeparatedByString:@"^|^"]),
@@ -390,12 +383,10 @@ static void string_dividing(test_t *test)
   TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(0,1)], @"a");
   TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(2,1)], @"c");
   TASSERT_EQUALS_OBJ(test, [@"abc" substringWithRange:NSMakeRange(3,0)], @"");
-  KILL_POOL;
 }
 
 static void string_combine(test_t *test)
 {
-  NEW_POOL;
   TASSERT_EQUALS_OBJ(test, ([@"ab" stringByAppendingFormat:@"c%s%@%d", "d", @"e", (int)345]), @"abcde345");
 
   TASSERT_EQUALS_OBJ(test, [@"ab" stringByAppendingString:@"cde"], @"abcde");
@@ -404,13 +395,11 @@ static void string_combine(test_t *test)
   TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:5 withString:@"." startingAtIndex:0], @"ab...");
   TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:0], @"ab.,:.");
   TASSERT_EQUALS_OBJ(test, [@"ab" stringByPaddingToLength:6 withString:@".,:" startingAtIndex:2], @"ab:.,:");
-  KILL_POOL;
 }
 
 static void string_path(test_t *test)
 {
   NSArray *components, *expect;
-  NEW_POOL;
 
   // pathWithComponents
   components= [NSArray arrayWithObjects:@"/", @"a", @"b", @"cd", nil];

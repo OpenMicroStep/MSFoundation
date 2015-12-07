@@ -96,7 +96,7 @@ static int _decode(char *ssrc, id ret)
   return err;
   }
 
-static int mste_decode(void)
+static void mste_decode(test_t *test)
   {
   int err= 0;
   id o1; char b[1024]; MSUInt col; CBuffer *buf= NULL;
@@ -138,7 +138,7 @@ static int mste_decode(void)
   err+= _decode(b,o1);
   RELEAZEN(o1);
 
-  return err;
+  TASSERT_EQUALS_LLD(test, err, 0);
   }
 
 testdef_t mscore_mste[]= {

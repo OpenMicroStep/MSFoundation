@@ -331,7 +331,6 @@ void _decode(test_t *test, const char *src, id sobj, const char *objCode)
 {
   MSBuffer *ssrc= [MSBuffer bufferWithCString:src], *enc;
   id o0, o1; NSString *error= nil;
-  NEW_POOL;
 
   o0= [ssrc MSTDecodedObjectAndVerifyCRC:YES allowsUnknownUserClasses:NO error:&error];
   TASSERT_ISEQUAL(test, error, nil, "MSTE decode error: %s\nmste=%s", [error UTF8String], src);
@@ -349,13 +348,10 @@ void _decode(test_t *test, const char *src, id sobj, const char *objCode)
         "MSTE decoded object of reencoded object differ\nsrc mste='%s'\nout mste='%s'\ncode=    %s\ndecoded0=%s\ndecoded1=%s\nexpected=%s",
         src, [enc cString], objCode, [[o0 description] UTF8String], [[o1 description] UTF8String], [[sobj description] UTF8String]);}
   }
-
-  KILL_POOL;
 }
 
 static void mste_some(test_t *test)
 {
-  NEW_POOL;
 
 /*  { //For generate MSTE expression...
     id o = [NSDecimalNumber decimalNumberWithString:@"12.34"] ;
@@ -491,7 +487,6 @@ static void mste_some(test_t *test)
   TASSERT_DECODE(test, "[\"MSTE0102\",21,\"CRCD959E1CB\",0,3,\"20061\",\"entity\",\"0\",30,2,0,30,1,1,31,1,21,\"R_Right\",2,30,0]",
       ([NSDictionary dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:[NSArray arrayWithObjects:@"R_Right", nil], @"entity", nil], @"20061", [NSDictionary dictionary], @"0", nil]));
 
-  KILL_POOL;
 }
 
 testdef_t msfoundation_mste[]= {

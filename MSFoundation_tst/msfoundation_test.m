@@ -4,18 +4,11 @@
 
 EXTERN_TESTS_BASE
 
-static id _mainPool= nil;
-static void testOff()
+LIBEXPORT void TRun(test_t *t, void (*testfn)(test_t*), void *context)
 {
-  RELEAZEN(_mainPool);
-}
-static void testOn()
-{
-#ifdef WO451
-  MSFinishLoadingCore();
-#endif
-  if (_mainPool) testOff();
-  _mainPool= [[NSAutoreleasePool alloc] init];
+  NEW_POOL;
+  testfn(t);
+  KILL_POOL;
 }
 
 testdef_t MSFoundationCompleteTests[]= {
@@ -25,11 +18,9 @@ testdef_t MSFoundationCompleteTests[]= {
   {NULL}};
 
 testdef_t RootTests[]= {
-  {"_",NULL,testOn },
 #if defined(MSFOUNDATION_FORCOCOA)
   {"MSFoundationForCocoaComplete",MSFoundationCompleteTests,NULL},
 #else
   {"MSFoundationComplete",MSFoundationCompleteTests,NULL},
 #endif
-  {"_",NULL,testOff},
   {NULL}};

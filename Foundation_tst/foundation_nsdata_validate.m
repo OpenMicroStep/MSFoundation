@@ -7,7 +7,6 @@ static void data_buffer(test_t *test)
   const NSUInteger strLen= 60;
   NSMutableData *d, *d2;
   NSData *cd;
-	NEW_POOL;
   d= [NSMutableData new];
   TASSERT(test, [d isKindOfClass:[NSMutableData class]], "NSMutableData objects expected");
   TASSERT(test, [d isKindOfClass:[NSData class]], "NSData objects expected");
@@ -44,7 +43,6 @@ static void data_buffer(test_t *test)
   d= [[NSMutableData alloc] initWithLength:10];
   RELEASE(d);
   d= [NSMutableData dataWithLength:20];
-	KILL_POOL;
 }
 
 @implementation NSData (NSDataTestsCategory)
@@ -61,7 +59,6 @@ static void data_buffer(test_t *test)
 @end
 static void data_category(test_t *test)
 {
-  NEW_POOL;
   NSData *dataStatic= [[NSData dataWithBytes:"0123456789" length:10] copy];
   NSMutableData *dataMutable= [dataStatic mutableCopy];
 
@@ -71,7 +68,6 @@ static void data_category(test_t *test)
 
   RELEASE(dataStatic);
   RELEASE(dataMutable);
-  KILL_POOL;
 }
 
 testdef_t foundation_data[]= {

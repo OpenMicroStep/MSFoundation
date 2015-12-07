@@ -172,7 +172,6 @@ static void dictionary_subclass(test_t *test)
 @end
 static void dictionary_category(test_t *test)
 {
-  NEW_POOL;
   NSDictionary *dictStatic= [[NSDictionary dictionaryWithObjectsAndKeys:@"o1", @"k1", @"o2", @"k2", nil] copy];
   NSMutableDictionary *dictMutable= [dictStatic mutableCopy];
 
@@ -182,7 +181,6 @@ static void dictionary_category(test_t *test)
 
   RELEASE(dictStatic);
   RELEASE(dictMutable);
-  KILL_POOL;
 }
 
 testdef_t foundation_dictionary[]= {

@@ -5,7 +5,6 @@
 
 static void date_mixed(test_t *test)
 {
-  NEW_POOL;
   NSDate *d0, *d1, *d2, *d3, *d4, *d5, *d6, *d7, *d8, *d9, *df, *dp;
   NSDate *i0, *i1, *i2, *i3, *i4, *i5, *i6, *i7, *i8, *i9;
 
@@ -154,7 +153,6 @@ static void date_mixed(test_t *test)
   RELEASE(i7);
   RELEASE(i8);
   RELEASE(i9);
-  KILL_POOL;
 }
 
 testdef_t foundation_date[]= {

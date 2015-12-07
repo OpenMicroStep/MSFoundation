@@ -327,7 +327,6 @@ static void string_ascii(test_t *test)
 static void string_plist(test_t *test)
 {
   NSString *s; NSArray* a, *e; CBuffer *b;
-  NEW_POOL;
   b= CCreateBuffer(0);
   CBufferAppendByte(b, 0xff);
   CBufferAppendByte(b, 0x00);
@@ -346,20 +345,16 @@ static void string_plist(test_t *test)
   TASSERT(test, a, "parsing plist string '%s' to array failed",[s UTF8String]);
   TASSERT_ISEQUAL(test, e, a, "parsing plist string '%s' to array failed,\n%s\nnot equals to\n%s",
     [s UTF8String],[[e description] UTF8String],[[a description] UTF8String]);
-  KILL_POOL;
 }
 static void string_uuid(test_t *test)
 {
   MSString *uuid1, *uuid2;
-  NEW_POOL;
 
   uuid1 = [MSString UUIDString];
   uuid2 = [MSString UUIDString];
   TASSERT_EQUALS(test, [uuid1 length], 36, "uuid1 string length must be 36");
   TASSERT_EQUALS(test, [uuid2 length], 36, "uuid2 string length must be 36");
   TASSERT_ISNOTEQUAL(test, uuid1, uuid2, "uuid must not be equals ever");
-
-  KILL_POOL;
 }
 
 testdef_t msfoundation_string[]= {

@@ -2,7 +2,6 @@
 
 static void number_int(test_t *test)
 {
-  NEW_POOL;
   NSNumber *n1, *n2, *n3, *nmax, *nmin;
   n1= [NSNumber numberWithInt:2048578];
   n2= [ALLOC(NSNumber) initWithInt:2048578];
@@ -42,13 +41,10 @@ static void number_int(test_t *test)
   TASSERT_EQUALS_DBL(test, [nmin floatValue            ], INT_MIN   );
   TASSERT_EQUALS_OBJ(test, [nmax stringValue           ], (FMT(@"%d", INT_MAX)));
   TASSERT_EQUALS_OBJ(test, [nmin stringValue           ], (FMT(@"%d", INT_MIN)));
-
-  KILL_POOL;
 }
 
 static void number_double(test_t *test)
 {
-  NEW_POOL;
   NSNumber *n1, *n2, *n3, *nmax, *nmin;
   NSNumber *i1, *i2, *i3;
 
@@ -106,12 +102,9 @@ static void number_double(test_t *test)
   TASSERT_EQUALS_DBL(test, [n3 doubleValue], 1.6);
 
   RELEASE(i1); RELEASE(i2); RELEASE(i3);
-  KILL_POOL;
 }
 static void number_compare(test_t *test)
 {
-  NEW_POOL;
-
   TASSERT_EQUALS_LLD(test, [[NSNumber numberWithUnsignedLongLong:ULLONG_MAX] compare:[NSNumber numberWithUnsignedLongLong:ULLONG_MAX]], NSOrderedSame);
   TASSERT_EQUALS_LLD(test, [[NSNumber numberWithUnsignedLongLong:ULLONG_MAX] compare:[NSNumber numberWithLongLong:LLONG_MAX]], NSOrderedDescending);
   TASSERT_EQUALS_LLD(test, [[NSNumber numberWithLongLong:LLONG_MAX] compare:[NSNumber numberWithUnsignedLongLong:ULLONG_MAX]], NSOrderedAscending);
@@ -127,8 +120,6 @@ static void number_compare(test_t *test)
   TASSERT_EQUALS_LLD(test, [[NSNumber numberWithBool:YES] compare:[NSNumber numberWithInt:1]], NSOrderedSame);
   TASSERT_EQUALS_LLD(test, [[NSNumber numberWithBool:YES] compare:[NSNumber numberWithInt:-1]], NSOrderedDescending);
   TASSERT_EQUALS_LLD(test, [[NSNumber numberWithBool:NO] compare:[NSNumber numberWithInt:10]], NSOrderedAscending);
-
-  KILL_POOL;
 }
 
 testdef_t foundation_number[]= {

@@ -80,7 +80,6 @@ struct NSInvocation_TestStruct2 {
 
 static void invocation_simple(test_t *test)
 {
-  NEW_POOL;
   NSUInteger retainCountBefore;
   NSMethodSignature *s; NSInvocation *i; id o;
   o= [NSInvocation_TestClass new];
@@ -96,12 +95,10 @@ static void invocation_simple(test_t *test)
   [i invoke];
   TASSERT_EQUALS_LLU(test, [o retainCount], retainCountBefore + 1);
   [o release];
-  KILL_POOL;
 }
 
 static void invocation_return(test_t *test)
 {
-  NEW_POOL;
   int32_t r; int ret_int; char ret_char; double ret_flt; id ret_id;
   NSMethodSignature *s; NSInvocation *i; id o;
   o= [[NSInvocation_TestClass new] autorelease];
@@ -138,13 +135,10 @@ static void invocation_return(test_t *test)
   [i invoke];
   [i getReturnValue:&ret_flt];
   TASSERT_EQUALS_DBL(test, ret_flt, 272.2);
-
-  KILL_POOL;
 }
 
 static void invocation_complex(test_t *test)
 {
-  NEW_POOL;
   struct NSInvocation_TestStruct obs, st, st2, st3;
   struct NSInvocation_TestStruct2 s2t;
   int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
@@ -266,18 +260,14 @@ static void invocation_complex(test_t *test)
   [i invoke];
   [i getReturnValue:&arr_ret];
   TASSERT_EQUALS_LLD(test, arr_ret, arr_arg[0] + arr_arg[1] + arr_arg[2] + arr_arg[3]);
-
-  KILL_POOL;
 }
 
 
 static void invocation_forward(test_t *test)
 {
-  NEW_POOL;
   NSMethodSignature *s; NSInvocation *i; id o;
   o= [NSInvocation_TestClass new];
   TASSERT_EQUALS_OBJ(test, [o objectAtIndex:0], @"forwarded result: 0");
-  KILL_POOL;
 }
 
 testdef_t foundation_invocation[]= {

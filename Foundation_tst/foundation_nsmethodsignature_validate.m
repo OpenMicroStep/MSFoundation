@@ -56,7 +56,6 @@ struct NSMethodSignature_TestStruct2 {
 
 static void methodsignature_new(test_t *test)
 {
-  NEW_POOL;
   NSMethodSignature_TestClass *o;
   NSMethodSignature *s;
 
@@ -120,7 +119,6 @@ static void methodsignature_new(test_t *test)
   TASSERT_EQUALS_STR(test, [s getArgumentTypeAtIndex:2], "{NSMethodSignature_TestStruct2=qsic[1024c]}");
 
   RELEASE(o);
-  KILL_POOL;
 }
 
 

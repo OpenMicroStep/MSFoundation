@@ -2,7 +2,6 @@
 
 static void objcruntime_selector(test_t *test)
 {
-  NEW_POOL;
   SEL sel; NSString *str;
 
   sel= NSSelectorFromString(@"initWith:test:");
@@ -11,13 +10,10 @@ static void objcruntime_selector(test_t *test)
   TASSERT_EQUALS_OBJ(test, str, @"initWith:test:");
 
   TASSERT(test, !NSSelectorFromString(nil), "NSSelectorFromString should return nil if string is nil");
-
-  KILL_POOL;
 }
 
 static void objcruntime_class(test_t *test)
 {
-  NEW_POOL;
   Class cls; NSString *str;
 
   cls= NSClassFromString(@"NSObject");
@@ -27,13 +23,10 @@ static void objcruntime_class(test_t *test)
 
   TASSERT(test, !NSClassFromString(@"azertyuiop"), "NSClassFromString should return nil if class doesn't exists");
   TASSERT(test, !NSClassFromString(nil), "NSClassFromString should return nil if string is nil");
-
-  KILL_POOL;
 }
 
 static void objcruntime_protocol(test_t *test)
 {
-  NEW_POOL;
   Protocol *protocol; NSString *str;
 
   protocol= NSProtocolFromString(@"NSObject");
@@ -43,21 +36,16 @@ static void objcruntime_protocol(test_t *test)
 
   TASSERT(test, !NSProtocolFromString(@"azertyuiop"), "NSProtocolFromString should return nil if protocol doesn't exists");
   TASSERT(test, !NSProtocolFromString(nil), "NSProtocolFromString should return nil if string is nil");
-
-  KILL_POOL;
 }
 
 static void objcruntime_alloc(test_t *test)
 {
-  NEW_POOL;
   id a;
 
   a= NSAllocateObject([NSObject class], 0, NULL);
   TASSERT(test, a, "object not allocated");
   TASSERT(test, ISA(a) == [NSObject class], "class differ");
   NSDeallocateObject(a);
-
-  KILL_POOL;
 }
 
 struct _objctype_test
@@ -76,7 +64,6 @@ const char *type_struct = @encode(struct _objctype_test);
 
 static void objcruntime_types(test_t *test)
 {
-  NEW_POOL;
   NSUInteger size, align; const char *next;
 
   next= NSGetSizeAndAlignment(type_i4, &size, &align);
@@ -90,8 +77,6 @@ static void objcruntime_types(test_t *test)
   next= NSGetSizeAndAlignment(type_struct, &size, &align);
   TASSERT_EQUALS_TYPEEND(test, next, type_struct + 25);
   TASSERT_EQUALS_LLU(test, size, 24);
-
-  KILL_POOL;
 }
 
 testdef_t foundation_objcruntime[]= {

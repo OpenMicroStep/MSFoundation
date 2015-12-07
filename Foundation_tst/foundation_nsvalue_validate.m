@@ -9,7 +9,6 @@ struct _TestType {
 
 static void value_mixed(test_t *test)
 {
-  NEW_POOL;
   NSValue *v0, *v1, *v2;
   MSULong llu0, llu1;
   struct _TestType t0, t1;
@@ -40,8 +39,6 @@ static void value_mixed(test_t *test)
   TASSERT_EQUALS_LLD(test, t0.d, t1.d);
   TASSERT(test, memcmp(&t0, &t1, sizeof(struct _TestType)) == 0, "retrieved value differ of stored value");
   TASSERT_EQUALS_LLD(test, llu0, llu1);
-
-  KILL_POOL;
 }
 
 testdef_t foundation_value[]= {

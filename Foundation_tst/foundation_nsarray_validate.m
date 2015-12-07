@@ -10,7 +10,6 @@
 
 static void array_create(test_t *test)
 {
-  NEW_POOL;
   NSUInteger i,j, n= 20;
   NSArray *x; NSMutableArray *a,*b;
   a= [[NSMutableArray alloc] init];
@@ -29,12 +28,10 @@ static void array_create(test_t *test)
   RELEASE(a);
   TASSERT_EQUALS(test, [x retainCount], 1, "x retain count should be %2$d, got %1$d");
   RELEASE(x);
-  KILL_POOL;
 }
 
 static void array_mutate(test_t *test)
 {
-  NEW_POOL;
   NSUInteger i;
   id p[100];
   NSMutableArray *a, *b;
@@ -72,7 +69,6 @@ static void array_mutate(test_t *test)
   for (i=0; i<100; i++) {
     TASSERT_EQUALS(test, [p[i] retainCount], 1, "Item %1$d retain count should be %3$d, got %2$d", i);
     [p[i] release]; }
-  KILL_POOL;
 }
 
 static void array_subarray(test_t *test)
@@ -102,7 +98,6 @@ static void array_subarray(test_t *test)
 
 static void array_enum(test_t *test)
 {
-  NEW_POOL;
   id a,e,o,o0,o1,oi; NSUInteger i;
   o0= @"1"; o1= @"2";
   a= [NSArray arrayWithObjects:o0, o1, nil];
@@ -114,7 +109,6 @@ static void array_enum(test_t *test)
   for (i= 0 ; (o= [e nextObject]); i++) {
     oi= (i==0?o1:o0);
     TASSERT_ISEQUAL(test, o, oi, "%s != %s",[o UTF8String],[oi UTF8String]);}
-  KILL_POOL;
 }
 
 #pragma mark Subclass
@@ -167,7 +161,6 @@ const static struct garray_pfs_s MyFastArrayPfs= {
 
 static void _array_subclass(test_t *test, Class cl)
 {
-  NEW_POOL;
   id o,d,e,x,y,os[2]; int i;
   o= [[cl alloc] init];
   if (cl==[MyArray class]) TASSERT_EQUALS(test, [o count], 2, "count is %llu, expected %llu");
@@ -200,7 +193,6 @@ static void _array_subclass(test_t *test, Class cl)
   TASSERT_ISEQUAL(test, os[0], _o1, "%s != %s",[os[0] UTF8String],"first object");
   TASSERT_ISEQUAL(test, os[1], _o2, "%s != %s",[os[1] UTF8String],"second object");
   RELEASE(o);
-  KILL_POOL;
 }
 
 static void array_subclass(test_t *test)
@@ -227,7 +219,6 @@ static void array_fast_subclass(test_t *test)
 @end
 static void array_category(test_t *test)
 {
-  NEW_POOL;
   NSArray *arrStatic= [[NSArray arrayWithObjects:_o1, _o2, nil] copy];
   NSMutableArray *arrMutable= [arrStatic mutableCopy];
 
@@ -237,7 +228,6 @@ static void array_category(test_t *test)
 
   RELEASE(arrStatic);
   RELEASE(arrMutable);
-  KILL_POOL;
 }
 
 testdef_t foundation_array[]= {
