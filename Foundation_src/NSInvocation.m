@@ -357,6 +357,7 @@ static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
 
 @interface _NSInvocationExecutableMemory : NSInvocation {
   ffi_closure *_closure;
+  ffi_cif _cif;
 }
 - (IMP)closure;
 @end
@@ -385,17 +386,13 @@ static void nsinvocation_closure(ffi_cif* cif, void* result, void** args, void* 
 }
 - (IMP)closure
 {
-  ffi_cif cif;
-  ffi_type **types;
   ffi_status status;
-
-  types= ffi_types_from_signature(_signature);
 
   if ((_closure = mmap(NULL, sizeof(ffi_closure), PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == (void*)-1)
     ;// TODO: Report the error
-  if ((status= ffi_prep_cif(&cif, FFI_DEFAULT_ABI, _argc, types[0], types + 1)) != FFI_OK)
+  if ((status= ffi_prep_cif(&_cif, FFI_DEFAULT_ABI, _argc, _types[0], _types + 1)) != FFI_OK)
     ;// TODO: Report the error
-  if ((status= ffi_prep_closure(_closure, &cif, nsinvocation_closure, self)) != FFI_OK)
+  if ((status= ffi_prep_closure(_closure, &_cif, nsinvocation_closure, self)) != FFI_OK)
     ;// TODO: Report the error
   if (mprotect(_closure, sizeof(ffi_closure), PROT_READ | PROT_EXEC) == -1)
     ;// TODO: Report the error
