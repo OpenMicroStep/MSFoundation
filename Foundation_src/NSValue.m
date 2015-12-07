@@ -65,8 +65,7 @@
 @implementation NSValue
 + (instancetype)allocWithZone:(NSZone *)zone
 {
-  if (self == [NSValue class]) return [_NSValueAllocator class];
-  return [super allocWithZone:zone];
+  return self == [NSValue class] ? (NSValue*)[_NSValueAllocator class] : [super allocWithZone:zone];
 }
 
 + (NSValue *)valueWithBytes:(const void *)value objCType:(const char *)type
@@ -79,15 +78,21 @@
   return [self valueWithBytes:value objCType:type];
 }
 
+- (id)copyWithZone:(NSZone *)zone
+{
+  return [self retain];
+}
+
 - (BOOL)isEqual:(id)object
 {
   if (object == self)
     return YES;
   return [object isKindOfClass:[NSValue class]] && [self isEqualToValue:object];
 }
+
 - (BOOL)isEqualToValue:(NSValue *)aValue
 {
-  char *ta, *tb; BOOL equals;
+  const char *ta, *tb; BOOL equals;
   equals= strcmp((ta= [self objCType]), (tb= [aValue objCType])) == 0;
   if(equals) {
     NSUInteger sz, align;
@@ -102,4 +107,9 @@
   }
   return equals;
 }
+
+- (void)getValue:(void *)value
+{ [self notImplemented:_cmd];}
+- (const char *)objCType
+{ [self notImplemented:_cmd]; return NULL; }
 @end
