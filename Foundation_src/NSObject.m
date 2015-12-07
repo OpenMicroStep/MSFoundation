@@ -206,8 +206,8 @@
 
 - (void)doesNotRecognizeSelector:(SEL)aSelector
 {
-  [NSException raise:NSInvalidArgumentException format:@"-[%s %s]: unrecognized selector sent to instance %p",
-    class_getName(ISA(self)), sel_getName(aSelector), self];
+  [NSException raise:NSInvalidArgumentException format:@"%c[%s %s]: unrecognized selector sent to instance %p",
+    class_isMetaClass(ISA(self)) ? '+' : '-', class_getName(ISA(self)), sel_getName(aSelector), self];
 }
 - (void)forwardInvocation:(NSInvocation *)anInvocation
 {

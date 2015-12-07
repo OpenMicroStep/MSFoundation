@@ -1,5 +1,5 @@
 #import "FoundationCompatibility_Private.h"
-#include <ffi/ffi.h> // we include this messy header only here to prevent leaking bad stuff to others
+#include <ffi.h> // we include this messy header only here to prevent leaking bad stuff to others
 #include <ctype.h>
 #include <sys/mman.h>
 
@@ -7,7 +7,7 @@ MS_DECLARE_THREAD_LOCAL(__forward_slot, free);
 
 static IMP ms_objc_msg_forward2(id receiver, SEL _cmd);
 static struct objc_slot *ms_objc_msg_forward3(id receiver, SEL _cmd);
-
+static void ms_objc_unexpected_exception(id exception);
 
 static inline void alloc_ffi_type(ffi_type **typep, int elements)
 {
@@ -190,6 +190,7 @@ ffi_type **ffi_types_from_signature(NSMethodSignature *sig)
 {
   __objc_msg_forward3= ms_objc_msg_forward3;
   __objc_msg_forward2= ms_objc_msg_forward2;
+  _objc_unexpected_exception= ms_objc_unexpected_exception;
 }
 
 static inline size_t _argumentSize(uint8_t *frame, NSUInteger idx)
@@ -414,8 +415,8 @@ static IMP ms_objc_msg_forward2(id receiver, SEL _cmd)
   if (sig) return ffi_nsinvocation_closure(sig);
   if ([receiver respondsToSelector:@selector(doesNotRecognizeSelector:)])
     [receiver doesNotRecognizeSelector:_cmd];
-  [NSException raise:NSInvalidArgumentException format:@"-[%s %s]: unrecognized selector sent to instance %p",
-    class_getName(ISA(receiver)), sel_getName(_cmd), receiver];
+  [NSException raise:NSInvalidArgumentException format:@"%c[%s %s]: unrecognized selector sent to instance %p",
+    class_isMetaClass(ISA(receiver)) ? '+' : '-', class_getName(ISA(receiver)), sel_getName(_cmd), receiver];
   return NULL;
 }
 
@@ -428,4 +429,10 @@ static struct objc_slot *ms_objc_msg_forward3(id receiver, SEL _cmd)
   }
   slot->method= ms_objc_msg_forward2(receiver, _cmd);
   return slot;
+}
+
+static void ms_objc_unexpected_exception(id exception)
+{
+  NSLog(@"*** Terminating app due to uncaught exception '%@', reason: '%@'", [exception name], [exception reason]);
+  abort();
 }
