@@ -29,6 +29,47 @@ static void string_eq(test_t *test)
   RELEASE(ms);
   }
 
+#define TASSERT_NSSTRINGINIT(TEST, INIT, EXPECT) TASSERT_EQUALS_OBJ(test, [[[NSString alloc] INIT] autorelease], EXPECT)
+#define TASSERT_NSSTRINGCLSI(TEST, INIT, EXPECT) TASSERT_EQUALS_OBJ(test, [NSString INIT], EXPECT)
+
+static void string_init(test_t *test)
+{
+  unichar *characters; NSData *data;
+  TASSERT_NSSTRINGINIT(test, init, @"");
+  TASSERT_NSSTRINGINIT(test, initWithCharacters:u"abcéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫" length:18, @"abcéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  TASSERT_NSSTRINGINIT(test, initWithCharactersNoCopy:u"céèàô¡®œ±ĀϿḀ⓿⣿㊿﹫" length:16 freeWhenDone:NO , @"céèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  characters= malloc(sizeof(unichar) * 16);
+  memcpy(characters, u"déèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", sizeof(unichar) * 16);
+  TASSERT_NSSTRINGINIT(test, initWithCharactersNoCopy:characters length:16 freeWhenDone:YES, @"déèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  TASSERT_NSSTRINGINIT(test, initWithUTF8String:"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", @"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  TASSERT_NSSTRINGINIT(test, initWithString:(id)@"¡®œ±ĀϿḀ⓿⣿㊿﹫", @"¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  data= [NSData dataWithBytes:"abcd" length:4];
+  TASSERT_NSSTRINGINIT(test, initWithData:data encoding:NSUTF8StringEncoding, @"abcd");
+  data= [NSData dataWithBytes:u"abcd" length:8];
+  TASSERT_NSSTRINGINIT(test, initWithData:data encoding:NSUTF16StringEncoding, @"abcd");
+  TASSERT_NSSTRINGINIT(test, initWithBytes:"abcde" length:5 encoding:NSUTF8StringEncoding, @"abcde");
+  TASSERT_NSSTRINGINIT(test, initWithBytesNoCopy:"abcdef" length:6 encoding:NSUTF8StringEncoding freeWhenDone:NO, @"abcdef");
+  TASSERT_NSSTRINGINIT(test, initWithBytes:u"abcde" length:10 encoding:NSUTF16StringEncoding, @"abcde");
+  TASSERT_NSSTRINGINIT(test, initWithBytesNoCopy:u"abcdef" length:12 encoding:NSUTF16StringEncoding freeWhenDone:NO, @"abcdef");
+  characters= malloc(sizeof(unichar) * 5);
+  memcpy(characters, u"fghyt", sizeof(unichar) * 5);
+  TASSERT_NSSTRINGINIT(test, initWithBytesNoCopy:characters length:10 encoding:NSUTF16StringEncoding freeWhenDone:YES, @"fghyt");
+
+
+  TASSERT_NSSTRINGCLSI(test, string, @"");
+  TASSERT_NSSTRINGCLSI(test, stringWithString:(id)@"¡®œ±ĀϿḀ⓿⣿㊿﹫", @"¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  TASSERT_NSSTRINGCLSI(test, stringWithCharacters:u"abcéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫" length:18, @"abcéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  TASSERT_NSSTRINGCLSI(test, stringWithUTF8String:"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫", @"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+
+  TASSERT_NSSTRINGINIT(test, initWithCString:"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫" encoding:NSUTF8StringEncoding, @"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+  TASSERT_NSSTRINGCLSI(test, stringWithCString:"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫" encoding:NSUTF8StringEncoding, @"eéèàô¡®œ±ĀϿḀ⓿⣿㊿﹫");
+
+  // TODO: initWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error;
+  // TODO: stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)enc error:(NSError **)error;
+  // TODO: initWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error;
+  // TODO: stringWithContentsOfFile:(NSString *)path usedEncoding:(NSStringEncoding *)enc error:(NSError **)error;
+}
+
 #define TASSERT_STRING_EQUALS(FMT, T, A, M, B, E) TASSERT_STRING_EQUALS_OPT(FMT, T, A, M, B, , E)
 #define TASSERT_STRING_EQUALS_OPT(FMT, T, A, M, B, M2, E) \
   TASSERT_EQUALS_ ## FMT(T, [@A M: @B M2], E); \
@@ -467,6 +508,7 @@ static void string_path(test_t *test)
 
 testdef_t foundation_string[]= {
   {"equal" ,NULL,string_eq    },
+  {"init"    ,NULL,string_init  },
   {"compare" ,NULL,string_compare},
   {"cast"  ,NULL,string_cast  },
   {"format",NULL,string_format},

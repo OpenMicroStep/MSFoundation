@@ -637,19 +637,23 @@ static inline id _string(Class cl, id a, BOOL m)
   if (!m) CGrowSetForeverImmutable(a);
   return a;
 }
-static inline id _stringWithBytes(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s, NSUInteger length)
+static inline id _stringWithChars(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s, NSUInteger length)
 {
   if (!a) a= AUTORELEASE(ALLOC(cl));
   CStringAppendBytes((CString*)a, encoding, s, length);
   if (!m) CGrowSetForeverImmutable(a);
   return a;
 }
+static inline id _stringWithBytes(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s, NSUInteger length)
+{
+  return _stringWithChars(cl, a, m, encoding, s, length / CStringSizeOfCharacterForEncoding(encoding));
+}
 static inline id _stringWithCString(Class cl, id a, BOOL m, NSStringEncoding encoding, const void *s)
 {
   if (!s) {
     DESTROY(a);}
   else {
-    a= _stringWithBytes(cl, a, m, encoding, s, strlen(s));}
+    a= _stringWithChars(cl, a, m, encoding, s, strlen(s));}
   return a;
 }
 static inline id _stringWithSES(Class cl, id a, BOOL m, SES ses)
@@ -698,17 +702,17 @@ static inline id _stringWithContentsOfFile(Class cl, id a, BOOL m, NSString *pat
   }
 
 + (instancetype)stringWithCharacters:(const unichar *)characters length:(NSUInteger)length
-{ return _stringWithBytes(nil ,self, NO, NSUnicodeStringEncoding, characters,length);}
+{ return _stringWithChars(self, nil, NO, NSUnicodeStringEncoding, characters,length);}
 - (instancetype)initWithCharacters:(const unichar *)characters length:(NSUInteger)length
-{ return _stringWithBytes(nil ,self, NO, NSUnicodeStringEncoding, characters,length);}
+{ return _stringWithChars(nil ,self, NO, NSUnicodeStringEncoding, characters,length);}
 - (instancetype)initWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)freeBuffer
-{ id str=_stringWithBytes(nil ,self, NO, NSUnicodeStringEncoding, characters,length); if(freeBuffer) free(characters); return str;}
+{ id str=_stringWithChars(nil ,self, NO, NSUnicodeStringEncoding, characters,length); if(freeBuffer) free(characters); return str;}
 + (instancetype)mutableStringWithCharacters:(const unichar *)characters length:(NSUInteger)length
-{ return _stringWithBytes(nil ,self,YES, NSUnicodeStringEncoding, characters,length);}
+{ return _stringWithChars(self, nil,YES, NSUnicodeStringEncoding, characters,length);}
 - (instancetype)mutableInitWithCharacters:(const unichar *)characters length:(NSUInteger)length
-{ return _stringWithBytes(nil ,self,YES, NSUnicodeStringEncoding, characters,length);}
+{ return _stringWithChars(nil ,self,YES, NSUnicodeStringEncoding, characters,length);}
 - (instancetype)mutableInitWithCharactersNoCopy:(unichar *)characters length:(NSUInteger)length freeWhenDone:(BOOL)freeBuffer
-{ id str=_stringWithBytes(nil ,self,YES, NSUnicodeStringEncoding, characters,length); if(freeBuffer) free(characters); return str;}
+{ id str=_stringWithChars(nil ,self,YES, NSUnicodeStringEncoding, characters,length); if(freeBuffer) free(characters); return str;}
 
 + (instancetype)stringWithUTF8String:(const char *)nullTerminatedCString
 { return _stringWithCString(self, nil, NO, NSUTF8StringEncoding, nullTerminatedCString);}
