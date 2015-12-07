@@ -7,7 +7,7 @@ enum {
   TYPE_BUNDLE
 };
 @interface NSBundle (Private)
-- (instancetype)_initWithPath:(NSString *)path exePath:(NSString *)exePath;
+- (instancetype)_initWithPath:(NSString *)path exepath:(NSString *)exepath;
 @end
 
 once_flag __mainBundle_once = ONCE_FLAG_INIT;
@@ -19,21 +19,24 @@ static CDictionary *__bundleByPath= NULL;
 static CDictionary *__bundleByExePath= NULL;
 static NSBundle *__mainBundle = nil;
 
-static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe);
+static NSBundle * _createBundleWithExePath(NSString *exepath, BOOL isMainExe);
 static void mainBundle_init();
 static void _bundleIterator(const char *name, void *data);
+static NSString *_absolutepath(NSString *path);
 
 static void mainBundle_init() {
   const char *utf8Path;
   CString *path;
 
   utf8Path= ms_get_current_process_path();
+  //printf("utf8Path=%s\n", utf8Path);
   path= CCreateStringWithBytes(NSUTF8StringEncoding, utf8Path, strlen(utf8Path));
-  __mainBundle= _bundleWithExePath((NSString*)path, YES);
+  __mainBundle= _createBundleWithExePath((NSString*)path, YES);
 }
 static void _bundleIterator(const char *name, void *data)
 {
-  _bundleWithExePath([NSString stringWithUTF8String:name], NO);
+  //printf("name=%s\n", name);
+  [_createBundleWithExePath([NSString stringWithUTF8String:name], NO) release];
 }
 static void _refreshIfNeeded()
 {
@@ -43,7 +46,16 @@ static void _refreshIfNeeded()
   }
 }
 
-@implementation NSBundle
+@implementation NSBundle  {
+@private
+  uint32_t _type;
+  uint32_t _state;
+  NSDictionary *_info;
+  NSString *_path;
+  NSString *_exepath;
+  NSString *_rscPath;
+  mtx_t _mutex;
+}
 + (void)initialize {
   if (self == [NSBundle self]) {
     __bundleByIds= CCreateDictionary(32);
@@ -100,86 +112,85 @@ static void _refreshIfNeeded()
   //printf("bundle %s\n", [[bundle executablePath] UTF8String]);
   return bundle;
 }
-+ (NSBundle *)bundleWithPath:(NSString *)path
-{ return [[ALLOC(NSBundle) initWithPath:path] autorelease]; }
-- (instancetype)initWithPath:(NSString *)path
-{
-  if (![path length]) {
-    DESTROY(self);}
-  else if (![path isAbsolutePath]) {
-    path= [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:path];
-#   ifdef WIN32
-    {
-      CBuffer *buf= CCreateBuffer(0); unichar end= 0; unichar result[MAX_PATH + 1]; DWORD len;
-      CBufferAppendSES(buf, SESFromString(path), NSUnicodeStringEncoding);
-      CBufferAppendBytes(buf, &end, sizeof(unichar));
-      len= GetFullPathNameW((unichar*)CBufferBytes(buf), MAX_PATH, result, NULL);
-      if (len > 0 && len <= MAX_PATH) {
-        path= AUTORELEASE(CCreateStringWithBytes(NSUnicodeStringEncoding, result, len));}
-      else {
-        DESTROY(self);}
-    }
-#   else
-    {
-      char result[PATH_MAX];
-      if (realpath([path UTF8String], result) == result) {
-        path= [NSString stringWithUTF8String:result];}
-      else {
-        DESTROY(self);}
-    }
-#   endif
-  }
-  return [self _initWithPath:[NSString pathWithComponents:[path pathComponents]] exePath:nil];
-}
-- (instancetype)_initWithPath:(NSString *)path exePath:(NSString *)exePath
-{
-  id bundle;
-  mtx_lock(&__mutex);
-  bundle= CDictionaryObjectForKey(__bundleByPath, path);
-  mtx_unlock(&__mutex);
-  if (bundle) {
-    [self release];
-    self= bundle;}
-  else if ((self= [super init])) {
-    id basePath= path; id identifier;
-    mtx_init(&_mutex, mtx_plain);
-    _path= [path retain];
 
-    if ([@"framework" isEqualToString:[path pathExtension]]) {
-      CArrayAddObject(__frameworks, self);
-      _type= TYPE_FRAMEWORK;}
-    else if (exePath) {
-      _type= TYPE_EXE;}
-    else {
-      basePath= [path stringByAppendingPathComponent:@"Contents"];
-      _type= TYPE_BUNDLE;}
-
-    if (!exePath) {
-      exePath= [basePath stringByAppendingPathComponent:[[path lastPathComponent] stringByDeletingPathExtension]];
-#     ifdef WIN32
-        exePath= [exePath stringByAppendingPathExtension:@"dll"];
-#     endif
-    }
-    else {
-      _state= 2;}
-    _rscPath= [[basePath stringByAppendingPathComponent:@"Resources"] retain];
-    _exePath= [exePath retain];
-    _info= [[NSDictionary dictionaryWithContentsOfFile:[basePath stringByAppendingPathComponent:@"Info.plist"]] retain];
-    if (!_info)
-      _info= (id)CCreateDictionary(0);
+// self can be nil, path can be relative, exepath can be nil
+static NSBundle* _init(NSBundle *self, NSString *path, NSString *exepath)
+{
+  id bundle; BOOL ok= YES;
+  path= _absolutepath(path);
+  ok= path != nil;
+  if (ok && exepath && !(exepath= _absolutepath(exepath))) {
+    NSLog(@"provided exepath is considered invalid, this should never happen");
+    ok= NO;}
+  if (ok) {
+    //NSLog(@"%p path=%@ exepath=%@", self, path, exepath);
     mtx_lock(&__mutex);
-    CDictionarySetObjectForKey(__bundleByExePath, self, _exePath);
-    CDictionarySetObjectForKey(__bundleByPath, self, _path);
-    if ((identifier= [self bundleIdentifier]))
-      CDictionarySetObjectForKey(__bundleByIds, self, identifier);
+    bundle= CDictionaryObjectForKey(__bundleByPath, path);
     mtx_unlock(&__mutex);
-    //printf("new bundle path=%s rscPath=%s exePath=%s\n", [_path UTF8String], [_rscPath UTF8String], [_exePath UTF8String]);
+    if (bundle) {
+      RELEASE(self);
+      self= RETAIN(bundle);}
+    else {
+      id basePath= path; id identifier; uint32_t type; BOOL loaded= NO, framework= NO;
+
+      if ([@"framework" isEqualToString:[path pathExtension]]) {
+        framework= YES;
+        type= TYPE_FRAMEWORK;}
+      else if (exepath) {
+        type= TYPE_EXE;}
+      else {
+        basePath= [path stringByAppendingPathComponent:@"Contents"];
+        type= TYPE_BUNDLE;}
+
+      if (!exepath) {
+#       if defined(LINUX)
+          exepath= FMT(@"lib%@.so", [[path lastPathComponent] stringByDeletingPathExtension]);
+#       elif defined(WIN32)
+          exepath= [[[path lastPathComponent] stringByDeletingPathExtension] stringByAppendingPathExtension:@"dll"];
+#       elif defined(APPLE)
+          exepath= [[path lastPathComponent] stringByDeletingPathExtension];
+#       else
+#         error Unsupported plaform
+#       endif
+        exepath= [basePath stringByAppendingPathComponent:exepath];
+        exepath= _absolutepath(exepath);
+      }
+      else {
+        loaded= YES;}
+
+      if (exepath) {
+        if (!self)
+          self= [NSBundle new];
+        mtx_init(&self->_mutex, mtx_plain);
+        self->_type= type;
+        self->_state= loaded ? 2 : 0;
+        self->_path= [path retain];
+        self->_rscPath= [[basePath stringByAppendingPathComponent:@"Resources"] retain];
+        self->_exepath= [exepath retain];
+        self->_info= [[NSDictionary dictionaryWithContentsOfFile:[basePath stringByAppendingPathComponent:@"Info.plist"]] retain];
+        if (!self->_info)
+          self->_info= (id)CCreateDictionary(0);
+        mtx_lock(&__mutex);
+        if (framework)
+          CArrayAddObject(__frameworks, self);
+        CDictionarySetObjectForKey(__bundleByExePath, self, self->_exepath);
+        CDictionarySetObjectForKey(__bundleByPath, self, self->_path);
+        if ((identifier= [self bundleIdentifier]))
+          CDictionarySetObjectForKey(__bundleByIds, self, identifier);
+        mtx_unlock(&__mutex);
+      }
+      else { ok= NO; }
+    //printf("new bundle path=%s rscPath=%s exepath=%s\n", [_path UTF8String], [_rscPath UTF8String], [_exepath UTF8String]);
+    }
   }
+  if (!ok) DESTROY(self);
   return self;
 }
-static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
+
+static NSBundle * _createBundleWithExePath(NSString *exepath, BOOL isMainExe)
 {
   NSBundle *bundle; NSString *path, *name, *pathExtension;
+  if (![exepath length]) return nil;
   mtx_lock(&__mutex);
   bundle= CDictionaryObjectForKey(__bundleByExePath, exepath);
   mtx_unlock(&__mutex);
@@ -192,15 +203,29 @@ static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
         path= [path stringByDeletingLastPathComponent]; // /
         path= [path stringByAppendingPathComponent:[NSString stringWithFormat:@"framework/%@.framework", name]]; // framework/NAME.framework
         if ([[NSFileManager defaultManager] isReadableFileAtPath:path]) { // Framework found
-          bundle= [ALLOC(NSBundle) _initWithPath:path exePath:exepath];}}
+          bundle= _init(nil, path, exepath);}}
 #   else
       path= [exepath stringByDeletingLastPathComponent];
       if ([[path lastPathComponent] hasSuffix:@".framework"]) { // Framework found
-        bundle= [ALLOC(NSBundle) _initWithPath:path exePath:exepath];}
+        bundle= _init(nil, path, exepath);}
 #   endif
     if (!bundle && isMainExe) { // it's the main exe
-      bundle= [ALLOC(NSBundle) _initWithPath:exepath exePath:exepath];}}
+      bundle= _init(nil, exepath, exepath);}}
+  else { [bundle retain]; }
   return bundle;
+}
+
++ (NSBundle *)bundleWithPath:(NSString *)path
+{
+  return [_init(nil, path, nil) autorelease];
+}
+- (instancetype)initWithPath:(NSString *)path
+{
+  return _init(self, path, nil);
+}
+- (instancetype)_initWithPath:(NSString *)path exepath:(NSString *)exepath
+{
+  return _init(self, path, exepath);
 }
 
 - (BOOL)load
@@ -209,7 +234,7 @@ static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
   if (!_state)
   {
     mtx_lock(&__mutex);
-    ms_shared_object_t handle= ms_shared_object_open([_exePath UTF8String]);
+    ms_shared_object_t handle= ms_shared_object_open([_exepath UTF8String]);
     __refresh= YES; // bundle list must be refresh in case some framework where loaded
     _state = handle ? 2 : 1;
     mtx_unlock(&__mutex);
@@ -255,7 +280,7 @@ static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
 - (NSString *)resourcePath
 { return _rscPath; }
 - (NSString *)executablePath
-{ return _exePath; }
+{ return _exepath; }
 
 - (NSDictionary *)infoDictionary
 {
@@ -281,3 +306,30 @@ static NSBundle * _bundleWithExePath(NSString *exepath, BOOL isMainExe)
   return cls;
 }
 @end
+
+// Utilities
+
+static NSString *_absolutepath(NSString *path)
+{
+  id ret= nil;
+  if (![path length]) { return nil; }
+  if (![path isAbsolutePath]) {
+    path= [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:path]; }
+# ifdef WIN32
+  {
+    CBuffer *buf= CCreateBuffer(0); unichar end= 0; unichar result[MAX_PATH + 1]; DWORD len;
+    CBufferAppendSES(buf, SESFromString(path), NSUnicodeStringEncoding);
+    CBufferAppendBytes(buf, &end, sizeof(unichar));
+    len= GetFullPathNameW((unichar*)CBufferBytes(buf), MAX_PATH, result, NULL);
+    if (len > 0 && len <= MAX_PATH) {
+      ret= AUTORELEASE(CCreateStringWithBytes(NSUnicodeStringEncoding, result, len));}
+  }
+# else
+  {
+    char result[PATH_MAX];
+    if (realpath([path UTF8String], result) == result) {
+      ret= [NSString stringWithUTF8String:result];}
+  }
+# endif
+  return ret;
+}

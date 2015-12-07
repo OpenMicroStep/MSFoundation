@@ -1,15 +1,6 @@
 @class NSString, NSArray;
 
-@interface NSBundle : NSObject {
-@private
-	uint32_t _type;
-	uint32_t _state;
-    NSDictionary *_info;
-    NSString *_path;
-    NSString *_exePath;
-    NSString *_rscPath;
-    mtx_t _mutex;
-}
+@interface NSBundle : NSObject
 
 /* Methods for creating or retrieving bundle instances. */
 + (NSBundle *)mainBundle;
