@@ -1,5 +1,14 @@
 #import "foundation_validate.h"
 
+struct NSInvocation_TestStruct0 {
+  int8_t _i1;
+};
+
+struct NSInvocation_TestStruct1 {
+  int64_t _i1;
+  int64_t _i2;
+};
+
 struct NSInvocation_TestStruct {
   int8_t _i1;
   int16_t _i2;
@@ -32,6 +41,21 @@ struct NSInvocation_TestStruct2 {
   _i2= i2;
   _i4= i4;
   _i8= i8;
+}
+- (struct NSInvocation_TestStruct0)complex0:(int8_t)i1 i2:(int16_t)i2 i4:(int32_t)i4 i8:(int64_t)i8
+{
+  struct NSInvocation_TestStruct0 s;
+  s._i1= i1;
+  return s;
+}
+- (struct NSInvocation_TestStruct1)complex01:(int8_t)i1 i2:(int16_t)i2 i4:(int32_t)i4 i8:(int64_t)i8
+{
+  struct NSInvocation_TestStruct1 s;
+  s._i1= i1;
+  s._i2= i2;
+  //s._i4= i4;
+  //s._i8= i8;
+  return s;
 }
 - (struct NSInvocation_TestStruct)complex1:(int8_t)i1 i2:(int16_t)i2 i4:(int32_t)i4 i8:(int64_t)i8
 {
@@ -137,142 +161,284 @@ static void invocation_return(test_t *test)
   TASSERT_EQUALS_DBL(test, ret_flt, 272.2);
 }
 
-static void invocation_complex(test_t *test)
+static void invocation_complex0(test_t *test)
 {
   struct NSInvocation_TestStruct obs, st, st2, st3;
+  struct NSInvocation_TestStruct0 st0;
+  struct NSInvocation_TestStruct1 st1;
   struct NSInvocation_TestStruct2 s2t;
   int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
+  int loop;
   NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
   o= [[NSInvocation_TestClass new] autorelease];
 
-  s= [o methodSignatureForSelector:@selector(paramsTypeTest:i2:i4:i8:)];
-  i= [NSInvocation invocationWithMethodSignature:s];
-  [i setTarget:o];
-  [i setSelector:@selector(paramsTypeTest:i2:i4:i8:)];
-  st._i1= 101;
-  st._i2= 3402;
-  st._i4= 133404;
-  st._i8= ((MSLong)INT_MAX) * 2;
-  memcpy(&obs, &st, sizeof(obs));
-  [i setArgument:&st._i1 atIndex:2];
-  [i setArgument:&st._i2 atIndex:3];
-  [i setArgument:&st._i4 atIndex:4];
-  [i setArgument:&st._i8 atIndex:5];
-  TASSERT_EQUALS_OBJ(test, [i target], o);
-  TASSERT_EQUALS_SEL(test, [i selector], @selector(paramsTypeTest:i2:i4:i8:));
-  memset(&st2, 0, sizeof(st2));
-  [i getArgument:&st2._i1 atIndex:2];
-  [i getArgument:&st2._i2 atIndex:3];
-  [i getArgument:&st2._i4 atIndex:4];
-  [i getArgument:&st2._i8 atIndex:5];
-  TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
-  TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
-  TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
-  TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
-  [i invoke];
-  TASSERT_EQUALS_LLD(test, o->_i1, st._i1);
-  TASSERT_EQUALS_LLD(test, o->_i2, st._i2);
-  TASSERT_EQUALS_LLD(test, o->_i4, st._i4);
-  TASSERT_EQUALS_LLD(test, o->_i8, st._i8);
-  TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
-
-  s= [o methodSignatureForSelector:@selector(complex1:i2:i4:i8:)];
-  i= [NSInvocation invocationWithMethodSignature:s];
-  [i setTarget:o];
-  [i setSelector:@selector(complex1:i2:i4:i8:)];
-  st._i1= 105;
-  st._i2= 3402;
-  st._i4= 13504;
-  st._i8= ((MSLong)INT_MAX) * 3;
-  memcpy(&obs, &st, sizeof(obs));
-  [i setArgument:&st._i1 atIndex:2];
-  [i setArgument:&st._i2 atIndex:3];
-  [i setArgument:&st._i4 atIndex:4];
-  [i setArgument:&st._i8 atIndex:5];
-  TASSERT_EQUALS_OBJ(test, [i target], o);
-  TASSERT_EQUALS_SEL(test, [i selector], @selector(complex1:i2:i4:i8:));
-  memset(&st2, 0, sizeof(st2));
-  [i getArgument:&st2._i1 atIndex:2];
-  [i getArgument:&st2._i2 atIndex:3];
-  [i getArgument:&st2._i4 atIndex:4];
-  [i getArgument:&st2._i8 atIndex:5];
-  TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
-  TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
-  TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
-  TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
-  [i invoke];
-  memset(&st3, 0, sizeof(st3));
-  [i getReturnValue:&st3];
-  TASSERT_EQUALS_LLD(test, st3._i1, st._i1);
-  TASSERT_EQUALS_LLD(test, st3._i2, st._i2);
-  TASSERT_EQUALS_LLD(test, st3._i4, st._i4);
-  TASSERT_EQUALS_LLD(test, st3._i8, st._i8);
-  TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
-
-  s= [o methodSignatureForSelector:@selector(complex2:)];
-  i= [NSInvocation invocationWithMethodSignature:s];
-  [i setTarget:o];
-  [i setSelector:@selector(complex2:)];
-  st._i1= 105;
-  st._i2= 3402;
-  st._i4= 13504;
-  st._i8= ((MSLong)INT_MAX) * 3;
-  memcpy(st.test, "0123456789", 10);
-  memcpy(&obs, &st, sizeof(obs));
-  [i setArgument:&st atIndex:2];
-  TASSERT_EQUALS_OBJ(test, [i target], o);
-  TASSERT_EQUALS_SEL(test, [i selector], @selector(complex2:));
-  memset(&st2, 0, sizeof(st2));
-  [i getArgument:&st2 atIndex:2];
-  TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
-  TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
-  TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
-  TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
-  TASSERT_EQUALS_LLD(test, memcmp(st2.test, st.test, sizeof(st3.test)), 0);
-  [i invoke];
-  memset(&s2t, 0, sizeof(s2t));
-  [i getReturnValue:&s2t];
-  TASSERT_EQUALS_LLD(test, s2t._i1, st._i1);
-  TASSERT_EQUALS_LLD(test, s2t._i2, st._i2);
-  TASSERT_EQUALS_LLD(test, s2t._i4, st._i4);
-  TASSERT_EQUALS_LLD(test, s2t._i8, st._i8);
-  TASSERT_EQUALS_LLD(test, memcmp(s2t.test, st.test, sizeof(s2t.test)), 0);
-  TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
-
-  s= [o methodSignatureForSelector:@selector(complex3:)];
-  i= [NSInvocation invocationWithMethodSignature:s];
-  [i setTarget:o];
-  [i setSelector:@selector(complex3:)];
-  arr_arg[0]= ((MSLong)INT_MAX) * 2LL;
-  arr_arg[1]= ((MSLong)INT_MAX) * -3LL;
-  arr_arg[2]= ((MSLong)INT_MAX) * 4LL;
-  arr_arg[3]= ((MSLong)INT_MAX) * -5LL;
-  arr_ptr= arr_arg;
-  [i setArgument:&arr_ptr atIndex:2];
-  TASSERT_EQUALS_OBJ(test, [i target], o);
-  TASSERT_EQUALS_SEL(test, [i selector], @selector(complex3:));
-  memset(&arr_chk, 0, sizeof(arr_chk));
-  [i getArgument:&arr_chk atIndex:2];
-  TASSERT_EQUALS_LLD(test, arr_chk[0], ((MSLong)INT_MAX) * 2LL);
-  TASSERT_EQUALS_LLD(test, arr_chk[1], ((MSLong)INT_MAX) * -3LL);
-  TASSERT_EQUALS_LLD(test, arr_chk[2], ((MSLong)INT_MAX) * 4LL);
-  TASSERT_EQUALS_LLD(test, arr_chk[3], ((MSLong)INT_MAX) * -5LL);
-  [i invoke];
-  [i getReturnValue:&arr_ret];
-  TASSERT_EQUALS_LLD(test, arr_ret, arr_arg[0] + arr_arg[1] + arr_arg[2] + arr_arg[3]);
+  for (loop= 0; loop < 3; ++loop) {
+    s= [o methodSignatureForSelector:@selector(paramsTypeTest:i2:i4:i8:)];
+    i= [NSInvocation invocationWithMethodSignature:s];
+    [i setTarget:o];
+    [i setSelector:@selector(paramsTypeTest:i2:i4:i8:)];
+    st._i1= 101;
+    st._i2= 3402;
+    st._i4= 133404;
+    st._i8= ((MSLong)INT_MAX) * 2;
+    memcpy(&obs, &st, sizeof(obs));
+    [i setArgument:&st._i1 atIndex:2];
+    [i setArgument:&st._i2 atIndex:3];
+    [i setArgument:&st._i4 atIndex:4];
+    [i setArgument:&st._i8 atIndex:5];
+    TASSERT_EQUALS_OBJ(test, [i target], o);
+    TASSERT_EQUALS_SEL(test, [i selector], @selector(paramsTypeTest:i2:i4:i8:));
+    memset(&st2, 0, sizeof(st2));
+    [i getArgument:&st2._i1 atIndex:2];
+    [i getArgument:&st2._i2 atIndex:3];
+    [i getArgument:&st2._i4 atIndex:4];
+    [i getArgument:&st2._i8 atIndex:5];
+    TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
+    TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
+    TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
+    [i invoke];
+    TASSERT_EQUALS_LLD(test, o->_i1, st._i1);
+    TASSERT_EQUALS_LLD(test, o->_i2, st._i2);
+    TASSERT_EQUALS_LLD(test, o->_i4, st._i4);
+    TASSERT_EQUALS_LLD(test, o->_i8, st._i8);
+    TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
+  }
 }
 
+static void invocation_complex1(test_t *test)
+{
+  struct NSInvocation_TestStruct obs, st, st2, st3;
+  struct NSInvocation_TestStruct0 st0;
+  struct NSInvocation_TestStruct1 st1;
+  struct NSInvocation_TestStruct2 s2t;
+  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
+  int loop;
+  NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
+  o= [[NSInvocation_TestClass new] autorelease];
+
+  for (loop= 0; loop < 3; ++loop) {
+    s= [o methodSignatureForSelector:@selector(complex0:i2:i4:i8:)];
+    i= [NSInvocation invocationWithMethodSignature:s];
+    [i setTarget:o];
+    [i setSelector:@selector(complex0:i2:i4:i8:)];
+    st._i1= 105;
+    st._i2= 3402;
+    st._i4= 13504;
+    st._i8= ((MSLong)INT_MAX) * 3;
+    memcpy(&obs, &st, sizeof(obs));
+    [i setArgument:&st._i1 atIndex:2];
+    [i setArgument:&st._i2 atIndex:3];
+    [i setArgument:&st._i4 atIndex:4];
+    [i setArgument:&st._i8 atIndex:5];
+    TASSERT_EQUALS_OBJ(test, [i target], o);
+    TASSERT_EQUALS_SEL(test, [i selector], @selector(complex0:i2:i4:i8:));
+    memset(&st2, 0, sizeof(st2));
+    [i getArgument:&st2._i1 atIndex:2];
+    [i getArgument:&st2._i2 atIndex:3];
+    [i getArgument:&st2._i4 atIndex:4];
+    [i getArgument:&st2._i8 atIndex:5];
+    TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
+    TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
+    TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
+    [i invoke];
+    memset(&st0, 0, sizeof(st0));
+    [i getReturnValue:&st0];
+    TASSERT_EQUALS_LLD(test, st0._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
+  }
+}
+
+static void invocation_complex2(test_t *test)
+{
+  struct NSInvocation_TestStruct obs, st, st2, st3;
+  struct NSInvocation_TestStruct0 st0;
+  struct NSInvocation_TestStruct1 st1;
+  struct NSInvocation_TestStruct2 s2t;
+  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
+  int loop;
+  NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
+  o= [[NSInvocation_TestClass new] autorelease];
+
+  for (loop= 0; loop < 3; ++loop) {
+    s= [o methodSignatureForSelector:@selector(complex01:i2:i4:i8:)];
+    i= [NSInvocation invocationWithMethodSignature:s];
+    [i setTarget:o];
+    [i setSelector:@selector(complex01:i2:i4:i8:)];
+    st._i1= 105;
+    st._i2= 3402;
+    st._i4= 13504;
+    st._i8= ((MSLong)INT_MAX) * 3;
+    memcpy(&obs, &st, sizeof(obs));
+    [i setArgument:&st._i1 atIndex:2];
+    [i setArgument:&st._i2 atIndex:3];
+    [i setArgument:&st._i4 atIndex:4];
+    [i setArgument:&st._i8 atIndex:5];
+    TASSERT_EQUALS_OBJ(test, [i target], o);
+    TASSERT_EQUALS_SEL(test, [i selector], @selector(complex01:i2:i4:i8:));
+    memset(&st2, 0, sizeof(st2));
+    [i getArgument:&st2._i1 atIndex:2];
+    [i getArgument:&st2._i2 atIndex:3];
+    [i getArgument:&st2._i4 atIndex:4];
+    [i getArgument:&st2._i8 atIndex:5];
+    TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
+    TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
+    TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
+    [i invoke];
+    memset(&st1, 0, sizeof(st1));
+    [i getReturnValue:&st1];
+    TASSERT_EQUALS_LLD(test, st1._i1, st._i1);
+    //TASSERT_EQUALS_LLD(test, st1._i2, st._i2);
+    //TASSERT_EQUALS_LLD(test, st1._i4, st._i4);
+    //TASSERT_EQUALS_LLD(test, st1._i8, st._i8);
+    TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
+  }
+}
+
+static void invocation_complex3(test_t *test)
+{
+  struct NSInvocation_TestStruct obs, st, st2, st3;
+  struct NSInvocation_TestStruct0 st0;
+  struct NSInvocation_TestStruct1 st1;
+  struct NSInvocation_TestStruct2 s2t;
+  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
+  int loop;
+  NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
+  o= [[NSInvocation_TestClass new] autorelease];
+
+  for (loop= 0; loop < 3; ++loop) {
+    s= [o methodSignatureForSelector:@selector(complex1:i2:i4:i8:)];
+    i= [NSInvocation invocationWithMethodSignature:s];
+    [i setTarget:o];
+    [i setSelector:@selector(complex1:i2:i4:i8:)];
+    st._i1= 105;
+    st._i2= 3402;
+    st._i4= 13504;
+    st._i8= ((MSLong)INT_MAX) * 3;
+    memcpy(&obs, &st, sizeof(obs));
+    [i setArgument:&st._i1 atIndex:2];
+    [i setArgument:&st._i2 atIndex:3];
+    [i setArgument:&st._i4 atIndex:4];
+    [i setArgument:&st._i8 atIndex:5];
+    TASSERT_EQUALS_OBJ(test, [i target], o);
+    TASSERT_EQUALS_SEL(test, [i selector], @selector(complex1:i2:i4:i8:));
+    memset(&st2, 0, sizeof(st2));
+    [i getArgument:&st2._i1 atIndex:2];
+    [i getArgument:&st2._i2 atIndex:3];
+    [i getArgument:&st2._i4 atIndex:4];
+    [i getArgument:&st2._i8 atIndex:5];
+    TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
+    TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
+    TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
+    [i invoke];
+    memset(&st3, 0, sizeof(st3));
+    [i getReturnValue:&st3];
+    TASSERT_EQUALS_LLD(test, st3._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, st3._i2, st._i2);
+    TASSERT_EQUALS_LLD(test, st3._i4, st._i4);
+    TASSERT_EQUALS_LLD(test, st3._i8, st._i8);
+    TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
+  }
+}
+
+static void invocation_complex4(test_t *test)
+{
+  struct NSInvocation_TestStruct obs, st, st2, st3;
+  struct NSInvocation_TestStruct0 st0;
+  struct NSInvocation_TestStruct1 st1;
+  struct NSInvocation_TestStruct2 s2t;
+  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
+  int loop;
+  NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
+  o= [[NSInvocation_TestClass new] autorelease];
+
+  for (loop= 0; loop < 1; ++loop) {
+    s= [o methodSignatureForSelector:@selector(complex2:)];
+    i= [NSInvocation invocationWithMethodSignature:s];
+    [i setTarget:o];
+    [i setSelector:@selector(complex2:)];
+    st._i1= 105;
+    st._i2= 3402;
+    st._i4= 13504;
+    st._i8= ((MSLong)INT_MAX) * 3;
+    memcpy(st.test, "0123456789", 10);
+    memcpy(&obs, &st, sizeof(obs));
+    [i setArgument:&st atIndex:2];
+    TASSERT_EQUALS_OBJ(test, [i target], o);
+    TASSERT_EQUALS_SEL(test, [i selector], @selector(complex2:));
+    memset(&st2, 0, sizeof(st2));
+    [i getArgument:&st2 atIndex:2];
+    TASSERT_EQUALS_LLD(test, st2._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, st2._i2, st._i2);
+    TASSERT_EQUALS_LLD(test, st2._i4, st._i4);
+    TASSERT_EQUALS_LLD(test, st2._i8, st._i8);
+    TASSERT_EQUALS_LLD(test, memcmp(st2.test, st.test, 1024), 0);
+    [i invoke];
+    memset(&s2t, 0, sizeof(s2t));
+    [i getReturnValue:&s2t];
+    TASSERT_EQUALS_LLD(test, s2t._i1, st._i1);
+    TASSERT_EQUALS_LLD(test, s2t._i2, st._i2);
+    TASSERT_EQUALS_LLD(test, s2t._i4, st._i4);
+    TASSERT_EQUALS_LLD(test, s2t._i8, st._i8);
+    TASSERT_EQUALS_LLD(test, memcmp(s2t.test, st.test, sizeof(s2t.test)), 0);
+    TASSERT_EQUALS_LLD(test, memcmp(&st, &obs, sizeof(obs)), 0);
+  }
+}
+
+static void invocation_complex5(test_t *test)
+{
+  struct NSInvocation_TestStruct obs, st, st2, st3;
+  struct NSInvocation_TestStruct0 st0;
+  struct NSInvocation_TestStruct1 st1;
+  struct NSInvocation_TestStruct2 s2t;
+  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
+  int loop;
+  NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
+  o= [[NSInvocation_TestClass new] autorelease];
+
+  for (loop= 0; loop < 3; ++loop) {
+    s= [o methodSignatureForSelector:@selector(complex3:)];
+    i= [NSInvocation invocationWithMethodSignature:s];
+    [i setTarget:o];
+    [i setSelector:@selector(complex3:)];
+    arr_arg[0]= ((MSLong)INT_MAX) * 2LL;
+    arr_arg[1]= ((MSLong)INT_MAX) * -3LL;
+    arr_arg[2]= ((MSLong)INT_MAX) * 4LL;
+    arr_arg[3]= ((MSLong)INT_MAX) * -5LL;
+    arr_ptr= arr_arg;
+    [i setArgument:&arr_ptr atIndex:2];
+    TASSERT_EQUALS_OBJ(test, [i target], o);
+    TASSERT_EQUALS_SEL(test, [i selector], @selector(complex3:));
+    memset(&arr_chk, 0, sizeof(arr_chk));
+    [i getArgument:&arr_chk atIndex:2];
+    TASSERT_EQUALS_LLD(test, arr_chk[0], ((MSLong)INT_MAX) * 2LL);
+    TASSERT_EQUALS_LLD(test, arr_chk[1], ((MSLong)INT_MAX) * -3LL);
+    TASSERT_EQUALS_LLD(test, arr_chk[2], ((MSLong)INT_MAX) * 4LL);
+    TASSERT_EQUALS_LLD(test, arr_chk[3], ((MSLong)INT_MAX) * -5LL);
+    [i invoke];
+    [i getReturnValue:&arr_ret];
+    TASSERT_EQUALS_LLD(test, arr_ret, arr_arg[0] + arr_arg[1] + arr_arg[2] + arr_arg[3]);
+  }
+}
 
 static void invocation_forward(test_t *test)
 {
   NSMethodSignature *s; NSInvocation *i; id o;
-  o= [NSInvocation_TestClass new];
+  o= [[NSInvocation_TestClass new] autorelease];
   TASSERT_EQUALS_OBJ(test, [o objectAtIndex:0], @"forwarded result: 0");
 }
 
 testdef_t foundation_invocation[]= {
   {"simple",NULL,invocation_simple},
   {"return types",NULL,invocation_return},
-  {"complex call",NULL,invocation_complex},
+  {"complex call 0",NULL,invocation_complex0},
+  {"complex call 1",NULL,invocation_complex1},
+  {"complex call 2",NULL,invocation_complex2},
+  {"complex call 3",NULL,invocation_complex3},
+  {"complex call 4",NULL,invocation_complex4},
+  {"complex call 5",NULL,invocation_complex5},
   {"forwarding",NULL,invocation_forward},
   {NULL}};

@@ -77,8 +77,6 @@ module.exports = {
       {file: 'loader.c'},
       {file: 'loader.h'},
       {file: 'lock.h'},
-      {file: 'mman.h'},
-      {file: 'mman.c'},
       {file: 'method_list.h'},
       {file: 'module.h'},
       {file: 'mutation.m'},

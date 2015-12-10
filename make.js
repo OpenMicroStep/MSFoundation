@@ -723,7 +723,8 @@ module.exports = {
       "dependencies" : [
         {workspace: 'deps/msstdlib', target:'MSStd'},
         {workspace: 'deps/msobjclib', target:'MSObjc', condition:function(target) { return !target.env.cocoa; }},
-        {workspace: 'deps/libuv', target:'libuv', condition:function(target) { return !target.env.cocoa; }}
+        {workspace: 'deps/libuv', target:'libuv', condition:function(target) { return !target.env.cocoa; }},
+        {workspace: 'deps/libffi', target:'libffi_static', condition:function(target) { return !target.env.cocoa; }}
       ],
       "files" : [
         "MSCore.Abstraction", "MSCore.Sources", "MSCore.MAPM",
@@ -731,7 +732,7 @@ module.exports = {
 
       ],
       "publicHeaders": ["?MSFoundationPublicHeader", "MSCore?MSPublicHeaders", "MSFoundation?MSPublicHeaders"],
-      "includeDirectories": ["deps/libuv/include", "deps/msstdlib"],
+      "includeDirectories": ["deps/libuv/include", "deps/msstdlib", "deps/libffi/include", "deps/libffi/src/x86"],
       "configure": function(target) {
         if(target.env.cocoa) {
           target.addFrameworks(["Foundation"]);

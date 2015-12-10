@@ -30,6 +30,8 @@ module.exports = {
     {file: "MSStdThreads.c", tags:["CompileC"]},
     {file: "MSStdThreads-unix.c"},
     {file: "MSStdThreads-win32.c"},
+    {file: "mman.c", tags:["CompileC"]},
+    {file: "mman.h", tags:["Header"]},
   ],
   targets : [
     {

@@ -1,7 +1,7 @@
 #import "FoundationCompatibility_Private.h"
 #include <ffi.h> // we include this messy header only here to prevent leaking bad stuff to others
 #include <ctype.h>
-#include <sys/mman.h>
+#include "mman.h"
 
 MS_DECLARE_THREAD_LOCAL(__forward_slot, free);
 
@@ -9,37 +9,88 @@ static IMP ms_objc_msg_forward2(id receiver, SEL _cmd);
 static struct objc_slot *ms_objc_msg_forward3(id receiver, SEL _cmd);
 static void ms_objc_unexpected_exception(id exception);
 
-static inline void alloc_ffi_type(ffi_type **typep, int elements)
-{
-  ffi_type *type= *typep;
-  if (type && *(int*)(type + 1) < elements)
-    return;
-  elements= MSCapacityForCount(elements);
-  type = MSRealloc(type, sizeof(ffi_type) + sizeof(int) + elements * sizeof(ffi_type*), "alloc_ffi_type permanent");
-  type->elements= (ffi_type **)(((uint8_t*)type) + sizeof(ffi_type) + sizeof(int));
-  *typep= type;
+struct ffi_type_list {
+  struct ffi_type_list *prev;
+  struct ffi_type_list *next;
+  ffi_type type;
+  int size;
+  ffi_type *elements[0];
+};
+
+struct ffi_types_list {
+  struct ffi_types_list *prev;
+  struct ffi_types_list *next;
+  ffi_type *types[0];
+};
+
+static ffi_type *objc_type_to_ffi_type(const char **typep, int level, void **allocs);
+
+static inline void append_tolist(void *ptr, void **allocs) {
+  struct ffi_type_list *prev= *allocs;
+  if (prev)
+    prev->next= ptr;
+  ((struct ffi_type_list *)ptr)->prev= prev;
+  ((struct ffi_type_list *)ptr)->next= NULL;
+  *allocs= ptr;
 }
 
-size_t sizeof_ffi_type(ffi_type * type)
-{
-  size_t size= 0; ffi_type **elements;
-  if (type) {
-    size= type->size;
-    elements= type->elements;
-    if (elements) {
-      while (*elements) {
-        size += sizeof_ffi_type(*elements);
-        ++elements;
-      }
-    }
+static inline void remove_fromlist(void *ptr, void **allocs) {
+  if (ptr) {
+    struct ffi_type_list *t= (struct ffi_type_list *)ptr;
+    if (t->next)
+      t->next->prev= t->prev;
+    if (t->prev)
+      t->prev->next= t->next;
+    if (*allocs == t)
+      *allocs= t->prev;
   }
-  return size;
 }
 
-static ffi_type *objc_type_to_ffi_type(const char **typep, int level)
+static inline void free_allocs(void *allocs) {
+  void *tmp;
+  while (allocs) {
+    tmp= ((struct ffi_types_list *)allocs)->prev;
+    free(allocs);
+    allocs= tmp;
+  }
+}
+
+static inline ffi_type* alloc_ffi_type(void **alloc, int elements, void **allocs)
+{
+  struct ffi_type_list *t= (struct ffi_type_list *)*alloc;
+  if (t && t->size < elements)
+    return &t->type;
+  elements= MSCapacityForCount(elements);
+  remove_fromlist(t, allocs);
+  t = MSRealloc(t, sizeof(struct ffi_type_list) + elements * sizeof(ffi_type*), "alloc_ffi_type permanent");
+  append_tolist(t, allocs);
+  t->size= elements;
+  t->type.elements= t->elements;
+  *alloc= t;
+  return &t->type;
+}
+
+static ffi_type **ffi_types_from_signature(NSMethodSignature *sig, void ** allocs)
+{
+  struct ffi_types_list *t;
+  NSUInteger argi, argc= [sig numberOfArguments]; const char *type;
+
+  t= MSMalloc(sizeof(struct ffi_types_list) + (argc + 1) * sizeof(ffi_type*), "ffi_types_and_sizes_from_signature permanent");
+  append_tolist(t, allocs);
+  type= [sig methodReturnType];
+  t->types[0]= objc_type_to_ffi_type(&type, 0, allocs);
+  for (argi= 0; argi < argc; ++argi) {
+    type= [sig getArgumentTypeAtIndex:argi];
+    t->types[argi + 1]= objc_type_to_ffi_type(&type, 0, allocs);
+  }
+
+  return t->types;
+}
+
+static ffi_type *objc_type_to_ffi_type(const char **typep, int level, void **allocs)
 {
   const char *type= *typep;
-  ffi_type *ret= NULL;
+  ffi_type *ret= NULL; void *alloc= NULL;
 
   type= objc_skip_type_qualifiers(type);
   switch(*type++) {
@@ -68,7 +119,7 @@ static ffi_type *objc_type_to_ffi_type(const char **typep, int level)
 
     case _C_PTR     :
       ret= &ffi_type_pointer;
-      objc_type_to_ffi_type(&type, -1); // consume a type
+      objc_type_to_ffi_type(&type, -1, allocs); // consume a type
       break;
 
     case _C_ARY_B : {
@@ -78,8 +129,8 @@ static ffi_type *objc_type_to_ffi_type(const char **typep, int level)
         ++type; // consume the count
       }
       if (level > 0) {
-        alloc_ffi_type(&ret, nb + 1);
-        arrtype= objc_type_to_ffi_type(&type, -1);    // consume the type
+        ret= alloc_ffi_type(&alloc, nb + 1, allocs);
+        arrtype= objc_type_to_ffi_type(&type, -1, allocs);    // consume the type
         ret->type= FFI_TYPE_STRUCT;
         ret->size= 0;
         ret->alignment= 0;
@@ -104,14 +155,14 @@ static ffi_type *objc_type_to_ffi_type(const char **typep, int level)
           max_type= type;
           max_align= align;
         }
-        objc_type_to_ffi_type(&type, -1);
+        objc_type_to_ffi_type(&type, -1, allocs);
       }
       if (max_align > 0 && level != -1) {
-        alloc_ffi_type(&ret, 2);
+        ret= alloc_ffi_type(&alloc, 2, allocs);
         ret->type= FFI_TYPE_STRUCT;
         ret->size= 0;
         ret->alignment= 0;
-        ret->elements[0]= objc_type_to_ffi_type(&max_type, level + 1);
+        ret->elements[0]= objc_type_to_ffi_type(&max_type, level + 1, allocs);
         ret->elements[1]= NULL;
       }
       ++type; // consume end of union
@@ -123,10 +174,10 @@ static ffi_type *objc_type_to_ffi_type(const char **typep, int level)
       while (*type != _C_STRUCT_E && *type != '=') ++type; // consume the name
       if (*type == '=') ++type;
       if (level != -1) {
-        alloc_ffi_type(&ret, 4);
+        ret= alloc_ffi_type(&alloc, 4, allocs);
         while (*type != _C_STRUCT_E) {
-          alloc_ffi_type(&ret, i + 2); // count + nil terminaison
-          ret->elements[i++] = objc_type_to_ffi_type(&type, level + 1);
+          ret= alloc_ffi_type(&alloc, i + 2, allocs); // count + nil terminaison
+          ret->elements[i++] = objc_type_to_ffi_type(&type, level + 1, allocs);
         }
         ret->elements[i]= NULL;
         ret->type= FFI_TYPE_STRUCT;
@@ -135,7 +186,7 @@ static ffi_type *objc_type_to_ffi_type(const char **typep, int level)
       }
       else {
         while (*type != _C_STRUCT_E)
-          objc_type_to_ffi_type(&type, -1); // consume the types
+          objc_type_to_ffi_type(&type, -1, allocs); // consume the types
       }
       break;
     }
@@ -146,36 +197,6 @@ static ffi_type *objc_type_to_ffi_type(const char **typep, int level)
   return ret;
 }
 
-ffi_type **ffi_types_from_signature(NSMethodSignature *sig)
-{
-  ffi_type **types;
-  static mtx_t cache_mutex;
-  static CDictionary *cached;
-  id uniq_id= [sig _uniqid];
-  if (!cached) {
-    mtx_init(&cache_mutex, mtx_plain);
-    cached= CCreateDictionaryWithOptions(0, CDictionaryObject, CDictionaryPointer);
-  }
-  mtx_lock(&cache_mutex);
-  types= (ffi_type**)CDictionaryObjectForKey(cached, uniq_id);
-  mtx_unlock(&cache_mutex);
-  if (!types) {
-    NSUInteger argi, argc= [sig numberOfArguments]; const char *type;
-    types= MSMalloc((argc + 1) * sizeof(ffi_type), "ffi_types_from_signature permanent");
-    type= [sig methodReturnType];
-    types[0]= objc_type_to_ffi_type(&type, 0);
-    for (argi= 0; argi < argc; ++argi) {
-      type= [sig getArgumentTypeAtIndex:argi];
-      types[argi + 1]= objc_type_to_ffi_type(&type, 0);
-    }
-
-    mtx_lock(&cache_mutex);
-    CDictionarySetObjectForKey(cached, (id)types, uniq_id);
-    mtx_unlock(&cache_mutex);
-  }
-  return types;
-}
-
 
 @implementation NSInvocation {
 @protected
@@ -183,7 +204,9 @@ ffi_type **ffi_types_from_signature(NSMethodSignature *sig)
   BOOL _retained;
   NSUInteger _argc;
   uint8_t *_frame;
+  ffi_cif _cif;
   ffi_type **_types;
+  void *_allocs;
 }
 
 + (void)load
@@ -193,17 +216,15 @@ ffi_type **ffi_types_from_signature(NSMethodSignature *sig)
   _objc_unexpected_exception= ms_objc_unexpected_exception;
 }
 
-static inline size_t _argumentSize(uint8_t *frame, NSUInteger idx)
+static inline size_t _argumentSize(NSInvocation *self, NSUInteger idx)
 {
-  return ((size_t *)frame)[idx * 2 + 1];
+  //printf("size %d is %d\n", (int)idx, (int)self->_types[idx]->size);
+  return self->_types[idx]->size;
 }
-static inline size_t _argumentOffset(uint8_t *frame, NSUInteger idx)
+static inline void* _argumentData(NSInvocation *self, NSUInteger idx)
 {
-  return ((size_t *)frame)[idx * 2];
-}
-static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
-{
-  return frame + _argumentOffset(frame, idx);
+  //printf("data %d at %p\n", (int)idx, ((void**)self->_frame)[idx]);
+  return ((void**)self->_frame)[idx];
 }
 
 + (NSInvocation *)invocationWithMethodSignature:(NSMethodSignature *)signature
@@ -212,25 +233,29 @@ static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
 }
 - (instancetype)initWithMethodSignature:(NSMethodSignature *)signature
 {
-  _types= ffi_types_from_signature(signature);
-  if (!_types)
+  NSUInteger argc= [signature numberOfArguments];
+  ffi_type **types= ffi_types_from_signature(signature, &_allocs);
+  if (!types || ffi_prep_cif(&_cif, FFI_DEFAULT_ABI, argc, types[0], types + 1) != FFI_OK)
     DESTROY(self);
   else {
-    NSUInteger argc= [signature numberOfArguments], argi, argsz;
-    size_t offset=0, info[(argc + 1) * 2];
+    size_t offset=0, info[argc + 1]; void ** addrs; uint8_t* values; NSUInteger argi;
 
-    offset= sizeof(info);
+    offset= 0;
     info[0]= offset;
-    offset+= info[1]= sizeof_ffi_type(_types[0]);
+    offset+= types[0]->size;
     for(argi= 1; argi <= argc; argi++) {
-      info[argi * 2]= offset;
-      offset+= info[argi * 2 + 1]= sizeof_ffi_type(_types[argi]);
+      info[argi]= offset;
+      offset+= types[argi]->size;
     }
-
-    _signature= [signature retain];
     _argc= argc;
-    _frame= (uint8_t*)MSCalloc(1, offset, "NSInvocation._frame");
-    memcpy(_frame, info, sizeof(info));
+    _types= types;
+    _signature= [signature retain];
+    _frame= (uint8_t*)MSCalloc(1, sizeof(void*) * (argc + 1) + offset, "NSInvocation._frame");
+    addrs= (void**)_frame;
+    values= (uint8_t*)(addrs + argc + 1);
+    for(argi= 0; argi <= argc; argi++) {
+      addrs[argi]= values + info[argi];
+    }
   }
   return self;
 }
@@ -238,13 +263,14 @@ static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
 {
   if (_retained) {
     if (strcmp(@encode(id), [_signature methodReturnType]) == 0)
-      [*(id *)_argumentData(_frame, 0) release];
+      [*(id *)_argumentData(self, 0) release];
     for (NSUInteger i= 0; i < _argc; ++i) {
       if (strcmp(@encode(id), [_signature getArgumentTypeAtIndex:i]) == 0)
-        [*(id *)_argumentData(_frame, i + 1) release];
+        [*(id *)_argumentData(self, i + 1) release];
     }
   }
   [_signature release];
+  free_allocs(_allocs);
   MSFree(_frame, "NSInvocation._frame");
   [super dealloc];
 }
@@ -258,10 +284,10 @@ static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
 {
   if (!_retained) {
     if (strcmp(@encode(id), [_signature methodReturnType]) == 0)
-      [*(id *)_argumentData(_frame, 0) retain];
+      [*(id *)_argumentData(self, 0) retain];
     for (NSUInteger i= 0; i < _argc; ++i) {
       if (strcmp(@encode(id), [_signature getArgumentTypeAtIndex:i]) == 0)
-        [*(id *)_argumentData(_frame, i + 1) retain];
+        [*(id *)_argumentData(self, i + 1) retain];
     }
     _retained= YES;
   }
@@ -298,27 +324,27 @@ static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
 - (void)getArgument:(void *)buffer atIndex:(NSInteger)index
 {
   size_t sz;
-  if ((sz= _argumentSize(_frame, index + 1)) > 0)
-    memcpy(buffer, _argumentData(_frame, index + 1), sz);
+  if ((sz= _argumentSize(self, index + 1)) > 0)
+    memcpy(buffer, _argumentData(self, index + 1), sz);
 }
 - (void)setArgument:(void *)buffer atIndex:(NSInteger)index
 {
   size_t sz;
-  if ((sz= _argumentSize(_frame, index + 1)) > 0)
-    memcpy(_argumentData(_frame, index + 1), buffer, sz);
+  if ((sz= _argumentSize(self, index + 1)) > 0)
+    memcpy(_argumentData(self, index + 1), buffer, sz);
 }
 
 - (void)getReturnValue:(void *)buffer
 {
   size_t sz;
-  if ((sz= _argumentSize(_frame, 0)) > 0)
-    memcpy(buffer, _argumentData(_frame, 0), sz);
+  if ((sz= _argumentSize(self, 0)) > 0)
+    memcpy(buffer, _argumentData(self, 0), sz);
 }
 - (void)setReturnValue:(void *)buffer
 {
   size_t sz;
-  if ((sz= _argumentSize(_frame, 0)) > 0)
-    memcpy(_argumentData(_frame, 0), buffer, sz);
+  if ((sz= _argumentSize(self, 0)) > 0)
+    memcpy(_argumentData(self, 0), buffer, sz);
 }
 
 - (void)invoke
@@ -328,24 +354,17 @@ static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
     sel= [self selector];
     imp= LOOKUP(ISA(target), sel);
     if (imp) {
-      ffi_cif cif;
-      ffi_status status;
-
-      status= ffi_prep_cif(&cif, FFI_DEFAULT_ABI, _argc, _types[0], _types + 1);
-      if (status == FFI_OK) {
-        NSUInteger i;
-        void *arg_values[_argc];
-        for (i= 0; i < _argc; ++i)
-          arg_values[i]= _argumentData(_frame, i + 1);
-        ffi_call(&cif, FFI_FN(imp), _argumentData(_frame, 0), arg_values);
-      }
+      ffi_call(&_cif, FFI_FN(imp), _argumentData(self, 0), ((void**)self->_frame) + 1);
+    }
+    else {
+      // TODO: Exception
     }
   }
   else {
     // If no target, return is memory set to 0
     size_t sz;
-    if ((sz= _argumentSize(_frame, 0)) > 0)
-      memset(_argumentData(_frame, 0), 0, sz);
+    if ((sz= _argumentSize(self, 0)) > 0)
+      memset(_argumentData(self, 0), 0, sz);
   }
 }
 - (void)invokeWithTarget:(id)target
@@ -358,7 +377,6 @@ static inline void* _argumentData(uint8_t *frame, NSUInteger idx)
 
 @interface _NSInvocationExecutableMemory : NSInvocation {
   ffi_closure *_closure;
-  ffi_cif _cif;
 }
 - (IMP)closure;
 @end
@@ -389,14 +407,19 @@ static void nsinvocation_closure(ffi_cif* cif, void* result, void** args, void* 
 {
   ffi_status status;
 
+#ifndef WIN32
   if ((_closure = mmap(NULL, sizeof(ffi_closure), PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0)) == (void*)-1)
     ;// TODO: Report the error
-  if ((status= ffi_prep_cif(&_cif, FFI_DEFAULT_ABI, _argc, _types[0], _types + 1)) != FFI_OK)
+#else
+  if ((_closure = mmap(NULL, sizeof(ffi_closure), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == (void*)-1)
     ;// TODO: Report the error
+#endif
   if ((status= ffi_prep_closure(_closure, &_cif, nsinvocation_closure, self)) != FFI_OK)
     ;// TODO: Report the error
+#ifndef WIN32
   if (mprotect(_closure, sizeof(ffi_closure), PROT_READ | PROT_EXEC) == -1)
     ;// TODO: Report the error
+#endif
   return (IMP)_closure;
 }
 @end

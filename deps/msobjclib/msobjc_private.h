@@ -28,6 +28,7 @@
 #include "selector.h"
 #include "properties.h"
 
+#include "alias.h"
 #include "protocol.h"
 #include "blocks_runtime.h"
 #include "dtable.h"
