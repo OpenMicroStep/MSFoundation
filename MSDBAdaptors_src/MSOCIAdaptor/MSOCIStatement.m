@@ -78,7 +78,7 @@ static inline BOOL _check_idx(MSOCIStatement *self, MSUInt idx) {
 }
 - (BOOL)bindUnsignedInt:    (MSUInt)value at:(MSUInt)parameterIndex
 {
-  return CHECKIDX(self, parameterIndex) && OCI_BIND(value, parameterIndex, u4, MSUInt, SQLT_CHR);
+  return CHECKIDX(self, parameterIndex) && OCI_BIND(value, parameterIndex, u4, MSUInt, SQLT_UIN);
 }
 - (BOOL)bindLong:           (MSLong)value at:(MSUInt)parameterIndex
 {
