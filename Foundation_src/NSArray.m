@@ -210,7 +210,7 @@
   garray_pfs_t spfs= [self _garray_pfs];
   garray_pfs_t opfs= [otherArray _garray_pfs];
   NSUInteger n= GArrayCount(spfs, self);
-  NSUInteger m= GArrayCount(opfs, self);
+  NSUInteger m= GArrayCount(opfs, otherArray);
   CArray *ret= CCreateArray(n + m);
   CArrayAddGArray(ret, spfs, self, 0, n, NO);
   CArrayAddGArray(ret, opfs, otherArray, 0, m, NO);
