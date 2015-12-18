@@ -44,7 +44,7 @@ Eric Baradat :  k18rt@free.fr
  */
 
 
-NSString *GMTdescriptionRfc1123(NSTimeInterval t);
+MSFoundationExtern NSString *GMTdescriptionRfc1123(NSTimeInterval t);
 
 @interface NSDate (MSDateAddendum)
 - (MSTimeInterval)secondsSinceLocalReferenceDate;
