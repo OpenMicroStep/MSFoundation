@@ -51,7 +51,9 @@
 typedef struct MSDBGenericConnectionFlagsStruct {
   MSUInt connected:1;
   MSUInt readOnly:1;
-  MSUInt _pad:30;
+  MSUInt usr1:1;
+  MSUInt usr2:1;
+  MSUInt _pad:28;
 } MSDBGenericConnectionFlags ;
 
 #define MSDB_RETURN_ERROR(return_value, description) \

@@ -1,30 +1,30 @@
 /*
- 
+
  MSODBCConnection.m
- 
+
  This file is is a part of the MicroStep Framework.
- 
+
  Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
  Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
- 
+
  Frederic Olivi : fred.olivi@free.fr
  Herve Malaingre : herve@malaingre.com
- 
+
  This software is a computer program whose purpose is to [describe
  functionalities and technical features of your software].
- 
+
  This software is governed by the CeCILL-C license under French law and
  abiding by the rules of distribution of free software.  You can  use,
  modify and/ or redistribute the software under the terms of the CeCILL-C
  license as circulated by CEA, CNRS and INRIA at the following URL
  "http://www.cecill.info".
- 
+
  As a counterpart to the access to the source code and  rights to copy,
  modify and redistribute granted by the license, users are provided only
  with a limited warranty  and the software's author,  the holder of the
  economic rights,  and the successive licensors  have only  limited
  liability.
- 
+
  In this respect, the user's attention is drawn to the risks associated
  with loading,  using,  modifying and/or developing or reproducing the
  software by the user in light of its specific status of free software,
@@ -35,10 +35,10 @@
  requirements in conditions enabling the security of their systems and/or
  data to be ensured and,  more generally, to use and operate it in the
  same conditions as regards security.
- 
+
  The fact that you are presently reading this means that you have had
  knowledge of the CeCILL-C license and that you accept its terms.
- 
+
  */
 
 #import "MSODBCAdaptorKit.h"
@@ -60,7 +60,7 @@
     SQLSMALLINT len;
     SQLRETURN ret;
     NSMutableString *error;
-    
+
     error= [NSMutableString stringWithFormat:@"%@-> %@: ", NSStringFromSelector(inMethod), desc];
     do
     {
@@ -75,8 +75,8 @@
         }
     }
     while( ret == SQL_SUCCESS );
-  
-    [self error:inMethod desc:error];
+
+    [self error:FMT(@"%@ -> %@", NSStringFromSelector(inMethod), error)];
 }
 
 - (id)initWithConnectionDictionary:(MSDictionary *)dictionary
@@ -85,15 +85,15 @@
         NSString *cnxstr = [dictionary objectForLazyKey:@"connectionString"] ;
         NSMutableDictionary *tDict ;
         _MSODBCThreadContext *context ;
-        
+
         if (![cnxstr length]) {
             RELEASE(self) ;
             return nil ;
         }
-        
+
         tDict = [[NSThread currentThread] threadDictionary] ;
         context = [tDict objectForKey:@"_$odbcContext"] ;
-        
+
         if (!context) {
             // creation de l'env
             context = [ALLOC(_MSODBCThreadContext) init] ;
@@ -107,9 +107,6 @@
             }
         }
         _henv = [context environnement] ;
-        
-        
-        [_currentDictionary setObject:cnxstr forKey:@"$_connectionString"] ;
         _cFlags.usr1 = YES;
         _cFlags.readOnly = [[dictionary objectForLazyKey:@"read-only"] isTrue] || [[dictionary objectForLazyKey:@"readonly"] isTrue] ;
     }
@@ -121,10 +118,10 @@
     BOOL ret;
     SQLWCHAR dataSource[4096];
     SQLSMALLINT dsLen;
-    
+
     if(!ODBC_SUCCEEDED_ENV(SQLAllocHandle, SQL_HANDLE_DBC, _henv, &_hdbc))
       return NO;
-    
+
     ret= ODBC_SUCCEEDED_DBC(SQLDriverConnectW, _hdbc, 0, (SQLWCHAR *)[cnxStr UTF16String], [cnxStr length], dataSource, 4096, &dsLen, SQL_DRIVER_COMPLETE);
     if(ret) {
       ret= ODBC_SUCCEEDED_DBC(SQLSetConnectAttr, _hdbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, SQL_IS_UINTEGER);
@@ -133,7 +130,7 @@
       if(!ret)
         ODBC_SUCCEEDED_DBC(SQLDisconnect, _hdbc);
     }
-    
+
     if(!ret) {
         ODBC_SUCCEEDED_DBC(SQLFreeHandle, SQL_HANDLE_DBC, _hdbc);
         _hdbc= NULL;
@@ -141,16 +138,10 @@
     return ret;
 }
 
-- (BOOL)connect
+- (BOOL)_connect
 {
-    if (!_cFlags.connected) {
-        NSString *cnxstr = [_currentDictionary objectForKey:@"$_connectionString"] ;
-        if (![self _connectWithConnectionString:cnxstr])
-            return NO ;
-        _cFlags.connected = YES ;
-        [[NSNotificationCenter defaultCenter] postNotificationName:MSConnectionDidConnectNotification object:self] ;
-    }
-    return YES ;
+    NSString *cnxstr = [[self connectionDictionary] objectForKey:@"connectionString"] ;
+    return [self _connectWithConnectionString:cnxstr];
 }
 
 - (BOOL)_disconnect
@@ -217,7 +208,7 @@
     MSDBResultSet *set ;
     HSTMT hstmt = NULL;
     NEW_POOL ;
-    
+
     if (ODBC_SUCCEEDED_DBC(SQLAllocHandle, SQL_HANDLE_STMT, _hdbc, &hstmt))
     {
         if (ODBC_SUCCEEDED_STMT(hstmt, SQLTables, hstmt,
@@ -233,9 +224,9 @@
             }
         }
     }
-    
+
     KILL_POOL ;
-    
+
     return AUTORELEASE(array) ;
 }
 
@@ -247,7 +238,7 @@
             NSUInteger i;
             CString *result = CCreateString(SESLength(ses)+(withQuotes?2:0)) ;
             unichar c ;
-            
+
             if (withQuotes) { CStringAppendCharacter(result, 0x0027) ; }
             for (i = SESStart(ses) ; i < SESEnd(ses) ; ) {
                 c = SESIndexN(ses, &i) ;
@@ -255,7 +246,7 @@
                 if (c == 0x0027) { CStringAppendCharacter(result, 0x0027) ; }
             }
             if (withQuotes) { CStringAppendCharacter(result, 0x0027) ; }
-            
+
             return AUTORELEASE((id)result) ;
         }
         return withQuotes ? @"''" : @"" ;
@@ -270,13 +261,13 @@
     BOOL ret = NO ;
     if ([self connect]) {
         HSTMT hstmt;
-        
+
         ret = ODBC_SUCCEEDED_DBC(SQLAllocHandle, SQL_HANDLE_STMT, _hdbc, &hstmt)
            && ODBC_SUCCEEDED_STMT(hstmt, SQLExecDirectW, hstmt,(SQLWCHAR *)[sql UTF16String], [sql length]);
         if (hstmt)
             ODBC_SUCCEEDED_STMT(hstmt, SQLFreeHandle, SQL_HANDLE_STMT, hstmt);
     }
-    
+
     return ret ? 0 : -1 ;
 }
 
@@ -298,7 +289,7 @@
     if (!SQL_SUCCEEDED(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &_henv))) { _henv = NULL ; RELEASE(self) ; return nil ; }
     if (!SQL_SUCCEEDED(SQLSetEnvAttr(_henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, SQL_IS_UINTEGER)))
     { [self freeEnv] ; RELEASE(self) ; return nil ; }
-    
+
     return self ;
 }
 

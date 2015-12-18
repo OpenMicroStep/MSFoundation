@@ -64,7 +64,7 @@
     _password= [[dictionary objectForLazyKey:@"password"] copy];
     if (![_database length] || ![_user length] || ![_password length])
       DESTROY(self) ;
-    setenv("NLS_LANG", "AMERICAN_AMERICA.UTF8", 1);
+    //setenv("NLS_LANG", "AMERICAN_AMERICA.UTF8", 1);
   }
   return self ;
 }

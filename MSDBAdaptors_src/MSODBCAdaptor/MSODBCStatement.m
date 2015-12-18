@@ -34,7 +34,7 @@ static const SQLLEN indNULL = SQL_NULL_DATA;
     SQLSMALLINT len;
     SQLRETURN ret;
     NSMutableString *error;
-    
+
     error= [NSMutableString stringWithFormat:@"ODBC error on method=%@, return value=%lld", method, (MSLong)returnedValue];
     do
     {
@@ -49,8 +49,8 @@ static const SQLLEN indNULL = SQL_NULL_DATA;
         }
     }
     while( ret == SQL_SUCCESS );
-  
-    [self error:inMethod desc:error];
+
+    [self error:FMT(@"%@ -> %@", NSStringFromSelector(inMethod), error)];
 }
 
 - (id)initWithRequest:(NSString *)request withDatabaseConnection:(MSODBCConnection *)connection withStmt:(SQLHSTMT)stmt
@@ -78,11 +78,11 @@ static const SQLLEN indNULL = SQL_NULL_DATA;
                 case SQL_C_BINARY:
                     [cur->u._id release];
                     break;
-                    
+
                 case SQL_C_TIMESTAMP:
                     MSFree(cur->u._timestamp, "Free SQL_TIMESTAMP_STRUCT allocated by bindDate");
                     break;
-                    
+
                 default:
                     break;
             }
