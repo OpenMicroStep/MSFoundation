@@ -104,10 +104,11 @@ static void _refreshIfNeeded()
 {
   NSBundle *bundle;
   const char *name= ms_shared_object_name(aClass);
-  //printf("bundleForClass %s %p\n", name, aClass);
+  id path= _absolutepath([NSString stringWithUTF8String:name]);
+  //printf("bundleForClass %s %p\n", [path UTF8String], aClass);
   mtx_lock(&__mutex);
   _refreshIfNeeded();
-  bundle= CDictionaryObjectForKey(__bundleByExePath, [NSString stringWithUTF8String:name]);
+  bundle= CDictionaryObjectForKey(__bundleByExePath, path);
   mtx_unlock(&__mutex);
   //printf("bundle %s\n", [[bundle executablePath] UTF8String]);
   return bundle;
@@ -180,7 +181,7 @@ static NSBundle* _init(NSBundle *self, NSString *path, NSString *exepath)
         mtx_unlock(&__mutex);
       }
       else { ok= NO; }
-    //printf("new bundle path=%s rscPath=%s exepath=%s\n", [_path UTF8String], [_rscPath UTF8String], [_exepath UTF8String]);
+      // printf("new bundle path=%s rscPath=%s exepath=%s\n", [self->_path UTF8String], [self->_rscPath UTF8String], [self->_exepath UTF8String]);
     }
   }
   if (!ok) DESTROY(self);
