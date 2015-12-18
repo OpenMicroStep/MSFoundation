@@ -839,9 +839,12 @@ module.exports = {
       }
     },
     {
-      "name": "ODBCAdaptor",
+      "name": "MSODBCAdaptor",
       "type": "Bundle",
-      "environments": ["openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64"],
+      "environments": [
+        "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64",
+        "openmicrostep-foundation-i386-msvc12",  "openmicrostep-foundation-x86_64-msvc12"
+      ],
       "dependencies": [
         "MSFoundation",
         "MSDatabase"
