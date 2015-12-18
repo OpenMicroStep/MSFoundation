@@ -338,7 +338,7 @@ int main(int argc, const char * argv[])
   CMessageAddBehaviorForType(CBehaviorTest, CMessageTest);
   for (argi= 1; argi < argc; ++argi) {
     if (strcmp(argv[argi], "--keepalive") == 0)
-      sleep(100000);
+      usleep(100000000LL);
     else
       err += test_module(argv[argi], "", "");
   }
