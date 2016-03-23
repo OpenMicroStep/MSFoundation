@@ -123,7 +123,7 @@ static void invocation_simple(test_t *test)
 
 static void invocation_return(test_t *test)
 {
-  int32_t r; int ret_int; char ret_char; double ret_flt; id ret_id;
+  int32_t r; int ret_int; char ret_char; double ret_flt;
   NSMethodSignature *s; NSInvocation *i; id o;
   o= [[NSInvocation_TestClass new] autorelease];
 
@@ -163,11 +163,7 @@ static void invocation_return(test_t *test)
 
 static void invocation_complex0(test_t *test)
 {
-  struct NSInvocation_TestStruct obs, st, st2, st3;
-  struct NSInvocation_TestStruct0 st0;
-  struct NSInvocation_TestStruct1 st1;
-  struct NSInvocation_TestStruct2 s2t;
-  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
+  struct NSInvocation_TestStruct obs, st, st2;
   int loop;
   NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
   o= [[NSInvocation_TestClass new] autorelease];
@@ -208,11 +204,8 @@ static void invocation_complex0(test_t *test)
 
 static void invocation_complex1(test_t *test)
 {
-  struct NSInvocation_TestStruct obs, st, st2, st3;
+  struct NSInvocation_TestStruct obs, st, st2;
   struct NSInvocation_TestStruct0 st0;
-  struct NSInvocation_TestStruct1 st1;
-  struct NSInvocation_TestStruct2 s2t;
-  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
   int loop;
   NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
   o= [[NSInvocation_TestClass new] autorelease];
@@ -252,11 +245,8 @@ static void invocation_complex1(test_t *test)
 
 static void invocation_complex2(test_t *test)
 {
-  struct NSInvocation_TestStruct obs, st, st2, st3;
-  struct NSInvocation_TestStruct0 st0;
+  struct NSInvocation_TestStruct obs, st, st2;
   struct NSInvocation_TestStruct1 st1;
-  struct NSInvocation_TestStruct2 s2t;
-  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
   int loop;
   NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
   o= [[NSInvocation_TestClass new] autorelease];
@@ -300,10 +290,6 @@ static void invocation_complex2(test_t *test)
 static void invocation_complex3(test_t *test)
 {
   struct NSInvocation_TestStruct obs, st, st2, st3;
-  struct NSInvocation_TestStruct0 st0;
-  struct NSInvocation_TestStruct1 st1;
-  struct NSInvocation_TestStruct2 s2t;
-  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
   int loop;
   NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
   o= [[NSInvocation_TestClass new] autorelease];
@@ -346,11 +332,8 @@ static void invocation_complex3(test_t *test)
 
 static void invocation_complex4(test_t *test)
 {
-  struct NSInvocation_TestStruct obs, st, st2, st3;
-  struct NSInvocation_TestStruct0 st0;
-  struct NSInvocation_TestStruct1 st1;
+  struct NSInvocation_TestStruct obs, st, st2;
   struct NSInvocation_TestStruct2 s2t;
-  int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
   int loop;
   NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
   o= [[NSInvocation_TestClass new] autorelease];
@@ -390,10 +373,6 @@ static void invocation_complex4(test_t *test)
 
 static void invocation_complex5(test_t *test)
 {
-  struct NSInvocation_TestStruct obs, st, st2, st3;
-  struct NSInvocation_TestStruct0 st0;
-  struct NSInvocation_TestStruct1 st1;
-  struct NSInvocation_TestStruct2 s2t;
   int64_t arr_arg[4], *arr_chk, *arr_ptr, arr_ret;
   int loop;
   NSMethodSignature *s; NSInvocation *i; NSInvocation_TestClass *o;
@@ -426,7 +405,7 @@ static void invocation_complex5(test_t *test)
 
 static void invocation_forward(test_t *test)
 {
-  NSMethodSignature *s; NSInvocation *i; id o;
+  id o;
   o= [[NSInvocation_TestClass new] autorelease];
   TASSERT_EQUALS_OBJ(test, [o objectAtIndex:0], @"forwarded result: 0");
 }
