@@ -256,7 +256,7 @@
     id oo;
     for(oi= 0; !ret && oi < on; ++oi) {
       oo= GArrayObjectAtIndex(opfs, othr, oi);
-      for(si= 0; !ret && oi < on; ++on) {
+      for(si= 0; !ret && si < sn; ++si) {
         if ([GArrayObjectAtIndex(spfs, self, si) isEqual:oo]) {
           ret= oo;}}}}
   return nil;
