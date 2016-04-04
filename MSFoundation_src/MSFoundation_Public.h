@@ -80,6 +80,8 @@
 #import "MSDictionary.h"
 #import "MSString.h"
 
+#import "MSAsync.h"
+
 #import "MSTDecoder.h"
 #import "MSTEncoder.h"
 

@@ -9,6 +9,7 @@ testdef_t MSFoundationTests[]= {
   {"MSDecimal"   ,msfoundation_decimal   ,NULL},
   {"MSDictionary",msfoundation_dictionary,NULL},
   {"MSString"    ,msfoundation_string    ,NULL},
+  {"Async"       ,msfoundation_async     ,NULL},
   {"MSTE"        ,msfoundation_mste      ,NULL},
   {"JSON"        ,msfoundation_json      ,NULL},
   {NULL}};

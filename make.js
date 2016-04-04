@@ -306,6 +306,8 @@ module.exports = {
         {file: "MSFoundation_src/MSDictionary.m"},
         {file: "MSFoundation_src/MSFoundationPlatform.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSFoundationPlatform.m"},
+        {file: "MSFoundation_src/MSAsync.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSAsync.m"},
         {file: "MSFoundation_src/MSString.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSString.m"},
         {file: "MSFoundation_src/MSStringBooleanAdditions_Private.i"},
@@ -357,6 +359,7 @@ module.exports = {
       ]},
       {group:"Tests", files: [
         {file: "MSFoundation_tst/msfoundation_array_validate.m"},
+        {file: "MSFoundation_tst/msfoundation_async_validate.m"},
         {file: "MSFoundation_tst/msfoundation_buffer_validate.m"},
         {file: "MSFoundation_tst/msfoundation_color_validate.m"},
         {file: "MSFoundation_tst/msfoundation_couple_validate.m"},

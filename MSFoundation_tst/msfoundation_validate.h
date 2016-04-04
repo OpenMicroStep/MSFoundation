@@ -16,5 +16,6 @@ extern testdef_t msfoundation_date      [];
 extern testdef_t msfoundation_decimal   [];
 extern testdef_t msfoundation_dictionary[];
 extern testdef_t msfoundation_string    [];
+extern testdef_t msfoundation_async      [];
 extern testdef_t msfoundation_mste      [];
 extern testdef_t msfoundation_json      [];

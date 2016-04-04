@@ -98,6 +98,8 @@
 #import <MSFoundation/MSDictionary.h>
 #import <MSFoundation/MSString.h>
 
+#import <MSFoundation/MSAsync.h>
+
 #import <MSFoundation/MSTDecoder.h>
 #import <MSFoundation/MSTEncoder.h>
 
