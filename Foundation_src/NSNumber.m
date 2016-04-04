@@ -229,6 +229,11 @@ static inline MSULong _u8FromDouble(double d)
 - (NSString *)stringValue
 { return [self description]; }
 
+- (NSUInteger)hash
+{
+  return (NSUInteger)[self longLongValue];
+}
+
 - (BOOL)isEqual:(id)object
 {
   if (object == self) return YES;

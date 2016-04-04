@@ -122,8 +122,20 @@ static void number_compare(test_t *test)
   TASSERT_EQUALS_LLD(test, [[NSNumber numberWithBool:NO] compare:[NSNumber numberWithInt:10]], NSOrderedAscending);
 }
 
+static void number_hash(test_t *test)
+{
+  TASSERT_EQUALS_LLU(test, [[NSNumber numberWithInt:1] hash], [[NSNumber numberWithDouble:1.0] hash]);
+  TASSERT_EQUALS_LLU(test, [[NSNumber numberWithLongLong:1] hash], [[NSNumber numberWithInt:1] hash]);
+  TASSERT_NOTEQUALS_LLU(test, [[NSNumber numberWithLongLong:2] hash], [[NSNumber numberWithInt:1] hash]);
+  TASSERT_EQUALS_LLU(test, [[NSNumber numberWithBool:YES] hash], [[NSNumber numberWithInt:1] hash]);
+  TASSERT_EQUALS_LLU(test, [[NSNumber numberWithBool: NO] hash], [[NSNumber numberWithInt:0] hash]);
+  TASSERT_EQUALS_LLU(test, [[NSNumber numberWithUnsignedLongLong:10] hash], [[NSNumber numberWithInt:10] hash]);
+  TASSERT_EQUALS_LLU(test, [[NSNumber numberWithUnsignedLong:5] hash], [[NSNumber numberWithChar:5] hash]);
+}
+
 testdef_t foundation_number[]= {
   {"int"     ,NULL,number_int     },
   {"double"  ,NULL,number_double  },
   {"compare" ,NULL,number_compare },
+  {"hash"    ,NULL,number_hash    },
   {NULL}};
