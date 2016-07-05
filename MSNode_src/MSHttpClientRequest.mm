@@ -234,6 +234,34 @@ static void _registerResponseEvents(id self, Local<Object> response, Isolate *is
 
 @end
 
+@implementation MSHttpBufferClientResponse
+- (instancetype)init
+{
+  if ((self= [super init])) {
+    _buf= [MSBuffer new];
+  }
+  return self;
+}
+- (void)dealloc
+{
+  [_buf release];
+  [super dealloc];
+}
+- (void)onResponseData:(NSData *)data
+{
+  [_buf appendBytes:[data bytes] length:[data length]];
+}
+- (void)onResponseEnd
+{
+  [_buf setImmutable];
+  [self handledWithError:nil];
+}
+- (MSBuffer *)bufferValue
+{
+  return _buf;
+}
+@end
+
 @implementation MSHttpStringClientResponse
 - (instancetype)init
 {

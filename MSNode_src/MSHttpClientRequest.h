@@ -21,6 +21,12 @@
 - (void)handledWithError:(NSString *)err;
 @end
 
+@interface MSHttpBufferClientResponse : MSHttpClientResponse {
+	id _buf;
+}
+- (MSBuffer *)bufferValue;
+@end
+
 @interface MSHttpStringClientResponse : MSHttpClientResponse {
 	id _str, _buf;
 }
