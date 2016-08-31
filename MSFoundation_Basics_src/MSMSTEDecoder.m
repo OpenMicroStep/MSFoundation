@@ -615,7 +615,6 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
     case MSTE_TOKEN_TYPE_UNSIGNED_SHORT   :
     case MSTE_TOKEN_TYPE_UNSIGNED_INT32   :
     case MSTE_TOKEN_TYPE_UNSIGNED_INT64   :
-    case MSTE_TOKEN_TYPE_DATE             :
     case MSTE_TOKEN_TYPE_COLOR            :
     case MSTE_TOKEN_TYPE_NATURAL_ARRAY    :
     case MSTE_TOKEN_TYPE_DICTIONARY       :
@@ -626,6 +625,7 @@ static inline void CMSTEDecoderHandleTokenCode(CMSTEDecoder *self, MSULong code)
     case MSTE_TOKEN_TYPE_BASE64_DATA      :
       CMSTEDecoderExpect(self, STATE_DATA);
       break;
+    case MSTE_TOKEN_TYPE_DATE             :
     case MSTE_TOKEN_TYPE_CHAR             :
     case MSTE_TOKEN_TYPE_SHORT            :
     case MSTE_TOKEN_TYPE_INT32            :

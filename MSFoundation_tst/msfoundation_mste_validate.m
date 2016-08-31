@@ -412,6 +412,7 @@ static void mste_some(test_t *test)
   TASSERT_DECODE(test, "[\"MSTE0102\",7,\"CRC093D5173\",0,0,22,978307200]", [NSDate dateWithTimeIntervalSince1970:GMTFromLocal(978307200)]); //Rajouter le isEqual: entre NSDate et MSDate
   //date 2001/01/01 (MSDate) (code 22)
   TASSERT_DECODE(test, "[\"MSTE0102\",7,\"CRC093D5173\",0,0,22,978307200]", [MSDate dateWithYear:2001 month:1 day:1]); //[NSDate initWithTimeIntervalSinceReferenceDate:]: method only defined for abstract class.
+  TASSERT_DECODE(test, "[\"MSTE0102\",7,\"CRC858EBC01\",0,0,22,-1353542400]", [MSDate dateWithYear:1958 month:2 day:10]);
   //date 2001/01/01 (NSCalendarDate) (code 23)
   TASSERT_DECODE(test, "[\"MSTE0102\",7,\"CRCFDED185D\",0,0,23,978307200.000000000000000]", [NSDate dateWithTimeIntervalSinceReferenceDate:0]);
   // TODO: dateWithString: is deprecated in OSX 10.10 and I don't see reasons to implement it
