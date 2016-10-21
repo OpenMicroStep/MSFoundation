@@ -320,6 +320,7 @@ static void _connect_getaddrinfo_cb(uv_getaddrinfo_t* req, int status, struct ad
 + (void)tcpConnectAtPort:(MSUInt)port hostname:(NSString *)hostname onConnect:(MSTcpConnectHandler)handler args:(int)argc, ...;
 {
   uv_loop_t *loop; uv_getaddrinfo_t* req; _tcp_connect_t* d; va_list ap; char strport[16];
+  struct addrinfo hints = { .ai_family = AF_INET };
 
   loop= [NSRunLoop currentUvRunLoop];
   d= (_tcp_connect_t*)MSMalloc(sizeof(_tcp_connect_t) + argc * sizeof(MSHandlerArg), "MSTcp tcpConnectAtPort");
@@ -330,7 +331,7 @@ static void _connect_getaddrinfo_cb(uv_getaddrinfo_t* req, int status, struct ad
   MSHandlerFillArguments((MSHandlerArg *)(d + 1), argc, ap);
   va_end(ap);
   snprintf(strport, 16, "%u", port);
-  uv_getaddrinfo(loop, req, _connect_getaddrinfo_cb, [hostname UTF8String], strport, NULL);
+  uv_getaddrinfo(loop, req, _connect_getaddrinfo_cb, [hostname UTF8String], strport, &hints);
 }
 @end
 

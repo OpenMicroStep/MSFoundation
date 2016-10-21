@@ -67,7 +67,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
 - (Local<Value>)_v8response:(Isolate *)isolate
 { return Local<Object>::New(isolate, *(Persistent<Object>*)_res); }
 
-- (instancetype)initWithV8Req:(Local<Value>)req v8res:(Local<Value>)res isolate:(v8::Isolate *)isolate
+- (instancetype)initWithServer:(MSHttpServer*)server v8Req:(Local<Value>)req v8res:(Local<Value>)res isolate:(v8::Isolate *)isolate
 {
   if ((self= [self init])) {
     Local<Object> request= req->ToObject();
@@ -75,6 +75,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
     _registerEvents(self, request, isolate);
     _res = nodejs_persistent_new(isolate, res->ToObject());
     _context= CCreateDictionary(0);
+    _server= [server retain];
   }
   return self;
 }
@@ -88,6 +89,7 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
   MSHandlerListFreeInside(&_onWriteHead);
   MSHandlerListFreeInside(&_onWriteData);
   RELEASE(_context);
+  RELEASE(_server);
   [super dealloc];
 }
 
@@ -113,6 +115,8 @@ static id _urlParse(void *req, BOOL parseQuery, const char *prop)
 - (void)removeObjectForKey:(id)key
 { CDictionarySetObjectForKey(_context, nil, key);  }
 
+- (MSHttpServer *)server
+{ return _server; }
 - (MSHttpMethod)method
 { return (MSHttpMethod)(intptr_t)CDictionaryObjectForKey(__methodMap, nodejs_get(NULL, _req, "method")); }
 - (NSString *)rawMethod

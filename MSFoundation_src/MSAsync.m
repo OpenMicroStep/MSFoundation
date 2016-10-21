@@ -5,7 +5,7 @@
   MSByte _stack;
   MSAsyncState _state;
 }
-+ (instancetype)runFluxWithContext:(CDictionary *)context elements:(CArray *)elements then:(MSAsyncElement *)then;
++ (instancetype)runFluxWithContext:(mutable MSDictionary *)context elements:(CArray *)elements then:(MSAsyncElement *)then;
 @end
 
 @interface MSAsync (Private)
@@ -14,70 +14,70 @@
 
 @interface _MSAsyncElementAction : MSAsyncElement {
 @public
-  MSAsyncAction _action;
+  union {
+    struct {
+        MSAsyncAction a;
+    } action; // 0
+    struct {
+      MSAsyncSuperAction a;
+      id o;
+    } superAction; // 1
+    struct {
+      id t;
+      SEL s; // 2
+      id o;  // 3
+    } targetAction;
+    struct {
+      MSAsyncCondition c;
+      id e;
+    } _while; // 4
+    struct {
+      MSAsyncCondition c;
+      id t;
+      id e;
+    } _if; // 5
+  } _u;
+  MSByte _type;
 }
 @end
 @implementation _MSAsyncElementAction
-- (void)action:(MSAsync *)flux
-{ _action(flux); }
-@end
-
-@interface _MSAsyncElementSuperAction : MSAsyncElement {
-@public
-  MSAsyncSuperAction _superAction;
-  id _object;
-}
-@end
-@implementation _MSAsyncElementSuperAction
 - (void)dealloc {
-  RELEASE(_object);
-  [super dealloc];
-}
-- (void)action:(MSAsync *)flux
-{ _superAction(flux, _object); }
-@end
-
-@interface _MSAsyncElementWhile : MSAsyncElement {
-@public
-  MSAsyncCondition _condition;
-  id _elements;
-}
-@end
-@implementation _MSAsyncElementWhile
-- (void)dealloc {
-  RELEASE(_elements);
-  [super dealloc];
-}
-- (void)action:(MSAsync *)flux
-{
-  if (_condition(flux)) {
-    [flux setFirstElements:self];
-    [flux setFirstElements:_elements];
+  switch(_type) {
+  case 1: RELEASE(_u.superAction.o); break;
+  case 2: RELEASE(_u.targetAction.t); break;
+  case 3: RELEASE(_u.targetAction.t); RELEASE(_u.targetAction.o); break;
+  case 4: RELEASE(_u._while.e); break;
+  case 5: RELEASE(_u._if.t); RELEASE(_u._if.e); break;
   }
-  [flux continue];
-}
-@end
-
-@interface _MSAsyncElementIf : MSAsyncElement {
-@public
-  MSAsyncCondition _condition;
-  id _then;
-  id _else;
-}
-@end
-@implementation _MSAsyncElementIf
-- (void)dealloc {
-  RELEASE(_then);
-  RELEASE(_else);
   [super dealloc];
 }
 - (void)action:(MSAsync *)flux
 {
-  if (_condition(flux))
-    [flux setFirstElements:_then];
-  else
-    [flux setFirstElements:_else];
-  [flux continue];
+  switch(_type) {
+  case 0: _u.action.a(flux); break;
+  case 1: _u.superAction.a(flux, _u.superAction.o); break;
+  case 2: {
+    IMP imp= objc_msg_lookup(_u.targetAction.t, _u.targetAction.s);
+    ((void(*)(id,SEL,id))imp)(_u.targetAction.t, _u.targetAction.s, flux);
+    break;}
+  case 3: {
+    IMP imp= objc_msg_lookup(_u.targetAction.t, _u.targetAction.s);
+    ((void(*)(id,SEL,id, id))imp)(_u.targetAction.t, _u.targetAction.s, flux, _u.targetAction.o);
+    break;}
+  case 4: {
+    if (_u._while.c(flux)) {
+      [flux setFirstElements:self];
+      [flux setFirstElements:_u._while.e];}
+    [flux continue];
+    break;}
+  case 5: {
+    if (_u._if.c(flux))
+      [flux setFirstElements:_u._if.t];
+    else
+      [flux setFirstElements:_u._if.e];
+    [flux continue];
+    break;}
+  }
 }
 @end
 
@@ -127,11 +127,61 @@
     if ([p isKindOfClass:[MSAsync class]]) {
       [p _run:c then:barrier];}
     else {
-      t= [MSAsyncFlux runFluxWithContext:(CDictionary*)c elements:NULL then:barrier];
+      t= [MSAsyncFlux runFluxWithContext:c elements:NULL then:barrier];
       [t setFirstElements:p];
       [t continue];}}
   [barrier action:nil];
   [barrier release];
+}
+@end
+
+@interface _MSAsyncElementOnce : MSAsyncElement {
+@public
+  id _elements;
+  id _context;
+  id _tokey;
+  CArray *_obs;
+  BOOL _done;
+}
+@end
+@implementation _MSAsyncElementOnce
+- (void)dealloc {
+  RELEASE(_elements);
+  RELEASE(_context);
+  RELEASE(_tokey);
+  RELEASE(_obs);
+  [super dealloc];
+}
+static void _MSAsyncElementOnce_Then(MSAsync *p, _MSAsyncElementOnce *self)
+{
+  CArray *obs= self->_obs;
+  self->_obs= NULL;
+  self->_done= YES;
+  for (NSUInteger i= 0, count= CArrayCount(obs); i < count; i++) {
+    MSAsync *f= (MSAsync*)CArrayObjectAtIndex(obs, i);
+    if (self->_tokey)
+      CDictionarySetObjectForKey((CDictionary *)[f context], self->_context, self->_tokey);
+    [f continue];}
+  RELEASE(obs);
+}
+- (void)action:(MSAsync *)flux
+{
+  MSAsync *t; MSAsyncElement *then;
+  if (_done) {
+    if (_tokey)
+      CDictionarySetObjectForKey((CDictionary *)[flux context], _context, _tokey);
+    [flux continue];}
+  else if (!_obs) {
+    _obs= CCreateArray(0);
+    CArrayAddObject(_obs, flux);
+    if (!_context)
+      _context= (id)CCreateDictionary(0);
+    then= [MSAsyncElement asyncSuperAction:_MSAsyncElementOnce_Then withObject:self];
+    t= [MSAsyncFlux runFluxWithContext:_context elements:NULL then:then];
+    [t setFirstElements:_elements];
+    [t continue];}
+  else {
+    CArrayAddObject(_obs, flux);}
 }
 @end
 
@@ -144,21 +194,41 @@
 + (MSAsyncElement *)asyncAction:(MSAsyncAction)action
 {
   _MSAsyncElementAction* ret= [[_MSAsyncElementAction new] autorelease];
-  ret->_action= action;
+  ret->_u.action.a= action;
+  ret->_type= 0;
   return ret;
 }
 + (MSAsyncElement *)asyncSuperAction:(MSAsyncSuperAction)superAction withObject:(id)object
 {
-  _MSAsyncElementSuperAction* ret= [[_MSAsyncElementSuperAction new] autorelease];
-  ret->_superAction= superAction;
-  ret->_object= [object retain];
+  _MSAsyncElementAction* ret= [[_MSAsyncElementAction new] autorelease];
+  ret->_u.superAction.a= superAction;
+  ret->_u.superAction.o= [object retain];
+  ret->_type= 1;
+  return ret;
+}
++ (MSAsyncElement *)asyncTarget:(id)target action:(SEL)action
+{
+  _MSAsyncElementAction* ret= [[_MSAsyncElementAction new] autorelease];
+  ret->_u.targetAction.t= [target retain];
+  ret->_u.targetAction.s= action;
+  ret->_type= 2;
+  return ret;
+}
++ (MSAsyncElement *)asyncTarget:(id)target action:(SEL)action withObject:(id)object
+{
+  _MSAsyncElementAction* ret= [[_MSAsyncElementAction new] autorelease];
+  ret->_u.targetAction.t= [target retain];
+  ret->_u.targetAction.s= action;
+  ret->_u.targetAction.o= [object retain];
+  ret->_type= 3;
   return ret;
 }
 + (MSAsyncElement *)asyncWhile:(MSAsyncCondition)condition do:(id)elements
 {
-  _MSAsyncElementWhile* ret= [[_MSAsyncElementWhile new] autorelease];
-  ret->_condition= condition;
-  ret->_elements= [elements retain];
+  _MSAsyncElementAction* ret= [[_MSAsyncElementAction new] autorelease];
+  ret->_u._while.c= condition;
+  ret->_u._while.e= [elements retain];
+  ret->_type= 4;
   return ret;
 }
 + (MSAsyncElement *)asyncIf:(MSAsyncCondition)condition then:(id)thenElements
@@ -167,10 +237,11 @@
 }
 + (MSAsyncElement *)asyncIf:(MSAsyncCondition)condition then:(id)thenElements else:(id)elseElements
 {
-  _MSAsyncElementIf* ret= [[_MSAsyncElementIf new] autorelease];
-  ret->_condition= condition;
-  ret->_then= [thenElements retain];
-  ret->_else= [elseElements retain];
+  _MSAsyncElementAction* ret= [[_MSAsyncElementAction new] autorelease];
+  ret->_u._if.c= condition;
+  ret->_u._if.t= [thenElements retain];
+  ret->_u._if.e= [elseElements retain];
+  ret->_type= 5;
   return ret;
 }
 + (MSAsyncElement *)asyncWithParallelElements:(NSArray *)elements
@@ -182,6 +253,19 @@
   _MSAsyncElementParallel* ret= [[_MSAsyncElementParallel new] autorelease];
   ret->_elements= [elements retain];
   ret->_contexts= [contexts retain];
+  return ret;
+}
++ (MSAsyncElement *)asyncOnce:(id)elements context:(mutable MSDictionary *)context
+{
+  return [self asyncOnce:elements context:context forKey:nil];
+}
+
++ (MSAsyncElement *)asyncOnce:(id)elements context:(mutable MSDictionary *)context forKey:(id)key
+{
+  _MSAsyncElementOnce* ret= [[_MSAsyncElementOnce new] autorelease];
+  ret->_elements= [elements retain];
+  ret->_context= [context retain];
+  ret->_tokey= [key retain];
   return ret;
 }
 @end
@@ -205,7 +289,7 @@ static void _callContinue(MSAsync *flux) {
 + (instancetype)runWithContext:(mutable MSDictionary *)context elements:(NSArray *)elements;
 {
   MSAsync *flux;
-  flux= [MSAsyncFlux runFluxWithContext:(CDictionary*)context elements:NULL then:nil];
+  flux= [MSAsyncFlux runFluxWithContext:context elements:NULL then:nil];
   [flux setFirstElements:elements];
   [flux continue];
   return flux;
@@ -225,11 +309,16 @@ static void _callContinue(MSAsync *flux) {
   return AUTORELEASE([ALLOC(self) initWithContext:context elements:elements]);
 }
 - (instancetype)initWithContext:(mutable MSDictionary *)context elements:(id)elements {
-  if ((self= [super init])) {
-    _context= context ? (CDictionary *)[context retain] : CCreateDictionary(0);
-    _elements= CCreateArray(0);
+  if ((self= [self _initWithContext:context elements:NULL]))
     if (elements)
       [self setFirstElements:elements];
+  return self;
+}
+
+- (instancetype)_initWithContext:(mutable MSDictionary *)context elements:(CArray *)elements {
+  if ((self= [super init])) {
+    _context= context ? (CDictionary *)[context retain] : CCreateDictionary(0);
+    _elements= elements ? (CArray *)CArrayCopy((id)elements) : CCreateArray(0);
   }
   return self;
 }
@@ -267,29 +356,27 @@ static void _callContinue(MSAsync *flux) {
 
 - (void)action:(MSAsync *)flux
 {
-  [[MSAsyncFlux runFluxWithContext:_context elements:_elements then:__callContinue] continue];
+  [[MSAsyncFlux runFluxWithContext:(id)_context elements:_elements then:__callContinue] continue];
 }
 - (void)_run:(mutable MSDictionary *)context then:(MSAsyncElement *)element
 {
-  [[MSAsyncFlux runFluxWithContext:(CDictionary*)context elements:_elements then:element] continue];
+  [[MSAsyncFlux runFluxWithContext:context elements:_elements then:element] continue];
 }
 - (void)continue
 {
-  [[MSAsyncFlux runFluxWithContext:_context elements:_elements then:nil] continue];
+  [[MSAsyncFlux runFluxWithContext:(id)_context elements:_elements then:nil] continue];
 }
 
 @end
 
 @implementation MSAsyncFlux
-+ (instancetype)runFluxWithContext:(CDictionary *)context elements:(CArray *)elements then:(MSAsyncElement *)then
++ (instancetype)runFluxWithContext:(mutable MSDictionary *)context elements:(CArray *)elements then:(MSAsyncElement *)then
 {
-  MSAsyncFlux *s= [[MSAsyncFlux new] autorelease];
-  s->_context= (CDictionary *)RETAIN(context);
-  s->_elements= elements ? (CArray *)CArrayCopy((id)elements) : CCreateArray(0);
+  MSAsyncFlux *s= [ALLOC(MSAsyncFlux) _initWithContext:context elements:elements];
   s->_then= RETAIN(then);
   s->_stack= 0;
   s->_state= MSAsyncStarted;
-  return s;
+  return AUTORELEASE(s);
 }
 - (void)dealloc
 {
@@ -311,10 +398,11 @@ static void _callContinue(MSAsync *flux) {
       _stack= 1;
       // On reste finishing dès qu'on a touché la dernière action, même si celle-ci rajoute des actions au pool.
       if ((_state == MSAsyncStarted || _state == MSAsyncFinishing) && CArrayCount(_elements) > 0) {
-        MSAsyncElement *element= CArrayLastObject(_elements);
+        MSAsyncElement *element= RETAIN(CArrayLastObject(_elements));
         CArrayRemoveLastObject(_elements);
         if (CArrayCount(_elements) == 0) _state= MSAsyncFinishing;
-        [element action:self];}
+        [element action:self];
+        RELEASE(element);}
       else if (_state != MSAsyncAborted || _state != MSAsyncTerminated) {
         if (_state != MSAsyncAborted)
           _state= MSAsyncTerminated;

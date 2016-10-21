@@ -9,6 +9,7 @@
 #import <MSNode/MSAsyncTask.h>
 #import <MSNode/MSCipher.h>
 #import <MSNode/MSDigest.h>
+#import <MSNode/MSCertificate.h>
 #import <MSNode/MSSecureHash.h>
 
 #import <MSNode/MSNodeWorker.h>

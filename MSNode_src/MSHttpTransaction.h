@@ -13,6 +13,7 @@ typedef BOOL (*MSHttpTransactionWriteDataHandler)(MSHttpTransaction *tr, NSData 
   int _state;
   void *_req;
   void *_res;
+  MSHttpServer *_server;
   MSHandlerList _onReceiveData, _onReceiveEnd;
   MSHandlerList _onWriteHead, _onWriteData;
   CDictionary * _context;
@@ -25,6 +26,7 @@ typedef BOOL (*MSHttpTransactionWriteDataHandler)(MSHttpTransaction *tr, NSData 
 - (MSHandler*)addWriteDataHandler:(MSHttpTransactionWriteDataHandler)handler args:(int)argc, ...;
 
 // Request info
+- (MSHttpServer *)server;
 - (MSHttpMethod)method;
 - (NSString *)rawMethod;
 - (NSString*)url;

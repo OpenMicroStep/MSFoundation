@@ -19,7 +19,6 @@
 - (void)setCertificateAutority:(NSData *)ca;
 - (void)setCertificate:(NSData *)cert privateKey:(NSData *)key;
 - (void)setCertificate:(NSData *)cert privateKey:(NSData *)key passphrase:(NSString *)passphrase;
-
 - (MSHttpClientRequest *)request:(MSHttpMethod)method at:(NSString *)at;
 - (MSHttpClientRequest *)getRequest:(NSString *)at;
 - (MSHttpClientRequest *)postRequest:(NSString *)at;

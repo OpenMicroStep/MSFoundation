@@ -8,6 +8,7 @@
 #import "MSAsyncTask.h"
 #import "MSCipher.h"
 #import "MSDigest.h"
+#import "MSCertificate.h"
 #import "MSSecureHash.h"
 
 #import "MSNodeWorker.h"

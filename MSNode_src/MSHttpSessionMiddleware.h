@@ -9,6 +9,8 @@
   void *_uv_timer;
 }
 + (NSString *)generateSessionKey;
++ (instancetype)sessionWithKey:(id)key withInstigator:(id)m;
+- (instancetype)initWithKey:(id)key withInstigator:(id)m;
 - (NSString *)key;
 - (BOOL)isAuthenticated;
 

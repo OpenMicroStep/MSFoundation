@@ -64,6 +64,7 @@ static BOOL _formmiddleware_receiveend_events_handler(MSHttpTransaction *tr, NSS
       // Event based parsing
       [tr addReceiveEndHandler:_formmiddleware_receiveend_events_handler args:1, MSMakeHandlerArg(parser)];
       [tr setObject:parser forKey:@"MSHttpFormParser"];
+      NSLog(@"form data parser %@", parser);
       RELEASE(parser);
       [tr nextRoute];}}
 }
@@ -87,22 +88,14 @@ enum MSHttpFormParserState {
   STATE_URLENCODED_KEY         ,
   STATE_URLENCODED_VALUE       ,
 };
-static inline BOOL _isUrlEncodedState(int state)
-{
-  return state >= STATE_URLENCODED_KEY && state <= STATE_URLENCODED_VALUE;
-}
-static inline BOOL _isFormDataState(int state)
-{
-  return state >= STATE_FORMDATA_PENDING && state <= STATE_FORMDATA_PENDING;
-}
 
 @implementation MSHttpFormParser
-
 - (instancetype)initWithUrlEncoded
 {
   _state= STATE_URLENCODED_KEY;
   _u.ue.field= CCreateBuffer(32);
   _u.ue.value= CCreateBuffer(32);
+  _isformdata= NO;
   return self;
 }
 - (instancetype)initWithFormDataBoundary:(NSString *)boundary
@@ -114,6 +107,7 @@ static inline BOOL _isFormDataState(int state)
   _u.fd.boundaryDetectPos= 2;
   _u.fd.field= CCreateBuffer(32);
   _u.fd.value= CCreateBuffer(32);
+  _isformdata= YES;
   return self;
 }
 - (instancetype)initWithTransaction:(MSHttpTransaction*)tr allowFormData:(BOOL)allowFormData
@@ -140,11 +134,11 @@ static inline BOOL _isFormDataState(int state)
 
 - (void)dealloc
 {
-  if (_isFormDataState(_state)) {
+  if (_isformdata) {
     RELEASE(_u.fd.boundary);
     RELEASE(_u.fd.field);
     RELEASE(_u.fd.value);}
-  else if (_isUrlEncodedState(_state)) {
+  else {
     RELEASE(_u.ue.field);
     RELEASE(_u.ue.value);}
   MSHandlerListFreeInside(&_onField);
@@ -253,8 +247,7 @@ static inline BOOL _isInRestrictedASCIIRange(MSByte b)
       case STATE_FORMDATA_PENDING:
         state= STATE_FORMDATA_PENDING;
         if (b != CBufferByteAtIndex(_u.fd.boundary, detectPos++)) {
-          detectPos= 0; // We are pending the first boundary, we can drop everything here
-        }
+          detectPos= b == CBufferByteAtIndex(_u.fd.boundary, 0) ? 1 : 0;}
         else if (detectPos == CBufferLength(_u.fd.boundary)) {
           state= STATE_FORMDATA_PENDING_CR; // The next byte is an head
           detectPos= 0;
@@ -275,7 +268,7 @@ static inline BOOL _isInRestrictedASCIIRange(MSByte b)
       case STATE_FORMDATA_BODY:
         state= STATE_FORMDATA_BODY;
         if (b != CBufferByteAtIndex(_u.fd.boundary, detectPos++)) {
-          detectPos= 0;}
+          detectPos= b == CBufferByteAtIndex(_u.fd.boundary, 0) ? 1 : 0;}
         else if (detectPos == CBufferLength(_u.fd.boundary)) {
           if (_u.fd.boundaryDetectPos > 0 && pos >= detectPos) { // Some parts were frozen by the previous pass
             [self emitFileChunk:_fieldIdx bytes:CBufferBytes(_u.fd.boundary) length:_u.fd.boundaryDetectPos];}
@@ -388,7 +381,7 @@ static inline BOOL _isInRestrictedASCIIRange(MSByte b)
 }
 - (void)writeEnd
 {
-  if (_isUrlEncodedState(_state) && CBufferLength(_u.ue.field) > 0 && _u.ue.bufPos == 0) {
+  if (!_isformdata && CBufferLength(_u.ue.field) > 0 && _u.ue.bufPos == 0) {
     [self emitField:_fieldIdx++];
   }
 }

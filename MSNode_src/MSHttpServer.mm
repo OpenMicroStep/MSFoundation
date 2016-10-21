@@ -13,7 +13,7 @@ static void onRequestCallback(id object, const FunctionCallbackInfo<Value> &args
   MSHttpServer*  self= object;
   Local<Object> v8req= args[0]->ToObject();
   Local<Object> v8res= args[1]->ToObject();
-  MSHttpTransaction* tr= [ALLOC(MSHttpTransaction) initWithV8Req:v8req v8res:v8res isolate:args.GetIsolate()];
+  MSHttpTransaction* tr= [ALLOC(MSHttpTransaction) initWithServer:self v8Req:v8req v8res:v8res isolate:args.GetIsolate()];
   [[self delegate] onServer:self transaction:tr];
 }
 
@@ -106,7 +106,9 @@ static void _registerEvents(id self, Local<Object> server, Isolate *isolate) {
 
 @end
 
-@implementation MSHttpsServer
+@implementation MSHttpsServer {
+  id _cert;
+}
 
 static BOOL _loadBuffer(mutable MSDictionary *d, id key, NSString *path)
 {
@@ -139,6 +141,7 @@ static BOOL _loadBuffer(mutable MSDictionary *d, id key, NSString *path)
   _loadBuffer(params, @"pfx", rootPath);
   _loadBuffer(params, @"cert", rootPath);
   _loadBuffer(params, @"key", rootPath);
+  ASSIGN(_cert, [params objectForKey:@"cert"]);
   Local<Value> serverRet= nodejs_call_with_ids(isolate, https, "createServer", params, nil);
   if (!serverRet.IsEmpty()) {
     Local<Object> server= serverRet->ToObject();
@@ -154,4 +157,13 @@ static BOOL _loadBuffer(mutable MSDictionary *d, id key, NSString *path)
   return self;
 }
 
+- (void)dealloc {
+  DESTROY(_cert);
+  [super dealloc];
+}
+
+- (MSCertificate *)certificate
+{
+  return [MSCertificate certificateWithData:_cert];
+}
 @end

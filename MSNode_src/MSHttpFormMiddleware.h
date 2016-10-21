@@ -14,6 +14,7 @@ typedef BOOL (*MSHttpFormFileChunkHandler)(MSHttpFormParser *parser, int idx, co
 @interface MSHttpFormParser : NSObject {
   int _state; NSUInteger _fieldIdx;
   MSHandlerList _onField, _onFileHeader, _onFileChunk;
+  BOOL _isformdata;
   union {
     struct {
       CBuffer *field;
@@ -28,7 +29,6 @@ typedef BOOL (*MSHttpFormFileChunkHandler)(MSHttpFormParser *parser, int idx, co
       CBuffer *boundary;
       NSUInteger boundaryDetectPos;
     } fd; // formdata
-
   } _u;
 }
 - (instancetype)initWithUrlEncoded;

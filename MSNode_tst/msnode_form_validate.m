@@ -123,6 +123,21 @@ static const char _formDataPart2[] =
 "\r\n"
 "...contents of file2.gif...\r\n"
 "--BbC04y--";
+
+static const char _formDataBug[] =
+"------WebKitFormBoundarysauI3YTQ2M7RKKUu\r\n"
+"Content-Disposition: form-data; name=\"textfield-1135-inputEl\"\r\n"
+"\r\n"
+"\r\n"
+"------WebKitFormBoundarysauI3YTQ2M7RKKUu\r\n"
+"Content-Disposition: form-data; name=\"wibfilefield-1133-inputEl\"; filename=\"tarif MEYLAN.csv\"\r\n"
+"Content-Type: text/csv\r\n"
+"\r\n"
+"CodeTarif;Commentaires;Poids;D?finition;Tarif\r\n"
+"8FOOTSTABA;foot stab dt A;;heure, quart-heure;10,15 \x80\r\n"
+"\r\n"
+"------WebKitFormBoundarysauI3YTQ2M7RKKUu--\r\n";
+
 static int _formDataSplits[10]= {1,10,20,40,50,60,70,100,200,400};
 
 static BOOL _test_formFileHeaderHandler(MSHttpFormParser *parser, int idx, NSString *name, NSString *value, MSHandlerArg *args)

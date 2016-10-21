@@ -29,8 +29,7 @@
 - (void)onServer:(MSHttpServer*)server clientError:(NSString*)err;
 @end
 
-@interface MSHttpsServer : MSHttpServer {
-}
+@interface MSHttpsServer : MSHttpServer
 
 /**
  pfx is mutually exclusive with cert, key and ca.
@@ -55,4 +54,5 @@
 + (instancetype)httpsServerWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
 - (instancetype)initWithParameters:(NSDictionary *)parameters;
 - (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
+- (MSCertificate *)certificate;
 @end

@@ -172,5 +172,4 @@ static void _appWithParameters(CArray *apps, NSDictionary *parameters, NSString 
 { return _fsPath; }
 - (NSDictionary *)parameters
 { return _parameters; }
-
 @end

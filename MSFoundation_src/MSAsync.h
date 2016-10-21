@@ -19,11 +19,17 @@ typedef BOOL (*MSAsyncCondition)(MSAsync *flux);
 @interface MSAsyncElement (CreateAsyncElements)
 + (MSAsyncElement *)asyncAction:(MSAsyncAction)action;
 + (MSAsyncElement *)asyncSuperAction:(MSAsyncSuperAction)superAction withObject:(id)object;
++ (MSAsyncElement *)asyncTarget:(id)target action:(SEL)action;
++ (MSAsyncElement *)asyncTarget:(id)target action:(SEL)action withObject:(id)object;
 + (MSAsyncElement *)asyncWhile:(MSAsyncCondition)condition do:(id)elements;
 + (MSAsyncElement *)asyncIf:(MSAsyncCondition)condition then:(id)thenElements;
 + (MSAsyncElement *)asyncIf:(MSAsyncCondition)condition then:(id)thenElements else:(id)elseElements;
+
 + (MSAsyncElement *)asyncWithParallelElements:(NSArray *)elements;
 + (MSAsyncElement *)asyncWithParallelElements:(NSArray *)elements contexts:(NSArray *)contexts;
+
++ (MSAsyncElement *)asyncOnce:(id)elements context:(mutable MSDictionary *)context;
++ (MSAsyncElement *)asyncOnce:(id)elements context:(mutable MSDictionary *)context forKey:(id)key;
 @end
 
 @interface MSAsync : MSAsyncElement

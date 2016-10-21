@@ -33,7 +33,7 @@
 #import "MSNodeWrapper.h"
 
 @interface MSHttpTransaction (Private)
-- (instancetype)initWithV8Req:(v8::Local<v8::Value>)req v8res:(v8::Local<v8::Value>)res isolate:(v8::Isolate *)isolate;
+- (instancetype)initWithServer:(MSHttpServer*)server v8Req:(v8::Local<v8::Value>)req v8res:(v8::Local<v8::Value>)res isolate:(v8::Isolate *)isolate;
 @end
 #endif //__cplusplus
 

@@ -4,10 +4,6 @@
 - (void)_removeSession:(MSHttpSession *)session;
 @end
 
-@interface MSHttpSession (Private)
-- (instancetype)_initWithKey:(id)key withInstigator:(id)m;
-@end
-
 @implementation MSHttpSession
 + (NSString *)generateSessionKey
 {
@@ -17,8 +13,15 @@
   return ret;
 }
 
-- (instancetype)_initWithKey:(id)key withInstigator:(id)m
++ (instancetype)sessionWithKey:(id)key withInstigator:(id)m
 {
+  return [[[self alloc] initWithKey:key withInstigator:m] autorelease];
+}
+
+- (instancetype)initWithKey:(id)key withInstigator:(id)m
+{
+  if (!key)
+    key= [[self class] generateSessionKey];
   _key= [key retain];
   _instigator= [m retain];
   //NSLog(@"Session %p created", self);
@@ -92,7 +95,7 @@ static void _sessionTimeout(MSHttpSession* self)
     cookie= [MSHttpCookie cookieWithValue:sessionKey];
     [cookie setPath:[tr urlRouted]];
     [tr setCookie:cookie forName:_cookieName];
-    session= [[ALLOC(_sessionClass) _initWithKey:sessionKey withInstigator:self] autorelease];
+    session= [[ALLOC(_sessionClass) initWithKey:sessionKey withInstigator:self] autorelease];
     CDictionarySetObjectForKey(_sessions, session, sessionKey);}
   session= [session update];
   [tr setObject:session forKey:@"MSHttpSessionMiddleware"];
