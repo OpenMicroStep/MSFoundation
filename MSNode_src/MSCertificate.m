@@ -1,0 +1,314 @@
+/*
+
+ MSCertificate.m
+
+ This file is is a part of the MicroStep Framework.
+
+ Initial copyright Herve MALAINGRE and Eric BARADAT (1996)
+ Contribution from LOGITUD Solutions (logitud@logitud.fr) since 2011
+
+ Geoffrey Guilbon : gguilbon@gmail.com
+
+
+ This software is a computer program whose purpose is to [describe
+ functionalities and technical features of your software].
+
+ This software is governed by the CeCILL-C license under French law and
+ abiding by the rules of distribution of free software.  You can  use,
+ modify and/ or redistribute the software under the terms of the CeCILL-C
+ license as circulated by CEA, CNRS and INRIA at the following URL
+ "http://www.cecill.info".
+
+ As a counterpart to the access to the source code and  rights to copy,
+ modify and redistribute granted by the license, users are provided only
+ with a limited warranty  and the software's author,  the holder of the
+ economic rights,  and the successive licensors  have only  limited
+ liability.
+
+ In this respect, the user's attention is drawn to the risks associated
+ with loading,  using,  modifying and/or developing or reproducing the
+ software by the user in light of its specific status of free software,
+ that may mean  that it is complicated to manipulate,  and  that  also
+ therefore means  that it is reserved for developers  and  experienced
+ professionals having in-depth computer knowledge. Users are therefore
+ encouraged to load and test the software's suitability as regards their
+ requirements in conditions enabling the security of their systems and/or
+ data to be ensured and,  more generally, to use and operate it in the
+ same conditions as regards security.
+
+ The fact that you are presently reading this means that you have had
+ knowledge of the CeCILL-C license and that you accept its terms.
+
+ WARNING : this header file cannot be included alone, please direclty
+ include <MSFoundation/MSFoundation.h>
+ */
+
+#import "MSNode_Private.h"
+//#import "MSASCIIString.h"
+//#import "MSDate.h"
+//#import <openssl/x509.h>
+
+@implementation MSCertificate {
+    X509 *_cert ;
+    NSDictionary *_issuer ;
+    NSDictionary *_subject ;
+    NSString *_serial ;
+}
+
+#define OID_MAX_LENGTH 128
+
+- (NSString *)_X509StringFromASN1Object:(void *)object
+{
+    MSInt len ;
+    char *buf = (char *)malloc(OID_MAX_LENGTH * sizeof(char)) ;
+    MSBuffer *data = nil ;
+
+    len = OBJ_obj2txt(buf, OID_MAX_LENGTH, object, 0) ;
+    data = MSCreateBufferWithBytesNoCopyNoFree(buf, len) ;
+    return [[[NSString alloc] initWithBytesNoCopy:((CBuffer*)data)->buf length:((CBuffer*)data)->length encoding:NSASCIIStringEncoding freeWhenDone:YES] autorelease] ;
+}
+
+- (NSString *)_X509StringFromASN1String:(void *)str
+{
+    char *buffer ;
+    MSInt len ;
+
+    if ((len = ASN1_STRING_to_UTF8((unsigned char**)&buffer, str)) < 0) { return nil ; }
+    return [[[NSString alloc] initWithBytesNoCopy:buffer length:len encoding:NSUTF8StringEncoding freeWhenDone:YES] autorelease] ;
+}
+
+- (NSDictionary *)_X509DictionaryFrom509Name:(X509_NAME *)name
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary] ;
+    int i, count = X509_NAME_entry_count(name) ;
+
+    for (i = 0; i < count; i++) {
+        NSString *key;
+        void *entry = X509_NAME_get_entry(name, i) ;
+        void *obj = X509_NAME_ENTRY_get_object(entry) ;
+        void *str = X509_NAME_ENTRY_get_data(entry) ;
+        key = [self _X509StringFromASN1Object: obj];
+        if (! [dict objectForKey:key]) { [dict setObject:[self _X509StringFromASN1String:str] forKey:key] ; }
+    }
+
+    return dict ;
+}
+
+- (NSString *)_serialFromX509
+{
+    void *serialBN = ASN1_INTEGER_to_BN(X509_get_serialNumber(_cert), NULL) ;
+    char *serialHex = BN_bn2hex(serialBN) ;
+
+    return AUTORELEASE(MSCreateASCIIStringWithBytes((void *)serialHex, strlen(serialHex), YES, YES)) ;
+}
+
+- (NSString *)_issuerValueForKey:(NSString *)key
+{
+    if(!_issuer) ASSIGN(_issuer, [self _X509DictionaryFrom509Name:X509_get_issuer_name(_cert)]) ;
+
+    return [_issuer objectForKey:key] ;
+}
+
+- (NSString *)_subjectValueForKey:(NSString *)key
+{
+    if(!_subject) ASSIGN(_subject, [self _X509DictionaryFrom509Name:X509_get_subject_name(_cert)]) ;
+
+    return [_subject objectForKey:key] ;
+}
+
+- (NSString *)serial
+{
+    if(!_serial) ASSIGN(_serial, [self _serialFromX509]) ;
+
+    return _serial ;
+}
+
++ (id)certificateWithX509:(void *)x509
+{
+     return [[[self alloc] initWithX509:x509] autorelease] ;
+}
+
+
+- (id)initWithX509:(void *)x509
+{
+    _cert = x509 ;
+
+    return self ;
+}
+
++ (id)certificateWithData:(NSData *)buffer
+{
+    return [[[self alloc] initWithData:buffer] autorelease] ;
+}
+
+- (id)initWithData:(NSData *)buffer
+{
+    BIO *certbio = BIO_new_mem_buf((void *)[buffer bytes], [buffer length]) ;
+
+    //try to read certificate with PEM format
+    _cert = PEM_read_bio_X509(certbio, NULL, 0, NULL) ;
+
+    if(!_cert) // if certificate is not PEM, try DER format
+    {
+        if(BIO_reset(certbio)) { MSRaise(NSGenericException, @"MSCertificate cannot reset BIO") ; }
+        _cert = d2i_X509_bio(certbio, NULL) ;
+    }
+
+    if(!_cert)
+    {
+        MSRaise(NSGenericException, @"MSCertificate wrong format, cannot read PEM or DER certificate from data") ;
+    }
+
+    BIO_free_all(certbio) ;
+
+    return self ;
+}
+
+- (void)dealloc
+{
+    if(_cert) X509_free(_cert) ;
+
+    DESTROY(_issuer) ;
+    DESTROY(_subject) ;
+
+    [super dealloc] ;
+}
+
+- (NSString *)issuerCommonName { return [self _issuerValueForKey:@"commonName"] ; }
+- (NSString *)issuerCountryName { return [self _issuerValueForKey:@"countryName"] ; }
+- (NSString *)issuerOrganizationName { return [self _issuerValueForKey:@"organizationName"] ; }
+
+- (NSString *)subjectCommonName { return [self _subjectValueForKey:@"commonName"] ; }
+- (NSString *)subjectCountryName { return [self _subjectValueForKey:@"countryName"] ; }
+- (NSString *)subjectDnQualifier { return [self _subjectValueForKey:@"dnQualifier"] ; }
+- (NSString *)subjectOrganizationName { return [self _subjectValueForKey:@"organizationName"] ; }
+- (NSString *)subjectOrganizationalUnitName { return [self _subjectValueForKey:@"organizationalUnitName"] ; }
+
+- (NSString *)fingerPrint:(MSDigestType)digest
+{
+    unsigned int fprint_size;
+    unsigned char fprint[EVP_MAX_MD_SIZE];
+    const void *fprint_type = MSDigestToEVP_MD(digest) ;
+
+    memset(fprint, 0, EVP_MAX_MD_SIZE) ;
+
+    if (!X509_digest(_cert, fprint_type, fprint, &fprint_size))
+    {
+        MSRaise(NSGenericException, @"MSCertificate failed to create SHA fingerprint") ;
+    }
+
+    return MSBytesToHexaString(fprint, fprint_size , NO) ;
+}
+
+#define DIC_ADD(D,V,K) value = V ; if(V) { [dic setObject:V forKey:K] ; }
+
+- (NSString *)description {
+
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary] ;
+    id value ;
+
+    DIC_ADD(div, [self issuerCommonName], @"issuerCommonName")
+    DIC_ADD(div, [self issuerOrganizationName], @"issuerOrganizationName")
+    DIC_ADD(div, [self issuerCountryName], @"issuerCountryName")
+    DIC_ADD(div, [self issuerOrganizationName], @"issuerOrganizationName")
+    DIC_ADD(div, [self subjectCommonName], @"subjectCommonName")
+    DIC_ADD(div, [self issuerCountryName], @"issuerCountryName")
+    DIC_ADD(div, [self subjectDnQualifier], @"subjectDnQualifier")
+    DIC_ADD(div, [self subjectOrganizationName], @"subjectOrganizationName")
+    DIC_ADD(div, [self subjectOrganizationalUnitName], @"subjectOrganizationalUnitName")
+    DIC_ADD(div, [self serial], @"serial")
+    DIC_ADD(div, [self fingerPrint:MS_SHA1], @"SHA fingerPrint")
+
+    return [dic description] ;
+}
+
+static BOOL _SESExtractU4OfLen(SES ses, NSUInteger *pos, NSUInteger len, unsigned *pv)
+{
+    BOOL ret= YES; NSUInteger p= *pos;
+    unsigned v= 0; unichar u;
+    if (SESOK(ses)) {
+        while (ret && len > 0 && p < SESEnd(ses)) {
+            if(CUnicharIsIsoDigit(u= SESIndexN(ses, &p)))
+                v= v * 10 + v;
+            else
+                ret= NO;
+            --len;
+        }
+        ret= ret && len == 0;
+    }
+    if(ret) {
+        *pos= p;
+        if(pv)
+            *pv= v;
+    }
+    return ret;
+}
+- (MSDate *)_dateFromASN1_TIME:(ASN1_TIME *)asn1Time
+{
+    SES ses;
+    ASN1_GENERALIZEDTIME *generalizedTime ;
+    CDate *date = NULL ;
+    generalizedTime = ASN1_TIME_to_generalizedtime(asn1Time, NULL) ;
+    ses= MSMakeSESWithBytes(generalizedTime->data, generalizedTime->length, NSUTF8StringEncoding);
+    if(SESOK(ses)) {
+        NSUInteger pos= SESStart(ses); BOOL ok= YES; unichar u;
+        unsigned year, month,  day, hour, minute= 0, second= 0; MSTimeInterval offset =0;
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 4, &year);
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &month);
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &day);
+        ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &hour);
+        if (ok && _SESExtractU4OfLen(ses, &pos, 2, &minute)) { // [MM[SS[.fff]]]
+            if (_SESExtractU4OfLen(ses, &pos, 2, &second)) {
+                if ((u= SESIndexN(ses, &pos)) == (unichar)'.') { // [.fff]
+                    ok= _SESExtractU4OfLen(ses, &pos, 3, NULL);
+                }
+            }
+        }
+        if (ok) {
+            if (pos < SESLength(ses)) {
+                u= SESIndexN(ses, &pos);
+                if (u == (unichar)'+' || u == (unichar)'-') {
+                    unsigned hh, mm;
+                    ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &hh);
+                    ok= ok && _SESExtractU4OfLen(ses, &pos, 2, &mm);
+                    if (ok) {
+                      offset= (MSTimeInterval)((hh + mm * 60) * 60);
+                      if(u == (unichar)'-')
+                          offset= -offset;
+                    }
+                }
+                else {
+                    ok= (u == (unichar)'Z');
+                }
+            }
+            ok= ok && pos == SESLength(ses);
+        }
+        if (ok) {
+            date= CCreateDateWithYMDHMS(year, month, day, hour, minute, second);
+            if (u == (unichar)'Z') { // UTC time
+                date->interval = GMTToLocal(date->interval);
+            }
+            else if (u == (unichar)'+' || u == (unichar)'-') { // Offset of UTC time
+                date->interval = GMTToLocal(date->interval) + offset;
+            }
+        }
+    }
+    return AUTORELEASE(date);
+}
+
+- (MSDate *)notValidAfter
+{
+    return [self _dateFromASN1_TIME:X509_get_notAfter(_cert)] ;
+}
+
+- (MSDate *)notValidBefore
+{
+    return [self _dateFromASN1_TIME:X509_get_notBefore(_cert)] ;
+}
+
+- (BOOL)isEqual:(id)object
+{
+    return [object isKindOfClass:[self class]] && [[self fingerPrint:MS_SHA1] isEqual:[object fingerPrint:MS_SHA1]] ;
+}
+
+@end
