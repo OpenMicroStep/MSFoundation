@@ -25,8 +25,7 @@ struct observer_s
 - (instancetype)init
 {
   if ((self= [super init])) {
-    mtx_init(&_mtx, mtx_plain);
-    _observers= CCreateArrayWithOptions(0, NO, NO);}
+    mtx_init(&_mtx, mtx_plain);}
   return self;
 }
 - (void)dealloc
@@ -48,9 +47,7 @@ struct observer_s
   o->selector= selector;
   o->name= name;
   o->sender= sender;
-  o->next= NULL;
-  if (_observers) 
-    ((struct observer_s*)_observers)->next= o;
+  o->next= _observers;
   _observers= o;
   mtx_unlock(&_mtx);
 }
@@ -77,7 +74,7 @@ struct observer_s
 
 static inline void _postNotification(struct observer_s *o, NSNotification *notification, NSString *name, id sender) {
   while (o) {
-    if (( !o->sender || o->sender == sender ) && ( !o->name && [o->name isEqualToString:name] )) {
+    if (( !o->sender || o->sender == sender ) && ( !o->name || [o->name isEqualToString:name] )) {
       [o->observer performSelector:o->selector withObject:notification];}
     o= o->next;}
 }
