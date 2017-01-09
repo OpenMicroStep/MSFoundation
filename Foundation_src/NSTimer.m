@@ -125,11 +125,10 @@ static void _nstimer_close_cb(uv_handle_t* handle)
   DESTROY(_targetOrInvocation);
   DESTROY(_userInfo);
   if(_uv_timer) {
-    [self release];
     uv_timer_stop((uv_timer_t*)_uv_timer);
     uv_close((uv_handle_t*) _uv_timer, _nstimer_close_cb);
     _uv_timer=NULL;
-  }
+    [self release];}
 }
 - (BOOL)isValid
 { return _targetOrInvocation != nil; }
