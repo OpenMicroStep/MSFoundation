@@ -79,27 +79,31 @@ id CBufferCopy(id self)
 
 void CBufferDescribe(id self, id result, int level, mutable CDictionary *ctx)
 {
+  static const char* hex= "0123456789abcdef";
+  const MSByte *start, *p, *end; BOOL space= YES; NSUInteger len;
+  CString *s= (CString*)result;
+  if (self) {
+    len= ((CBuffer*)self)->length;
+    CStringGrow(s, len*2 + (len > 0 ? (len + 1)/2 - 1 : 0) + 2);
+    CStringAppendCharacter(s, '<');
+    start= ((CBuffer*)self)->buf;
+    p= start;
+    end= p + len;
+    for(; p < end; ++p) {
+      if(space && p > start)
+        CStringAppendCharacter(s, ' ');
+      CStringAppendCharacter(s, hex[(*p >> 4) & 0xF]);
+      CStringAppendCharacter(s, hex[(*p >> 0) & 0xF]);
+      space= !space;
+    }
+    CStringAppendCharacter(s, '>');
+  }
 }
 
 const CString* CBufferRetainedDescription(id self)
 {
-  static const char* hex= "0123456789abcdef";
-  CString *s; const MSByte *start, *p, *end; BOOL space= YES; NSUInteger len;
-  if (!self) return nil;
-  len= ((CBuffer*)self)->length;
-  s= CCreateString( len*2 + (len > 0 ? (len + 1)/2 - 1 : 0) + 2);
-  CStringAppendCharacter(s, '<');
-  start= ((CBuffer*)self)->buf;
-  p= start;
-  end= p + len;
-  for(; p < end; ++p) {
-    if(space && p > start)
-      CStringAppendCharacter(s, ' ');
-    CStringAppendCharacter(s, hex[(*p     ) & 0xF]);
-    CStringAppendCharacter(s, hex[(*p >> 4) & 0xF]);
-    space= !space;
-  }
-  CStringAppendCharacter(s, '>');
+  CString *s= CCreateString(0);
+  CBufferDescribe(self, s, 0, nil);
   return s;
 }
 
