@@ -1,10 +1,5 @@
 
-@interface NSFileHandle : NSObject {
-@private
-	int _fd;
-	BOOL _closeOnDealloc;
-	uint64_t _offset;
-}
+@interface NSFileHandle : NSObject
 + (instancetype)fileHandleForReadingAtPath:(NSString *)path;
 + (instancetype)fileHandleForWritingAtPath:(NSString *)path;
 + (instancetype)fileHandleForUpdatingAtPath:(NSString *)path;

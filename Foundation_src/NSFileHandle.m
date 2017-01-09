@@ -1,6 +1,10 @@
 #import "FoundationCompatibility_Private.h"
 
-@implementation NSFileHandle
+@implementation NSFileHandle {
+	int _fd;
+	BOOL _closeOnDealloc;
+	uint64_t _offset;
+}
 
 static NSFileHandle * __fileHandleWithStandardError= nil;
 static NSFileHandle * __fileHandleWithStandardInput= nil;
@@ -57,7 +61,7 @@ static inline id _fileHandleForAtPath(int mode, NSString *path)
 
 - (NSData *)availableData
 {
-  return [self readDataOfLength:32768];
+  return [self readDataToEndOfFile];
 }
 - (NSData *)readDataOfLength:(NSUInteger)length
 {
