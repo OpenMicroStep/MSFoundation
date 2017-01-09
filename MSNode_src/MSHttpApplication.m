@@ -168,6 +168,14 @@ static void _appWithParameters(CArray *apps, NSDictionary *parameters, NSString 
   [super dealloc];
 }
 
+- (void)close
+{
+  for (NSUInteger i= 0, len= CArrayCount(_servers); i < len; i++) {
+    MSHttpsServer *server= CArrayObjectAtIndex(_servers, i);
+    [server close];
+  }
+}
+
 - (NSString *)fileSystemPath
 { return _fsPath; }
 - (NSDictionary *)parameters

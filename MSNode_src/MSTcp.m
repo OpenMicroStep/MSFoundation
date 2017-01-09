@@ -216,6 +216,9 @@ static void _server_shutdown_cb(uv_shutdown_t* req, int status)
 
 - (void)dealloc
 {
+  MSHandlerListFreeInside(&_onListening);
+  MSHandlerListFreeInside(&_onConnection);
+  MSHandlerListFreeInside(&_onClose);
   [super dealloc];
 }
 //

@@ -58,4 +58,5 @@
 */
 + (instancetype)applicationWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
 - (instancetype)initWithParameters:(NSDictionary *)parameters withPath:(NSString *)path error:(NSString **)perror;
+- (void)close;
 @end

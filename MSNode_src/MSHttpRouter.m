@@ -140,14 +140,17 @@ typedef struct {
 {
   if ((self= [self init])) {
     if (path) {
-      SES ses; NSUInteger i;
+      SES ses;
       ses= SESFromString(path);
-      _path= CCreateString(SESLength(ses));
       if (SESOK(ses)) {
-        i= 0;
-        if (SESIndexN(ses, &i) != '/')
-          CStringAppendCharacter(_path, '/');
-        CStringAppendSES(_path, ses);
+        NSUInteger s= SESStart(ses), e= SESEnd(ses);
+        unichar first= SESIndexN(ses, &s);
+        if (first != '/' || s < e) {
+          _path= CCreateString(SESLength(ses));
+          if (first != '/')
+            CStringAppendCharacter(_path, '/');
+          CStringAppendSES(_path, ses);
+        }
       }
     }
     _method= method;
@@ -218,12 +221,15 @@ typedef struct {
 
 - (BOOL)isPathPrefixOf:(NSString *)urlPath
 {
-  BOOL ret; NSUInteger i;
-  SES sesPrefix= CStringSES(_path);
-  SES sesPath= SESFromString(urlPath);
-  SES fd;
-  ret= SESOK(fd= SESCommonPrefix(sesPath, sesPrefix));
-  ret= ret && ( (i= SESEnd(fd)) == SESEnd(sesPath) || SESIndexN(sesPath, &i) == (unichar)'/' );
+  BOOL ret= CStringLength(_path) == 0;
+  if (!ret) {
+    NSUInteger i;
+    SES sesPrefix= CStringSES(_path);
+    SES sesPath= SESFromString(urlPath);
+    SES fd;
+    ret = SESOK(fd= SESCommonPrefix(sesPath, sesPrefix));
+    ret= ret && ( (i= SESEnd(fd)) == SESEnd(sesPath) || SESIndexN(sesPath, &i) == (unichar)'/' );
+  }
   //NSLog(@"%@ [%@ isPathPrefixOf:%@] -> %@", _target, _path, urlPath, ret ? @"true": @"false");
   return ret;
 }
@@ -246,7 +252,7 @@ typedef struct {
 - (NSUInteger)tryWithPath:(MSString *)path forTransaction:(MSHttpTransaction *)tr
 {
   NSUInteger ret= NSNotFound;
-  if (([tr method] & _method) > 0 && (!_path || [self isPathPrefixOf:path])) {
+  if (([tr method] & _method) > 0 && [self isPathPrefixOf:path]) {
     ret= CStringLength(_path);
   }
   //NSLog(@"%@ %d & %d [%@ tryWithPath:%@] -> %d", _target, (int)[tr method], (int)_method, _path, path, ret != NSNotFound ? (int)ret: (int)-1);
