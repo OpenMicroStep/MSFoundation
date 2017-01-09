@@ -1,24 +1,13 @@
 var path = require('path');
-
-var depsEnvironmentsMap = {
-  "darwin-i386-cocoa"           : "darwin-i386"  ,
-  "darwin-x86_64-cocoa"         : "darwin-x86_64",
-  "darwin-i386-foundation"      : "darwin-i386"  ,
-  "darwin-x86_64-foundation"    : "darwin-x86_64",
-  "darwin-univ-foundation"      : "darwin-univ"  ,
-  "linux-i386-foundation"       : "linux-i386"   ,
-  "linux-x86_64-foundation"     : "linux-x86_64" ,
-  "msvc12-i386-foundation"      : "msvc12-i386"  ,
-  "msvc12-x86_64-foundation"    : "msvc12-x86_64",
-};
-
 module.exports = {
-  name : "MicroStep", // Name of the workspace
-  environments: [
-    { name: "base",
+  name : "OpenMicroStep", // Name of the workspace
+  environments: {
+    "openmicrostep-base" : {
       compiler: "clang",
       compilerOptions: { "std":"c11" },
       directories: {
+        intermediates: ".intermediates",
+        output: "out",
         publicHeaders: "include",
         target: {
           "Library": "lib",
@@ -29,46 +18,53 @@ module.exports = {
         }
       }
     },
-    { name: "cocoa-base", cocoa: true },
 
-    { name: "darwin-i386"         , "arch": "i386"       , "sysroot": "darwin"   , components: ["base"] },
-    { name: "darwin-x86_64"       , "arch": "x86_64"     , "sysroot": "darwin"   , components: ["base"] },
-    { name: "darwin-univ"         , "arch": "i386,x86_64", "sysroot": "darwin"   , components: ["base"] },
-    { name: "linux-i386"          , "arch": "i386"       , "sysroot": "linux"    , components: ["base"] },
-    { name: "linux-x86_64"        , "arch": "x86_64"     , "sysroot": "linux"    , components: ["base"] },
-    { name: "msvc12-i386"         , "arch": "i386"       , "sysroot": "msvc"     , components: ["base"] },
-    { name: "msvc12-x86_64"       , "arch": "x86_64"     , "sysroot": "msvc"     , components: ["base"] },
-    { name: "wo451-i386"          , "arch": "i386"       , "sysroot": "wo451"    },
+    "openmicrostep-core-i386-darwin"            :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-darwin"          :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-core-univ-darwin"            :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-core-i386-linux"             :{"arch": "i386"       , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-linux"           :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-core-i386-mingw-w64"         :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-mingw-w64"       :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-core-i386-msvc12"            :{"arch": "i386"       , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
+    "openmicrostep-core-x86_64-msvc12"          :{"arch": "x86_64"     , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
+    "openmicrostep-core": [
+      "openmicrostep-core-i386-darwin"   , "openmicrostep-core-x86_64-darwin", //"openmicrostep-core-univ-darwin",
+      /*"openmicrostep-core-i386-linux"    ,*/ "openmicrostep-core-x86_64-linux",
+      "openmicrostep-core-i386-mingw-w64", "openmicrostep-core-x86_64-mingw-w64", 
+      "openmicrostep-core-i386-msvc12",  "openmicrostep-core-x86_64-msvc12"
+    ],
 
-    { name: "darwin-i386-foundation"   , components: ["darwin-i386"  ] },
-    { name: "darwin-x86_64-foundation" , components: ["darwin-x86_64"] },
-    { name: "darwin-univ-foundation"   , components: ["darwin-univ"  ] },
-    { name: "linux-i386-foundation"    , components: ["linux-i386"   ] },
-    { name: "linux-x86_64-foundation"  , components: ["linux-x86_64" ] },
-    { name: "msvc12-i386-foundation"   , components: ["msvc12-i386"  ] },
-    { name: "msvc12-x86_64-foundation" , components: ["msvc12-x86_64"] },
+    "openmicrostep-foundation-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-i386-linux"       :{"arch": "i386"       , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-linux"     :{"arch": "x86_64"     , "sysroot-api": "linux"    , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-i386-mingw-w64"   :{"arch": "i386"       , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-mingw-w64" :{"arch": "x86_64"     , "sysroot-api": "mingw-w64", "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-i386-msvc12"      :{"arch": "i386"       , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation-x86_64-msvc12"    :{"arch": "x86_64"     , "sysroot-api": "msvc"     , "parent": "openmicrostep-base"},
+    "openmicrostep-foundation": [
+      "openmicrostep-foundation-i386-darwin"   , "openmicrostep-foundation-x86_64-darwin", //"openmicrostep-foundation-univ-darwin",
+      /*"openmicrostep-foundation-i386-linux"    ,*/ "openmicrostep-foundation-x86_64-linux",
+      "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64", 
+      "openmicrostep-foundation-i386-msvc12",  "openmicrostep-foundation-x86_64-msvc12"
+    ],
 
-
-    { name: "darwin-i386-cocoa"   , components: ["darwin-i386"  , "cocoa-base"] },
-    { name: "darwin-x86_64-cocoa" , components: ["darwin-x86_64", "cocoa-base"] },
-    { name: "darwin-univ-cocoa"   , components: ["darwin-univ"  , "cocoa-base"] },
-
-    { name: "core", splitInto: [ "darwin-i386", "darwin-x86_64", "linux-i386" , "linux-x86_64" , "msvc12-i386", "msvc12-x86_64" ]},
-    { name: "foundation", splitInto: [
-      "darwin-i386-foundation", "darwin-x86_64-foundation",
-      "linux-i386-foundation" , "linux-x86_64-foundation" ,
-      "msvc12-i386-foundation", "msvc12-x86_64-foundation",
-    ]},
-    { name: "cocoa" , splitInto: [ "darwin-i386-cocoa", "darwin-x86_64-cocoa"]},
-    { name: "node"  , splitInto: [ "darwin-x86_64-foundation", "darwin-x86_64-cocoa", "linux-x86_64-foundation" ]},
-  ],
-  dependencies: [
-    { name: "libffi"   , path: "deps/libffi"   , environments: depsEnvironmentsMap },
-    { name: "libuv"    , path: "deps/libuv"    , environments: depsEnvironmentsMap },
-    { name: "msobjclib", path: "deps/msobjclib"},
-    { name: "msstdlib" , path: "deps/msstdlib" , environments: depsEnvironmentsMap },
-    { name: "openssl"  , path: "deps/openssl"  , environments: depsEnvironmentsMap },
-  ],
+    "openmicrostep-cocoa-i386-darwin"      :{"arch": "i386"       , "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
+    "openmicrostep-cocoa-x86_64-darwin"    :{"arch": "x86_64"     , "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
+    "openmicrostep-cocoa-univ-darwin"      :{"arch": "i386,x86_64", "sysroot-api": "darwin"   , "parent": "openmicrostep-base", cocoa: true},
+    "openmicrostep-cocoa": [
+      "openmicrostep-cocoa-i386-darwin", "openmicrostep-cocoa-x86_64-darwin", //"openmicrostep-cocoa-univ-darwin",
+    ],
+    "openmicrostep-node": [
+      /* TODO:"openmicrostep-foundation-i386-darwin",*/ "openmicrostep-foundation-x86_64-darwin",
+      // TODO: "openmicrostep-foundation-i386-linux", "openmicrostep-foundation-x86_64-linux",
+      // Instable: "openmicrostep-foundation-i386-mingw-w64", "openmicrostep-foundation-x86_64-mingw-w64", 
+      "openmicrostep-foundation-i386-msvc12", "openmicrostep-foundation-x86_64-msvc12",
+      /* TODO: "openmicrostep-cocoa-i386-darwin", */"openmicrostep-cocoa-x86_64-darwin",
+    ],
+  },
   files: [
     {group: "MSCore", files:[
       {group: "Headers", files:[
@@ -292,6 +288,8 @@ module.exports = {
         {file: "MSFoundation_src/MSFinishLoading.m"},
         {file: "MSFoundation_src/MSArray.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSArray.m"},
+        {file: "MSFoundation_src/MSAsync.h", tags: ["MSPublicHeaders"]},
+        {file: "MSFoundation_src/MSAsync.m"},
         {file: "MSFoundation_src/MSBuffer.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSBuffer.m"},
         {file: "MSFoundation_src/MSColor.h", tags: ["MSPublicHeaders"]},
@@ -306,8 +304,6 @@ module.exports = {
         {file: "MSFoundation_src/MSDictionary.m"},
         {file: "MSFoundation_src/MSFoundationPlatform.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSFoundationPlatform.m"},
-        {file: "MSFoundation_src/MSAsync.h", tags: ["MSPublicHeaders"]},
-        {file: "MSFoundation_src/MSAsync.m"},
         {file: "MSFoundation_src/MSString.h", tags: ["MSPublicHeaders"]},
         {file: "MSFoundation_src/MSString.m"},
         {file: "MSFoundation_src/MSStringBooleanAdditions_Private.i"},
@@ -562,6 +558,8 @@ module.exports = {
         {file:"MSNode_src/_SymmetricRSACipher.m"},
         {file:"MSNode_src/MSAsyncTask.h", tags: ["MSPublicHeaders"]},
         {file:"MSNode_src/MSAsyncTask.m"},
+        {file:"MSNode_src/MSCertificate.h", tags: ["MSPublicHeaders"]},
+        {file:"MSNode_src/MSCertificate.m"},
         {file:"MSNode_src/MSCipher.h", tags: ["MSPublicHeaders"]},
         {file:"MSNode_src/MSCipher.m"},
         {file:"MSNode_src/MSDigest.h", tags: ["MSPublicHeaders"]},
@@ -675,39 +673,38 @@ module.exports = {
         {file:"MHRepositoryAdministrator_src/MHRepositoryAdministrator-Info.plist"},
         {file:"MHRepositoryAdministrator_src/MHRepositoryAdministrator.h"},
         {file:"MHRepositoryAdministrator_src/MHRepositoryAdministrator.m"},
+        {file:"MHRepositoryAdministrator_src/MHRepositoryAdministratorSessions.m"},
+        {file:"MHRepositoryAdministrator_src/MHRepositoryAdministratorSessions.h"},
         {file:"MHRepositoryAdministrator_src/MHRepositoryAdministratorKit.h"},
         {file:"MHRepositoryAdministrator_src/NetRepositoryTreeObject.h"},
         {file:"MHRepositoryAdministrator_src/NetRepositoryTreeObject.m"},
-      ]},
+      ]}
     ]},
   ],
   targets : [
     {
       "name" : "MSCore",
       "type" : "Library",
-      "environments" : ["core", "wo451-i386"],
+      "environments" : ["openmicrostep-core"],
       "files": ["MSCore.Headers", "MSCore.Abstraction", "MSCore.Sources", "MSCore.Object", "MSCore.MAPM"],
       "publicHeaders": ["?MSCorePublicHeader", "MSCore?MSPublicHeaders"],
       "defines": ["MSCORE_STANDALONE", "MSSTD_EXPORT"],
       "dependencies" : [
-        {workspace: 'msstdlib', target:'MSStd'} // The MSSTd lib is embedded inside MSCore
+        {workspace: 'deps/msstdlib', target:'MSStd'} // The MSSTd lib is embedded inside MSCore
       ],
       "configure": function(target) {
         //target.addCompileFlags(['-Wall', '-Werror']);
         target.addIncludeDirectory('deps/msstdlib');
         target.addPublicHeaders(target.getDependency('MSStd').publicHeaders);
-        if(target.platform === "linux") {
-            target.addLinkFlags(['-Wl,--version-script,' + target.resolvePath('MSCore_src/MSCVersionScript.txt')]);
-        }
       },
-      "exports": {
+      exports: {
         "defines":["MSCORE_STANDALONE"]
       }
     },
     {
       "name" : "MSCoreTests",
       "type" : "Library",
-      "environments" : ["core", "wo451-i386"],
+      "environments" : ["openmicrostep-core"],
       "dependencies" : ["MSCore", "MSTests"],
       "files": ["MSCore.Tests", "MSCore.Test", "Test libs?MSCoreTest"],
       "includeDirectoriesOfFiles": ["MSCore", "MSTests"],
@@ -716,12 +713,11 @@ module.exports = {
     {
       "name" : "MSTests",
       "type" : "Executable",
-      "environments" : ["core", "foundation", "cocoa"],
+      "environments" : ["openmicrostep-core"],
       "dependencies" : ["MSCore"],
       "files": ["MSTests"],
       "publicHeaders": ["MSTests?MSPublicHeaders"],
       "configure": function(target) {
-        //target.addCompileFlags(['-Wall', '-Werror']);
         if(target.platform === "linux") {
           target.addLibraries(['-ldl', '-lpthread', '-lrt']);
         }
@@ -730,37 +726,29 @@ module.exports = {
     {
       "name" : "MSFoundation",
       "type" : "Framework",
-      "environments" : ["foundation", "cocoa"],
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies" : [
-        {workspace: 'msstdlib' , target:'MSStd'},
-        {workspace: 'msobjclib', target:'MSObjc', condition:function(target) { return !target.env.cocoa; }},
-        {workspace: 'libuv'    , target:'libuv', condition:function(target) { return !target.env.cocoa; }},
-        {workspace: 'libffi'   , target:'libffi_static', condition:function(target) { return !target.env.cocoa; }}
+        {workspace: 'deps/msstdlib', target:'MSStd'},
+        {workspace: 'deps/msobjclib', target:'MSObjc', condition:function(target) { return !target.env.cocoa; }},
+        {workspace: 'deps/libuv', target:'libuv', condition:function(target) { return !target.env.cocoa; }},
+        {workspace: 'deps/libffi', target:'libffi_static', condition:function(target) { return !target.env.cocoa; }}
       ],
       "files" : [
         "MSCore.Abstraction", "MSCore.Sources", "MSCore.MAPM",
         "MSFoundation.Headers", "MSFoundation.Sources", "MSFoundation.Basics",
+
       ],
       "publicHeaders": ["?MSFoundationPublicHeader", "MSCore?MSPublicHeaders", "MSFoundation?MSPublicHeaders"],
       "includeDirectories": ["deps/libuv/include", "deps/msstdlib", "deps/libffi/include", "deps/libffi/src/x86"],
-      "defines": [
-        {define:"MSFOUNDATION_FORCOCOA=1", condition:function(target) { return target.env.cocoa; } },
-        {define:"MSSTD_EXPORT=1"         , condition:function(target) { return !target.env.cocoa; } }
-      ],
       "configure": function(target) {
         if(target.env.cocoa) {
           target.addFrameworks(["Foundation"]);
+          target.addDefines(["MSFOUNDATION_FORCOCOA=1"]);
         }
         else {
           target.addWorkspaceFiles(["Foundation.Headers", "Foundation.Sources"]);
           target.addWorkspacePublicHeaders(["Foundation?MSPublicHeaders"]);
-          if(target.platform === "linux") {
-            target.addLinkFlags(['-Wl,--version-script,' + target.resolvePath('MSCore_src/MSFVersionScript.txt')]);
-            //target.addLibraries(['-lffi_pic']);
-          }
-          else {
-            //target.addLibraries(['-lffi']);
-          }
+          target.addDefines(["MSSTD_EXPORT=1"]);
         }
         target.addPublicHeaders(target.getDependency('MSStd').publicHeaders);
       },
@@ -775,25 +763,22 @@ module.exports = {
     },
     {
       "name": "MSFoundationTests",
-      "type": "Bundle",
-      "environments": ["foundation", "cocoa"],
+      "type": "Library",
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies": ["MSFoundation"],
       "files": ["MSCore.Tests", "Foundation.Tests", "MSFoundation.Tests", "Test libs?MSFoundationTest"],
       "includeDirectoriesOfFiles": ["MSCore", "MSTests", "MSFoundation", "Foundation"],
       "includeDirectories": ["deps/msstdlib"],
-      "bundleInfo": {
-        "CFBundleIdentifier": "org.microstep.tests"
-      },
       "configure": function(target) {
       }
     },
     {
       "name" : "MSNet",
       "type" : "Framework",
-      "environments" : ["foundation", "cocoa"],
+      "environments" : ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies" : [
         "MSFoundation",
-        {workspace: 'openssl', target:'openssl'}
+        {workspace: 'deps/openssl', target:'openssl'}
       ],
       "files" : ["MSNet"],
       "publicHeaders": ["MSNet?MSPublicHeaders"],
@@ -807,7 +792,7 @@ module.exports = {
     {
       "name" : "MASHServer",
       "type" : "Executable",
-      "environments" : ["node"],
+      "environments" : ["openmicrostep-node"],
       "dependencies" : ["MSFoundation", "MSNode"],
       "files" : ["MSServer"],
       "configure": function(target) {
@@ -817,7 +802,7 @@ module.exports = {
     {
       "name": "MSDatabase",
       "type": "Framework",
-      "environments": ["foundation", "cocoa"],
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies": ["MSFoundation"],
       "files": ["MSDatabase.Sources"],
       "publicHeaders": ["MSDatabase?MSPublicHeaders"],
@@ -828,7 +813,7 @@ module.exports = {
     {
       "name": "MSDatabaseTests",
       "type": "Bundle",
-      "environments": ["foundation", "cocoa"],
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies": ["MSFoundation", "MSDatabase"],
       "files": ["MSDatabase.Tests"],
       "includeDirectoriesOfFiles": ["MSTests?MSPublicHeaders"],
@@ -843,11 +828,11 @@ module.exports = {
     {
       "name": "MSSQLCipherAdaptor",
       "type": "Bundle",
-      "environments": ["foundation", "cocoa"],
+      "environments": ["openmicrostep-foundation", "openmicrostep-cocoa"],
       "dependencies": [
         "MSFoundation",
         "MSDatabase",
-        {workspace: 'openssl', target:'openssl'}
+        {workspace: 'deps/openssl', target:'openssl'}
       ],
       "bundleInfo": {
         "CFBundleIdentifier": "org.microstep.dbadaptor.sqlcipher",
@@ -927,11 +912,11 @@ module.exports = {
     {
       "name": "MSNode",
       "type": "Framework",
-      "environments": ["node"],
+      "environments": ["openmicrostep-node"],
       "dependencies": [
         "MSFoundation",
-        {workspace: 'openssl', target:'openssl'},
-        {workspace: 'libuv'  , target:'libuv', condition:function(target) { return target.env.cocoa; }}
+        {workspace: 'deps/openssl', target:'openssl'},
+        {workspace: 'deps/libuv', target:'libuv', condition:function(target) { return target.env.cocoa; }}
       ],
       "files": ["MSNode.Sources"],
       "publicHeaders": ["MSNode?MSPublicHeaders"],
@@ -939,39 +924,25 @@ module.exports = {
       "configure": function(target) {
         target.addCompileFlags(['-Wall', '-Werror']);
         if (target.sysroot.api === "msvc") {
-            var dir = 'deps/node-build/' + target.arch + '-msvc12xp/' + (target.variant === 'debug' ? 'debug' : 'release') + '/';
+            var dir = 'deps/node-build/' + target.arch + '-msvc12/' + (target.variant === 'debug' ? 'debug' : 'release') + '/';
             target.addLibraries([target.resolvePath(dir + 'node.lib')]);
         }
         else if (target.sysroot.api === "darwin") {
             target.addLibraries([target.resolvePath('deps/node-build/' + target.arch + '-darwin/' + (target.variant === 'debug' ? 'debug' : 'release') + '/libnode.dylib')]);
-        }
-        else if (target.sysroot.api === "linux") {
-            target.addLibraries([target.resolvePath('deps/node-build/' + target.arch + '-linux/' + (target.variant === 'debug' ? 'debug' : 'release') + '/libnode.so')]);
         }
         else {
             throw "Unsupported env " + target.env;
         }
         if (target.sysroot.api === "msvc")
             target.addCompileFlags(['-fno-exceptions']);
-        else if (target.sysroot.api === "linux") {
-            target.addLibraries(['-lstdc++']);
-            target.addLinkFlags(['-Wl,-rpath,$ORIGIN/../lib']);
-        }
         else
             target.addLibraries(['-lstdc++', '-lc++']);
-      },
-      "exports" : {
-        configure: function (other_target, self_target) {
-            if (other_target.sysroot.api === "linux") {
-                other_target.addLibraries([self_target.resolvePath('deps/node-build/' + self_target.arch + '-linux/' + (self_target.variant === 'debug' ? 'debug' : 'release') + '/libnode.so')]);
-            }
-        }
-      },
+      }
     },
     {
       "name": "MSNodeTests",
       "type": "Library",
-      "environments": ["node"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSNode", "MSFoundation"],
       "files": ["MSNode.Tests"],
       "includeDirectoriesOfFiles": ["MSTests"],
@@ -979,7 +950,7 @@ module.exports = {
     {
       "name": "MHMessenger",
       "type": "Framework",
-      "environments": ["node"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHMessenger.Framework"],
       "publicHeaders": ["MHMessenger.Framework?MSPublicHeaders"],
@@ -996,7 +967,7 @@ module.exports = {
         "CFBundleIdentifier": "org.microstep.net.messenger",
         "NSPrincipalClass": "MHMessengerApplication"
       },
-      "environments": ["node"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MHMessenger", "MHRepository", "MSNode"],
       "files": ["MHMessenger.WebApp"],
       "configure": function(target) {
@@ -1007,7 +978,7 @@ module.exports = {
     {
       "name": "MHRepository",
       "type": "Framework",
-      "environments": ["node"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode"],
       "files": ["MHRepository.Framework"],
       "publicHeaders": ["MHRepository.Framework?MSPublicHeaders"],
@@ -1019,7 +990,7 @@ module.exports = {
     {
       "name": "MASHRepositoryServer",
       "type": "Executable",
-      "environments": ["node"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHRepository.Server"],
       "configure": function(target) {
@@ -1033,7 +1004,7 @@ module.exports = {
         "CFBundleIdentifier": "org.microstep.net.repository",
         "NSPrincipalClass": "MHRepositoryAdministrator"
       },
-      "environments": ["node"],
+      "environments": ["openmicrostep-node"],
       "dependencies": ["MSFoundation", "MSDatabase", "MSNode", "MHRepository"],
       "files": ["MHRepository.WebApp"],
       "configure": function(target) {
@@ -1041,20 +1012,6 @@ module.exports = {
         target.addBundleResources([{from:"MHRepositoryAdministrator_src/Resources", to:""}]);
         target.addBundleResources([{from:"MHRepositoryAdministrator_src/Resources/login.html", to:"login.html"}]);
       }
-    }
-  ],
-  runs: [
-    {
-      "name": "MSCoreTests",
-      "dependencies": ["MSCoreTests", "MSTests"],
-      "path": { target: "MSTests" },
-      "arguments": [ { target: "MSCoreTests" } ],
     },
-    {
-      "name": "MSFoundationTests",
-      "dependencies": ["MSFoundationTests", "MSTests"],
-      "path": { target: "MSTests" },
-      "arguments": [ { target: "MSFoundationTests" } ],
-    }
   ]
 };
