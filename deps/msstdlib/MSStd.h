@@ -289,6 +289,8 @@ MSStdExtern void *ms_shared_object_symbol(ms_shared_object_t handle, const char 
 MSStdExtern const char* ms_shared_object_name(void *addr);
 MSStdExtern void ms_shared_object_iterate(void (*callback)(const char *name, void *data), void *data);
 
+MSStdExtern void ms_backtrace_iterate(void (*callback)(const char *symbol, void*addr, void *data), void *data);
+
 MSStdExtern void ms_generate_uuid(char dst[37]);
 
 MSStdExtern int64_t ms_gmt_now();

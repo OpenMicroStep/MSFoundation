@@ -30,6 +30,9 @@ module.exports = {
     {file: "MSStdThreads.c", tags:["CompileC"]},
     {file: "MSStdThreads-unix.c"},
     {file: "MSStdThreads-win32.c"},
+    {file: "MSStdBacktrace.c", tags:["CompileC"]},
+    {file: "MSStdBacktrace-unix.c"},
+    {file: "MSStdBacktrace-win32.c"},
     {file: "mman.c", tags:["CompileC"]},
     {file: "mman.h", tags:["Header"]},
   ],
@@ -52,7 +55,7 @@ module.exports = {
         if (target.platform === "linux")
           target.addLibraries(['-lm', '-luuid', '-ldl']);
         else if (target.platform === "win32")
-          target.addLibraries(['-lRpcrt4', '-lPsapi']);
+          target.addLibraries(['-lRpcrt4', '-lPsapi', '-lDbghelp']);
       },
       "exports" : {
         configure: function (other_target, target) {
@@ -60,7 +63,7 @@ module.exports = {
             other_target.addLibraries(['-lm', '-luuid', '-ldl']);
           }
           else if (other_target.platform === "win32") {
-            other_target.addLibraries(['-lRpcrt4', '-lPsapi']);
+            other_target.addLibraries(['-lRpcrt4', '-lPsapi', '-lDbghelp']);
           }
         }
       },
