@@ -168,6 +168,10 @@ static inline NSUInteger       SESEnd      (SES ses) { return ses.start + ses.le
 static inline void SESPSetStart (SES *pses, NSUInteger start ) { pses->length+= pses->start - start; pses->start= start; }
 static inline void SESPSetLength(SES *pses, NSUInteger length) { pses->length= length; }
 static inline void SESPSetEnd   (SES *pses, NSUInteger end   ) { pses->length= end - pses->start; }
+static inline unichar SESIndex(SES ses, NSUInteger pos) {
+  //assert(pos >= SESStart(ses));
+  //assert(pos < SESEnd(ses));
+  return ses.chai(ses.source,&pos);}
 static inline unichar SESIndexN(SES ses, NSUInteger *pos) {
   //assert(*pos >= SESStart(ses));
   //assert(*pos < SESEnd(ses));
