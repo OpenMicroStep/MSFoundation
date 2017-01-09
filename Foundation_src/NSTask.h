@@ -27,6 +27,7 @@ FoundationExtern NSString *NSTaskDidTerminateNotification;
 
 - (int)processIdentifier;
 
+- (void)terminate;
 - (void)interrupt;
 
 - (void)waitUntilExit;

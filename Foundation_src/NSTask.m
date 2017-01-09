@@ -58,9 +58,9 @@ NSString *NSTaskDidTerminateNotification= @"NSTaskDidTerminateNotification";
 
 static void exit_cb(uv_process_t* process, int64_t exit_status, int term_signal)
 {
-  NSTask *self= CArrayObjectAtIndex((CArray*)process->data, 0);
+  NSTask *self= (NSTask *)process->data;
   [self _exitedWithStatus:exit_status signal:term_signal];
-  RELEASE(process->data);
+  RELEASE(self);
   uv_close((uv_handle_t*)process, close_cb);
 }
 void close_cb(uv_handle_t *handle) {
@@ -68,22 +68,15 @@ void close_cb(uv_handle_t *handle) {
 }
 
 - (void)_exitedWithStatus:(int64_t)exit_status signal:(int)term_signal
-{
+{   
   _exitStatus= (int)exit_status;
   _uv_process= NULL;
   [[NSNotificationCenter defaultCenter] postNotificationName:NSTaskDidTerminateNotification object:self];
-  [[NSRunLoop currentRunLoop] _uv_stop];
 }
 
-static const * retainedUTF8String(CArray *retainlist, NSString *str)
-{
-  id d= [str dataUsingEncoding:NSUTF8StringEncoding];
-  if (d) CArrayAddObject(retainlist, d);
-  return [d cString];
-}
 - (void)launch
 {
-  CArray *retainlist; id d;
+  id d; int err;
   NSUInteger idx;
   NSUInteger envCount= [_env count];
   NSUInteger argsCount= [_arguments count];
@@ -91,35 +84,46 @@ static const * retainedUTF8String(CArray *retainlist, NSString *str)
   char *args[argsCount + 2];
   uv_process_t* process;
   uv_process_options_t options;
+  uv_stdio_container_t child_stdio[3];
   memset(&options, 0, sizeof(options));
-  retainlist= CCreateArray(0);
-  CArrayAddObject(retainlist, self);
-  args[0]= retainedUTF8String(retainlist, _launchPath);
+  memset(&child_stdio[0], 0, sizeof(uv_stdio_container_t));
+  memset(&child_stdio[1], 0, sizeof(uv_stdio_container_t));
+  memset(&child_stdio[2], 0, sizeof(uv_stdio_container_t));
+  child_stdio[0].flags = UV_INHERIT_FD;
+  child_stdio[0].data.fd = 0;
+  child_stdio[1].flags = UV_INHERIT_FD;
+  child_stdio[1].data.fd = 1;
+  child_stdio[2].flags = UV_INHERIT_FD;
+  child_stdio[2].data.fd = 2;
+  args[0]= (char *)[_launchPath UTF8String];
   for(idx= 0; idx < argsCount; ++idx) {
-    args[idx + 1]= retainedUTF8String(retainlist, [_arguments objectAtIndex:idx]);
+    args[idx + 1]= (char *)[[_arguments objectAtIndex:idx] UTF8String];
   }
 
   if(_env) {
     NSEnumerator *e; id o, k;
     for(idx= 0, e= [_env keyEnumerator]; (k= [e nextObject]) && (o= [_env objectForKey:k]);) {
-      env[idx++]= retainedUTF8String(retainlist, FMT(@"%@=%@", k, o));
+      env[idx++]= (char *)[FMT(@"%@=%@", k, o) UTF8String];
     }
   }
   args[argsCount + 1]= NULL;
   env[envCount]= NULL;
   options.exit_cb= exit_cb;
   options.file= args[0];
-  options.env= env;
+  options.env= envCount ? env : NULL;
   options.args= args;
-  options.cwd= retainedUTF8String(retainlist, _currentDirectoryPath);
+  options.cwd= [_currentDirectoryPath UTF8String];
+  options.stdio_count = 3;
+  options.stdio = child_stdio;
   process= MSMalloc(sizeof(uv_process_t) + sizeof(id), "-[NSTask launch] -> -[NSTask dealloc]");
-  process->data= retainlist;
+  process->data= [self retain];
   _uv_process= process;
-  if (uv_spawn([[NSRunLoop currentRunLoop] _uv_loop], process, &options) != 0) {
+  err= uv_spawn([[NSRunLoop currentRunLoop] _uv_loop], process, &options);
+  if (err) {
     RELEASE(process->data);
     MSFree(process, "-[NSTask launch] -> -[NSTask dealloc]");
     _uv_process= NULL;
-    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"unable to start the task") ;
+    MSRaiseFrom(NSInvalidArgumentException, self, _cmd, @"unable to start the task: %s", uv_strerror(err)) ;
   }
 }
 
