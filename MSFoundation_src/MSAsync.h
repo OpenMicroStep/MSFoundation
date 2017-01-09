@@ -33,7 +33,7 @@ typedef BOOL (*MSAsyncCondition)(MSAsync *flux);
 @end
 
 @interface MSAsync : MSAsyncElement
-+ (instancetype)runWithContext:(mutable MSDictionary *)context elements:(id)elements;
++ (instancetype)runWithContext:(NSDictionary *)context elements:(id)elements;
 
 + (instancetype)async;
 - (instancetype)init;

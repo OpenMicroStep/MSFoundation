@@ -401,7 +401,9 @@ static void _callContinue(MSAsync *flux) {
         MSAsyncElement *element= RETAIN(CArrayLastObject(_elements));
         CArrayRemoveLastObject(_elements);
         if (CArrayCount(_elements) == 0) _state= MSAsyncFinishing;
+        RETAIN(self);
         [element action:self];
+        RELEASE(self);
         RELEASE(element);}
       else if (_state != MSAsyncAborted || _state != MSAsyncTerminated) {
         if (_state != MSAsyncAborted)
