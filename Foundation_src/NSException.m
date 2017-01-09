@@ -48,6 +48,7 @@ MS_DECLARE_THREAD_LOCAL(__topExceptionFrame, NULL)
 #ifdef WIN32
   NSExceptionFrame *top= tss_get(__topExceptionFrame);
   if (top) {
+    tss_set(__topExceptionFrame, top->parent);
     top->exception= self;
     longjmp(top->state, 1);}
   else {
