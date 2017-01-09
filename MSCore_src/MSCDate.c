@@ -189,6 +189,8 @@ id CDateCopy(id self)
 
 void CDateDescribe(id self, id result, int level, mutable CDictionary *ctx)
 {
+  CString *s= (CString*)result;
+  CStringAppendCDateDescription(s, (CDate*)self);
 }
 
 const CString *CDateRetainedDescription(id self)
