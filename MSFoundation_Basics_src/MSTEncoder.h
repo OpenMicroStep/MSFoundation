@@ -119,7 +119,6 @@
 - (void)encodeDouble:(double)d withTokenType:(BOOL)token ;
 
 - (void)encodeArray:(NSArray *)anArray ;
-- (void)encodeDictionary:(NSDictionary *)aDictionary isSnapshot:(BOOL)isSnapshot ;
 - (void)encodeDictionary:(NSDictionary *)aDictionary ;
 
 - (void)encodeObject:(id)anObject ;
@@ -129,9 +128,8 @@
 @end
 
 @interface NSObject (MSTEncoding)
-- (MSByte)tokenType ; //must be overriden by subclasse to be encoded if tokenTypeWithReference: method is not overriden
-- (MSByte)tokenTypeWithReference:(BOOL)isReferenced ; //must be overriden by subclasse to be encoded if tokenType method is not overriden
-- (NSDictionary *)MSTESnapshot ; //must be overriden by subclasse to be encoded as a dictionary
+- (MSByte)MSTEToken ; // Defaults to MSTE_TOKEN_TYPE_USER_CLASS
+- (NSDictionary *)MSTESnapshot ; // Defaults to nil
+- (NSString *)MSTEIdentifier ; // Defaults to NSStringFromClass([self class])
 - (MSBuffer *)MSTEncodedBuffer ; //returns a buffer containing the object encoded with MSTE protocol
-- (MSInt)singleEncodingCode:(MSTEncoder *)encoder ; // defaults returns MSTE_TOKEN_MUST_ENCODE
 @end
