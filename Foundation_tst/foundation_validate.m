@@ -13,7 +13,6 @@ testdef_t FoundationTests[]= {
   {"NSDate"           ,foundation_date      ,NULL},
   {"NSDictionary"     ,foundation_dictionary,NULL},
   {"NSString"         ,foundation_string    ,NULL},
-  {"NSScanner"        ,foundation_scanner   ,NULL},
   {"NSNumber"         ,foundation_number    ,NULL},
   {"NSValue"          ,foundation_value     ,NULL},
   {NULL}};
