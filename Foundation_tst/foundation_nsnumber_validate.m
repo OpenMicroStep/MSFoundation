@@ -133,9 +133,22 @@ static void number_hash(test_t *test)
   TASSERT_EQUALS_LLU(test, [[NSNumber numberWithUnsignedLong:5] hash], [[NSNumber numberWithChar:5] hash]);
 }
 
+static void number_description(test_t *test)
+{
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithInt:1] description], @"1");
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithLongLong:1] description],  @"1");
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithLongLong:2] description], @"2");
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithBool:YES] description],  @"YES");
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithBool: NO] description],  @"NO");
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithUnsignedLongLong:10] description],  @"10");
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithUnsignedLong:5] description], @"5");
+  TASSERT_EQUALS_OBJ(test, [[NSNumber numberWithDouble:10.4] description], @"10.4");
+}
+
 testdef_t foundation_number[]= {
   {"int"     ,NULL,number_int     },
   {"double"  ,NULL,number_double  },
   {"compare" ,NULL,number_compare },
   {"hash"    ,NULL,number_hash    },
+  {"description",NULL,number_description},
   {NULL}};
