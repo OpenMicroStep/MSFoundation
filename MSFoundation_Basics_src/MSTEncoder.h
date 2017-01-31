@@ -45,8 +45,6 @@
 
 #define MSTE_CURRENT_VERSION                "0102"
 
-#define MSTE_TOKEN_MUST_ENCODE              -1
-
 #define MSTE_TOKEN_TYPE_NULL                0
 #define MSTE_TOKEN_TYPE_TRUE                1
 #define MSTE_TOKEN_TYPE_FALSE               2

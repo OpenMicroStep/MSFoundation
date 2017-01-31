@@ -757,7 +757,7 @@ static NSNumber *__aBool = nil ;
 @end
 
 @implementation NSData (MSTEncoding)
-- (MSByte)MSTEToken { return [self length] ? MSTE_TOKEN_MUST_ENCODE : MSTE_TOKEN_TYPE_EMPTY_DATA ;  }
+- (MSByte)MSTEToken { return [self length] ? MSTE_TOKEN_TYPE_BASE64_DATA : MSTE_TOKEN_TYPE_EMPTY_DATA ;  }
 - (void)encodeWithMSTEncoder:(MSTEncoder *)encoder { if ([self length]) [encoder encodeBytes:(void *)[self bytes] length:[self length] withTokenType:NO] ; }
 @end
 
